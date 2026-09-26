@@ -42,6 +42,9 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
         HashSet<string> edgesToRemove = new(StringComparer.Ordinal);
         List<DiagramEdge> edgesToAdd = [];
         HashSet<string> addedEdgeKeys = new(StringComparer.Ordinal);
+        HashSet<string> visibleDiagramNodeIds = ast.Nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
 
         foreach (InventoryDiagramDataFlowTraversalHopPath path in paths)
         {
@@ -55,8 +58,6 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             {
                 continue;
             }
-
-            edgesToRemove.Add(BuildEdgeKey(sourceDiagramNodeId, targetDiagramNodeId));
 
             if (path.HasUnresolvedGap)
             {
@@ -75,6 +76,14 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                     }
                 }
             }
+
+            if (!ArePathNodesVisible(path, graphToDiagramNodeId, visibleDiagramNodeIds))
+            {
+                // Keep the direct data-flow edge when a traversal hop was filtered from the canvas.
+                continue;
+            }
+
+            edgesToRemove.Add(BuildEdgeKey(sourceDiagramNodeId, targetDiagramNodeId));
 
             if (path.HasUnresolvedGap && !path.ReachesTarget)
             {
@@ -113,6 +122,23 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
         }
 
         ApplyHopEvidence(ast, graph, graphNodesById);
+    }
+
+    private static bool ArePathNodesVisible(
+        InventoryDiagramDataFlowTraversalHopPath path,
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        IReadOnlySet<string> visibleDiagramNodeIds)
+    {
+        foreach (InventoryDiagramDataFlowTraversalHopLink link in path.OrderedLinks)
+        {
+            if (!graphToDiagramNodeId.TryGetValue(link.ToNodeId, out string? diagramNodeId)
+                || !visibleDiagramNodeIds.Contains(diagramNodeId))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static void AddTraversalEdges(

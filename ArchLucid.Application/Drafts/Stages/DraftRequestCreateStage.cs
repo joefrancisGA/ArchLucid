@@ -76,16 +76,21 @@ public sealed class DraftRequestCreateStage(
             displayName,
             cancellationToken);
 
-        created = await _draftRepository
+        // Linking the draft to its architecture identity is a persisted mutation that advances UpdatedUtc.
+        // Return that refreshed concurrency token so the caller's immediate PATCH is not falsely rejected as stale.
+        DraftRequestResponse? linkedDraft = await _draftRepository
             .GetAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 created.DraftId,
                 cancellationToken)
-            .ConfigureAwait(false)
-            ?? throw new InvalidOperationException($"Draft '{created.DraftId:D}' was not found after creation.");
+            .ConfigureAwait(false);
 
+        if (linkedDraft is not null)
+            return linkedDraft;
+
+        // Keep the create response useful for repository implementations that do not expose an immediate read-after-write.
         created.ArchitectureId = identity.ArchitectureId;
 
         return created;

@@ -52,7 +52,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         string targetNodeId,
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> traversalLinks,
         IReadOnlyDictionary<string, GraphNode> graphNodesById,
-        GraphSnapshot? graph = null)
+        IReadOnlyList<GraphEdge>? graphEdges = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceNodeId);
         ArgumentException.ThrowIfNullOrWhiteSpace(targetNodeId);
@@ -127,7 +127,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             targetNodeId,
             adjacency,
             graphNodesById,
-            graph,
+            graphEdges,
             out List<string> partialPathNodeIds,
             out List<InventoryDiagramDataFlowTraversalHopLink> partialPathLinks,
             out string gapDescription);
@@ -179,7 +179,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                 continue;
             }
 
-            paths.Add(ProjectPath(edge.FromNodeId, edge.ToNodeId, traversalLinks, graphNodesById, graph));
+            paths.Add(ProjectPath(edge.FromNodeId, edge.ToNodeId, traversalLinks, graphNodesById, graph.Edges));
         }
 
         return paths;
@@ -781,7 +781,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         string targetNodeId,
         IReadOnlyDictionary<string, List<InventoryDiagramDataFlowTraversalHopLink>> adjacency,
         IReadOnlyDictionary<string, GraphNode> graphNodesById,
-        GraphSnapshot? graph,
+        IReadOnlyList<GraphEdge>? graphEdges,
         out List<string> hopNodeIds,
         out List<InventoryDiagramDataFlowTraversalHopLink> pathLinks,
         out string gapDescription)
@@ -795,49 +795,27 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             return false;
         }
 
+        Queue<(string NodeId, List<string> Nodes, List<InventoryDiagramDataFlowTraversalHopLink> Links)> queue = new();
+        HashSet<string> visited = new(StringComparer.Ordinal) { sourceNodeId };
+        queue.Enqueue((sourceNodeId, [], []));
+
         List<string> bestHopNodeIds = [];
         List<InventoryDiagramDataFlowTraversalHopLink> bestPathLinks = [];
 
-        void ConsiderCandidate(
-            IReadOnlyList<string> candidateHopNodeIds,
-            IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> candidateLinks)
+        while (queue.Count > 0)
         {
-            if (candidateLinks.Count == 0)
+            (string currentNodeId, List<string> currentNodes, List<InventoryDiagramDataFlowTraversalHopLink> currentLinks) = queue.Dequeue();
+
+            if (currentNodes.Count > bestHopNodeIds.Count
+                && HasDirectContinuationToTarget(currentNodeId, targetNodeId, graphEdges))
             {
-                return;
+                bestHopNodeIds = currentNodes;
+                bestPathLinks = currentLinks;
             }
-
-            if (!IsTargetConstrainedPartialPath(
-                    candidateLinks,
-                    targetNodeId,
-                    adjacency,
-                    graphNodesById,
-                    graph))
-            {
-                return;
-            }
-
-            if (candidateHopNodeIds.Count < bestHopNodeIds.Count
-                || (candidateHopNodeIds.Count == bestHopNodeIds.Count && candidateLinks.Count <= bestPathLinks.Count))
-            {
-                return;
-            }
-
-            bestHopNodeIds = candidateHopNodeIds.ToList();
-            bestPathLinks = candidateLinks.ToList();
-        }
-
-        void Walk(
-            string currentNodeId,
-            HashSet<string> visited,
-            List<string> currentHopNodeIds,
-            List<InventoryDiagramDataFlowTraversalHopLink> currentLinks)
-        {
-            ConsiderCandidate(currentHopNodeIds, currentLinks);
 
             if (!adjacency.TryGetValue(currentNodeId, out List<InventoryDiagramDataFlowTraversalHopLink>? outgoing))
             {
-                return;
+                continue;
             }
 
             foreach (InventoryDiagramDataFlowTraversalHopLink link in outgoing)
@@ -847,41 +825,19 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                     continue;
                 }
 
-                if (!string.Equals(link.ToNodeId, targetNodeId, StringComparison.Ordinal)
-                    && graphNodesById.TryGetValue(link.ToNodeId, out GraphNode? nextNode)
-                    && !InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(nextNode))
-                {
-                    visited.Remove(link.ToNodeId);
-                    continue;
-                }
-
-                if (PathCitesNonHopBackendOutsideTarget(
-                        currentLinks,
-                        link,
-                        targetNodeId,
-                        graph,
-                        graphNodesById))
-                {
-                    visited.Remove(link.ToNodeId);
-                    continue;
-                }
-
-                List<string> nextHopNodeIds = currentHopNodeIds.ToList();
+                List<string> nextNodes = currentNodes.ToList();
 
                 if (graphNodesById.TryGetValue(link.ToNodeId, out GraphNode? hopNode)
                     && InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(hopNode))
                 {
-                    nextHopNodeIds.Add(link.ToNodeId);
+                    nextNodes.Add(link.ToNodeId);
                 }
 
                 List<InventoryDiagramDataFlowTraversalHopLink> nextLinks = currentLinks.ToList();
                 nextLinks.Add(link);
-                Walk(link.ToNodeId, visited, nextHopNodeIds, nextLinks);
-                visited.Remove(link.ToNodeId);
+                queue.Enqueue((link.ToNodeId, nextNodes, nextLinks));
             }
         }
-
-        Walk(sourceNodeId, new HashSet<string>(StringComparer.Ordinal) { sourceNodeId }, [], []);
 
         if (bestHopNodeIds.Count == 0)
         {
@@ -902,113 +858,19 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         return true;
     }
 
-    private static bool IsTargetConstrainedPartialPath(
-        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> pathLinks,
+    private static bool HasDirectContinuationToTarget(
+        string nodeId,
         string targetNodeId,
-        IReadOnlyDictionary<string, List<InventoryDiagramDataFlowTraversalHopLink>> adjacency,
-        IReadOnlyDictionary<string, GraphNode> graphNodesById,
-        GraphSnapshot? graph)
+        IReadOnlyList<GraphEdge>? graphEdges)
     {
-        if (pathLinks.Count == 0)
+        if (graphEdges is null)
         {
             return false;
         }
 
-        foreach (InventoryDiagramDataFlowTraversalHopLink link in pathLinks)
-        {
-            if (!graphNodesById.TryGetValue(link.ToNodeId, out GraphNode? toNode)
-                || !InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(toNode))
-            {
-                return false;
-            }
-        }
-
-        if (PathCitesNonHopBackendOutsideTarget(pathLinks, null, targetNodeId, graph, graphNodesById))
-        {
-            return false;
-        }
-
-        string terminalNodeId = pathLinks[^1].ToNodeId;
-
-        if (adjacency.TryGetValue(terminalNodeId, out List<InventoryDiagramDataFlowTraversalHopLink>? outgoing))
-        {
-            bool citesTarget = outgoing.Any(link =>
-                string.Equals(link.ToNodeId, targetNodeId, StringComparison.Ordinal));
-
-            if (citesTarget)
-            {
-                return true;
-            }
-
-            if (outgoing.Count > 0)
-            {
-                return false;
-            }
-        }
-
-        if (!graphNodesById.TryGetValue(targetNodeId, out GraphNode? targetNode)
-            || InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(targetNode))
-        {
-            return false;
-        }
-
-        return graphNodesById.TryGetValue(terminalNodeId, out GraphNode? terminalNode)
-            && InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(terminalNode);
-    }
-
-    private static bool PathCitesNonHopBackendOutsideTarget(
-        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> pathLinks,
-        InventoryDiagramDataFlowTraversalHopLink? nextLink,
-        string targetNodeId,
-        GraphSnapshot? graph,
-        IReadOnlyDictionary<string, GraphNode> graphNodesById)
-    {
-        if (graph is null)
-        {
-            return false;
-        }
-
-        HashSet<string> pathNodeIds = new(StringComparer.Ordinal);
-
-        foreach (InventoryDiagramDataFlowTraversalHopLink link in pathLinks)
-        {
-            pathNodeIds.Add(link.FromNodeId);
-            pathNodeIds.Add(link.ToNodeId);
-        }
-
-        if (nextLink is not null)
-        {
-            pathNodeIds.Add(nextLink.FromNodeId);
-            pathNodeIds.Add(nextLink.ToNodeId);
-        }
-
-        foreach (GraphEdge edge in graph.Edges)
-        {
-            if (!IsTraversalGraphEdge(edge))
-            {
-                continue;
-            }
-
-            if (!pathNodeIds.Contains(edge.FromNodeId))
-            {
-                continue;
-            }
-
-            if (string.Equals(edge.ToNodeId, targetNodeId, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (graphNodesById.TryGetValue(edge.ToNodeId, out GraphNode? toNode)
-                && InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(toNode))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
+        return graphEdges.Any(edge =>
+            string.Equals(edge.FromNodeId, nodeId, StringComparison.Ordinal)
+            && string.Equals(edge.ToNodeId, targetNodeId, StringComparison.Ordinal));
     }
 
     private static void AddLink(

@@ -101,6 +101,24 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
     }
 
     [Fact]
+    public void Compile_data_flow_preserves_direct_connector_when_private_endpoint_is_hidden()
+    {
+        GraphSnapshot graph = BuildPrivateEndpointGraph();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Should().NotContain(node => node.ArmResourceId == PrivateEndpointArmId);
+
+        string appId = ast.Nodes.Single(node => node.ArmResourceId == AppArmId).NodeId;
+        string storageId = ast.Nodes.Single(node => node.ArmResourceId == StorageArmId).NodeId;
+
+        ast.Edges.Should().Contain(edge =>
+            !edge.IsLayoutOnly
+            && edge.FromNodeId == appId
+            && edge.ToNodeId == storageId);
+    }
+
+    [Fact]
     public void Compile_data_flow_does_not_include_nsg_as_traversal_hop()
     {
         GraphSnapshot graph = BuildNsgGraph();

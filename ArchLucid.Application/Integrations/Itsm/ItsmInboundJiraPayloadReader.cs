@@ -68,7 +68,7 @@ public sealed class ItsmInboundJiraPayloadReader : IItsmInboundPayloadReader
         if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(issue, "key", out JsonElement keyEl))
             return null;
 
-        return keyEl.GetString();
+        return keyEl.ValueKind == JsonValueKind.String ? keyEl.GetString() : null;
     }
 
     private static string? TryReadJiraStatusName(JsonElement root)
@@ -85,6 +85,6 @@ public sealed class ItsmInboundJiraPayloadReader : IItsmInboundPayloadReader
         if (!ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(status, "name", out JsonElement name))
             return null;
 
-        return name.GetString();
+        return name.ValueKind == JsonValueKind.String ? name.GetString() : null;
     }
 }

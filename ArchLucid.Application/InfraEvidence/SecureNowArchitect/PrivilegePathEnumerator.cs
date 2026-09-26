@@ -167,6 +167,8 @@ internal static class PrivilegePathEnumerator
             return TryFinalizeMappedRolePath(graph, hops, hasRoleHop, mappedRole, permission, out candidate);
         }
 
+        // An explicit data-plane edge is stronger evidence than an inferred "unknown role actions" terminal.
+        // Let traversal continue to that concrete resource instead of emitting both paths for the same role.
         if (HasExplicitActionEdge(graph, hasRoleHop.ToNodeId))
         {
             return false;
@@ -265,6 +267,10 @@ internal static class PrivilegePathEnumerator
 
     private static bool IsGroupNestedPath(IReadOnlyList<PrivilegePathEdge> hops) =>
         hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.MemberOf);
+
+    private static bool HasExplicitActionEdge(InventoryPrivilegePathGraphSnapshot graph, string roleNodeId) =>
+        graph.OutgoingEdges.TryGetValue(roleNodeId, out List<PrivilegePathEdge>? edges)
+        && edges.Any(static edge => edge.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite);
 
     private static bool HasInsufficientEvidenceHop(IReadOnlyList<PrivilegePathEdge> hops) =>
         hops.Any(static hop => hop.EdgeType == "unknown-role-actions")

@@ -86,7 +86,7 @@ export async function postDemoSeedWithTransientRetries(request: APIRequestContex
 }
 
 function buildWorkspaceChecks(requested: ReadonlySet<DemoWorkspaceSeedProbe>): DemoWorkspaceSeedCheck[] {
-  return [
+  const checks: DemoWorkspaceSeedCheck[] = [
     {
       probe: "A",
       label: "workspace A product tour",
@@ -107,7 +107,9 @@ function buildWorkspaceChecks(requested: ReadonlySet<DemoWorkspaceSeedProbe>): D
         projectId: demoWorkspacesFixtureManifest.workspaceB.projectId,
       },
     },
-  ].filter((check) => requested.has(check.probe));
+  ];
+
+  return checks.filter((check) => requested.has(check.probe));
 }
 
 async function isDemoWorkspaceSeedCheckReady(

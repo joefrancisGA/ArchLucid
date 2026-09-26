@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
 
@@ -154,6 +155,65 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
             .ResolveEvidenceCurrency(edge, fromNode: null)
             .Should()
             .Be(InventoryDiagramEvidenceCurrency.Observed);
+    }
+
+    [Fact]
+    public void ResolveEvidenceCurrency_prefers_observed_edge_evidence_over_source_node_currency()
+    {
+        GraphNode fromNode = new()
+        {
+            NodeId = "from",
+            NodeType = "TopologyResource",
+            Label = "from",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] =
+                    InventoryDiagramEvidenceCurrency.Configured.ToString(),
+            },
+        };
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-observed",
+            FromNodeId = "from",
+            ToNodeId = "to",
+            EdgeType = "CONNECTS_TO",
+            InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.ObservedDependency,
+        };
+
+        InventoryDiagramIndirectRelationshipResolver
+            .ResolveEvidenceCurrency(edge, fromNode)
+            .Should()
+            .Be(InventoryDiagramEvidenceCurrency.Observed);
+    }
+
+    [Fact]
+    public void ResolveEvidenceCurrency_prefers_derived_edge_evidence_over_source_node_currency()
+    {
+        GraphNode fromNode = new()
+        {
+            NodeId = "from",
+            NodeType = "TopologyResource",
+            Label = "from",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] =
+                    InventoryDiagramEvidenceCurrency.Configured.ToString(),
+            },
+        };
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-derived",
+            FromNodeId = "from",
+            ToNodeId = "to",
+            EdgeType = "CONNECTS_TO",
+            InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.IndirectDerivedRelationship,
+            ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
+        };
+
+        InventoryDiagramIndirectRelationshipResolver
+            .ResolveEvidenceCurrency(edge, fromNode)
+            .Should()
+            .Be(InventoryDiagramEvidenceCurrency.Derived);
     }
 
     [Fact]

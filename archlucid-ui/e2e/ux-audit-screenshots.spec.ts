@@ -156,6 +156,8 @@ test.describe("ux audit screenshots @ux-audit", () => {
 
       if (mode === null || mode === "marketing") {
         test.skip(true, "this route is only captured by the operator shell project");
+
+        return;
       }
 
       if (mode === "operator") {
@@ -172,6 +174,8 @@ test.describe("ux audit screenshots @ux-audit", () => {
 
       if (mode !== "marketing") {
         test.skip(true, "this route is only captured by the marketing shell project");
+
+        return;
       }
 
       await captureUxAuditScreenshot(page, route, mode);

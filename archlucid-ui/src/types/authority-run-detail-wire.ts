@@ -6,6 +6,8 @@ export type RunDetailAgentFinding = Pick<
   "category" | "findingId" | "severity"
 > & {
   message?: string;
+  /** Policy-rule attribution emitted by authority finding projections. */
+  policyRuleId?: string | null;
   reasoningTrace?: string | null;
 };
 
