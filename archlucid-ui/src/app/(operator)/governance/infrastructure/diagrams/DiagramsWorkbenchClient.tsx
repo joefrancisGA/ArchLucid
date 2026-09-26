@@ -214,8 +214,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
@@ -622,13 +620,6 @@ export function DiagramsWorkbenchClient() {
     isInfraDiagramsResourceGroupMode(selectedMode)
     && selectedResourceGroupName.length === 0
     && resourceGroupPickerArtifacts.length > 0;
-
-  const awaitingSnapshotSelection =
-    !loadingSnapshots
-    && !deepLinkedSnapshotMissing
-    && diagramsSubscriptionChosen
-    && selectedSnapshotId.length === 0
-    && snapshots.length > 0;
 
   const awaitingDiagramTypeSelection =
     diagramTypePickerEnabled && !diagramTypeSelected;
@@ -2375,13 +2366,7 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {awaitingSnapshotSelection ? (
-        <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY}
-          testId="infra-diagrams-snapshot-prompt"
-        />
-      ) : awaitingDiagramTypeSelection ? (
+      {awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}

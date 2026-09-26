@@ -15,8 +15,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_ALL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFIRM,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -339,12 +337,7 @@ describe("DiagramsWorkbenchClient", () => {
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
 
     expect(picker).toHaveValue("");
-    expect(await screen.findByTestId("infra-diagrams-snapshot-prompt")).toHaveTextContent(
-      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
-    );
-    expect(screen.getByTestId("infra-diagrams-snapshot-prompt")).toHaveTextContent(
-      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
-    );
+    expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-id-readout")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
