@@ -8541,11 +8541,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 32
-- **bugs-found:** 24
+- **hunts:** 33
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-25 — unparseable BFF session cookie left stale HttpOnly cookie on proxy guard
+- **last-bug:** 2026-09-26 — UI `isSafeReturnPath` accepted slash/dot homoglyph return URLs without Application guard parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -8597,6 +8597,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Unsigned visitor stale `archlucid_operator_scope_v1` poisons anonymous marketing `/api/proxy` scope headers — **invalid 2026-09-26 seed hunt:** `clearOidcSession()` clears operator scope storage; registration-scope priority after sign-out covered in 2026-09-25 hit; marketing controllers are `[AllowUnscopedRoute]`
 
 2026-09-26 seed hunt (seed-only): reseeded ui-auth-proxy after unparseable-cookie hit wave; cheap-disproved trial/local dev-verify allowlist gap, refresh unparseable stale-cookie regression, and unsigned stale-operator marketing scope; reaffirmed OpenAPI marketing + pre-auth allowlist parity; 90 scoped proxy/BFF/return-path vitest tests passed.
+
+- [x] (proven) `isSafeReturnPath` — accepted Unicode slash/dot homoglyph return URLs that `AuthSignInReturnPathGuard` rejects — **hit 2026-09-26 seed hunt (seed→hit):** sign-in `returnUrl`, `buildAuthSignInHref`, email-OTP post-auth, and livelihood idle restore used UI-only checks while Application guard already blocked fullwidth solidus and full-stop homoglyphs; fixed with `containsSlashHomoglyph` / `containsDotHomoglyph` parity in `safe-return-path.ts`; regressions in `safe-return-path.test.ts`.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-auth-proxy; proved UI post-sign-in return path accepted homoglyph traversal/protocol-relative payloads; 33 scoped return-path vitest tests passed.
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy after prior hit; proved unparseable BFF session cookie left stale HttpOnly cookie on proxy guard and activity route; 147 scoped auth/proxy tests passed.
 

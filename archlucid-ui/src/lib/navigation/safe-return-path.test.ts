@@ -112,6 +112,16 @@ describe("isSafeReturnPath", () => {
     expect(isSafeReturnPath("/%2e%2e/admin")).toBe(false);
   });
 
+  it("rejects fullwidth dot homoglyph segments that browsers normalize to parent traversal", () => {
+    expect(isSafeReturnPath("/signin/\uFF0E\uFF0E/administration")).toBe(false);
+    expect(isSafeReturnPath("/welcome\uFF0E\uFF0E/operator")).toBe(false);
+  });
+
+  it("rejects fullwidth solidus homoglyphs that normalize to protocol-relative URLs", () => {
+    expect(isSafeReturnPath("\uFF0F\uFF0Fevil.example")).toBe(false);
+    expect(isSafeReturnPath("/safe\uFF0F\uFF0Fevil.example")).toBe(false);
+  });
+
   it("rejects percent-encoded backslash segments after decoding", () => {
     expect(isSafeReturnPath("/welcome%5c..%5c..%5coperator")).toBe(false);
   });
