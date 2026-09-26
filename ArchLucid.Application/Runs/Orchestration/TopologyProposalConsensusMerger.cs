@@ -39,7 +39,7 @@ public static class TopologyProposalConsensusMerger
             AddedDatastores = intersectedDatastores,
             AddedRelationships = intersectedRelationships,
             RequiredControls = intersectedControls,
-            Warnings = new List<string>(primary.Warnings),
+            Warnings = primary.Warnings is null ? [] : new List<string>(primary.Warnings),
         };
 
         if (disagreementCount > 0)

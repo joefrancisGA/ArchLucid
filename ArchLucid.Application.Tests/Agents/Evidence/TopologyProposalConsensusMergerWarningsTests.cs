@@ -1,0 +1,52 @@
+using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Agents.Evidence;
+
+[Trait("Category", "Unit")]
+public sealed class TopologyProposalConsensusMergerWarningsTests
+{
+    [Fact]
+    public void Merge_when_primary_warnings_is_null_does_not_throw()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                }
+            ],
+            Warnings = null!,
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                }
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.Warnings.Should().NotBeNull();
+        result.MergedProposal.AddedServices.Should().ContainSingle();
+    }
+}
