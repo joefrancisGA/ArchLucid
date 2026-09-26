@@ -32,10 +32,7 @@ public sealed class CutPointAnalysisEngine(
         }
 
         IReadOnlyList<SecurityEvidencePathRankRecord> ranks = await rankRepository.ListBySnapshotAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            snapshotId,
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
         if (ranks.Count == 0)

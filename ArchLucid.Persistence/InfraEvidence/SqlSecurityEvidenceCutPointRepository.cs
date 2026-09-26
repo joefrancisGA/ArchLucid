@@ -11,12 +11,10 @@ public sealed class SqlSecurityEvidenceCutPointRepository(ISqlConnectionFactory 
     : ISecurityEvidenceCutPointRepository
 {
     public async Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         const string sql = """
                            SELECT c.CutPointId, c.TenantId, c.SnapshotId, c.RuleVersion, c.CutKind, c.CutKey,
                                   c.FromNodeId, c.ToNodeId, c.EdgeType, c.PathsCollapsedCount, c.OperationalCostClass,
@@ -43,10 +41,10 @@ public sealed class SqlSecurityEvidenceCutPointRepository(ISqlConnectionFactory 
                 sql,
                 new
                 {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    scope.SnapshotId,
                 },
                 cancellationToken: cancellationToken));
 

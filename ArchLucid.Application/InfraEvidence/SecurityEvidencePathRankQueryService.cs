@@ -34,10 +34,7 @@ public sealed class SecurityEvidencePathRankQueryService(
         if (snapshotId is not null && snapshotId != Guid.Empty)
         {
             topCutPoints = await cutPointRepository.ListBySnapshotAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                snapshotId.Value,
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId.Value),
                 cancellationToken);
         }
 

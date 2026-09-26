@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -5,10 +6,7 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public sealed class NoOpSecurityEvidenceCutPointRepository : ISecurityEvidenceCutPointRepository
 {
     public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
 

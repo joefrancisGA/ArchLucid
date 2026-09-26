@@ -340,10 +340,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
     private sealed class NoOpCutPointRepository : ISecurityEvidenceCutPointRepository
     {
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
 
