@@ -7,6 +7,7 @@ import { DeploymentStatusSystemHealthVocabularyRail } from "@/components/Deploym
 import { DeploymentStatusEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { PageHeading } from "@/components/PageHeading";
 import { ExternalLink } from "@/components/ui/external-link";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -105,9 +106,12 @@ export function AdminDeploymentStatusPageView(props: Props) {
       >
         <div className="flex flex-wrap items-center gap-3">
           {m.lastRefreshedAt !== null ? (
-            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Last refreshed {m.lastRefreshedAt.toLocaleString()}
-            </span>
+            <OperatorPageFreshnessMetadata
+              testId="admin-deployment-status-last-refreshed"
+              lastRefreshedAt={m.lastRefreshedAt}
+            >
+              {`Last refreshed: ${m.lastRefreshedAt.toLocaleString()}`}
+            </OperatorPageFreshnessMetadata>
           ) : null}
           <Link
             href={INTERNAL_HEALTH_PATH}

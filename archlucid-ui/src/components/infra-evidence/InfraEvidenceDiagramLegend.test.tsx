@@ -12,7 +12,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE_GLOSS,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
@@ -128,14 +128,14 @@ describe("InfraEvidenceDiagramLegend", () => {
     "</svg>",
   ].join("\n");
 
-  it("shows left-edge swatches for observed-only graphs", () => {
+  it("shows resource category swatches for observed-only graphs", () => {
     render(
       <InfraEvidenceDiagramLegend outline={observedOutline} layoutSvg={identityAndComputeSvg} />,
     );
 
     expect(screen.getByTestId("infra-evidence-diagram-legend")).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).toBeInTheDocument();
-    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE_GLOSS)).toBeInTheDocument();
+    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_IDENTITY)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE)).toBeInTheDocument();
     expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_NETWORK)).not.toBeInTheDocument();
@@ -145,7 +145,7 @@ describe("InfraEvidenceDiagramLegend", () => {
     expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).not.toBeInTheDocument();
     expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED)).not.toBeInTheDocument();
 
-    const row = screen.getByTestId("infra-evidence-diagram-legend-left-edge");
+    const row = screen.getByTestId("infra-evidence-diagram-legend-resource-category");
     const labels = Array.from(row.querySelectorAll("li")).map((item) => item.textContent);
     expect(labels).toEqual([
       INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE,
@@ -176,7 +176,7 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED)).toBeInTheDocument();
-    expect(screen.getByTestId("infra-evidence-diagram-legend-left-edge")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-diagram-legend-resource-category")).toBeInTheDocument();
   });
 
   it("lists one row when the same accent fill is repeated", () => {
@@ -198,7 +198,7 @@ describe("InfraEvidenceDiagramLegend", () => {
       />,
     );
 
-    const row = screen.getByTestId("infra-evidence-diagram-legend-left-edge");
+    const row = screen.getByTestId("infra-evidence-diagram-legend-resource-category");
     expect(Array.from(row.querySelectorAll("li")).map((item) => item.textContent)).toEqual([
       INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE,
     ]);
