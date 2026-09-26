@@ -4862,13 +4862,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6956 (seed-only): reseeded cli-tenant-isolation after pass-9 `LiveRunner`/`OfflineRunner`/`Aggregator` split; cheap-disproof closed live `ServerError` list scan SKIP parity and post-extract pagination fallthrough; 35 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (valid-no-repro) Live run-list scan `ServerError` outcome false-passes as foreign runId absent — **cheap-disproof 2026-09-26 seed hunt #6956:** `ScanRunListForForeignRunIdAsync` returns before parsing body when `lastStatusCode >= 500`; `EvaluateExcludeRunIdProbeVerdict` maps `statusCode >= 500` to SKIP (same as pre-split); regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives503`.
+- [x] (invalid) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` post-loop fallthrough returns `ForeignRunIdAbsent` after refactor — **cheap-disproof 2026-09-26 seed hunt #6956:** loop still returns on every iteration (`ScanIncomplete`, `ListUnavailable`, or terminal absent/present); trailing return remains unreachable dead code (#1437).
 
 2026-09-12 seed hunt #2083 (seed-only): reseeded cli-tenant-isolation; no new hunt-ready rows
 
