@@ -66,6 +66,26 @@ public sealed class DiagramEdgeLabelHumanizerTests
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
     }
 
+    [Fact]
+    public void ResolveDisplayLabel_maps_event_hub_may_publish_and_qualified_capture()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.CanWrite,
+                GraphEdgeInferenceSources.InventoryEventHubMayPublish)
+            .Should()
+            .Be("May publish");
+
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.WithQualifier(
+                    GraphEdgeInferenceSources.InventoryEventHubCapture,
+                    "orders"))
+            .Should()
+            .Be("orders · Captures to");
+    }
+
     [Theory]
     [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Sends diagnostics to")]
     [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Sends diagnostics to")]
