@@ -13,7 +13,10 @@ import {
   REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
   WORKING_REVIEWS_HUB_PAGE_SUBTITLE,
+  WORKING_REVIEWS_HUB_PAGE_TITLE,
   WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
+  WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+  WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
 } from "./reviews-hub-copy";
 
 const BANNED_PACKAGE_PHRASES = [
@@ -45,11 +48,25 @@ describe("reviews-hub-copy", () => {
     );
   });
 
-  it("SN-011: frames Working inbox copy separately from Guided portfolio language", () => {
+  it("SN-011: frames Working hub copy separately from Guided portfolio language", () => {
     expect(WORKING_REVIEWS_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("cross-architecture");
     expect(WORKING_REVIEWS_HUB_PAGE_SUBTITLE).toContain("Alt+R");
     expect(WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("open architectures");
     expect(WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("triage");
+  });
+
+  it("does not use inbox vocabulary in Working hub copy re-exports", () => {
+    const workingHubCopy = [
+      WORKING_REVIEWS_HUB_PAGE_TITLE,
+      WORKING_REVIEWS_HUB_PAGE_SUBTITLE,
+      WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
+      WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
+      WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    expect(workingHubCopy).not.toContain("inbox");
   });
 
   it("avoids retired package terminology in hub copy", () => {
