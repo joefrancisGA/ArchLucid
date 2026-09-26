@@ -103,6 +103,8 @@ complete metrics, passing thresholds, at least two declared tenants, and a
 positive `seededPathsPerTenant` count. The workload preflights nonempty ranked
 pages for every tenant. The scheduled and manual
 `k6-per-tenant-burst-scheduled.yml` workflow provisions two disposable SQL
-tenants with 100 paths each, runs this workload, and uploads the verdict.
+tenants with 100 paths each, runs this workload, and uploads the verdict. It
+also runs on pull requests that change the workflow or scale workload files,
+so a changed harness gets an observed verdict before merging.
 It labels the result as synthetic read evidence, not a production SLA or proof
 of ingestion/write throughput.
