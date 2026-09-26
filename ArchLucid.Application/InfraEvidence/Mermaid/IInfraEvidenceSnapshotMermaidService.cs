@@ -12,7 +12,8 @@ public interface IInfraEvidenceSnapshotMermaidService
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false);
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false);
 
     /// <param name="hiddenExecutiveTierKeys">
     /// Comma-separated Executive always-show tier keys to hide for this render (IDL-06). Ignored outside Executive mode.
@@ -28,7 +29,8 @@ public interface IInfraEvidenceSnapshotMermaidService
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false);
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false);
 
     Task<InfraEvidenceMermaidServiceResult<byte[]>> TryExportPngAsync(
         ScopeContext scope,
@@ -41,7 +43,8 @@ public interface IInfraEvidenceSnapshotMermaidService
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false);
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false);
 }
 
 public sealed class InfraEvidenceMermaidServiceResult<T>

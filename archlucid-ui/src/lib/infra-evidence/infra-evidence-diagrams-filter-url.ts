@@ -21,6 +21,7 @@ export const INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM = "diagramSubscription";
 export const INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM = "includePrivateEndpoints";
 export const INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM = "includeRecoveryServices";
 export const INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM = "includeCrossGroupFanOut";
+export const INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM = "includeAvdAssets";
 
 /** @deprecated Legacy URL param; parsed as alias for {@link INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM}. */
 export const INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM = "showTrivialComponents";
@@ -37,11 +38,18 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "data", label: "Data category" },
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
-  { value: "avd", label: "Azure Virtual Desktop" },
+  { value: "avd", label: "AVD Farm" },
+<<<<<<< HEAD
   { value: "full", label: "Full subscription — every resource in scope" },
   { value: "resourceGroup", label: "One resource group" },
   { value: "selectedResources", label: "Resources you picked" },
   { value: "dependencyNeighborhood", label: "What depends on one resource" },
+=======
+  { value: "full", label: "Full subscription" },
+  { value: "resourceGroup", label: "Pick a Resource Group" },
+  { value: "selectedResources", label: "Selected resources" },
+  { value: "dependencyNeighborhood", label: "Dependency neighborhood" },
+>>>>>>> origin/cursor/inventory-diagram-excellence-nested-vnet-subnet-idx1
 ];
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));
@@ -185,6 +193,10 @@ export function parseInfraDiagramsIncludeCrossGroupFanOutFromSearch(raw: string 
   return parseTruthyDiagramSearchParam(raw);
 }
 
+export function parseInfraDiagramsIncludeAvdAssetsFromSearch(raw: string | null | undefined): boolean {
+  return parseTruthyDiagramSearchParam(raw);
+}
+
 /** @deprecated Use {@link parseInfraDiagramsIncludeNeverShowFromSearch}. */
 export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | null | undefined): boolean {
   return parseInfraDiagramsIncludeNeverShowFromSearch(raw);
@@ -202,6 +214,7 @@ export type InfraDiagramsWorkbenchContext = {
   readonly includePrivateEndpoints?: boolean | null;
   readonly includeRecoveryServices?: boolean | null;
   readonly includeCrossGroupFanOut?: boolean | null;
+  readonly includeAvdAssets?: boolean | null;
   readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
@@ -221,6 +234,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     includePrivateEndpoints: context.includePrivateEndpoints ?? undefined,
     includeRecoveryServices: context.includeRecoveryServices ?? undefined,
     includeCrossGroupFanOut: context.includeCrossGroupFanOut ?? undefined,
+    includeAvdAssets: context.includeAvdAssets ?? undefined,
     runId: context.runId ?? undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
@@ -242,6 +256,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly includePrivateEndpoints?: boolean;
     readonly includeRecoveryServices?: boolean;
     readonly includeCrossGroupFanOut?: boolean;
+    readonly includeAvdAssets?: boolean;
     readonly runId?: string;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
@@ -358,6 +373,14 @@ export function infraDiagramsFilterHrefFromSearch(
       params.set(INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM, "1");
     } else {
       params.delete(INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM);
+    }
+  }
+
+  if (patch.includeAvdAssets !== undefined) {
+    if (patch.includeAvdAssets) {
+      params.set(INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM, "1");
+    } else {
+      params.delete(INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM);
     }
   }
 

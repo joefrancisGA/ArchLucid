@@ -144,4 +144,34 @@ public sealed class InfraEvidenceMermaidModeParserTests
         result.DiagramMode.Should().Be(DiagramMode.BusinessContinuity);
         result.CompileOptions.Should().BeNull();
     }
+
+    [Fact]
+    public void TryParse_full_maps_include_avd_assets_into_compile_options()
+    {
+        InfraEvidenceMermaidModeParser.TryParse(
+            "full",
+            null,
+            null,
+            out InfraEvidenceMermaidModeParseResult result,
+            includePrivateEndpointNodes: false,
+            includeRecoveryServices: false,
+            includeCrossGroupFanOut: false,
+            includeAvdAssets: true);
+
+        result.DiagramMode.Should().Be(DiagramMode.FullSubscription);
+        result.CompileOptions!.IncludeAvdAssets.Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryParse_executive_ignores_include_avd_assets_flag()
+    {
+        InfraEvidenceMermaidModeParser.TryParse(
+            "executive",
+            null,
+            null,
+            out InfraEvidenceMermaidModeParseResult result,
+            includeAvdAssets: true);
+
+        result.CompileOptions.Should().BeNull();
+    }
 }

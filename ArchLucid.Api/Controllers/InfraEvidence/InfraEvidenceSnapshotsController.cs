@@ -181,6 +181,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] bool includePrivateEndpointNodes = false,
         [FromQuery] bool includeRecoveryServices = false,
         [FromQuery] bool includeCrossGroupFanOut = false,
+        [FromQuery] bool includeAvdAssets = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -195,7 +196,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     cancellationToken,
                     includePrivateEndpointNodes,
                     includeRecoveryServices,
-                    includeCrossGroupFanOut);
+                    includeCrossGroupFanOut,
+                    includeAvdAssets);
 
             if (result.IsNotFound)
             {
@@ -234,6 +236,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] bool includePrivateEndpointNodes = false,
         [FromQuery] bool includeRecoveryServices = false,
         [FromQuery] bool includeCrossGroupFanOut = false,
+        [FromQuery] bool includeAvdAssets = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -252,7 +255,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                     cancellationToken,
                     includePrivateEndpointNodes,
                     includeRecoveryServices,
-                    includeCrossGroupFanOut);
+                    includeCrossGroupFanOut,
+                    includeAvdAssets);
 
             if (result.IsNotFound)
             {
@@ -299,6 +303,7 @@ public sealed partial class InfraEvidenceSnapshotsController(
         [FromQuery] bool includePrivateEndpointNodes = false,
         [FromQuery] bool includeRecoveryServices = false,
         [FromQuery] bool includeCrossGroupFanOut = false,
+        [FromQuery] bool includeAvdAssets = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -316,7 +321,8 @@ public sealed partial class InfraEvidenceSnapshotsController(
                 cancellationToken,
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
-                includeCrossGroupFanOut);
+                includeCrossGroupFanOut,
+                includeAvdAssets);
 
             if (result.IsNotFound)
             {

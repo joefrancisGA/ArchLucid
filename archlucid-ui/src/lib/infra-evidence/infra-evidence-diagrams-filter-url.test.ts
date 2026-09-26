@@ -10,6 +10,8 @@ import {
   parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
   INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM,
   INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM,
+  parseInfraDiagramsIncludeAvdAssetsFromSearch,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
@@ -150,6 +152,8 @@ describe("infra-evidence-diagrams-filter-url", () => {
     expect(parseInfraDiagramsIncludeRecoveryServicesFromSearch(null)).toBe(false);
     expect(parseInfraDiagramsIncludeCrossGroupFanOutFromSearch("1")).toBe(true);
     expect(parseInfraDiagramsIncludeCrossGroupFanOutFromSearch(null)).toBe(false);
+    expect(parseInfraDiagramsIncludeAvdAssetsFromSearch("1")).toBe(true);
+    expect(parseInfraDiagramsIncludeAvdAssetsFromSearch(null)).toBe(false);
   });
 
   it("round-trips includeRecoveryServices without touching includeNeverShow", () => {
@@ -169,6 +173,17 @@ describe("infra-evidence-diagrams-filter-url", () => {
         },
       ),
     ).toBe("/governance/infrastructure/diagrams?includeNeverShow=1");
+  });
+
+  it("round-trips includeAvdAssets on full subscription URLs", () => {
+    expect(
+      infraDiagramsFilterHrefFromSearch("", {
+        mermaidMode: "full",
+        includeAvdAssets: true,
+      }),
+    ).toBe(
+      `/governance/infrastructure/diagrams?mermaidMode=full&${INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM}=1`,
+    );
   });
 
   it("round-trips subscription filter and private endpoint patches", () => {

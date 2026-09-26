@@ -177,6 +177,65 @@ Describe 'ArchLucid.ExtractorQuickStart.helpers.ps1' {
         $connectParams.Tenant | Should -Be '99999999-8888-7777-6666-555555555555'
     }
 
+    It 'disables the Windows account broker before browser sign-in' {
+        [System.Collections.Generic.List[object]]$configCalls = [System.Collections.Generic.List[object]]::new()
+
+        function script:Update-AzConfig
+        {
+            param(
+                [object] $EnableLoginByWam,
+                [object] $LoginExperienceV2,
+                [string] $Scope
+            )
+
+            $configCalls.Add([PSCustomObject]@{
+                    EnableLoginByWam = $EnableLoginByWam
+                    LoginExperienceV2 = "$LoginExperienceV2"
+                    Scope = $Scope
+                    BoundEnableLoginByWam = $PSBoundParameters.ContainsKey('EnableLoginByWam')
+                    BoundLoginExperienceV2 = $PSBoundParameters.ContainsKey('LoginExperienceV2')
+                })
+        }
+
+        Mock Get-Module {
+            param($Name)
+
+            if ($Name -eq 'Az.Accounts')
+            {
+                return [PSCustomObject]@{ Name = 'Az.Accounts' }
+            }
+
+            return $null
+        }
+        [hashtable]$seenConnect = @{}
+        Mock Connect-AzAccount {
+            param(
+                $Tenant,
+                $Subscription,
+                [switch] $UseDeviceAuthentication
+            )
+
+            $seenConnect.Tenant = $Tenant
+            $seenConnect.Subscription = $Subscription
+            $seenConnect.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        Connect-ArchLucidAzureAccountForSubscription `
+            -TenantId '99999999-8888-7777-6666-555555555555' `
+            -SubscriptionId 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' `
+            -AuthenticationMethod 'Browser'
+
+        $seenConnect.UseDeviceAuthentication | Should -Be $IsWindows
+        $configCalls.Count | Should -Be 2
+        $configCalls[0].BoundEnableLoginByWam | Should -BeTrue
+        $configCalls[0].EnableLoginByWam | Should -BeFalse
+        $configCalls[0].Scope | Should -Be 'Process'
+        $configCalls[1].BoundLoginExperienceV2 | Should -BeTrue
+        $configCalls[1].LoginExperienceV2 | Should -Be 'Off'
+        $configCalls[1].Scope | Should -Be 'Process'
+        Should -Invoke Connect-AzAccount -Times 1 -Exactly
+    }
+
     It 'auto-selects the only accessible subscription without prompting' {
         [string]$tenantId = '99999999-8888-7777-6666-555555555555'
         [string]$subscriptionId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
