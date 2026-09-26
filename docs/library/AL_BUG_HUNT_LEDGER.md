@@ -3139,13 +3139,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-25 — double-reverse-solidus and script full-stop dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved final BMP SOLIDUS-named glyph inventory, overlong UTF-8 slash percent encodings, and encoded dot-dot before fragment/query delimiters; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Remaining BMP SOLIDUS-named glyphs (combining solidus overlays `U+0337`/`U+0338`/`U+20E5`/`U+20EB`, APL QUAD/CIRCLE slash/backslash `U+2341`/`U+2342`/`U+2349`, `U+2340`, and DOES NOT DIVIDE WITH REVERSED NEGATION SLASH `U+2AEE`) as protocol-relative pairs — **valid-no-repro 2026-09-26 seed hunt:** extends prior APL/combining-mark rows; not WHATWG U+002F segment separators; same-origin relative prefix only.
+- [x] (valid-no-repro) Overlong UTF-8 slash percent encodings (`/%C0%AF%C0%AFeil.example`) and mixed `%2f%5c` pairs — **valid-no-repro 2026-09-26 seed hunt:** `Uri.UnescapeDataString` plus post-decode `TryNormalizeRelativePath` / residual `%2f` checks reject before redirect; aligns with prior overlong percent-decode seed hunts.
+- [x] (valid-no-repro) Percent-encoded parent segments before `#` or `?` (`/signin/%2e%2e%23fragment`, `/signin/%2e%2e?x=1`) — **valid-no-repro 2026-09-26 seed hunt:** decode loop re-runs `ContainsDotDotSegment` on path prefix via `GetPathWithoutQueryOrFragment`; regression family `TryNormalize_rejects_dot_dot_path_traversal_before_fragment_delimiter`.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved remaining BMP non-SOLIDUS slash glyphs, deep percent-decode cap parity, and conservative backslash-in-query rejection; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
