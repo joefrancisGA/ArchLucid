@@ -41,6 +41,15 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             };
         }
 
+        if (request.ClaimMapping is null)
+        {
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "ClaimMapping is required."
+            };
+        }
+
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
 
         try
