@@ -366,6 +366,9 @@ function RemediationSimulatorOutput(props: {
         <StatusTag kind="neutral" label="Simulator — not a live scanner feed" />
       </div>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        This explains the queue ranking; it does not apply a remediation.
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Finding{" "}
         <span className="font-mono">{props.explanation.findingId}</span>
         <CopyIdButton value={props.explanation.findingId} aria-label="Copy finding ID" />
