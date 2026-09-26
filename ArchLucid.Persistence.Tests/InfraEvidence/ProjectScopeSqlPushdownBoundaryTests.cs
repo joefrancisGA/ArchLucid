@@ -10,6 +10,8 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
 {
     public static IEnumerable<object[]> ScopedSqlMethods()
     {
+        yield return [typeof(ISecurityEvidencePathRankRepository), typeof(SqlSecurityEvidencePathRankRepository), "ListBySnapshotAsync"];
+        yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ListBySnapshotAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByNaturalKeyInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];

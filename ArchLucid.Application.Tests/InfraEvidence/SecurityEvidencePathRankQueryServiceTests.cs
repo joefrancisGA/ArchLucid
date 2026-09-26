@@ -254,10 +254,7 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         }
 
         public Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
 
@@ -302,10 +299,7 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
     private sealed class InMemoryCutPointRepository : ISecurityEvidenceCutPointRepository
     {
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
 

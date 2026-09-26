@@ -47,6 +47,7 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
                            FROM dbo.SecurityEvidencePathRanks r
                            INNER JOIN dbo.SecurityEvidencePaths p
                                ON p.TenantId = r.TenantId AND p.PathId = r.PathId
+                              AND p.SnapshotId = r.SnapshotId
                            WHERE r.TenantId = @TenantId
                              AND r.PathId = @PathId
                              AND p.WorkspaceId = @WorkspaceId
@@ -64,12 +65,10 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
     }
 
     public async Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         const string sql = """
                            SELECT r.PathId, r.TenantId, r.SnapshotId, r.RuleVersion,
                                   r.TechnicalExposureScore, r.PrivilegeDepthScore, r.BlastRadiusScore,
@@ -78,6 +77,7 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
                            FROM dbo.SecurityEvidencePathRanks r
                            INNER JOIN dbo.SecurityEvidencePaths p
                                ON p.TenantId = r.TenantId AND p.PathId = r.PathId
+                              AND p.SnapshotId = r.SnapshotId
                            WHERE r.TenantId = @TenantId
                              AND r.SnapshotId = @SnapshotId
                              AND p.WorkspaceId = @WorkspaceId
@@ -92,10 +92,10 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
                 sql,
                 new
                 {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    scope.SnapshotId,
                 },
                 cancellationToken: cancellationToken));
 
