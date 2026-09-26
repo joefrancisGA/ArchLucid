@@ -843,20 +843,46 @@ function Ensure-ArchLucidAzureSubscriptionSession
             }
         }
 
+        [bool]$loginRequired = $false
+
         if (-not (Test-ArchLucidAzureSubscriptionIdsMatch -Left $currentSubscriptionId -Right $trimmedSubscriptionId) -or
             (-not [string]::IsNullOrWhiteSpace($resolvedTenantId) -and $currentTenantId -ne $resolvedTenantId))
         {
-            $null = Set-AzContext `
-                -SubscriptionId $trimmedSubscriptionId `
-                -Tenant $resolvedTenantId `
-                -ErrorAction Stop
+            # A saved subscription can still be returned when no account is signed in.
+            # Set-AzContext then reports that Connect-AzAccount is required.
+            try
+            {
+                $null = Set-AzContext `
+                    -SubscriptionId $trimmedSubscriptionId `
+                    -Tenant $resolvedTenantId `
+                    -ErrorAction Stop
+            }
+            catch
+            {
+                [string]$contextFailure = "$_"
+
+                if ($null -ne $_.Exception -and -not [string]::IsNullOrWhiteSpace("$($_.Exception.Message)"))
+                {
+                    $contextFailure = "$($_.Exception.Message)"
+                }
+
+                if ($contextFailure -notlike '*Run Connect-AzAccount to login*')
+                {
+                    throw
+                }
+
+                $loginRequired = $true
+            }
         }
 
-        Sync-ArchLucidAzureCliSubscriptionContext `
-            -SubscriptionId $trimmedSubscriptionId `
-            -TenantId $resolvedTenantId
+        if (-not $loginRequired)
+        {
+            Sync-ArchLucidAzureCliSubscriptionContext `
+                -SubscriptionId $trimmedSubscriptionId `
+                -TenantId $resolvedTenantId
 
-        return
+            return
+        }
     }
 
     Clear-ArchLucidAzureAccountSessions
