@@ -77,6 +77,7 @@ export function WebhooksSettingsClient() {
     submit,
     canMutate,
     loading,
+    hasLoadedSuccessfully,
     isSaving,
     failure,
     testingId,
@@ -258,6 +259,7 @@ export function WebhooksSettingsClient() {
             canMutate={canMutate}
             isSaving={isSaving}
             loading={loading}
+            hasLoadedSuccessfully={hasLoadedSuccessfully}
             canSubmitForm={canSubmitForm}
             formReadinessMessage={formReadinessMessage}
             showAlertSeverityFilter={showAlertSeverityFilter}

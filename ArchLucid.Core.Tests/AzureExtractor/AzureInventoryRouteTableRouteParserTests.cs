@@ -35,4 +35,23 @@ public sealed class AzureInventoryRouteTableRouteParserTests
         routes[0].NextHopType.Should().Be("VirtualAppliance");
         routes[0].NextHopIpAddress.Should().Be("10.0.0.4");
     }
+
+    [Fact]
+    public void Parse_reads_explicit_flattened_route_properties_when_suffix_casing_differs()
+    {
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}.AddressPrefix"] = "10.1.0.0/24",
+            [$"{routePrefix}.NextHopType"] = "VirtualAppliance",
+            [$"{routePrefix}.NextHopIpAddress"] = "10.0.0.4",
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].AddressPrefix.Should().Be("10.1.0.0/24");
+        routes[0].NextHopType.Should().Be("VirtualAppliance");
+        routes[0].NextHopIpAddress.Should().Be("10.0.0.4");
+    }
 }

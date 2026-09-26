@@ -74,4 +74,19 @@ describe("useGovernanceFindingsFilter URL sync", () => {
 
     expect(result.current.registerFilter).toBe("all");
   });
+
+  it("follows groupBy URL changes without a popstate event", () => {
+    searchParamsHarness.state.query = "groupBy=resource";
+
+    const { result, rerender } = renderHook(() => useGovernanceFindingsFilter({ mode: "tenant" }), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.groupByResource).toBe(true);
+
+    searchParamsHarness.applyQuery("");
+    rerender();
+
+    expect(result.current.groupByResource).toBe(false);
+  });
 });

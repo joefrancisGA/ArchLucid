@@ -43,9 +43,11 @@ function RunDetailCreateHomeActivityOrientation(props: {
   readonly pagePrimaryOwnedElsewhere?: boolean;
 }): ReactElement {
   const overviewVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview");
-  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
-  const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation");
+  const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview", { includeCreateIntent: true });
+  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings", { includeCreateIntent: true });
+  const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation", {
+    includeCreateIntent: true,
+  });
 
   return (
     <div

@@ -62,10 +62,9 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
-            authorityQuery,
-            runId,
-            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
@@ -84,6 +83,13 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

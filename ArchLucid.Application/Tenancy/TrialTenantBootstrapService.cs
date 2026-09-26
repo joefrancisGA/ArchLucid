@@ -143,10 +143,6 @@ public sealed class TrialTenantBootstrapService(
                     companyProfile?.IndustryVerticalOther,
                     cancellationToken);
 
-                // The registering admin occupies the first trial seat immediately — otherwise TrialSeatsUsed
-                // stays 0 until their first authenticated request reaches TrialSeatReservationMiddleware.
-                await _tenantRepository.TryClaimTrialSeatAsync(result.TenantId, auditActorEmail.Trim(), cancellationToken);
-
                 await _trialAiBudgetPolicyProvisioner.EnsureDefaultTrialPolicyIfAbsentAsync(
                     result.TenantId,
                     expires,

@@ -19,10 +19,9 @@ public static class AzureInventoryAccessConnectorTargetParser
             return ArmResourceIdNormalizer.Normalize(hydrated);
         }
 
-        if (properties.TryGetValue("arm.parentId", out string? parentId)
-            && !string.IsNullOrWhiteSpace(parentId))
+        if (properties.TryGetValue("arm.parentId", out string? parentId))
         {
-            return ArmResourceIdNormalizer.Normalize(parentId);
+            return TryResolveArmReferenceValue(parentId);
         }
 
         return null;
@@ -50,22 +49,46 @@ public static class AzureInventoryAccessConnectorTargetParser
                      "storageAccountId",
                  })
         {
-            if (properties.TryGetValue(key, out string? value)
-                && !string.IsNullOrWhiteSpace(value)
-                && value.StartsWith("/", StringComparison.Ordinal))
+            if (properties.TryGetValue(key, out string? value))
             {
-                return ArmResourceIdNormalizer.Normalize(value);
+                string? resolved = TryResolveArmReferenceValue(value);
+
+                if (!string.IsNullOrWhiteSpace(resolved))
+                {
+                    return resolved;
+                }
             }
         }
 
-        if (properties.TryGetValue("target", out string? targetJson)
-            && !string.IsNullOrWhiteSpace(targetJson)
-            && targetJson.TrimStart().StartsWith("{", StringComparison.Ordinal))
+        if (properties.TryGetValue("target", out string? targetJson))
         {
-            return TryReadArmIdFromJson(targetJson);
+            return TryResolveArmReferenceValue(targetJson);
         }
 
         return null;
+    }
+
+    private static string? TryResolveArmReferenceValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        string trimmed = value.Trim();
+
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return TryReadArmIdFromJson(trimmed);
+        }
+
+        if (!trimmed.StartsWith("/", StringComparison.Ordinal)
+            || !trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(trimmed);
     }
 
     private static string? TryReadArmIdFromJson(string json)
@@ -82,9 +105,7 @@ public static class AzureInventoryAccessConnectorTargetParser
             if (document.RootElement.TryGetProperty("id", out JsonElement idElement)
                 && idElement.ValueKind is JsonValueKind.String)
             {
-                string? id = idElement.GetString();
-
-                return string.IsNullOrWhiteSpace(id) ? null : ArmResourceIdNormalizer.Normalize(id);
+                return TryResolveArmReferenceValue(idElement.GetString());
             }
         }
         catch (JsonException)

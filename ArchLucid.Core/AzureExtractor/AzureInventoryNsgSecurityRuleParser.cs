@@ -104,6 +104,8 @@ public static class AzureInventoryNsgSecurityRuleParser
                     Priority = TryReadString(propertiesElement, "priority"),
                     SourceAddressPrefix = TryReadString(propertiesElement, "sourceAddressPrefix"),
                     DestinationAddressPrefix = TryReadString(propertiesElement, "destinationAddressPrefix"),
+                    SourceAddressPrefixes = TryReadStringArray(propertiesElement, "sourceAddressPrefixes"),
+                    DestinationAddressPrefixes = TryReadStringArray(propertiesElement, "destinationAddressPrefixes"),
                 });
             }
         }
@@ -120,14 +122,34 @@ public static class AzureInventoryNsgSecurityRuleParser
         string index,
         string suffix)
     {
-        string key = $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}{index}{suffix}";
+        string keyPrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}{index}";
 
-        if (!properties.TryGetValue(key, out string? value) || string.IsNullOrWhiteSpace(value))
+        return ReadFlattenedPropertyValue(properties, keyPrefix, suffix);
+    }
+
+    private static string? ReadFlattenedPropertyValue(
+        IReadOnlyDictionary<string, string> properties,
+        string keyPrefix,
+        string suffix)
+    {
+        string exactKey = $"{keyPrefix}{suffix}";
+
+        if (properties.TryGetValue(exactKey, out string? exactValue) && !string.IsNullOrWhiteSpace(exactValue))
         {
-            return null;
+            return exactValue.Trim();
         }
 
-        return value.Trim();
+        foreach ((string propertyKey, string propertyValue) in properties)
+        {
+            if (propertyKey.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase)
+                && propertyKey.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(propertyValue))
+            {
+                return propertyValue.Trim();
+            }
+        }
+
+        return null;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
@@ -145,5 +167,33 @@ public static class AzureInventoryNsgSecurityRuleParser
         };
 
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
+    }
+
+    private static IReadOnlyList<string> TryReadStringArray(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out JsonElement value)
+            || value.ValueKind is not JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        List<string> values = [];
+
+        foreach (JsonElement entry in value.EnumerateArray())
+        {
+            if (entry.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? parsed = entry.GetString();
+
+            if (!string.IsNullOrWhiteSpace(parsed))
+            {
+                values.Add(parsed.Trim());
+            }
+        }
+
+        return values;
     }
 }

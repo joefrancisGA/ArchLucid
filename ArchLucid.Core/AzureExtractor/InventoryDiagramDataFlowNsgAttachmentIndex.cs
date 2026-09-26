@@ -93,6 +93,15 @@ public static class InventoryDiagramDataFlowNsgAttachmentIndex
         GraphNode graphNode,
         IReadOnlyDictionary<string, List<InventoryDiagramDataFlowNsgEndpointAttachment>> attachmentsByEndpointArmId)
     {
+        return ResolveEndpointAttachments(graph, graphNode, null, attachmentsByEndpointArmId);
+    }
+
+    public static IReadOnlyList<InventoryDiagramDataFlowNsgEndpointAttachment> ResolveEndpointAttachments(
+        GraphSnapshot graph,
+        GraphNode graphNode,
+        GraphNode? peerNode,
+        IReadOnlyDictionary<string, List<InventoryDiagramDataFlowNsgEndpointAttachment>> attachmentsByEndpointArmId)
+    {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(graphNode);
         ArgumentNullException.ThrowIfNull(attachmentsByEndpointArmId);
@@ -119,17 +128,132 @@ public static class InventoryDiagramDataFlowNsgAttachmentIndex
             }
         }
 
+        if (IsVirtualMachineNode(graphNode))
+        {
+            GraphNode? facingNicNode = ResolveFacingNicForVm(graph, graphNode, peerNode);
+
+            if (facingNicNode is not null)
+            {
+                string nicArmId = ArmResourceIdNormalizer.Normalize(ReadArmId(facingNicNode));
+                AddForEndpoint(nicArmId);
+
+                string? subnetArmId = ResolveSubnetArmIdForGraphNode(graph, facingNicNode);
+
+                if (!string.IsNullOrWhiteSpace(subnetArmId))
+                {
+                    AddForEndpoint(subnetArmId);
+                }
+            }
+
+            return attachments;
+        }
+
+        if (IsNetworkInterfaceNode(graphNode))
+        {
+            string nicArmId = ArmResourceIdNormalizer.Normalize(ReadArmId(graphNode));
+            AddForEndpoint(nicArmId);
+
+            string? subnetArmId = ResolveSubnetArmIdForGraphNode(graph, graphNode);
+
+            if (!string.IsNullOrWhiteSpace(subnetArmId))
+            {
+                AddForEndpoint(subnetArmId);
+            }
+
+            return attachments;
+        }
+
         string nodeArmId = ArmResourceIdNormalizer.Normalize(ReadArmId(graphNode));
         AddForEndpoint(nodeArmId);
 
-        string? subnetArmId = ResolveSubnetArmIdForGraphNode(graph, graphNode);
+        string? resolvedSubnetArmId = ResolveSubnetArmIdForGraphNode(graph, graphNode);
 
-        if (!string.IsNullOrWhiteSpace(subnetArmId))
+        if (!string.IsNullOrWhiteSpace(resolvedSubnetArmId))
         {
-            AddForEndpoint(subnetArmId);
+            AddForEndpoint(resolvedSubnetArmId);
         }
 
         return attachments;
+    }
+
+    public static GraphNode? ResolveFacingNicForVm(
+        GraphSnapshot graph,
+        GraphNode vmNode,
+        GraphNode? peerNode)
+    {
+        Dictionary<string, GraphNode> graphNodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        List<GraphNode> nicNodes = GetNicNodesForVm(graph, vmNode, graphNodesById);
+
+        if (nicNodes.Count == 0)
+        {
+            return null;
+        }
+
+        if (nicNodes.Count == 1)
+        {
+            return nicNodes[0];
+        }
+
+        if (peerNode is null)
+        {
+            return null;
+        }
+
+        string? peerSubnetArmId = ResolveSubnetArmIdForGraphNode(graph, peerNode);
+
+        if (string.IsNullOrWhiteSpace(peerSubnetArmId))
+        {
+            return null;
+        }
+
+        Dictionary<string, string> subnetArmIdByNodeId = BuildSubnetArmIdByNodeId(graph);
+
+        List<GraphNode> nicsOnPeerSubnet = nicNodes
+            .Where(nicNode => subnetArmIdByNodeId.TryGetValue(nicNode.NodeId, out string? nicSubnetArmId)
+                && string.Equals(nicSubnetArmId, peerSubnetArmId, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return nicsOnPeerSubnet.Count == 1
+            ? nicsOnPeerSubnet[0]
+            : null;
+    }
+
+    private static List<GraphNode> GetNicNodesForVm(
+        GraphSnapshot graph,
+        GraphNode vmNode,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById)
+    {
+        List<GraphNode> nicNodes = [];
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(edge.FromNodeId, vmNode.NodeId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (graphNodesById.TryGetValue(edge.ToNodeId, out GraphNode? nicNode))
+            {
+                nicNodes.Add(nicNode);
+            }
+        }
+
+        nicNodes.Sort((left, right) => string.Compare(left.NodeId, right.NodeId, StringComparison.Ordinal));
+        return nicNodes;
+    }
+
+    private static bool IsVirtualMachineNode(GraphNode graphNode)
+    {
+        return ReadArmType(graphNode).Contains("/virtualMachines", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNetworkInterfaceNode(GraphNode graphNode)
+    {
+        return ReadArmType(graphNode).Contains("/networkInterfaces", StringComparison.OrdinalIgnoreCase);
     }
 
     private static Dictionary<string, string> BuildSubnetArmIdByNodeId(GraphSnapshot graph)

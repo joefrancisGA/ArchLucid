@@ -77,10 +77,10 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         foreach (KeyValuePair<string, string> alias in endpointAliases)
         {
-            if (string.IsNullOrWhiteSpace(alias.Key))
+            if (string.IsNullOrWhiteSpace(alias.Key) || string.IsNullOrWhiteSpace(alias.Value))
                 continue;
 
-            endpointKeyToNodeId.TryAdd(alias.Key.Trim(), alias.Value);
+            endpointKeyToNodeId.TryAdd(alias.Key.Trim(), alias.Value.Trim());
         }
 
         return endpointKeyToNodeId;

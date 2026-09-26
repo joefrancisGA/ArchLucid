@@ -3,9 +3,13 @@ import type {
   RemediationPrioritizedFinding,
   RemediationPrioritizationExplanation,
 } from "@/lib/remediation-factory-types";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 async function proxyGet<T>(path: string): Promise<T> {
-  const response = await fetch(`/api/proxy/${path}`, { credentials: "include" });
+  const response = await fetch(
+    `/api/proxy/${path}`,
+    mergeRegistrationScopeForProxy({ credentials: "include" }),
+  );
 
   if (!response.ok)
     throw new Error(`Request failed (${response.status})`);

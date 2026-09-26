@@ -185,10 +185,19 @@ public static class ExportBundleCareerPostureResolver
                 return false;
         }
 
-        if (element.ValueKind is JsonValueKind.Number
-            && element.TryGetInt32(out int numeric))
+        if (element.ValueKind is JsonValueKind.Number)
         {
-            return numeric != 0;
+            if (element.TryGetInt32(out int numeric))
+                return numeric != 0;
+
+            if (element.TryGetDouble(out double numericDouble)
+                && double.IsFinite(numericDouble)
+                && numericDouble >= int.MinValue
+                && numericDouble <= int.MaxValue
+                && numericDouble == Math.Truncate(numericDouble))
+            {
+                return numericDouble != 0;
+            }
         }
 
         return false;

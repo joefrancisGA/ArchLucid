@@ -158,6 +158,31 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     expect(screen.getByTestId("operator-home-metric-finalized-packages")).toBeInTheDocument();
   });
 
+  it("shows awaiting-approval metric when overview rows are demo-only but workspace totalCount is populated", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "ready",
+      readyCount: 2,
+      totalCount: 3,
+    });
+
+    const runsDashboard = buildRunsDashboard();
+    runsDashboard.items = [
+      {
+        runId: "demo-seed",
+        displayTitle: "Sample package",
+        customerStatus: "approved",
+        demoSeededOverviewInject: true,
+        hasGoldenManifest: true,
+        updatedAtUtc: "2026-01-10T12:00:00.000Z",
+      },
+    ] as OperatorHomeRunsDashboardModel["items"];
+    runsDashboard.totalCount = 5;
+
+    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
+
+    expect(screen.getByTestId("operator-home-metric-awaiting-approval-count")).toBeInTheDocument();
+  });
+
   it("hides setup readiness in Working mode", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",

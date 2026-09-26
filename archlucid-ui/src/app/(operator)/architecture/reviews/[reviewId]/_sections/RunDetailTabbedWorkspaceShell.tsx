@@ -54,7 +54,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       buyerPolishedArtifactTable={model.buyerPolishedArtifactTable}
       operatorGovernanceDecision={model.resolvedDetail.run.operatorGovernanceDecision}
       manifestStatus={model.manifestSummary?.status ?? null}
-      runCompleted={model.resolvedDetail.run.completedUtc != null}
+      runCompleted={model.runCompleted}
       nextAction={reviewStatusSummary.nextAction}
       showProgressTracker={model.showProgressTracker}
       legacyRunStatus={model.resolvedDetail.run.legacyRunStatus ?? null}
@@ -127,7 +127,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
             tabLifecycle={{
               manifestId: model.manifestId,
               showProgressTracker: model.showProgressTracker,
-              runCompleted: model.resolvedDetail.run.completedUtc != null,
+              runCompleted: model.runCompleted,
             }}
             lifecycle={resolved.lifecycle}
           />
@@ -138,7 +138,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         tabLifecycle={{
           manifestId: model.manifestId,
           showProgressTracker: model.showProgressTracker,
-          runCompleted: model.resolvedDetail.run.completedUtc != null,
+          runCompleted: model.runCompleted,
         }}
         tabActivityAt={resolved.tabActivityAt}
         tabCounts={resolved.tabCounts}

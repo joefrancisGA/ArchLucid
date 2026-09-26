@@ -19,6 +19,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -50,6 +51,11 @@ public sealed class FinalizeReadinessService(
     IUserWorkspaceModeReader userWorkspaceModeReader,
     IActorContext actorContext,
     IPreFinalizeChecklistService preFinalizeChecklistService,
+    ITechnologyLedgerRepository technologyLedgerRepository,
+    ITechnologyConsistencyFindingEngine technologyConsistencyFindingEngine,
+    IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions,
+    IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
+    IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
     IRunPolicyPackPinService runPolicyPackPinService,
     IRunEvidencePackagePinService runEvidencePackagePinService,
@@ -101,6 +107,23 @@ public sealed class FinalizeReadinessService(
 
     private readonly IPreFinalizeChecklistService _preFinalizeChecklistService =
         preFinalizeChecklistService ?? throw new ArgumentNullException(nameof(preFinalizeChecklistService));
+
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
+    private readonly ITechnologyConsistencyFindingEngine _technologyConsistencyFindingEngine =
+        technologyConsistencyFindingEngine ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngine));
+
+    private readonly TechnologyConsistencyFindingEngineOptions _technologyConsistencyFindingEngineOptions =
+        technologyConsistencyFindingEngineOptions?.Value
+        ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngineOptions));
+
+    private readonly IFindingEvidenceLinkageFindingEngine _findingEvidenceLinkageFindingEngine =
+        findingEvidenceLinkageFindingEngine ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngine));
+
+    private readonly FindingEvidenceLinkageFindingEngineOptions _findingEvidenceLinkageFindingEngineOptions =
+        findingEvidenceLinkageFindingEngineOptions?.Value
+        ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngineOptions));
 
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
@@ -254,14 +277,39 @@ public sealed class FinalizeReadinessService(
 
         if (gateOptions.Enabled)
         {
+            List<Finding> scorecardFindings = await PreFinalizeGateParityFindingLoader
+                .LoadAsync(
+                    runId,
+                    scope,
+                    runRecord,
+                    _findingsSnapshotRepository,
+                    _technologyLedgerRepository,
+                    _technologyConsistencyFindingEngine,
+                    _technologyConsistencyFindingEngineOptions,
+                    _findingEvidenceLinkageFindingEngine,
+                    _findingEvidenceLinkageFindingEngineOptions,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            FindingsSnapshot scorecardFindingsSnapshot = new()
+            {
+                FindingsSnapshotId = findings.FindingsSnapshotId,
+                RunId = findings.RunId,
+                ContextSnapshotId = findings.ContextSnapshotId,
+                GraphSnapshotId = findings.GraphSnapshotId,
+                CreatedUtc = findings.CreatedUtc,
+                GenerationStatus = findings.GenerationStatus,
+                Findings = scorecardFindings,
+            };
+
             IReadOnlyDictionary<string, Disposition> latestDispositions =
                 await PreFinalizeLatestDispositionLoader
-                    .LoadAsync(_findingReviewTrailRepository, scope, findings.Findings, cancellationToken)
+                    .LoadAsync(_findingReviewTrailRepository, scope, scorecardFindings, cancellationToken)
                     .ConfigureAwait(false);
 
             scorecardCounts = FinalizeQualityScorecardEvaluator.Compute(
                 request,
-                findings,
+                scorecardFindingsSnapshot,
                 latestDispositions,
                 gateOptions);
 

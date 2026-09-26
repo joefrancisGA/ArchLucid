@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
+using ArchLucid.Decisioning.Merge;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -52,6 +53,9 @@ public sealed class AgentCuratedEvidenceProposer(
         if (!_options.Enabled)
             return null;
 
+        if (!result.Findings.Any(AgentArchitectureFindingEmissionGate.HasTypedEmission))
+            return null;
+
         string userPrompt = BuildUserPrompt(runId, request, evidence, result);
 
         try
@@ -87,7 +91,10 @@ public sealed class AgentCuratedEvidenceProposer(
             JsonOptions);
 
         string findingsSummary = JsonSerializer.Serialize(
-            result.Findings.Select(f => new { Title = f.Message, f.Severity, f.Category }).Take(12),
+            result.Findings
+                .Where(AgentArchitectureFindingEmissionGate.HasTypedEmission)
+                .Select(f => new { Title = f.Message, f.Severity, f.Category })
+                .Take(12),
             JsonOptions);
 
         return $"""

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
@@ -36,10 +36,18 @@ export function GovernanceFindingsQueueSearchField(
 
     return readGovernanceFindingsQueueFacets(mode).searchQuery;
   });
+  const hadSearchQueryInUrlRef = useRef(searchParams.has("q"));
 
   useEffect(() => {
-    setSearchQuery(urlSearchQuery);
-  }, [urlSearchQuery]);
+    if (searchParams.has("q")) {
+      setSearchQuery(urlSearchQuery);
+      hadSearchQueryInUrlRef.current = true;
+    } else if (hadSearchQueryInUrlRef.current) {
+      setSearchQuery("");
+      patchGovernanceFindingsQueueFacets({ searchQuery: "" }, mode);
+      hadSearchQueryInUrlRef.current = false;
+    }
+  }, [mode, searchParams, urlSearchQuery]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

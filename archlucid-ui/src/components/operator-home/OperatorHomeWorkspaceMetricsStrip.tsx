@@ -57,6 +57,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
   const countingSnapshot = deriveOperatorHomeTenantCountingSnapshot({
     displayItems: props.runsDashboard.items,
     previewItems: props.runsDashboard.items,
+    runsDashboardTotalCount: props.runsDashboard.totalCount,
     awaitingApprovalCount,
   });
   const metrics = countingSnapshot.metrics;

@@ -44,6 +44,7 @@ import {
 } from "@/lib/run-detail-workspace-derive";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
+import { resolveReviewPackagePipelineInFlight } from "./resolve-review-package-pipeline-in-flight";
 
 export type RunDetailBelowFoldSectionsProps = {
   readonly model: RunDetailPageModel;
@@ -276,7 +277,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
           operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
           isArchived={m.resolvedDetail.run.isArchived === true}
-          pipelineInFlight={m.showProgressTracker && !m.manifestId}
+          pipelineInFlight={resolveReviewPackagePipelineInFlight(m.showProgressTracker)}
         />
       ) : null}
 

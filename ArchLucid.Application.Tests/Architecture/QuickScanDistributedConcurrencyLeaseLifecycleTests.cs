@@ -1019,7 +1019,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         {
             ObservedPromoteMaxConcurrentScans.Add(request.MaxConcurrentScans);
 
-            return await inner.TryPromoteAsync(request, cancellationToken).ConfigureAwait(false);
+            return await inner.TryPromoteAsync(request, cancellationToken);
         }
 
         public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>

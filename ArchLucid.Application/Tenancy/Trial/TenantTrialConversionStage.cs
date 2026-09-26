@@ -74,7 +74,18 @@ public sealed class TenantTrialConversionStage(
             TrialLifecycleStatus.Active,
             tier?.ToString() ?? "unspecified");
 
-        await _tenantRepository.MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken).ConfigureAwait(false);
+        bool converted = await _tenantRepository
+            .MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!converted)
+        {
+            return new TenantTrialConvertResult
+            {
+                Outcome = TenantTrialHttpOutcome.Conflict,
+                Message = "Tenant is not on an active self-service trial.",
+            };
+        }
 
         await _auditService.LogAsync(
             new AuditEvent

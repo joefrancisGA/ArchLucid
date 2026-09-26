@@ -62,6 +62,7 @@ export type WebhooksCreateSubscriptionFormProps = {
   readonly canMutate: boolean;
   readonly isSaving: boolean;
   readonly loading: boolean;
+  readonly hasLoadedSuccessfully: boolean;
   readonly canSubmitForm: boolean;
   readonly formReadinessMessage: string | null;
   readonly showAlertSeverityFilter: boolean;
@@ -126,6 +127,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
     canMutate,
     isSaving,
     loading,
+    hasLoadedSuccessfully,
     canSubmitForm,
     formReadinessMessage,
     showAlertSeverityFilter,
@@ -429,7 +431,11 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
           testId="webhook-save-readiness"
           className="sm:mr-auto sm:text-left"
           reason={
-            canMutate && !canSubmitForm && !isSaving && !loading && formReadinessMessage !== null
+            canMutate
+            && !isSaving
+            && !loading
+            && formReadinessMessage !== null
+            && (!hasLoadedSuccessfully || !canSubmitForm)
               ? whyDisabledIncompleteInput(formReadinessMessage)
               : null
           }
@@ -437,11 +443,15 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
         <Button
           type="submit"
           variant="primary"
-          disabled={!canMutate || loading || isSaving || !canSubmitForm}
+          disabled={!canMutate || loading || isSaving || !hasLoadedSuccessfully || !canSubmitForm}
           data-testid="webhook-save-button"
           aria-busy={isSaving}
           aria-describedby={
-            canMutate && !canSubmitForm && !isSaving && !loading && formReadinessMessage !== null
+            canMutate
+            && !isSaving
+            && !loading
+            && formReadinessMessage !== null
+            && (!canSubmitForm || !hasLoadedSuccessfully)
               ? "webhook-save-readiness"
               : undefined
           }

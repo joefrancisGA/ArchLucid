@@ -18,6 +18,7 @@ import { RunDetailDetailedOutcomeCardsDisclosure } from "./RunDetailDetailedOutc
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 import { isAssertedTransparencyTrailEmpty } from "@/lib/feasibility/transparency-trail-completeness";
 import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
+import { shouldShowOverviewDemotedSponsorReportCta } from "./run-detail-overview-demoted-sponsor-cta";
 
 export type RunDetailTabbedWorkspaceOverviewShellInput = {
   readonly model: RunDetailPageModel;
@@ -80,7 +81,6 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     blockingApprovalCount === 0 ? (
       <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
-  const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
   const feasibilityVerdict =
     m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null;
   const assertedTrailEmpty = isAssertedTransparencyTrailEmpty(feasibilityVerdict?.transparencyTrail ?? null);
@@ -138,13 +138,13 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />
       </Suspense>
-      {buyerFinalizedPackage || !runCompleted ? null : (
+      {shouldShowOverviewDemotedSponsorReportCta(buyerFinalizedPackage, m.runCompleted) ? (
         <RunDetailSponsorReportCtaCardDeferred
           runId={m.resolvedDetail.run.runId}
           manifestId={m.manifestId}
           demoted
         />
-      )}
+      ) : null}
     </div>
   );
 }

@@ -10,6 +10,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -98,7 +99,7 @@ internal static class GovernanceControllerTestFactory
             scope,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            Mock.Of<IRunDetailQueryService>(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
 
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),

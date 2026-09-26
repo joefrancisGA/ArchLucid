@@ -116,6 +116,58 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
     }
 
     [Fact]
+    public void Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+        detail.Results.Add(
+            new AgentResult
+            {
+                TaskId = "t-agent-warning",
+                RunId = "r1",
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "agent-warning",
+                        Severity = FindingSeverity.Warning,
+                        Category = "Cost",
+                        Message = "agent warning finding",
+                    },
+                ],
+            });
+
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "snapshot-error",
+                    Severity = FindingSeverity.Error,
+                    Category = "Security",
+                    Message = "Rotate storage account keys from snapshot",
+                    EvidenceRefs = ["trace:trace-1"],
+                    EvaluationConfidenceScore = 82,
+                    ConfidenceLevel = FindingConfidenceLevel.High,
+                },
+            ],
+        };
+
+        ProofPackageCompletenessResponse proof = BuildProof();
+        PilotBuyerSafeEvidenceGateResult gate = BuildGate();
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            gate);
+
+        result.DecisionDeltaSummary.Should().Contain("Error");
+        result.DecisionDeltaSummary.Should().Contain("Rotate storage account keys from snapshot");
+        result.DecisionDeltaSummary.Should().NotContain("agent warning finding");
+    }
+
+    [Fact]
     public void Resolve_when_agent_results_empty_uses_sponsor_narrative_findings_from_deltas()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);

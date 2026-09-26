@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   persistFindingsVisibilityPreferences,
@@ -30,6 +30,7 @@ export function useGovernanceFindingsHideGenericState(): GovernanceFindingsHideG
   const [hideGenericLowDensity, setHideGenericLowDensityState] = useState(() =>
     resolveFindingsVisibilityFlag(hasUrlHideGeneric, urlHideGeneric, accountPrefs.hideGenericEnabled),
   );
+  const hadHideGenericInUrlRef = useRef(searchParams.has("hideGeneric"));
 
   useEffect(() => {
     void syncFindingsVisibilityFromServer();
@@ -46,6 +47,10 @@ export function useGovernanceFindingsHideGenericState(): GovernanceFindingsHideG
   useEffect(() => {
     if (hasUrlHideGeneric) {
       setHideGenericLowDensityState(urlHideGeneric);
+      hadHideGenericInUrlRef.current = true;
+    } else if (hadHideGenericInUrlRef.current) {
+      setHideGenericLowDensityState(readFindingsVisibilityFromStorage().hideGenericEnabled);
+      hadHideGenericInUrlRef.current = false;
     }
   }, [hasUrlHideGeneric, urlHideGeneric]);
 
