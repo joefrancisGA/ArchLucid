@@ -84,6 +84,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Confidence</dt>
             <dd className="m-0 font-medium text-al-text-primary">{formatConfidence(decision)}</dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              Confidence describes the recorded decision’s support, not a probability that the decision is correct.
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Supporting findings</dt>

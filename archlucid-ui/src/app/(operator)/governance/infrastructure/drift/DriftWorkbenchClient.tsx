@@ -1694,6 +1694,11 @@ export function DriftWorkbenchClient() {
 
         {selectedSnapshotId.length > 0 ? (
         <>
+        {isViewingSnapshotInventory ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-inventory-view-scope">
+            This view shows the selected snapshot’s inventory, not changes between snapshots.
+          </p>
+        ) : null}
         <EnterpriseTable
           ariaLabel={
             isViewingSnapshotInventory

@@ -324,6 +324,7 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
         <li><span className="font-medium">What the boxes are:</span> {content.boxes}</li>
         <li><span className="font-medium">What the connectors are:</span> {content.connectors}</li>
         <li><span className="font-medium">Evidence kind:</span> {content.evidence}</li>
+        <li><span className="font-medium">Relationship provenance:</span> Observed means inventory evidence; derived means an inferred connection. Neither claims observed traffic.</li>
       </ul>
     </section>
   );

@@ -161,6 +161,9 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
   const pickerFields = (
     <>
       <div className="grid gap-3">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-review-selection-scope">
+          Choose a baseline review and an updated review to compare changes.
+        </p>
         <RunIdPicker
           preferAutoPick={false}
           autoFocus

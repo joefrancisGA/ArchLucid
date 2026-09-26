@@ -848,6 +848,9 @@ export function InfrastructureAskClient() {
                 <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Topic: {formatInfraEvidenceAskTopicKindLabel(turn.response.topicKind)}
                 </p>
+                <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Topic identifies the kind of inventory question answered.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
 
               {turn.response.viewPlan != null ? (

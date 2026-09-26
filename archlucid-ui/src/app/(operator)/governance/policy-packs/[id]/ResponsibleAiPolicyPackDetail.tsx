@@ -314,6 +314,9 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
           <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Applies to: <span className="font-medium text-al-text-primary">{RESPONSIBLE_AI_POLICY_PACK_APPLIES_TO}</span>
           </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Enabled in workspace describes this workspace. Active globally describes the broader policy scope.
+          </p>
         </CardContent>
       </Card>
 

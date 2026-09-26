@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import { EnterpriseTableHeaderCell } from "@/components/ui/enterprise-table";
@@ -11,28 +12,34 @@ export function GovernanceFindingsQueueSortHeaderCell(props: {
   readonly sortAsc: boolean;
   readonly onSort: (sortKey: GovernanceAssignedToMeQueueSortKey) => void;
   readonly className?: string;
+  readonly helperText?: string;
 }): ReactElement {
   const isActive = props.activeSortKey === props.sortKey;
   const directionLabel = props.sortAsc ? "ascending" : "descending";
 
   return (
     <EnterpriseTableHeaderCell className={props.className}>
-      <button
-        type="button"
-        className={cn(
-          "font-inherit text-left font-semibold text-al-text-secondary hover:text-al-text-primary",
-          isActive ? "text-al-text-primary" : undefined,
-        )}
-        aria-label={
-          isActive ? `Sort by ${props.label}, ${directionLabel}` : `Sort by ${props.label}`
-        }
-        onClick={() => {
-          props.onSort(props.sortKey);
-        }}
-      >
-        {props.label}
-        {isActive ? (props.sortAsc ? " ↑" : " ↓") : null}
-      </button>
+      <div className="flex flex-col items-start">
+        <button
+          type="button"
+          className={cn(
+            "font-inherit text-left font-semibold text-al-text-secondary hover:text-al-text-primary",
+            isActive ? "text-al-text-primary" : undefined,
+          )}
+          aria-label={
+            isActive ? `Sort by ${props.label}, ${directionLabel}` : `Sort by ${props.label}`
+          }
+          onClick={() => {
+            props.onSort(props.sortKey);
+          }}
+        >
+          {props.label}
+          {isActive ? (props.sortAsc ? " ↑" : " ↓") : null}
+        </button>
+        {props.helperText != null ? (
+          <span className={cn("font-normal", OPERATOR_TYPOGRAPHY.helper)}>{props.helperText}</span>
+        ) : null}
+      </div>
     </EnterpriseTableHeaderCell>
   );
 }
