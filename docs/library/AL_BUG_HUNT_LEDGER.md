@@ -3509,13 +3509,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 38
-- **bugs-found:** 17
+- **hunts:** 39
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-09 — pipeline-dead-letter runs matched committed-run lookups via retained manifest headers
+- **last-bug:** 2026-09-26 — InMemory representative request-run lookup ignored SQL GoldenManifestId filter
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6973 (seed→hit): reseeded representative architecture-request lookup parity; proved `TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` InMemory path ignored SQL `GoldenManifestId IS NOT NULL` and could pick newer in-flight reruns for sealed-manifest guard; fixed InMemory filter; regressions `InMemory_representative_run_id_requires_golden_manifest_like_sql` and `SelectRepresentativeRunIdForArchitectureRequestInScope_requires_golden_manifest_id`; 122 scoped zone tests passed (1 SQL integration skipped).
+
+- [x] (proven) `InMemoryRunRepository.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` — omitted `GoldenManifestId IS NOT NULL` guard present in `SelectRepresentativeRunIdForArchitectureRequestInScope` — **hit 2026-09-26 seed hunt #6973:** newer in-flight reruns won representative selection in tests/local host; fixed InMemory parity; regressions `InMemory_representative_run_id_requires_golden_manifest_like_sql` and `SelectRepresentativeRunIdForArchitectureRequestInScope_requires_golden_manifest_id`.
 
 2026-09-26 seed hunt #6957 (seed-only): reseeded sql-run-repository; cheap-disproof closed `FailedPartial` manifest-header committed-lookup candidate and pass-9 partial split parity; 120 scoped Persistence tests passed (1 SQL integration skipped).
 
