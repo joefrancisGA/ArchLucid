@@ -274,6 +274,9 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER}
         </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          This checks the exported record’s lineage; it does not validate the current Azure environment.
+        </p>
       </div>
     ) : null;
 
