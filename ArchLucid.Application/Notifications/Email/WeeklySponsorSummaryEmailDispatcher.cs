@@ -57,9 +57,13 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         if (string.IsNullOrWhiteSpace(runDetailUrl))
             throw new ArgumentException("Run detail URL is required.", nameof(runDetailUrl));
 
+        if (string.IsNullOrWhiteSpace(runIdHex))
+            throw new ArgumentException("Run id hex is required.", nameof(runIdHex));
+
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
         string normalizedRunDetailUrl = runDetailUrl.Trim();
+        string normalizedRunIdHex = runIdHex.Trim();
 
         List<string> normalizedMailboxes = [];
 
@@ -82,7 +86,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         {
             ProductName = productName,
             WeekLabel = normalizedWeekLabel,
-            RunIdHex = runIdHex.Trim(),
+            RunIdHex = normalizedRunIdHex,
             RunDetailUrl = normalizedRunDetailUrl,
             SummaryMarkdown = summaryMarkdown,
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
