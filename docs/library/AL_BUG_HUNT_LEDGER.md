@@ -4836,17 +4836,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved `LooksAmbiguous` omitted `present state`/`future state`/`as-is`/`to-be` while `InferLifecycleScopeForIndex` already recognized them, so dual-lifecycle prose classified `ClearExtraction` and stamped `DirectlyEstablished`; fixed by extending ambiguous markers; regressions `Classify_returns_ambiguous_for_present_and_future_state` and `Extract_does_not_treat_present_and_future_state_prose_as_directly_established`; 36 scoped DifficultyBasedExtractionRouter tests passed.
+
 - **id:** extraction-router
 - **status:** open
 - **impact:** medium
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 18
-- **bugs-found:** 10
+- **hunts:** 19
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-09 — present/future lifecycle synonyms ignored in `InferLifecycleScopeForIndex`
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — present/future lifecycle prose bypassed `LooksAmbiguous`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4896,6 +4898,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1917 (seed-only): reseeded extraction-router; cheap-disproof closed present/future lifecycle synonym gap as fixed in #1421; scoped DifficultyBasedExtractionRouter tests passed.
 
 - [x] (valid-no-repro) `InferLifecycleScopeForIndex` ignores `present state`/`future state` section headers — **cheap-disproof 2026-09-12 seed hunt #1917:** regression `Extract_tags_component_after_present_state_section_even_when_future_state_appears_first` (#1421).
+- [x] (proven) `LooksAmbiguous` — `present state`/`future state`/`as-is`/`to-be` dual-lifecycle prose classified `ClearExtraction` — **hit 2026-09-26 seed hunt (seed→hit):** lifecycle synonym support added to `InferLifecycleScopeForIndex` in #1421 but ambiguous classifier still only matched `current state`/`target state`, so provenance stayed `DirectlyEstablished`; fixed by extending `LooksAmbiguous` markers; regressions `Classify_returns_ambiguous_for_present_and_future_state` and `Extract_does_not_treat_present_and_future_state_prose_as_directly_established`.
+
 ---
 
 ## Zone: cli-tenant-isolation

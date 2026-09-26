@@ -93,6 +93,10 @@ public sealed partial class DifficultyBasedExtractionRouter
             sourceText,
             "target state",
             "current state",
+            "future state",
+            "present state",
+            "to-be",
+            "as-is",
             "trust boundary",
             "contradict");
     }

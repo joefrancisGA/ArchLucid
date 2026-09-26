@@ -26,6 +26,34 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Classify_returns_ambiguous_for_present_and_future_state()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("Present state is monolith. Future state is services.");
+
+        difficulty.Should().Be(ExtractionDifficulty.AmbiguousExtraction);
+    }
+
+    [Fact]
+    public void Extract_does_not_treat_present_and_future_state_prose_as_directly_established()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            Present state is monolith.
+            Future state is services.
+            Component: Orders API
+            """,
+            "src-present-future-classify");
+
+        ArchitectureModelElement component = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Component)
+            .Subject;
+
+        component.Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);
+        component.ExtractionConfidence.Should().BeApproximately(0.55, 0.001);
+    }
+
+    [Fact]
     public void Extract_tags_current_and_target_state_elements_with_lifecycle_scope()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
