@@ -73,6 +73,9 @@ def evaluate_send_eligibility(
     override: dict[str, Any] | None = None,
     *,
     policy: dict[str, Any] | None = None,
+    baseline: dict[str, Any] | None = None,
+    measurement: dict[str, Any] | None = None,
+    require_recorded_evidence: bool = False,
 ) -> dict[str, Any]:
     policy = policy or load_policy()
     threshold = policy["sendThreshold"]
@@ -86,12 +89,25 @@ def evaluate_send_eligibility(
     missing_fields: list[str] = []
     field_rows: list[dict[str, Any]] = []
 
+    strong_sources = {"buyer-provided", "measured"}
+    source_is_strong = str((baseline or {}).get("baselineReviewCycleSource") or "").strip().lower() in strong_sources
     for field in threshold["requiredBaselineFields"]:
         field_id = str(field["id"])
         collected = completeness == "COMPLETE"
 
         if field_id == "roiBasisSource":
             collected = roi_basis in threshold["roiBasisStatusComplete"]
+
+        if require_recorded_evidence:
+            values = baseline or {}
+            if field_id == "roiBasisSource":
+                collected = collected and source_is_strong
+            else:
+                key = ("baselineReviewCycleHours" if field_id == "reviewCycleHoursBaseline"
+                       else "architectPrepHoursPerReview")
+                value = values.get(key)
+                collected = (source_is_strong and isinstance(value, (int, float)) and not isinstance(value, bool)
+                             and 0 < value < float("inf"))
 
         if not collected:
             missing_fields.append(field_id)
@@ -101,9 +117,15 @@ def evaluate_send_eligibility(
                 "id": field_id,
                 "label": field.get("label"),
                 "collected": collected,
-                "inferredFrom": "roiBasisStatus" if field_id == "roiBasisSource" else "roiBasisStatus proxy",
+                "inferredFrom": "paid-pilot-baseline.json" if require_recorded_evidence else
+                    ("roiBasisStatus" if field_id == "roiBasisSource" else "roiBasisStatus proxy"),
             }
         )
+
+    if require_recorded_evidence:
+        collected_count = sum(bool(row["collected"]) for row in field_rows)
+        completeness = "COMPLETE" if collected_count == len(field_rows) else (
+            "PARTIAL" if collected_count else "NOT_COLLECTED")
 
     override_valid = False
     override_errors: list[str] = []
@@ -130,6 +152,12 @@ def evaluate_send_eligibility(
     if completeness != "COMPLETE" and not override_valid:
         send_block_reasons.append(f"baselineCompletenessStatus={completeness}")
 
+    measured = (measurement or {}).get("schema") == "archlucid.roi-measurement-evidence.v1" and (measurement or {}).get("status") == "MEASURED"
+    if require_recorded_evidence and missing_fields and not override_valid:
+        send_block_reasons.append("recorded baseline fields missing or weakly sourced")
+    if require_recorded_evidence and not measured and not override_valid:
+        send_block_reasons.append("recorded measured outcomes missing or insufficient")
+
     if not send_block_reasons:
         send_eligible = True
 
@@ -144,6 +172,7 @@ def evaluate_send_eligibility(
         "baselineFieldRows": field_rows,
         "missingRequiredBaselineFields": missing_fields,
         "sendEligible": send_eligible,
+        "projectedDollarClaimsEligible": send_eligible and not override_valid and (not require_recorded_evidence or measured),
         "sendBlockReasons": send_block_reasons,
         "proofDispositionHint": proof_disposition,
         "overrideApplied": override_valid,
