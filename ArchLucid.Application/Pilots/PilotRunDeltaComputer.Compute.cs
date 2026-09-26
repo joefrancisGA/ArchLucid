@@ -49,6 +49,7 @@ public sealed partial class PilotRunDeltaComputer
             }
         }
 
+        bool preferSnapshotMaterialFindings = findingsFromSnapshot;
         GovernedFindingCoverageMetric agentGovernedCoverage = AggregateGovernedFindingCoverage(detail);
         GovernedFindingCoverageMetric governedCoverage = agentGovernedCoverage;
 
@@ -61,6 +62,11 @@ public sealed partial class PilotRunDeltaComputer
                 || ShouldPreferSnapshotGovernedCoverage(agentGovernedCoverage, snapshotGovernedCoverage))
             {
                 governedCoverage = snapshotGovernedCoverage;
+                preferSnapshotMaterialFindings = true;
+            }
+            else if (ResolveMaxSeverityRank(coverageFindings) > ResolveMaxSeverityRank(detail))
+            {
+                preferSnapshotMaterialFindings = true;
             }
         }
 
@@ -128,7 +134,7 @@ public sealed partial class PilotRunDeltaComputer
 
         if (persistedFindingsSnapshot?.Findings is { Count: > 0 } narrativeFindings)
         {
-            if (findingsFromSnapshot || topAgentFinding is null)
+            if (findingsFromSnapshot || topAgentFinding is null || preferSnapshotMaterialFindings)
             {
                 sponsorNarrativeFindings =
                     PilotSponsorMaterialFindingsMapper.MapFromSnapshotFindings(narrativeFindings);

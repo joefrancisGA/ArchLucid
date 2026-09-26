@@ -1376,5 +1376,9 @@ public sealed class PilotRunDeltaComputerTests
         deltas.GovernedFindingCoverage.IsAvailable.Should().BeTrue();
         deltas.GovernedFindingCoverage.GovernedCount.Should().Be(1);
         deltas.GovernedFindingCoverage.TotalDecisionGradeCount.Should().Be(2);
+        deltas.SponsorNarrativeFindings.Should().HaveCount(2);
+        deltas.SponsorNarrativeFindings.Select(static finding => finding.FindingId)
+            .Should()
+            .BeEquivalentTo(["snapshot-governed", "snapshot-advisory"]);
     }
 }
