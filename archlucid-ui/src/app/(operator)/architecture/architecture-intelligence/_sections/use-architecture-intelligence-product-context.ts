@@ -154,12 +154,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   }, [pathname, router, searchParams]);
 
   useEffect(() => {
-    const fromUrl = parseArchitectureIntelligenceTierFromSearch(searchParams.get("tier"));
-
-    if (fromUrl !== null) {
-      setReviewTier(fromUrl);
-    }
-  }, [searchParams]);
+    setReviewTier(urlReviewTier ?? "Standard");
+  }, [urlReviewTier]);
 
   const setActiveRunIdWithUrl = useCallback(
     (value: string | null) => {
@@ -289,7 +285,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setActiveRunId(inboundRunId);
     setError(null);
     setPublishToProduct(false);
-  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce]);
+    setReviewTier(urlReviewTier ?? "Standard");
+  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier]);
 
   useEffect(() => {
     if (inboundRunId.length === 0 || sourceContextQuery.data === undefined) {

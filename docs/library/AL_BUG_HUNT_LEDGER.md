@@ -5400,11 +5400,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 19
-- **bugs-found:** 14
+- **hunts:** 20
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-09 — contextRunId switch left stale reasoning and publish toggle from prior scoped review
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — deep-linked runId switch left Deep analysis depth when tier param dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5494,6 +5494,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-09-12 seed hunt #1925 (seed-only): reseeded ui-architecture-intelligence; scoped ArchitectureIntelligencePageClient tests passed; no new hunt-ready defect proven this pass.
+
+2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence; proved deep-linked `runId` switch left prior `tier=Deep` analysis depth when the next review URL omitted `tier`; fixed tier hydration to default to Standard when the search param is absent and to re-sync on inbound run change; regression `resets analysis depth to Standard when deep-linked runId switches without tier search param`; 41 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+- [x] (proven) Deep-linked `runId` switch leaves prior Deep analysis depth when `tier` search param is absent on the next review — **hit 2026-09-26 seed hunt:** `reviewTier` state only updated when URL carried `tier`; fixed `urlReviewTier` sync on inbound run change and default-to-Standard when param missing; regression `resets analysis depth to Standard when deep-linked runId switches without tier search param`.
+
 ---
 
 ## Zone: scim-users

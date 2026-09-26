@@ -2119,6 +2119,65 @@ describe("ArchitectureIntelligencePageClient", () => {
     );
   });
 
+  it("resets analysis depth to Standard when deep-linked runId switches without tier search param", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "tier") {
+        return currentRunId === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" ? "Deep" : null;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: currentRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: `Architecture for ${currentRunId}.`,
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Deep (most specialist roles, highest cost)",
+      );
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+        "Balanced (recommended)",
+      );
+    });
+  });
+
   it("clears hydrated intake when contextRunId switches to another review without inbound runId", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {
