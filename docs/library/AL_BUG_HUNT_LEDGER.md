@@ -23639,13 +23639,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — admit-path store handler swallowed `OperationCanceledException` as `StoreUnavailable`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6963 (seed-only): picker repeat; reseeded promote-loop policy snapshots and operational failure mapping; cheap-disproof closed live `LeaseDurationSeconds` on promote, options `AnonymousExecutionEnabled=false` during queue wait, and operational snapshot store failures vs `StoreUnavailable`; regressions `WaitForAdmissionAsync_uses_current_lease_duration_on_each_promote_attempt`, `WaitForAdmissionAsync_still_promotes_when_anonymous_execution_disabled_during_queue_wait`, `WaitForAdmissionAsync_propagates_operational_snapshot_failure_without_store_unavailable`; 22 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote loop must re-read `LeaseDurationSeconds` each poll like `MaxConcurrentAnonymousScans` — **cheap-disproof 2026-09-26 seed hunt #6963:** promote request uses `_safetyOptions.CurrentValue.Concurrency` each iteration (#1542 pattern); regression `WaitForAdmissionAsync_uses_current_lease_duration_on_each_promote_attempt`.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `AnonymousExecutionEnabled=false` in `IOptionsMonitor` during queue wait must reject before promote — **cheap-disproof 2026-09-26 seed hunt #6963:** promote loop polls store capacity only; budget-stage `preProviderOperational` and orchestrator `finally` dispose cover downstream kill-switch; regression `WaitForAdmissionAsync_still_promotes_when_anonymous_execution_disabled_during_queue_wait`.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — operational `GetSnapshotAsync` store failure mapped to `StoreUnavailable` — **cheap-disproof 2026-09-26 seed hunt #6963:** only distributed store admit/promote errors map to `StoreUnavailable`; operational failures propagate to caller; regression `WaitForAdmissionAsync_propagates_operational_snapshot_failure_without_store_unavailable`.
 
 2026-09-26 seed hunt #6962 (seed-only): picker repeat after #6961; cheap-disproof closed operational-snapshot cancellation mapping and `Task.Delay` cancel abandon parity; regression `WaitForAdmissionAsync_throws_operation_canceled_when_operational_snapshot_lookup_is_cancelled`; 19 scoped QuickScanDistributedConcurrency tests passed.
 
