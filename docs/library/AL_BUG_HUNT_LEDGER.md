@@ -23412,6 +23412,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-09-26 seed hunt (seed→hit): proved selective execute acquired ownership when run committed after live force validation but before `AcquireAsync`; fixed with final `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_after_force_validation`; 19 scoped ownership/orchestrator tests passed.
+
 2026-09-26 seed hunt (seed→hit): proved `ExecuteSelectiveRunAsync` acquired SQL ownership when live schedule cleared between planning and acquire; fixed via `EnsureSelectiveForcedTasksStillResolvableAsync` + `ResolveLiveForcedTasksOrThrow` (empty live schedule → `NoScheduledAgentTasksException`); regressions `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_before_acquire` and prior stale-schedule delete guard; 18 scoped ownership/orchestrator tests passed.
 
 2026-09-26 thorough hunt (hit): proved `ExecuteSelectiveRunOwnedCoreAsync` deleted forced-task results from the first `GetByRunIdAsync` snapshot without re-resolving against live schedule before prep; fixed by re-fetching tasks and re-running `SelectiveAgentExecutePlanner.ResolveTasksToForce` after eligibility reload; regression `ExecuteSelectiveRunAsync_does_not_delete_results_when_forced_tasks_no_longer_match_live_schedule`; 17 scoped ownership/orchestrator tests passed.
@@ -23428,7 +23430,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — selective execute acquired ownership when live schedule no longer supported force list
+- **last-bug:** 2026-09-26 — selective execute acquired lease after run committed post force-validation
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -23452,6 +23454,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ExecuteSelectiveRunOwnedCoreAsync` — authority-pipeline or committed transition after `AcquireAsync` but before prep reload may hold SQL lease until `EnsureSelectiveExecuteStillEligibleAsync` throws — **cheap-disproof 2026-09-26 seed hunt:** narrow post-acquire window mirrors full execute `ExecuteRunCoreInnerAsync` authority re-check after ownership acquire; pre-acquire guards (#1327/#1392/#1393) already minimize lease pins for known refusal paths
 - [x] (proven) `ExecuteSelectiveRunAsync` — forced-task list frozen from first `GetByRunIdAsync` snapshot; prep deleted results for tasks no longer on live schedule after acquire — **hit 2026-09-26 thorough hunt:** re-resolve forced tasks from live `GetByRunIdAsync` inside `ExecuteSelectiveRunOwnedCoreAsync` before destructive prep; regression `ExecuteSelectiveRunAsync_does_not_delete_results_when_forced_tasks_no_longer_match_live_schedule` (schedule is append-only today; guard closes planning-to-prep drift)
 - [x] (proven) `ExecuteSelectiveRunAsync` — acquired ownership when live schedule no longer supported the selective force list before `AcquireAsync` — **hit 2026-09-26 seed hunt:** `EnsureSelectiveForcedTasksStillResolvableAsync` before acquire; `ResolveLiveForcedTasksOrThrow` maps empty live schedule to `NoScheduledAgentTasksException`; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_before_acquire`
+- [x] (proven) `ExecuteSelectiveRunAsync` — run could commit after `EnsureSelectiveForcedTasksStillResolvableAsync` but before `AcquireAsync`, briefly pinning SQL ownership — **hit 2026-09-26 seed hunt:** second `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_after_force_validation`
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
