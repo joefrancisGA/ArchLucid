@@ -20,7 +20,7 @@ def _summary() -> dict:
 
 
 def _run() -> dict:
-    return {"profile": "synthetic-multitenant", "tenantCount": 2, "gitSha": "abc123",
+    return {"profile": "synthetic-multitenant", "tenantCount": 2, "seededPathsPerTenant": 100, "gitSha": "abc123",
             "environment": "staging", "workload": "scripts/load/securenow-multitenant-read.js"}
 
 

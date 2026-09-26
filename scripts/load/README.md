@@ -79,7 +79,8 @@ The workflow `.github/workflows/load-test.yml` runs on **manual** `workflow_disp
 
 Provision at least two disposable, distinct tenants with seeded snapshots and
 ranked paths. Supply `SECURENOW_TEST_SCOPES_JSON` as an array of objects with
-`tenantId`, `workspaceId`, `projectId`, `snapshotId`, and `apiKey`. Keep that
+`tenantId`, `workspaceId`, `projectId`, and `snapshotId`. Include `apiKey` when
+not using the isolated CI DevelopmentBypass configuration. Keep any
 secret-bearing input outside the repository and evidence files. Run:
 
 ```bash
@@ -98,6 +99,10 @@ python3 scripts/ci/evaluate_securenow_scale_run.py \
 ```
 
 Only HTTP 200 responses count as successful checks. The evaluator requires
-complete metrics, passing thresholds, and at least two declared tenants.
+complete metrics, passing thresholds, at least two declared tenants, and a
+positive `seededPathsPerTenant` count. The workload preflights nonempty ranked
+pages for every tenant. The scheduled and manual
+`k6-per-tenant-burst-scheduled.yml` workflow provisions two disposable SQL
+tenants with 100 paths each, runs this workload, and uploads the verdict.
 It labels the result as synthetic read evidence, not a production SLA or proof
 of ingestion/write throughput.
