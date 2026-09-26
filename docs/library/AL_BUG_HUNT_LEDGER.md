@@ -8703,13 +8703,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 24
-- **bugs-found:** 20
+- **hunts:** 25
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — sponsor evidence explainability counted operator-muted snapshot rows
+- **last-bug:** 2026-09-26 — agent over-count left SponsorNarrativeFindings empty despite stronger snapshot material
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed→hit): proved agent-over-count runs still omitted `SponsorNarrativeFindings` after governed-coverage snapshot preference, leaving decision-delta material on agent Info noise; fixed by `preferSnapshotMaterialFindings` when snapshot governed coverage or max severity beats agent; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
+
+- [x] (proven) `PilotRunDeltaComputer` / `PilotSponsorMaterialFindingsResolver` — agent over-count with stronger snapshot governed coverage left `SponsorNarrativeFindings` empty — **hit 2026-09-26 seed hunt:** populate snapshot narrative when governed or severity material prefers snapshot; regression extended on `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 
 2026-09-26 thorough hunt (hit): proved agent-over-count findings kept agent `GovernedFindingCoverage` when persisted snapshot had more policy-violation rows; fixed by preferring snapshot governed metric when `GovernedCount` is higher; proved `SponsorEvidencePackService` explainability trace counted operator-muted snapshot findings excluded from delta severity paths; fixed with `ExcludeOperatorMutedFindings` before `AnalyzeSnapshot`; cheap-disproof closed reference-evidence receipt gate candidate (Wave-40 hash guard on bundle entry; nested first-value/sponsor PDF builders enforce sealed receipt); regressions `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger` and `BuildAsync_excludes_muted_findings_from_explainability_trace`; 50 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorEvidencePack tests passed.
 
