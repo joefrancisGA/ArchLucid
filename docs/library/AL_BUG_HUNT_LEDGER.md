@@ -3505,13 +3505,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-09 — pipeline-dead-letter runs matched committed-run lookups via retained manifest headers
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
+
+2026-09-26 seed hunt #6957 (seed-only): reseeded sql-run-repository; cheap-disproof closed `FailedPartial` manifest-header committed-lookup candidate and pass-9 partial split parity; 120 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (invalid) `IsCommittedRun` / `CommittedRunLookupStatusFilter` treat `FailedPartial` rows with retained `GoldenManifestId` or `CurrentManifestVersion` as committed like pre-#1464 `Failed` dead-letter — **cheap-disproof 2026-09-26 seed hunt #6957:** `RunRepositoryCore.IsCommittedRun` still returns true for manifest signals on non-terminal statuses, but primary writers set `FailedPartial` from pre-commit execute/reconcile paths (`RunStateTransitionService.DeriveStatusAfterExecuteFailure`, `RunExecuteOwnershipReconciliationService`) before finalize persists `GoldenManifestId`; no production writer pairs `FailedPartial` with sealed manifest headers outside regression fixtures; parity with excluded `Failed` / `ExecutionCompletedQualityRejected` remains shape-tested in `IsCommittedRun_recognizes_manifest_and_status_signals`.
+- [x] (valid-no-repro) Pass-9 `SqlRunRepository` partial split (`Query`/`List`/`Write`/`Architecture` files) diverges list or committed SQL from pre-split behavior — **cheap-disproof 2026-09-26 seed hunt #6957:** entry `SqlRunRepository.cs` delegates to the same `RunRepositorySql` / `RunListWarningFlagSql` shapes; 120 scoped zone tests passed.
 
 2026-09-13 seed hunt #2263 (seed-only): reseeded sql-run-repository with `-Hint sql`; no new hunt-ready rows.
 
