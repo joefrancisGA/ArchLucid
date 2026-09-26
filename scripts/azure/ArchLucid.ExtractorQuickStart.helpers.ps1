@@ -816,14 +816,32 @@ function Ensure-ArchLucidAzureSubscriptionSession
 
     if ($null -ne $subscription)
     {
+        if ([string]::IsNullOrWhiteSpace($trimmedTenantId) -and -not [string]::IsNullOrWhiteSpace($resolvedTenantId))
+        {
+            Write-Host ("Using tenant {0} discovered from subscription {1}." -f $resolvedTenantId, $trimmedSubscriptionId) -ForegroundColor Cyan
+        }
+
         if (-not [string]::IsNullOrWhiteSpace($resolvedTenantId))
         {
             Clear-ArchLucidAzureAccountSessions -ExceptTenantIds @($resolvedTenantId)
         }
 
         [object]$currentContext = Get-AzContext -ErrorAction SilentlyContinue
-        [string]$currentSubscriptionId = "$( $currentContext.Subscription.Id )".Trim()
-        [string]$currentTenantId = "$( $currentContext.Tenant.Id )".Trim()
+        [string]$currentSubscriptionId = ""
+        [string]$currentTenantId = ""
+
+        if ($null -ne $currentContext)
+        {
+            if ($null -ne $currentContext.PSObject.Properties['Subscription'])
+            {
+                $currentSubscriptionId = "$( $currentContext.Subscription.Id )".Trim()
+            }
+
+            if ($null -ne $currentContext.PSObject.Properties['Tenant'])
+            {
+                $currentTenantId = "$( $currentContext.Tenant.Id )".Trim()
+            }
+        }
 
         if (-not (Test-ArchLucidAzureSubscriptionIdsMatch -Left $currentSubscriptionId -Right $trimmedSubscriptionId) -or
             (-not [string]::IsNullOrWhiteSpace($resolvedTenantId) -and $currentTenantId -ne $resolvedTenantId))
@@ -854,7 +872,7 @@ function Ensure-ArchLucidAzureSubscriptionSession
     }
 
     Connect-ArchLucidAzureAccountForSubscription `
-        -TenantId $trimmedTenantId `
+        -TenantId $resolvedTenantId `
         -SubscriptionId $trimmedSubscriptionId `
         -AuthenticationMethod $AuthenticationMethod `
         -Credential $resolvedCredential
