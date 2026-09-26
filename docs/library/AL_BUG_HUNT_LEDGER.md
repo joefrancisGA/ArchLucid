@@ -2788,9 +2788,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — format-only string list entries survived payload materialization
 - **related-pd-tb:** none
@@ -2825,7 +2825,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MaterializeInfrastructureDeclarationList` filtered null references only — **hit 2026-09-03:** STJ `infrastructureDeclarations: [{}]` deserialized to default `format=json` with null `name`/`content`; empty objects reached `JsonInfrastructureDeclarationParser` instead of being stripped at materialization; fixed by requiring substantive `name` and `content` (`Deserialize_filters_empty_infrastructure_declaration_objects`).
 - [x] (proven) `MaterializeDocumentList` filtered null references only — **hit 2026-09-26 seed hunt (ledger catch-up on 3cef768):** STJ `documents: [{}]` deserialized with null `name`/`content`; empty objects reached `DocumentConnectorPayloadNormalizer` instead of being stripped at materialization; fixed by requiring substantive `name` and `content`; regression `Deserialize_filters_empty_document_objects`
 - [x] (proven) `MaterializeStringList` filtered null references only — **hit 2026-09-26 seed hunt:** STJ `inlineRequirements: ["\u200B"]` and embedded-format entries survived materialization because U+200B is not `IsNullOrWhiteSpace`; normalizer emitted invisible canonical requirements; fixed by applying `HasSubstantiveText` at materialization; regression `Deserialize_filters_format_only_string_list_entries`
-- [ ] (candidate) `WorkKind` default `Execute` when JSON omits `workKind` — verify deferred continuation routing cannot dequeue wrong phase after partial failure (needs reachability from outbox enqueue paths)
+- [x] (invalid) `WorkKind` default `Execute` when JSON omits `workKind` — **cheap-disproof 2026-09-26 thorough hunt:** production enqueue (`AuthorityRunOrchestratorExecuteCore`) serializes a new payload without setting `WorkKind`, so omitted JSON property correctly resumes `AuthorityPipelineExecuteWorkHandler`; `Commit`/`Extractor` handlers are not enqueued on any production path today; outbox retries replay the same Execute continuation rather than a separate phase row
+
+2026-09-26 thorough hunt (dry): cheap-disproof closed WorkKind default routing candidate; regression `Deserialize_defaults_work_kind_to_execute_when_json_omits_work_kind`; 19 scoped payload JSON tests passed.
 
 2026-09-03 thorough hunt #582 (hit): proved empty infrastructure declaration objects survived payload materialization.
 

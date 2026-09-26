@@ -1,4 +1,5 @@
-﻿using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
 [Trait("Category", "Unit")]
@@ -288,5 +289,25 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back.EvidenceBundleId.Should().Be("bundle-1");
         back.ContextIngestionRequest.ProjectId.Should().Be("default");
         back.ContextIngestionRequest.RunId.Should().Be(payload.ContextIngestionRequest.RunId);
+    }
+
+    [SkippableFact]
+    public void Deserialize_defaults_work_kind_to_execute_when_json_omits_work_kind()
+    {
+        const string json = """
+            {
+              "contextIngestionRequest": {
+                "runId": "11111111-1111-1111-1111-111111111111",
+                "projectId": "default"
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.WorkKind.Should().Be(AuthorityPipelineWorkKind.Execute);
+        back.IsValidForProcessing().Should().BeTrue();
     }
 }
