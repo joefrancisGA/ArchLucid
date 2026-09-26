@@ -2123,6 +2123,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — merge gate dropped relationships whose synthetic endpoints had internal whitespace after prefix
+- **hunts:** 69
+- **bugs-found:** 57
+- **last-bug:** 2026-09-26 — shared-label svc/ds synthetic aliases collapsed to first node
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8193,6 +8196,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — retry queue send and watchdog notify-failure paths skipped cancel re-read
+- **hunts:** 21
+- **bugs-found:** 19
+- **last-bug:** 2026-09-26 — invalid WorkUnitJson cancel race before terminal failure assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8714,25 +8720,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-09-26 — agent over-count left FindingsBySeverity on agent Info while snapshot drove other delta fields
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
-
 2026-09-26 seed hunt (hit): proved agent-over-count with `preferSnapshotMaterialFindings` still left `FindingsBySeverity` on agent Info buckets while governed coverage, narrative, and top finding used snapshot Critical/Warning; fixed by applying `snapshotSeverityBuckets` when material prefers snapshot but count gate kept agent totals; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
-
 - [x] (proven) `PilotRunDeltaComputer.FindingsBySeverity` — agent over-count kept agent severity buckets while snapshot drove governed/narrative/top — **hit 2026-09-26 seed hunt:** align severity buckets with `preferSnapshotMaterialFindings`; regression extended on `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
-
 2026-09-26 seed hunt (hit): proved agent-over-count with stronger snapshot material still selected agent Info as `TopFindingId` while governed coverage and sponsor narrative used snapshot Critical; fixed by applying snapshot top-finding selection when `preferSnapshotMaterialFindings`; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
-
 - [x] (proven) `PilotRunDeltaComputer` top finding — agent over-count left `TopFindingId` on agent Info while snapshot Critical drove governed/narrative paths — **hit 2026-09-26 seed hunt:** snapshot top selection when `preferSnapshotMaterialFindings`; regression assertions on `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
-
 2026-09-26 seed hunt (seed→hit): proved agent-over-count runs still omitted `SponsorNarrativeFindings` after governed-coverage snapshot preference, leaving decision-delta material on agent Info noise; fixed by `preferSnapshotMaterialFindings` when snapshot governed coverage or max severity beats agent; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
-
 - [x] (proven) `PilotRunDeltaComputer` / `PilotSponsorMaterialFindingsResolver` — agent over-count with stronger snapshot governed coverage left `SponsorNarrativeFindings` empty — **hit 2026-09-26 seed hunt:** populate snapshot narrative when governed or severity material prefers snapshot; regression extended on `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
-
 2026-09-26 thorough hunt (hit): proved agent-over-count findings kept agent `GovernedFindingCoverage` when persisted snapshot had more policy-violation rows; fixed by preferring snapshot governed metric when `GovernedCount` is higher; proved `SponsorEvidencePackService` explainability trace counted operator-muted snapshot findings excluded from delta severity paths; fixed with `ExcludeOperatorMutedFindings` before `AnalyzeSnapshot`; cheap-disproof closed reference-evidence receipt gate candidate (Wave-40 hash guard on bundle entry; nested first-value/sponsor PDF builders enforce sealed receipt); regressions `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger` and `BuildAsync_excludes_muted_findings_from_explainability_trace`; 50 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorEvidencePack tests passed.
-
 - [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` when snapshot `GovernedCount` exceeds agent; regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 - [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate — **cheap-disproof 2026-09-26 thorough hunt:** bundle entry uses `RunExportSealedManifestHashGuard` per Wave-40; sponsor/first-value PDF paths invoked from the same service call nested builders that enforce sealed receipt verification.
 - [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** filter muted findings before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
-
+- **hunts:** 23
+- **bugs-found:** 18
+- **last-bug:** 2026-09-26 — equal-count snapshot severity tie in sponsor material findings resolver
 2026-09-26 seed hunt (seed→hit): reseeded application-pilots; proved equal-count snapshot/agent severity tie left decision-delta on agent Warning while deltas JSON used snapshot Error; seeded governed-coverage agent-over-count, reference-evidence receipt gate, and explainability muted-finding candidates; 28 scoped BuyerProofPack/BoardPack/decision-delta tests passed.
 
 2026-09-13 seed hunt #2443 (seed-only): reseeded application-pilots; no new hunt-ready rows.
@@ -8798,6 +8798,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 - [x] (proven) `PilotSponsorMaterialFindingsResolver` equal-count severity tie — decision-delta / semantic-support used agent findings while deltas JSON used snapshot severity after #1417 computer fix — **hit 2026-09-26 seed hunt (seed→hit):** prefer `SponsorNarrativeFindings` when equal counts and snapshot max severity rank is higher; regression `Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding` (`SponsorDecisionDeltaNoveltyResolverTests`).
+- [ ] (candidate) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations
+- [ ] (candidate) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run
+- [ ] (candidate) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths
 
 ---
 
@@ -20673,17 +20676,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **last-bug:** 2026-09-26 — `InfluencedByGraphNode` omitted when graph `NodeId` had surrounding whitespace but finding `RelatedNodeIds` did not
 - **related-pd-tb:** none
 - **code-changed-since:** no
-
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` indexed raw graph `NodeId` values while `RelatedNodeIds` were trimmed, skipping `InfluencedByGraphNode` when only whitespace differed; fixed by normalizing graph node ids for `graphNodeIds`, node keys, and `ReferenceId`; regression `Build_links_graph_influence_when_graph_node_id_differs_only_by_surrounding_whitespace`; 47 Provenance scoped tests passed.
-
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` treated `AppliedRuleIds` with surrounding whitespace as distinct rule keys; fixed with `NormalizeId` trim on rule/decision/finding id keys and edge loops; regression `Build_deduplicates_triggered_by_rule_when_applied_rule_ids_differ_only_by_whitespace`; 46 Provenance scoped tests passed.
-
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ArchitectureKnowledgeModelGraphProjector` node dedup skipped case-variant elements but edge loop still emitted duplicate parallel RELATES edges; fixed with case-insensitive edge-key dedup; regression `Project_deduplicates_relates_edges_when_elements_list_case_variant_element_ids`; 5 projector + 45 Provenance scoped tests passed.
-
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` counted duplicate artifact bundle rows so revision differed from semantically identical input (parity gap vs `ProvenanceBuilder` artifact dedup); fixed with `GroupBy(ArtifactId)`; regression `Compute_ignores_duplicate_artifact_rows_with_same_artifact_id`; 45 Provenance scoped tests passed.
-
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` emitted duplicate `ContributedToArtifact` edges when `Artifacts` repeated the same `ArtifactId`; fixed with `GroupBy(ArtifactId)` before decision→artifact linking; 44 Provenance + 348 KnowledgeGraph scoped tests passed (3 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
-
+- **hunts:** 21
+- **bugs-found:** 18
+- **last-bug:** 2026-09-11 — duplicate parallel edges after AS-018 diagram canonical bind remap
 2026-09-26 seed hunt (seed-only): reseeded knowledge-graph-provenance; scoped 347 KnowledgeGraph + 43 Provenance tests passed (3 pre-existing KnowledgeGraph.Tests failures: stale `GraphSnapshotCommittedReuseResolver` overload + `GraphEdge` contract surface drift); cheap-disproved inventory overlay builder ordinal `edgeKeys` for `RelationshipType` casing (inventory persists canonical `GraphEdgeTypes` constants); no new hunt-ready rows.
 
 2026-09-13 seed hunt #2270 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge graph`; no new hunt-ready rows.
@@ -22936,9 +22936,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **last-bug:** 2026-09-26 — IaC stub enrichment dropped ProposedEvidenceJson envelope field
 - **related-pd-tb:** none
 - **code-changed-since:** no
-
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `FindingIacStubGenerator` enrichment upsert dropped `ProposedEvidenceJson` (`[JsonIgnore]` envelope column) via clone/serialize and full enrichment merge replace; fixed clone carry-forward, enrichment JSON envelope fields, and `AgentResultEnrichmentMerger` base-column preservation; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`; 88 scoped Application.Tests.Agents tests passed.
-
+- **hunts:** 17
+- **bugs-found:** 17
+- **last-bug:** 2026-09-26 — dual-model consensus left dangling topology relationships; IaC stubs for non-emission findings
 2026-09-26 thorough hunt (hit): proved `TopologyProposalConsensusMerger` kept relationships whose endpoints were dropped by service intersection (dual-model consensus runs after structural post-process); fixed by pruning relationships to intersected endpoint keys; regression `Merge_prunes_relationships_when_intersected_services_no_longer_declares_both_endpoints`; proved `FindingIacStubGenerator` generated stubs for prose-only findings re-hydrated in `Findings` on enrichment read; fixed with `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs`; 87 scoped Application.Tests.Agents tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded application-agents; cheap-disproved consensus merge reintroducing structurally dropped services; seeded dual-model post-merge post-processor and emission-gate IaC stub candidates; 86 scoped Application.Tests.Agents tests passed.
@@ -23189,6 +23190,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — sealed-manifest hash mismatch retried recoverable outbox processors
+- **hunts:** 13
+- **bugs-found:** 12
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-09-26 — cosmos/post-commit outbox sealed-hash guard blocked skip-as-processed on purged runs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

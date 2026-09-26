@@ -50,14 +50,11 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
 
   const setPageTab = useCallback(
     (next: SetStateAction<PolicyPacksPageTab>) => {
-      setPageTabState((prev) => {
-        const resolved = typeof next === "function" ? next(prev) : next;
-        router.replace(policyPacksTabHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
-
-        return resolved;
-      });
+      const resolved = typeof next === "function" ? next(pageTab) : next;
+      setPageTabState(resolved);
+      router.replace(policyPacksTabHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
     },
-    [pathname, router, searchParams],
+    [pageTab, pathname, router, searchParams],
   );
 
   const loadRef = useRef<() => Promise<void>>(async () => {});

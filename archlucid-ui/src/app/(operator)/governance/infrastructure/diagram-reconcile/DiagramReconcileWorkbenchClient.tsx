@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { DiagramReconcileBreadcrumb } from "./DiagramReconcileBreadcrumb";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -968,6 +969,8 @@ export function DiagramReconcileWorkbenchClient() {
       >
         {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL}
       </a>
+
+      <DiagramReconcileBreadcrumb />
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}

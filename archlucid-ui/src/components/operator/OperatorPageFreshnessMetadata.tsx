@@ -15,6 +15,19 @@ export type OperatorPageFreshnessMetadataProps = {
   readonly ariaLabel?: string;
 };
 
+function renderFreshnessLabel(children: ReactNode): ReactNode {
+  if (typeof children !== "string" || !children.startsWith("Last refreshed:")) {
+    return children;
+  }
+
+  return (
+    <>
+      <strong className="font-semibold">Last refreshed:</strong>
+      {children.slice("Last refreshed:".length)}
+    </>
+  );
+}
+
 /**
  * Operator header freshness line. When a timestamp exists, wraps copy in `<time dateTime>`
  * so keyboard and touch users get the absolute reading without a mouse-only `title`.
@@ -31,7 +44,7 @@ export function OperatorPageFreshnessMetadata(
         data-testid={props.testId}
         aria-label={props.ariaLabel}
       >
-        {props.children}
+        {renderFreshnessLabel(props.children)}
       </span>
     );
   }
@@ -43,7 +56,7 @@ export function OperatorPageFreshnessMetadata(
       dateTime={props.lastRefreshedAt.toISOString()}
       aria-label={props.ariaLabel ?? operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
     >
-      {props.children}
+      {renderFreshnessLabel(props.children)}
     </time>
   );
 }

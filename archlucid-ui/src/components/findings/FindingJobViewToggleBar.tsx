@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
@@ -17,6 +17,7 @@ import {
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { reviewFindingsJobViewHrefFromSearch } from "@/lib/findings/review-findings-job-view-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -84,8 +85,7 @@ function JobViewToggleChip(props: {
 /** TB-2179: job-shaped finding view toggles (client filter only). */
 export function FindingJobViewToggleBar(props: FindingJobViewToggleBarProps): React.JSX.Element {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
+  const currentSearch = readWindowLocationSearch();
   const [showMoreJobViews, setShowMoreJobViews] = useState(
     () => props.jobView !== DEFAULT_FINDING_JOB_VIEW,
   );

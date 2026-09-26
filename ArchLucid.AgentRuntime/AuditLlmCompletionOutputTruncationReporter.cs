@@ -34,7 +34,7 @@ public sealed class AuditLlmCompletionOutputTruncationReporter(
         {
             _logger.LogWarning(
                 "Azure OpenAI completion output was truncated (finish_reason=length). Deployment={DeploymentName}, "
-                + "MaxOutputTokens={MaxOutputTokens}, OutputTokenCount={OutputTokenCount}, ReasoningTokenCount={ReasoningTokenCount}. "
+                + "MaxOutputLimit={MaxOutputLimit}, OutputUnitCount={OutputUnitCount}, ReasoningUnitCount={ReasoningUnitCount}. "
                 + "Structured JSON may be incomplete; consider raising AzureOpenAI:MaxCompletionTokens.",
                 detail.DeploymentName,
                 detail.MaxOutputTokens,
