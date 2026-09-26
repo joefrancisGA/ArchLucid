@@ -3451,11 +3451,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 8
-- **bugs-found:** 13
+- **hunts:** 9
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — null-coalescing local initializer bypassed ARCH006 static resolution
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — parameterless method invocation bypassed ARCH006 static SQL resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3478,6 +3478,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `const` field SQL initializers already fold via `IFieldSymbol.IsConst` in `ResolveFromSymbol` — same path as proven local/readonly fixes; no separate property-vs-field gap
 - [x] (proven) `switch` expression local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 seed hunt #1780:** `ResolveCore` ignored `SwitchExpressionSyntax`, so `string sql = flag switch { true => "SELECT … dbo.Runs …", false => "SELECT 1" }` passed through unanalyzed; fixed `ResolveSwitchExpression` with branch folding; regression `ARCH006_reports_unscoped_sql_for_switch_expression_local_initializer`
 - [x] (proven) Null-coalescing local initializer bypassed ARCH006 static resolution — **hit 2026-09-11 seed hunt #1780:** `ResolveCore` ignored `CoalesceExpression`, so `string sql = configured ?? "SELECT … dbo.Runs …"` passed through unanalyzed; fixed `ResolveNullCoalescing` with branch folding; regression `ARCH006_reports_unscoped_sql_for_null_coalescing_local_initializer`
+
+2026-09-26 seed hunt (hit): reseeded tenant-scoped-analyzer after code churn; proved parameterless local-function / private-method SQL invocation bypassed `TenantScopedSqlExpressionResolver`; fixed `TryResolveFromMethodInvocation` with expression-body and single-return block folding; regression `ARCH006_reports_unscoped_sql_for_local_function_returning_sql`; 17 scoped analyzer tests passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver` — parameterless method invocation (`GetRunsSql()`) bypassed ARCH006 static resolution — **hit 2026-09-26 seed hunt:** resolver treated invocation as opaque symbol; fixed by folding zero-arg method bodies; regression `ARCH006_reports_unscoped_sql_for_local_function_returning_sql`.
 
 2026-09-11 seed hunt #1780 (hit): reseeded tenant-scoped-analyzer after #1761; proved switch-expression and null-coalescing local initializer resolver bypasses; 16 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
