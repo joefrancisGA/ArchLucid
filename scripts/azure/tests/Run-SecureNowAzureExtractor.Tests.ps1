@@ -42,9 +42,17 @@ Describe "Run-SecureNowAzureExtractor.ps1" {
     It "enables cost, retail prices, and app settings hosts by default" {
         [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
 
-        $content | Should -Match 'IncludeCost\s*=\s*\$true'
+        $content | Should -Match 'IncludeCost\s*=\s*\(-not \$SkipCost\)'
         $content | Should -Match 'IncludeRetailPrices\s*=\s*\$true'
         $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
+        $content | Should -Match 'CostTimeoutSeconds\s*=\s*\$CostTimeoutSeconds'
+    }
+
+    It "offers an explicit switch to skip optional cost collection" {
+        [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
+
+        $content | Should -Match '\[switch\]\s*\$SkipCost'
+        $content | Should -Match 'Cost summary:'
     }
 
     It "defaults output path to securenow-azure-package.zip in the current directory" {
@@ -189,5 +197,39 @@ Write-Output "fake extractor success"
         $connectParams.Subscription | Should -Be $subscriptionId
         $connectParams.UseDeviceAuthentication | Should -Be $true
         Should -Invoke Connect-AzAccount -Times 1 -Exactly
+    }
+
+    It "uses the discovered subscription tenant when selecting context" {
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$contextParams = @{}
+
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/$subscriptionId"
+                TenantId = "99999999-8888-7777-6666-555555555555"
+            }
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable) { return @() }
+
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+                Tenant = [PSCustomObject]@{ Id = "88888888-7777-6666-5555-444444444444" }
+            }
+        }
+        Mock Set-AzContext {
+            param($SubscriptionId, $Tenant)
+
+            $contextParams.SubscriptionId = $SubscriptionId
+            $contextParams.Tenant = $Tenant
+        }
+        Mock Sync-ArchLucidAzureCliSubscriptionContext { }
+
+        $null = Ensure-ArchLucidAzureSubscriptionSession -SubscriptionId $subscriptionId
+
+        $contextParams.Tenant | Should -Be "99999999-8888-7777-6666-555555555555"
+        $contextParams.SubscriptionId | Should -Be $subscriptionId
     }
 }

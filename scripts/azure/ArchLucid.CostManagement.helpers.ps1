@@ -240,10 +240,23 @@ function Invoke-ArchLucidActualCostRestRetryable {
 
         [Parameter(Mandatory)][string]$Url,
 
-        [string]$Body = ''
+        [string]$Body = '',
+
+        [ValidateRange(1, 1800)]
+        [int]$TimeoutSeconds = 180
     )
 
+    [System.Diagnostics.Stopwatch]$watch = [System.Diagnostics.Stopwatch]::StartNew()
+
     for ($attempt = 1; $attempt -le 12; $attempt++) {
+
+        if ($TimeoutSeconds -gt 0 -and $watch.Elapsed.TotalSeconds -ge $TimeoutSeconds) {
+            return [ordered]@{
+                Exit   = 124
+                Stdout = ''
+                Stderr = "ActualCost request timed out after $TimeoutSeconds seconds."
+            }
+        }
 
         [hashtable]$snippet = Invoke-ArchLucidActualCostRestCaptured `
             -Method $Method `
@@ -273,7 +286,22 @@ function Invoke-ArchLucidActualCostRestRetryable {
         [int]$sleepMs = [Math]::Min(90000, (900 + (($attempt - 1) * 2800)))
         [int]$fuzz = Get-Random -Minimum 120 -Maximum 620
 
-        Start-Sleep -Milliseconds ($sleepMs + $fuzz)
+        if ($TimeoutSeconds -gt 0) {
+            [int]$remainingMs = [Math]::Max(0, [int](($TimeoutSeconds - $watch.Elapsed.TotalSeconds) * 1000))
+            if ($remainingMs -le 0) {
+                return [ordered]@{
+                    Exit   = 124
+                    Stdout = ''
+                    Stderr = "ActualCost request timed out after $TimeoutSeconds seconds."
+                }
+            }
+
+            $sleepMs = [Math]::Min($sleepMs + $fuzz, $remainingMs)
+            Start-Sleep -Milliseconds $sleepMs
+        }
+        else {
+            Start-Sleep -Milliseconds ($sleepMs + $fuzz)
+        }
     }
 
     throw 'ArchLucid ActualCost REST retry loop exited without returning a captured response.'
@@ -559,7 +587,9 @@ function Invoke-ArchLucidAzureCliAzRestCaptured([Parameter(Mandatory)][string[]]
 function Invoke-ArchLucidActualCostPagedQuery(
     [Parameter(Mandatory)][string]$PostUrl,
     [Parameter(Mandatory)][string]$CompressedBody,
-    [Parameter(Mandatory)][string]$DiagTokenForWarnings) {
+   [Parameter(Mandatory)][string]$DiagTokenForWarnings,
+   [ValidateRange(1, 1800)]
+   [int]$TimeoutSeconds = 180) {
 
     [System.Collections.Generic.List[object]]$pageObjects =
         New-Object System.Collections.Generic.List[object]
@@ -599,7 +629,8 @@ function Invoke-ArchLucidActualCostPagedQuery(
             $snippet = Invoke-ArchLucidActualCostRestRetryable `
                 -Method $requestMethod `
                 -Url $cursor `
-                -Body $requestBody
+                -Body $requestBody `
+                -TimeoutSeconds $TimeoutSeconds
 
         }
 
@@ -1074,7 +1105,10 @@ function Get-ArchLucidActualCostSummary(
 
     [ValidateSet('MonthToDate', 'BillingMonthToDate', 'TheLastMonth')]
 
-    [string]$Timeframe = 'MonthToDate') {
+    [string]$Timeframe = 'MonthToDate',
+
+    [ValidateRange(1, 1800)]
+    [int]$TimeoutSeconds = 180) {
 
 
 
@@ -1143,7 +1177,8 @@ function Get-ArchLucidActualCostSummary(
 
         Invoke-ArchLucidActualCostPagedQuery -PostUrl "$apiVersionTagged" `
             -CompressedBody $serializedRequest `
-            -DiagTokenForWarnings $correlator
+            -DiagTokenForWarnings $correlator `
+            -TimeoutSeconds $TimeoutSeconds
 
 
 

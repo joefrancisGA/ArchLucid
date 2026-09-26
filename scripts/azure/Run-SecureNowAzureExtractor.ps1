@@ -9,7 +9,8 @@
     ./securenow-azure-package.zip by default, and delegates to Get-SecureNowAzurePackage.ps1
     with -IncludeCost, -IncludeRetailPrices, and -IncludeAppSettingsHosts enabled.
     Azure CLI is signed in from the same Azure PowerShell session so cost collection can
-    succeed without a separate az login.
+    succeed without a separate az login. Use -SkipCost to omit the optional Cost Management
+    query, or -CostTimeoutSeconds to bound transient Cost Management retries.
 
 .NOTES
     Upload the resulting ZIP manually in SecureNow — this script never sends data to SecureNow.
@@ -40,6 +41,12 @@ param(
     [switch] $NonInteractive,
 
     [Parameter(Mandatory = $false)]
+    [int] $CostTimeoutSeconds = 180,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $SkipCost,
+
+    [Parameter(Mandatory = $false)]
     [ValidateSet("Browser", "Credential", "DeviceCode", "")]
     [string] $AuthenticationMethod = "",
 
@@ -49,6 +56,11 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ($CostTimeoutSeconds -lt 1 -or $CostTimeoutSeconds -gt 1800)
+{
+    throw "-CostTimeoutSeconds must be between 1 and 1800 seconds."
+}
 
 [string]$scriptRoot = Split-Path -Parent $PSCommandPath
 [string]$extractorScript = Join-Path $scriptRoot "Get-SecureNowAzurePackage.ps1"
@@ -87,6 +99,7 @@ else
     Write-Host ("  Subscription: {0}" -f $resolvedSubscriptionId)
 }
 Write-Host ("  Output ZIP:   {0}" -f $resolvedOutputPath)
+Write-Host ("  Cost summary: {0}" -f $(if ($SkipCost) { "skipped" } else { "enabled (timeout: $CostTimeoutSeconds seconds)" }))
 
 if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
 {
@@ -98,9 +111,10 @@ Write-Host ""
 [hashtable]$extractorParams = @{
     SubscriptionId = $resolvedSubscriptionId
     OutputPath = $resolvedOutputPath
-    IncludeCost = $true
+    IncludeCost = (-not $SkipCost)
     IncludeRetailPrices = $true
     IncludeAppSettingsHosts = $true
+    CostTimeoutSeconds = $CostTimeoutSeconds
 }
 
 if (-not ([string]::IsNullOrWhiteSpace($TenantId)))
