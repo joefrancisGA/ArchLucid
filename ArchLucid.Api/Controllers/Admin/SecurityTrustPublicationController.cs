@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.Audit;
@@ -31,14 +32,39 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PublishAsync(
-        [FromBody] SecurityAssessmentPublicationRequest body,
+        [FromBody] SecurityAssessmentPublicationRequest? body,
         CancellationToken cancellationToken)
     {
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
         if (string.IsNullOrWhiteSpace(body.AssessmentCode))
             return this.BadRequestProblem("AssessmentCode is required.", ProblemTypes.ValidationFailed);
 
+        if (!UnicodeTextValidation.IsValidUnicodeText(body.AssessmentCode))
+        {
+            return this.BadRequestProblem(
+                "AssessmentCode must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (string.IsNullOrWhiteSpace(body.SummaryReference))
             return this.BadRequestProblem("SummaryReference is required.", ProblemTypes.ValidationFailed);
+
+        if (!UnicodeTextValidation.IsValidUnicodeText(body.SummaryReference))
+        {
+            return this.BadRequestProblem(
+                "SummaryReference must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (body.AssessorDisplayName is { } assessorDisplayName
+            && !UnicodeTextValidation.IsValidUnicodeText(assessorDisplayName))
+        {
+            return this.BadRequestProblem(
+                "AssessorDisplayName must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (!string.IsNullOrWhiteSpace(body.PublishedOn))
         {
