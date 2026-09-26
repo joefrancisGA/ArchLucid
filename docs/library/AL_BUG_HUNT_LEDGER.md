@@ -23647,6 +23647,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
+2026-09-26 seed hunt #6970 (seed-only): reseeded promote-path UTC snapshot; cheap-disproof closed stale first `TryPromote` `UtcNow` before store delay (promote loop re-reads `TimeProvider` each poll) and documented admit refresh UTC stamping; regressions `WaitForAdmissionAsync_eventually_promotes_when_first_try_promote_is_delayed_and_lease_expires`, `AdmitLimitRefreshStore_sets_admit_utc_now_from_time_provider`; 33 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` promote loop — stale `UtcNow` on first `TryPromote` before store delay prevents promotion until lease expiry — **cheap-disproof 2026-09-26 seed hunt #6970:** each poll builds a new promote request from `TimeProvider`; regression `WaitForAdmissionAsync_eventually_promotes_when_first_try_promote_is_delayed_and_lease_expires`.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryAdmitAsync` — caller `UtcNow` reaches SQL/in-memory unchanged — **cheap-disproof 2026-09-26 seed hunt #6970:** refresh overwrites with `TimeProvider.GetUtcNow()` at store entry (#6969); regression `AdmitLimitRefreshStore_sets_admit_utc_now_from_time_provider`.
+
 2026-09-26 seed hunt #6969 (seed→hit): reseeded admit timestamp freshness; proved `TryAdmitAsync` used `UtcNow` captured before operational lookup so expired leases still counted as active (false `Busy` when `MaxQueuedAnonymousScans=0`); fixed by refreshing `UtcNow` at store admit entry via `TimeProvider` in `QuickScanDistributedConcurrencyAdmitLimitRefreshStore` and anchoring queue-wait deadline to post-admit clock; regression `WaitForAdmissionAsync_uses_current_utc_now_on_try_admit_after_operational_delay`; 31 scoped QuickScanDistributedConcurrency tests passed.
 
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — stale `UtcNow` on `TryAdmit` treats expired leases as active after slow operational snapshot — **hit 2026-09-26 seed hunt #6969:** admit limit refresh store re-reads `TimeProvider.GetUtcNow()` at `TryAdmitAsync` entry; regression `WaitForAdmissionAsync_uses_current_utc_now_on_try_admit_after_operational_delay`.
