@@ -3139,13 +3139,60 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 27
-- **bugs-found:** 19
+- **hunts:** 35
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — double-reverse-solidus and script full-stop dot homoglyphs evaded return-path guard
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — presentation two-dot leader and katakana middle-dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; proved Unicode-wide `NFKC` closure for single-codepoint `..` expansion (`U+2025`, `U+FE30` only); cheap-disproved two-dot punctuation and Manichaean dot pairs; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Unicode-wide single-codepoint `NFKC` equals `..` inventory — **valid-no-repro 2026-09-26 seed hunt:** only `U+2025` TWO DOT LEADER and `U+FE30` PRESENTATION FORM FOR VERTICAL TWO DOT LEADER expand to ASCII `..`; both are in `IsDotHomoglyph`; no further single-char parent-segment bypass remains.
+- [x] (valid-no-repro) TWO DOT PUNCTUATION (`⁚`, `U+205A`), TWO DOTS OVER/UNDER ONE DOT (`U+2E2A`/`U+2E2B`), and MANICHAEAN PUNCTUATION TWO DOTS (`U+10AF5`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** NFKC does not yield ASCII `..` parent segments; not browser-normalized traversal class.
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path after `U+FE30`/`U+30FB`/`U+FF65` fix; full BMP NFKC dot/slash inventory scan found no further accepted traversal pairs; cheap-disproved circled digit full stops and letter-symbol compatibility forms; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Post-fix BMP NFKC dot/slash inventory — **valid-no-repro 2026-09-26 seed hunt:** after `U+FE30`/`U+30FB`/`U+FF65` extension, automated scan shows no remaining BMP code points whose NFKC contains `.`, `..`, `‥`, `。`, or `/` while `TryNormalize` still accepts protocol-relative or parent-segment traversal shapes.
+- [x] (valid-no-repro) Circled digit full-stop symbols (`U+2488`–`U+249B`) and letter-symbol compatibility forms (`U+33C2`, `U+33C7`, `U+33D8`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** NFKC expands to digit/letter plus `.` (e.g. `1.`, `Co.`), not ASCII `..` parent segments.
+- [x] (valid-no-repro) Letter-like symbols with slash in NFKC (`U+2100`–`U+2106` pairs) — **valid-no-repro 2026-09-26 seed hunt:** compatibility abbreviations (`a/c`, `c/o`) are not contiguous `//` protocol-relative traversal; same-origin relative prefix only.
+
+2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved presentation vertical two-dot leader and katakana middle-dot homoglyph traversal bypasses via NFKC inventory scan; cheap-disproved horizontal ellipsis pairs; 132 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) PRESENTATION FORM FOR VERTICAL TWO DOT LEADER (`︰`, `U+FE30`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** single-segment NFKC expands to ASCII `..` while `U+2025` was already blocked; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_presentation_two_dot_leader_and_katakana_middle_dot_homoglyph_path_traversal_segments`.
+- [x] (proven) KATAKANA MIDDLE DOT (`・`, `U+30FB`) and HALFWIDTH KATAKANA MIDDLE DOT (`･`, `U+FF65`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** parent-segment pairs evaded ASCII `..` checks while `U+00B7` middle dot was already blocked; fixed by extending `IsDotHomoglyph`; same regression test.
+- [x] (valid-no-repro) HORIZONTAL ELLIPSIS (`…`, `U+2026`) and presentation vertical horizontal ellipsis (`U+FE19`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** NFKC expands to three ASCII periods, not a `..` parent segment; same-origin relative prefix only.
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path after `U+FF61`/`U+FE12` fix; NFKC scan found no further BMP FULL STOP compatibility gaps; cheap-disproved script punctuation and presentation vertical punctuation pairs; 126 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Post-fix BMP FULL STOP / ideographic compatibility inventory — **valid-no-repro 2026-09-26 seed hunt:** after `U+FF61`/`U+FE12` guard extension, Unicode NFKC scan shows no remaining FULL STOP-named code points mapping to `.` or `U+3002` outside `IsDotHomoglyph`.
+- [x] (valid-no-repro) COPTIC (`U+2CFE`/`U+2CF9`), LISU (`U+A4FF`), VAI (`U+A60E`), BAMUM (`U+A6F3`), and STENOGRAPHIC (`U+2E3C`) full-stop parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** script sentence punctuation; not browser-normalized to ASCII `.` for `..` traversal; extends prior Armenian/Mongolian rows.
+- [x] (valid-no-repro) Presentation vertical punctuation (`U+FE11`–`U+FE16`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** vertical comma/colon/semicolon/exclamation/question forms are not FULL STOP homoglyphs; only `U+FE12` was in the proven ideographic-stop class (fixed same day).
+
+2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved HALFWIDTH IDEOGRAPHIC FULL STOP and presentation vertical ideographic full-stop dot homoglyph traversal bypasses; cheap-disproved fragment-only encoded dot-dot and Coptic full-stop pairs; 126 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) HALFWIDTH IDEOGRAPHIC FULL STOP (`｡`, `U+FF61`) and PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC FULL STOP (`︒`, `U+FE12`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** parent-segment pairs evaded ASCII `..` checks while parity glyphs `U+3002`/`U+FF0E` were already blocked; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_halfwidth_and_presentation_ideographic_full_stop_dot_homoglyph_path_traversal_segments`.
+- [x] (valid-no-repro) Fragment-only encoded or literal dot-dot (`/safe#%2e%2e`, `/safe#..`) — **valid-no-repro 2026-09-26 seed hunt:** fragment suffix is not part of redirect path prefix; prior fragment smuggling rows unchanged.
+- [x] (valid-no-repro) COPTIC FULL STOP (`⳾`, `U+2CFE`) and related script sentence stops (`U+0589`, `U+1809`, `U+2CF9`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** not browser-normalized to ASCII `.` for parent traversal; extends prior Armenian/Mongolian rows.
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved final BMP SOLIDUS-named glyph inventory, overlong UTF-8 slash percent encodings, and encoded dot-dot before fragment/query delimiters; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Remaining BMP SOLIDUS-named glyphs (combining solidus overlays `U+0337`/`U+0338`/`U+20E5`/`U+20EB`, APL QUAD/CIRCLE slash/backslash `U+2341`/`U+2342`/`U+2349`, `U+2340`, and DOES NOT DIVIDE WITH REVERSED NEGATION SLASH `U+2AEE`) as protocol-relative pairs — **valid-no-repro 2026-09-26 seed hunt:** extends prior APL/combining-mark rows; not WHATWG U+002F segment separators; same-origin relative prefix only.
+- [x] (valid-no-repro) Overlong UTF-8 slash percent encodings (`/%C0%AF%C0%AFeil.example`) and mixed `%2f%5c` pairs — **valid-no-repro 2026-09-26 seed hunt:** `Uri.UnescapeDataString` plus post-decode `TryNormalizeRelativePath` / residual `%2f` checks reject before redirect; aligns with prior overlong percent-decode seed hunts.
+- [x] (valid-no-repro) Percent-encoded parent segments before `#` or `?` (`/signin/%2e%2e%23fragment`, `/signin/%2e%2e?x=1`) — **valid-no-repro 2026-09-26 seed hunt:** decode loop re-runs `ContainsDotDotSegment` on path prefix via `GetPathWithoutQueryOrFragment`; regression family `TryNormalize_rejects_dot_dot_path_traversal_before_fragment_delimiter`.
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved remaining BMP non-SOLIDUS slash glyphs, deep percent-decode cap parity, and conservative backslash-in-query rejection; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) KANGXI RADICAL SLASH (`⼃`, `U+2F03`), MODIFIER LETTER DOT SLASH (`ꜘ`, `U+A718`), APL FUNCTIONAL SYMBOL SLASH BAR (`⌿`, `U+233F`), INTEGRAL AVERAGE WITH SLASH (`⨏`, `U+2A0F`), and DIVISION SIGN (`÷`, `U+00F7`) protocol-relative pairs — **valid-no-repro 2026-09-26 seed hunt:** compatibility/APL/math notation; WHATWG path segments split only on U+002F; same-origin relative prefix only.
+- [x] (valid-no-repro) Ninth-or-higher percent-decode introducing embedded `//` after the eight-pass loop — **valid-no-repro 2026-09-26 seed hunt:** `ContainsResidualEncodedTraversal` and `%2f`/`%5c`/`%2e` residue checks reject before redirect; regressions `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap` and `TryNormalize_rejects_deeply_encoded_embedded_protocol_relative_segment`.
+- [x] (valid-no-repro) Leading horizontal whitespace trim (`\t/signin/ok`) and backslash only in query (`/safe?x=test\foo`) — **valid-no-repro 2026-09-26 seed hunt:** trim collapses attacker-leading whitespace without reintroducing `//`; full-candidate backslash scan is conservative over-rejection, not open-redirect under-acceptance.
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved supplementary-plane ornamental solidus pairs, remaining FULL STOP script punctuation parent-segment pairs, and TAG solidus pairs; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) VERY HEAVY SOLIDUS (`🙼`, `U+1F67C`) and VERY HEAVY REVERSE SOLIDUS (`🙽`, `U+1F67D`) protocol-relative pairs, including percent-encoded `%F0%9F%99%BC` repeats — **valid-no-repro 2026-09-26 seed hunt:** WHATWG path segments split only on U+002F; ornamental dingbats are not slash separators in browsers; BMP `IsSlashHomoglyph` char iteration on UTF-16 surrogates does not change same-origin relative navigation class.
+- [x] (valid-no-repro) ARMENIAN FULL STOP (`։`, `U+0589`) and MONGOLIAN MANCHU FULL STOP (`᠉`, `U+1809`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** script sentence punctuation is not browser-normalized to ASCII `.` for `..` segment traversal; `ContainsDotDotSegment` compares literal `..` segments only.
+- [x] (valid-no-repro) TAG SOLIDUS (`U+E002F`) and TAG REVERSE SOLIDUS (`U+E005C`) pairs — **valid-no-repro 2026-09-26 seed hunt:** language-tag private-use glyphs are not URL path separators; paths without a leading `/` still fail the relative-path guard; no external host introduced.
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
 
@@ -21213,13 +21260,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 35
-- **bugs-found:** 19
+- **hunts:** 37
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — graph projection Redis invalidation subscriber skipped when distributed LLM completion cache registered `IDistributedCache` first
+- **last-bug:** 2026-09-26 — graph projection pub/sub skipped when IConnectionMultiplexer pre-registered
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `RegisterGraphProjectionRedisPubSub` returned before wiring broadcaster/subscriber when `IConnectionMultiplexer` was already in DI; fixed idempotent per-service registration; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_invalidation_when_connection_multiplexer_pre_registered`; 4 scoped graph-projection registration tests passed.
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterGraphProjectionRedisPubSub` — existing `IConnectionMultiplexer` descriptor caused early return that skipped `RedisGraphProjectionCacheInvalidationBroadcaster` and `GraphProjectionCacheInvalidationSubscriberHostedService` — **hit 2026-09-26 seed hunt:** register multiplexer, broadcaster, and subscriber independently when missing; regression above.
+
+2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved Auto projection cache promotion to distributed on multi-replica hosts skipped Redis invalidation pub/sub because registrar gated only on `Backend` while runtime uses `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend`; fixed combined `Backend` + Auto promotion check; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`; 25 scoped `ServiceCollectionExtensionsRegistrationTests` passed.
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` — `CacheProvider=Auto` with `ExpectedApiReplicaCount>1` and Redis configured promoted to distributed projection cache at runtime but omitted `RegisterGraphProjectionRedisPubSub` because only `ProjectionCache:Backend` was checked — **hit 2026-09-26 seed hunt:** align registrar with `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend` while preserving explicit `Backend=Distributed`; regression above.
 
 2026-09-26 seed hunt (hit): reseeded host-composition; proved `RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` returned before `RegisterGraphProjectionRedisPubSub` when `IDistributedCache` was already registered for distributed LLM completion cache; fixed by always wiring pub/sub when projection cache backend is Distributed; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_llm_distributed_cache_already_registered`; 378 scoped host-composition tests passed (4 pre-existing unrelated failures).
 

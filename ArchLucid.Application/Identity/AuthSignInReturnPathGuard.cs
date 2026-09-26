@@ -280,5 +280,10 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2E30' // ⸰ RING POINT
         || ch == '\uA78F' // ꞏ LATIN LETTER SINOLOGICAL DOT
         || ch == '\u0701' // ܁ SYRIAC SUPRALINEAR FULL STOP
-        || ch == '\u0702'; // ܂ SYRIAC SUBLINEAR FULL STOP
+        || ch == '\u0702' // ܂ SYRIAC SUBLINEAR FULL STOP
+        || ch == '\uFF61' // ｡ HALFWIDTH IDEOGRAPHIC FULL STOP
+        || ch == '\uFE12' // ︒ PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC FULL STOP
+        || ch == '\uFE30' // ︰ PRESENTATION FORM FOR VERTICAL TWO DOT LEADER
+        || ch == '\u30FB' // ・ KATAKANA MIDDLE DOT
+        || ch == '\uFF65'; // ･ HALFWIDTH KATAKANA MIDDLE DOT
 }

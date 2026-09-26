@@ -15728,11 +15728,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
-                    "application/*+json": components["schemas"]["SecurityAssessmentPublicationRequest"];
-                    "application/json": components["schemas"]["SecurityAssessmentPublicationRequest"];
-                    "text/json": components["schemas"]["SecurityAssessmentPublicationRequest"];
+                    "application/*+json": null | components["schemas"]["SecurityAssessmentPublicationRequest"];
+                    "application/json": null | components["schemas"]["SecurityAssessmentPublicationRequest"];
+                    "text/json": null | components["schemas"]["SecurityAssessmentPublicationRequest"];
                 };
             };
             responses: {

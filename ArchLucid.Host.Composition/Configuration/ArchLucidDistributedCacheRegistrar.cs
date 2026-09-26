@@ -9,6 +9,7 @@ using KgProjectionCacheOptions = ArchLucid.KnowledgeGraph.Configuration.Knowledg
 using ArchLucid.KnowledgeGraph.Configuration;
 
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Hosting;
 
 using Polly;
 
@@ -41,7 +42,7 @@ internal static class ArchLucidDistributedCacheRegistrar
             configuration.GetSection(KgProjectionCacheOptions.SectionName).Get<KgProjectionCacheOptions>()
             ?? new KgProjectionCacheOptions();
 
-        if (kg.Backend != GraphProjectionCacheBackend.Distributed)
+        if (!kg.Enabled)
             return;
 
         HotPathCacheOptions hotPath =
@@ -51,6 +52,21 @@ internal static class ArchLucidDistributedCacheRegistrar
         LlmCompletionResponseCacheOptions llm =
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
             ?? new LlmCompletionResponseCacheOptions();
+
+        bool redisConfigured = !string.IsNullOrWhiteSpace(kg.RedisConnectionString)
+            || !string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+            || !string.IsNullOrWhiteSpace(hotPath.RedisConnectionString);
+
+        GraphProjectionCacheBackend effectiveBackend = GraphProjectionCacheProviderResolver.ResolveEffectiveBackend(
+            kg,
+            hotPath.ExpectedApiReplicaCount,
+            redisConfigured);
+
+        bool distributedProjectionCache = kg.Backend == GraphProjectionCacheBackend.Distributed
+            || effectiveBackend == GraphProjectionCacheBackend.Distributed;
+
+        if (!distributedProjectionCache)
+            return;
 
         string? kgRedis = kg.RedisConnectionString?.Trim();
 
@@ -144,12 +160,24 @@ internal static class ArchLucidDistributedCacheRegistrar
 
     private static void RegisterGraphProjectionRedisPubSub(IServiceCollection services, string redisConnectionString)
     {
-        if (services.Any(static d => d.ServiceType == typeof(IConnectionMultiplexer)))
-            return;
+        if (!services.Any(static d => d.ServiceType == typeof(IConnectionMultiplexer)))
+        {
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(ConfigurationOptions.Parse(redisConnectionString)));
+        }
 
-        services.AddSingleton<IConnectionMultiplexer>(_ =>
-            ConnectionMultiplexer.Connect(ConfigurationOptions.Parse(redisConnectionString)));
-        services.AddSingleton<IGraphProjectionCacheInvalidationBroadcaster, RedisGraphProjectionCacheInvalidationBroadcaster>();
-        services.AddHostedService<GraphProjectionCacheInvalidationSubscriberHostedService>();
+        if (!services.Any(static d =>
+                d.ServiceType == typeof(IGraphProjectionCacheInvalidationBroadcaster)
+                && d.ImplementationType == typeof(RedisGraphProjectionCacheInvalidationBroadcaster)))
+        {
+            services.AddSingleton<IGraphProjectionCacheInvalidationBroadcaster, RedisGraphProjectionCacheInvalidationBroadcaster>();
+        }
+
+        if (!services.Any(static d =>
+                d.ServiceType == typeof(IHostedService)
+                && d.ImplementationType == typeof(GraphProjectionCacheInvalidationSubscriberHostedService)))
+        {
+            services.AddHostedService<GraphProjectionCacheInvalidationSubscriberHostedService>();
+        }
     }
 }
