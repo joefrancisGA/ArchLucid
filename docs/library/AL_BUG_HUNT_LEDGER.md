@@ -15974,11 +15974,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 30
-- **bugs-found:** 21
+- **hunts:** 31
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — Workflow action target parser normalized raw JSON reference blobs as ARM ids
+- **last-bug:** 2026-09-26 — Restore point collection source parser mishandled JSON reference on source.id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16208,6 +16208,11 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 thorough hunt #30 (hit): proved workflow action target parser JSON reference normalization gap; 1396 scoped `AzureExtractor` tests passed.
 
 2026-09-26 seed hunt #29 (seed→hit): reseeded core-azure-extractor after access-connector JSON reference hit; proved public IP reference parser ignored JSON reference property values; seeded workflow action target JSON reference normalization candidate; 1395 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureInventoryRestorePointCollectionSourceParser` — flattened `source.id` property values serialized as package JSON reference blobs (`{"id":"..."}`) were normalized wholesale because the parser only called `ArmResourceIdNormalizer.Normalize` on the raw string — **hit 2026-09-26 seed hunt #31:** NR-03 restore point collection parent resolution dropped protected VM/VMSS sources when `source.id` carried JSON `GetRawText()`; fixed with `TryResolveArmReferenceValue` parity to access connector / network connection parsers; regression `Parse_reads_arm_id_from_json_reference_on_source_id_property`.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser.NormalizeArmId` — explicit flattened `nextHopArmId` suffix values storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` (reachability: hydrator writes path-shaped next-hop ids from `Parse`; package-only flattened keys unproven in production graph nodes)
+
+2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
