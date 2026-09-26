@@ -49,6 +49,8 @@ export type PageHeadingProps = {
   claimDiscipline?: string;
   /** Stable Playwright anchor for {@link claimDiscipline}. */
   claimDisciplineTestId?: string;
+  /** Optional helper copy directly under claim discipline (same typography tier). */
+  claimDisciplineSupplement?: ReactNode;
   /** Optional hierarchy label rendered above the title (for example help topic grouping). */
   eyebrow?: string;
   metadata?: ReactNode;
@@ -79,6 +81,7 @@ export function PageHeading({
   description,
   claimDiscipline,
   claimDisciplineTestId,
+  claimDisciplineSupplement,
   eyebrow,
   metadata,
   icon,
@@ -155,6 +158,10 @@ export function PageHeading({
         {claimDiscipline !== undefined && claimDiscipline.length > 0 ? (
           <PageHeaderClaimDiscipline text={claimDiscipline} testId={claimDisciplineTestId} />
         ) : null}
+
+        {claimDisciplineSupplement !== undefined && claimDisciplineSupplement !== null
+          ? claimDisciplineSupplement
+          : null}
 
         {metadata !== undefined && metadata !== null ? (
           <div

@@ -17,6 +17,8 @@ export type OperatorPageHeaderProps = {
   claimDiscipline?: string;
   /** Stable Playwright anchor for {@link claimDiscipline}. */
   claimDisciplineTestId?: string;
+  /** Optional helper copy directly under claim discipline (same typography tier). */
+  claimDisciplineSupplement?: ReactNode;
   /** Optional hierarchy label rendered above the title. */
   eyebrow?: string;
   /** Optional classes for the subtitle paragraph (non-`navHref` path). */
@@ -67,6 +69,7 @@ export function OperatorPageHeader({
   subtitle,
   claimDiscipline,
   claimDisciplineTestId,
+  claimDisciplineSupplement,
   eyebrow,
   subtitleClassName,
   navHref,
@@ -89,6 +92,7 @@ export function OperatorPageHeader({
           description={subtitle}
           claimDiscipline={claimDiscipline}
           claimDisciplineTestId={claimDisciplineTestId}
+          claimDisciplineSupplement={claimDisciplineSupplement}
           eyebrow={eyebrow}
           metadata={metadata}
           statusBadge={statusBadge}
@@ -143,6 +147,8 @@ export function OperatorPageHeader({
       {claimDiscipline !== undefined && claimDiscipline.length > 0 ? (
         <PageHeaderClaimDiscipline text={claimDiscipline} testId={claimDisciplineTestId} />
       ) : null}
+
+      {claimDisciplineSupplement != null ? claimDisciplineSupplement : null}
 
       {metadata != null && (
         <div className={cn("mt-2 flex flex-wrap gap-x-4 gap-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

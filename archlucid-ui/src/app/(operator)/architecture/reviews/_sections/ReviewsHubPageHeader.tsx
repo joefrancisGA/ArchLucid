@@ -32,12 +32,12 @@ export function ReviewsHubPageHeader(props: ReviewsHubPageHeaderProps): React.JS
       subtitle={pageCopy.subtitle}
       claimDiscipline={resolveSystemNotJobReviewsHubClaimDiscipline(isWorkingMode)}
       claimDisciplineTestId="reviews-hub-claim-discipline"
+      claimDisciplineSupplement={<ReviewsHubWorkingInboxCaption />}
       headingLevel="h1"
       titleTestId="reviews-hub-page-title"
       subtitleTestId="reviews-hub-page-subtitle"
       metadata={
         <>
-          <ReviewsHubWorkingInboxCaption />
           {props.projectId !== "default" ? (
             <span
               className={cn(OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
