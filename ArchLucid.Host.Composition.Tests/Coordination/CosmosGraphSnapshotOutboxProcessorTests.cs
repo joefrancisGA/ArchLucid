@@ -3,6 +3,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Cosmos;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -218,11 +219,17 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
 
         Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
 
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+        services.AddScoped(_ => authorityQuery.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(
