@@ -27,8 +27,6 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
 
         List<AzureInventoryLogicAppConnectionRow> rows = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
-        bool standardLogicAppPresent = false;
-
         foreach (HostedAzureArmResourceRecord resource in resources)
         {
             if (string.IsNullOrWhiteSpace(resource.ResourceId))
@@ -76,7 +74,17 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
                 && resource.Properties.TryGetValue("kind", out object? kindValue)
                 && $"{kindValue}".Contains("workflowapp", StringComparison.OrdinalIgnoreCase))
             {
-                standardLogicAppPresent = true;
+                if (resource.Properties.TryGetValue("parameters.$connections.value", out object? connectionsValue))
+                {
+                    foreach (AzureInventoryLogicAppConnectionRow connection in
+                             AzureInventoryLogicAppConnectionExtractor.ExtractFromStoredConnectionParameters(
+                                 resource.ResourceId.Trim(),
+                                 resource.Name,
+                                 connectionsValue?.ToString() ?? string.Empty))
+                    {
+                        AddConnection(connection, rows, seenKeys);
+                    }
+                }
             }
         }
 
@@ -120,7 +128,6 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
         return new HostedAzureInventoryLogicAppConnectionCollectResult
         {
             Connections = rows,
-            StandardLogicAppPresent = standardLogicAppPresent,
         };
     }
 
@@ -146,9 +153,4 @@ public sealed class HostedAzureInventoryLogicAppConnectionCollectResult
         init;
     } = [];
 
-    public bool StandardLogicAppPresent
-    {
-        get;
-        init;
-    }
 }

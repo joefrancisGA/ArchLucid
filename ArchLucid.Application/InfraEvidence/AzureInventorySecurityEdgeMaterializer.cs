@@ -220,6 +220,11 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationshipKeys,
             warnings);
 
+        if (resources.Any(HasLogicAppResource) && !logicAppConnectionsFilePresent)
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.LogicAppConnectionsMissing);
+        }
+
         AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
             messagingAssociationRows,
             relationships,
@@ -447,21 +452,50 @@ public static class AzureInventorySecurityEdgeMaterializer
             return;
         }
 
-        if (!resource.Properties.TryGetValue("ipConfiguration.subnet.id", out string? subnetId)
-            && !resource.Properties.TryGetValue("subnetId", out subnetId))
+        HashSet<string> subnetIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (KeyValuePair<string, string> property in resource.Properties)
         {
-            return;
+            if (!property.Key.StartsWith("ipConfiguration.subnet.id", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(property.Value))
+            {
+                continue;
+            }
+
+            subnetIds.Add(ArmResourceIdNormalizer.Normalize(property.Value));
         }
 
-        AddRelationship(
-            relationships,
-            relationshipKeys,
-            normalizedArmId,
-            ArmResourceIdNormalizer.Normalize(subnetId),
-            GraphEdgeTypes.ConnectsTo,
-            ProvenanceKind.ObservedFact,
-            ObservedFactConfidence,
-            GraphEdgeInferenceSources.InventoryNicSubnet);
+        if (subnetIds.Count == 0
+            && resource.Properties.TryGetValue("subnetId", out string? legacySubnetId)
+            && !string.IsNullOrWhiteSpace(legacySubnetId))
+        {
+            subnetIds.Add(ArmResourceIdNormalizer.Normalize(legacySubnetId));
+        }
+
+        foreach (string subnetId in subnetIds)
+        {
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                normalizedArmId,
+                subnetId,
+                GraphEdgeTypes.ConnectsTo,
+                ProvenanceKind.ObservedFact,
+                ObservedFactConfidence,
+                GraphEdgeInferenceSources.InventoryNicSubnet);
+        }
+    }
+
+    private static bool HasLogicAppResource(AzureExtractorExtendedResourceRow resource)
+    {
+        if (resource.ResourceType.Equals("Microsoft.Logic/workflows", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return resource.ResourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase)
+               && resource.Properties.TryGetValue("kind", out string? kind)
+               && kind.Contains("workflowapp", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AddObservedVnetPeeringsFromResourceProperties(
