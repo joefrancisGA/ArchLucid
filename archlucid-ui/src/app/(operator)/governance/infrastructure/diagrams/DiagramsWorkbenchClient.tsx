@@ -276,6 +276,19 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
   return option?.label ?? mode;
 }
 
+function infraDiagramModeJobCaption(mode: string): string | null {
+  switch (mode) {
+    case "data":
+      return "This view filters the infrastructure forest to data resources.";
+    case "dataArchitecture":
+      return "This diagram shows what stores data.";
+    case "dataFlow":
+      return "This diagram shows what may connect. It is not observed traffic.";
+    default:
+      return null;
+  }
+}
+
 function FallbackCard(props: {
   readonly artifact: InfraEvidenceMermaidFallbackArtifactSummary;
   readonly selected: boolean;
@@ -725,6 +738,8 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
+  const dataFlowHasNoConnections =
+    selectedMode === "dataFlow" && (metrics?.edgeCount ?? 0) === 0;
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy
@@ -1852,6 +1867,11 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
+              {infraDiagramModeJobCaption(diagramTypePickerValue) != null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {infraDiagramModeJobCaption(diagramTypePickerValue)}
+                </p>
+              ) : null}
             </div>
             {selectedSnapshot != null ? (
               <div
@@ -1966,6 +1986,11 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
+              {infraDiagramModeJobCaption(diagramTypePickerValue) != null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {infraDiagramModeJobCaption(diagramTypePickerValue)}
+                </p>
+              ) : null}
             </div>
             {selectedSnapshot != null ? (
               <div
@@ -2420,8 +2445,16 @@ export function DiagramsWorkbenchClient() {
         </>
       ) : showGenericEmptyContent ? (
         <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}
+          title={
+            dataFlowHasNoConnections
+              ? "This data-flow canvas is empty."
+              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
+          }
+          description={
+            dataFlowHasNoConnections
+              ? "The snapshot has inventory and no declared connection to draw."
+              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
+          }
           testId="infra-diagrams-empty-content"
         />
       ) : paintDiagramCanvas ? (

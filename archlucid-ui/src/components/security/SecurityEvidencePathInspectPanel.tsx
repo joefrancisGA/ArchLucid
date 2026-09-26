@@ -71,16 +71,35 @@ import type {
   SecurityEvidencePathRankSummary,
 } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
+import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
   readonly weakestHopOrdinal: number;
 }) {
+  const bandMeaning = (band: string): string | null => {
+    switch (band) {
+      case "Confirmed":
+        return "The evidence for this hop is confirmed.";
+      case "HighlyLikely":
+        return "The evidence for this hop is highly likely.";
+      case "Probable":
+        return "The evidence for this hop is probable.";
+      case "Possible":
+        return "The control plane allows this hop. No traffic was seen.";
+      case "InsufficientEvidence":
+        return "This hop does not have enough evidence.";
+      default:
+        return null;
+    }
+  };
+
   return (
     <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_HOPS_TITLE}>
       <EnterpriseTableHead>
         <EnterpriseTableRow>
           <EnterpriseTableHeaderCell>#</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Hop</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Edge</EnterpriseTableHeaderCell>
@@ -100,6 +119,12 @@ function PathHopsTable(props: {
               aria-current={isWeakest ? "true" : undefined}
             >
               <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {hop.fromNodeLabel} to {hop.toNodeLabel} by {hop.edgeType}. Source:{" "}
+                  {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}.
+                </p>
+              </EnterpriseTableCell>
               <EnterpriseTableCell>{hop.fromNodeLabel}</EnterpriseTableCell>
               <EnterpriseTableCell>{hop.toNodeLabel}</EnterpriseTableCell>
               <EnterpriseTableCell>{hop.edgeType}</EnterpriseTableCell>
@@ -111,6 +136,11 @@ function PathHopsTable(props: {
                   kind={securityEvidencePathConfidenceBandStatusKind(hop.hopConfidenceBand)}
                   label={formatSecurityEvidencePathConfidenceBandLabel(hop.hopConfidenceBand)}
                 />
+                {bandMeaning(hop.hopConfidenceBand) != null ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                    {bandMeaning(hop.hopConfidenceBand)}
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
             </EnterpriseTableRow>
           );
@@ -260,7 +290,8 @@ function InspectSelectionIdentityHeader(props: {
     return (
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          Finding rank {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"} · score{" "}
+          <InlineGlossaryChip nounId="finding">Finding</InlineGlossaryChip> rank{" "}
+          {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"} · score{" "}
           {props.findingSummary.totalScore.toFixed(4)}
           {props.findingSummary.patternKey != null ? ` · ${props.findingSummary.patternKey}` : ""}
         </p>
@@ -550,6 +581,35 @@ export function SecurityEvidencePathInspectPanel(props: {
               </ul>
             </div>
           ) : null}
+
+          <div className="space-y-2" data-testid="security-evidence-path-what-could-break">
+            <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>What could break</h3>
+            {[
+              ...pathQuery.data.relatedCutPoints
+                .map((cutPoint) => cutPoint.explanationSummary.trim())
+                .filter((summary) => summary.length > 0),
+              pathRankQuery.data?.dimensionProse.blastRadius.trim() ?? "",
+            ].filter((summary) => summary.length > 0).length > 0 ? (
+              <ul className="m-0 list-disc space-y-1 pl-5">
+                {[
+                  ...pathQuery.data.relatedCutPoints
+                    .map((cutPoint) => cutPoint.explanationSummary.trim())
+                    .filter((summary) => summary.length > 0),
+                  pathRankQuery.data?.dimensionProse.blastRadius.trim() ?? "",
+                ]
+                  .filter((summary) => summary.length > 0)
+                  .map((summary) => (
+                    <li key={summary} className={OPERATOR_TYPOGRAPHY.body}>
+                      {summary}
+                    </li>
+                  ))}
+              </ul>
+            ) : (
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                No dependent or shared control is cited for this change.
+              </p>
+            )}
+          </div>
 
           {pathQuery.data.routing.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-routing">

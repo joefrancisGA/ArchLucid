@@ -18,6 +18,12 @@ import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRo
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
+import {
+  resolveReviewJourneyStep,
+  ReviewJourneyStrip,
+  ReviewObjectSentence,
+} from "@/components/reviews/ReviewJourneyStrip";
+import { ReviewVocabularyRail } from "@/components/reviews/ReviewVocabularyRail";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -247,6 +253,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
   const showReviewRecordMetadata = shouldShowReviewRecordMetadata(metadataContext, props.workspaceStatus);
   const reviewPipelineIncomplete = isReviewPipelineIncomplete(props.workspaceStatus);
+  const reviewIsSealed =
+    props.signedReviewRecordId !== null || props.workspaceStatus.kind === "finalized";
   const headerActionDisabledReason = whyDisabledReviewHeaderActions(props.workspaceStatus);
   const metadataDisclosureSummary = resolveMetadataDisclosureSummary(
     unrecordedFieldCount,
@@ -336,6 +344,12 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           </div>
         }
       >
+        <ReviewObjectSentence isSealed={reviewIsSealed} />
+        <ReviewJourneyStrip
+          currentStep={resolveReviewJourneyStep(props.workspaceStatus)}
+          isSealed={reviewIsSealed}
+        />
+        <ReviewVocabularyRail />
         {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
         <dl
           className={cn(
