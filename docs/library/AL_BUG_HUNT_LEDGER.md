@@ -24199,11 +24199,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 23
-- **bugs-found:** 17
+- **hunts:** 24
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — intake disclosure toggles stale after App Router cleared URL params without popstate
+- **last-bug:** 2026-09-26 — detailed wizard kept pilot=0 focused scope after pilot param removed from URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24256,6 +24256,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `ReviewsNewPathSwitcher` — returning-tenant job chooser disclosure stayed open after App Router cleared `reviewsNewReturningJobChooserOpen=` without `popstate` — **hit 2026-09-25 seed hunt #3908e (seed→hit):** `returningJobChooserOpen` lived in `useState` synced only on `popstate`; deep-linked disclosure open state survived client navigation that cleared the param; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in the popstate handler; regression `follows reviewsNewReturningJobChooserOpen= URL changes without a popstate event`.
 
 2026-09-25 seed hunt #3908e (seed→hit): reseeded ui-review-intake-wizards after scopeGate URL sync hit; proved stale returning job chooser disclosure after URL navigation; 11 scoped intake URL-sync unit tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards; proved `useNewRunWizardClient` left `focusedPilotModeEnabled` false after App Router cleared `pilot=` (absent param means enabled per `newRunWizardPilotHrefFromSearch`); fixed `useSearchParams` sync and popstate handler to use `urlPilotEnabled ?? true`; regression `use-new-run-wizard-client.pilot-url.test.ts`; 2 scoped pilot/advanced-config URL vitest files passed.
+
+- [x] (proven) `useNewRunWizardClient` — `focusedPilotModeEnabled` stayed false when `pilot=0` was removed from URL without `popstate` because sync only applied when `parseNewRunWizardPilotFromSearch` returned non-null — **hit 2026-09-26 seed hunt:** treat absent `pilot` as enabled; regression above.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards; proved `guidedIntakeViewAllClarificationsOpen`, `reviewsNewMoreWaysToStartOpen`, `firstPilotStandardsSelectionOpen`, and `simplifiedPilotAdvancedConfigOpen` disclosure state stayed stale after App Router navigation cleared URL params (only `popstate` listeners updated); fixed by syncing from `useSearchParams` like #3908e; regression `follows reviewsNewMoreWaysToStartOpen= URL changes without a popstate event`; 3 scoped URL-sync vitest files passed (8 tests).
 
