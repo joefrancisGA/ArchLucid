@@ -3427,7 +3427,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-09-26 seed hunt #6972 (seed-only): reseeded tenant-erasure after middleware fail-closed churn (#3469); cheap-disproof closed past-due `TenantErasureRequestedUtc`-only legal-hold gap (production offboard always sets both timestamps); regressions `Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`, `TryRestoreQuarantineAsync_clears_stale_erasure_approval` assertion extended for `TenantErasureRequestedUtc`; 35 scoped TenantErasure tests passed.
+2026-09-26 seed hunt #6972 (seed-only): reseeded tenant-erasure after middleware fail-closed churn (#3469); cheap-disproof closed past-due `TenantErasureRequestedUtc`-only legal-hold gap (production offboard always sets both timestamps); regressions `Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`, `TryRestoreQuarantineAsync_clears_stale_erasure_approval_and_requested_timestamp`; 35 scoped TenantErasure tests passed.
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects tenants blocked only by past-due `TenantErasureRequestedUtc` without `OffboardedUtc` — **cheap-disproof 2026-09-26 seed hunt #6972:** `TryStartTenantErasureOffboardAsync` sets both columns together (SQL + `CopyTenant`); orphan/scheduled-only rows are not reachable from tenant-admin erasure APIs in this zone.
 
