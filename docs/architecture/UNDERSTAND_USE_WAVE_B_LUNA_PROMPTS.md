@@ -31,3 +31,7 @@ Paste **one** prompt per Luna session. Do not implement from this index. Wave A 
 - Treating diagram currency **Configured** as an observed fact
 - GTM **M-90 / M-44 / M-91 / M-92**
 - Closed assurance **TB-135 / TB-136**
+
+## Wave C
+
+The next ten sessions live in [`UNDERSTAND_USE_WAVE_C_LUNA_PROMPTS.md`](UNDERSTAND_USE_WAVE_C_LUNA_PROMPTS.md). Paste those files one at a time. Do not implement them from this page.

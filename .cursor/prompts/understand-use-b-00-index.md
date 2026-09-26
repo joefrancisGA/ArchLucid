@@ -51,3 +51,7 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 18 | `understand-use-18-snapshot-path-compare.md` | `uu/18-snapshot-path-compare` |
 | 19 | `understand-use-19-diagram-legend.md` | `uu/19-diagram-legend` |
 | 20 | `understand-use-20-queue-shortcuts.md` | `uu/20-queue-shortcuts` |
+
+## Wave C (UU-21–UU-30)
+
+Paste from [`understand-use-c-00-index.md`](understand-use-c-00-index.md). Do not implement wave C from this file.
