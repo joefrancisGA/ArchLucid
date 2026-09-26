@@ -2104,6 +2104,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — relationship endpoints such as `svc-  api` / `ds-  sql` only outer-trimmed before lookup so internal whitespace after the synthetic prefix missed indexed `svc-api` / `ds-sql` keys and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** normalize synthetic prefix references before alias lookup; regression `MapRelationships_resolves_synthetic_service_id_when_relationship_endpoint_has_internal_whitespace_after_prefix`.
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown` — merge-gate relationship filter did not normalize synthetic prefix references so `FilterKnownRelationships` dropped relationships the edge mapper would resolve — **hit 2026-09-26 seed hunt (seed→hit):** parity with `TryResolveNodeId` synthetic normalization; regressions `EndpointKeyIsKnown_accepts_synthetic_endpoint_with_internal_whitespace_after_prefix` and `FilterKnownRelationships_keeps_relationship_when_synthetic_endpoints_have_internal_whitespace_after_prefix`.
 
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` keys such as `svc-  api` were outer-trimmed only so relationships using normalized `svc-api` missed alias-only rename mappings and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** index normalized synthetic alias keys when merging declared aliases; regression `MapRelationships_resolves_synthetic_alias_key_when_declared_alias_has_internal_whitespace_after_prefix`; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-key normalization gap; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved merge-gate synthetic endpoint normalization parity gap; 306 scoped edge-mapper/graph-merge/endpoint-index tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved synthetic endpoint internal-whitespace resolution gap; 304 scoped edge-mapper/graph-merge tests passed.
@@ -2118,14 +2122,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 71
-- **bugs-found:** 59
+- **hunts:** 72
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — merge gate dropped relationships whose synthetic endpoints had internal whitespace after prefix
-- **hunts:** 69
-- **bugs-found:** 57
-- **last-bug:** 2026-09-26 — shared-label svc/ds synthetic aliases collapsed to first node
+- **last-bug:** 2026-09-26 — declared endpoint alias keys with internal whitespace after svc-/ds- prefix did not normalize for relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

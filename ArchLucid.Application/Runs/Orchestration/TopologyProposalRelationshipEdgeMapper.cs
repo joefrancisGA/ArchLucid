@@ -80,7 +80,16 @@ public static class TopologyProposalRelationshipEdgeMapper
             if (string.IsNullOrWhiteSpace(alias.Key) || string.IsNullOrWhiteSpace(alias.Value))
                 continue;
 
-            endpointKeyToNodeId.TryAdd(alias.Key.Trim(), alias.Value.Trim());
+            string trimmedKey = alias.Key.Trim();
+            string trimmedValue = alias.Value.Trim();
+
+            endpointKeyToNodeId.TryAdd(trimmedKey, trimmedValue);
+
+            string? normalizedSyntheticKey =
+                TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
+
+            if (normalizedSyntheticKey is not null)
+                endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, trimmedValue);
         }
 
         return endpointKeyToNodeId;
