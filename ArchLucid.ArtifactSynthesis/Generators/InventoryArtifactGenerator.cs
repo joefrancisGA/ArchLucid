@@ -46,6 +46,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "SecurityControl",
+                ControlId = control.ControlId,
                 Name = control.ControlName,
                 Status = control.Status,
                 Notes = control.Impact
@@ -56,6 +57,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "ComplianceControl",
+                ControlId = control.ControlId,
                 Name = control.ControlName,
                 Status = control.Status,
                 Notes = control.AppliesToCategory
