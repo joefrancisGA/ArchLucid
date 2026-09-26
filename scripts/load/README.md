@@ -106,5 +106,12 @@ pages for every tenant. The scheduled and manual
 tenants with 100 paths each, runs this workload, and uploads the verdict. It
 also runs on pull requests that change the workflow or scale workload files,
 so a changed harness gets an observed verdict before merging.
-It labels the result as synthetic read evidence, not a production SLA or proof
-of ingestion/write throughput.
+The read and architecture admission profiles run as separate CI jobs with
+independent verdicts. The architecture job sends bounded, two-tenant async
+create requests and requires completed HTTP responses, 202 operation locations,
+zero dropped iterations, and latency and failure caps. Its
+`architecture-admission-verdict.json` labels a passing result as synthetic
+async admission evidence. It proves only request acceptance into the queue;
+worker completion, architecture generation, and production throughput need
+separate evidence. The original `tests/load/per-tenant-burst.js` operator path
+remains available for deeper runs with `K6_BURST_PROFILE=operator-path`.
