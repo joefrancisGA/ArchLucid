@@ -325,6 +325,40 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.None);
+        chosen.TechnologyName = "PostgreSQL";
+        chosen.EvidenceRef = "inventory:postgresql";
+        chosen.Source = TechnologyLedgerSource.Evidence;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "PostgreSQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_agent_candidate_when_cloud_neutral_chosen_has_different_technology_name()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.None);
+        chosen.TechnologyName = "PostgreSQL";
+        chosen.EvidenceRef = "inventory:postgresql";
+        chosen.Source = TechnologyLedgerSource.Evidence;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure App Service";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:api";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
     public void Resolve_keeps_second_compute_candidate_after_cold_start_chosen_shares_display_name()
     {
         TechnologyLedgerEntry first = CreateCandidate(CloudProvider.Azure);
