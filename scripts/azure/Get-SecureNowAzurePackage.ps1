@@ -816,24 +816,25 @@ try
             -Outcome Succeeded `
             -Stopwatch $securityInventoryWatch `
             -Context @{
-                roleAssignmentCount = $roleAssignmentRows.Count
-                networkAssociationCount = $networkAssociationRows.Count
-                federatedCredentialCount = $federatedCredentialRows.Count
-                effectiveNetworkControlCount = $effectiveNetworkControlRows.Count
-                policyAssignmentCount = $policyAssignmentRows.Count
-                diagnosticSettingCount = $diagnosticSettingRows.Count
-                defenderSummaryCount = $defenderSummaryRows.Count
-                adfLinkedServiceCount = $adfLinkedServiceRows.Count
-                adfDatasetCount = $adfDatasetRows.Count
-                adfPipelineFlowCount = $adfPipelineFlowRows.Count
-                adfTriggerCount = $adfTriggerRows.Count
-                adfIntegrationRuntimeCount = $adfIntegrationRuntimeRows.Count
-                adfDataflowCount = $adfDataflowRows.Count
-                eventGridSubscriptionCount = $eventGridSubscriptionRows.Count
-                logicAppConnectionCount = $logicAppConnectionRows.Count
-                messagingAssociationCount = $messagingAssociationRows.Count
-                serviceConnectorCount = $serviceConnectorRows.Count
-                appSettingHostCount = $appSettingHostRows.Count
+                objectCount =
+                    $roleAssignmentRows.Count +
+                    $networkAssociationRows.Count +
+                    $federatedCredentialRows.Count +
+                    $effectiveNetworkControlRows.Count +
+                    $policyAssignmentRows.Count +
+                    $diagnosticSettingRows.Count +
+                    $defenderSummaryRows.Count +
+                    $adfLinkedServiceRows.Count +
+                    $adfDatasetRows.Count +
+                    $adfPipelineFlowRows.Count +
+                    $adfTriggerRows.Count +
+                    $adfIntegrationRuntimeRows.Count +
+                    $adfDataflowRows.Count +
+                    $eventGridSubscriptionRows.Count +
+                    $logicAppConnectionRows.Count +
+                    $messagingAssociationRows.Count +
+                    $serviceConnectorRows.Count +
+                    $appSettingHostRows.Count
             }
     }
     catch

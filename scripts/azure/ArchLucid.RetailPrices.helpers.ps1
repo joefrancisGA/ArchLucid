@@ -12,6 +12,33 @@ function CollapsedArchLucidSku([string]$Text)
     return ([regex]::Replace($Text.Trim(), "[\s_]+", "")).ToLowerInvariant()
 }
 
+function Get-ArchLucidRetailRowFieldText([object]$Row, [string]$FieldName)
+{
+    if ($null -eq $Row -or [string]::IsNullOrWhiteSpace($FieldName))
+    {
+        return ""
+    }
+
+    if ($Row -is [Collections.IDictionary])
+    {
+        if (-not $Row.Contains($FieldName))
+        {
+            return ""
+        }
+
+        return "$($Row[$FieldName])"
+    }
+
+    [object]$property = $Row.PSObject.Properties[$FieldName]
+
+    if ($null -eq $property)
+    {
+        return ""
+    }
+
+    return "$($property.Value)"
+}
+
 function Test-ArchLucidRetailConsumptionRow([object]$Row)
 {
     $currency = "$( $Row.currencyCode )"
@@ -28,7 +55,8 @@ function Test-ArchLucidRetailConsumptionRow([object]$Row)
         return $false
     }
 
-    $meterTierVal = "$( $Row.meterTier )"
+    # meterTier is not present on every Azure Retail Prices API item.
+    $meterTierVal = Get-ArchLucidRetailRowFieldText -Row $Row -FieldName "meterTier"
 
     if ($meterTierVal.Contains("Government", [System.StringComparison]::OrdinalIgnoreCase))
     {
