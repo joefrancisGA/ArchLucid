@@ -74,7 +74,10 @@ internal static class ContextIngestionCompositionRegistrar
                 hotPath.ExpectedApiReplicaCount,
                 redisConfigured);
 
-            if (effectiveBackend == GraphProjectionCacheBackend.Distributed)
+            bool distributedProjectionCache = opts.Backend == GraphProjectionCacheBackend.Distributed
+                || effectiveBackend == GraphProjectionCacheBackend.Distributed;
+
+            if (distributedProjectionCache)
             {
                 IDistributedCache distributedCache = sp.GetRequiredService<IDistributedCache>();
                 IGraphProjectionCacheInvalidationBroadcaster broadcaster =
