@@ -38,7 +38,7 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "data", label: "Data category" },
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
-  { value: "avd", label: "Azure Virtual Desktop" },
+  { value: "avd", label: "AVD Farm" },
   { value: "full", label: "Full subscription — every resource in scope" },
   { value: "resourceGroup", label: "One resource group" },
   { value: "selectedResources", label: "Resources you picked" },

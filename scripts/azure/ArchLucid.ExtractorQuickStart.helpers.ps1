@@ -311,6 +311,60 @@ function Sync-ArchLucidAzureCliSubscriptionContext
         -TenantId $TenantId
 }
 
+function Disable-ArchLucidAzureWindowsAccountBrokerLogin
+{
+    # Az.Accounts 5 interactive login uses Login Experience v2. On Windows that picker
+    # shows a false "account is locked" dialog while portal.azure.com still signs in.
+    # Process scope leaves the saved Az configuration unchanged.
+    if ($null -eq (Get-Module -Name 'Az.Accounts' -ErrorAction SilentlyContinue))
+    {
+        return
+    }
+
+    $updateConfig = Get-Command -Name 'Update-AzConfig' -ErrorAction SilentlyContinue
+
+    if ($null -eq $updateConfig)
+    {
+        return
+    }
+
+    [bool]$hasScope = $updateConfig.Parameters.ContainsKey('Scope')
+    [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+
+    try
+    {
+        $WarningPreference = 'SilentlyContinue'
+
+        if ($updateConfig.Parameters.ContainsKey('EnableLoginByWam'))
+        {
+            if ($hasScope)
+            {
+                $null = Update-AzConfig -EnableLoginByWam:$false -Scope Process
+            }
+            else
+            {
+                $null = Update-AzConfig -EnableLoginByWam:$false
+            }
+        }
+
+        if ($updateConfig.Parameters.ContainsKey('LoginExperienceV2'))
+        {
+            if ($hasScope)
+            {
+                $null = Update-AzConfig -LoginExperienceV2 Off -Scope Process
+            }
+            else
+            {
+                $null = Update-AzConfig -LoginExperienceV2 Off
+            }
+        }
+    }
+    finally
+    {
+        $WarningPreference = $previousWarningPreference
+    }
+}
+
 function Connect-ArchLucidAzureAccountForSubscription
 {
     param(
@@ -414,35 +468,38 @@ function Connect-ArchLucidAzureAccountForSubscription
         return
     }
 
-    if ($hasTenant -and $hasSubscription)
-    {
-        $null = Connect-AzAccount `
-            -Tenant $trimmedTenantId `
-            -Subscription $trimmedSubscriptionId `
-            -ErrorAction Stop
+    Disable-ArchLucidAzureWindowsAccountBrokerLogin
 
-        return
+    # The Windows account picker still appears after EnableLoginByWam is turned off, and it
+    # shows a false account-lock page for accounts that sign in at portal.azure.com.
+    # Device code finishes in that same browser.
+    [bool]$useDeviceCodeForBrowser = $IsWindows
+
+    if ($useDeviceCodeForBrowser)
+    {
+        Write-Host "Sign in with the device code below in the same browser you use for the Azure portal." -ForegroundColor Cyan
+    }
+
+    [hashtable]$browserConnect = @{
+        ErrorAction = 'Stop'
     }
 
     if ($hasTenant)
     {
-        $null = Connect-AzAccount `
-            -Tenant $trimmedTenantId `
-            -ErrorAction Stop
-
-        return
+        $browserConnect.Tenant = $trimmedTenantId
     }
 
     if ($hasSubscription)
     {
-        $null = Connect-AzAccount `
-            -Subscription $trimmedSubscriptionId `
-            -ErrorAction Stop
-
-        return
+        $browserConnect.Subscription = $trimmedSubscriptionId
     }
 
-    $null = Connect-AzAccount -ErrorAction Stop
+    if ($useDeviceCodeForBrowser)
+    {
+        $browserConnect.UseDeviceAuthentication = $true
+    }
+
+    $null = Connect-AzAccount @browserConnect
 }
 
 function Read-ArchLucidAzureCredentialFromPrompt
