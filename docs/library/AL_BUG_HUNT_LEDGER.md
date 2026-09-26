@@ -5529,13 +5529,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 24
-- **bugs-found:** 13
+- **hunts:** 25
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — null actorId NRE on activate; null SampleClaimValues ANE on sandbox test-login
+- **last-bug:** 2026-09-26 — null ClaimMapping.Mappings threw ArgumentNullException past activate/test-login validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): proved null `ClaimMapping.Mappings` still surfaced `ArgumentNullException` from `ToDocument` on activate (HTTP 500 risk) and sandbox test-login; fixed with explicit guards; updated `ActivateAsync_null_claim_mapping_entries_throw_argument_null_exception` expectation; regression `Execute_returns_failure_when_claim_mapping_mappings_is_null`; 50 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService` / `SsoWizardTestLoginService` — null `ClaimMapping.Mappings` throws `ArgumentNullException` from `ToDocument` instead of validation envelope — **hit 2026-09-26 seed hunt:** guards before `ToDocument`; regressions above.
 
 2026-09-26 seed hunt (hit): proved null `actorId` caused `NullReferenceException` on `Trim()` in `ActivateAsync` (bypassing controller `ArgumentException` handler) and null `SampleClaimValues` threw from `ResolveRoles` during sandbox test-login; fixed with explicit guards; regressions `ActivateAsync_rejects_null_actor_id` and `Execute_returns_failure_when_sample_claim_values_is_null`; 49 scoped activation/controller/test-login tests passed.
 
