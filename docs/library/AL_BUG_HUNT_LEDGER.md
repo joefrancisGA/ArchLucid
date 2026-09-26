@@ -23559,13 +23559,15 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 13
-- **bugs-found:** 9
+- **hunts:** 14
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — create-home Do this next tab links dropped `fromGeneration` / create intent
+- **last-bug:** 2026-09-26 — overview sponsor CTA / What-if pipeline gating / duplicate create-home transparency trail
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 thorough hunt (hit): proved overview demoted sponsor CTA keyed on `manifestId` instead of `runCompleted`, What-if stayed enabled when `showProgressTracker && manifestId`, and create-home mounted duplicate transparency trail above stamp viewport; fixed via `shouldShowOverviewDemotedSponsorReportCta`, `resolveReviewPackagePipelineInFlight`, and removing redundant create-home trail; 25 targeted review-detail vitest tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-review-detail-workspace; proved `resolveReviewPackageDoThisNext` ignored `useCreateHomeWorkspaceTabs` on in-workspace tab hrefs so create-home chrome dropped on View assessment progress / findings CTAs; fixed via `workspaceTabHref` + `includeCreateIntent`; seeded overview `manifestId` vs `runCompleted` divergence, What-if `pipelineInFlight` vs manifest+tracker, and duplicate create-home transparency trail candidates; 35 targeted review-detail vitest tests passed.
 
@@ -23587,9 +23589,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — same-route `reviewTab` soft navigation desyncs tab strip/panel state — **hit 2026-09-26 seed hunt:** Next.js `<Link href="...?reviewTab=findings">` updated `useSearchParams` without `popstate` while `activeTab` stayed on prior tab; fixed by syncing `activeTab` when `searchParamTab` changes; regression `use-review-detail-workspace-tabs.url-sync.test.ts`
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` — `legacyRunStatus === "Completed"` with `completedUtc == null` left `showProgressTracker` true and Do this next on "View assessment progress" while workspace status read review complete — **hit 2026-09-26 thorough hunt:** `completedUtc == null` gate ignored legacy completion; fixed via `deriveRunDetailProgressState` + `runCompleted` on page model (`treats legacy Completed runs without completedUtc as finished`, `surfaces finalize guidance for legacy Completed runs without completedUtc`)
 - [x] (proven) `resolveReviewPackageDoThisNext` — `useCreateHomeWorkspaceTabs` not applied to `buildReviewWorkspaceTabHref` deep links — **hit 2026-09-26 seed hunt:** create-home Do this next CTAs omitted `fromGeneration` + create intent; fixed via `workspaceTabHref` (`uses create-home activity tab href when assessment is in progress on create-home`, `preserves create-home intent on findings deep link from Do this next`)
-- [ ] (candidate) `RunDetailTabbedWorkspaceOverviewShell` — `runCompleted` ORs `Boolean(manifestId)` while page model uses `runAnalysisComplete` only — demoted sponsor CTA may show while pipeline tracker still in-flight when manifest id present but run not analysis-complete
-- [ ] (candidate) `resolveRunDetailTabbedWorkspace` / `ReviewPackageWhatIfControl` — `pipelineInFlight={showProgressTracker && !manifestId}` while Activity still mounts tracker when `showProgressTracker && manifestId`
-- [ ] (candidate) `RunDetailPageViewCreateHome` / `RunDetailReviewPackageStampViewport` — duplicate `RunDetailOverviewTransparencyTrail` on pre-manifest create-home column
+- [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` — `runCompleted` ORed `Boolean(manifestId)` while page model uses `runAnalysisComplete` only — demoted sponsor CTA showed while pipeline tracker still in-flight when `goldenManifestId` present but run not analysis-complete — **hit 2026-09-26 thorough hunt:** fixed via `shouldShowOverviewDemotedSponsorReportCta` + `m.runCompleted` (`does not show sponsor CTA while analysis is in flight even when goldenManifestId is set`)
+- [x] (proven) `resolveRunDetailTabbedWorkspace` / `ReviewPackageWhatIfControl` — `pipelineInFlight={showProgressTracker && !manifestId}` while Activity still mounted tracker when `showProgressTracker && manifestId` — **hit 2026-09-26 thorough hunt:** fixed via `resolveReviewPackagePipelineInFlight(showProgressTracker)` (`stays in flight when progress tracker is on even if goldenManifestId is already on the run`)
+- [x] (proven) `RunDetailPageViewCreateHome` / `RunDetailReviewPackageStampViewport` — duplicate `RunDetailOverviewTransparencyTrail` on pre-manifest create-home column — **hit 2026-09-26 thorough hunt:** removed redundant create-home trail; stamp viewport owns pre-finalize trail (`does not duplicate the transparency trail above the create-home stamp viewport`)
 
 2026-09-25 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready hypotheses — deferred-explanation finding-count parity remains covered via `resolveRunDetailDeferredSurfaceFindingCount` / `resolveRunDetailOutcomeCardsFindingCountDisplay` on tab badges, outcome cards, policy callout, inspect checklist, and review-package summary; `RunExplanationSection` falls back to `summary.findingCount` inside deferred explanation load; 34 scoped RunDetail/reviewId unit tests passed.
 

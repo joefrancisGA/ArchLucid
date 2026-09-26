@@ -31,9 +31,12 @@ describe("RunDetailCreateHomeActivityPanel", () => {
       "Assessment has not started yet.",
     );
     expect(screen.queryByTestId("progress-tracker")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open overview" })).toHaveAttribute(
-      "href",
-      expect.stringContaining("reviewTab=overview"),
+    const overviewLink = screen.getByRole("link", { name: "Open overview" });
+    expect(overviewLink).toHaveAttribute("href", expect.stringContaining("reviewTab=overview"));
+    expect(overviewLink.getAttribute("href")).toContain("fromGeneration=1");
+    expect(overviewLink.getAttribute("href")).toContain("intent=create-architecture");
+    expect(screen.getByRole("link", { name: "Review findings" }).getAttribute("href")).toContain(
+      "fromGeneration=1",
     );
   });
 
