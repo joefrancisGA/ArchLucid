@@ -6966,3 +6966,5 @@
 {"at":"2026-09-26T01:25:28.6197505Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
 {"at":"2026-09-26T01:30:06.0544229Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-09-26T01:45:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-09-26T01:55:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-09-26T01:36:56.3039773Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
