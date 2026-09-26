@@ -3706,6 +3706,24 @@ $baselineSendEval = Invoke-RoiBaselineSendEvaluation `
         runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
     })
 
+# Sidecar for first-value and sponsor packet review: only observed, source-labeled
+# measurements receive a numeric difference. Missing inputs stay INSUFFICIENT_DATA.
+$roiMeasurementArgs = @(
+    (Join-Path $PSScriptRoot 'ci\report_roi_measurement_evidence.py'),
+    '--json-out', (Join-Path $proofDir 'roi-measurement-evidence.json'),
+    '--markdown-out', (Join-Path $proofDir 'roi-measurement-evidence.md')
+)
+$roiBaselinePath = Join-Path $proofDir 'paid-pilot-baseline.json'
+$roiOutcomesPath = Join-Path $proofDir 'roi-measured-outcomes.json'
+if (Test-Path -LiteralPath $roiBaselinePath) { $roiMeasurementArgs += @('--baseline-json', $roiBaselinePath) }
+if (Test-Path -LiteralPath $roiOutcomesPath) { $roiMeasurementArgs += @('--outcomes-json', $roiOutcomesPath) }
+if (-not [string]::IsNullOrWhiteSpace($RunId)) { $roiMeasurementArgs += @('--run-id', $RunId.Trim()) }
+$null = Invoke-ProofPythonProcess -ArgumentList $roiMeasurementArgs
+if (Test-Path -LiteralPath (Join-Path $proofDir 'roi-measurement-evidence.json')) {
+    Add-ProofArtifact -Name 'roi-measurement-evidence.json' -Path 'roi-measurement-evidence.json' -Purpose 'Source-labeled observed ROI metrics, or explicit insufficient-data status.'
+    Add-ProofArtifact -Name 'roi-measurement-evidence.md' -Path 'roi-measurement-evidence.md' -Purpose 'First-value and sponsor review of measured time differences and missing inputs.'
+}
+
 if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
     $missingFields = @($baselineSendEval.missingRequiredBaselineFields) -join ', '
 
