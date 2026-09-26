@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -27,3 +28,27 @@ def test_missing_recovery_holds_and_untrusted_values_are_not_exported(tmp_path: 
     assert result["redactionStatus"] == "PASS"
     assert "SecretToken" not in (tmp_path / "support-bundle-summary.md").read_text()
     assert "SecretToken" not in (tmp_path / "support-failure-drill.json").read_text()
+
+
+def test_staging_capture_checks_order_identity_and_redacts_raw_events(tmp_path: Path) -> None:
+    capture = tmp_path / "staging.jsonl"
+    events = module.synthetic_events()
+    for index, event in enumerate(events):
+        event.update(environment="staging", eventId=f"receipt-{index}",
+                     correlationId=f"observed-{event['scenario']}", artifactId=f"artifact-{event['scenario']}",
+                     occurredAt=f"2026-09-26T00:{index:02d}:00Z", secret="SensitiveValueMustNotExport")
+    capture.write_text("\n".join(json.dumps(event) for event in events))
+    imported, digest = module.read_staging_events(capture)
+    result = module.run(tmp_path / "bundle", imported, synthetic=False, capture_sha256=digest)
+    assert result["status"] == "PASS"
+    assert result["evidenceClass"] == "staging-capture-unverified"
+    assert result["captureSha256"] == digest
+    assert "SensitiveValue" not in (tmp_path / "bundle/support-failure-drill.json").read_text()
+    events[1]["correlationId"] = "wrong-job"
+    capture.write_text("\n".join(json.dumps(event) for event in events))
+    try:
+        module.read_staging_events(capture)
+    except ValueError as error:
+        assert "mismatched identifiers" in str(error)
+    else:
+        assert False, "mismatched staging correlation must fail"
