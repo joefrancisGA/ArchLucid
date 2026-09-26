@@ -8897,13 +8897,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 31
-- **bugs-found:** 23
+- **hunts:** 32
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-12 — IdentityRegulatedDatastoreClassifier non-private baseline false positive on pci token
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — SegmentationSemanticsPathAnalyzer nosql substring false positive on sql datastore heuristic
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): reseeded decisioning; proved `SegmentationSemanticsPathAnalyzer.IsDatastoreNode` bare `.Contains("sql")` matched `nosql` labels and treated DocumentDB NoSQL nodes as segmentation-sensitive datastores; fixed with `DecisioningTextTokenMatcher.ContainsStandaloneToken` for `sql` (parity with `TopologyDatastoreLabelHeuristic` / `IdentityRegulatedDatastoreClassifier`); regressions `IsSensitiveTarget_does_not_treat_nosql_label_as_datastore` and `IsSensitiveTarget_still_treats_sql_server_as_datastore`; 14 scoped SegmentationSemantics + IdentityRegulatedDatastore tests passed.
+
+- [x] (proven) `SegmentationSemanticsPathAnalyzer` treats NoSQL topology labels as SQL datastores — **hit 2026-09-26 seed hunt:** `IsDatastoreNode` substring `sql` matched inside `nosql`; fixed standalone `sql` token matching; regressions in `SegmentationSemanticsPathAnalyzerTests`.
 
 2026-09-13 seed hunt #2444 (seed-only): reseeded decisioning; no new hunt-ready rows.
 

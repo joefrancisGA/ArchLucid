@@ -151,7 +151,7 @@ public static class SegmentationSemanticsPathAnalyzer
 
         string combined = $"{node.Label} {node.SourceId}".ToLowerInvariant();
 
-        return combined.Contains("sql", StringComparison.Ordinal)
+        return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || combined.Contains("storage", StringComparison.Ordinal)
             || combined.Contains("database", StringComparison.Ordinal)
             || combined.Contains("cosmos", StringComparison.Ordinal)
