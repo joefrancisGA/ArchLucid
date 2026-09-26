@@ -37,6 +37,8 @@ public static class ProvenanceSnapshotRevisionHasher
             return string.Empty;
 
         IEnumerable<string> parts = artifacts
+            .GroupBy(static artifact => artifact.ArtifactId)
+            .Select(static group => group.First())
             .OrderBy(static artifact => artifact.ArtifactId)
             .Select(static artifact =>
                 $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}");

@@ -188,6 +188,64 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
     }
 
     [Fact]
+    public void AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it()
+    {
+        const string proposedJson = """{"type":"Policy","title":"Encrypt","description":"Use CMK.","rationale":"Gap"}""";
+
+        AgentResult baseResult = new()
+        {
+            ResultId = "r-json",
+            TaskId = "t1",
+            RunId = "run1",
+            ProposedEvidenceJson = proposedJson,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "finding-1",
+                    Message = "Use private endpoints.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                },
+            ],
+        };
+
+        AgentResult enrichedShape = new()
+        {
+            ResultId = "r-json",
+            TaskId = "t1",
+            RunId = "run1",
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "finding-1",
+                    Message = "Use private endpoints.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                    IacStub = "// AI-generated stub — review before use",
+                },
+            ],
+        };
+
+        string enrichedJson = System.Text.Json.JsonSerializer.Serialize(enrichedShape, ContractJson.Default);
+        Dictionary<string, AgentResultEnrichmentRecord> enrichments = new(StringComparer.Ordinal)
+        {
+            ["r-json"] = new AgentResultEnrichmentRecord
+            {
+                ResultId = "r-json",
+                EnrichedResultJson = enrichedJson,
+            },
+        };
+
+        IReadOnlyList<AgentResult> merged = AgentResultEnrichmentMerger.Apply([baseResult], enrichments);
+
+        merged.Should().ContainSingle();
+        merged[0].ProposedEvidenceJson.Should().Be(proposedJson);
+        merged[0].Findings.Single().IacStub.Should().Contain("AI-generated stub");
+    }
+
+    [Fact]
     public void AgentResultEnrichmentMerger_ignores_whitespace_enriched_json()
     {
         AgentResult baseResult = new()

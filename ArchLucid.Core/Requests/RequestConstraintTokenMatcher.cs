@@ -9,7 +9,7 @@ internal static class RequestConstraintTokenMatcher
 {
     internal static bool ContainsAffirmativePhrase(string? haystack, string phrase)
     {
-        haystack = NormalizeNegationText(haystack);
+        haystack = NormalizeConstraintMatchingText(haystack);
 
         if (string.IsNullOrWhiteSpace(haystack) || string.IsNullOrWhiteSpace(phrase))
             return false;
@@ -36,7 +36,7 @@ internal static class RequestConstraintTokenMatcher
 
     internal static bool ContainsStandaloneWordToken(string? haystack, string token)
     {
-        haystack = NormalizeNegationText(haystack);
+        haystack = NormalizeConstraintMatchingText(haystack);
 
         if (string.IsNullOrWhiteSpace(haystack) || string.IsNullOrWhiteSpace(token))
             return false;
@@ -63,7 +63,7 @@ internal static class RequestConstraintTokenMatcher
 
     internal static bool ContainsAffirmativePrivateWord(string? haystack)
     {
-        haystack = NormalizeNegationText(haystack);
+        haystack = NormalizeConstraintMatchingText(haystack);
 
         if (string.IsNullOrWhiteSpace(haystack))
             return false;
@@ -159,7 +159,7 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
-        return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+';
+        return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+' or '@' or '#' or ',' or ';' or '=' or '&' or '%' or '~';
     }
 
     private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)
@@ -389,19 +389,34 @@ internal static class RequestConstraintTokenMatcher
         return suffix.Slice(0, boundary);
     }
 
-    private static string? NormalizeNegationText(string? haystack)
+    private static string? NormalizeConstraintMatchingText(string? haystack)
     {
         if (string.IsNullOrWhiteSpace(haystack))
             return haystack;
 
-        if (haystack.IndexOf('\u2019') < 0
-            && haystack.IndexOf('\u2018') < 0
-            && haystack.IndexOf('\u2032') < 0)
+        if (!ContainsConstraintNormalizationCharacters(haystack))
             return haystack;
 
         return haystack
+            .Replace('\u00A0', ' ')
+            .Replace('\u2007', ' ')
+            .Replace('\u2009', ' ')
+            .Replace('\u202F', ' ')
+            .Replace('\u205F', ' ')
             .Replace('\u2019', '\'')
             .Replace('\u2018', '\'')
             .Replace('\u2032', '\'');
+    }
+
+    private static bool ContainsConstraintNormalizationCharacters(string haystack)
+    {
+        foreach (char character in haystack)
+        {
+            if (character is '\u00A0' or '\u2007' or '\u2009' or '\u202F' or '\u205F'
+                or '\u2019' or '\u2018' or '\u2032')
+                return true;
+        }
+
+        return false;
     }
 }

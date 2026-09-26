@@ -91,6 +91,26 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
         withSecondHash.Should().NotBe(withoutSecondHash);
     }
 
+    [Fact]
+    public void Compute_ignores_duplicate_artifact_rows_with_same_artifact_id()
+    {
+        SynthesizedArtifact artifact = new()
+        {
+            ArtifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        ProvenanceBuildInput single = CreateInput([artifact]);
+        ProvenanceBuildInput duplicated = CreateInput([artifact, artifact]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(duplicated, BundleId));
+    }
+
     private static ProvenanceBuildInput CreateInput(IReadOnlyList<SynthesizedArtifact> artifacts)
     {
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

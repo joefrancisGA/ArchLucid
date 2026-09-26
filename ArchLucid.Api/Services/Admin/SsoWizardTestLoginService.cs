@@ -41,10 +41,33 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             };
         }
 
-        IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
+        if (request.ClaimMapping is null)
+        {
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "ClaimMapping is required."
+            };
+        }
+
+        if (request.ClaimMapping.Mappings is null)
+        {
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "ClaimMapping.Mappings is required."
+            };
+        }
+
+        IdentityClaimRoleMappingDocument mapping;
 
         try
         {
+            IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
+
+            mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
+
+            IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveClaimMapping(mapping);
             IdentityClaimRoleMappingResolver.ValidateMapping(mapping);
         }
         catch (ArgumentException ex)
@@ -53,6 +76,15 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             {
                 Success = false,
                 DiagnosticSummary = ex.Message
+            };
+        }
+
+        if (request.SampleClaimValues is null)
+        {
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "SampleClaimValues is required."
             };
         }
 

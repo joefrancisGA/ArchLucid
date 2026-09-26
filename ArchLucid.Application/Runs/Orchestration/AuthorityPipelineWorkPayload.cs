@@ -97,7 +97,9 @@ public sealed class AuthorityPipelineWorkPayload
         if (values is null)
             return [];
 
-        return values.Where(static value => value is not null).ToList();
+        return values
+            .Where(static value => value is not null && HasSubstantiveText(value))
+            .ToList();
     }
 
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
@@ -105,8 +107,13 @@ public sealed class AuthorityPipelineWorkPayload
         if (values is null)
             return [];
 
-        return values.Where(static document => document is not null).ToList();
+        return values
+            .Where(static document => document is not null && HasSubstantiveDocument(document))
+            .ToList();
     }
+
+    private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
+        HasSubstantiveText(document.Name) && HasSubstantiveText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)

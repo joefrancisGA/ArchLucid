@@ -127,6 +127,48 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
     }
 
     [Fact]
+    public void
+        AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_llm_distributed_cache_already_registered()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Hosting:Role"] = "Api",
+                    ["ConnectionStrings:ArchLucid"] =
+                        "Server=localhost;Database=ArchLucidCompositionTests;Trusted_Connection=True;TrustServerCertificate=True",
+                    ["ArchLucid:StorageProvider"] = "Sql",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:Backend"] = "Distributed",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:RedisConnectionString"] = "localhost:6379",
+                    ["LlmCompletionCache:Enabled"] = "true",
+                    ["LlmCompletionCache:Provider"] = "Distributed",
+                    ["LlmCompletionCache:RedisConnectionString"] = "localhost:6379",
+                    ["AgentExecution:Mode"] = "Simulator",
+                    ["AzureOpenAI:Endpoint"] = "",
+                    ["AzureOpenAI:ApiKey"] = "",
+                    ["AzureOpenAI:DeploymentName"] = "",
+                    ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                    ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+                    ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                    ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["CosmosDb:GraphSnapshotsEnabled"] = "false",
+                    ["HotPathCache:Enabled"] = "false",
+                })
+            .Build();
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(GraphProjectionCacheInvalidationSubscriberHostedService));
+
+        registered.Should().BeTrue(
+            "distributed LLM completion cache must not skip graph projection Redis invalidation pub/sub");
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_registers_llm_cost_rate_override_warmup_for_sql_storage()
     {
         IConfiguration configuration = CreateSqlCompositionTestConfiguration(

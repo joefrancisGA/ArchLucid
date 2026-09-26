@@ -2824,4 +2824,26 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         treatment.Should().Be(FindingTreatment.DemoteToChecklist);
     }
+
+    [Fact]
+    public void ResolveInspectClassification_falls_back_to_typed_payload_when_storage_byte_is_undefined()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
+            (byte)99,
+            typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_byte_is_undefined()
+    {
+        JsonElement? typed = JsonSerializer.SerializeToElement(new { treatment = 1 });
+
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment((byte)99, typed);
+
+        treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
 }

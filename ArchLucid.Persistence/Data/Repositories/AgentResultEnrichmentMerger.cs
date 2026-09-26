@@ -59,7 +59,11 @@ internal static class AgentResultEnrichmentMerger
             AgentResult? enriched = DeserializeEnriched(enrichment.EnrichedResultJson, baseResult.ResultId);
 
             if (enriched is not null)
+            {
                 merged = enriched;
+                merged.ProposedEvidenceJson = baseResult.ProposedEvidenceJson;
+                merged.PromptVariantKey = baseResult.PromptVariantKey;
+            }
         }
 
         return merged;

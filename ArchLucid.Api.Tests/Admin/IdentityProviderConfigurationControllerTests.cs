@@ -38,6 +38,41 @@ public sealed class IdentityProviderConfigurationControllerTests
         objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
     }
 
+    [Fact]
+    public void TestLogin_rejects_invisible_unicode_only_role_claim_name()
+    {
+        IdentityProviderConfigurationController controller = CreateController(
+            testLoginService: new SsoWizardTestLoginService());
+
+        IActionResult result = controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "\u200B",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            });
+
+        OkObjectResult okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+
+        IdentityProviderTestLoginResponse body =
+            okResult.Value.Should().BeOfType<IdentityProviderTestLoginResponse>().Subject;
+
+        body.Success.Should().BeFalse();
+        body.DiagnosticSummary.Should().Contain("RoleClaimName");
+    }
+
     [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]
@@ -65,7 +100,8 @@ public sealed class IdentityProviderConfigurationControllerTests
         problem.Detail.Should().Contain("HTTP(S)");
     }
 
-    private static IdentityProviderConfigurationController CreateController()
+    private static IdentityProviderConfigurationController CreateController(
+        ISsoWizardTestLoginService? testLoginService = null)
     {
         Mock<IScopeContextProvider> scopeContextProvider = new();
         scopeContextProvider
@@ -79,7 +115,7 @@ public sealed class IdentityProviderConfigurationControllerTests
 
         IdentityProviderConfigurationController controller = new(
             Mock.Of<IIdentityProviderDiscoveryService>(),
-            new SsoWizardTestLoginService(),
+            testLoginService ?? new SsoWizardTestLoginService(),
             Mock.Of<IIdentityProviderActivationService>(),
             Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
             scopeContextProvider.Object,

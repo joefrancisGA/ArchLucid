@@ -183,4 +183,55 @@ public sealed class ArchitectureKnowledgeModelGraphProjectorTests
 
     snapshot.Nodes.Should().ContainSingle(node => node.NodeId == "akm:comp-1");
   }
+
+  [Fact]
+  public void Project_deduplicates_relates_edges_when_elements_list_case_variant_element_ids()
+  {
+    ArchitectureKnowledgeModel model = new()
+    {
+      ModelId = "model-element-dedup-edges",
+      TenantId = Guid.NewGuid().ToString("D"),
+      RunId = Guid.NewGuid().ToString("D"),
+      Elements =
+      [
+        new ArchitectureModelElement
+        {
+          ElementId = "trust-1",
+          Kind = ArchitectureElementKind.TrustBoundary,
+          Name = "Public edge",
+        },
+        new ArchitectureModelElement
+        {
+          ElementId = "comp-1",
+          Kind = ArchitectureElementKind.Component,
+          Name = "Lower casing",
+          RelatedElementIds = ["trust-1"],
+        },
+        new ArchitectureModelElement
+        {
+          ElementId = "COMP-1",
+          Kind = ArchitectureElementKind.Component,
+          Name = "Upper casing",
+          RelatedElementIds = ["trust-1"],
+        },
+      ],
+    };
+
+    ContextSnapshot context = new()
+    {
+      SnapshotId = Guid.NewGuid(),
+      RunId = Guid.NewGuid(),
+      ProjectId = "project",
+      CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+    };
+
+    ArchitectureKnowledgeModelGraphProjector projector = new();
+    GraphSnapshot snapshot = projector.Project(model, context, context.RunId);
+
+    snapshot.Nodes.Should().ContainSingle(node => node.NodeId == "akm:comp-1");
+    snapshot.Edges.Should().ContainSingle(edge =>
+      edge.FromNodeId == "akm:comp-1"
+      && edge.ToNodeId == "akm:trust-1"
+      && edge.EdgeType == GraphEdgeTypes.RelatesTo);
+  }
 }

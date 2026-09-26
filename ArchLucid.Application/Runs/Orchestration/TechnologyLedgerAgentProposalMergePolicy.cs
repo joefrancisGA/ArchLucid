@@ -25,6 +25,12 @@ public static class TechnologyLedgerAgentProposalMergePolicy
 
         if (chosen.ProviderFamily == candidate.ProviderFamily)
         {
+            if (TechnologyNamesMatch(chosen.TechnologyName, candidate.TechnologyName)
+                && HasSubstantiveEvidenceRef(chosen.EvidenceRef))
+            {
+                return null;
+            }
+
             if (HasSubstantiveEvidenceRef(candidate.EvidenceRef)
                 && !existingRows.Any(existing => EvidenceRefsMatch(existing.EvidenceRef, candidate.EvidenceRef)))
             {

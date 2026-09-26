@@ -30,6 +30,7 @@ public sealed partial class PilotRunDeltaComputer
         IReadOnlyList<KeyValuePair<string, int>> findings = agentFindings;
         FindingsSnapshot? persistedFindingsSnapshot = null;
         bool findingsFromSnapshot = false;
+        IReadOnlyList<KeyValuePair<string, int>>? snapshotSeverityBuckets = null;
 
         if (run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
         {
@@ -38,26 +39,46 @@ public sealed partial class PilotRunDeltaComputer
 
             if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindingsList)
             {
-                IReadOnlyList<KeyValuePair<string, int>> snapshotFindings =
-                    AggregateFindingsBySeverity(snapshotFindingsList);
+                snapshotSeverityBuckets = AggregateFindingsBySeverity(snapshotFindingsList);
 
-                if (ShouldPreferSnapshotFindings(agentFindings, snapshotFindings, detail, snapshotFindingsList))
+                if (ShouldPreferSnapshotFindings(agentFindings, snapshotSeverityBuckets, detail, snapshotFindingsList))
                 {
-                    findings = snapshotFindings;
+                    findings = snapshotSeverityBuckets;
                     findingsFromSnapshot = true;
                 }
             }
         }
 
-        GovernedFindingCoverageMetric governedCoverage = findingsFromSnapshot && persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings
-            ? AggregateGovernedFindingCoverage(coverageFindings)
-            : AggregateGovernedFindingCoverage(detail);
+        bool preferSnapshotMaterialFindings = findingsFromSnapshot;
+        GovernedFindingCoverageMetric agentGovernedCoverage = AggregateGovernedFindingCoverage(detail);
+        GovernedFindingCoverageMetric governedCoverage = agentGovernedCoverage;
+
+        if (persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings)
+        {
+            GovernedFindingCoverageMetric snapshotGovernedCoverage =
+                AggregateGovernedFindingCoverage(coverageFindings);
+
+            if (findingsFromSnapshot
+                || ShouldPreferSnapshotGovernedCoverage(agentGovernedCoverage, snapshotGovernedCoverage))
+            {
+                governedCoverage = snapshotGovernedCoverage;
+                preferSnapshotMaterialFindings = true;
+            }
+            else if (ResolveMaxSeverityRank(coverageFindings) > ResolveMaxSeverityRank(detail))
+            {
+                preferSnapshotMaterialFindings = true;
+            }
+        }
+
+        if (preferSnapshotMaterialFindings && !findingsFromSnapshot && snapshotSeverityBuckets is not null)
+            findings = snapshotSeverityBuckets;
 
         ArchitectureFinding? topAgentFinding = SelectTopSeverityFinding(detail);
         string? topFindingId = topAgentFinding?.FindingId;
         string? topFindingSeverity = topAgentFinding?.Severity.ToString();
 
-        if (findingsFromSnapshot && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
+        if ((findingsFromSnapshot || preferSnapshotMaterialFindings)
+            && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
         {
             Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(snapshotTopCandidates);
 
@@ -117,7 +138,7 @@ public sealed partial class PilotRunDeltaComputer
 
         if (persistedFindingsSnapshot?.Findings is { Count: > 0 } narrativeFindings)
         {
-            if (findingsFromSnapshot || topAgentFinding is null)
+            if (findingsFromSnapshot || topAgentFinding is null || preferSnapshotMaterialFindings)
             {
                 sponsorNarrativeFindings =
                     PilotSponsorMaterialFindingsMapper.MapFromSnapshotFindings(narrativeFindings);
@@ -170,6 +191,19 @@ public sealed partial class PilotRunDeltaComputer
             .OrderByDescending(static p => p.Value)
             .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static bool ShouldPreferSnapshotGovernedCoverage(
+        GovernedFindingCoverageMetric agentCoverage,
+        GovernedFindingCoverageMetric snapshotCoverage)
+    {
+        if (!snapshotCoverage.IsAvailable)
+            return false;
+
+        if (!agentCoverage.IsAvailable)
+            return true;
+
+        return snapshotCoverage.GovernedCount > agentCoverage.GovernedCount;
     }
 
     private static bool ShouldPreferSnapshotFindings(

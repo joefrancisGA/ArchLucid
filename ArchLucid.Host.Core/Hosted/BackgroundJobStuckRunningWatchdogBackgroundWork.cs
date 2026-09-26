@@ -1,3 +1,4 @@
+using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;
@@ -56,6 +57,12 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
                     ex,
                     "Failed to notify durable queue for reclaimed background job {JobId}.",
                     jobId);
+
+                BackgroundJobRow? current = await repository.GetAsync(jobId, cancellationToken);
+
+                if (current is not null
+                    && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+                    continue;
 
                 await repository.MarkFailedTerminalAsync(
                     jobId,

@@ -1,4 +1,5 @@
-﻿using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
 [Trait("Category", "Unit")]
@@ -215,6 +216,60 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_format_only_string_list_entries()
+    {
+        Guid runId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["\u200B", "keep-me"],
+                "topologyHints": ["\u200B"],
+                "constraints": ["\u200Bhidden", "visible"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("keep-me");
+        back.ContextIngestionRequest.TopologyHints.Should().BeEmpty();
+        back.ContextIngestionRequest.Constraints.Should().Equal("visible");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_empty_document_objects()
+    {
+        Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  {},
+                  { "name": "keep", "contentType": "text/plain", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Serialize_round_trips_minimal_payload()
     {
         AuthorityPipelineWorkPayload payload = new()
@@ -234,5 +289,25 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back.EvidenceBundleId.Should().Be("bundle-1");
         back.ContextIngestionRequest.ProjectId.Should().Be("default");
         back.ContextIngestionRequest.RunId.Should().Be(payload.ContextIngestionRequest.RunId);
+    }
+
+    [SkippableFact]
+    public void Deserialize_defaults_work_kind_to_execute_when_json_omits_work_kind()
+    {
+        const string json = """
+            {
+              "contextIngestionRequest": {
+                "runId": "11111111-1111-1111-1111-111111111111",
+                "projectId": "default"
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.WorkKind.Should().Be(AuthorityPipelineWorkKind.Execute);
+        back.IsValidForProcessing().Should().BeTrue();
     }
 }
