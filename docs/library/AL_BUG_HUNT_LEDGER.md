@@ -3139,13 +3139,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — presentation two-dot leader and katakana middle-dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved format-character-split dot segments and re-ran BMP NFKC single-char bypass scan; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Format characters splitting dot segments (`/signin/.\u200B./other`, `/signin/.%E2%80%8B./other`, ZWNJ/ZWJ/WORD JOINER variants) accepted while `ContainsDotDotSegment` compares literal `..` segments — **valid-no-repro 2026-09-26 seed hunt:** `System.Uri` preserves `%E2%80%8B` in `AbsolutePath`; not proven browser parent-segment normalization; extends prior bidi/format-char valid-no-repro rows.
+- [x] (valid-no-repro) Post-scan BMP single-codepoint NFKC dot/slash bypass inventory (ellipsis and compatibility abbreviation pairs only) — **valid-no-repro 2026-09-26 seed hunt:** no new accepted protocol-relative or parent-traversal shapes beyond prior ledger rows.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path; randomized 5k-path fuzz found no accepted literal or normalized `//`/`..` shapes; reconfirmed multi-segment percent-encoded traversal rejects; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
@@ -8536,11 +8541,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 31
-- **bugs-found:** 24
+- **hunts:** 35
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — unparseable BFF session cookie left stale HttpOnly cookie on proxy guard
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — UI `isSafeReturnPath` omitted residual `%2e` encoded-dot guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -8585,6 +8590,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
 - [x] (proven) `POST /api/auth/bff-session/refresh` — no refresh token or expired session cookie returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** refresh probe on access-only or expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` when cookie present but not refreshable; regressions `clears BFF session cookies when the session has no refresh token` and `clears BFF session cookies when the session cookie is expired`
 - [x] (proven) `enforceProxyBffSessionGuard` / `POST /api/auth/bff-session/activity` — present but unparseable BFF session cookie returned 401 or forwarded anonymously without clearing HttpOnly cookies — **hit 2026-09-25 seed hunt (seed→hit):** signing-secret rotation or corrupted cookie left stale value blocking operator mutations; consolidated with `hasPresentButUnparseableBffSessionCookie`; regressions `clears BFF cookies when a mutating proxy call has an unparseable session cookie`, `clears unparseable BFF cookies on anonymous marketing mutations`, `clears BFF session cookies when the session cookie cannot be parsed`, and `forwards anonymous marketing early-access POST and clears an unparseable BFF session cookie`
+
+- [x] (invalid) `isPublicAnonymousProxyPath` — omits staging `v1/auth/trial/local/dev-verify` harness — **invalid 2026-09-26 seed hunt:** path is staging Playwright-only; not in shipped `TrialLocalIdentityAuthController` OpenAPI surface; buyer signup uses `v1/register` already on the pre-auth allowlist
+- [x] (valid-no-repro) `isPublicAnonymousProxyPath` / `isAnonymousMarketingProxyPath` OpenAPI parity — **valid-no-repro 2026-09-26 seed hunt:** re-grepped `paths.generated.ts` `/v1/marketing/*` (nine routes) and pre-auth `v1/auth/*` buyer flows against `proxy-anonymous-marketing-paths.ts`; UI `/api/proxy/` callers match; process risk only when new anonymous routes ship without allowlist update
+- [x] (invalid) `POST /api/auth/bff-session/refresh` — unparseable session cookie leaves stale HttpOnly cookies — **invalid 2026-09-26 seed hunt:** `refresh/route.ts` appends `buildBffSessionClearCookieHeaders` when `cookieValue` is present and `payload === null` (same bar as activity route)
+- [x] (invalid) Unsigned visitor stale `archlucid_operator_scope_v1` poisons anonymous marketing `/api/proxy` scope headers — **invalid 2026-09-26 seed hunt:** `clearOidcSession()` clears operator scope storage; registration-scope priority after sign-out covered in 2026-09-25 hit; marketing controllers are `[AllowUnscopedRoute]`
+
+2026-09-26 seed hunt (seed-only): reseeded ui-auth-proxy after unparseable-cookie hit wave; cheap-disproved trial/local dev-verify allowlist gap, refresh unparseable stale-cookie regression, and unsigned stale-operator marketing scope; reaffirmed OpenAPI marketing + pre-auth allowlist parity; 90 scoped proxy/BFF/return-path vitest tests passed.
+
+- [x] (proven) `isSafeReturnPath` — accepted Unicode slash/dot homoglyph return URLs that `AuthSignInReturnPathGuard` rejects — **hit 2026-09-26 seed hunt (seed→hit):** sign-in `returnUrl`, `buildAuthSignInHref`, email-OTP post-auth, and livelihood idle restore used UI-only checks while Application guard already blocked fullwidth solidus and full-stop homoglyphs; fixed with `containsSlashHomoglyph` / `containsDotHomoglyph` parity in `safe-return-path.ts`; regressions in `safe-return-path.test.ts`.
+
+- [x] (proven) `isSafeReturnPath` — accepted `@` in the path portion without percent-encoding (`/path@evil`) while `AuthSignInReturnPathGuard` rejects userinfo-shaped open redirects — **hit 2026-09-26 seed hunt (seed→hit):** `@` was only checked during percent-decoding so unencoded userinfo paths passed sign-in return-url gates; fixed with `containsAtSignInPath` on path-only (query/fragment emails still allowed); removed blanket `decoded.includes("@")` that blocked safe query strings; regressions in `safe-return-path.test.ts`.
+
+- [x] (proven) `isSafeReturnPath` — accepted percent-encoded dot segments (`/welcome%2e%2e/admin`) while `AuthSignInReturnPathGuard.ContainsResidualEncodedTraversal` rejects `%2e` before decode completes — **hit 2026-09-26 seed hunt (seed→hit):** UI only blocked `%2f`/`%5c` residuals, not `%2e`; fixed with `containsPercentEncodedPathSeparator` parity in decode loop and final guard; regressions in `safe-return-path.test.ts`.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-auth-proxy; proved UI return path accepted residual `%2e` encoded-dot traversal shapes; 36 scoped return-path vitest tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-auth-proxy; proved UI return path accepted unencoded at-sign userinfo open-redirect shapes; 35 scoped return-path vitest tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-auth-proxy; proved UI post-sign-in return path accepted homoglyph traversal/protocol-relative payloads; 33 scoped return-path vitest tests passed.
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy after prior hit; proved unparseable BFF session cookie left stale HttpOnly cookie on proxy guard and activity route; 147 scoped auth/proxy tests passed.
 
