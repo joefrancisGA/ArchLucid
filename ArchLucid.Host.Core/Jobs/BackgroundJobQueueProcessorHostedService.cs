@@ -249,6 +249,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 return;
             }
 
+            current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
             await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken);
 
             int baseDelayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
