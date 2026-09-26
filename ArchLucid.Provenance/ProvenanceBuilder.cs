@@ -81,7 +81,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
 
 
-        foreach (SynthesizedArtifact a in artifacts)
+        foreach (SynthesizedArtifact a in DistinctArtifacts())
 
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
@@ -170,9 +170,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
-        foreach (SynthesizedArtifact a in artifacts
-                     .GroupBy(static artifact => artifact.ArtifactId)
-                     .Select(static group => group.First()))
+        foreach (SynthesizedArtifact a in DistinctArtifacts())
         {
             string ak = $"artifact:{a.ArtifactId:N}";
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
@@ -198,6 +196,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         return result;
+
+        IEnumerable<SynthesizedArtifact> DistinctArtifacts() =>
+            artifacts.GroupBy(static artifact => artifact.ArtifactId).Select(static group => group.First());
 
         ProvenanceNode CreateFindingNode(Finding finding)
         {

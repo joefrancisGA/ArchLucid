@@ -20619,13 +20619,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 22
-- **bugs-found:** 19
+- **hunts:** 23
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — duplicate `ContributedToArtifact` edges when artifact bundle lists the same `ArtifactId` twice
+- **last-bug:** 2026-09-26 — provenance revision hash drifted when artifact bundle repeated the same `ArtifactId`
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` counted duplicate artifact bundle rows so revision differed from semantically identical input (parity gap vs `ProvenanceBuilder` artifact dedup); fixed with `GroupBy(ArtifactId)`; regression `Compute_ignores_duplicate_artifact_rows_with_same_artifact_id`; 45 Provenance scoped tests passed.
 
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` emitted duplicate `ContributedToArtifact` edges when `Artifacts` repeated the same `ArtifactId`; fixed with `GroupBy(ArtifactId)` before decision→artifact linking; 44 Provenance + 348 KnowledgeGraph scoped tests passed (3 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
@@ -20670,6 +20672,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredDiagramCompiledGraphBinder` — duplicate parallel edges when two diagram connectors bind to the same canonical endpoints after AS-018 remap — **hit 2026-09-11 seed hunt #1728:** `RemapEdges` lacked edge-key dedup parity with AS-050 rebinder; duplicate ARM-labeled diagram targets collapsed to one canonical node but both remapped edges survived; fixed with case-insensitive edge-key dedup; regression `BindToCanonicalNodes_deduplicates_parallel_edges_after_endpoint_remap`
 
 - [x] (proven) `ProvenanceBuilder.Build` — duplicate `ContributedToArtifact` edges when `ProvenanceBuildInput.Artifacts` lists duplicate rows for the same `ArtifactId` (`AddNode` collapses artifact nodes but the artifact loop still ran per list entry) — **hit 2026-09-26 seed hunt:** `GroupBy(ArtifactId)` before decision→artifact edge emission; regression `Build_deduplicates_contributed_to_artifact_when_artifact_bundle_lists_duplicate_entries`
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — revision fingerprint changed when `Artifacts` listed duplicate rows for the same `ArtifactId` though graph/provenance semantics match a single row — **hit 2026-09-26 seed hunt:** `GroupBy(ArtifactId)` before ordering/hashing artifact parts; regression `Compute_ignores_duplicate_artifact_rows_with_same_artifact_id`
 
 2026-09-11 seed hunt #1728 (hit): reseeded knowledge-graph-provenance; proved AS-018 compiled-graph binder parallel-edge collision after canonical bind (parity gap vs AS-050 rebinder fix); 266 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
