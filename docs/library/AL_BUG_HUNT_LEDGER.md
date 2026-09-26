@@ -8145,11 +8145,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 22
-- **bugs-found:** 20
+- **hunts:** 23
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — exhausted-retry terminal failure overwrote Canceled after first terminal-path re-read
+- **last-bug:** 2026-09-26 — capacity-exhausted retry terminal failure overwrote Canceled after first re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8202,6 +8202,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs success/retry/terminal failure second-read fixes) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before invalid-payload terminal assignment; regression `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_before_invalid_payload_assignment`.
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` exhausted-retry terminal branch — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs invalid-payload second-read fix #1926) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before exhausted-retry terminal assignment; regression `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_before_exhausted_retry_terminal_assignment`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` capacity-exhausted retry terminal branch — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs exhausted-retry terminal fix) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before capacity-exhausted terminal assignment; regression `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_before_capacity_exhausted_terminal_assignment`.
+
+2026-09-26 seed hunt (seed→hit): reseeded host-core-jobs; proved capacity-exhausted retry terminal cancel race after first re-read; 22 scoped BackgroundJobQueueProcessorHostedService tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-core-jobs; proved exhausted-retry terminal cancel race after first terminal-path re-read; 21 scoped BackgroundJobQueueProcessorHostedService tests passed.
 
