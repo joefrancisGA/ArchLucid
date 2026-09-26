@@ -35,6 +35,29 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
 
         if (!edgeKeys.Add(edgeKey))
         {
+            int existingIndex = edges.FindIndex(edge =>
+                string.Equals(edge.FromNodeId, fromNodeId, StringComparison.Ordinal)
+                && string.Equals(edge.ToNodeId, toNodeId, StringComparison.Ordinal)
+                && string.Equals(edge.EdgeType, edgeType, StringComparison.Ordinal));
+
+            if (existingIndex >= 0
+                && ProvenanceRank(provenanceKind) > ProvenanceRank(edges[existingIndex].ProvenanceKind))
+            {
+                edges[existingIndex] = new GraphEdge
+                {
+                    EdgeId = $"edge-{edgeKey}",
+                    FromNodeId = fromNodeId,
+                    ToNodeId = toNodeId,
+                    EdgeType = edgeType,
+                    Label = string.IsNullOrWhiteSpace(label) ? edgeType : label,
+                    Weight = 1.0d,
+                    InferenceSource = inferenceSource,
+                    ProvenanceKind = string.IsNullOrWhiteSpace(provenanceKind)
+                        ? ProvenanceKind.ObservedFact.ToString()
+                        : provenanceKind,
+                };
+            }
+
             return;
         }
 
@@ -51,5 +74,17 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
                 ? ProvenanceKind.ObservedFact.ToString()
                 : provenanceKind,
         });
+    }
+
+    private static int ProvenanceRank(string? provenanceKind)
+    {
+        return provenanceKind switch
+        {
+            nameof(ProvenanceKind.ObservedFact) => 3,
+            nameof(ProvenanceKind.HumanAssertion) => 2,
+            nameof(ProvenanceKind.DerivedFact) => 1,
+            nameof(ProvenanceKind.DeterministicInference) => 0,
+            _ => 0,
+        };
     }
 }
