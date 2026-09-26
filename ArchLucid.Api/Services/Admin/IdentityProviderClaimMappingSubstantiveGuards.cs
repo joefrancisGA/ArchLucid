@@ -1,3 +1,4 @@
+using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Core.Identity;
 
 namespace ArchLucid.Api.Services.Admin;
@@ -7,6 +8,15 @@ namespace ArchLucid.Api.Services.Admin;
 /// </summary>
 internal static class IdentityProviderClaimMappingSubstantiveGuards
 {
+    internal static void EnsureNoNullMappingEntries(IdentityClaimRoleMappingRequest request)
+    {
+        foreach (IdentityClaimRoleMappingEntryRequest? entry in request.Mappings)
+        {
+            if (entry is null)
+                throw new ArgumentException("ClaimMapping.Mappings cannot contain null entries.");
+        }
+    }
+
     internal static void EnsureSubstantiveClaimMapping(IdentityClaimRoleMappingDocument mapping)
     {
         if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.RoleClaimName))

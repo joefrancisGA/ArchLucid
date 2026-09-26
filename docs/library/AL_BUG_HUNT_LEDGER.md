@@ -5529,13 +5529,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 25
-- **bugs-found:** 14
+- **hunts:** 26
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — null ClaimMapping.Mappings threw ArgumentNullException past activate/test-login validation
+- **last-bug:** 2026-09-26 — null entry in ClaimMapping.Mappings array threw NullReferenceException in ToDocument
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): proved a null element inside `ClaimMapping.Mappings` caused `NullReferenceException` in `IdentityClaimRoleMappingResolver.ToDocument` on activate (HTTP 500 risk) and sandbox test-login; `EnsureNoNullMappingEntries` guard before `ToDocument`; regressions `ActivateAsync_rejects_null_mapping_entry_in_claim_mapping` and `Execute_returns_failure_when_claim_mapping_contains_null_entry`; 48 scoped activation/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService` / `SsoWizardTestLoginService` — null element in `ClaimMapping.Mappings` throws `NullReferenceException` in `ToDocument` — **hit 2026-09-26 seed hunt:** `EnsureNoNullMappingEntries` before `ToDocument`; regressions above.
 
 2026-09-26 seed hunt (hit): proved null `ClaimMapping.Mappings` still surfaced `ArgumentNullException` from `ToDocument` on activate (HTTP 500 risk) and sandbox test-login; fixed with explicit guards; updated `ActivateAsync_null_claim_mapping_entries_throw_argument_null_exception` expectation; regression `Execute_returns_failure_when_claim_mapping_mappings_is_null`; 50 scoped activation/controller/test-login tests passed.
 

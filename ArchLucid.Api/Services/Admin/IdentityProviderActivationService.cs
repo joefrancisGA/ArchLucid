@@ -63,6 +63,8 @@ public sealed class IdentityProviderActivationService(
         if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
 
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
+
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveClaimMapping(mapping);
         IdentityClaimRoleMappingResolver.ValidateMapping(mapping);

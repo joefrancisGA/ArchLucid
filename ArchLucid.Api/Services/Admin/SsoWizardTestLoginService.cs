@@ -59,10 +59,14 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             };
         }
 
-        IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
+        IdentityClaimRoleMappingDocument mapping;
 
         try
         {
+            IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
+
+            mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
+
             IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveClaimMapping(mapping);
             IdentityClaimRoleMappingResolver.ValidateMapping(mapping);
         }

@@ -367,6 +367,30 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_rejects_null_mapping_entry_in_claim_mapping()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings = [null!]
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*Mapping*");
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_null_claim_mapping()
     {
         IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
