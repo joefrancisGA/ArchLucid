@@ -20872,13 +20872,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 48
-- **bugs-found:** 36
+- **hunts:** 49
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — exec digest email accepted whitespace-only dashboard and sponsor report URLs
+- **last-bug:** 2026-09-26 — finding remediation assignment email threw NullReferenceException on null assignee mailbox
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6979 (seed→hit): reseeded notifications-pipeline after #6978; proved `FindingRemediationAssignmentEmailDispatcher.TryDispatchAsync` called `assigneeMailbox.Trim()` before null guard and surfaced `NullReferenceException` instead of `ArgumentNullException` for direct dispatch callers; fixed with `ThrowIfNull`; regression `TryDispatchAsync_throws_when_assignee_mailbox_is_null`; added `ExecDigestEmailDispatcher_throws_for_whitespace_only_unsubscribe_url` shape regression; 136 scoped Application notifications/digest tests passed; 11 DigestSubscriptionsController unit tests passed (2 Api SQL integration auth tests skipped on VM).
+
+- [x] (proven) `FindingRemediationAssignmentEmailDispatcher.TryDispatchAsync` — null `assigneeMailbox` throws `NullReferenceException` on `.Trim()` — **hit 2026-09-26 seed hunt #6979:** `ArgumentNullException.ThrowIfNull(assigneeMailbox)` before normalization; regression `TryDispatchAsync_throws_when_assignee_mailbox_is_null`. (Controller path remains null-safe; API contract parity with other dispatch string guards.)
 
 2026-09-26 seed hunt #6978 (seed→hit): reseeded notifications-pipeline after #6958; proved `ExecDigestEmailDispatcher.TryDispatchAsync` accepted whitespace-only `DashboardUrl` / `SponsorValueReportUrl` after `WeekLabel` / `unsubscribeAbsoluteUrl` guards, sending digest mail with blank CTAs (parity gap vs weekly sponsor `runDetailUrl` validation); fixed with required URL validation and trim; regressions `ExecDigestEmailDispatcher_throws_for_whitespace_only_dashboard_url` and `ExecDigestEmailDispatcher_throws_for_whitespace_only_sponsor_value_report_url`; 134 scoped Application notifications/digest tests passed; 11 DigestSubscriptionsController unit tests passed (2 Api SQL integration auth tests skipped on VM without `ARCHLUCID_API_TEST_SQL`).
 
