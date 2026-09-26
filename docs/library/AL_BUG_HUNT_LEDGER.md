@@ -21507,15 +21507,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 50
-- **bugs-found:** 46
+- **hunts:** 51
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — connector intake Description/SystemName surrogate guard gap
+- **last-bug:** 2026-09-26 — user invitation Message surrogate guard gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-26 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved user invitation Message surrogate guard gap; 1 scoped `UsersAdminControllerTests` passed.
+
+- [x] (proven) `UsersAdminController.InviteAsync` — optional `Message` reached `dbo.UserInvitations.Message` (`NVARCHAR(2000)`) without invalid-Unicode surrogate guard present on sibling `PostFindingFeedback` comment — **hit 2026-09-26 seed hunt:** reject lone surrogates before `InviteAsync`; regression `InviteAsync_returns_bad_request_when_message_contains_invalid_surrogate`.
 
 2026-09-26 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved connector intake optional Description/SystemName surrogate guard gap; 38 scoped `RunsControllerTests` passed.
 
