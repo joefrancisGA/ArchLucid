@@ -23998,13 +23998,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 16
-- **bugs-found:** 12
+- **hunts:** 17
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — buyer-polished technical disclosure URL sync omitted hub-resolved snapshotId when URL had no snapshotId
+- **last-bug:** 2026-09-26 — hub scoped tab cross-links dropped explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): reseeded ui-infra-resource-hub; proved overview `Open audit lineage` (`buildHubAuditLineageTabHref` / `buildHubScopedTabHref`) rebuilt hub URLs via `buildResourceHubWorkbenchHref` with empty search and dropped `workQueue` while tab-bar navigation preserved it; fixed by threading explorer `workQueue` into scoped tab href builders; regression `preserves explorer workQueue on overview audit lineage cross-link`; 27 scoped ResourceHubClient unit tests passed.
+
+- [x] (proven) `buildHubAuditLineageTabHref` / `buildHubScopedTabHref` drop explorer `workQueue` on hub tab cross-links — **hit 2026-09-26 seed hunt:** `buildResourceHubWorkbenchHref` omitted `workQueue` patch; fixed `buildResourceHubWorkbenchHref` + ResourceHubClient scoped tab helpers; regression `preserves explorer workQueue on overview audit lineage cross-link`.
 
 2026-09-26 seed hunt (seed-only): reseeded ui-infra-resource-hub; cheap-disproof closed explorer `workQueue` loss on tab-bar navigation and audit scope chip vs snapshot/runId parity class; no new hunt-ready rows; 26 scoped ResourceHubClient unit tests passed.
 
