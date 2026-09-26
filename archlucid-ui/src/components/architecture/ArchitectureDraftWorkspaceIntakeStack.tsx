@@ -1,7 +1,6 @@
 "use client";
 
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
-import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -33,7 +32,6 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "conflictMessage"
   | "onReloadDraft"
   | "onKeepLocalDraft"
-  | "draftStartReviewChecklistDescription"
   | "draftStartReviewSteps"
   | "draftStartReviewEmphasizedStepId"
   | "workLeaseBanner"
@@ -58,7 +56,6 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     conflictMessage,
     onReloadDraft,
     onKeepLocalDraft,
-    draftStartReviewChecklistDescription,
     draftStartReviewSteps,
     draftStartReviewEmphasizedStepId,
     workLeaseBanner,
@@ -72,8 +69,6 @@ export function ArchitectureDraftWorkspaceIntakeStack(
 
   return (
     <>
-      {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
-
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       {linkedReviewId !== null ? (
@@ -159,7 +154,6 @@ export function ArchitectureDraftWorkspaceIntakeStack(
 
       <IntegrationConnectChecklist
         title={ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE}
-        description={draftStartReviewChecklistDescription}
         steps={draftStartReviewSteps}
         emphasizedStepId={draftStartReviewEmphasizedStepId}
         testIdPrefix="architecture-draft-start-review"

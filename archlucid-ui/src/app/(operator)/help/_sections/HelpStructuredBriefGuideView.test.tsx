@@ -27,7 +27,7 @@ describe("HelpStructuredBriefGuideView (HST Phase 2)", () => {
     render(<HelpStructuredBriefGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-structured-brief-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Structured brief fields");
+    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("How to create an architecture");
     expect(screen.getByTestId("help-structured-brief-page-title")).toHaveTextContent(STRUCTURED_BRIEF_HELP_PAGE_TITLE);
     expect(screen.getByRole("link", { name: STRUCTURED_BRIEF_HELP_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
@@ -42,6 +42,8 @@ describe("HelpStructuredBriefGuideView (HST Phase 2)", () => {
       expect(element).toHaveTextContent(heading.title);
     }
 
+    expect(screen.getByTestId("help-create-architecture-draft-vs-review")).toBeInTheDocument();
+    expect(screen.getByTestId("help-create-architecture-field-tips")).toBeInTheDocument();
     expect(screen.getByTestId("help-structured-brief-applicability")).toBeInTheDocument();
     expect(screen.getByTestId("help-structured-brief-error-recovery")).toBeInTheDocument();
 

@@ -171,7 +171,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", async () => {
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
 import { ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -210,7 +209,6 @@ const spawnedDraft = {
 } as const;
 
 beforeEach(() => {
-  window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
   workspaceModeMock.mockReturnValue({
     mode: "guided",
     isWorkingMode: false,
@@ -246,7 +244,7 @@ beforeEach(() => {
 });
 
 describe("ArchitectureDraftWorkspace", () => {
-  it("anchors page help in the header rail outside the dismissible tip", async () => {
+  it("anchors page help in the header rail on draft detail", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
       status: "Drafting",
@@ -260,20 +258,9 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toBeInTheDocument();
     });
 
-    const help = screen.getByTestId("page-contextual-help-stub");
-    const deleteControl = screen.getByTestId("architecture-draft-delete-workspace");
-
-    expect(help.parentElement).toBe(deleteControl.parentElement);
-    expect(help.compareDocumentPosition(deleteControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.queryByTestId("architecture-draft-save-status")).not.toBeInTheDocument();
-
-    const disclosure = await screen.findByTestId("architecture-draft-guidance-disclosure");
-    expect(disclosure).not.toContainElement(help);
-
-    fireEvent.click(screen.getByTestId("architecture-draft-guidance-dismiss"));
-
-    expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-stub")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-save-status")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
   });
 
   it("opens the empty workspace immediately on /new without fetching an architecture draft", async () => {
@@ -525,7 +512,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
   });
 
-  it("stacks at most two intro teaching blocks above the form card (TB-1454)", async () => {
+  it("does not stack intro teaching blocks above the form card (tips live in help)", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
       status: "Drafting",
@@ -539,16 +526,9 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
     });
 
-    const introTeachingTestIds = [
-      "architecture-draft-workspace-lead",
-      "architecture-draft-guidance-disclosure",
-      "architecture-draft-alternatives-hint",
-    ] as const;
-
-    const visibleIntroBlocks = introTeachingTestIds.filter((testId) => screen.queryByTestId(testId) !== null);
-
-    expect(visibleIntroBlocks).toHaveLength(2);
+    expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-alternatives-hint")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("structured-brief-capabilities-quality-vocabulary")).not.toBeInTheDocument();
   });
 
   it("hides AI refinement while the post-spawn handoff lock is active", async () => {

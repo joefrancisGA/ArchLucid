@@ -27,6 +27,11 @@ export const PAGE_HELP_DRAWER_KEY_POINTS_BY_SLUG: Readonly<Record<string, readon
     "Compare two reviews when you need a delta narrative for sponsors.",
     "Replay a saved comparison when you need to re-export without a new review.",
   ],
+  "structured-brief": [
+    "Draft vs. review — saving does not start a review until you choose Start architecture review.",
+    "Structured brief — confirm constraints, assumptions, capabilities, and quality attributes.",
+    "Scope — confirm in-scope lines before review engines treat them as fact.",
+  ],
 };
 
 export function pageHelpDrawerKeyPointsForSlug(slug: string): readonly string[] | undefined {
