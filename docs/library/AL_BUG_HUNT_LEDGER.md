@@ -2101,6 +2101,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelResolutionAliases` — compute and datastore nodes with the same label both registered `svc-{label}` and `ds-{label}` aliases so the first node stole the opposite-prefix id and relationships using explicit `svc-`/`ds-` node ids resolved to the wrong endpoint — **hit 2026-09-26 seed hunt (seed→hit):** #3911 re-broadened aliases after #3914; restored category-primary aliases with terraform source-id fallback for cross-prefix mismatches; regression `MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match`.
 
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — relationship endpoints such as `svc-  api` / `ds-  sql` only outer-trimmed before lookup so internal whitespace after the synthetic prefix missed indexed `svc-api` / `ds-sql` keys and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** normalize synthetic prefix references before alias lookup; regression `MapRelationships_resolves_synthetic_service_id_when_relationship_endpoint_has_internal_whitespace_after_prefix`.
+
+2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved synthetic endpoint internal-whitespace resolution gap; 304 scoped edge-mapper/graph-merge tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved #3911 regression on shared-label svc/ds synthetic alias disambiguation; 303 scoped edge-mapper/graph-merge tests passed.
 
 2026-09-25 seed hunt #3908g (seed→hit): reseeded arm-terraform-source-ids; proved padded endpoint alias value resolution gap after #1777 key trim; 303 scoped edge-mapper/graph-merge tests passed.
@@ -2111,11 +2115,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 69
-- **bugs-found:** 57
+- **hunts:** 70
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — shared-label svc/ds synthetic aliases collapsed to first node
+- **last-bug:** 2026-09-26 — synthetic svc-/ds- relationship endpoints with internal whitespace after prefix failed resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
