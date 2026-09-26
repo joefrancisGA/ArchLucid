@@ -1480,6 +1480,81 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_rejects_queue_timeout_at_store_enqueue_expiry_not_post_admit_skew()
+    {
+        DateTimeOffset start = new(2026, 9, 26, 18, 0, 0, TimeSpan.Zero);
+        SteppingTimeProvider timeProvider = new(start);
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+
+        Guid activeLeaseId = Guid.NewGuid();
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(
+                activeLeaseId,
+                Guid.NewGuid(),
+                "active",
+                maxConcurrent: 1,
+                maxQueued: 2,
+                utcNow: start));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        TaskCompletionSource admitReached = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource releaseAdmit = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        GatedAdmitStore store = new(inner, admitReached, releaseAdmit);
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 2,
+                QueueWaitTimeoutSeconds = 10,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        });
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            timeProvider,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-slow-admit", CancellationToken.None);
+
+        await admitReached.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        timeProvider.Advance(TimeSpan.FromSeconds(5));
+        releaseAdmit.SetResult();
+
+        timeProvider.Advance(TimeSpan.FromSeconds(6));
+
+        QuickScanDistributedConcurrencyAdmissionResult admission =
+            await waitTask.WaitAsync(TimeSpan.FromSeconds(3));
+
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(
+            QuickScanConcurrencyRejectionReason.QueueTimeout,
+            "queue wait deadline must match store QueueExpiresUtc (admit UTC + timeout), not post-admit clock skew after slow TryAdmit");
+    }
+
+    [Fact]
     public async Task AdmitLimitRefreshStore_sets_admit_utc_now_from_time_provider()
     {
         DateTimeOffset start = new(2026, 9, 26, 17, 0, 0, TimeSpan.Zero);

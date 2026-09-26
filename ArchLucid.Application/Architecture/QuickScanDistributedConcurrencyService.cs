@@ -70,6 +70,8 @@ public sealed class QuickScanDistributedConcurrencyService(
 
         QuickScanConcurrencyAdmitResult admitResult;
 
+        DateTimeOffset admitUtcNow = _timeProvider.GetUtcNow();
+
         try
         {
             QuickScanConcurrencyAdmitRequest admitRequest = new()
@@ -78,7 +80,7 @@ public sealed class QuickScanDistributedConcurrencyService(
                 QueueEntryId = queueEntryId,
                 RequestKey = requestKey,
                 HolderInstanceId = HolderInstanceId,
-                UtcNow = _timeProvider.GetUtcNow(),
+                UtcNow = admitUtcNow,
                 MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
                 MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
                 QueueWaitTimeout = queueWaitTimeout,
@@ -135,7 +137,7 @@ public sealed class QuickScanDistributedConcurrencyService(
 
         _telemetry.RecordConcurrencyQueued(telemetryContext);
 
-        DateTimeOffset deadline = _timeProvider.GetUtcNow() + queueWaitTimeout;
+        DateTimeOffset deadline = admitUtcNow + queueWaitTimeout;
         TimeSpan pollInterval = TimeSpan.FromMilliseconds(250);
         Guid promotedLeaseId = Guid.NewGuid();
         Guid waitingQueueEntryId = admitResult.QueueEntryId!.Value;

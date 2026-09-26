@@ -23639,13 +23639,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 21
-- **bugs-found:** 14
+- **hunts:** 22
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `TryAdmit` used stale `UtcNow` so expired leases blocked direct admit after operational delay
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6971 (seed→hit): reseeded queue-wait deadline alignment; proved `WaitForAdmissionAsync` anchored queue-wait deadline to post-admit `GetUtcNow()` so slow `TryAdmit` extended the client wait beyond store `QueueExpiresUtc`; fixed by anchoring deadline to admit UTC captured at enqueue (`admitUtcNow + queueWaitTimeout`); regression `WaitForAdmissionAsync_rejects_queue_timeout_at_store_enqueue_expiry_not_post_admit_skew`; 34 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — post-admit queue-wait deadline skew after slow `TryAdmit` — **hit 2026-09-26 seed hunt #6971:** deadline now uses admit UTC at enqueue, matching store `QueueExpiresUtc`; regression `WaitForAdmissionAsync_rejects_queue_timeout_at_store_enqueue_expiry_not_post_admit_skew`.
 
 2026-09-26 seed hunt #6970 (seed-only): reseeded promote-path UTC snapshot; cheap-disproof closed stale first `TryPromote` `UtcNow` before store delay (promote loop re-reads `TimeProvider` each poll) and documented admit refresh UTC stamping; regressions `WaitForAdmissionAsync_eventually_promotes_when_first_try_promote_is_delayed_and_lease_expires`, `AdmitLimitRefreshStore_sets_admit_utc_now_from_time_provider`; 33 scoped QuickScanDistributedConcurrency tests passed.
 
