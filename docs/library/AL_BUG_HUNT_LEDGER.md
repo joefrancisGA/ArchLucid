@@ -21507,15 +21507,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 51
-- **bugs-found:** 47
+- **hunts:** 52
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — user invitation Message surrogate guard gap
+- **last-bug:** 2026-09-26 — security-trust publication audit field surrogate guard gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-26 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved security-trust publication audit field surrogate guard gap; 1 scoped `SecurityTrustPublicationControllerTests` passed.
+
+- [x] (proven) `SecurityTrustPublicationController.PublishAsync` — `AssessmentCode`, `SummaryReference`, and optional `AssessorDisplayName` omitted invalid-Unicode surrogate guard present on sibling admin persisted free-text routes — **hit 2026-09-26 seed hunt:** reject lone surrogates before audit `DataJson` serialize; regression `PublishAsync_returns_bad_request_when_assessor_display_name_contains_invalid_surrogate`.
 
 2026-09-26 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved user invitation Message surrogate guard gap; 1 scoped `UsersAdminControllerTests` passed.
 
