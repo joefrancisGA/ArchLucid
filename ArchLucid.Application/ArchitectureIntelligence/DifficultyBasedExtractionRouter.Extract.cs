@@ -95,7 +95,7 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Cost driver signal detected."));
         }
 
-        if (sourceText.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
+        if (ContainsPhraseMarker(sourceText, "trust boundary"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.TrustBoundary,
@@ -142,7 +142,7 @@ public sealed partial class DifficultyBasedExtractionRouter
                 ArchitectureLifecycleScope.Transition));
         }
 
-        if (sourceText.Contains("contradict", StringComparison.OrdinalIgnoreCase))
+        if (ContainsContradictMarker(sourceText))
         {
             (string name, string notes) = ArchitectureContradictionClassifier.Classify(sourceText);
             elements.Add(CreateElement(

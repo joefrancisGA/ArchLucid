@@ -4836,6 +4836,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved lifecycle phrase markers (`current state`, etc.) and bare `contradict` used substring `Contains`, so `recurrent state`/`contradictory` falsely classified `AmbiguousExtraction` and emitted transition/contradiction elements; fixed with `FindBoundedMarkerIndex` for phrases and `ContainsContradictMarker` word-form regex; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`; 44 scoped DifficultyBasedExtractionRouter tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved `as-is`/`to-be` token markers matched inside unrelated words (`as-isolated`) for `LooksAmbiguous`, `ContainsDualLifecycleMarkers`, and `InferLifecycleScopeForIndex`; fixed with boundary-aware `ContainsTokenMarker`/`FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`; 40 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved dual-lifecycle `Transition` assumption emission only checked literal `current state`/`target state` while synonym markers were recognized elsewhere; fixed with `ContainsDualLifecycleMarkers`; regressions `Extract_tags_present_and_future_state_elements_with_lifecycle_scope` and `Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope`; 38 scoped DifficultyBasedExtractionRouter tests passed.
@@ -4848,11 +4850,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 20
-- **bugs-found:** 12
+- **hunts:** 22
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — lifecycle synonym docs omitted Transition assumption element
+- **last-bug:** 2026-09-26 — phrase lifecycle / contradict substring false positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4904,6 +4906,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `InferLifecycleScopeForIndex` ignores `present state`/`future state` section headers — **cheap-disproof 2026-09-12 seed hunt #1917:** regression `Extract_tags_component_after_present_state_section_even_when_future_state_appears_first` (#1421).
 - [x] (proven) `LooksAmbiguous` — `present state`/`future state`/`as-is`/`to-be` dual-lifecycle prose classified `ClearExtraction` — **hit 2026-09-26 seed hunt (seed→hit):** lifecycle synonym support added to `InferLifecycleScopeForIndex` in #1421 but ambiguous classifier still only matched `current state`/`target state`, so provenance stayed `DirectlyEstablished`; fixed by extending `LooksAmbiguous` markers; regressions `Classify_returns_ambiguous_for_present_and_future_state` and `Extract_does_not_treat_present_and_future_state_prose_as_directly_established`.
 - [x] (proven) `Extract` dual-lifecycle `Transition` assumption — only literal `current state` + `target state` detected — **hit 2026-09-26 seed hunt (seed→hit):** present/future and as-is/to-be synonym docs skipped the `Current vs target state` assumption despite #1421 lifecycle boundaries; fixed via shared `ContainsDualLifecycleMarkers`; regressions `Extract_tags_present_and_future_state_elements_with_lifecycle_scope` and `Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope`.
+- [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
+- [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 
 ---
 
