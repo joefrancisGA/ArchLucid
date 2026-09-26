@@ -26,6 +26,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -328,8 +329,8 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 Mock.Of<IIntegrationEventPublisher>(),
                 integrationEventsOptions,
                 publicSiteOptions,
-                Mock.Of<IAuthorityQueryService>(),
-                Mock.Of<IManifestHashService>(),
+                SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+                SealedManifestHashTestSupport.CreateManifestHashService(),
                 NullLogger<AuthorityPipelineFindingsStage>.Instance,
                 Mock.Of<IAgentResultRepository>()),
             new AuthorityPipelineDecisioningStage(
@@ -338,7 +339,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 audit.Object,
                 Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
                 Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService>(),
-                Mock.Of<IManifestHashService>(),
+                SealedManifestHashTestSupport.CreateManifestHashService(),
                 apPipeline.Object,
                 NullLogger<AuthorityPipelineDecisioningStage>.Instance),
             new AuthorityPipelineArtifactsStage(

@@ -41,7 +41,13 @@ public sealed partial class DraftRequestsController
 
         if (result.Status == ArchitectureWorkLeaseAcquireStatus.HeldByOther)
         {
-            return Conflict(result.Conflict);
+            ArchitectureWorkLeaseConflictResponse? conflict = result.Conflict;
+
+            return this.ConflictProblem(
+                conflict is null
+                    ? $"Draft '{draftId}' work lease is held by another architect."
+                    : $"Draft '{draftId}' work lease is held by {conflict.HolderActorOid} until {conflict.ExpiresUtc:O}.",
+                ProblemTypes.Conflict);
         }
 
         await _auditService.LogAsync(

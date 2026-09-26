@@ -93,11 +93,7 @@ internal static class FindingInspectReadRepositoryCore
                     .FirstOrDefault(normalized => normalized is not null);
 
                 if (firstValid is not null)
-                {
-                    string? traceRuleName = NormalizeInspectText(firstRuleText);
-
-                    return (firstValid, traceRuleName ?? firstValid);
-                }
+                    return (firstValid, firstValid);
             }
         }
         catch (JsonException)
@@ -108,7 +104,10 @@ internal static class FindingInspectReadRepositoryCore
         return ResolveTraceRuleFields(firstRuleText);
     }
 
-    public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
+    public static JsonElement? BuildMetadataTypedPayload(
+        string? title,
+        string? rationale,
+        bool includeWhyThisMattersWhenTitleMissing = false)
     {
         string? normalizedTitle = NormalizeInspectText(title);
         string? normalizedRationale = NormalizeInspectText(rationale);
@@ -121,6 +120,9 @@ internal static class FindingInspectReadRepositoryCore
             ["title"] = normalizedTitle,
             ["rationale"] = normalizedRationale,
         };
+
+        if (title is not null || includeWhyThisMattersWhenTitleMissing)
+            slim["whyThisMatters"] = normalizedRationale;
 
         return JsonSerializer.SerializeToElement(slim);
     }
@@ -198,7 +200,7 @@ internal static class FindingInspectReadRepositoryCore
         if (string.IsNullOrWhiteSpace(payloadJson))
             return null;
 
-        return BuildMetadataTypedPayload(title, rationale);
+        return BuildMetadataTypedPayload(title, rationale, includeWhyThisMattersWhenTitleMissing: true);
     }
 
     public static JsonElement? ResolveTypedPayloadForInspectRead(

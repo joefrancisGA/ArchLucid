@@ -1,5 +1,6 @@
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
@@ -11,6 +12,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Planning;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.Sql;
@@ -67,6 +69,9 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(SqlCommittedArchitectureReviewFlagReader),
         typeof(DapperDraftRequestRepository),
         typeof(SqlTenantBrandingProfileRepository),
+        typeof(SqlAzureInventorySnapshotRepository),
+        typeof(IRunStoredEvidenceFileRepository),
+        typeof(DapperAdvisoryDraftOperationRepository),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
@@ -75,6 +80,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(InMemoryRetrievalGroundingTraceWriter),
         typeof(RunRepositoryCommittedArchitectureReviewFlagReader),
         typeof(InMemoryTenantBrandingProfileRepository),
+        typeof(InMemoryAdvisoryDraftOperationRepository),
         typeof(InMemoryCloudResourceIdentityDirectory),
         // NoOp registered on InMemory storage; Sql path wires TenantMigrationRetrievalOutboxDrainer in host composition.
         typeof(ITenantMigrationRetrievalOutboxDrainer),

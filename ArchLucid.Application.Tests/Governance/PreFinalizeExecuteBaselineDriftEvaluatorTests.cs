@@ -382,6 +382,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             .ReturnsAsync([]);
 
         Mock<IEffectiveGovernanceResolver> resolver = new();
+
         if (effectiveGovernanceResolver is null)
         {
             resolver
