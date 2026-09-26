@@ -92,7 +92,8 @@ public sealed class SponsorEvidencePackService(
         }
 
         FindingsSnapshot resolved = await ResolveFindingsSnapshotAsync(detail, cancellationToken);
-        TraceCompletenessSummary traceSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(resolved);
+        FindingsSnapshot explainabilitySnapshot = ExcludeOperatorMutedFindings(resolved);
+        TraceCompletenessSummary traceSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(explainabilitySnapshot);
         ExplainabilityTraceCompletenessPack explainability = SponsorEvidenceExplainabilityMapper.ToContract(traceSummary);
         SponsorEvidenceGovernanceOutcomes governance = await TryBuildGovernanceOutcomesAsync(cancellationToken);
         return new SponsorEvidencePackResponse
@@ -103,6 +104,23 @@ public sealed class SponsorEvidencePackService(
             ExplainabilityTrace = explainability,
             DemoRunValueReportDelta = deltas,
             GovernanceOutcomes = governance
+        };
+    }
+
+    private static FindingsSnapshot ExcludeOperatorMutedFindings(FindingsSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        List<Finding> active = snapshot.Findings.Where(static f => !f.IsMuted).ToList();
+
+        if (active.Count == snapshot.Findings.Count)
+            return snapshot;
+
+        return new FindingsSnapshot
+        {
+            FindingsSnapshotId = snapshot.FindingsSnapshotId,
+            Findings = active,
+            TotalEstimatedSavings = snapshot.TotalEstimatedSavings,
         };
     }
 

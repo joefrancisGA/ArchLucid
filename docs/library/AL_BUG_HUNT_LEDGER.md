@@ -8703,13 +8703,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 23
-- **bugs-found:** 18
+- **hunts:** 24
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — equal-count snapshot severity tie in sponsor material findings resolver
+- **last-bug:** 2026-09-26 — sponsor evidence explainability counted operator-muted snapshot rows
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 thorough hunt (hit): proved agent-over-count findings kept agent `GovernedFindingCoverage` when persisted snapshot had more policy-violation rows; fixed by preferring snapshot governed metric when `GovernedCount` is higher; proved `SponsorEvidencePackService` explainability trace counted operator-muted snapshot findings excluded from delta severity paths; fixed with `ExcludeOperatorMutedFindings` before `AnalyzeSnapshot`; cheap-disproof closed reference-evidence receipt gate candidate (Wave-40 hash guard on bundle entry; nested first-value/sponsor PDF builders enforce sealed receipt); regressions `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger` and `BuildAsync_excludes_muted_findings_from_explainability_trace`; 50 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorEvidencePack tests passed.
+
+- [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` when snapshot `GovernedCount` exceeds agent; regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
+- [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate — **cheap-disproof 2026-09-26 thorough hunt:** bundle entry uses `RunExportSealedManifestHashGuard` per Wave-40; sponsor/first-value PDF paths invoked from the same service call nested builders that enforce sealed receipt verification.
+- [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** filter muted findings before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-pilots; proved equal-count snapshot/agent severity tie left decision-delta on agent Warning while deltas JSON used snapshot Error; seeded governed-coverage agent-over-count, reference-evidence receipt gate, and explainability muted-finding candidates; 28 scoped BuyerProofPack/BoardPack/decision-delta tests passed.
 
@@ -8776,9 +8782,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 - [x] (proven) `PilotSponsorMaterialFindingsResolver` equal-count severity tie — decision-delta / semantic-support used agent findings while deltas JSON used snapshot severity after #1417 computer fix — **hit 2026-09-26 seed hunt (seed→hit):** prefer `SponsorNarrativeFindings` when equal counts and snapshot max severity rank is higher; regression `Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding` (`SponsorDecisionDeltaNoveltyResolverTests`).
-- [ ] (candidate) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations
-- [ ] (candidate) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run
-- [ ] (candidate) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths
 
 ---
 

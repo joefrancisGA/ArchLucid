@@ -84,6 +84,91 @@ public sealed class SponsorEvidencePackServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_excludes_muted_findings_from_explainability_trace()
+    {
+        Guid snapshotId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "runid", RequestId = "req", FindingsSnapshotId = snapshotId, },
+        };
+
+        FindingsSnapshot persisted = new()
+        {
+            FindingsSnapshotId = snapshotId,
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "active",
+                    EngineType = "TestEngine",
+                    FindingType = "type",
+                    Category = "cat",
+                    Severity = FindingSeverity.Warning,
+                    Title = "active",
+                    Rationale = "r",
+                    Trace = new(),
+                },
+                new Finding
+                {
+                    FindingId = "muted",
+                    EngineType = "TestEngine",
+                    FindingType = "type",
+                    Category = "cat",
+                    Severity = FindingSeverity.Critical,
+                    Title = "muted",
+                    Rationale = "r",
+                    Trace = new(),
+                    IsMuted = true,
+                },
+            ],
+        };
+
+        WhyArchLucidSnapshotResponse snap = new() { DemoRunId = "runid", GeneratedUtc = TimeProvider.System.GetUtcNow(), };
+
+        Mock<IWhyArchLucidSnapshotService> snapshot = new();
+        snapshot.Setup(s => s.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(snap);
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.Setup(r => r.GetRunDetailAsync("runid", It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PilotRunDeltas { RunCreatedUtc = TimeProvider.System.UtcNowDateTime(), });
+
+        Mock<IFindingsSnapshotRepository> findingsRepo = new();
+        findingsRepo
+            .Setup(f => f.GetByIdAsync(It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(persisted);
+
+        Mock<IGovernanceDashboardService> gov = new();
+        gov.Setup(g =>
+                g.GetDashboardAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceDashboardSummary { PendingCount = 0, RecentDecisions = [], RecentChanges = [], });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(sp => sp.GetCurrentScope()).Returns(
+            new ScopeContext { TenantId = ScopeIds.DefaultTenant, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject, });
+
+        SponsorEvidencePackService sut = CreateSut(
+            snapshot.Object,
+            runs.Object,
+            deltas.Object,
+            findingsRepo.Object,
+            gov.Object,
+            scopeProvider.Object);
+
+        SponsorEvidencePackResponse result = await sut.BuildAsync(CancellationToken.None);
+
+        result.ExplainabilityTrace.TotalFindings.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_loads_findings_snapshot_and_computes_pilot_delta_when_run_present()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");

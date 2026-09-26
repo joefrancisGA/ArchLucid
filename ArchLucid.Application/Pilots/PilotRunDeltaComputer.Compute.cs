@@ -49,9 +49,20 @@ public sealed partial class PilotRunDeltaComputer
             }
         }
 
-        GovernedFindingCoverageMetric governedCoverage = findingsFromSnapshot && persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings
-            ? AggregateGovernedFindingCoverage(coverageFindings)
-            : AggregateGovernedFindingCoverage(detail);
+        GovernedFindingCoverageMetric agentGovernedCoverage = AggregateGovernedFindingCoverage(detail);
+        GovernedFindingCoverageMetric governedCoverage = agentGovernedCoverage;
+
+        if (persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings)
+        {
+            GovernedFindingCoverageMetric snapshotGovernedCoverage =
+                AggregateGovernedFindingCoverage(coverageFindings);
+
+            if (findingsFromSnapshot
+                || ShouldPreferSnapshotGovernedCoverage(agentGovernedCoverage, snapshotGovernedCoverage))
+            {
+                governedCoverage = snapshotGovernedCoverage;
+            }
+        }
 
         ArchitectureFinding? topAgentFinding = SelectTopSeverityFinding(detail);
         string? topFindingId = topAgentFinding?.FindingId;
@@ -170,6 +181,19 @@ public sealed partial class PilotRunDeltaComputer
             .OrderByDescending(static p => p.Value)
             .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static bool ShouldPreferSnapshotGovernedCoverage(
+        GovernedFindingCoverageMetric agentCoverage,
+        GovernedFindingCoverageMetric snapshotCoverage)
+    {
+        if (!snapshotCoverage.IsAvailable)
+            return false;
+
+        if (!agentCoverage.IsAvailable)
+            return true;
+
+        return snapshotCoverage.GovernedCount > agentCoverage.GovernedCount;
     }
 
     private static bool ShouldPreferSnapshotFindings(
