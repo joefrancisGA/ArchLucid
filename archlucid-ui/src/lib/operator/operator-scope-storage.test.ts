@@ -83,6 +83,32 @@ describe("operator-scope-storage", () => {
     expect(h["x-workspace-id"]).not.toBe(DEV_SCOPE_WORKSPACE_ID);
   });
 
+  it("getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned", () => {
+    const tenantId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const workspaceId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const projectId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+
+    clearOidcSession();
+    writeOperatorScopeToStorage({
+      tenantId: DEV_SCOPE_TENANT_ID,
+      workspaceId: DEV_SCOPE_WORKSPACE_ID,
+      projectId: DEV_SCOPE_PROJECT_ID,
+      workspaceLabel: "Prior tenant",
+      projectLabel: "Prior project",
+    });
+    writeLastRegistrationPayloadForTests({
+      tenantId,
+      defaultWorkspaceId: workspaceId,
+      defaultProjectId: projectId,
+    });
+
+    const h = getEffectiveBrowserProxyScopeHeaders();
+
+    expect(h["x-tenant-id"]).toBe(tenantId);
+    expect(h["x-workspace-id"]).toBe(workspaceId);
+    expect(h["x-project-id"]).toBe(projectId);
+  });
+
   it("getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers", () => {
     const tenantId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
     const workspaceId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";

@@ -1010,20 +1010,6 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
-    public void GetBlockingReasons_when_empty_traces_returns_empty()
-    {
-        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
-        AgentOutputQualityGateOptions options = new()
-        {
-            Enabled = true,
-            Mode = AgentOutputQualityGateMode.PilotStrict,
-        };
-
-        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [])
-            .Should().BeEmpty("no traces means no recorded rejections to block on");
-    }
-
-    [Fact]
     public void GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_warned_trace()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };

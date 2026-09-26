@@ -120,9 +120,17 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   }, [setStepIndex, stepDefinitions.length, syncStepToUrl]);
 
   useEffect(() => {
+    if (urlStepIndex === null) {
+      return;
+    }
+
+    goToStep(clampWizardStepIndex(urlStepIndex, stepDefinitions.length));
+  }, [urlStepIndex, goToStep, stepDefinitions.length]);
+
+  useEffect(() => {
     const syncStepFromUrl = (): void => {
       const nextStep = parseNewRunWizardStepFromSearch(
-        new URLSearchParams(window.location.search).get("step"),
+        new URLSearchParams(readWindowLocationSearch()).get("step"),
       );
 
       if (nextStep === null) {

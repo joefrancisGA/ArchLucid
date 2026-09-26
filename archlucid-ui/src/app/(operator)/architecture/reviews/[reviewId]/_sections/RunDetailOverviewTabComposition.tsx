@@ -22,6 +22,7 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
+import { shouldShowOverviewDemotedSponsorReportCta } from "./run-detail-overview-demoted-sponsor-cta";
 import { isAssertedTransparencyTrailEmpty } from "@/lib/feasibility/transparency-trail-completeness";
 
 export type RunDetailOverviewTabCompositionInput = {
@@ -62,7 +63,6 @@ export function composeRunDetailOverviewTab(
   const feasibilityVerdict: ManifestFeasibilityVerdict | null =
     m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null;
   const assertedTrailEmpty = isAssertedTransparencyTrailEmpty(feasibilityVerdict?.transparencyTrail ?? null);
-  const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
   const decisionSnapshotSuppressedReason = deriveDecisionSnapshotSuppressedReason(workspaceStatus);
   const showDetailedOutcomeCards = !isReviewPipelineIncomplete(workspaceStatus);
 
@@ -91,7 +91,7 @@ export function composeRunDetailOverviewTab(
       {executiveBottomLineEl}
       <RunDetailOverviewTransparencyTrail
         feasibilityVerdict={feasibilityVerdict}
-        runCompleted={runCompleted}
+        runCompleted={m.runCompleted}
       />
       <RunDetailSealDeskCoverageStrip
         runId={m.resolvedDetail.run.runId}
@@ -128,13 +128,13 @@ export function composeRunDetailOverviewTab(
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />
       </Suspense>
-      {buyerFinalizedPackage || !runCompleted ? null : (
+      {shouldShowOverviewDemotedSponsorReportCta(buyerFinalizedPackage, m.runCompleted) ? (
         <RunDetailSponsorReportCtaCardDeferred
           runId={m.resolvedDetail.run.runId}
           manifestId={m.manifestId}
           demoted
         />
-      )}
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,7 @@ using System.Reflection;
 
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -33,6 +34,29 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.MayAccess);
         evidence.DiagramLabel.Should().Be("May access");
         evidence.DiagramLabel.Should().NotContain("Reads from");
+        evidence.IncludeOnDataFlow.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayPublish, AzureInventoryDataFlowEdgeDirection.MayWrite, "May publish")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubMayConsume, AzureInventoryDataFlowEdgeDirection.MayRead, "May consume")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend, AzureInventoryDataFlowEdgeDirection.MayWrite, "May send")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive, AzureInventoryDataFlowEdgeDirection.MayRead, "May receive")]
+    public void Messaging_authorization_associations_are_catalogued_for_data_flow(
+        string associationType,
+        AzureInventoryDataFlowEdgeDirection direction,
+        string label)
+    {
+        AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
+
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            associationType,
+            out AzureInventoryDataFlowEvidenceAssociation? evidence).Should().BeTrue();
+
+        evidence!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess);
+        evidence.DefaultBand.Should().Be(PathConfidenceBand.Probable);
+        evidence.Direction.Should().Be(direction);
+        evidence.DiagramLabel.Should().Be(label);
         evidence.IncludeOnDataFlow.Should().BeTrue();
     }
 
@@ -80,8 +104,55 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     }
 
     [Theory]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubMayPublish,
+        GraphEdgeInferenceSources.InventoryEventHubMayPublish,
+        AzureInventoryDataFlowEdgeDirection.MayWrite,
+        "May publish")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
+        GraphEdgeInferenceSources.InventoryEventHubMayConsume,
+        AzureInventoryDataFlowEdgeDirection.MayRead,
+        "May consume")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
+        GraphEdgeInferenceSources.InventoryServiceBusMaySend,
+        AzureInventoryDataFlowEdgeDirection.MayWrite,
+        "May send")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
+        GraphEdgeInferenceSources.InventoryServiceBusMayReceive,
+        AzureInventoryDataFlowEdgeDirection.MayRead,
+        "May receive")]
+    public void Messaging_rbac_verbs_resolve_by_association_type_and_inference_source(
+        string associationType,
+        string inferenceSource,
+        AzureInventoryDataFlowEdgeDirection expectedDirection,
+        string expectedLabel)
+    {
+        AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
+
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            associationType,
+            out AzureInventoryDataFlowEvidenceAssociation? fromType).Should().BeTrue();
+
+        fromType!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess);
+        fromType.Direction.Should().Be(expectedDirection);
+        fromType.DiagramLabel.Should().Be(expectedLabel);
+        fromType.IncludeOnDataFlow.Should().BeTrue();
+
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            inferenceSource,
+            out AzureInventoryDataFlowEvidenceAssociation? fromInference).Should().BeTrue();
+
+        fromInference.Should().BeSameAs(fromType);
+        AzureInventoryDataFlowEvidenceCatalog.IncludeOnDataFlow(null, inferenceSource).Should().BeTrue();
+    }
+
+    [Theory]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AgwToBackend)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.LbToBackend)]
     public void Ingress_routes_are_declared_movement_on_data_flow(string associationType)
     {
         AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(

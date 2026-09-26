@@ -32,11 +32,18 @@ internal static class NetworkDiagramNodeFilter
         string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
 
         if (!string.IsNullOrWhiteSpace(armType)
+            && armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(armType)
             && armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        return armId.Contains("/privateEndpoints/", StringComparison.OrdinalIgnoreCase);
+        return armId.Contains("/privateEndpoints/", StringComparison.OrdinalIgnoreCase)
+            && !armId.Contains("/managedPrivateEndpoints/", StringComparison.OrdinalIgnoreCase);
     }
 }

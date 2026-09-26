@@ -23,6 +23,13 @@ public static partial class StructuredExplanationParser
 
         if (arrayElement.ValueKind != JsonValueKind.Array)
         {
+            if (arrayElement.ValueKind == JsonValueKind.Object)
+            {
+                string? objectEntry = TryReadStringListEntry(arrayElement);
+
+                return string.IsNullOrWhiteSpace(objectEntry) ? null : [objectEntry.Trim()];
+            }
+
             if (RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(arrayElement, out string? scalar)
                 && !string.IsNullOrWhiteSpace(scalar))
             {

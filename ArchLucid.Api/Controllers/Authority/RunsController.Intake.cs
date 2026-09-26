@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Planning;
 using ArchLucid.Contracts.Drafts;
@@ -22,6 +23,8 @@ public sealed partial class RunsController
             return this.BadRequestProblem($"{fieldName} must be at least {MinimumIntakeTextLength} characters.", ProblemTypes.ValidationFailed);
         if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(text))
             return this.BadRequestProblem($"{fieldName} must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.", ProblemTypes.ValidationFailed);
+        if (!UnicodeTextValidation.IsValidUnicodeText(text))
+            return this.BadRequestProblem($"{fieldName} must not contain invalid Unicode surrogate pairs.", ProblemTypes.ValidationFailed);
         return null;
     }
 

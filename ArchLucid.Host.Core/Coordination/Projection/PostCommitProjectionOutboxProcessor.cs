@@ -135,6 +135,22 @@ public sealed class PostCommitProjectionOutboxProcessor(
             IManifestHashService manifestHashService =
                 scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 
+            RunDetailDto? manifestCompareDetail = await authorityQueryService
+                .GetRunDetailForManifestCompareAsync(jobScope, runId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (manifestCompareDetail?.GoldenManifest is null)
+            {
+                Logger.LogWarning(
+                    "Skipping post-commit projection outbox {OutboxId} for run {RunId}: run detail no longer found.",
+                    entry.OutboxId,
+                    runId);
+                await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+                ArchLucidInstrumentation.RecordPostCommitProjectionOutboxProcessedSuccess();
+
+                return;
+            }
+
             await PostCommitProjectionOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
                 runId,
                 jobScope,

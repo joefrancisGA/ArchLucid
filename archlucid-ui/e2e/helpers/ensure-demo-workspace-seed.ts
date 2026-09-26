@@ -108,6 +108,7 @@ function buildWorkspaceChecks(requested: ReadonlySet<DemoWorkspaceSeedProbe>): D
       },
     },
   ];
+
   return checks.filter((check) => requested.has(check.probe));
 }
 

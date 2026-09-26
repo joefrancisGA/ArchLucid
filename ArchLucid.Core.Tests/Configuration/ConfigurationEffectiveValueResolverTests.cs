@@ -161,12 +161,83 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("ArchLucid:E2eHarness:SharedSecret")]
+    [InlineData("WebhookDelivery:HmacSha256SharedSecret")]
+    public void Resolve_redacts_compound_shared_secret_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] =
+                """
+                [{"Endpoint":"https://eastus.api.cognitive.microsoft.com","ApiKey":"fallback-secret","DeploymentName":"gpt-4o"}]
+                """,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_json_effective_values()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"Enabled":true,"WindowMinutes":15}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("""{"Enabled":true,"WindowMinutes":15}""");
+    }
+
+    [Theory]
     [InlineData("Email:SmtpPassword")]
     public void Resolve_redacts_compound_password_credential_config_paths(string configPath)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
         {
             [configPath] = "smtp-or-db-password",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("Integrations:ItsmOutbound:Jira:OAuthClientSecret")]
+    [InlineData("Integrations:ItsmOutbound:Jira:ApiToken")]
+    [InlineData("Integrations:ConfluencePublishing:OAuthClientSecret")]
+    [InlineData("Integrations:ConfluencePublishing:ApiToken")]
+    public void Resolve_redacts_integrations_oauth_and_api_token_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "integration-secret",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();

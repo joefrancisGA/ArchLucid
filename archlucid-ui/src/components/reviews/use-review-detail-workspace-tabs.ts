@@ -8,7 +8,7 @@ import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-rev
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_FINDING_PARAM,
-  REVIEW_DETAIL_TAB_PARAM, 
+  REVIEW_DETAIL_TAB_PARAM,
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
   readPresenterModeFromSearchParams,
@@ -113,6 +113,10 @@ export function useReviewDetailWorkspaceTabs(
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const tabActivityAt = props.tabActivityAt ?? {};
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);
+
+  useEffect(() => {
+    setActiveTab((current) => (current === searchParamTab ? current : searchParamTab));
+  }, [searchParamTab]);
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {

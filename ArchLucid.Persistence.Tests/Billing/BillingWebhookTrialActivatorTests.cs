@@ -33,7 +33,7 @@ public sealed class BillingWebhookTrialActivatorTests
                 It.IsAny<Guid>(),
                 It.IsAny<TenantTier>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(true);
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
@@ -109,7 +109,7 @@ public sealed class BillingWebhookTrialActivatorTests
                 tenantId,
                 TenantTier.Standard,
                 It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(true);
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))

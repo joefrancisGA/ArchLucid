@@ -349,6 +349,83 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_resource_id()
+    {
+        const string factoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-a";
+        const string otherFactoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-b";
+        const string crossFactoryNextLink =
+            $"https://management.azure.com{otherFactoryResourceId}/linkedservices?api-version=2018-06-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "BlobLS-a",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-a/linkedservices/BlobLS-a"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_FACTORY_LINK"
+                               }
+                               """.Replace("CROSS_FACTORY_LINK", crossFactoryNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "BlobLS-b",
+                                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-b/linkedservices/BlobLS-b"
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossFactoryNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: ADF linked-service listing did not stop on cross-factory nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListFactoryLinkedServicesAsync(
+                "token-abc",
+                factoryResourceId,
+                CancellationToken.None));
+
+        Assert.Contains("factory", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
     {
         HttpMessageHandler handler = new RecordingHandler(

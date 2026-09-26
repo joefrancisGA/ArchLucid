@@ -25,6 +25,7 @@ import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architecture-draft-spawn-one-writer";
 
 import type { RunDetailPageModel } from "./run-detail-page-model";
+import { resolveReviewPackagePipelineInFlight } from "./resolve-review-package-pipeline-in-flight";
 import {
   RecurrenceSchedulePostCommitCardDeferred,
   RunDetailArchitectureGraphIsland,
@@ -179,7 +180,7 @@ export function resolveRunDetailTabbedWorkspace(
 
   const defensibilityStripProps = buildReviewDefensibilityStripProps(
     m.manifestSummaryForUi?.feasibilityVerdict ?? m.manifestSummary?.feasibilityVerdict,
-    m.showProgressTracker && m.resolvedDetail.run.completedUtc === null,
+    m.showProgressTracker,
   );
   const defensibilityStripEl =
     defensibilityStripProps !== null ? <ReviewDefensibilityStrip {...defensibilityStripProps} /> : null;
@@ -190,7 +191,7 @@ export function resolveRunDetailTabbedWorkspace(
     lifecycle: resolveReviewWorkspaceLifecycle({
       manifestId: m.manifestId,
       showProgressTracker: m.showProgressTracker,
-      runCompleted: m.resolvedDetail.run.completedUtc != null,
+      runCompleted: m.runCompleted,
     }),
     tabActivityAt: deriveReviewDetailTabActivityAt({
       run: m.resolvedDetail.run,
@@ -270,7 +271,7 @@ export function resolveRunDetailTabbedWorkspace(
               buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
               operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
               manifestStatus={m.manifestSummary?.status ?? null}
-              runCompleted={m.resolvedDetail.run.completedUtc != null}
+              runCompleted={m.runCompleted}
               nextAction={reviewStatusSummary.nextAction}
               goldenManifestJsonForExport={m.goldenManifestJsonForExport}
               manifestSummary={m.manifestSummaryForUi ?? m.manifestSummary}
@@ -353,7 +354,7 @@ export function resolveRunDetailTabbedWorkspace(
               hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
               operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
               isArchived={m.resolvedDetail.run.isArchived === true}
-              pipelineInFlight={m.showProgressTracker && !m.manifestId}
+              pipelineInFlight={resolveReviewPackagePipelineInFlight(m.showProgressTracker)}
             />
           ) : null}
         </div>

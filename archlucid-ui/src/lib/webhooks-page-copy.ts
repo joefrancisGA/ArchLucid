@@ -111,6 +111,10 @@ export const WEBHOOKS_TEST_FAILURE = "We could not reach the destination.";
 export const WEBHOOKS_SAVE_THEN_TEST_HELPER =
   "Save the subscription first, then send a test event from the subscriptions list.";
 
+/** Readiness copy when create is blocked because the subscription inventory never hydrated. */
+export const WEBHOOKS_SAVE_BLOCKED_UNTIL_SUBSCRIPTIONS_LOAD =
+  "Load subscriptions before saving so duplicate names can be checked.";
+
 /** Heading for the saved-subscription list. */
 export const WEBHOOKS_SUBSCRIPTIONS_HEADING = "Subscriptions";
 

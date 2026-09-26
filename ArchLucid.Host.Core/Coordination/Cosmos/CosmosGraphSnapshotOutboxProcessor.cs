@@ -78,6 +78,19 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
 
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
+        GraphSnapshot? snapshot =
+            await sqlLoader.LoadAsync(scopeContext, entry.GraphSnapshotId, cancellationToken);
+
+        if (snapshot is null)
+        {
+            Logger.LogWarning(
+                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: graph snapshot was not found in SQL.",
+                entry.GraphSnapshotId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
+        }
+
         if (entry.RunId != Guid.Empty)
         {
             IAuthorityQueryService authorityQueryService =
@@ -91,19 +104,6 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
                 authorityQueryService,
                 manifestHashService,
                 cancellationToken).ConfigureAwait(false);
-        }
-
-        GraphSnapshot? snapshot =
-            await sqlLoader.LoadAsync(scopeContext, entry.GraphSnapshotId, cancellationToken);
-
-        if (snapshot is null)
-        {
-            Logger.LogWarning(
-                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: graph snapshot was not found in SQL.",
-                entry.GraphSnapshotId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-
-            return;
         }
 
         await cosmosWriter.SaveAsync(snapshot, cancellationToken);

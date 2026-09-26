@@ -1,27 +1,26 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "module": "preserve",
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "jsx": "preserve",
     "paths": {
       "@/*": ["../src/*"]
     }
   },
   "include": [
-    "./fixtures/**/*.ts",
-    "./helpers/**/*.ts",
-    "./mock-archlucid-api-server.ts",
-    "./start-e2e-live-api.ts",
-    "./start-e2e-with-mock.ts",
-    "./screenshot-mock-fallback.ts",
-    "./screenshot-demo-quality-gates.ts",
-    "./screenshot-output-helpers.ts",
-    "./screenshot-legacy-redirects.ts",
-    "./securenow-ui-rate-route-registry.ts",
-    "./ux-audit-harness-contract.ts",
-    "./ux-audit-route-registry.ts",
-    "./policy-packs-mock-state.ts",
-    "./run-architecture-lifecycle-batch.ts",
-    "./axe-rule-allowlist.ts"
+    "./**/*.ts",
+    "../tests/accessibility.spec.ts",
+    "../tests/compare.spec.ts",
+    "../tests/onboarding.spec.ts",
+    "../tests/e2e/**/*.ts",
+    "../tests/quick-scan.spec.ts"
   ],
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": ["node_modules"]
 }

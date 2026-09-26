@@ -238,7 +238,22 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u29F8' // ⧸ BIG SOLIDUS
         || ch == '\u29FA' // ⧺ DOUBLE SOLIDUS OPERATOR (distinct from ⫽ U+2AFD)
         || ch == '\u2AFD' // ⫽ DOUBLE SOLIDUS OPERATOR
-        || ch == '\u2572'; // ╲ BOX DRAWINGS LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT
+        || ch == '\u2572' // ╲ BOX DRAWINGS LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT
+        || ch == '\u29F9' // ⧹ BIG REVERSE SOLIDUS
+        || ch == '\u29F5' // ⧵ REVERSE SOLIDUS OPERATOR
+        || ch == '\u29B8' // ⦸ CIRCLED REVERSE SOLIDUS
+        || ch == '\u29C4' // ⧄ SQUARED RISING DIAGONAL SLASH
+        || ch == '\u29C5' // ⧅ SQUARED FALLING DIAGONAL SLASH
+        || ch == '\u2AFB' // ⫻ TRIPLE SOLIDUS BINARY RELATION
+        || ch == '\u2298' // ⊘ CIRCLED DIVISION SLASH
+        || ch == '\u2E4A' // ⹊ DOTTED SOLIDUS
+        || ch == '\u244A' // ⑊ OCR DOUBLE BACKSLASH
+        || ch == '\u27C8' // ⟈ REVERSE SOLIDUS PRECEDING SUBSET
+        || ch == '\u27C9' // ⟉ SUPERSET PRECEDING SOLIDUS
+        || ch == '\u27CB' // ⟋ MATHEMATICAL RISING DIAGONAL
+        || ch == '\u27CD' // ⟍ MATHEMATICAL FALLING DIAGONAL
+        || ch == '\u29F4' // ⧴ SOLIDUS INTEROPERATOR
+        || ch == '\u2AFF'; // ⫿ DOUBLE REVERSE SOLIDUS OPERATOR
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
@@ -248,5 +263,22 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2024' // ․ ONE DOT LEADER
         || ch == '\u2025' // ‥ TWO DOT LEADER
         || ch == '\u3002' // 。 IDEOGRAPHIC FULL STOP
-        || ch == '\u06D4'; // ۔ ARABIC FULL STOP
+        || ch == '\u06D4' // ۔ ARABIC FULL STOP
+        || ch == '\u0387' // · GREEK ANO TELEIA
+        || ch == '\u2027' // ‧ HYPHENATION POINT
+        || ch == '\u22C5' // ⋅ DOT OPERATOR
+        || ch == '\u2219' // ∙ BULLET OPERATOR
+        || ch == '\u1362' // ። ETHIOPIC FULL STOP
+        || ch == '\u05C3' // ׃ HEBREW PUNCTUATION SOF PASUQ
+        || ch == '\u2E31' // ⸱ WORD SEPARATOR MIDDLE DOT
+        || ch == '\u2E33' // ⸳ RAISED DOT
+        || ch == '\u2981' // ⦁ Z NOTATION SPOT
+        || ch == '\u16EB' // ᛫ RUNIC SINGLE PUNCTUATION
+        || ch == '\u1427' // ᐧ CANADIAN SYLLABICS FINAL MIDDLE DOT
+        || ch == '\u1803' // ᠃ MONGOLIAN FULL STOP
+        || ch == '\u166E' // ᙮ CANADIAN SYLLABICS FULL STOP
+        || ch == '\u2E30' // ⸰ RING POINT
+        || ch == '\uA78F' // ꞏ LATIN LETTER SINOLOGICAL DOT
+        || ch == '\u0701' // ܁ SYRIAC SUPRALINEAR FULL STOP
+        || ch == '\u0702'; // ܂ SYRIAC SUBLINEAR FULL STOP
 }

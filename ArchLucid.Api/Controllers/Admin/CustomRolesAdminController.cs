@@ -42,6 +42,9 @@ public sealed class CustomRolesAdminController(
     private readonly ILogger<CustomRolesAdminController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private const int MaxRoleNameLength = 128;
+    private const int MaxRoleDescriptionLength = 512;
+
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CustomRoleResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListAsync(CancellationToken cancellationToken)
@@ -61,10 +64,10 @@ public sealed class CustomRolesAdminController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (!IsValidUnicodeText(body.Name) || !IsValidUnicodeText(body.Description))
-            return this.BadRequestProblem(
-                "Role name and description must be valid Unicode text.",
-                ProblemTypes.ValidationFailed);
+        IActionResult? validationProblem = ValidateUpsertBody(body);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         try
         {
@@ -123,10 +126,10 @@ public sealed class CustomRolesAdminController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (!IsValidUnicodeText(body.Name) || !IsValidUnicodeText(body.Description))
-            return this.BadRequestProblem(
-                "Role name and description must be valid Unicode text.",
-                ProblemTypes.ValidationFailed);
+        IActionResult? validationProblem = ValidateUpsertBody(body);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         try
         {
@@ -217,6 +220,32 @@ public sealed class CustomRolesAdminController(
                 $"Custom role '{roleId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
+    }
+
+    private IActionResult? ValidateUpsertBody(CustomRoleUpsertRequest body)
+    {
+        if (!IsValidUnicodeText(body.Name) || !IsValidUnicodeText(body.Description))
+        {
+            return this.BadRequestProblem(
+                "Role name and description must be valid Unicode text.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (body.Name.Trim().Length > MaxRoleNameLength)
+        {
+            return this.BadRequestProblem(
+                $"Role name must be at most {MaxRoleNameLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (body.Description is not null && body.Description.Trim().Length > MaxRoleDescriptionLength)
+        {
+            return this.BadRequestProblem(
+                $"Role description must be at most {MaxRoleDescriptionLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
     }
 
     private static bool IsValidUnicodeText(string? value)

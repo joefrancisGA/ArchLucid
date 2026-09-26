@@ -188,6 +188,16 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
     return getScopeHeaders();
   }
 
+  if (!isLikelySignedIn()) {
+    const registration = registrationScopeHeaders();
+
+    if (registration !== null) {
+      writeOperatorScopeCookieFromHeaders(registration);
+
+      return registration;
+    }
+  }
+
   const fromOperator = readOperatorScopeFromStorage();
   if (fromOperator !== null) {
     const signedInStickyDemoScope =

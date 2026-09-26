@@ -138,4 +138,91 @@ public sealed class InventoryArtifactGeneratorTests
         JsonElement uncovered = items[1];
         uncovered.GetProperty("IsMandatory").GetBoolean().Should().BeFalse();
     }
+
+    [Fact]
+    public async Task GenerateAsync_serializes_issue_type_and_supporting_finding_ids_for_issue_items()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        IssueType = "Policy",
+                        Title = "DR gap",
+                        Severity = "High",
+                        Description = "No warm standby.",
+                        SupportingFindingIds = ["finding-dr-1"],
+                    },
+                ],
+            },
+        };
+
+        InventoryArtifactGenerator sut = new();
+
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        JsonElement issue = doc.RootElement.GetProperty("Items")[0];
+        issue.GetProperty("Category").GetString().Should().Be("Issue");
+        issue.GetProperty("IssueType").GetString().Should().Be("Policy");
+        issue.GetProperty("SupportingFindingIds").EnumerateArray()
+            .Select(x => x.GetString())
+            .Should().Equal("finding-dr-1");
+    }
+
+    [Fact]
+    public async Task GenerateAsync_serializes_control_id_for_security_and_compliance_items_matching_compliance_matrix_export()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Security = new SecuritySection
+            {
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "SC-7",
+                        ControlName = "Boundary protection",
+                        Status = "Met",
+                        Impact = "High",
+                    },
+                ],
+            },
+            Compliance = new ComplianceSection
+            {
+                Controls =
+                [
+                    new CompliancePostureItem
+                    {
+                        ControlId = "AC-2",
+                        ControlName = "Account management",
+                        AppliesToCategory = "Identity",
+                        Status = "Partial",
+                    },
+                ],
+            },
+        };
+
+        InventoryArtifactGenerator sut = new();
+
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        JsonElement items = doc.RootElement.GetProperty("Items");
+
+        JsonElement security = items[0];
+        security.GetProperty("Category").GetString().Should().Be("SecurityControl");
+        security.GetProperty("ControlId").GetString().Should().Be("SC-7");
+
+        JsonElement compliance = items[1];
+        compliance.GetProperty("Category").GetString().Should().Be("ComplianceControl");
+        compliance.GetProperty("ControlId").GetString().Should().Be("AC-2");
+    }
 }

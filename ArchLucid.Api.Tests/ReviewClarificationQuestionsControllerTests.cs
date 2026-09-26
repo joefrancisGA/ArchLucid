@@ -124,6 +124,39 @@ public sealed class ReviewClarificationQuestionsControllerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_contains_invalid_surrogate()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IReviewClarificationQuestionService> questions = new();
+        Mock<IKnowledgeModelClarificationAnswerApplicator> applicator = new();
+
+        ReviewClarificationQuestionsController controller = CreateController(
+            questions.Object,
+            applicator.Object);
+
+        ApplyKnowledgeModelClarificationAnswersRequest request = new()
+        {
+            Answers = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["km-q1"] = "\uD800",
+            },
+        };
+
+        IActionResult action = await controller.ApplyKnowledgeModelClarificationAnswers(
+            runId,
+            request,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        applicator.Verify(
+            s => s.ApplyAnswersAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ReviewClarificationQuestionsController CreateController(
         IReviewClarificationQuestionService? clarificationQuestionService = null,
         IKnowledgeModelClarificationAnswerApplicator? clarificationAnswerApplicator = null,

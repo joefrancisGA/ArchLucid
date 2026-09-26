@@ -57,4 +57,34 @@ public sealed class CustomRolesAdminControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task CreateAsync_returns_bad_request_when_description_exceeds_max_length()
+    {
+        Mock<ICustomRoleService> customRoleService = new(MockBehavior.Strict);
+
+        CustomRolesAdminController controller = new(
+            customRoleService.Object,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<ILogger<CustomRolesAdminController>>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        CustomRoleUpsertRequest body = new()
+        {
+            Name = "Reviewer",
+            Description = new string('d', 513),
+            Permissions = [],
+        };
+
+        IActionResult action = await controller.CreateAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        customRoleService.VerifyNoOtherCalls();
+    }
 }

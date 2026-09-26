@@ -50,6 +50,7 @@ export type UseWebhooksSettingsMutationsOptions = {
   readonly scopeGenerationRef: React.RefObject<number>;
   readonly load: () => Promise<boolean>;
   readonly getLastLoadFailure: () => ApiLoadFailureState | null;
+  readonly hasLoadedSuccessfully: boolean;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
 };
 
@@ -357,7 +358,7 @@ export function useWebhooksSettingsMutations(
   }
 
   const submit = options.handleSubmit(async (values) => {
-    if (!options.canMutate || isSavingRef.current) {
+    if (!options.canMutate || isSavingRef.current || !options.hasLoadedSuccessfully) {
       return;
     }
 

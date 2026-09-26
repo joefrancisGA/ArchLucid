@@ -364,7 +364,14 @@ export function RemediationFactoryClient() {
   const { productLine } = useProductLine();
   const navHref = remediationFactoryPathForProductLine(productLine);
   const openFindingsHref = assignedToMeFindingsPathForProductLine(productLine);
-  const urlState = useRemediationFactoryUrlState(productLine);
+  const {
+    findingId: selectedFindingId,
+    pathId: selectedPathId,
+    syncSelection,
+    selectFinding,
+    selectPath,
+    ...urlState
+  } = useRemediationFactoryUrlState(productLine);
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
@@ -377,8 +384,6 @@ export function RemediationFactoryClient() {
 
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
-  const selectedFindingId = urlState.findingId;
-  const selectedPathId = urlState.pathId;
 
   const refreshing =
     rankedQuery.isFetching
@@ -440,6 +445,30 @@ export function RemediationFactoryClient() {
       pathInspectPanelRef.current?.focus();
     }
   }, [selectedFindingId, selectedPathId]);
+
+  useEffect(() => {
+    if (!rankedQuery.isSuccess || selectedFindingId === null) {
+      return;
+    }
+
+    const stillPresent = ranked.some((row) => row.findingId === selectedFindingId);
+
+    if (!stillPresent) {
+      syncSelection({ findingId: null });
+    }
+  }, [ranked, rankedQuery.isSuccess, selectedFindingId, syncSelection]);
+
+  useEffect(() => {
+    if (!rankedPathsQuery.isSuccess || selectedPathId === null) {
+      return;
+    }
+
+    const stillPresent = rankedPaths.some((row) => row.pathId === selectedPathId);
+
+    if (!stillPresent) {
+      syncSelection({ pathId: null });
+    }
+  }, [rankedPaths, rankedPathsQuery.isSuccess, selectedPathId, syncSelection]);
 
   async function runSimulator(findingId: string) {
     setSimulatorError(null);
@@ -539,9 +568,7 @@ export function RemediationFactoryClient() {
           <PriorityTable
             rows={ranked}
             selectedFindingId={selectedFindingId}
-            onSelect={(findingId) => {
-              urlState.selectFinding(findingId);
-            }}
+            onSelect={selectFinding}
           />
         )}
       </section>
@@ -559,9 +586,7 @@ export function RemediationFactoryClient() {
           <RankedPathsTable
             rows={rankedPaths}
             selectedPathId={selectedPathId}
-            onSelect={(pathId) => {
-              urlState.selectPath(pathId);
-            }}
+            onSelect={selectPath}
           />
         )}
       </section>

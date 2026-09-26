@@ -1,4 +1,8 @@
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import {
+  buildReviewWorkspaceTabHref,
+  type BuildReviewWorkspaceTabHrefOptions,
+} from "@/lib/unified-review-workspace-tabs";
+import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { resolveClarificationsFindingsLoopNext } from "@/lib/review-clarifications-findings-loop";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
@@ -80,16 +84,30 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly effectiveSessionMode?: "Simulator" | "Real" | null;
 };
 
+function workspaceTabHref(
+  input: ResolveReviewPackageDoThisNextInput,
+  tab: ReviewDetailTabId,
+  options?: BuildReviewWorkspaceTabHrefOptions,
+): string {
+  const includeCreateIntent =
+    input.useCreateHomeWorkspaceTabs === true || options?.includeCreateIntent === true;
+
+  return buildReviewWorkspaceTabHref(input.runId, tab, {
+    ...options,
+    ...(includeCreateIntent ? { includeCreateIntent: true } : {}),
+  });
+}
+
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
   if (input.correctionHref !== null && input.correctionHref.trim().length > 0) {
     return input.correctionHref;
   }
 
-  return buildReviewWorkspaceTabHref(input.runId, "overview");
+  return workspaceTabHref(input, "overview");
 }
 
-function viewAssessmentHref(runId: string): string {
-  return buildReviewWorkspaceTabHref(runId, "activity");
+function viewAssessmentHref(input: ResolveReviewPackageDoThisNextInput): string {
+  return workspaceTabHref(input, "activity");
 }
 
 function resolveRerunHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -154,8 +172,8 @@ function registryHrefInput(input: ResolveReviewPackageDoThisNextInput): BuildRev
   };
 }
 
-function buildReviewWorkspaceOverviewHref(runId: string): string {
-  return buildReviewWorkspaceTabHref(runId, "overview");
+function buildReviewWorkspaceOverviewHref(input: ResolveReviewPackageDoThisNextInput): string {
+  return workspaceTabHref(input, "overview");
 }
 
 function resolveFailureRecoverySecondaryAction(
@@ -169,7 +187,7 @@ function resolveFailureRecoverySecondaryAction(
   ) {
     return {
       label: "Review submitted intake",
-      href: buildReviewWorkspaceOverviewHref(input.runId),
+      href: buildReviewWorkspaceOverviewHref(input),
     };
   }
 
@@ -332,7 +350,7 @@ export function resolveReviewPackageDoThisNext(
       kind: "view-assessment-progress",
       sentence: "Assessment is running — follow progress or add evidence while you wait.",
       actionLabel: "View assessment progress",
-      href: viewAssessmentHref(input.runId),
+      href: viewAssessmentHref(input),
     };
   }
 
@@ -361,7 +379,7 @@ export function resolveReviewPackageDoThisNext(
         kind: "review-findings",
         sentence: loopNext.sentence,
         actionLabel: reviewLifecycleNextActionLabel("triage-findings"),
-        href: buildReviewWorkspaceTabHref(input.runId, loopNext.nextTabId),
+        href: workspaceTabHref(input, loopNext.nextTabId),
       };
     }
   }
@@ -383,11 +401,11 @@ export function resolveReviewPackageDoThisNext(
         kind: primaryAction.kind,
         sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
         actionLabel: "Review evidence coverage",
-        href: buildReviewWorkspaceTabHref(input.runId, "evidence"),
+        href: workspaceTabHref(input, "evidence"),
         buttonVariant: "outline",
         secondaryAction: {
           label: primaryAction.label,
-          href: primaryAction.href ?? buildReviewWorkspaceTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
+          href: primaryAction.href ?? workspaceTabHref(input, "review-package", { hash: "sponsor-handoff" }),
         },
       },
       input,

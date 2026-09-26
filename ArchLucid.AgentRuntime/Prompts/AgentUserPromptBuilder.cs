@@ -153,7 +153,8 @@ public static class AgentUserPromptBuilder
             body =>
             {
                 body.AppendLine("Task Objective:");
-                body.AppendLine(RedactAndEscape(task.Objective));
+                body.AppendLine(
+                    RedactAndEscape(AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse(task.Objective)));
             });
 
         sb.AppendLine("Allowed Tools:");

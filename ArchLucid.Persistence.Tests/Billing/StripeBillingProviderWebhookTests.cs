@@ -103,7 +103,7 @@ public sealed class StripeBillingProviderWebhookTests
         Mock<ITenantRepository> tenants = new();
         tenants
             .Setup(t => t.MarkTrialConvertedAsync(It.IsAny<Guid>(), It.IsAny<TenantTier>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(true);
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -39,6 +40,13 @@ internal static class TenantErasureLegalHoldHttpMapper
         {
             return new GovernanceHttpValidation(
                 $"Reason must be at most {LegalHoldReasonMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!UnicodeTextValidation.IsValidUnicodeText(legalHoldReason))
+        {
+            return new GovernanceHttpValidation(
+                "Reason must not contain invalid Unicode surrogate pairs.",
                 ProblemTypes.ValidationFailed);
         }
 

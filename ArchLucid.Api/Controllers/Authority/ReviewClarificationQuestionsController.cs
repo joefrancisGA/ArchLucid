@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
@@ -118,6 +119,11 @@ public sealed partial class ReviewClarificationQuestionsController(
             if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(answer.Value))
                 return this.BadRequestProblem(
                     $"Each answer value must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                    ProblemTypes.ValidationFailed);
+
+            if (!UnicodeTextValidation.IsValidUnicodeText(answer.Value))
+                return this.BadRequestProblem(
+                    "Each answer value must not contain invalid Unicode surrogate pairs.",
                     ProblemTypes.ValidationFailed);
         }
 

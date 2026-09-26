@@ -297,6 +297,7 @@ export function executiveMayAccessRenderResponse(): InfraEvidenceMermaidRenderRe
       layoutEstimate: 3,
     },
     fallbackArtifacts: [],
+    collapseReport: null,
     completenessWarnings: [],
     collapseReport: null,
   };

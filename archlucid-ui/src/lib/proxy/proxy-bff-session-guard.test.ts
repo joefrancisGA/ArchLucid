@@ -242,6 +242,45 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("clears BFF cookies when a mutating proxy call has an unparseable session cookie", () => {
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: "not-a-valid-signed-cookie",
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-unparseable-cookie",
+    );
+
+    expect(result.allowed).toBe(false);
+
+    if (!result.allowed) {
+      expect(result.response.status).toBe(401);
+      expect(result.response.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+      expect(result.response.headers.get("set-cookie")).toContain("Max-Age=0");
+    }
+  });
+
+  it("clears unparseable BFF cookies on anonymous marketing mutations", () => {
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: "not-a-valid-signed-cookie",
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-unparseable-marketing",
+      "v1/marketing/early-access",
+    );
+
+    expect(result.allowed).toBe(true);
+
+    if (result.allowed) {
+      expect(result.slideCookieHeaders.join(";")).toContain("Max-Age=0");
+    }
+  });
+
   it("rejects idle-expired Working sessions on mutations", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",

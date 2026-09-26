@@ -305,3 +305,11 @@ export function buildBffSessionCookieHeaders(
 export function buildBffSessionClearCookieHeaders(): string[] {
   return [buildBffSessionClearCookieHeader(), buildBffCsrfClearCookieHeader()];
 }
+
+/** True when a BFF session cookie is present but signature/version parsing failed. */
+export function hasPresentButUnparseableBffSessionCookie(
+  cookieValue: string | null,
+  payload: BffSessionPayload | null,
+): boolean {
+  return (cookieValue?.trim().length ?? 0) > 0 && payload === null;
+}

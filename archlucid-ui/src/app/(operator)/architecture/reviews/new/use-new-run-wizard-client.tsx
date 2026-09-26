@@ -102,9 +102,17 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   );
 
   useEffect(() => {
+    if (urlPilotEnabled !== null) {
+      setFocusedPilotModeEnabledState(urlPilotEnabled);
+    }
+
+    setAdvancedConfigurationOptInState(urlAdvancedConfig);
+  }, [urlAdvancedConfig, urlPilotEnabled]);
+
+  useEffect(() => {
     const syncPilotTogglesFromUrl = (): void => {
       const nextPilot = parseNewRunWizardPilotFromSearch(
-        new URLSearchParams(window.location.search).get("pilot"),
+        new URLSearchParams(readWindowLocationSearch()).get("pilot"),
       );
 
       if (nextPilot !== null) {
@@ -113,7 +121,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
 
       setAdvancedConfigurationOptInState(
         parseNewRunWizardAdvancedConfigFromSearch(
-          new URLSearchParams(window.location.search).get("advancedConfig"),
+          new URLSearchParams(readWindowLocationSearch()).get("advancedConfig"),
         ),
       );
     };

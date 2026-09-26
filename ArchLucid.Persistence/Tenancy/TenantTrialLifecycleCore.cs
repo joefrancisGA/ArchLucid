@@ -212,7 +212,7 @@ internal static class TenantTrialLifecycleCore
     {
         ArgumentNullException.ThrowIfNull(existing);
 
-        if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        if (!TrialLifecycleStatus.EqualsStatus(existing.TrialStatus, TrialLifecycleStatus.Active))
             return null;
 
         TenantTier tier = newCommercialTier ?? existing.Tier;

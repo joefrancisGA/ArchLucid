@@ -114,4 +114,66 @@ public sealed class RunCoverageControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task PutAcknowledgedCoverage_returns_bad_request_when_exclusion_reason_contains_invalid_surrogate()
+    {
+        RunCoverageController sut = BuildSut();
+
+        IActionResult result = await sut.PutAcknowledgedCoverage(
+            RunGuid,
+            new PutRunCoverageAcknowledgementRequest
+            {
+                Entries =
+                [
+                    new RunCoverageAcknowledgementEntryRequest
+                    {
+                        PolicyPackId = PolicyPackGuid,
+                        Excluded = true,
+                        ExclusionReason = "\uD800",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _acknowledgementService.Verify(
+            static s => s.PutAcknowledgementAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<RunAcknowledgedCoverageDocument>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PatchRunCoveragePack_returns_bad_request_when_exclusion_reason_contains_invalid_surrogate()
+    {
+        RunCoverageController sut = BuildSut();
+
+        IActionResult result = await sut.PatchRunCoveragePack(
+            RunGuid,
+            PolicyPackGuid,
+            new PatchRunCoveragePackRequest
+            {
+                Excluded = true,
+                ExclusionReason = "\uD800",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _acknowledgementService.Verify(
+            static s => s.PatchPackExclusionAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

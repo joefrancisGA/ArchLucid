@@ -33,8 +33,11 @@ public static class GovernancePostureSealedManifestHashGuard
             ProjectId = projectId,
         };
 
-        (IReadOnlyList<RunSummary> items, _, _) =
+        (IReadOnlyList<RunSummary>? items, _, _) =
             await runDetailQueryService.ListRunSummariesKeysetAsync(null, 50, cancellationToken).ConfigureAwait(false);
+
+        if (items is null || items.Count == 0)
+            return;
 
         RunSummary? latestCommitted = items.FirstOrDefault(IsCommittedSummary);
 

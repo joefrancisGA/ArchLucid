@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -11,6 +11,9 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import { patchGovernanceFindingsQueueFacets, readGovernanceFindingsQueueFacets } from "@/lib/governance/governance-findings-queue-facets-storage";
 import { DEFAULT_FINDING_JOB_VIEW, type FindingJobView } from "@/lib/findings/finding-job-view";
 import {
+  GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM,
+  GOVERNANCE_FINDINGS_NL_STATUS_PARAM,
+  GOVERNANCE_FINDINGS_NL_TITLE_PARAM,
   governanceFindingsNlFacetsFromSearchParams,
   governanceFindingsNlFacetsHrefFromSearch,
 } from "@/lib/governance/governance-findings-queue-nl-facets-url";
@@ -54,16 +57,38 @@ export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMo
         ? urlNlFacets
         : readGovernanceFindingsQueueFacets(mode).nlFacets,
   );
+  const hadJobViewInUrlRef = useRef(searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+  const hadNlFacetsInUrlRef = useRef(
+    searchParams.has(GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM)
+      || searchParams.has(GOVERNANCE_FINDINGS_NL_STATUS_PARAM)
+      || searchParams.has(GOVERNANCE_FINDINGS_NL_TITLE_PARAM),
+  );
 
   useEffect(() => {
-    setJobViewState(urlJobView);
-  }, [urlJobView]);
+    const hasActiveJobView = searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM);
 
-  useEffect(() => {
-    if (urlNlFacets.severity !== null || urlNlFacets.status !== null || urlNlFacets.titleKeywords.length > 0) {
-      setNlFacetsState(urlNlFacets);
+    if (hasActiveJobView) {
+      setJobViewState(urlJobView);
+      hadJobViewInUrlRef.current = true;
+    } else if (hadJobViewInUrlRef.current) {
+      setJobViewState(readGovernanceFindingsQueueFacets(mode).jobView);
+      hadJobViewInUrlRef.current = false;
     }
-  }, [urlNlFacets]);
+  }, [mode, searchParams, urlJobView]);
+
+  useEffect(() => {
+    const hasActiveNlFacets =
+      urlNlFacets.severity !== null || urlNlFacets.status !== null || urlNlFacets.titleKeywords.length > 0;
+
+    if (hasActiveNlFacets) {
+      setNlFacetsState(urlNlFacets);
+      hadNlFacetsInUrlRef.current = true;
+    } else if (hadNlFacetsInUrlRef.current) {
+      setNlFacetsState(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+      patchGovernanceFindingsQueueFacets({ nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS }, mode);
+      hadNlFacetsInUrlRef.current = false;
+    }
+  }, [mode, urlNlFacets]);
 
   const setJobView = useCallback((next: FindingJobView): void => {
     setJobViewState(next);

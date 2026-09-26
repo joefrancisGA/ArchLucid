@@ -401,6 +401,25 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.queryByText(/0 subscriptions in this workspace/i)).not.toBeInTheDocument();
   });
 
+  it("blocks create when subscription list never loaded so duplicate names cannot be bypassed", async () => {
+    apiMocks.list.mockRejectedValue(new Error("subscription list unavailable"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/subscription list unavailable/i);
+    });
+
+    fillValidWebhookForm();
+
+    expect(screen.getByTestId("webhook-save-button")).toBeDisabled();
+    expect(screen.getByTestId("webhook-save-readiness")).toHaveTextContent(/duplicate names can be checked/i);
+
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(apiMocks.create).not.toHaveBeenCalled();
+  });
+
   it("does not claim zero subscriptions while the list is still loading", async () => {
     let resolveList: (rows: unknown[]) => void = () => {};
 

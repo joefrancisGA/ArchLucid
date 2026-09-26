@@ -1,6 +1,15 @@
+function isAnonymousInfrastructureProxyPath(normalized: string): boolean {
+  return (
+    normalized === "health/ready" ||
+    normalized === "health/live" ||
+    normalized === "version"
+  );
+}
+
 function isPreAuthSignInAnonymousProxyPath(normalized: string): boolean {
   return (
     normalized === "v1/register" ||
+    normalized === "v1/tenant/trial-status" ||
     normalized === "v1/auth/routing/evaluate" ||
     normalized === "v1/auth/email-otp/challenge" ||
     normalized === "v1/auth/email-otp/verify" ||
@@ -44,6 +53,7 @@ export function isPublicAnonymousProxyPath(proxyPath: string): boolean {
 
   return (
     isAnonymousMarketingProxyPathNormalized(normalized) ||
+    isAnonymousInfrastructureProxyPath(normalized) ||
     isPreAuthSignInAnonymousProxyPath(normalized)
   );
 }

@@ -14,7 +14,10 @@ import {
 import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { describeWebhooksSaveReadinessMessage } from "@/lib/webhooks-page-copy";
+import {
+  describeWebhooksSaveReadinessMessage,
+  WEBHOOKS_SAVE_BLOCKED_UNTIL_SUBSCRIPTIONS_LOAD,
+} from "@/lib/webhooks-page-copy";
 import {
   webhookSettingsDefaultValues,
   webhookSettingsFormSchema,
@@ -46,6 +49,7 @@ export type UseWebhooksSettingsResult = {
   readonly canMutate: boolean;
   readonly items: AlertRoutingSubscription[];
   readonly loading: boolean;
+  readonly hasLoadedSuccessfully: boolean;
   readonly isSaving: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly testingId: string | null;
@@ -121,16 +125,20 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     scopeGenerationRef: loadState.scopeGenerationRef,
     load: loadState.load,
     getLastLoadFailure: loadState.getLastLoadFailure,
+    hasLoadedSuccessfully: loadState.hasLoadedSuccessfully,
     setFailure: loadState.setFailure,
   });
   mutationResetRef.current = mutations.resetMutationState;
 
   const watchedEventTypes = useWatch({ control, name: "eventTypes" });
   const watchedFormValues = useWatch({ control }) as WebhookSettingsFormValues;
-  const formReadinessMessage = useMemo(
-    () => describeWebhooksSaveReadinessMessage(watchedFormValues ?? webhookSettingsDefaultValues),
-    [watchedFormValues],
-  );
+  const formReadinessMessage = useMemo(() => {
+    if (!loadState.hasLoadedSuccessfully && !loadState.loading) {
+      return WEBHOOKS_SAVE_BLOCKED_UNTIL_SUBSCRIPTIONS_LOAD;
+    }
+
+    return describeWebhooksSaveReadinessMessage(watchedFormValues ?? webhookSettingsDefaultValues);
+  }, [loadState.hasLoadedSuccessfully, loadState.loading, watchedFormValues]);
   const canSubmitForm = useMemo(
     () => webhookSettingsFormSchema.safeParse(watchedFormValues ?? webhookSettingsDefaultValues).success,
     [watchedFormValues],
@@ -151,6 +159,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     canMutate,
     items: loadState.items,
     loading: loadState.loading,
+    hasLoadedSuccessfully: loadState.hasLoadedSuccessfully,
     isSaving: mutations.isSaving,
     failure: loadState.failure,
     testingId: connectionTest.testingId,

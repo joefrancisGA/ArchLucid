@@ -38,6 +38,8 @@ describe("resolveReviewPackageDoThisNext", () => {
 
     expect(next.kind).toBe("view-assessment-progress");
     expect(next.href).toContain("reviewTab=activity");
+    expect(next.href).toContain("fromGeneration=1");
+    expect(next.href).toContain("intent=create-architecture");
   });
 
   it("surfaces assessment-in-progress guidance before other CTAs", () => {
@@ -153,6 +155,20 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toContain("reviewTab=findings");
   });
 
+  it("preserves create-home intent on findings deep link from Do this next", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      useCreateHomeWorkspaceTabs: true,
+      openClarificationGapCount: 0,
+      findingsCount: 2,
+    });
+
+    expect(next.kind).toBe("review-findings");
+    expect(next.href).toContain("reviewTab=findings");
+    expect(next.href).toContain("fromGeneration=1");
+    expect(next.href).toContain("intent=create-architecture");
+  });
+
   it("surfaces ready-to-finalize guidance when the run completed without a manifest", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
@@ -196,6 +212,18 @@ describe("resolveReviewPackageDoThisNext", () => {
       ...baseInput,
       showProgressTracker: true,
       runCompleted: true,
+    });
+
+    expect(next.kind).toBe("finalize-package");
+    expect(next.sentence).toContain("finalize");
+    expect(next.href).toBeNull();
+  });
+
+  it("surfaces finalize guidance for legacy Completed runs without completedUtc", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      runCompleted: true,
+      showProgressTracker: false,
     });
 
     expect(next.kind).toBe("finalize-package");

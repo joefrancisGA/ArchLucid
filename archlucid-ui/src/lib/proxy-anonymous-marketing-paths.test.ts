@@ -20,4 +20,12 @@ describe("isPublicAnonymousProxyPath", () => {
     expect(isPublicAnonymousProxyPath("v1/auth/bootstrap/status")).toBe(false);
     expect(isAnonymousMarketingProxyPath("v1/auth/routing/evaluate")).toBe(false);
   });
+
+  it("includes anonymous health probes and post-registration trial-status", () => {
+    expect(isPublicAnonymousProxyPath("health/ready")).toBe(true);
+    expect(isPublicAnonymousProxyPath("health/live")).toBe(true);
+    expect(isPublicAnonymousProxyPath("version")).toBe(true);
+    expect(isPublicAnonymousProxyPath("v1/tenant/trial-status")).toBe(true);
+    expect(isAnonymousMarketingProxyPath("health/ready")).toBe(false);
+  });
 });

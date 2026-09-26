@@ -20,7 +20,10 @@ public static class PilotSponsorMaterialFindingsResolver
             .ToList();
 
         if (deltas.SponsorNarrativeFindings.Count > 0
-            && (agentFindings.Count == 0 || agentFindings.Count < deltas.SponsorNarrativeFindings.Count))
+            && (agentFindings.Count == 0
+                || agentFindings.Count < deltas.SponsorNarrativeFindings.Count
+                || (agentFindings.Count == deltas.SponsorNarrativeFindings.Count
+                    && ResolveMaxSeverityRank(deltas.SponsorNarrativeFindings) > ResolveMaxSeverityRank(agentFindings))))
         {
             return deltas.SponsorNarrativeFindings;
         }
@@ -29,5 +32,14 @@ public static class PilotSponsorMaterialFindingsResolver
             return agentFindings;
 
         return deltas.SponsorNarrativeFindings;
+    }
+
+    private static int ResolveMaxSeverityRank(IReadOnlyList<ArchitectureFinding> findings)
+    {
+        return findings
+            .Where(static f => !f.IsMuted)
+            .Select(static f => (int)f.Severity)
+            .DefaultIfEmpty(0)
+            .Max();
     }
 }

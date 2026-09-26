@@ -441,6 +441,20 @@ export function RemediationPatternsClient() {
   }, [urlVersion]);
 
   useEffect(() => {
+    if (selectedPatternId === null) {
+      return;
+    }
+
+    const stillVisible = filteredPatterns.some((pattern) => pattern.patternId === selectedPatternId);
+
+    if (!stillVisible) {
+      setSelectedPatternId(null);
+      setSelectedVersion(null);
+      syncSelectionUrl({ patternId: null, version: null });
+    }
+  }, [filteredPatterns, selectedPatternId, syncSelectionUrl]);
+
+  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }

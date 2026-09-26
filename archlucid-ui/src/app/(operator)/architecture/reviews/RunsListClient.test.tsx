@@ -38,6 +38,20 @@ const runsListWorkspaceModeHarness = vi.hoisted(() => ({
   mode: "working" as "working" | "guided",
 }));
 
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => runsListSearchParamsHarness.state.query,
+    commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
+      runsListSearchParamsHarness.applyHref(href);
+
+      return true;
+    },
+  };
+});
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
@@ -98,6 +112,9 @@ beforeEach(() => {
 
 afterEach(() => {
   buyerPolishedShellVitestOverride.value = null;
+  runsListWorkspaceModeHarness.mode = "working";
+  runsListSearchParamsHarness.reset();
+  vi.useRealTimers();
 });
 
 const sampleRun: RunSummary = {
@@ -602,6 +619,42 @@ describe("RunsListClient inspector", () => {
     });
 
     expect(screen.getByText("No reviews match this filter.")).toBeInTheDocument();
+  });
+
+  it("re-sorts rows when sort= URL changes without a popstate event", () => {
+    const olderRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      description: "Older review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+    };
+    const newerRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Newer review",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+    };
+
+    const rowOrder = (): string[] =>
+      Array.from(document.querySelectorAll('[data-testid^="runs-row-"]')).map((row) =>
+        row.getAttribute("data-testid") ?? "",
+      );
+
+    const view = renderRunsList(
+      <RunsListClient runs={[olderRun, newerRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(rowOrder()[0]).toBe(`runs-row-${newerRun.runId}`);
+
+    runsListSearchParamsHarness.applyHref("/architecture/reviews?sort=created-asc");
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[olderRun, newerRun]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.getByTestId("runs-list-sort-created-asc")).toHaveAttribute("aria-current", "page");
+    expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
   it("exposes oldest-first sort as a link with created-asc in the href", () => {

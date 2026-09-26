@@ -1,9 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const selectFinding = vi.fn();
 const selectPath = vi.fn();
 const setSnapshotPair = vi.fn();
+const syncSelection = vi.fn();
+
+let mockedFindingId: string | null = null;
+let mockedPathId: string | null = null;
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({
@@ -22,22 +26,36 @@ vi.mock("@/hooks/use-operator-relative-freshness-now-ms", () => ({
 
 vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory-url-state", () => ({
   useRemediationFactoryUrlState: () => ({
-    findingId: null,
-    pathId: null,
+    findingId: mockedFindingId,
+    pathId: mockedPathId,
     fromSnapshotId: null,
     toSnapshotId: null,
     hasSnapshotPair: false,
     selectFinding,
     selectPath,
     setSnapshotPair,
-    syncSelection: vi.fn(),
+    syncSelection,
   }),
 }));
 
+const useRemediationRankedFindingsQueryMock = vi.hoisted(() => vi.fn());
+const useRemediationFactoryMetricsQueryMock = vi.hoisted(() => vi.fn());
+const useSecurityEvidenceRankedPathsQueryMock = vi.hoisted(() => vi.fn());
+
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
-  useRemediationRankedFindingsQuery: () => ({
+  useRemediationRankedFindingsQuery: () => useRemediationRankedFindingsQueryMock(),
+  useRemediationFactoryMetricsQuery: () => useRemediationFactoryMetricsQueryMock(),
+}));
+
+vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
+  useSecurityEvidenceRankedPathsQuery: () => useSecurityEvidenceRankedPathsQueryMock(),
+}));
+
+function mockRankedFindingsQuery(overrides: Record<string, unknown> = {}) {
+  useRemediationRankedFindingsQueryMock.mockReturnValue({
     dataUpdatedAt: Date.now(),
     isFetching: false,
+    isSuccess: true,
     refetch: vi.fn(),
     data: [
       {
@@ -50,10 +68,15 @@ vi.mock("@/hooks/use-remediation-factory-query", () => ({
       },
     ],
     isError: false,
-  }),
-  useRemediationFactoryMetricsQuery: () => ({
+    ...overrides,
+  });
+}
+
+function mockMetricsQuery() {
+  useRemediationFactoryMetricsQueryMock.mockReturnValue({
     dataUpdatedAt: Date.now(),
     isFetching: false,
+    isSuccess: true,
     refetch: vi.fn(),
     data: {
       openFindings: 3,
@@ -75,13 +98,14 @@ vi.mock("@/hooks/use-remediation-factory-query", () => ({
       topPatternKeys: [],
     },
     isError: false,
-  }),
-}));
+  });
+}
 
-vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
-  useSecurityEvidenceRankedPathsQuery: () => ({
+function mockRankedPathsQuery(overrides: Record<string, unknown> = {}) {
+  useSecurityEvidenceRankedPathsQueryMock.mockReturnValue({
     dataUpdatedAt: Date.now(),
     isFetching: false,
+    isSuccess: true,
     refetch: vi.fn(),
     data: {
       items: [
@@ -109,8 +133,9 @@ vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
       topCutPoints: [],
     },
     isError: false,
-  }),
-}));
+    ...overrides,
+  });
+}
 
 vi.mock("@/components/security/SecureNowArchitectOutcomeMetricsPanel", () => ({
   SecureNowArchitectOutcomeMetricsPanel: () => (
@@ -147,6 +172,17 @@ import {
 import { REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE } from "./remediation-factory-metric-presentation";
 
 describe("RemediationFactoryClient", () => {
+  beforeEach(() => {
+    mockedFindingId = null;
+    mockedPathId = null;
+    selectFinding.mockReset();
+    selectPath.mockReset();
+    syncSelection.mockReset();
+    mockRankedFindingsQuery();
+    mockMetricsQuery();
+    mockRankedPathsQuery();
+  });
+
   it("renders executive cards, keyboard-selectable tables, help, context strip, and path inspect panel", () => {
     render(<RemediationFactoryClient />);
 
@@ -175,5 +211,27 @@ describe("RemediationFactoryClient", () => {
     );
 
     expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  });
+
+  it("clears stale findingId from the URL when the finding is missing from loaded ranked rows", async () => {
+    mockedFindingId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    mockRankedFindingsQuery();
+
+    render(<RemediationFactoryClient />);
+
+    await waitFor(() => {
+      expect(syncSelection).toHaveBeenCalledWith({ findingId: null });
+    });
+  });
+
+  it("clears stale pathId from the URL when the path is missing from loaded ranked paths", async () => {
+    mockedPathId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    mockRankedPathsQuery();
+
+    render(<RemediationFactoryClient />);
+
+    await waitFor(() => {
+      expect(syncSelection).toHaveBeenCalledWith({ pathId: null });
+    });
   });
 });

@@ -29,6 +29,9 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         return configPath.EndsWith(":Key", StringComparison.OrdinalIgnoreCase);
     }
 
+    internal static bool IsSensitiveConfigPropertyName(string propertyName) =>
+        IsSensitiveConfigSegment(propertyName);
+
     private static bool IsSensitiveConfigSegment(string segment)
     {
         ReadOnlySpan<char> normalized = segment.AsSpan();
@@ -902,13 +905,17 @@ internal static class ConfigurationSensitiveConfigPathMatcher
 
     private static bool IsCompoundSecretCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.EndsWith("SigningSecret", StringComparison.OrdinalIgnoreCase)
-        || segment.EndsWith("SecretKey", StringComparison.OrdinalIgnoreCase);
+        || segment.EndsWith("SecretKey", StringComparison.OrdinalIgnoreCase)
+        || segment.EndsWith("SharedSecret", StringComparison.OrdinalIgnoreCase)
+        || (segment.Length > "ClientSecret".Length
+            && segment.EndsWith("ClientSecret", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsCompoundTokenCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.EndsWith("AccessToken", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("RefreshToken", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("IdToken", StringComparison.OrdinalIgnoreCase)
-        || segment.EndsWith("BearerToken", StringComparison.OrdinalIgnoreCase);
+        || segment.EndsWith("BearerToken", StringComparison.OrdinalIgnoreCase)
+        || segment.EndsWith("ApiToken", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsCompoundPasswordCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.Length > "Password".Length

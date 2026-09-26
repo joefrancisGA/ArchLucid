@@ -167,6 +167,11 @@ internal static class PrivilegePathEnumerator
             return TryFinalizeMappedRolePath(graph, hops, hasRoleHop, mappedRole, permission, out candidate);
         }
 
+        if (TryFinalizeExplicitActionPath(graph, hops, hasRoleHop, mappedRole, out candidate))
+        {
+            return true;
+        }
+
         List<PrivilegePathEdge> hopsWithInsufficient = [.. hops];
         hopsWithInsufficient.Add(new PrivilegePathEdge
         {
@@ -196,6 +201,77 @@ internal static class PrivilegePathEnumerator
         };
 
         return true;
+    }
+
+    private static bool TryFinalizeExplicitActionPath(
+        InventoryPrivilegePathGraphSnapshot graph,
+        IReadOnlyList<PrivilegePathEdge> hops,
+        PrivilegePathEdge hasRoleHop,
+        string? mappedRole,
+        out PrivilegePathCandidate candidate)
+    {
+        candidate = null!;
+
+        if (!TryGetExplicitActionEdge(graph, hasRoleHop, out PrivilegePathEdge? actionEdge))
+        {
+            return false;
+        }
+
+        List<PrivilegePathEdge> hopsWithAction = [.. hops, actionEdge];
+
+        graph.ResourcesByArmId.TryGetValue(actionEdge.ToNodeId, out AzureInventoryResourceRecord? scopeResource);
+
+        candidate = new PrivilegePathCandidate
+        {
+            Hops = hopsWithAction,
+            TerminalScopeNodeId = actionEdge.ToNodeId,
+            EffectiveRoleName = mappedRole,
+            HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
+            TerminalCloudResourceId = scopeResource?.CloudResourceId,
+            TerminalResourceType = scopeResource?.ResourceType,
+            ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
+                actionEdge.ToNodeId,
+                graph.ResourcesByArmId,
+                graph.TagsByResourceRowId),
+            IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithAction),
+            IsGroupNestedPath = IsGroupNestedPath(hopsWithAction),
+        };
+
+        return true;
+    }
+
+    private static bool TryGetExplicitActionEdge(
+        InventoryPrivilegePathGraphSnapshot graph,
+        PrivilegePathEdge hasRoleHop,
+        out PrivilegePathEdge actionEdge)
+    {
+        if (graph.OutgoingEdges.TryGetValue(hasRoleHop.FromNodeId, out List<PrivilegePathEdge>? fromEdges))
+        {
+            PrivilegePathEdge? siblingAction = fromEdges.FirstOrDefault(edge =>
+                edge.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite
+                && string.Equals(edge.ToNodeId, hasRoleHop.ToNodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (siblingAction is not null)
+            {
+                actionEdge = siblingAction;
+                return true;
+            }
+        }
+
+        if (graph.OutgoingEdges.TryGetValue(hasRoleHop.ToNodeId, out List<PrivilegePathEdge>? toEdges))
+        {
+            PrivilegePathEdge? chainedAction = toEdges.FirstOrDefault(static edge =>
+                edge.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite);
+
+            if (chainedAction is not null)
+            {
+                actionEdge = chainedAction;
+                return true;
+            }
+        }
+
+        actionEdge = null!;
+        return false;
     }
 
     private static bool TryFinalizeMappedRolePath(

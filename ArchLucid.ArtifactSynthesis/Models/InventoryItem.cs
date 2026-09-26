@@ -26,7 +26,25 @@ public class InventoryItem
         set;
     } = null!;
 
+    public string? ControlId
+    {
+        get;
+        set;
+    }
+
     public bool? IsMandatory
+    {
+        get;
+        set;
+    }
+
+    public string? IssueType
+    {
+        get;
+        set;
+    }
+
+    public List<string>? SupportingFindingIds
     {
         get;
         set;

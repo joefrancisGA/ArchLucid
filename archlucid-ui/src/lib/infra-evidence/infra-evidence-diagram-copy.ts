@@ -14,10 +14,7 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
   "Likely connected to edges may require Tier 1 -IncludeAppSettingsHosts or other ARM sources.";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE = "Left edge";
-
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_LEFT_EDGE_GLOSS =
-  "Left edge color is the resource category. It is not connection evidence.";
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY = "Resource category";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE = "Compute";
 

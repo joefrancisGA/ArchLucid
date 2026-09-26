@@ -15,7 +15,10 @@ public static class TopologyProposalConsensusMerger
         List<ManifestService> intersectedServices = IntersectServices(primary.AddedServices, secondary.AddedServices);
         List<ManifestDatastore> intersectedDatastores = IntersectDatastores(primary.AddedDatastores, secondary.AddedDatastores);
         List<ManifestRelationship> intersectedRelationships =
-            IntersectRelationships(primary.AddedRelationships, secondary.AddedRelationships);
+            PruneRelationshipsToDeclaredEndpoints(
+                intersectedServices,
+                intersectedDatastores,
+                IntersectRelationships(primary.AddedRelationships, secondary.AddedRelationships));
         List<string> intersectedControls = IntersectControls(primary.RequiredControls, secondary.RequiredControls);
 
         int disagreementCount =
@@ -156,4 +159,34 @@ public static class TopologyProposalConsensusMerger
 
     private static string RelationshipKey(ManifestRelationship relationship) =>
         $"{relationship.SourceId}|{relationship.TargetId}|{relationship.RelationshipType}";
+
+    private static List<ManifestRelationship> PruneRelationshipsToDeclaredEndpoints(
+        IReadOnlyList<ManifestService> services,
+        IReadOnlyList<ManifestDatastore> datastores,
+        IReadOnlyList<ManifestRelationship> relationships)
+    {
+        if (relationships.Count == 0)
+            return [];
+
+        HashSet<string> endpointKeys =
+            TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(services, datastores);
+
+        if (endpointKeys.Count == 0)
+            return [];
+
+        List<ManifestRelationship> pruned = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            if (!endpointKeys.Contains(relationship.SourceId) || !endpointKeys.Contains(relationship.TargetId))
+                continue;
+
+            if (!TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(relationship, endpointKeys))
+                continue;
+
+            pruned.Add(relationship);
+        }
+
+        return pruned;
+    }
 }

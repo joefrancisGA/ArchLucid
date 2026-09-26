@@ -131,11 +131,11 @@ public static class AgentEnrichersCompositionModule
             services.AddScoped<IAgentResultPostExecutionEnricher>(static sp =>
                 new CompositeAgentResultPostExecutionEnricher(
                 [
+                    sp.GetRequiredService<AgentArchitectureFindingEmissionEnricher>(),
                     sp.GetRequiredService<AgentResultPostExecutionEnricher>(),
                     sp.GetRequiredService<AgentProposalStructuralPostProcessorEnricher>(),
                     sp.GetRequiredService<CrossAgentProposalConsistencyEnricher>(),
                     sp.GetRequiredService<TopologyProposalDualModelConsensusEnricher>(),
-                    sp.GetRequiredService<AgentArchitectureFindingEmissionEnricher>(),
                     sp.GetRequiredService<AgentResultRegionMismatchEnricher>(),
                 ]));
             services.AddSingleton<IAgentEvidenceUntrustedInputSanitizer, AgentEvidenceUntrustedInputSanitizer>();

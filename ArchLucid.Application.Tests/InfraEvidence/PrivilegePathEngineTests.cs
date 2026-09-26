@@ -416,6 +416,65 @@ public sealed class PrivilegePathEngineTests
     }
 
     [Fact]
+    public void Enumerate_unknown_role_with_explicit_action_emits_concrete_action_only()
+    {
+        const string principalNode = "azure-ad://principal/cccccccc-cccc-cccc-cccc-cccccccccccc";
+        const string scopeArm = StorageAccountArm;
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    AzureResourceId = scopeArm,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    PrincipalId = "cccccccc-cccc-cccc-cccc-cccccccccccc",
+                    Scope = scopeArm,
+                    RoleDefinitionId =
+                        "/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = scopeArm,
+                    RelationshipType = GraphEdgeTypes.HasRole,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = scopeArm,
+                    RelationshipType = GraphEdgeTypes.CanWrite,
+                    ProvenanceKind = ProvenanceKind.DerivedFact,
+                },
+            ],
+        };
+
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
+        IReadOnlyList<PrivilegePathCandidate> candidates =
+            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        PrivilegePathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeFalse();
+        candidate.Hops.Should().NotContain(hop => hop.EdgeType == "unknown-role-actions");
+        candidate.Hops.Should().ContainSingle(hop => hop.EdgeType == GraphEdgeTypes.CanWrite);
+    }
+
+    [Fact]
     public void PrivilegePathEngine_is_not_a_finding_engine_plugin()
     {
         typeof(PrivilegePathEngine).Should().NotImplement<IFindingEngine>();

@@ -104,6 +104,31 @@ describe("proxy route anonymous marketing paths", () => {
     vi.useRealTimers();
   });
 
+  it("forwards anonymous marketing early-access POST and clears an unparseable BFF session cookie", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+        cookie: `${BFF_SESSION_COOKIE_NAME}=not-a-valid-signed-cookie`,
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(res.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(res.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
   it("forwards anonymous marketing early-access POST when BFF session cookie is valid but CSRF is omitted", async () => {
     vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
     vi.useFakeTimers();

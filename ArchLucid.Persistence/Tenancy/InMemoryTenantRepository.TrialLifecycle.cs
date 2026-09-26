@@ -96,7 +96,7 @@ public sealed partial class InMemoryTenantRepository
 
 
     /// <inheritdoc />
-    public Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
+    public Task<bool> MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
         _ = ct;
 
@@ -104,20 +104,20 @@ public sealed partial class InMemoryTenantRepository
         lock (_trialGate)
         {
             if (!_byId.TryGetValue(tenantId, out existing))
-                return Task.CompletedTask;
+                return Task.FromResult(false);
         }
 
         TenantRecord? updated = TenantTrialLifecycleCore.TryApplyMarkTrialConverted(existing, newCommercialTier);
 
         if (updated is null)
-            return Task.CompletedTask;
+            return Task.FromResult(false);
 
         lock (_trialGate)
         {
             _byId[tenantId] = updated;
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
 
