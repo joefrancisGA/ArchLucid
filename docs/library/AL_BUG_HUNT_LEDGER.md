@@ -10935,11 +10935,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 447
-- **bugs-found:** 3499
+- **hunts:** 448
+- **bugs-found:** 3500
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-08 — `GraphSnapshotKnowledgeModelMerger` duplicate nodes when context/model node ids differ only by case
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — `GraphSnapshotKnowledgeModelMerger` duplicate context edges when endpoint casing differed
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -14873,6 +14873,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — ordinal `modelNodeIds` / edge keys allowed duplicate nodes and edges when context ids differed only by case from κ-projected model graph — **hit 2026-09-08 seed hunt #1290:** `modelNodeIds` and edge dedup used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; context node `SHARED` merged alongside model node `shared`; fixed with `OrdinalIgnoreCase`; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_model_graph`
 - [x] (valid-no-repro) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` — **cheap-disproof 2026-09-25:** implementation uses `StringComparer.OrdinalIgnoreCase`; existing regression `GraphSnapshotPaginationTests` covers the pagination edge slice parity.
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context-edge dedup consulted only model-edge keys so two context edges differing only by endpoint casing both merged — **hit 2026-09-26 seed hunt (seed→hit):** #1290 fixed case-insensitive model keys but did not record accepted context edges in the dedup set; fixed by adding context edge keys when merged; regression `Merge_deduplicates_context_edges_when_endpoints_differ_only_by_case_from_prior_context_edge`.
+
+2026-09-26 seed hunt (seed→hit): reseeded archlucid-core; proved context-edge casing dedup gap in κ→Γ merge; 4 `GraphSnapshotKnowledgeModelMergerTests` passed.
 
 2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
 

@@ -39,6 +39,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             if (edgeKeys.Contains(key))
                 continue;
 
+            edgeKeys.Add(key);
             mergedEdges.Add(contextEdge);
         }
 
