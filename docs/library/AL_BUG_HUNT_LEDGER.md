@@ -8897,11 +8897,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 33
-- **bugs-found:** 25
+- **hunts:** 34
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — TopologyAntiPatternFindingEngine public/sql naming false positives (nosql, non-public)
+- **last-bug:** 2026-09-26 — TopologyDatastoreLabelHeuristic non-secret label false positive on secret substring
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8912,6 +8912,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded decisioning after SegmentationSemantics fix; proved `TopologyAntiPatternFindingEngine.LooksPubliclyExposed` substring `sql` matched `nosql` and substring `public` matched `non-public` resource labels; fixed with standalone `public`/`sql` token matching; regressions in `TopologyAntiPatternFindingEngineTests`; 6 scoped topology anti-pattern + SegmentationSemantics path tests passed.
 
 - [x] (proven) `TopologyAntiPatternFindingEngine` false public-exposure findings on `public-*-nosql` and `non-public-sql` labels — **hit 2026-09-26 seed hunt:** `LooksPubliclyExposed` used case-insensitive `.Contains` for `public` and `sql`; fixed with `DecisioningTextTokenMatcher.ContainsStandaloneToken`; regressions `AnalyzeAsync_WhenLabelIsPublicNoSql_DoesNotEmitPublicExposureFinding`, `AnalyzeAsync_WhenLabelIsNonPublicSql_StillDoesNotEmitPublicExposureFinding`, and `AnalyzeAsync_WhenLabelIsPublicStorage_EmitsPublicExposureFinding`.
+
+2026-09-26 seed hunt (hit): reseeded decisioning after TopologyAntiPattern fix; proved `TopologyDatastoreLabelHeuristic` bare `.Contains("secret")` matched `non-secret-*` topology labels and classified app gateways as regulated datastores; fixed with standalone `secret` token matching and `non-secret` / `non secret` negation (parity with PCI/sensitive keywords); regressions `IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_secret_label` and `IsRegulatedDatastoreTopologyNode_still_matches_keyvault_label`; 11 scoped TopologyDatastore + IdentityRegulatedDatastore tests passed.
+
+- [x] (proven) `TopologyDatastoreLabelHeuristic` treats `non-secret-*` labels as secret-bearing datastores — **hit 2026-09-26 seed hunt:** `IsRegulatedDatastoreTopologyNode` substring `secret` matched inside `non-secret`; fixed `ContainsAffirmativeSecretKeyword`; regressions in `TopologyDatastoreLabelHeuristicTests`.
 
 2026-09-13 seed hunt #2444 (seed-only): reseeded decisioning; no new hunt-ready rows.
 
