@@ -2788,13 +2788,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 14
-- **bugs-found:** 10
+- **hunts:** 15
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-03 — empty `{}` infrastructure declaration objects survived payload materialization
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — format-only string list entries survived payload materialization
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded authority-pipeline-payload; ledger catch-up for `documents: [{}]` materialization (shipped 3cef768); proved `MaterializeStringList` kept zero-width-only and embedded-format entries that `InlineRequirementsPayloadNormalizer` does not treat as whitespace; fixed with `HasSubstantiveText` filter; regression `Deserialize_filters_format_only_string_list_entries`; 18 scoped payload JSON tests passed.
 
 2026-09-13 seed hunt #2438 (seed-only): reseeded authority-pipeline-payload; no new hunt-ready rows.
 
@@ -2821,6 +2823,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IsValidForProcessing` rejects blank payload `projectId` before worker can overwrite from `dbo.Runs` — **hit 2026-08-24:** gate ran before `GetByIdAsync`; whitespace-only `projectId` marked processed instead of resuming; fixed by dropping non-authoritative `ProjectId` from `IsValidForProcessing`; regression in `IsValidForProcessing_allows_blank_project_id_because_worker_overwrites_from_persisted_run` / `ProcessPendingBatchAsync_recovers_blank_payload_project_id_from_persisted_run`
 - [x] (proven) `HasSubstantiveText` allowed embedded format/control characters in `EvidenceBundleId` — **hit 2026-08-26:** `\u200Bbundle-1` passed `IsValidForProcessing` but `EvidenceBundleId.Trim()` left zero-width chars, so post-pipeline bundle lookup failed and retried instead of invalid-payload discard; fixed by rejecting any format/control character in the id; regression in `IsValidForProcessing_rejects_embedded_zero_width_in_evidence_bundle_id`.
 - [x] (proven) `MaterializeInfrastructureDeclarationList` filtered null references only — **hit 2026-09-03:** STJ `infrastructureDeclarations: [{}]` deserialized to default `format=json` with null `name`/`content`; empty objects reached `JsonInfrastructureDeclarationParser` instead of being stripped at materialization; fixed by requiring substantive `name` and `content` (`Deserialize_filters_empty_infrastructure_declaration_objects`).
+- [x] (proven) `MaterializeDocumentList` filtered null references only — **hit 2026-09-26 seed hunt (ledger catch-up on 3cef768):** STJ `documents: [{}]` deserialized with null `name`/`content`; empty objects reached `DocumentConnectorPayloadNormalizer` instead of being stripped at materialization; fixed by requiring substantive `name` and `content`; regression `Deserialize_filters_empty_document_objects`
+- [x] (proven) `MaterializeStringList` filtered null references only — **hit 2026-09-26 seed hunt:** STJ `inlineRequirements: ["\u200B"]` and embedded-format entries survived materialization because U+200B is not `IsNullOrWhiteSpace`; normalizer emitted invisible canonical requirements; fixed by applying `HasSubstantiveText` at materialization; regression `Deserialize_filters_format_only_string_list_entries`
+- [ ] (candidate) `WorkKind` default `Execute` when JSON omits `workKind` — verify deferred continuation routing cannot dequeue wrong phase after partial failure (needs reachability from outbox enqueue paths)
 
 2026-09-03 thorough hunt #582 (hit): proved empty infrastructure declaration objects survived payload materialization.
 

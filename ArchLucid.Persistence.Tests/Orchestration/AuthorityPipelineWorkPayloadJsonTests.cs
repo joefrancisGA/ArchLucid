@@ -215,6 +215,33 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_format_only_string_list_entries()
+    {
+        Guid runId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["\u200B", "keep-me"],
+                "topologyHints": ["\u200B"],
+                "constraints": ["\u200Bhidden", "visible"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("keep-me");
+        back.ContextIngestionRequest.TopologyHints.Should().BeEmpty();
+        back.ContextIngestionRequest.Constraints.Should().Equal("visible");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_empty_document_objects()
     {
         Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
