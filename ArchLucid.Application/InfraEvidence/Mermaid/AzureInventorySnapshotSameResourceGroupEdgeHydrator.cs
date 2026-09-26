@@ -127,6 +127,11 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
                 continue;
             }
 
+            if (AzureInventorySnapshotCitedEdgePolicy.HasCitedEdgeFrom(edges, fromNodeId))
+            {
+                continue;
+            }
+
             foreach (AzureInventoryResourceRecord store in stores)
             {
                 if (!TryResolveNode(nodeIdByArmId, store.AzureResourceId, out string toNodeId))
@@ -163,6 +168,11 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
         foreach (AzureInventoryResourceRecord app in apps)
         {
             if (!TryResolveNode(nodeIdByArmId, app.AzureResourceId, out string fromNodeId))
+            {
+                continue;
+            }
+
+            if (AzureInventorySnapshotCitedEdgePolicy.HasCitedEdgeFrom(edges, fromNodeId))
             {
                 continue;
             }
