@@ -43,6 +43,24 @@ export const GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER =
 export const GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER =
   "Example: Customer-facing API with private networking, managed database, cache tier, and EU data residency goals.";
 
+export const ARCHITECTURE_DRAFT_REQUIREMENTS_UPLOAD_TITLE = "Upload requirements document";
+
+export const ARCHITECTURE_DRAFT_REQUIREMENTS_UPLOAD_DESCRIPTION =
+  "Readable requirements text is appended to Architecture overview — paste or edit in the box anytime.";
+
+export const ARCHITECTURE_DRAFT_REQUIREMENTS_UPLOAD_ACCEPTED_PREFIX =
+  "Accepted: PDF, Word (DOCX), Markdown, plain text, YAML, JSON";
+
+export const ARCHITECTURE_DRAFT_REQUIREMENTS_IMPORT_IN_PROGRESS = "Reading uploaded requirements…";
+
+export function architectureDraftRequirementsImportEmptyMessage(fileName: string): string {
+  return `No readable text was found in ${fileName}. Paste requirements into Architecture overview or try another format.`;
+}
+
+export function architectureDraftRequirementsImportErrorMessage(fileName: string): string {
+  return `Could not read ${fileName}. Paste the text into Architecture overview or try another file.`;
+}
+
 export function guidedIntakeArchitectureIntentHelperText(trimmedLength: number): string {
   if (trimmedLength === 0) {
     return GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER;
