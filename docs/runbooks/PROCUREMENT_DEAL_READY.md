@@ -28,6 +28,9 @@ python scripts/verify_procurement_pack.py dist/procurement-pack.zip `
 The verifier returns **PASS** or **HOLD** and exits nonzero for missing files,
 digest mismatches, contradictory classifications, or buyer-visible placeholders.
 Run it after any manual pack transfer or repackaging; it checks the ZIP itself.
+The pack builder also runs this verification automatically after a real build.
+Sponsor-handoff proof builds an isolated ZIP, records
+`procurement-pack-verification.json`, and blocks handoff if verification fails.
 
 First-pilot proof collection runs the same dry-run and writes artifacts under the proof folder:
 

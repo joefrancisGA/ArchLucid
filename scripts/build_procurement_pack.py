@@ -37,6 +37,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 import procurement_pack_validation as pp_val  # noqa: E402
 import procurement_scope_classification as scope_class  # noqa: E402
+import verify_procurement_pack as pack_verify  # noqa: E402
 
 
 TEXT_PACK_SUFFIXES = frozenset({".md", ".txt", ".json", ".yaml", ".yml", ".html", ".xml", ".csv"})
@@ -284,6 +285,10 @@ def main() -> int:
         default=None,
         help="Output ZIP path (default: dist/procurement-pack.zip under repo root).",
     )
+    parser.add_argument("--stage-dir", type=Path, default=None,
+                        help="Optional isolated staging directory (default: dist/procurement-pack).")
+    parser.add_argument("--verification-json-out", type=Path, default=None,
+                        help="Path for post-build ZIP verification result (defaults beside ZIP).")
     parser.add_argument(
         "--strict",
         action="store_true",
@@ -401,7 +406,11 @@ def main() -> int:
 
         return 0
 
-    stage = root / "dist" / "procurement-pack"
+    stage = args.stage_dir if args.stage_dir is not None else root / "dist" / "procurement-pack"
+
+    if args.stage_dir is not None and stage.exists() and (not stage.is_dir() or any(stage.iterdir())):
+        print(f"error: isolated staging directory must be empty: {stage}", file=sys.stderr)
+        return 1
 
     if stage.exists():
         shutil.rmtree(stage)
@@ -490,6 +499,14 @@ def main() -> int:
             if path.is_file():
                 arc = path.relative_to(stage).as_posix()
                 zf.write(path, arcname=arc)
+
+    verification = pack_verify.verify_pack(out_zip)
+    verification_path = args.verification_json_out or out_zip.with_suffix(".verification.json")
+    verification_path.parent.mkdir(parents=True, exist_ok=True)
+    verification_path.write_text(json.dumps(verification, indent=2) + "\n", encoding="utf-8")
+    if verification["disposition"] != "PASS":
+        print(f"Procurement ZIP verification HOLD: {verification['errors']}", file=sys.stderr)
+        return 1
 
     print(f"Wrote {out_zip}")
     return 0

@@ -16,7 +16,8 @@ SPEC.loader.exec_module(module)
 
 def test_built_pack_passes_and_tampering_holds(tmp_path: Path) -> None:
     pack = tmp_path / "buyer.zip"
-    subprocess.run([sys.executable, str(ROOT / "scripts/build_procurement_pack.py"), "--out", str(pack)],
+    subprocess.run([sys.executable, str(ROOT / "scripts/build_procurement_pack.py"), "--out", str(pack),
+                    "--stage-dir", str(tmp_path / "stage")],
                    cwd=ROOT, check=True, capture_output=True, text=True)
     assert module.verify_pack(pack)["disposition"] == "PASS"
 
@@ -32,7 +33,8 @@ def test_built_pack_passes_and_tampering_holds(tmp_path: Path) -> None:
 
 def test_status_mismatch_holds(tmp_path: Path) -> None:
     pack = tmp_path / "buyer.zip"
-    subprocess.run([sys.executable, str(ROOT / "scripts/build_procurement_pack.py"), "--out", str(pack)],
+    subprocess.run([sys.executable, str(ROOT / "scripts/build_procurement_pack.py"), "--out", str(pack),
+                    "--stage-dir", str(tmp_path / "stage")],
                    cwd=ROOT, check=True, capture_output=True, text=True)
     altered = tmp_path / "altered.zip"
     with zipfile.ZipFile(pack) as source, zipfile.ZipFile(altered, "w") as target:
