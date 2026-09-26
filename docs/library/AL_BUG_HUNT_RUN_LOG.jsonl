@@ -6970,4 +6970,5 @@
 {"at":"2026-09-26T02:01:12.2798818Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-09-26T02:05:13.6043686Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}
 {"at":"2026-09-26T02:08:21.2360503Z","zoneId":"host-core-coordination","outcome":"hit"}
-{"at":"2026-09-26T02:14:35.6566610Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only"}
+{"at":"2026-09-26T02:14:35.656661Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only"}
+{"at":"2026-09-26T02:17:54.3401641Z","zoneId":"ui-operator-routes","outcome":"hit"}

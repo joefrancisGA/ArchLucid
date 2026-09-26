@@ -4,16 +4,20 @@ import type {
   RemediationPatternOperationResult,
   RemediationPatternRecord,
 } from "@/lib/remediation-pattern-types";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 async function proxyJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/proxy/${path}`, {
-    credentials: "include",
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
+  const response = await fetch(
+    `/api/proxy/${path}`,
+    mergeRegistrationScopeForProxy({
+      credentials: "include",
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    }),
+  );
 
   if (!response.ok) {
     const body = await response.text();

@@ -23028,17 +23028,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 19
-- **bugs-found:** 21
+- **hunts:** 20
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — remediation patterns registry filter/detail desync
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — remediation factory stale deep-link + remediation lib proxy scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2305 (seed-only): reseeded ui-operator-routes; no new hunt-ready rows.
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-operator-routes after 217 commits; proved remediation patterns registry filter/detail desync; seeded remediation-factory stale deep-link and remediation lib proxy-scope candidates; 14 scoped RemediationPatternsClient tests passed.
+
+2026-09-26 thorough hunt (hit): proved remediation factory stale `findingId`/`pathId` deep links and remediation lib proxy scope omission on factory/pattern API helpers; 7 scoped tests passed (`RemediationFactoryClient.test.tsx`, `remediation-factory-api.test.ts`, `remediation-pattern-api.test.ts`).
 
 ### Hypotheses
 
@@ -23067,8 +23069,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `useSponsorNextActionInputsQuery` / `operatorQueryKeys.executiveNextActionInputs` — scope-less react-query key reused tenant A dashboard next-action inputs after operator scope switch — **hit 2026-09-12 seed hunt #1849:** keyed query by `useOperatorScopeQueryKey` like `pilotValueReport`; regression `use-sponsor-next-action-inputs-query.test.tsx`.
 
 - [x] (proven) `RemediationPatternsClient` — `selectedPatternId` and version-history detail survived registry filter changes that hid the selected row from `filteredPatterns` (operational-errors / diagram-reconcile filter/detail desync pattern) — **hit 2026-09-25 seed hunt (seed→hit):** clear selection and `patternId` URL when row drops out of filtered registry; regression `clears_selected_pattern_when_registry_filter_hides_the_selected_row`
-- [ ] (hunt-ready) `RemediationFactoryClient` — stale `findingId` / `pathId` URL params persist when id is missing from loaded ranked findings/paths (Slack `slackDisableId` stale deep-link pattern)
-- [ ] (hunt-ready) `remediation-pattern-api.ts` / `remediation-factory-api.ts` — `proxyJson`/`proxyGet` omit `mergeRegistrationScopeForProxy` on list/detail/submit/approve and factory ranked/metrics calls consumed by operator remediation routes
+- [x] (proven) `RemediationFactoryClient` — stale `findingId` / `pathId` URL params persist when id is missing from loaded ranked findings/paths (Slack `slackDisableId` stale deep-link pattern) — **hit 2026-09-26 thorough hunt:** after ranked findings/paths hydration, unknown ids clear from URL via `syncSelection`; regression `clears stale findingId from the URL when the finding is missing from loaded rows` and `clears stale pathId from the URL when the path is missing from loaded rows` (`RemediationFactoryClient.test.tsx`).
+- [x] (proven) `remediation-pattern-api.ts` / `remediation-factory-api.ts` — `proxyJson`/`proxyGet` omit `mergeRegistrationScopeForProxy` on list/detail/submit/approve and factory ranked/metrics calls consumed by operator remediation routes — **hit 2026-09-26 thorough hunt:** wrapped lib fetch helpers with `mergeRegistrationScopeForProxy`; regression `remediation-factory-api.test.ts`, `remediation-pattern-api.test.ts`.
 
 2026-09-12 seed hunt #1849 (hit): reseeded operator routes; proved executive next-action inputs query cache omitted operator scope; 1 scoped hook test passed.
 
