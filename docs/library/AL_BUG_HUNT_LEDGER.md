@@ -21213,13 +21213,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 36
-- **bugs-found:** 20
+- **hunts:** 37
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — Auto projection cache multi-replica promotion skipped Redis invalidation pub/sub
+- **last-bug:** 2026-09-26 — graph projection pub/sub skipped when IConnectionMultiplexer pre-registered
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `RegisterGraphProjectionRedisPubSub` returned before wiring broadcaster/subscriber when `IConnectionMultiplexer` was already in DI; fixed idempotent per-service registration; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_invalidation_when_connection_multiplexer_pre_registered`; 4 scoped graph-projection registration tests passed.
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterGraphProjectionRedisPubSub` — existing `IConnectionMultiplexer` descriptor caused early return that skipped `RedisGraphProjectionCacheInvalidationBroadcaster` and `GraphProjectionCacheInvalidationSubscriberHostedService` — **hit 2026-09-26 seed hunt:** register multiplexer, broadcaster, and subscriber independently when missing; regression above.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved Auto projection cache promotion to distributed on multi-replica hosts skipped Redis invalidation pub/sub because registrar gated only on `Backend` while runtime uses `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend`; fixed combined `Backend` + Auto promotion check; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`; 25 scoped `ServiceCollectionExtensionsRegistrationTests` passed.
 
