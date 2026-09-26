@@ -185,7 +185,7 @@ function ExtractUploadSettingsPageClientInner() {
     };
   }, []);
 
-  const validateCommand = validateCommandForPlatform(selectedPlatform);
+  const validateCommand = localize(validateCommandForPlatform(selectedPlatform));
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
