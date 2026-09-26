@@ -58,7 +58,7 @@ export function ArchitectureCreatedWorkspaceHeader(
   );
   const architectureCreatedOverflowOpenRef = useRef(architectureCreatedOverflowOpen);
   architectureCreatedOverflowOpenRef.current = architectureCreatedOverflowOpen;
-  const isSealed = /sealed|finalized/i.test(model.lifecycleLabel);
+  const isSealed = /sealed|finalized/i.test(props.model.lifecycleLabel);
   const syncArchitectureCreatedOverflowOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
