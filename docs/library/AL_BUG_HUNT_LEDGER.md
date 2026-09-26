@@ -20779,7 +20779,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -20913,6 +20913,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-26 seed hunt (hit): reseeded notifications-pipeline after prior runDetailUrl fix; proved weekly sponsor report/summary dispatchers still accepted whitespace-only `runIdHex` (blank template run id) despite scanner skip on empty hex; fixed with required `runIdHex` validation; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_id_hex` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_id_hex`; 130 scoped notifications/digest tests passed.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `runIdHex` sent weekly mail with blank run id — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `runDetailUrl` / `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_id_hex` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_id_hex`.
+
+2026-09-26 seed hunt (seed-only): reseeded notifications-pipeline after runIdHex parity fixes; no new hunt-ready rows; cheap-disproved exec-digest unsubscribe URL whitespace, recurrence null recipient list, and digest webhook empty destination at delivery service; 132 scoped notifications/digest tests passed.
+
+- [x] (valid-no-repro) `ExecDigestEmailDispatcher.TryDispatchAsync` — whitespace-only `unsubscribeAbsoluteUrl` — **cheap-disproof 2026-09-26 seed hunt:** dispatcher throws `ArgumentException` before render; sole production caller `ExecDigestWeeklyDeliveryScanner` builds `{apiBase}/v1.0/notifications/exec-digest/unsubscribe?token=…` from operator base + signed token (never blank).
+- [x] (valid-no-repro) `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` — null `toMailboxes` causes `NullReferenceException` instead of `ArgumentNullException` — **cheap-disproof 2026-09-26 seed hunt:** `RecurrenceCompletionNotificationService` always passes `RecurrenceCompletionRecipientResolver.ListRecipientMailboxesAsync`, which returns `mailboxes.ToArray()` (empty at worst, never null).
+- [x] (valid-no-repro) `DigestSlackWebhookDeliveryChannel` / `DigestTeamsWebhookDeliveryChannel` — blank webhook destination posts empty URL — **cheap-disproof 2026-09-26 seed hunt:** `ChatOpsWebhookDeliveryService.DeliverAsync` rejects whitespace destinations via `ThrowIfNullOrWhiteSpace(webhookAbsoluteUri)`; digest subscription create applies SSRF policy + trim (#425).
 
 ## Zone: artifact-synthesis
 
