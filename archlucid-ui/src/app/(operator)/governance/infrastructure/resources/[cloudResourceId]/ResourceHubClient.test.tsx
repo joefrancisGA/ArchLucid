@@ -217,6 +217,42 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on overview drift change workbench links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on findings stream more remediation link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId when switching hub tabs from the tab bar", async () => {
+    searchParams = new URLSearchParams(
+      `tab=diagram&runId=run-1&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
   it("surfaces stale audit banner for partial URL audit params", async () => {
     searchParams = new URLSearchParams("tab=overview&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);

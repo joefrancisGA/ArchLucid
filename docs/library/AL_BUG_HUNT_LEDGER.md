@@ -23822,10 +23822,10 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-08 — inventory diagrams and terraform workbench links dropped review runId while diagram reconcile and hub tab links preserved it
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23843,6 +23843,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `buildRemediationWorkbenchHref` call sites / `buildResourceScopedWorkbenchHref` — overview/findings/remediation factory links omit `runId` while diagram correspondence remediation and Infrastructure Ask links preserve review scope — **hit 2026-09-08 seed hunt #1337:** factory href builders spread audit context but never forwarded hub `runId`; fixed by threading `runId` through scoped remediation helper and ResourceHubClient factory call sites; regressions in `preserves runId on overview/findings/remediation factory links`
 - [x] (proven) `buildDriftWorkbenchHref` / `buildResourceHubDriftWorkbenchHref` / `buildHubDriftChangeWorkbenchHref` — overview/drift-tab drift workbench and drift-change row links omit `runId` while remediation factory, diagram reconcile, and Ask links preserve review scope — **hit 2026-09-08 seed hunt #1376:** `buildDriftWorkbenchHref` ignored `runId` despite `InfraEvidenceWorkbenchContext`; fixed by threading `runId` through drift helpers and ResourceHubClient call sites; regressions in `preserves runId on overview/drift-tab drift workbench links` and `preserves runId on overview drift change workbench links`
 - [x] (proven) `buildResourceHubDiagramsWorkbenchHref` / `buildTerraformWorkbenchHref` — overview inventory diagrams and terraform-tab workbench links omit `runId` while diagram reconcile, drift workbench, and hub tab cross-links preserve review scope — **hit 2026-09-08 seed hunt #1378:** diagrams/terraform filter helpers ignored `runId`; fixed by threading `runId` through workbench href builders and ResourceHubClient call sites; regressions in `preserves runId on overview inventory diagrams link` and `preserves runId on terraform tab terraform workbench link`
+- [x] (valid-no-repro) `ResourceHubClient` post-GOL refactor (`d8416b0f64`) dropped runId matrix regressions while hub cross-links still thread `runId` — **cheap-disproof 2026-09-26 seed hunt:** re-proved drift change workbench, findings stream-more remediation, and tab-bar `runId` preservation; no failing repro
+- [ ] (candidate) `buildAuditEvidenceLineageUiPath` links from audit tab omit hub `runId` — separate audit-evidence route; no review-run return contract on that surface yet
+
+2026-09-26 seed hunt (seed-only): reseeded ui-infra-resource-hub after GOL refactor; restored runId regression tests on ResourceHubClient; no hunt-ready row proved; 23 scoped ResourceHubClient unit tests passed.
 
 2026-09-08 seed hunt #1378 (hit): reseeded ui-infra-resource-hub; proved inventory diagrams and terraform workbench runId scope leak vs diagram-reconcile/hub-tab parity; 39 scoped ResourceHubClient and filter-url unit tests passed.
 
