@@ -1549,6 +1549,39 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task ExecDigestEmailDispatcher_throws_for_whitespace_only_unsubscribe_url()
+    {
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        ExecDigestEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("39393939-3939-3939-3939-393939393939"),
+            "2026-W39",
+            new ExecDigestComposition(
+                WeekLabel: "W39",
+                ComplianceDriftMarkdown: null,
+                CommittedManifestsInWeek: null,
+                TopManifestRuns: [],
+                FindingsDeltaSummary: null,
+                DashboardUrl: "https://example.test/d",
+                SponsorValueReportUrl: "https://example.test/sponsor",
+                LatestCommittedRunIdHex: null),
+            ["exec@example.test"],
+            "   ",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("unsubscribeAbsoluteUrl");
+    }
+
+    [Fact]
     public async Task ExecDigestEmailDispatcher_throws_for_whitespace_only_dashboard_url()
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
