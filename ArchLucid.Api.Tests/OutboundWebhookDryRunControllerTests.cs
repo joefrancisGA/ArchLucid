@@ -68,6 +68,33 @@ public sealed class OutboundWebhookDryRunControllerTests
     }
 
     [Fact]
+    public async Task DryRunAsync_missing_target_url_returns_400()
+    {
+        Mock<IOutboundWebhookDryRunService> probe = new();
+
+        OutboundWebhookDryRunController controller = new(probe.Object, Mock.Of<IAuditService>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await controller.DryRunAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = null! },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            bad.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("TargetUrl");
+
+        probe.Verify(
+            p => p.ProbeAsync(It.IsAny<Uri>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DryRunAsync_null_body_returns_400()
     {
         OutboundWebhookDryRunController controller = new(

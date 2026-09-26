@@ -4788,17 +4788,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 14
-- **bugs-found:** 8
+- **hunts:** 15
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-08 — webhook dry-run connect-time guard blocks DNS rebind to private networks
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
 - **code-changed-since:** 7
 
 2026-09-12 seed hunt #2139 (seed-only): reseeded outbound-webhook-dry-run with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2080 (seed-only): reseeded outbound-webhook-dry-run; 22 scoped tests passed; no new hunt-ready rows
+
+- [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` — JSON body with null/missing `targetUrl` dereferenced `body.TargetUrl` before SSRF validation and threw `NullReferenceException` (500) instead of validation `400` — **hit 2026-09-26 seed hunt #15 (hint `b`):** model binding can leave `required Uri TargetUrl` null when the property is absent; fixed with explicit null guard before `ToString()`; regression `DryRunAsync_missing_target_url_returns_400`.
+- [ ] (candidate) `Integrations/WebhookSimulationController` — same null `TargetUrl` ordering as pre-fix dry-run controller (reachability: simulate endpoint shares `OutboundWebhookDryRunRequest`; out of zone paths)
+
+2026-09-26 seed hunt #15 (seed→hit, hint `b`): reseeded outbound-webhook-dry-run after post-#1364 cooling; proved missing `TargetUrl` validation gap; seeded simulate-controller parity candidate; 24 scoped controller/service tests passed.
 
 ### Hypotheses
 
