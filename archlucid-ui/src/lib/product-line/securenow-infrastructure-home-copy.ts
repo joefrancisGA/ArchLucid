@@ -42,7 +42,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Render diagrams, export PNG, and export Mermaid.",
+    summary: "Visualize and export diagrams",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
