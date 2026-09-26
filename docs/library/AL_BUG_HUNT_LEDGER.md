@@ -6195,6 +6195,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: tenant-data-export
+
+2026-09-26 seed hunt (seed→hit): reseeded tenant-data-export; proved whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI proof-packet career gate while int `1` already blocked; seeded terraform PR/download lifecycle parity, export-history lifecycle parity, and unbounded history pagination candidates; 30 scoped ExportBundleCareerPostureResolver tests passed.
+
 2026-09-14 seed hunt #2911 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2906 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -7998,11 +8001,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 926
-- **bugs-found:** 44
+- **hunts:** 927
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-14
-- **last-bug:** 2026-09-13 — hunt #2589: string `"yes"` for `is_sample_run` ignored on CLI career export gate
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8097,6 +8100,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` — treated `isDemoTenant` as `isSampleRun` for simulator gate and never blocked sample-workspace runs with `isSampleRun: true` in pilot-run-deltas JSON — **hit 2026-09-12 seed hunt #1814:** CLI proof-packet bundles for non-demo sample workspace runs bypassed `CareerArtifactExportCompletenessGate` while API export paths blocked; fixed with explicit `isSampleRun` parse + block and `PilotRunDeltasResponse.IsSampleRun` wiring; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_true`
 
 - [x] (proven) `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` — string `"true"` for `isDemoTenant` / `isSampleRun` not parsed as boolean — **hit 2026-09-12 seed hunt #2110:** CLI pilot-run-deltas JSON with string booleans bypassed sample-workspace career gate while `JsonValueKind.True` worked; fixed with `TryParseJsonBoolean`; regressions `ResolveFromDeltasJson_blocks_demo_tenant_when_is_demo_tenant_string_true` and `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_true`.
+
+- [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` not treated as true — **hit 2026-09-26 seed hunt (seed→hit):** CLI pilot-run-deltas JSON with `1.0` bypassed sample-workspace career gate while int `1` already blocked after #2351/#2355; fixed with `TryGetDouble` whole-number coercion in `TryParseJsonBoolean`; regressions `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_whole_number_double_one` and `ResolveFromDeltasJson_blocks_sample_run_when_is_demo_tenant_whole_number_double_one`.
+
+- [ ] (candidate) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `AuthorityLifecycleCompareExportGuard` present on blob push and compare paths
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
