@@ -1,4 +1,3 @@
-{"at":"2026-08-27T13:02:26.2498567Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T13:15:32.4324168Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T13:26:46.8247136Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T13:32:28.9738642Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -7049,4 +7048,5 @@
 {"at":"2026-09-26T12:46:51.3454964Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-09-26T12:51:29.2349207Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-09-26T12:56:48.1499419Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
-{"at":"2026-09-26T13:00:19.7623510Z","zoneId":"sql-run-repository","outcome":"seed-only"}
+{"at":"2026-09-26T13:00:19.762351Z","zoneId":"sql-run-repository","outcome":"seed-only"}
+{"at":"2026-09-26T13:06:31.5111462Z","zoneId":"notifications-pipeline","outcome":"seed-only"}

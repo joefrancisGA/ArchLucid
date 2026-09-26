@@ -20848,13 +20848,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — weekly sponsor report/summary email accepted whitespace-only runIdHex
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6958 (seed-only): reseeded notifications-pipeline after runIdHex/weekLabel/runDetailUrl parity; cheap-disproof closed whitespace-only finding title and invitation accept URL candidates; 132 scoped Application notifications/digest tests passed; 11 DigestSubscriptionsController unit tests passed (2 Api SQL integration auth tests skipped on VM without `ARCHLUCID_API_TEST_SQL`).
+
+- [x] (valid-no-repro) `FindingRemediationAssignmentEmailDispatcher` — whitespace-only `findingTitle` renders blank subject line — **cheap-disproof 2026-09-26 seed hunt #6958:** dispatcher substitutes `findingId.Trim()` when title is whitespace (`TryDispatchAsync`); regression coverage in `FindingRemediationAssignmentEmailDispatcherTests`.
+- [x] (valid-no-repro) `UserInvitationEmailNotifier.TrySendInvitationAsync` — whitespace-only `acceptUrl` sends invitation with empty CTA — **cheap-disproof 2026-09-26 seed hunt #6958:** `ArgumentException.ThrowIfNullOrWhiteSpace(acceptUrl)` before render/send; regression `TrySendInvitationAsync_uses_stable_idempotency_key_for_same_invitation`.
 
 2026-09-13 seed hunt #2441 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 
