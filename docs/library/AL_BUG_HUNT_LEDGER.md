@@ -8418,6 +8418,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-26 thorough hunt (dry): cheap-disproved cost/compliance persisted-objective `RequiredCapabilities`/`Constraints` parity and stale-objective `CUSTOMER_CONTENT_END` candidates — `SanitizePersistedCustomerProse` plus `RedactAndEscape` at task render already collapse line separators and neutralize TB-949 markers for all starter-task objectives; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize`, `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`, and `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`; 137 scoped agent-runtime-safety tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded agent-runtime-safety; proved persisted starter-task objectives built before execute-time sanitize still carried raw Unicode line separators into the Task Objective quarantine while architecture fields were collapsed; fixed via `SanitizePersistedCustomerProse` at prompt render; seeded stale-objective `CUSTOMER_CONTENT_END` marker and cost/compliance objective parity candidates; 134 scoped agent-runtime-safety tests passed.
 
 - **id:** agent-runtime-safety
@@ -8426,9 +8428,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — persisted starter-task objective carried Unicode line separators into Task Objective quarantine after execute-time sanitize
 - **related-pd-tb:** none
@@ -8482,6 +8484,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-09 thorough hunt #1410 (hit): cheap-disproof closed CloudProvider and CapEvidenceText candidates; proved scalar newline field-spoofing inside customer quarantine; 130 scoped agent-runtime-safety unit tests passed.
 
 2026-09-09 seed hunt #1411 (hit): proved Unicode line-separator bypass of #1410 newline collapse; 132 scoped agent-runtime-safety unit tests passed.
+
+- [x] (proven) `AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources` — persisted starter-task objectives built before `AgentEvidenceUntrustedInputSanitizer` still embed raw request fields — **hit 2026-09-26 seed hunt (seed→hit):** `TechnologyLedgerObjectiveComposer` freezes `request.SystemName`/`Description` into `task.Objective` at run start while execute-time sanitize only mutates `ArchitectureRequest`, so Unicode line separators bypassed `LogSanitizer` newline replacement and spoofed field lines inside the Task Objective quarantine; fixed via `AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse` at render time; regressions `SanitizePersistedCustomerProse_collapses_unicode_line_separators_and_neutralizes_embedded_tags` and `TopologyUserPrompt_collapses_unicode_line_separators_in_persisted_task_objective_built_before_sanitize`.
+
+- [x] (valid-no-repro) Persisted cost/compliance starter-task objectives — same stale-embedding gap for `RequiredCapabilities` / `Constraints` list joins — **cheap-disproof 2026-09-26 thorough hunt (dry):** `RunStarterTaskFactory` freezes joined capabilities/constraints into `task.Objective` before execute-time sanitize, but `AppendTaskObjectiveToolsAndSources` now runs `SanitizePersistedCustomerProse` plus `RedactAndEscape` at render; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize` and `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`
+- [x] (valid-no-repro) Persisted task objective — embedded `CUSTOMER_CONTENT_END` survives when objective built before sanitize — **cheap-disproof 2026-09-26 thorough hunt (dry):** `RedactAndEscape` applies `EscapeEmbeddedMarkers` after `SanitizePersistedCustomerProse`; regression `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`
 
 ---
 
