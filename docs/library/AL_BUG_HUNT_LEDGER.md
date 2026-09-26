@@ -3509,13 +3509,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 39
-- **bugs-found:** 18
+- **hunts:** 40
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — InMemory representative request-run lookup ignored SQL GoldenManifestId filter
+- **last-bug:** 2026-09-26 — representative request-run lookup could pick pipeline dead-letter Failed rows with retained GoldenManifestId
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6974 (seed→hit): reseeded representative lookup after #6973; proved `SelectRepresentativeRunIdForArchitectureRequestInScope` / InMemory representative path could pick newer `Failed` or `ExecutionCompletedQualityRejected` dead-letter reruns that retained `GoldenManifestId`, breaking sealed-manifest guard parity with #1464 committed lookups; fixed SQL status filter and InMemory `IsCommittedRun` gate; regressions `SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_pipeline_dead_letter_statuses` and `InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest`; 124 scoped zone tests passed (1 SQL integration skipped).
+
+- [x] (proven) `SelectRepresentativeRunIdForArchitectureRequestInScope` — pipeline dead-letter `Failed` / `ExecutionCompletedQualityRejected` rows with `GoldenManifestId` win representative selection — **hit 2026-09-26 seed hunt #6974:** exclude terminal dead-letter statuses alongside `GoldenManifestId IS NOT NULL`; InMemory uses `IsCommittedRun`; regressions `SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_pipeline_dead_letter_statuses` and `InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest`.
 
 2026-09-26 seed hunt #6973 (seed→hit): reseeded representative architecture-request lookup parity; proved `TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` InMemory path ignored SQL `GoldenManifestId IS NOT NULL` and could pick newer in-flight reruns for sealed-manifest guard; fixed InMemory filter; regressions `InMemory_representative_run_id_requires_golden_manifest_like_sql` and `SelectRepresentativeRunIdForArchitectureRequestInScope_requires_golden_manifest_id`; 122 scoped zone tests passed (1 SQL integration skipped).
 
