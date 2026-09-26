@@ -36,6 +36,10 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
+            else if (probe.RunListPayloadScannable == false)
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Skip;
+            }
             else
             {
                 verdict = EvaluateExcludeRunIdProbeVerdict(probe.ObservedStatusCode ?? 0, probe.ForeignRunIdVisible);
@@ -188,6 +192,11 @@ internal sealed class TenantIsolationNegativeTestManifestProbe
     public string Evidence { get; init; } = string.Empty;
 
     public bool ForeignRunIdVisible { get; init; }
+
+    /// <summary>
+    /// When false, offline replay treats the captured list response as unverifiable (parity with live <c>RunListPayloadIsScannable</c>).
+    /// </summary>
+    public bool? RunListPayloadScannable { get; init; }
 
     public string? Verdict { get; init; }
 }
