@@ -104,6 +104,8 @@ public static class AzureInventoryNsgSecurityRuleParser
                     Priority = TryReadString(propertiesElement, "priority"),
                     SourceAddressPrefix = TryReadString(propertiesElement, "sourceAddressPrefix"),
                     DestinationAddressPrefix = TryReadString(propertiesElement, "destinationAddressPrefix"),
+                    SourceAddressPrefixes = TryReadStringArray(propertiesElement, "sourceAddressPrefixes"),
+                    DestinationAddressPrefixes = TryReadStringArray(propertiesElement, "destinationAddressPrefixes"),
                 });
             }
         }
@@ -165,5 +167,33 @@ public static class AzureInventoryNsgSecurityRuleParser
         };
 
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
+    }
+
+    private static IReadOnlyList<string> TryReadStringArray(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out JsonElement value)
+            || value.ValueKind is not JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        List<string> values = [];
+
+        foreach (JsonElement entry in value.EnumerateArray())
+        {
+            if (entry.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? parsed = entry.GetString();
+
+            if (!string.IsNullOrWhiteSpace(parsed))
+            {
+                values.Add(parsed.Trim());
+            }
+        }
+
+        return values;
     }
 }

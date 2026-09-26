@@ -56,4 +56,16 @@ public sealed class AzureInventoryNsgSecurityRule
         get;
         init;
     }
+
+    public IReadOnlyList<string> SourceAddressPrefixes
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<string> DestinationAddressPrefixes
+    {
+        get;
+        init;
+    } = [];
 }

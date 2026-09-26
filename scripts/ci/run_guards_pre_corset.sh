@@ -154,8 +154,7 @@ python3 scripts/ci/validate_outbox_retrieval_slo_thresholds.py
 python3 scripts/ci/check_public_pdf_safety.py
 
 python3 -m pip install --quiet pytest
-cd scripts/ci && python3 -m pytest tests/ -v
-cd "$ROOT"
+PYTHONPATH="$ROOT" python3 -m pytest scripts/ci/tests/ -v
 
 python3 scripts/ci/assert_query_performance.py --dry-run || true
 python3 scripts/ci/assert_pmf_tracker_discipline.py
