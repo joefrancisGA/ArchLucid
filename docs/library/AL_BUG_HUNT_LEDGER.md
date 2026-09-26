@@ -23088,11 +23088,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 27
-- **bugs-found:** 22
+- **hunts:** 28
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — execute-baseline drift ignored governance conflict count changes
+- **last-bug:** 2026-09-26 — execute-baseline drift ignored not-assessed quality dimension snapshots
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23152,6 +23152,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after coverage drift fix; proved execute snapshot `ConflictCount` not compared at finalize when effective governance conflicts changed without pack-assignment hash drift; fixed with `governance-conflict-count-changed-since-execute` checklist item; regression `EvaluateAsync_adds_blocking_item_when_governance_conflict_count_drifts`; 9 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `ConflictCount` not compared before finalize — **hit 2026-09-26 seed hunt:** `ExecuteTimeGovernanceScopeCaptureService` records `resolution.ConflictCount` at execute but drift evaluator ignored changes before finalize; regression `EvaluateAsync_adds_blocking_item_when_governance_conflict_count_drifts`.
+
+2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after conflict-count drift fix; proved execute snapshot `NotAssessedQualityDimensions` not compared when dimension/reason rows drifted without pack-hash change; fixed with canonical hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`; cheap-disproved `FocusedPilotModeEnabled` drift as covered by `ArchitectureRunIdempotencyHashing.FingerprintRequest` policy-reference fingerprint; 10 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
+
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
+- [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
