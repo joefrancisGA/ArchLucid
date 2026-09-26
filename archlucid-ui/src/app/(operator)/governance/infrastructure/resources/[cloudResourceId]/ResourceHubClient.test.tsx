@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
+import { buildInfraResourceHubTechnicalDisclosureScopedHref } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
+
 import { ResourceHubClient } from "./ResourceHubClient";
 import {
   buildResourceHubTestMockHub,
@@ -62,6 +64,25 @@ vi.mock("@/lib/use-nav-surface", () => ({
     contextHints: { layerHeaderEnterpriseRankCue: null },
   }),
 }));
+
+describe("buildInfraResourceHubTechnicalDisclosureScopedHref", () => {
+  it("pins hub snapshot and runId when syncing buyer-polished technical disclosure", () => {
+    const href = buildInfraResourceHubTechnicalDisclosureScopedHref(
+      RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+      "tab=overview&runId=run-1",
+      "cloudResourceId",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
+      {
+        snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID,
+        runId: "run-1",
+      },
+    );
+
+    expect(href).toContain(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    expect(href).toContain("runId=run-1");
+    expect(href).toContain("infraResourceHubTechnicalKey=cloudResourceId");
+  });
+});
 
 describe("ResourceHubClient", () => {
   beforeEach(() => {
@@ -251,6 +272,18 @@ describe("ResourceHubClient", () => {
     fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
 
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
+  it("pins hub snapshotId on audit scope chip when URL omits snapshotId", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const chip = await screen.findByTestId("infra-resource-hub-audit-scope-chip");
+
+    expect(chip).toHaveAttribute("href", expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`));
+    expect(chip).toHaveAttribute("href", expect.stringContaining("runId=run-1"));
   });
 
   it("pins hub snapshotId when switching tabs without snapshot in URL", async () => {

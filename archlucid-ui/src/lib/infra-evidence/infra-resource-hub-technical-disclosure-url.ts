@@ -1,3 +1,5 @@
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+
 export const INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM = "infraResourceHubTechnicalKey";
 
 export const INFRA_RESOURCE_HUB_TECHNICAL_KEYS = [
@@ -20,6 +22,27 @@ export function parseInfraResourceHubTechnicalKeyFromSearch(raw: string | null |
   }
 
   return trimmed;
+}
+
+export function buildInfraResourceHubTechnicalDisclosureScopedHref(
+  cloudResourceId: string,
+  currentSearch: string,
+  technicalKey: string | null,
+  pathname: string,
+  scope: {
+    readonly snapshotId?: string;
+    readonly runId?: string;
+  },
+): string {
+  const scopedHubHref = resourceHubFilterHrefFromSearch(cloudResourceId, currentSearch, {
+    snapshotId: scope.snapshotId,
+    runId: scope.runId,
+  });
+  const scopedQuery = scopedHubHref.includes("?")
+    ? scopedHubHref.slice(scopedHubHref.indexOf("?") + 1)
+    : "";
+
+  return infraResourceHubTechnicalDisclosureHrefFromSearch(scopedQuery, technicalKey, pathname);
 }
 
 export function infraResourceHubTechnicalDisclosureHrefFromSearch(

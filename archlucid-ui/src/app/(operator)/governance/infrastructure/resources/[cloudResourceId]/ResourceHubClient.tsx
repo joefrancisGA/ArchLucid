@@ -100,7 +100,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM,
-  infraResourceHubTechnicalDisclosureHrefFromSearch,
+  buildInfraResourceHubTechnicalDisclosureScopedHref,
   parseInfraResourceHubTechnicalKeyFromSearch,
 } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
 import {
@@ -320,24 +320,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     parseInfraResourceHubTechnicalKeyFromSearch(infraResourceHubTechnicalKeyParam),
   );
 
-  const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
-    (technicalKey: string | null) => {
-      router.replace(
-        infraResourceHubTechnicalDisclosureHrefFromSearch(searchParams.toString(), technicalKey, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setInfraResourceHubTechnicalKey = useCallback(
-    (technicalKey: string | null) => {
-      setInfraResourceHubTechnicalKeyState(technicalKey ?? "");
-      syncInfraResourceHubTechnicalKeyToUrl(technicalKey);
-    },
-    [syncInfraResourceHubTechnicalKeyToUrl],
-  );
-
   useEffect(() => {
     setInfraResourceHubTechnicalKeyState(parseInfraResourceHubTechnicalKeyFromSearch(infraResourceHubTechnicalKeyParam));
   }, [infraResourceHubTechnicalKeyParam]);
@@ -363,6 +345,33 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [hub?.currentConfiguration?.snapshotId, snapshotId]);
 
   const snapshotPinned = snapshotId.length > 0;
+
+  const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
+    (technicalKey: string | null) => {
+      router.replace(
+        buildInfraResourceHubTechnicalDisclosureScopedHref(
+          cloudResourceId,
+          searchParams.toString(),
+          technicalKey,
+          pathname,
+          {
+            snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+            runId: runId.length > 0 ? runId : undefined,
+          },
+        ),
+        { scroll: false },
+      );
+    },
+    [cloudResourceId, pathname, resolvedSnapshotId, router, runId, searchParams],
+  );
+
+  const setInfraResourceHubTechnicalKey = useCallback(
+    (technicalKey: string | null) => {
+      setInfraResourceHubTechnicalKeyState(technicalKey ?? "");
+      syncInfraResourceHubTechnicalKeyToUrl(technicalKey);
+    },
+    [syncInfraResourceHubTechnicalKeyToUrl],
+  );
 
   const explorerBackHref = useMemo(
     () => (workQueue !== "all" ? resourceExplorerFilterHrefFromSearch("", { workQueue }) : resourcesPath),

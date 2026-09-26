@@ -23879,13 +23879,21 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 12
-- **bugs-found:** 10
+- **hunts:** 14
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — active audit scope bar clear action dropped hub-resolved snapshotId when URL omitted snapshotId
+- **last-bug:** 2026-09-26 — buyer-polished technical disclosure URL sync omitted hub-resolved snapshotId when URL had no snapshotId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): proved `syncInfraResourceHubTechnicalKeyToUrl` forwarded raw `searchParams` into disclosure href sync, dropping hub-resolved `snapshotId`/`runId`; fixed via `buildInfraResourceHubTechnicalDisclosureScopedHref`; regressions `pins hub snapshot and runId when syncing buyer-polished technical disclosure` and audit-scope chip snapshot parity; 28 scoped ResourceHubClient tests passed.
+
+- [x] (proven) Buyer-polished technical disclosure URL sync dropped hub-resolved `snapshotId` when URL omitted `snapshotId` — **hit 2026-09-26 seed hunt:** `infraResourceHubTechnicalDisclosureHrefFromSearch` only received raw search string; fixed scoped builder + ResourceHubClient wiring; regression on scoped href builder.
+
+2026-09-26 seed hunt (hit): proved `setActiveTab` rebuilt tab URLs from sanitized search only, dropping hub-resolved `snapshotId` while cross-workbench links forwarded `resolvedSnapshotId`; fixed by threading `resolvedSnapshotId` and `runId` into tab-bar `resourceHubFilterHrefFromSearch` patch; regression `pins hub snapshotId when switching tabs without snapshot in URL`; 26 scoped ResourceHubClient tests passed.
+
+- [x] (proven) `ResourceHubClient.setActiveTab` tab-bar navigation dropped hub-resolved `snapshotId` when URL omitted `snapshotId` — **hit 2026-09-26 seed hunt:** only passed `{ tab }` patch while workbench exits pinned `resolvedSnapshotId`; fixed tab-bar navigation patch; regression above.
 
 2026-09-26 seed hunt (hit): reseeded ui-infra-resource-hub after stale-banner fix; proved `InfraEvidenceAuditScopeBar` clear-scope href ignored hub-resolved `snapshotId`/`runId` props (same gap as stale banner); extended `buildInfraEvidenceClearAuditScopeHref`; regression `preserves hub snapshot and runId when clearing active audit scope`; 25 scoped ResourceHubClient tests passed.
 
