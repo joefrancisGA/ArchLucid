@@ -92,18 +92,27 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     }
 
     [Fact]
-    public void Compile_full_subscription_emits_collapsed_boundary_for_shared_firewall_edge()
+    public void Compile_full_subscription_omits_collapsed_avd_boundary_for_shared_firewall_edge()
     {
         GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: true);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary);
+        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == HostPoolArmId);
-        ast.Edges.Should().Contain(edge =>
-            !edge.IsLayoutOnly
-            && ast.Nodes.Single(node => node.IsAvdCollapsedBoundary).NodeId == edge.FromNodeId
-            && ast.Nodes.Any(node => node.ArmResourceId == FirewallArmId && node.NodeId == edge.ToNodeId));
+        ast.Nodes.Should().Contain(node => node.ArmResourceId == FirewallArmId);
+    }
+
+    [Fact]
+    public void Compile_full_subscription_with_include_avd_assets_shows_internal_resources_without_boundary()
+    {
+        GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: true);
+        var options = new DiagramAstCompileOptions { IncludeAvdAssets = true };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription, options);
+
+        ast.Nodes.Should().Contain(node => node.ArmResourceId == HostPoolArmId);
+        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
     }
 
     private static GraphSnapshot BuildAvdTopologyGraph(bool includeDualRoleVm, bool includeFirewallEdge)

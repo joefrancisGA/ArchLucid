@@ -91,7 +91,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false)
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -176,7 +177,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false)
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -219,7 +221,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 out InfraEvidenceMermaidModeParseResult parsedMode,
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
-                includeCrossGroupFanOut))
+                includeCrossGroupFanOut,
+                includeAvdAssets))
         {
             return BadRequest<InfraEvidenceMermaidRenderResponse>(parsedMode.ErrorMessage ?? "Invalid mode.");
         }
@@ -283,7 +286,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         CancellationToken cancellationToken = default,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false)
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -299,7 +303,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 cancellationToken,
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
-                includeCrossGroupFanOut);
+                includeCrossGroupFanOut,
+                includeAvdAssets);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -336,6 +341,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             includePrivateEndpointNodes,
             includeRecoveryServices,
             includeCrossGroupFanOut,
+            includeAvdAssets,
             cancellationToken);
 
         if (renderedPng is null || renderedPng.Length == 0)
@@ -575,6 +581,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includePrivateEndpointNodes,
         bool includeRecoveryServices,
         bool includeCrossGroupFanOut,
+        bool includeAvdAssets,
         CancellationToken cancellationToken)
     {
         if (string.Equals(renderResponse.LayoutEngine, "inventory-forest", StringComparison.Ordinal)
@@ -591,6 +598,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
                 includeCrossGroupFanOut,
+                includeAvdAssets,
                 cancellationToken);
 
             if (renderResult?.RepairedAst is not null)
@@ -624,6 +632,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includePrivateEndpointNodes,
         bool includeRecoveryServices,
         bool includeCrossGroupFanOut,
+        bool includeAvdAssets,
         CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(fallbackKey))
@@ -638,7 +647,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 out InfraEvidenceMermaidModeParseResult parsedMode,
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
-                includeCrossGroupFanOut))
+                includeCrossGroupFanOut,
+                includeAvdAssets))
         {
             return null;
         }
@@ -943,6 +953,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
             IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? false,
             IncludeRecoveryServices = includeRecoveryServices,
+            IncludeAvdAssets = options?.IncludeAvdAssets ?? false,
             IncludeCrossGroupFanOut = includeCrossGroupFanOut,
             RecoveryServicesCollectionIncomplete = collectionIncomplete,
         };

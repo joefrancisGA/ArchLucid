@@ -33,7 +33,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             topologyNodes = InventoryDiagramAvdViewFilter.IncludeAvdDiagramNodes(graph, topologyNodes);
         }
-        else if (InventoryDiagramAvdViewFilter.ShouldApply(mode))
+        else if (!(mode == DiagramMode.FullSubscription && options.IncludeAvdAssets)
+                 && InventoryDiagramAvdViewFilter.ShouldApply(mode))
         {
             topologyNodes = InventoryDiagramAvdViewFilter.ExcludeAvdOnlyNodes(graph, topologyNodes);
         }
@@ -192,8 +193,6 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramParentAttachmentApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramOrphanedStateApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramAvdBoundaryApplier.Apply(ast, graph, nodeIdMap, mode);
-
         if (isDataFlowMode)
         {
             InventoryDiagramDataFlowTraversalHopApplier.Apply(ast, graph, nodeIdMap, includedEdges);

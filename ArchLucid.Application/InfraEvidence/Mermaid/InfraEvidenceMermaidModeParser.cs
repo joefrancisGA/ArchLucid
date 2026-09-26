@@ -53,7 +53,8 @@ public static class InfraEvidenceMermaidModeParser
             out result,
             includePrivateEndpointNodes: false,
             includeRecoveryServices: false,
-            includeCrossGroupFanOut: false);
+            includeCrossGroupFanOut: false,
+            includeAvdAssets: false);
     }
 
     /// <param name="hiddenExecutiveTierKeys">
@@ -67,7 +68,8 @@ public static class InfraEvidenceMermaidModeParser
         out InfraEvidenceMermaidModeParseResult result,
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
-        bool includeCrossGroupFanOut = false)
+        bool includeCrossGroupFanOut = false,
+        bool includeAvdAssets = false)
     {
         if (string.IsNullOrWhiteSpace(mode))
         {
@@ -144,7 +146,14 @@ public static class InfraEvidenceMermaidModeParser
 
         if (string.Equals(normalized, "full", StringComparison.OrdinalIgnoreCase))
         {
-            result = Success(DiagramMode.FullSubscription, "full", null, includePrivateEndpointNodes, includeRecoveryServices, includeCrossGroupFanOut);
+            result = Success(
+                DiagramMode.FullSubscription,
+                "full",
+                null,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut,
+                includeAvdAssets);
             return true;
         }
 
@@ -260,17 +269,19 @@ public static class InfraEvidenceMermaidModeParser
         DiagramAstCompileOptions? compileOptions,
         bool includePrivateEndpointNodes,
         bool includeRecoveryServices,
-        bool includeCrossGroupFanOut)
+        bool includeCrossGroupFanOut,
+        bool includeAvdAssets = false)
     {
         DiagramAstCompileOptions? resolvedOptions = compileOptions;
 
-        if (includePrivateEndpointNodes || includeRecoveryServices || includeCrossGroupFanOut)
+        if (includePrivateEndpointNodes || includeRecoveryServices || includeCrossGroupFanOut || includeAvdAssets)
         {
             resolvedOptions = CopyOptions(
                 compileOptions,
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
-                includeCrossGroupFanOut);
+                includeCrossGroupFanOut,
+                includeAvdAssets);
         }
 
         return new InfraEvidenceMermaidModeParseResult
@@ -286,7 +297,8 @@ public static class InfraEvidenceMermaidModeParser
         DiagramAstCompileOptions? options,
         bool includePrivateEndpointNodes,
         bool includeRecoveryServices,
-        bool includeCrossGroupFanOut)
+        bool includeCrossGroupFanOut,
+        bool includeAvdAssets)
     {
         return new DiagramAstCompileOptions
         {
@@ -299,6 +311,7 @@ public static class InfraEvidenceMermaidModeParser
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
             IncludePrivateEndpointNodes = includePrivateEndpointNodes,
             IncludeRecoveryServices = includeRecoveryServices,
+            IncludeAvdAssets = includeAvdAssets,
             IncludeCrossGroupFanOut = includeCrossGroupFanOut,
             RecoveryServicesCollectionIncomplete = options?.RecoveryServicesCollectionIncomplete ?? false,
         };

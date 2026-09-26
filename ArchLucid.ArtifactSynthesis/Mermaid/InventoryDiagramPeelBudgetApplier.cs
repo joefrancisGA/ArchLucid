@@ -207,6 +207,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
             HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToResourceGroupMap = true,
+            IncludeAvdAssets = compileOptions?.IncludeAvdAssets ?? false,
         };
     }
 
@@ -220,6 +221,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
             HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToBackboneKeep = true,
+            IncludeAvdAssets = compileOptions?.IncludeAvdAssets ?? false,
         };
     }
 }

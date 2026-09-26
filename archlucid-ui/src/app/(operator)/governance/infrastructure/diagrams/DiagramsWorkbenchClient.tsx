@@ -53,6 +53,7 @@ import {
   INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM,
   INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM,
@@ -63,6 +64,7 @@ import {
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
   parseInfraDiagramsIncludeRecoveryServicesFromSearch,
   parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
+  parseInfraDiagramsIncludeAvdAssetsFromSearch,
   parseInfraDiagramsSubscriptionFilterFromSearch,
   isInfraDiagramsMermaidModeSelected,
   parseInfraDiagramsMermaidModeFromSearch,
@@ -379,6 +381,9 @@ export function DiagramsWorkbenchClient() {
   const urlIncludeCrossGroupFanOut = parseInfraDiagramsIncludeCrossGroupFanOutFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM),
   );
+  const urlIncludeAvdAssets = parseInfraDiagramsIncludeAvdAssetsFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM),
+  );
   const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
@@ -428,6 +433,7 @@ export function DiagramsWorkbenchClient() {
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
   const [includeRecoveryServices, setIncludeRecoveryServices] = useState(urlIncludeRecoveryServices);
   const [includeCrossGroupFanOut, setIncludeCrossGroupFanOut] = useState(urlIncludeCrossGroupFanOut);
+  const [showAvdAssets, setShowAvdAssets] = useState(urlIncludeAvdAssets);
   const [pendingSubscriptionFilter, setPendingSubscriptionFilter] = useState<string | null>(null);
   const [subscriptionChangeConfirmOpen, setSubscriptionChangeConfirmOpen] = useState(false);
   const [selectedViewKey, setSelectedViewKey] = useState<string>(urlMermaidView);
@@ -486,6 +492,10 @@ export function DiagramsWorkbenchClient() {
   }, [urlIncludeCrossGroupFanOut]);
 
   useEffect(() => {
+    setShowAvdAssets(urlIncludeAvdAssets);
+  }, [urlIncludeAvdAssets]);
+
+  useEffect(() => {
     if (urlSubscriptionFilter.length === 0) {
       return;
     }
@@ -503,6 +513,7 @@ export function DiagramsWorkbenchClient() {
       includePrivateEndpoints?: boolean;
       includeRecoveryServices?: boolean;
       includeCrossGroupFanOut?: boolean;
+      includeAvdAssets?: boolean;
     }) => {
       router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -1105,6 +1116,7 @@ export function DiagramsWorkbenchClient() {
       includePrivateEndpointNodes: showPrivateEndpoints,
       includeRecoveryServices,
       includeCrossGroupFanOut,
+      ...(selectedMode === "full" && showAvdAssets ? { includeAvdAssets: true } : {}),
       ...executiveTierQuery,
     };
   }, [
@@ -1118,6 +1130,7 @@ export function DiagramsWorkbenchClient() {
     diagramTypeSelected,
     selectedMode,
     selectedResourceGroupName,
+    showAvdAssets,
     showPrivateEndpoints,
   ]);
 
@@ -1304,6 +1317,13 @@ export function DiagramsWorkbenchClient() {
     setIncludeCrossGroupFanOut(nextIncludeCrossGroupFanOut);
     syncUrl({ includeCrossGroupFanOut: nextIncludeCrossGroupFanOut });
   }, [includeCrossGroupFanOut, syncUrl]);
+
+  const handleShowAvdAssetsToggle = useCallback(() => {
+    const nextShowAvdAssets = !showAvdAssets;
+
+    setShowAvdAssets(nextShowAvdAssets);
+    syncUrl({ includeAvdAssets: nextShowAvdAssets });
+  }, [showAvdAssets, syncUrl]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
@@ -2068,7 +2088,7 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
-          <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
+          <p className={cn("m-0 font-bold", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Private endpoints, backup/recovery resources, and cross-group applies/likely links are hidden from the canvas by default.
           </p>
@@ -2103,6 +2123,17 @@ export function DiagramsWorkbenchClient() {
             />
             <span className={OPERATOR_TYPOGRAPHY.body}>Show cross-group links</span>
           </label>
+          {selectedMode === "full" ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={showAvdAssets}
+                data-testid="infra-diagrams-show-avd-assets"
+                aria-label="Show AVD Assets"
+                onCheckedChange={handleShowAvdAssetsToggle}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
+            </label>
+          ) : null}
         </div>
       </section>
 
