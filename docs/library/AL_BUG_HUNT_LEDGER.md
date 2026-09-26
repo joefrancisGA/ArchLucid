@@ -3666,11 +3666,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 59
-- **bugs-found:** 15
+- **hunts:** 60
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — inspect map path surfaced invisible-only mute reason, reasoning trace, and assignee (U+200B)
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — undefined insight-density TINYINT storage blocked typed-payload fallback on inspect
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4143,6 +4143,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains invisible-only entry before a substantive rule id — **cheap-disproof 2026-09-11 seed hunt #1736:** `NormalizeInspectText` skips invisible elements and selects the first substantive id; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_invisible_unicode_then_valid_rule_uses_first_substantive_id`.
 
 2026-09-11 seed hunt #1736 (seed→hit): reseeded finding-inspect-sql after #1733; proved invisible-only governance display fields on Dapper map path; cheap-disproof closed invisible-then-valid applied-rule-id array selection; 417 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (proven) `FindingInsightDensityColumnCodec.FromClassificationStorage` / `FromTreatmentStorage` — unchecked TINYINT-to-enum casts returned undefined ordinals (for example `99`) so `ResolveInspectClassification` / `ResolveInspectTreatment` preferred corrupt relational storage over typed-payload fallback — **hit 2026-09-26 seed hunt (seed→hit):** `Enum.IsDefined` guard on storage decode; regressions `FromClassificationStorage_returns_null_for_undefined_storage_byte`, `ResolveInspectClassification_falls_back_to_typed_payload_when_storage_byte_is_undefined`, and `ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_byte_is_undefined`.
+
+2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

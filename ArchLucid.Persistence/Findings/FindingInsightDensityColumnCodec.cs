@@ -24,6 +24,11 @@ internal static class FindingInsightDensityColumnCodec
             return null;
         }
 
+        if (!Enum.IsDefined(typeof(FindingTreatment), (int)value.Value))
+        {
+            return null;
+        }
+
         return (FindingTreatment)value.Value;
     }
 
@@ -40,6 +45,11 @@ internal static class FindingInsightDensityColumnCodec
     internal static FindingClassification? FromClassificationStorage(byte? value)
     {
         if (value is null)
+        {
+            return null;
+        }
+
+        if (!Enum.IsDefined(typeof(FindingClassification), (int)value.Value))
         {
             return null;
         }
