@@ -655,6 +655,124 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string zoneResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone-a.com";
+        const string otherZoneResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone-b.com";
+        const string crossZoneNextLink =
+            $"https://management.azure.com{otherZoneResourceId}/virtualNetworkLinks?api-version=2020-06-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone-a.com/virtualNetworkLinks/link-a",
+                                     "name": "link-a",
+                                     "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                                     "properties": { "virtualNetwork": { "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a" } }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_ZONE_LINK"
+                               }
+                               """.Replace("CROSS_ZONE_LINK", crossZoneNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: private DNS vnet link listing did not stop on cross-zone nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListPrivateDnsZoneVirtualNetworkLinksAsync(
+                "token-abc",
+                subscriptionId,
+                zoneResourceId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string vnetResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+        const string otherVnetResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        const string crossVnetNextLink =
+            $"https://management.azure.com{otherVnetResourceId}/virtualNetworkPeerings?api-version=2023-09-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/virtualNetworkPeerings/peer-a",
+                                     "name": "peer-a",
+                                     "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                                     "location": "eastus"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_VNET_LINK"
+                               }
+                               """.Replace("CROSS_VNET_LINK", crossVnetNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: virtual network peering listing did not stop on cross-vnet nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListVirtualNetworkPeeringsAsync(
+                "token-abc",
+                subscriptionId,
+                vnetResourceId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
     {
         HttpMessageHandler handler = new RecordingHandler(

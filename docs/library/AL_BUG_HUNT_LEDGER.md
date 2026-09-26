@@ -21316,13 +21316,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 57
-- **bugs-found:** 26
+- **hunts:** 58
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — built-in policy definition pagination followed cross-collection nextLink
+- **last-bug:** 2026-09-26 — private DNS vnet link and VNet peering pagination followed cross-parent nextLink
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors network type-list paths; proved `ListPrivateDnsZoneVirtualNetworkLinksAsync` and `ListVirtualNetworkPeeringsAsync` followed cross-zone/cross-vnet `nextLink` without scope guards; fixed with `EnsureTargetsArmRelativeListingPath`; regressions `ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id` and `ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id`; 2 scoped GetOnlyHostedAzureArmReadClient tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListBuiltInPolicyDefinitionDocumentsAsync` followed `nextLink` to subscription-scoped policy definitions without a built-in collection guard; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`; 1 scoped GetOnlyHostedAzureArmReadClient test passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `TryQueryActualCostSummaryAsync` followed `properties.nextLink` to another subscription without `EnsureTargetsSubscription`; regression `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`; 2 HostedAzureManagementPostReadClient tests passed.
