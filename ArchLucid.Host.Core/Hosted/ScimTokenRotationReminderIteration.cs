@@ -40,7 +40,7 @@ public static class ScimTokenRotationReminderIteration
             if (logger.IsEnabled(LogLevel.Warning))
             {
                 logger.LogWarning(
-                    "archlucid.scim.token.rotation_due tenantId={TenantId} tokenId={TokenId} createdUtc={CreatedUtc:o}",
+                    "archlucid.scim.token.rotation_due tenantId={TenantId} rotationCandidateId={RotationCandidateId} createdUtc={CreatedUtc:o}",
                     row.TenantId,
                     row.Id,
                     row.CreatedUtc);

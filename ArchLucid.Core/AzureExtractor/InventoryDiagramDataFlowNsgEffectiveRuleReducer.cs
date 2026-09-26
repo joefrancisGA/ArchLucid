@@ -37,17 +37,32 @@ public static class InventoryDiagramDataFlowNsgEffectiveRuleReducer
             InventoryDiagramDataFlowNsgAttachmentIndex.ResolveEndpointAttachments(
                 graph,
                 sourceNode,
+                targetNode,
                 attachmentsByEndpointArmId);
         IReadOnlyList<InventoryDiagramDataFlowNsgEndpointAttachment> targetAttachments =
             InventoryDiagramDataFlowNsgAttachmentIndex.ResolveEndpointAttachments(
                 graph,
                 targetNode,
+                sourceNode,
                 attachmentsByEndpointArmId);
 
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet sourceAddresses =
+            InventoryDiagramDataFlowNsgEndpointAddressResolver.Resolve(graph, sourceNode, targetNode);
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet targetAddresses =
+            InventoryDiagramDataFlowNsgEndpointAddressResolver.Resolve(graph, targetNode, sourceNode);
+
         InventoryDiagramDataFlowNsgDirectionalEvaluation? outboundEvaluation =
-            EvaluateDirection(sourceAttachments, OutboundDirection);
+            EvaluateDirection(
+                sourceAttachments,
+                OutboundDirection,
+                sourceAddresses,
+                targetAddresses);
         InventoryDiagramDataFlowNsgDirectionalEvaluation? inboundEvaluation =
-            EvaluateDirection(targetAttachments, InboundDirection);
+            EvaluateDirection(
+                targetAttachments,
+                InboundDirection,
+                sourceAddresses,
+                targetAddresses);
 
         if (outboundEvaluation is null && inboundEvaluation is null)
         {
@@ -86,68 +101,69 @@ public static class InventoryDiagramDataFlowNsgEffectiveRuleReducer
 
     private static InventoryDiagramDataFlowNsgDirectionalEvaluation? EvaluateDirection(
         IReadOnlyList<InventoryDiagramDataFlowNsgEndpointAttachment> attachments,
-        string direction)
+        string direction,
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet sourceAddresses,
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet targetAddresses)
     {
         if (attachments.Count == 0)
         {
             return null;
         }
 
-        List<(AzureInventoryNsgSecurityRule Rule, InventoryDiagramDataFlowNsgEndpointAttachment Attachment)> effectiveDenyRules = [];
-        List<InventoryDiagramDataFlowNsgRuleReference> supportingRules = [];
-        string? effectiveDisplayLabel = null;
+        List<(AzureInventoryNsgSecurityRule Rule, InventoryDiagramDataFlowNsgEndpointAttachment Attachment)> matchingRules = [];
 
         foreach (InventoryDiagramDataFlowNsgEndpointAttachment attachment in attachments)
         {
-            List<AzureInventoryNsgSecurityRule> orderedRules = attachment.Rules
-                .Where(rule => string.Equals(rule.Direction, direction, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(rule => ParsePriority(rule.Priority))
-                .ThenBy(rule => rule.RuleName, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            if (orderedRules.Count == 0)
+            foreach (AzureInventoryNsgSecurityRule rule in attachment.Rules)
             {
-                continue;
+                if (!string.Equals(rule.Direction, direction, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (!IsRuleApplicableToConnector(rule, sourceAddresses, targetAddresses))
+                {
+                    continue;
+                }
+
+                matchingRules.Add((rule, attachment));
             }
-
-            AzureInventoryNsgSecurityRule firstRule = orderedRules[0];
-
-            if (string.Equals(firstRule.Access, "Deny", StringComparison.OrdinalIgnoreCase))
-            {
-                effectiveDenyRules.Add((firstRule, attachment));
-                continue;
-            }
-
-            effectiveDisplayLabel ??= BuildEffectiveDisplayLabel(firstRule);
-            supportingRules.AddRange(
-                orderedRules
-                    .Where(rule => string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(
-                            BuildEffectiveDisplayLabel(rule),
-                            BuildEffectiveDisplayLabel(firstRule),
-                            StringComparison.OrdinalIgnoreCase))
-                    .Select(rule => ToRuleReference(rule, attachment, direction)));
         }
 
-        if (effectiveDenyRules.Count > 0)
+        if (matchingRules.Count == 0)
         {
-            AzureInventoryNsgSecurityRule denyRule = effectiveDenyRules[0].Rule;
+            return null;
+        }
 
+        List<(AzureInventoryNsgSecurityRule Rule, InventoryDiagramDataFlowNsgEndpointAttachment Attachment)> orderedRules =
+            matchingRules
+                .OrderBy(entry => ParsePriority(entry.Rule.Priority))
+                .ThenBy(entry => entry.Rule.RuleName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        (AzureInventoryNsgSecurityRule firstRule, InventoryDiagramDataFlowNsgEndpointAttachment firstAttachment) = orderedRules[0];
+        bool firstRuleIsDeny = string.Equals(firstRule.Access, "Deny", StringComparison.OrdinalIgnoreCase);
+        string? effectiveDisplayLabel = BuildEffectiveDisplayLabel(firstRule);
+
+        if (firstRuleIsDeny)
+        {
             return new InventoryDiagramDataFlowNsgDirectionalEvaluation
             {
                 Direction = direction,
                 IsBlocked = true,
-                EffectiveDisplayLabel = BuildEffectiveDisplayLabel(denyRule),
-                SupportingRules = effectiveDenyRules
-                    .Select(entry => ToRuleReference(entry.Rule, entry.Attachment, direction))
-                    .ToList(),
+                EffectiveDisplayLabel = effectiveDisplayLabel,
+                SupportingRules =
+                [
+                    ToRuleReference(firstRule, firstAttachment, direction),
+                ],
             };
         }
 
-        if (supportingRules.Count == 0)
-        {
-            return null;
-        }
+        List<InventoryDiagramDataFlowNsgRuleReference> supportingRules = orderedRules
+            .Where(entry => string.Equals(entry.Rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(BuildEffectiveDisplayLabel(entry.Rule), effectiveDisplayLabel, StringComparison.OrdinalIgnoreCase))
+            .Select(entry => ToRuleReference(entry.Rule, entry.Attachment, direction))
+            .ToList();
 
         return new InventoryDiagramDataFlowNsgDirectionalEvaluation
         {
@@ -284,5 +300,93 @@ public static class InventoryDiagramDataFlowNsgEffectiveRuleReducer
         }
 
         return int.MaxValue;
+    }
+
+    private static bool IsRuleApplicableToConnector(
+        AzureInventoryNsgSecurityRule rule,
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet sourceAddresses,
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet targetAddresses)
+    {
+        return IsAddressSideApplicable(
+                rule.SourceAddressPrefix,
+                rule.SourceAddressPrefixes,
+                sourceAddresses)
+            && IsAddressSideApplicable(
+                rule.DestinationAddressPrefix,
+                rule.DestinationAddressPrefixes,
+                targetAddresses);
+    }
+
+    private static bool IsAddressSideApplicable(
+        string? singularPrefix,
+        IReadOnlyList<string> arrayPrefixes,
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet endpointAddresses)
+    {
+        if (!InventoryDiagramDataFlowNsgAddressPrefixMatcher.IsWildcard(singularPrefix))
+        {
+            return IsPrefixApplicable(singularPrefix!, endpointAddresses);
+        }
+
+        if (arrayPrefixes.Count > 0)
+        {
+            bool sawSpecificPrefix = false;
+
+            foreach (string prefix in arrayPrefixes)
+            {
+                if (InventoryDiagramDataFlowNsgAddressPrefixMatcher.IsWildcard(prefix))
+                {
+                    return true;
+                }
+
+                sawSpecificPrefix = true;
+
+                if (IsPrefixApplicable(prefix, endpointAddresses))
+                {
+                    return true;
+                }
+            }
+
+            return !sawSpecificPrefix;
+        }
+
+        return true;
+    }
+
+    private static bool IsPrefixApplicable(
+        string prefix,
+        InventoryDiagramDataFlowNsgEndpointAddressResolver.EndpointAddressSet endpointAddresses)
+    {
+        if (InventoryDiagramDataFlowNsgAddressPrefixMatcher.IsWildcard(prefix))
+        {
+            return true;
+        }
+
+        if (!InventoryDiagramDataFlowNsgAddressPrefixMatcher.IsCidrOrIp(prefix))
+        {
+            return false;
+        }
+
+        if (endpointAddresses.IpAddresses.Count == 0 && endpointAddresses.CidrPrefixes.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (string ipAddress in endpointAddresses.IpAddresses)
+        {
+            if (InventoryDiagramDataFlowNsgAddressPrefixMatcher.Contains(prefix, ipAddress))
+            {
+                return true;
+            }
+        }
+
+        foreach (string cidrPrefix in endpointAddresses.CidrPrefixes)
+        {
+            if (InventoryDiagramDataFlowNsgAddressPrefixMatcher.Overlaps(prefix, cidrPrefix))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -26,6 +26,8 @@ export function fixtureRunDetail(): RunDetail {
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,
+      architectureRequestId: "fixture-run-request",
+      legacyRunStatus: "Committed",
       description:
         "Enterprise Customer Intake Modernization — integration boundaries, PHI handling posture, and sponsor-facing KPIs.",
       createdUtc: "2025-06-01T12:00:00.000Z",
@@ -56,7 +58,6 @@ export function fixturePreFinalizeRunDetail(): RunDetail {
       ...detail.run,
       runId: FIXTURE_PRE_FINALIZE_RUN_ID,
       goldenManifestId: undefined,
-      hasGoldenManifest: false,
     },
     goldenManifest: undefined,
     artifactBundle: undefined,
