@@ -40,9 +40,9 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
   { value: "avd", label: "AVD Farm" },
   { value: "full", label: "Full subscription — every resource in scope" },
-  { value: "resourceGroup", label: "Pick a Resource Group" },
+  { value: "resourceGroup", label: "One resource group" },
   { value: "selectedResources", label: "Resources you picked" },
-  { value: "dependencyNeighborhood", label: "Dependency neighborhood" },
+  { value: "dependencyNeighborhood", label: "What depends on one resource" },
 ];
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));
