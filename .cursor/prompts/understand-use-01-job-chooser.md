@@ -28,7 +28,7 @@ ArchLucid and SecureNow share one signed-in shell. The home opens whichever line
 1. Branch `uu/01-job-chooser` from current `master`.
 2. On the architecture signed-in home, above the existing dashboard, render two jobs:
    - **Review an architecture.** Outcome line: "You get a finalized architecture package." Selecting it sets the product line to `architecture` and stays on `/`.
-   - **See what this Azure estate can reach.** Outcome line: "You get a ranked path you can inspect." Selecting it sets the product line to `security` and stays on `/`.
+   - **Choose an architecture estate.** Outcome line: "After you choose an estate, you can see what it can reach." Selecting it sets the product line to `security` and stays on `/`. Do not say "this Azure estate" — no estate is chosen yet.
 3. On that architecture process, the current product line is the selected job and the other job stays visible, including after switching to the SecureNow dashboard. The SecureNow process home does not render the chooser.
 4. Use the existing `setProductLine` path. Do not add a product line, a route, or a sidebar assignment.
 5. When this Next.js process cannot host the architecture home (the existing security-env hint), keep that hint. Do not show a control that claims to switch lines and then leaves the person on the hint.
@@ -38,12 +38,14 @@ ArchLucid and SecureNow share one signed-in shell. The home opens whichever line
 
 SecureNow is not for reviewing architectures. The SecureNow process home does not render this chooser. Show both jobs on the architecture home, and keep them when that same process is showing the SecureNow dashboard so the architecture job can be selected again. Do not put "Review an architecture" on a SecureNow home that cannot host it.
 
+Reachability is available after an architecture estate is chosen. The home job names that choice. It does not say the user can already see what this Azure estate can reach.
+
 ## Acceptance criteria
 
 - Architecture home shows both jobs, with architecture selected.
 - SecureNow process home does not show "Review an architecture".
 - Activating the other job calls the existing product-line setter.
-- Copy says "architecture package" and "ranked path". It does not say "run" for the review, and it does not say "operator".
+- Copy says "architecture package" for the review job. The estate job says to choose an estate before seeing what it can reach. It does not say "run" for the review, and it does not say "operator".
 - The security-env hint screen does not grow a switch that cannot change the process.
 
 ## Constraints

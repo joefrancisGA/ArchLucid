@@ -37,6 +37,9 @@ describe("ProductLineHomeSwitch", () => {
     expect(screen.queryByTestId("infrastructure-overview-home-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Review an architecture" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Choose an architecture estate" })).toBeInTheDocument();
+    expect(screen.getByText("After you choose an estate, you can see what it can reach.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "See what this Azure estate can reach" })).not.toBeInTheDocument();
   });
 
   it("renders the infrastructure overview home when the shell is Security", () => {
