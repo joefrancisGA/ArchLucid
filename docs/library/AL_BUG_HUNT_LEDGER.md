@@ -15880,13 +15880,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `Integrations:ItsmOutbound:Jira:OAuthClientSecret` / `ApiToken` compound segments leaked integration credentials
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-26 thorough hunt (dry): cheap-disproved snake_case JSON credential property candidate — no `ConfigurationKeyCatalog` or host options path stores JSON credential blobs with `api_key` / `client_secret` keys (.NET binding and catalog JSON blobs use PascalCase); 1036 scoped Configuration tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded from `IntegrationsItsmOutboundOptions` / `ConfluencePublishingOptions`; proved `OAuthClientSecret` and `ApiToken` path segments leaked because embedded `Secret`/`Token` skips lacked compound suffix rules; fixed via `IsCompoundSecretCredentialSegment` (`ClientSecret`) and `IsCompoundTokenCredentialSegment` (`ApiToken`); seeded snake_case JSON credential property candidate; 1036 scoped Configuration tests passed.
 
@@ -15917,7 +15919,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `ConfigurationSensitiveConfigPathMatcher` — compound `WebhookSecret` segments bypass embedded-`Secret` skip — **invalid 2026-09-26 thorough hunt:** no `WebhookSecret` config path in `ConfigurationKeyCatalog` or host options; existing webhook secrets use `WebhookSigningSecret`, `HmacSha256SharedSecret`, or `SigningSecret` suffix rules
 - [x] (proven) `ConfigurationEffectiveValueResolver` — `ArchLucid:FallbackLlm:Endpoints` JSON effective values expose embedded `ApiKey` properties when path segment is not sensitive — **hit 2026-09-26 thorough hunt:** admin config summary returned raw fallback endpoint JSON; fixed by scanning JSON property names with `ConfigurationSensitiveConfigValueScanner`; regressions `Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties` and `Resolve_preserves_non_credential_json_effective_values`
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `OAuthClientSecret` and `ApiToken` integration paths bypass embedded-`Secret`/`Token` fragment matching — **hit 2026-09-26 seed hunt:** `Integrations:ItsmOutbound:Jira:OAuthClientSecret`, `Integrations:ItsmOutbound:Jira:ApiToken`, `Integrations:ConfluencePublishing:OAuthClientSecret`, and `Integrations:ConfluencePublishing:ApiToken` leaked raw Atlassian/Jira credentials in operator config summary; fixed with `ClientSecret` and `ApiToken` compound suffix rules; regression `Resolve_redacts_integrations_oauth_and_api_token_config_paths`
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON credential property names (`api_key`, `client_secret`) bypass PascalCase property-name scanner when stored on non-sensitive catalog paths
+- [x] (invalid) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON credential property names (`api_key`, `client_secret`) bypass PascalCase property-name scanner — **invalid 2026-09-26 thorough hunt:** no catalog or host options path stores credential JSON with snake_case keys; `FallbackLlm:Endpoints` and `PerAgentTypeFloors` bind PascalCase property names via .NET configuration
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
