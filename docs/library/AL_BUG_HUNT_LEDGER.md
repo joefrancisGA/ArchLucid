@@ -23427,7 +23427,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -23474,6 +23474,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — bootstrap `TryClaimTrialSeatAsync` used admin email while `TrialSeatReservationMiddleware` reserves seats with JWT `sub` (platform user GUID), double-counting the registering admin — **hit 2026-09-26 seed hunt:** removed bootstrap seat claim; first authenticated request claims one seat via middleware/accountant; regression `Self_service_bootstrap_and_middleware_claim_one_seat_for_registering_admin`.
 - [x] (valid-no-repro) `TenantTrialSeatSkipCache` / `TrialSeatAccountant` — 5-minute negative cache skips seat claims after tenant row gains metered active trial within TTL — **cheap-disproof 2026-09-26 seed hunt:** `PersistBootstrapRegistrationAsync` awaits bootstrap before returning; `CommitSelfServiceTrialAsync` always sets positive `TrialSeatsLimit`; skip cache only warms when `RequiresSeatClaim` is false on first read; no tenant API mutates seat cap mid-cache without operator SQL.
+
+- [x] (valid-no-repro) `TrialVerticalWelcomeRequestFactory.Create` — Ordinal vertical label matching would drop non-canonical casing to the generic welcome pre-seed brief — **cheap-disproof 2026-09-26 seed hunt:** `RegistrationRequestBaselineValidator.IndustryVerticals` and UI `industryVerticalOptions` only accept exact canonical labels; post-auth `BuildCompanyProfile` trims without altering casing; no tenant-controlled writer stores alternate casing.
+- [x] (valid-no-repro) `TrialLimitGate` / `TenantTrialFacade.LinkEntraAsync` — whitespace-only `TrialStatus` bypasses trial write limits and Converted-or-commercial link-entra guard like empty commercial rows — **cheap-disproof 2026-09-26 seed hunt:** same unreachable-writer class as unrecognized lifecycle labels (#1705); lifecycle SQL hooks emit canonical non-whitespace labels; facade status API already treats whitespace as commercial display-only.
+- [x] (valid-no-repro) `TenantMigrationProjectionRefreshService.RefreshAsync` — retrieval outbox drainer batches are not filtered to the migrating `tenantId` — **cheap-disproof 2026-09-26 seed hunt:** operator fan-out step intentionally runs shared `IRetrievalIndexingOutboxProcessor` dequeue; tenant-scoped hot-path cache keys and policy-pack invalidation still target the migration triple; parity with #1859 optional drainer contract.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status retry path re-invokes hard purge without a separate `LegalHoldUntilUtc` guard inside the branch — **cheap-disproof 2026-09-26 seed hunt:** active legal hold short-circuits before the `Deleted` retry block on every scheduler tick; `Deleted` is only recorded after ExportOnly policy timers and the same pre-check.
+
+2026-09-26 seed hunt (seed-only): reseeded application-tenancy-lifecycle after bootstrap seat parity hit; cheap-disproof closed vertical casing, whitespace trial-status guard bypass, global migration outbox drain, and Deleted-purge legal-hold retry candidates; 123 scoped tenancy tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved bootstrap email principal double-counted registering admin against JWT `sub` seat claims; cheap-disproof closed stale seat-skip-cache candidate; 123 scoped tenancy tests passed.
 
