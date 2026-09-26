@@ -179,9 +179,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (scheduledTasks.Count == 0)
             throw new NoScheduledAgentTasksException(runId);
 
-        IReadOnlyList<AgentTask> forcedTasks = SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
+        SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
 
         await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+        await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
 
         if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid)
             && _runExecuteOwnershipLeaseService.IsEnabled)
@@ -231,8 +232,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentTask> liveScheduledTasks =
             await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<AgentTask> liveForcedTasks =
-            SelectiveAgentExecutePlanner.ResolveTasksToForce(liveScheduledTasks, request);
+        IReadOnlyList<AgentTask> liveForcedTasks = ResolveLiveForcedTasksOrThrow(runId, liveScheduledTasks, request);
 
         foreach (AgentTask task in liveForcedTasks)
         {
@@ -243,6 +243,29 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         await _postExecuteHooks.LogSelectiveExecuteRequestedAsync(runId, actor, liveForcedTasks, request.IncludeDependents, cancellationToken).ConfigureAwait(false);
 
         return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task EnsureSelectiveForcedTasksStillResolvableAsync(
+        ScopeContext scope,
+        string runId,
+        SelectiveAgentExecuteRequest request,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<AgentTask> liveScheduledTasks =
+            await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        ResolveLiveForcedTasksOrThrow(runId, liveScheduledTasks, request);
+    }
+
+    private static IReadOnlyList<AgentTask> ResolveLiveForcedTasksOrThrow(
+        string runId,
+        IReadOnlyList<AgentTask> liveScheduledTasks,
+        SelectiveAgentExecuteRequest request)
+    {
+        if (liveScheduledTasks.Count == 0)
+            throw new NoScheduledAgentTasksException(runId);
+
+        return SelectiveAgentExecutePlanner.ResolveTasksToForce(liveScheduledTasks, request);
     }
 
     private async Task<ArchitectureRun> EnsureSelectiveExecuteStillEligibleAsync(

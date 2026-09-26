@@ -23412,6 +23412,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-09-26 seed hunt (seed→hit): proved `ExecuteSelectiveRunAsync` acquired SQL ownership when live schedule cleared between planning and acquire; fixed via `EnsureSelectiveForcedTasksStillResolvableAsync` + `ResolveLiveForcedTasksOrThrow` (empty live schedule → `NoScheduledAgentTasksException`); regressions `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_before_acquire` and prior stale-schedule delete guard; 18 scoped ownership/orchestrator tests passed.
+
+2026-09-26 thorough hunt (hit): proved `ExecuteSelectiveRunOwnedCoreAsync` deleted forced-task results from the first `GetByRunIdAsync` snapshot without re-resolving against live schedule before prep; fixed by re-fetching tasks and re-running `SelectiveAgentExecutePlanner.ResolveTasksToForce` after eligibility reload; regression `ExecuteSelectiveRunAsync_does_not_delete_results_when_forced_tasks_no_longer_match_live_schedule`; 17 scoped ownership/orchestrator tests passed.
+
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context eligibility parity and post-acquire authority lease-pin candidates; seeded stale forced-task snapshot candidate; 43 scoped ownership/orchestrator tests passed.
 
 - **id:** run-execute-ownership
@@ -23420,11 +23424,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 15
-- **bugs-found:** 9
+- **hunts:** 17
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-09 — full execute acquired ownership before no-scheduled-tasks gate
+- **last-bug:** 2026-09-26 — selective execute acquired ownership when live schedule no longer supported force list
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -23446,7 +23450,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (invalid) `ExecuteSelectiveRunAsync` vs `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` — deferred-context-only runs (`ContextSnapshotId` without scheduled tasks) blocked by selective task-count gate while full execute may proceed — **cheap-disproof 2026-09-26 seed hunt:** selective execute requires a resolved force list from scheduled tasks; deferred-context resume is full-execute only; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_no_scheduled_tasks_even_with_deferred_context`
 - [x] (valid-no-repro) `ExecuteSelectiveRunOwnedCoreAsync` — authority-pipeline or committed transition after `AcquireAsync` but before prep reload may hold SQL lease until `EnsureSelectiveExecuteStillEligibleAsync` throws — **cheap-disproof 2026-09-26 seed hunt:** narrow post-acquire window mirrors full execute `ExecuteRunCoreInnerAsync` authority re-check after ownership acquire; pre-acquire guards (#1327/#1392/#1393) already minimize lease pins for known refusal paths
-- [ ] (candidate) `ExecuteSelectiveRunAsync` — forced-task list frozen from first `GetByRunIdAsync` snapshot; concurrent task deletion before `ExecuteSelectiveRunOwnedCoreAsync` prep does not re-validate forced tasks against live schedule
+- [x] (proven) `ExecuteSelectiveRunAsync` — forced-task list frozen from first `GetByRunIdAsync` snapshot; prep deleted results for tasks no longer on live schedule after acquire — **hit 2026-09-26 thorough hunt:** re-resolve forced tasks from live `GetByRunIdAsync` inside `ExecuteSelectiveRunOwnedCoreAsync` before destructive prep; regression `ExecuteSelectiveRunAsync_does_not_delete_results_when_forced_tasks_no_longer_match_live_schedule` (schedule is append-only today; guard closes planning-to-prep drift)
+- [x] (proven) `ExecuteSelectiveRunAsync` — acquired ownership when live schedule no longer supported the selective force list before `AcquireAsync` — **hit 2026-09-26 seed hunt:** `EnsureSelectiveForcedTasksStillResolvableAsync` before acquire; `ResolveLiveForcedTasksOrThrow` maps empty live schedule to `NoScheduledAgentTasksException`; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_before_acquire`
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
