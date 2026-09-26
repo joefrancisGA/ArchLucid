@@ -246,8 +246,34 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             builder.AppendLine($"{indentText}        penwidth=1.5;");
             builder.AppendLine($"{indentText}        fillcolor=\"white\";");
 
+            HashSet<string> nestedSubnetNodeIds = [];
+            foreach (DiagramResourceGroupGraphvizClusterPlanner.SubnetClusterPlan subnetCluster
+                     in vnetCluster.SubnetClusters)
+            {
+                string subnetClusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(subnetCluster.ClusterId);
+                builder.AppendLine($"{indentText}        subgraph {subnetClusterId} {{");
+                builder.AppendLine($"{indentText}            label={GraphvizIdEscaper.QuoteLabel(subnetCluster.Label)};");
+                builder.AppendLine($"{indentText}            style=\"rounded\";");
+                builder.AppendLine($"{indentText}            color=\"#cbd5e1\";");
+                builder.AppendLine($"{indentText}            penwidth=1;");
+                builder.AppendLine($"{indentText}            fillcolor=\"white\";");
+
+                foreach (DiagramNode node in subnetCluster.Nodes)
+                {
+                    nestedSubnetNodeIds.Add(node.NodeId);
+                    AppendNodeStatement(builder, indentText + "            ", node);
+                }
+
+                builder.AppendLine($"{indentText}        }}");
+            }
+
             foreach (DiagramNode node in vnetCluster.Nodes.Where(node => node.NodeId != vnetCluster.VnetNodeId))
             {
+                if (nestedSubnetNodeIds.Contains(node.NodeId))
+                {
+                    continue;
+                }
+
                 AppendNodeStatement(builder, indentText + "        ", node);
             }
 

@@ -497,7 +497,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach ((string? frameId, DiagramNode? vnet, IReadOnlyList<DiagramNode> groupNodes) in groups)
         {
-            List<NodePlacement> groupPlacements = LayoutCellInterior(
+            List<NodePlacement> groupPlacements = LayoutNestedVnetMembers(
                 groupNodes,
                 visibleEdges,
                 options,
@@ -548,6 +548,100 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return placements;
+    }
+
+    private static List<NodePlacement> LayoutNestedVnetMembers(
+        IReadOnlyList<DiagramNode> vnetMembers,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        List<DiagramNode> subnets = vnetMembers
+            .Where(IsSubnetNode)
+            .OrderBy(node => node.OrderKey)
+            .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToList();
+        if (subnets.Count == 0)
+        {
+            return LayoutCellInterior(vnetMembers, visibleEdges, options, labelContext);
+        }
+
+        HashSet<string> assigned = [];
+        List<IReadOnlyList<DiagramNode>> groups = [];
+
+        foreach (DiagramNode subnet in subnets)
+        {
+            List<DiagramNode> members = vnetMembers
+                .Where(node => string.Equals(node.NodeId, subnet.NodeId, StringComparison.Ordinal)
+                               || visibleEdges.Any(edge =>
+                                   string.Equals(edge.ToNodeId, subnet.NodeId, StringComparison.Ordinal)
+                                   && string.Equals(edge.FromNodeId, node.NodeId, StringComparison.Ordinal)
+                                   && DiagramForestVnetMembership.IsCitedPlacementEdge(edge)))
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList();
+
+            if (members.Count == 1)
+            {
+                continue;
+            }
+
+            groups.Add(members);
+            assigned.UnionWith(members.Select(node => node.NodeId));
+        }
+
+        List<DiagramNode> remainder = vnetMembers
+            .Where(node => !assigned.Contains(node.NodeId))
+            .ToList();
+        if (remainder.Count > 0)
+        {
+            groups.Add(remainder);
+        }
+
+        if (groups.Count <= 1)
+        {
+            return LayoutCellInterior(vnetMembers, visibleEdges, options, labelContext);
+        }
+
+        List<NodePlacement> placements = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach (IReadOnlyList<DiagramNode> group in groups)
+        {
+            List<NodePlacement> groupPlacements = LayoutCellInterior(
+                group,
+                visibleEdges,
+                options,
+                labelContext);
+            (double groupWidth, double groupHeight) = ResolveCellOuterSize(groupPlacements, options);
+
+            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
+            {
+                groupX = 0.0d;
+                rowY += rowHeight + options.ComponentVerticalGap;
+                rowHeight = 0.0d;
+            }
+
+            placements.AddRange(groupPlacements.Select(placement => placement with
+            {
+                X = placement.X + groupX,
+                Y = placement.Y + rowY,
+            }));
+
+            groupX += groupWidth + options.ComponentHorizontalGap;
+            rowHeight = Math.Max(rowHeight, groupHeight);
+        }
+
+        return placements;
+    }
+
+    private static bool IsSubnetNode(DiagramNode node)
+    {
+        return (node.ArmResourceType ?? string.Empty).Contains(
+            "Microsoft.Network/virtualNetworks/subnets",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<NodePlacement> LayoutCellInterior(
