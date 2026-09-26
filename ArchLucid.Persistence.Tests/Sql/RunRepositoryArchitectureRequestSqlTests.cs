@@ -158,6 +158,68 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_null_legacy_status_like_not_in_filter()
+    {
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
+            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)",
+                "SQL NOT IN excludes NULL LegacyRunStatus rows; InMemory must match for sealed-manifest guard parity.");
+    }
+
+    [Fact]
+    public async Task InMemory_representative_run_id_skips_null_legacy_status_rerun_like_sql_not_in()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 26, 16, 0, 0, DateTimeKind.Utc);
+        Guid committedRunId = Guid.NewGuid();
+        Guid nullStatusRunId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-null-status",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = manifestId,
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = nullStatusRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-null-status",
+                LegacyRunStatus = null,
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = createdUtc.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-null-status",
+            CancellationToken.None);
+
+        representative.Should().Be(committedRunId,
+            "representative lookup must ignore newer NULL-status reruns that SQL NOT IN would filter out.");
+    }
+
+    [Fact]
     public async Task InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest()
     {
         ScopeContext scope = new()

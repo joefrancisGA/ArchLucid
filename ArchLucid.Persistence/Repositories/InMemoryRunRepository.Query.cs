@@ -239,8 +239,7 @@ public sealed partial class InMemoryRunRepository
             .Where(r =>
                 RunRepositoryCore.MatchesScope(r, scope) &&
                 RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key) &&
-                r.GoldenManifestId.HasValue &&
-                RunRepositoryCore.IsCommittedRun(r))
+                RunRepositoryCore.MatchesRepresentativeArchitectureRequestRun(r))
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .FirstOrDefault();
