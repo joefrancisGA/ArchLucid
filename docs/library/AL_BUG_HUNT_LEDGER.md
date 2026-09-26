@@ -3139,13 +3139,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-25 — double-reverse-solidus and script full-stop dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved supplementary-plane ornamental solidus pairs, remaining FULL STOP script punctuation parent-segment pairs, and TAG solidus pairs; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) VERY HEAVY SOLIDUS (`🙼`, `U+1F67C`) and VERY HEAVY REVERSE SOLIDUS (`🙽`, `U+1F67D`) protocol-relative pairs, including percent-encoded `%F0%9F%99%BC` repeats — **valid-no-repro 2026-09-26 seed hunt:** WHATWG path segments split only on U+002F; ornamental dingbats are not slash separators in browsers; BMP `IsSlashHomoglyph` char iteration on UTF-16 surrogates does not change same-origin relative navigation class.
+- [x] (valid-no-repro) ARMENIAN FULL STOP (`։`, `U+0589`) and MONGOLIAN MANCHU FULL STOP (`᠉`, `U+1809`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** script sentence punctuation is not browser-normalized to ASCII `.` for `..` segment traversal; `ContainsDotDotSegment` compares literal `..` segments only.
+- [x] (valid-no-repro) TAG SOLIDUS (`U+E002F`) and TAG REVERSE SOLIDUS (`U+E005C`) pairs — **valid-no-repro 2026-09-26 seed hunt:** language-tag private-use glyphs are not URL path separators; paths without a leading `/` still fail the relative-path guard; no external host introduced.
 
 2026-09-12 seed hunt #2075 (seed-only): reseeded auth-return-path; 58 scoped tests passed; no new hunt-ready rows
 
