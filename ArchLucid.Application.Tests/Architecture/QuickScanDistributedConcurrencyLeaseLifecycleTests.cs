@@ -664,6 +664,45 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_throws_operation_canceled_when_operational_snapshot_lookup_is_cancelled()
+    {
+        using CancellationTokenSource cancellation = new();
+        await cancellation.CancelAsync();
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 1,
+                QueueWaitTimeoutSeconds = 30,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        });
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cancellation.Token));
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            new InMemoryQuickScanDistributedConcurrencyStore(),
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Func<Task> act = () => service.WaitForAdmissionAsync("cancelled-snapshot", cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_throws_operation_canceled_when_admit_is_cancelled()
     {
         using CancellationTokenSource cancellation = new();

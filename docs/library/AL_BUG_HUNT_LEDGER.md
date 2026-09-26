@@ -23639,13 +23639,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — admit-path store handler swallowed `OperationCanceledException` as `StoreUnavailable`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6962 (seed-only): picker repeat after #6961; cheap-disproof closed operational-snapshot cancellation mapping and `Task.Delay` cancel abandon parity; regression `WaitForAdmissionAsync_throws_operation_canceled_when_operational_snapshot_lookup_is_cancelled`; 19 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `WaitForAdmissionAsync` maps cancelled `GetSnapshotAsync` to `StoreUnavailable` — **cheap-disproof 2026-09-26 seed hunt #6962:** operational lookup runs before store admit and propagates `OperationCanceledException` without the admit/promote store-error handlers; regression `WaitForAdmissionAsync_throws_operation_canceled_when_operational_snapshot_lookup_is_cancelled`.
+- [x] (valid-no-repro) `Task.Delay` cancellation during queue wait returns `StoreUnavailable` — **cheap-disproof 2026-09-26 seed hunt #6962:** `Task.Delay(pollInterval, cancellationToken)` throws `OperationCanceledException` handled by the outer abandon-and-rethrow path (#1209); regression `WaitForAdmissionAsync_still_throws_operation_canceled_when_abandon_cleanup_fails`.
 
 2026-09-26 seed hunt #6961 (seed→hit): reseeded quick-scan-distributed-concurrency; proved `WaitForAdmissionAsync` admit `catch (Exception)` mapped cancelled `TryAdmitAsync` to `StoreUnavailable` instead of propagating cancellation (promote path already excluded `OperationCanceledException` per #1209); fixed with `when (ex is not OperationCanceledException)`; regression `WaitForAdmissionAsync_throws_operation_canceled_when_admit_is_cancelled`; 18 scoped QuickScanDistributedConcurrency tests passed.
 
