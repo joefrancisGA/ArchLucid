@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -23,7 +24,7 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         if (chosen.IsLocked)
             return null;
 
-        if (chosen.ProviderFamily == candidate.ProviderFamily)
+        if (SharesProviderFamilyGate(chosen.ProviderFamily, candidate.ProviderFamily))
         {
             if (TechnologyNamesMatch(chosen.TechnologyName, candidate.TechnologyName)
                 && HasSubstantiveEvidenceRef(chosen.EvidenceRef)
@@ -73,6 +74,11 @@ public static class TechnologyLedgerAgentProposalMergePolicy
 
     private static bool IsAuthoritativeChosenSource(TechnologyLedgerSource source) =>
         source is TechnologyLedgerSource.User or TechnologyLedgerSource.Evidence;
+
+    private static bool SharesProviderFamilyGate(CloudProvider chosenFamily, CloudProvider candidateFamily) =>
+        chosenFamily == candidateFamily
+        || chosenFamily == CloudProvider.None
+        || candidateFamily == CloudProvider.None;
 
     private static bool ShouldTreatAsDuplicateByName(string? existingRef, string? candidateRef)
     {
