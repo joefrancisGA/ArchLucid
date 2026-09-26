@@ -23559,13 +23559,15 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 14
-- **bugs-found:** 12
+- **hunts:** 15
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — overview sponsor CTA / What-if pipeline gating / duplicate create-home transparency trail
+- **last-bug:** 2026-09-26 — create-home activity orientation tab links dropped create intent
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-detail-workspace; proved `RunDetailCreateHomeActivityPanel` orientation links omitted `includeCreateIntent` on overview/findings/clarifications tabs; fixed create-home activity hrefs; seeded `resolveReviewWorkspaceLifecycle` treating any `manifestId` as finalized and `ArchitectureCreatedClarificationsPanel` create-home tab href parity candidates; 9 create-home activity band vitest tests passed.
 
 2026-09-26 thorough hunt (hit): proved overview demoted sponsor CTA keyed on `manifestId` instead of `runCompleted`, What-if stayed enabled when `showProgressTracker && manifestId`, and create-home mounted duplicate transparency trail above stamp viewport; fixed via `shouldShowOverviewDemotedSponsorReportCta`, `resolveReviewPackagePipelineInFlight`, and removing redundant create-home trail; 25 targeted review-detail vitest tests passed.
 
@@ -23592,6 +23594,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` — `runCompleted` ORed `Boolean(manifestId)` while page model uses `runAnalysisComplete` only — demoted sponsor CTA showed while pipeline tracker still in-flight when `goldenManifestId` present but run not analysis-complete — **hit 2026-09-26 thorough hunt:** fixed via `shouldShowOverviewDemotedSponsorReportCta` + `m.runCompleted` (`does not show sponsor CTA while analysis is in flight even when goldenManifestId is set`)
 - [x] (proven) `resolveRunDetailTabbedWorkspace` / `ReviewPackageWhatIfControl` — `pipelineInFlight={showProgressTracker && !manifestId}` while Activity still mounted tracker when `showProgressTracker && manifestId` — **hit 2026-09-26 thorough hunt:** fixed via `resolveReviewPackagePipelineInFlight(showProgressTracker)` (`stays in flight when progress tracker is on even if goldenManifestId is already on the run`)
 - [x] (proven) `RunDetailPageViewCreateHome` / `RunDetailReviewPackageStampViewport` — duplicate `RunDetailOverviewTransparencyTrail` on pre-manifest create-home column — **hit 2026-09-26 thorough hunt:** removed redundant create-home trail; stamp viewport owns pre-finalize trail (`does not duplicate the transparency trail above the create-home stamp viewport`)
+- [x] (proven) `RunDetailCreateHomeActivityPanel` — orientation `buildReviewWorkspaceTabHref` links omitted create-home intent — **hit 2026-09-26 seed hunt:** Open overview / Review findings / Open clarifications dropped `fromGeneration` + create intent; fixed with `includeCreateIntent: true` on all orientation tab hrefs
+- [ ] (candidate) `resolveReviewWorkspaceLifecycle` — returns `finalized` whenever `manifestId` is set even if `showProgressTracker` and `runCompleted` indicate analysis still in flight (early `goldenManifestId` on run)
+- [ ] (candidate) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omit `includeCreateIntent` while governance pre-commit path already opts in
 
 2026-09-25 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready hypotheses — deferred-explanation finding-count parity remains covered via `resolveRunDetailDeferredSurfaceFindingCount` / `resolveRunDetailOutcomeCardsFindingCountDisplay` on tab badges, outcome cards, policy callout, inspect checklist, and review-package summary; `RunExplanationSection` falls back to `summary.findingCount` inside deferred explanation load; 34 scoped RunDetail/reviewId unit tests passed.
 

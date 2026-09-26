@@ -200,7 +200,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 return await ExecuteSelectiveRunOwnedCoreAsync(
                     runId,
                     actor,
-                    forcedTasks,
                     request,
                     executeCancellation.Token).ConfigureAwait(false);
             }
@@ -217,7 +216,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         return await ExecuteSelectiveRunOwnedCoreAsync(
             runId,
             actor,
-            forcedTasks,
             request,
             cancellationToken).ConfigureAwait(false);
     }
@@ -225,19 +223,24 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private async Task<ExecuteRunResult> ExecuteSelectiveRunOwnedCoreAsync(
         string runId,
         string actor,
-        IReadOnlyList<AgentTask> forcedTasks,
         SelectiveAgentExecuteRequest request,
         CancellationToken cancellationToken)
     {
         ArchitectureRun currentRun = await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
 
-        foreach (AgentTask task in forcedTasks)
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> liveScheduledTasks =
+            await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentTask> liveForcedTasks =
+            SelectiveAgentExecutePlanner.ResolveTasksToForce(liveScheduledTasks, request);
+
+        foreach (AgentTask task in liveForcedTasks)
         {
-            await _resultRepository.DeleteForRunTaskAsync(runId, task.TaskId, cancellationToken);
+            await _resultRepository.DeleteForRunTaskAsync(runId, task.TaskId, cancellationToken).ConfigureAwait(false);
         }
 
-        await _preExecuteStage.TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, currentRun.Status, cancellationToken);
-        await _postExecuteHooks.LogSelectiveExecuteRequestedAsync(runId, actor, forcedTasks, request.IncludeDependents, cancellationToken);
+        await _preExecuteStage.TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, currentRun.Status, cancellationToken).ConfigureAwait(false);
+        await _postExecuteHooks.LogSelectiveExecuteRequestedAsync(runId, actor, liveForcedTasks, request.IncludeDependents, cancellationToken).ConfigureAwait(false);
 
         return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
     }
