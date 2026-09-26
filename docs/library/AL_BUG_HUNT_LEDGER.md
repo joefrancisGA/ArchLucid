@@ -23447,11 +23447,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 30
-- **bugs-found:** 20
+- **hunts:** 31
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `ListTenantIdsPendingTrialArchitecturePreseedAsync` omitted enqueued tenants with legacy lowercase `active` `TrialStatus`, stalling welcome pre-seed after bootstrap
+- **last-bug:** 2026-09-26 — `TrialLimitGate` reported 0 days remaining for Expired/ReadOnly lifecycle writes while trial-status API showed days until next phase
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23506,6 +23506,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (valid-no-repro) `TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate` / `ListTrialLifecycleAutomationTenantIdsAsync` — Ordinal `Converted` exclusion leaves lowercase `converted` rows in lifecycle scheduler polls — **cheap-disproof 2026-09-26 seed hunt:** `TrialLifecycleTransitionEngine` + `TrialLifecyclePolicy` no-op on `EqualsStatus` Converted; no errant transitions or purge side effects; perf-only noise.
 - [x] (valid-no-repro) `TryIncrementActiveTrialRunAsync` — legacy lowercase `active` rows could bypass run caps like seat claims pre-#seat-hit — **cheap-disproof 2026-09-26 seed hunt:** seat-cap fix already applied `EqualsStatus` + CI-trim SQL to run increment path; regression `TryIncrementActiveTrialRun_enforces_cap_for_lowercase_active_trial_status`.
+
+- [x] (proven) `TrialLimitGate.GuardWriteAsync` / `GuardDeleteAsync` — post-active lifecycle rejections reported `DaysRemaining` from `TrialExpiresUtc` instead of the next lifecycle boundary used by `GET /v1/tenant/trial-status` — **hit 2026-09-26 seed hunt #31:** `Expired`/`ReadOnly`/`ExportOnly` write/delete blocks surfaced `0` days while `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay` showed time until read-only/export/purge; fixed by threading `TrialLifecycleSchedulerOptions` into the gate and reusing policy display math; regression `GuardWriteAsync_expired_reports_days_until_read_only_phase`.
+
+2026-09-26 seed hunt #31 (seed→hit): reseeded application-tenancy-lifecycle; proved lifecycle write-freeze `DaysRemaining` disagreed with trial-status API; 127 scoped tenancy tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded application-tenancy-lifecycle after preseed poll hit; cheap-disproof closed lifecycle automation poll noise and confirmed run-increment casing parity; added run-cap regression; 126 scoped tenancy tests passed.
 
