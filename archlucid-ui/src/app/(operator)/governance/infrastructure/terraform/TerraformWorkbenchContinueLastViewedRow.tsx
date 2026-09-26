@@ -52,8 +52,12 @@ export function TerraformWorkbenchContinueLastViewedRow(
             {" · "}
             Snapshot {snapshotLabel}
             {" · "}
-            <time dateTime={props.target.viewedAtUtc} title={formatAbsoluteUpdatedAtTitle(props.target.viewedAtUtc)}>
+            <time dateTime={props.target.viewedAtUtc}>
               {viewedLabel}
+              <span className="text-al-text-secondary">
+                {" "}
+                ({formatAbsoluteUpdatedAtTitle(props.target.viewedAtUtc)})
+              </span>
             </time>
           </p>
         </div>
