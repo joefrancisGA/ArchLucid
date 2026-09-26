@@ -5529,13 +5529,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 22
-- **bugs-found:** 11
+- **hunts:** 23
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — sandbox test-login accepted invisible-only RoleClaimName while activate rejected it
+- **last-bug:** 2026-09-26 — null ClaimMapping threw ArgumentNullException past activate/test-login validation envelopes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): proved null `ClaimMapping` on activate and sandbox test-login surfaced `ArgumentNullException` from `ToDocument` instead of validation failures mapped to HTTP 400 / `Success=false`; fixed with explicit guards in `IdentityProviderActivationService` and `SsoWizardTestLoginService`; regressions `ActivateAsync_rejects_null_claim_mapping` and `Execute_returns_failure_when_claim_mapping_is_null`; 47 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService` / `IdentityProviderConfigurationController.ActivateAsync` — null `ClaimMapping` throws `ArgumentNullException` and bypasses controller `ArgumentException` handler — **hit 2026-09-26 seed hunt:** explicit `ClaimMapping is required` guard before `ToDocument`; regression `ActivateAsync_rejects_null_claim_mapping`.
+- [x] (proven) `SsoWizardTestLoginService` / `IdentityProviderConfigurationController.TestLogin` — null `ClaimMapping` throws through sandbox execute — **hit 2026-09-26 seed hunt:** structured failure response before `ToDocument`; regression `Execute_returns_failure_when_claim_mapping_is_null`.
 
 2026-09-26 seed hunt (hit): proved `SsoWizardTestLoginService` / `IdentityProviderConfigurationController.TestLogin` skipped `EnsureSubstantiveClaimMapping` so invisible-only `RoleClaimName` returned sandbox success while `ActivateAsync` rejected the same payload; shared `IdentityProviderClaimMappingSubstantiveGuards` now covers activate and test-login; regressions `Execute_rejects_invisible_unicode_only_role_claim_name` and `TestLogin_rejects_invisible_unicode_only_role_claim_name`; 45 scoped activation/controller/test-login tests passed.
 
