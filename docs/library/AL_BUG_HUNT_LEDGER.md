@@ -23247,17 +23247,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
+2026-09-26 thorough hunt (hit): proved `OperatorHomeWorkspaceMetricsStrip` omitted `runsDashboardTotalCount` when calling `deriveOperatorHomeTenantCountingSnapshot`, hiding the metrics strip on demo-only Overview rows despite workspace `totalCount` and awaiting-approval pressure; fixed by passing `runsDashboard.totalCount`; regression `shows awaiting-approval metric when overview rows are demo-only but workspace totalCount is populated`; 17 scoped tenant-counting/metrics-strip tests passed.
+
 - **id:** ui-operator-lib
 - **status:** open
 - **impact:** medium
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 24
-- **bugs-found:** 33
+- **hunts:** 25
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — sponsor dashboard bundle query cache omitted operator scope
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23301,8 +23303,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — preview tab counts derived from `displayItems` instead of deduped `previewItems` — **hit 2026-09-09 seed hunt #1420:** buyer-polished Home passed rail-deduped `previewItems` but tab badges counted the full dashboard pool; fixed by counting `filterTenantOverviewRuns(input.previewItems)`; regression in `uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool`
 
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — seeded 2026-09-09; `OperatorHomeWorkspaceMetricsSummary` already uses `runsDashboard.totalCount` while tenant counting snapshot omits it
-- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` used loaded page length instead of paginated runs dashboard `totalCount` — **hit 2026-09-12 thorough hunt #1852:** home metrics strip understated workspace review totals on paginated Overview; fixed by passing `runsDashboardTotalCount`; regression `uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated`.
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — **hit 2026-09-26 thorough hunt:** `OperatorHomeWorkspaceMetricsStrip` omitted `runsDashboardTotalCount`, so demo-only Overview rows zeroed `hasReviews` and hid awaiting-approval pressure despite workspace `totalCount`; fixed by passing `runsDashboard.totalCount`; regression `shows awaiting-approval metric when overview rows are demo-only but workspace totalCount is populated`
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` used loaded page length instead of paginated runs dashboard `totalCount` — **hit 2026-09-12 thorough hunt #1852:** tenant counting helper and most call sites fixed; regression `uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated`; MetricsStrip gap closed 2026-09-26.
 
 2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
 
