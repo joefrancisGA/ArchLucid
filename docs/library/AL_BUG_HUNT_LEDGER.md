@@ -23088,11 +23088,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 25
-- **bugs-found:** 20
+- **hunts:** 26
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — governance dry-run undefined numeric minimum severity bypassed threshold parser
+- **last-bug:** 2026-09-26 — execute-baseline drift ignored coverage assignment changes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23144,6 +23144,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — effective compliance rule key changes after execute not detected when pack-assignment hash unchanged — **hit 2026-09-26 thorough hunt:** compare normalized execute-time `ComplianceRuleKeys` to current resolution; regression `EvaluateAsync_adds_blocking_item_when_compliance_rule_keys_drift`
 
 2026-09-26 thorough hunt (hit): proved governance dry-run undefined numeric minimum severity bypass and execute-baseline compliance-rule-key drift gaps; cheap-disproved lineage promotions-on-unsealed-manifest; 25 targeted + 736 scoped PolicyPack/Governance Application tests passed (4 unrelated bundled-pack/audit demo failures on VM).
+
+2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after compliance-key drift fix; proved `PreFinalizeExecuteBaselineDriftEvaluator` ignored execute-time `CoverageAssignments` when pack-assignment hash unchanged (e.g. coverage acknowledgement or selection state drift); fixed with canonical coverage snapshot hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`; 8 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
+
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `CoverageAssignments` not compared before finalize — **hit 2026-09-26 seed hunt:** finalize `ResolveAsync` omits run coverage acknowledgements while execute snapshot freezes coverage rows; fixed with `HashCoverageAssignments` parity when execute captured coverage; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
