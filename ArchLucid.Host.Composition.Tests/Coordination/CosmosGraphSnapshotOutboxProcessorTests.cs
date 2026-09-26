@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Cosmos;
 using ArchLucid.Persistence.Cosmos;
@@ -388,6 +390,90 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
             q => q.GetRunDetailForManifestCompareAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_dead_letters_immediately_when_sealed_manifest_hash_mismatches()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = runId,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CosmosGraphSnapshotOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox
+            .Setup(o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
+        sqlLoader
+            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
+
+        ManifestDocument goldenManifest =
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId, "sealed-stored-hash");
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            goldenManifest);
+
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("recomputed-different-hash");
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => sqlLoader.Object);
+        services.AddScoped(_ => cosmosWriter.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => manifestHashService.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new CosmosGraphSnapshotOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
         cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);

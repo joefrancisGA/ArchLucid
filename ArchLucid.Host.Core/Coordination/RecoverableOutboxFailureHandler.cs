@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
 using ArchLucid.Host.Core.Configuration;
 
@@ -11,6 +12,7 @@ public static class RecoverableOutboxFailureHandler
     public static async Task HandleAsync<TEntry>(
         IRecoverableOutboxRepository<TEntry> outbox,
         TEntry entry,
+        Exception fault,
         string summary,
         IOutboxLeaseRetryProcessorOptions retryOptions,
         TimeProvider timeProvider,
@@ -21,11 +23,20 @@ public static class RecoverableOutboxFailureHandler
     {
         ArgumentNullException.ThrowIfNull(outbox);
         ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(fault);
         ArgumentNullException.ThrowIfNull(summary);
         ArgumentNullException.ThrowIfNull(retryOptions);
         ArgumentNullException.ThrowIfNull(timeProvider);
         ArgumentNullException.ThrowIfNull(onDeadLetterAsync);
         ArgumentNullException.ThrowIfNull(onRetryScheduledAsync);
+
+        if (fault is ConflictException)
+        {
+            await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, cancellationToken).ConfigureAwait(false);
+            await onDeadLetterAsync().ConfigureAwait(false);
+
+            return;
+        }
 
         if (OutboxProcessorRetryCalculator.RetriesExhaustedAfterThisFailure(
                 entry.AttemptCount,
