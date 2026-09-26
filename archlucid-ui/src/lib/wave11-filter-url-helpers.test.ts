@@ -4123,10 +4123,6 @@ describe("wave54 filter url helpers", () => {
       parseIdentityProvidersRoleMappingExamplesOpenFromSearch,
     } = await import("@/lib/administration/identity-providers-role-mapping-examples-disclosure-url");
     const {
-      architectureDraftGuidanceDisclosureHrefFromSearch,
-      parseArchitectureDraftGuidanceOpenFromSearch,
-    } = await import("@/lib/architecture/architecture-draft-guidance-disclosure-url");
-    const {
       parsePersistentWorkspaceFirstReviewStepsOpenFromSearch,
       persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
     } = await import("@/lib/usability/persistent-workspace-first-review-steps-disclosure-url");
@@ -4162,10 +4158,6 @@ describe("wave54 filter url helpers", () => {
     expect(parseIdentityProvidersRoleMappingExamplesOpenFromSearch("1")).toBe(true);
     expect(identityProvidersRoleMappingExamplesDisclosureHrefFromSearch("", true, "/administration/identity-providers/role-mapping")).toBe(
       "/administration/identity-providers/role-mapping?identityProvidersRoleMappingExamplesOpen=1",
-    );
-    expect(parseArchitectureDraftGuidanceOpenFromSearch("true")).toBe(true);
-    expect(architectureDraftGuidanceDisclosureHrefFromSearch("", true, "/architecture/architectures/draft-1")).toBe(
-      "/architecture/architectures/draft-1?architectureDraftGuidanceOpen=1",
     );
     expect(parsePersistentWorkspaceFirstReviewStepsOpenFromSearch("1")).toBe(true);
     expect(persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch("sort=updatedAt", true, "/architecture/reviews")).toBe(
@@ -4889,11 +4881,7 @@ describe("wave62 filter url helpers", () => {
 });
 
 describe("wave63 filter url helpers", () => {
-  it("architecture draft guidance, run detail first screen proof, simplified pilot advanced config, compare trust caveats, ask canned prompt follow ups, finding explainability technical, finding policy trace excerpt, policy rule authoring raw json, operator evidence limits scope, advisory scans cant find review params", async () => {
-    const {
-      architectureDraftGuidanceDisclosureHrefFromSearch,
-      parseArchitectureDraftGuidanceOpenFromSearch,
-    } = await import("@/lib/architecture/architecture-draft-guidance-disclosure-url");
+  it("run detail first screen proof, simplified pilot advanced config, compare trust caveats, ask canned prompt follow ups, finding explainability technical, finding policy trace excerpt, policy rule authoring raw json, operator evidence limits scope, advisory scans cant find review params", async () => {
     const {
       parseRunDetailFirstScreenProofOpenFromSearch,
       runDetailFirstScreenProofDisclosureHrefFromSearch,
@@ -4931,10 +4919,6 @@ describe("wave63 filter url helpers", () => {
       parseAdvisoryScansCantFindReviewOpenFromSearch,
     } = await import("@/lib/advisory/advisory-scans-cant-find-review-disclosure-url");
 
-    expect(parseArchitectureDraftGuidanceOpenFromSearch("1")).toBe(true);
-    expect(architectureDraftGuidanceDisclosureHrefFromSearch("", true, "/architecture/drafts/new")).toBe(
-      "/architecture/drafts/new?architectureDraftGuidanceOpen=1",
-    );
     expect(parseRunDetailFirstScreenProofOpenFromSearch("true")).toBe(true);
     expect(runDetailFirstScreenProofDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1")).toBe(
       "/architecture/reviews/run-1?tab=overview&runDetailFirstScreenProofOpen=1",

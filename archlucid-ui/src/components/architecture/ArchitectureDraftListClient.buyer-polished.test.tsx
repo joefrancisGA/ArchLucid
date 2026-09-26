@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 
 const useArchitectureDraftRegistryEntries = vi.fn<() => readonly ArchitectureDraftRegistryEntry[]>();
 const useArchitectureDraftRegistryHydrated = vi.fn<() => boolean>();
@@ -53,7 +52,6 @@ describe("ArchitectureDraftListClient buyer-polished shell", () => {
     useArchitectureDraftRegistryEntries.mockReset();
     useArchitectureDraftRegistryHydrated.mockReset();
     useArchitectureDraftRegistryHydrated.mockReturnValue(true);
-    window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
   });
 
   it("hides vocabulary rails and shows draft id disclosure", () => {

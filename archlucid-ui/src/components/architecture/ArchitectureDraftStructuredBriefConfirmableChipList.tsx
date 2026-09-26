@@ -95,7 +95,9 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
         required={isRequired}
         showRequirednessSuffix={false}
       />
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>{props.hint}</p>
+      {props.hint.trim().length > 0 ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>{props.hint}</p>
+      ) : null}
       {props.helpSlug !== undefined && props.helpLabel !== undefined ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           <InAppHelpLink
