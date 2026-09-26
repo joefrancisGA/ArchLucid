@@ -202,42 +202,9 @@ public sealed class FindingIacStubGenerator(
 
     private static AgentResult CloneResult(AgentResult source)
     {
-        return new AgentResult
-        {
-            ResultId = source.ResultId,
-            TaskId = source.TaskId,
-            RunId = source.RunId,
-            AgentType = source.AgentType,
-            Claims = source.Claims.ToList(),
-            EvidenceRefs = source.EvidenceRefs.ToList(),
-            Confidence = source.Confidence,
-            Findings = source.Findings.Select(CloneFinding).ToList(),
-            ProposedChanges = source.ProposedChanges,
-            ReasoningTrace = source.ReasoningTrace,
-            Citations = source.Citations?.ToList(),
-            CreatedUtc = source.CreatedUtc
-        };
-    }
+        string json = System.Text.Json.JsonSerializer.Serialize(source, ContractJson.Default);
+        AgentResult? copy = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
 
-    private static ArchitectureFinding CloneFinding(ArchitectureFinding source)
-    {
-        return new ArchitectureFinding
-        {
-            FindingId = source.FindingId,
-            SourceAgent = source.SourceAgent,
-            Severity = source.Severity,
-            ConfidenceScore = source.ConfidenceScore,
-            EvaluationConfidenceScore = source.EvaluationConfidenceScore,
-            ConfidenceLevel = source.ConfidenceLevel,
-            Category = source.Category,
-            Message = source.Message,
-            ReasoningTrace = source.ReasoningTrace,
-            IsMuted = source.IsMuted,
-            MuteReason = source.MuteReason,
-            PolicyRuleId = source.PolicyRuleId,
-            EnforcementTier = source.EnforcementTier,
-            EvidenceRefs = source.EvidenceRefs.ToList(),
-            IacStub = source.IacStub
-        };
+        return copy ?? throw new InvalidOperationException("Clone produced null AgentResult.");
     }
 }
