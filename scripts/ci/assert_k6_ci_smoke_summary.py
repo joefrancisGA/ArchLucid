@@ -194,6 +194,12 @@ def main() -> int:
         default=1500.0,
         help="Maximum allowed global http_req_duration p(95) in ms (fallback when --per-tag-ci-smoke tags are missing)",
     )
+    parser.add_argument("--min-http-requests", type=int, default=0,
+                        help="Require this many completed HTTP requests (default: disabled)")
+    parser.add_argument("--max-dropped-iterations", type=int, default=None,
+                        help="Maximum allowed arrival-rate iterations that never started")
+    parser.add_argument("--min-check-rate", type=float, default=None,
+                        help="Minimum successful k6 check rate")
     parser.add_argument(
         "--per-tag-ci-smoke",
         action="store_true",
@@ -221,6 +227,12 @@ def main() -> int:
     if not math.isfinite(args.max_p95_ms) or args.max_p95_ms <= 0:
         print("error: --max-p95-ms must be a finite positive number", file=sys.stderr)
         return 2
+    if args.min_http_requests < 0 or (args.max_dropped_iterations is not None and args.max_dropped_iterations < 0):
+        print("error: request and dropped-iteration limits must be nonnegative", file=sys.stderr)
+        return 2
+    if args.min_check_rate is not None and (not math.isfinite(args.min_check_rate) or not 0 <= args.min_check_rate <= 1):
+        print("error: --min-check-rate must be between 0 and 1", file=sys.stderr)
+        return 2
 
     path: Path = args.summary_json
     if not path.is_file():
@@ -233,6 +245,19 @@ def main() -> int:
     failed_rate = _float(failed, "rate")
 
     errors: list[str] = []
+
+    if args.min_http_requests:
+        requests = _float(_metric_values(payload, "http_reqs"), "count")
+        if requests is None or requests < args.min_http_requests:
+            errors.append(f"completed HTTP requests {requests or 0:g} below minimum {args.min_http_requests}")
+    if args.max_dropped_iterations is not None:
+        dropped = _float(_metric_values(payload, "dropped_iterations"), "count") or 0
+        if dropped > args.max_dropped_iterations:
+            errors.append(f"dropped iterations {dropped:g} exceeds cap {args.max_dropped_iterations}")
+    if args.min_check_rate is not None:
+        checks = _float(_metric_values(payload, "checks"), "rate")
+        if checks is None or checks < args.min_check_rate:
+            errors.append(f"check rate {checks if checks is not None else 'missing'} below minimum {args.min_check_rate:g}")
 
     if failed_rate is None:
         errors.append("http_req_failed rate missing from k6 summary")

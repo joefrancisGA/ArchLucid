@@ -1,6 +1,7 @@
 /**
  * Per-tenant burst: 10 fixed tenant scopes × operator path (create → seed-fake-results → commit → list artifacts).
- * Each scenario runs at K6_BURST_RATE iterations/s for K6_BURST_DURATION (default 5m). Requires DevelopmentBypass or ApiKey + scope headers.
+ * Each scenario runs at K6_BURST_RATE iterations per K6_BURST_TIME_UNIT (default 1s).
+ * K6_BURST_PROFILE=async-admission measures 202 acceptance only, not completed architecture runs.
  *
  * Local smoke (short):
  *   K6_BURST_DURATION=30s K6_BURST_RATE=1 k6 run tests/load/per-tenant-burst.js --summary-export /tmp/k6-burst.json
@@ -14,6 +15,10 @@ const BURST_RATE = Number(__ENV.K6_BURST_RATE || 5);
 const HTTP_FAIL_RATE_MAX = Number(__ENV.K6_BURST_HTTP_FAIL_RATE_MAX ?? 0.05);
 const P95_MS = Number(__ENV.K6_BURST_P95_MS ?? 15000);
 const HTTP_TIMEOUT = __ENV.K6_BURST_HTTP_TIMEOUT || "180s";
+const BURST_PROFILE = __ENV.K6_BURST_PROFILE || "operator-path";
+if (!["operator-path", "async-admission"].includes(BURST_PROFILE)) {
+  throw new Error(`Unsupported K6_BURST_PROFILE: ${BURST_PROFILE}`);
+}
 
 const TENANT_GUIDS = [
   "10000000-0000-4000-8000-000000000001",
@@ -96,6 +101,15 @@ function runBurstForTenant(tenantIndex) {
     priorManifestVersion: null,
   });
 
+  if (BURST_PROFILE === "async-admission") {
+    const accepted = post(tenantIndex, "/v1/architecture/request/async", body);
+    check(accepted, {
+      "async create accepted with operation location": (res) =>
+        res.status === 202 && /^\/v1\/operations\//.test(res.headers.Location || res.headers.location || ""),
+    });
+    return;
+  }
+
   let r = post(tenantIndex, "/v1/architecture/request", body);
   check(r, { "create run 2xx": (res) => res.status >= 200 && res.status < 300 });
 
@@ -155,10 +169,11 @@ function buildScenarios() {
     scenarios[`tenant_${i}`] = {
       executor: "constant-arrival-rate",
       rate: BURST_RATE,
-      timeUnit: "1s",
+      timeUnit: __ENV.K6_BURST_TIME_UNIT || "1s",
       duration: BURST_DURATION,
-      preAllocatedVUs: Math.max(5, BURST_RATE * 3),
-      maxVUs: Math.max(30, BURST_RATE * 20),
+      gracefulStop: __ENV.K6_BURST_GRACEFUL_STOP || "30s",
+      preAllocatedVUs: Number(__ENV.K6_BURST_PREALLOCATED_VUS || Math.max(5, BURST_RATE * 3)),
+      maxVUs: Number(__ENV.K6_BURST_MAX_VUS || Math.max(30, BURST_RATE * 20)),
       exec: `runBurstT${i}`,
     };
   }
