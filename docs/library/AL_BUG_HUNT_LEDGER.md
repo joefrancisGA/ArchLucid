@@ -8897,17 +8897,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 32
-- **bugs-found:** 24
+- **hunts:** 33
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — SegmentationSemanticsPathAnalyzer nosql substring false positive on sql datastore heuristic
+- **last-bug:** 2026-09-26 — TopologyAntiPatternFindingEngine public/sql naming false positives (nosql, non-public)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-26 seed hunt (hit): reseeded decisioning; proved `SegmentationSemanticsPathAnalyzer.IsDatastoreNode` bare `.Contains("sql")` matched `nosql` labels and treated DocumentDB NoSQL nodes as segmentation-sensitive datastores; fixed with `DecisioningTextTokenMatcher.ContainsStandaloneToken` for `sql` (parity with `TopologyDatastoreLabelHeuristic` / `IdentityRegulatedDatastoreClassifier`); regressions `IsSensitiveTarget_does_not_treat_nosql_label_as_datastore` and `IsSensitiveTarget_still_treats_sql_server_as_datastore`; 14 scoped SegmentationSemantics + IdentityRegulatedDatastore tests passed.
 
 - [x] (proven) `SegmentationSemanticsPathAnalyzer` treats NoSQL topology labels as SQL datastores — **hit 2026-09-26 seed hunt:** `IsDatastoreNode` substring `sql` matched inside `nosql`; fixed standalone `sql` token matching; regressions in `SegmentationSemanticsPathAnalyzerTests`.
+
+2026-09-26 seed hunt (hit): reseeded decisioning after SegmentationSemantics fix; proved `TopologyAntiPatternFindingEngine.LooksPubliclyExposed` substring `sql` matched `nosql` and substring `public` matched `non-public` resource labels; fixed with standalone `public`/`sql` token matching; regressions in `TopologyAntiPatternFindingEngineTests`; 6 scoped topology anti-pattern + SegmentationSemantics path tests passed.
+
+- [x] (proven) `TopologyAntiPatternFindingEngine` false public-exposure findings on `public-*-nosql` and `non-public-sql` labels — **hit 2026-09-26 seed hunt:** `LooksPubliclyExposed` used case-insensitive `.Contains` for `public` and `sql`; fixed with `DecisioningTextTokenMatcher.ContainsStandaloneToken`; regressions `AnalyzeAsync_WhenLabelIsPublicNoSql_DoesNotEmitPublicExposureFinding`, `AnalyzeAsync_WhenLabelIsNonPublicSql_StillDoesNotEmitPublicExposureFinding`, and `AnalyzeAsync_WhenLabelIsPublicStorage_EmitsPublicExposureFinding`.
 
 2026-09-13 seed hunt #2444 (seed-only): reseeded decisioning; no new hunt-ready rows.
 
