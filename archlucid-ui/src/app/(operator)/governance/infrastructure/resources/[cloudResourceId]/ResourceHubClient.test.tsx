@@ -404,6 +404,18 @@ describe("ResourceHubClient", () => {
     expect(chip).toHaveAttribute("href", expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`));
   });
 
+  it("preserves explorer workQueue on overview audit lineage cross-link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-audit-work")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
   it("preserves explorer workQueue when switching hub tabs from the tab bar", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
