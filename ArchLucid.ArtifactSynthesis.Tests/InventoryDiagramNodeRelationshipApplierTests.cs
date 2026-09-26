@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -144,9 +145,27 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
+        DiagramNode nsg = ast.Nodes.Should().ContainSingle(node =>
+            node.ArmResourceType == "Microsoft.Network/networkSecurityGroups").Subject;
+        nsg.IsUnresolvedPolicyOutlineOnly.Should().BeTrue();
         ast.Edges.Should().NotContain(edge =>
             edge.InferenceSource == GraphEdgeInferenceSources.InventoryNsgPolicyAttachment);
+    }
+
+    [Fact]
+    public void Compile_unresolved_nsg_stays_in_mermaid_outline_but_not_forest_canvas()
+    {
+        GraphSnapshot graph = BuildNsgGraph(includeAssociation: false);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        string mermaid = new MermaidDiagramRenderer().Render(ast);
+
+        mermaid.Should().Contain("al-outline-only=true");
+        mermaid.Should().Contain("Microsoft.Network/networkSecurityGroups");
+
+        DiagramForestLayoutResult forestLayout = new DiagramForestLayoutSvgRenderer().Render(ast);
+        forestLayout.Succeeded.Should().BeTrue();
+        forestLayout.Svg.Should().NotContain("networkSecurityGroups");
     }
 
     [Fact]
