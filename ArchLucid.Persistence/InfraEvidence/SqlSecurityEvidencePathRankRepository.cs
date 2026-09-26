@@ -23,6 +23,7 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
                            FROM dbo.SecurityEvidencePathRanks r
                            INNER JOIN dbo.SecurityEvidencePaths p
                                ON p.TenantId = r.TenantId AND p.PathId = r.PathId
+                              AND p.SnapshotId = r.SnapshotId
                            WHERE r.TenantId = @TenantId AND r.PathId = @PathId;
                            """;
 
@@ -133,6 +134,12 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
         }
 
         const string insertSql = """
+                                 IF NOT EXISTS (
+                                     SELECT 1 FROM dbo.SecurityEvidencePaths
+                                     WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId AND PathId = @PathId
+                                 )
+                                     THROW 50004, 'Path rank target path was not found in the snapshot.', 1;
+
                                  INSERT INTO dbo.SecurityEvidencePathRanks
                                  (
                                      PathId, TenantId, SnapshotId, RuleVersion,
@@ -281,6 +288,7 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
 
         const string whereClause = """
                                    WHERE r.TenantId = @TenantId
+                                     AND p.SnapshotId = r.SnapshotId
                                      AND p.WorkspaceId = @WorkspaceId
                                      AND p.ProjectId = @ProjectId
                                      AND (@SnapshotId IS NULL OR r.SnapshotId = @SnapshotId)
