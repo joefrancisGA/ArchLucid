@@ -2907,19 +2907,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
+2026-09-26 seed hunt (seed-only): reseeded orchestrator-transient-retry; cheap-disproof closed mixed `AggregateException` retry (`inners.All(SqlTransientDetector.IsTransient)` fail-fast remains intentional per `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate`); budget/attempt/delay boundaries and SQL transient codes remain covered; no new hunt-ready rows; 50 scoped transient-retry tests passed (34 Persistence + 16 Application).
+
 - **id:** orchestrator-transient-retry
 - **status:** open
 - **impact:** medium
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** no
 
 2026-09-12 seed hunt #2019 (seed-only): reseeded orchestrator-transient-retry; no new hunt-ready rows.
 
