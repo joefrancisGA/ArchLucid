@@ -36,7 +36,8 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
-            else if (probe.RunListPayloadScannable == false)
+            else if (probe.RunListPayloadScannable == false
+                     || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
@@ -65,6 +66,16 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             Verdict = verdict,
             Evidence = probe.Evidence,
         };
+    }
+
+    private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase)
+            || observedOutcome.Contains("run list unavailable", StringComparison.OrdinalIgnoreCase)
+            || observedOutcome.Contains("skipped server error", StringComparison.OrdinalIgnoreCase);
     }
 
     private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
