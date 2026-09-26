@@ -409,6 +409,21 @@ export function RemediationFactoryClient() {
         return rankedPaths;
     }
   }, [pathView, rankedPaths]);
+  const rankedPathsComputedLine = useMemo(() => {
+    if (rankedPaths.length === 0) {
+      return null;
+    }
+
+    const computedTimes = rankedPaths.map((row) => row.computedUtc.trim());
+
+    if (computedTimes.some((computedUtc) => computedUtc.length === 0)) {
+      return null;
+    }
+
+    return computedTimes.every((computedUtc) => computedUtc === computedTimes[0])
+      ? `Computed ${formatIsoUtcForDisplay(computedTimes[0]!)}.`
+      : "Computed times differ across this page.";
+  }, [rankedPaths]);
 
   const setPathView = useCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -667,6 +682,21 @@ export function RemediationFactoryClient() {
               data-testid="remediation-ranked-paths-retry"
               onClick={() => void rankedPathsQuery.refetch()}
             />
+          </>
+        ) : rankedPathsComputedLine !== null ? (
+          <>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-computed">
+              {rankedPathsComputedLine}
+            </p>
+            {visibleRankedPaths.length === 0 ? (
+              <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
+            ) : (
+              <RankedPathsTable
+                rows={visibleRankedPaths}
+                selectedPathId={selectedPathId}
+                onSelect={selectPath}
+              />
+            )}
           </>
         ) : visibleRankedPaths.length === 0 ? (
           <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />

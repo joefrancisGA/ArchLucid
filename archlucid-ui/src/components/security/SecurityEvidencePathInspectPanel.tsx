@@ -194,7 +194,8 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-        Composite score {props.rank.compositeSortScore.toFixed(4)} · {props.rank.explanationSummary}
+        Composite score {props.rank.compositeSortScore.toFixed(4)} · Sort key. Not a percentage. ·{" "}
+        {props.rank.explanationSummary}
       </p>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>

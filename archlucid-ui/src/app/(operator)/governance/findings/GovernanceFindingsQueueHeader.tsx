@@ -36,6 +36,8 @@ import { governanceRegisterMetricPresentation } from "@/lib/metric-count-present
 import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { resolvePageCapabilityBoundary } from "@/lib/page-capability-boundary";
 import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance/governance-findings-evidence-copy";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { FINDINGS_PAGE_SHORTCUTS } from "@/lib/shortcut-registry";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -92,6 +94,7 @@ export function GovernanceFindingsQueueHeader({
   queueLastRefreshedAt = null,
 }: GovernanceFindingsQueueHeaderProps) {
   const { productLine } = useProductLine();
+  const operateEnabled = useOperateCapability();
   const skipLinkTargetId = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID
     : GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID;
@@ -244,6 +247,16 @@ export function GovernanceFindingsQueueHeader({
           )
         }
       />
+      {!isAssignedToMe ? (
+        <p className={cn("m-0 mt-2 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-shortcuts">
+          {FINDINGS_PAGE_SHORTCUTS.filter((entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key)).map((entry) => (
+            <span key={entry.key} className="inline-flex items-center gap-1">
+              {entry.label} <ShortcutHint shortcut={entry.key} />
+            </span>
+          ))}
+          <span>when triage keys are enabled</span>
+        </p>
+      ) : null}
       {!isAssignedToMe ? (
         <>
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-findings-audience-line">

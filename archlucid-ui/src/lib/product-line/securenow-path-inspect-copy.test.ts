@@ -28,9 +28,9 @@ describe("securenow-path-inspect-copy", () => {
     }
   });
 
-  it("keeps the resource-scoped empty state sentence exact", () => {
+  it("keeps the no-path finding sentence exact", () => {
     expect(SECURENOW_PATH_INSPECT_EMPTY_NO_PATH).toBe(
-      "No architect path cited — this finding is resource-scoped.",
+      "This finding does not cite a path.",
     );
   });
 

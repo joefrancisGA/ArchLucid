@@ -233,7 +233,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         {governanceQueueSeverityCell(row, false, severityMeaning)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? row.ownerUserId ?? " — " : " — "}
+        {row.recordKind === "finding" ? row.ownerUserId?.trim() || "No owner recorded." : " — "}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {governanceQueueDispositionLabel(row)}
