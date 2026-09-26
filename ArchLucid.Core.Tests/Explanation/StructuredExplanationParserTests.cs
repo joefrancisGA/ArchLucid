@@ -348,6 +348,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[["dec-1"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_maps_object_shaped_scalar_caveats()
     {
         const string json = """{"reasoning":"Main","caveats":{"text":"Assumes single-region deployment."}}""";

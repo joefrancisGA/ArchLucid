@@ -18317,11 +18317,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 22
-- **bugs-found:** 17
+- **hunts:** 23
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — percent-suffixed faithfulnessSupportRatio mis-scaled on aggregate disposition
+- **last-bug:** 2026-09-26 — nested-array evidenceRefs dropped on structured normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18359,7 +18359,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — percent-suffixed confidence string (`"75%"`) silently dropped while numeric `75` and string `"75"` coerce — **hit 2026-09-26 thorough hunt:** `TryReadFiniteDouble` failed `double.TryParse` on trailing `%`; fixed by stripping suffix before parse; regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence`.
 - [x] (valid-no-repro) `RunExplanationRiskCalloutBuilder.TryParseRiskPosture` — object-shaped `riskPosture` dropped — **2026-09-26 thorough hunt:** aggregate `riskPosture` is contract-defined as string enum (`EXPLANATION_SCHEMA.md`); no producer path emits object tokens; scalar string posture already maps via `TryReadNonEmptyTextToken`.
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — percent-suffixed `faithfulnessSupportRatio` (`"55%"`) parsed as `55.0` so sponsor disposition PASS skipped WARN — **hit 2026-09-26 seed hunt (seed→hit):** `TryReadFiniteDouble` stripped `%` but aggregate ratio lacked `ClampConfidence`-style scaling; fixed with `NormalizeUnitRatio`; regression `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio`.
-- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — `faithfulnessSupportRatio` nested only under `explanation` ignored (pilot proof packet passes flat root JSON today; reachability weak unless stored aggregate shape nests fields)
+- [x] (valid-no-repro) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — `faithfulnessSupportRatio` nested only under `explanation` ignored — **2026-09-26 thorough hunt:** `RunExplanationSummary` OpenAPI places `faithfulnessSupportRatio` at aggregate root; `pilot proof-packet` passes raw `GET /v1/explain/runs/{runId}/aggregate` JSON (not nested-only shapes).
+- [x] (proven) `StructuredExplanationParser.TryReadStringList` — nested-array `evidenceRefs` entries silently dropped — **hit 2026-09-26 thorough hunt:** LLM double-wrapped list items (`[["dec-1"]]`) skipped non-string array tokens; fixed with `CollectStringListEntries` flattening; regression `TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries`.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
