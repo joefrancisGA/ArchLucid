@@ -45,6 +45,7 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
 
         try
         {
+            IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveClaimMapping(mapping);
             IdentityClaimRoleMappingResolver.ValidateMapping(mapping);
         }
         catch (ArgumentException ex)

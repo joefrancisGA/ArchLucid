@@ -121,6 +121,42 @@ public sealed class SsoWizardTestLoginServiceTests
     }
 
     [Fact]
+    public void Execute_rejects_invisible_unicode_only_role_claim_name()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "\u200B",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("RoleClaimName");
+    }
+
+    [Fact]
     public void Execute_returns_failure_when_no_roles_mapped()
     {
         SsoWizardTestLoginService sut = new();
