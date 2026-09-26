@@ -28,7 +28,6 @@ export function fixtureRunDetail(): RunDetail {
       projectId: FIXTURE_PROJECT_ID,
       architectureRequestId: "fixture-run-request",
       legacyRunStatus: "Committed",
-      structuralExecutionMode: "Simulator",
       description:
         "Enterprise Customer Intake Modernization — integration boundaries, PHI handling posture, and sponsor-facing KPIs.",
       createdUtc: "2025-06-01T12:00:00.000Z",
