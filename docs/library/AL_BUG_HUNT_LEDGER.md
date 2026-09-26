@@ -3139,13 +3139,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 30
-- **bugs-found:** 19
+- **hunts:** 31
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-25 — double-reverse-solidus and script full-stop dot homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-26 — halfwidth and presentation ideographic full-stop dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved HALFWIDTH IDEOGRAPHIC FULL STOP and presentation vertical ideographic full-stop dot homoglyph traversal bypasses; cheap-disproved fragment-only encoded dot-dot and Coptic full-stop pairs; 126 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) HALFWIDTH IDEOGRAPHIC FULL STOP (`｡`, `U+FF61`) and PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC FULL STOP (`︒`, `U+FE12`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** parent-segment pairs evaded ASCII `..` checks while parity glyphs `U+3002`/`U+FF0E` were already blocked; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_halfwidth_and_presentation_ideographic_full_stop_dot_homoglyph_path_traversal_segments`.
+- [x] (valid-no-repro) Fragment-only encoded or literal dot-dot (`/safe#%2e%2e`, `/safe#..`) — **valid-no-repro 2026-09-26 seed hunt:** fragment suffix is not part of redirect path prefix; prior fragment smuggling rows unchanged.
+- [x] (valid-no-repro) COPTIC FULL STOP (`⳾`, `U+2CFE`) and related script sentence stops (`U+0589`, `U+1809`, `U+2CF9`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** not browser-normalized to ASCII `.` for parent traversal; extends prior Armenian/Mongolian rows.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved final BMP SOLIDUS-named glyph inventory, overlong UTF-8 slash percent encodings, and encoded dot-dot before fragment/query delimiters; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
