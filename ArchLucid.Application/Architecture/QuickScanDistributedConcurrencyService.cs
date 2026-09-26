@@ -85,7 +85,7 @@ public sealed class QuickScanDistributedConcurrencyService(
         {
             admitResult = await _store.TryAdmitAsync(admitRequest, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Quick Scan distributed concurrency admit failed.");
 

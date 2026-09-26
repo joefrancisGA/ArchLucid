@@ -23639,13 +23639,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 11
-- **bugs-found:** 10
+- **hunts:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-10 — promote loop used stale MaxConcurrentAnonymousScans after options tightened during queue wait
+- **last-bug:** 2026-09-26 — admit-path store handler swallowed `OperationCanceledException` as `StoreUnavailable`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6961 (seed→hit): reseeded quick-scan-distributed-concurrency; proved `WaitForAdmissionAsync` admit `catch (Exception)` mapped cancelled `TryAdmitAsync` to `StoreUnavailable` instead of propagating cancellation (promote path already excluded `OperationCanceledException` per #1209); fixed with `when (ex is not OperationCanceledException)`; regression `WaitForAdmissionAsync_throws_operation_canceled_when_admit_is_cancelled`; 18 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `TryAdmitAsync` cancellation surfaced as `StoreUnavailable` — **hit 2026-09-26 seed hunt #6961:** admit store-error handler lacked promote-path `OperationCanceledException` filter; regression `WaitForAdmissionAsync_throws_operation_canceled_when_admit_is_cancelled`.
 
 2026-09-26 seed hunt #6960 (seed-only): picker repeat; reseeded quick-scan-distributed-concurrency; cheap-disproof closed queue-wait deadline/options snapshot candidates; 17 scoped QuickScanDistributedConcurrency tests passed.
 

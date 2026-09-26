@@ -664,6 +664,20 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_throws_operation_canceled_when_admit_is_cancelled()
+    {
+        using CancellationTokenSource cancellation = new();
+        CancelingAdmitStore store = new();
+        QuickScanDistributedConcurrencyService service = CreateService(store);
+
+        await cancellation.CancelAsync();
+
+        Func<Task> act = () => service.WaitForAdmissionAsync("cancelled-admit", cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
@@ -1034,6 +1048,32 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             TimeSpan leaseDuration,
             CancellationToken cancellationToken = default) =>
             inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
+    }
+
+    private sealed class CancelingAdmitStore : IQuickScanDistributedConcurrencyStore
+    {
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default) =>
+            throw new OperationCanceledException(cancellationToken);
+
+        public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 
     private sealed class ThrowingAdmitStore(InMemoryQuickScanDistributedConcurrencyStore inner)
