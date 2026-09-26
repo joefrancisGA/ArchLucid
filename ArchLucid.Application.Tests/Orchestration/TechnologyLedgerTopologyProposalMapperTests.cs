@@ -341,6 +341,63 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
         resolved.Should().BeNull();
     }
 
+    [Fact]
+    public void MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            ProposalId = "p1",
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-a",
+                    ServiceName = "shared-display",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceId = "svc-b",
+                    ServiceName = "shared-display",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        IReadOnlyList<TechnologyLedgerEntry> mapped =
+            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
+
+        IReadOnlyList<TechnologyLedgerEntry> computeCandidates = mapped
+            .Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime)
+            .ToList();
+
+        computeCandidates.Should().HaveCount(2);
+        computeCandidates.Select(entry => entry.EvidenceRef).Should().OnlyHaveUniqueItems();
+
+        List<TechnologyLedgerEntry> existing = [];
+        foreach (TechnologyLedgerEntry candidate in computeCandidates)
+        {
+            TechnologyLedgerEntry? resolved =
+                TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing);
+
+            resolved.Should().NotBeNull();
+            existing.Add(resolved!);
+        }
+
+        existing.Should().HaveCount(2);
+        existing.Select(entry => entry.TechnologyName).Should().AllBe("shared-display");
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {

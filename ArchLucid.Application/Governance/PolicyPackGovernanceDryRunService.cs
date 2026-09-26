@@ -198,9 +198,11 @@ public sealed class PolicyPackGovernanceDryRunService(
         PolicyPackContentDocument document)
     {
         bool? fromMeta = TryReadNullableBool(document.Metadata, BlockCommitOnCriticalMetadataKeys);
-        int? minFromMeta = TryReadNullableInt(document.Metadata, BlockCommitMinimumSeverityMetadataKeys);
+        int? minFromMeta = PreCommitGateThresholdParser.TryParseMinimumSeverityOrdinalFromMetadata(
+            document.Metadata,
+            BlockCommitMinimumSeverityMetadataKeys);
         bool critical = requestCritical ?? fromMeta ?? false;
-        int? min = requestMinSeverity ?? minFromMeta;
+        int? min = PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal(requestMinSeverity) ?? minFromMeta;
         return (critical, min);
     }
 
@@ -224,19 +226,6 @@ public sealed class PolicyPackGovernanceDryRunService(
                 return true;
             if (string.Equals(raw.Trim(), "no", StringComparison.OrdinalIgnoreCase))
                 return false;
-        }
-
-        return null;
-    }
-
-    private static int? TryReadNullableInt(IReadOnlyDictionary<string, string> metadata, string[] keys)
-    {
-        foreach (string key in keys)
-        {
-            if (!PolicyPackContentMetadataReader.TryGetValue(metadata, key, out string? raw) || string.IsNullOrWhiteSpace(raw))
-                continue;
-            if (int.TryParse(raw.Trim(), out int value))
-                return value;
         }
 
         return null;

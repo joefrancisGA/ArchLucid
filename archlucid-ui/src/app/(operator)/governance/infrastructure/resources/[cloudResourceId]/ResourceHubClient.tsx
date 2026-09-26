@@ -254,12 +254,13 @@ function buildHubAuditLineageTabHref(
     readonly auditEvidenceSnapshotId: string;
     readonly controlId: string;
   },
+  explorerWorkQueue: ReturnType<typeof parseResourceExplorerWorkQueueFromSearch>,
 ): string {
   return buildHubScopedTabHref(cloudResourceId, "audit", snapshotId, runId, {
     assessmentId: context.assessmentId,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
-  });
+  }, explorerWorkQueue);
 }
 
 function buildHubScopedTabHref(
@@ -268,12 +269,14 @@ function buildHubScopedTabHref(
   snapshotId: string,
   runId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ReturnType<typeof parseResourceExplorerWorkQueueFromSearch> = "all",
 ): string {
   return buildResourceHubWorkbenchHref({
     cloudResourceId,
     tab,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
+    workQueue: explorerWorkQueue !== "all" ? explorerWorkQueue : undefined,
     assessmentId: auditContext.assessmentId,
     auditEvidenceSnapshotId: auditContext.auditEvidenceSnapshotId,
     controlId: auditContext.controlId,
@@ -950,7 +953,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
-                    })}
+                    }, workQueue)}
                     data-testid="infra-resource-hub-open-audit-work"
                   >
                     Open audit lineage
@@ -1119,7 +1122,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {hub.recentChanges.length > 5 ? (
                     <Link
                       className={OPERATOR_LINK.inline}
-                      href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
+                      href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext, workQueue)}
                       data-testid="infra-resource-hub-overview-view-all-drift"
                     >
                       View all {hub.recentChanges.length} in Drift

@@ -32,12 +32,28 @@ public static partial class DeclarationSecurityBaselineClassifier
             && IsEnabledToken(sqlPublicAccess))
         {
             if (TryGetProperty(properties, "terraformType", out string? terraformType)
-                && terraformType!.Contains("sql", StringComparison.Ordinal))
+                && IsSqlResourceType(terraformType!))
                 return true;
 
             if (TryGetProperty(properties, "resourceType", out string? resourceType)
-                && resourceType!.Contains("sql", StringComparison.Ordinal))
+                && IsSqlResourceType(resourceType!))
                 return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsSqlResourceType(string resourceType)
+    {
+        string normalized = resourceType.ToLowerInvariant();
+
+        foreach (string part in normalized.Split(['/', '.', '_', ':'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (part.Equals("sql", StringComparison.Ordinal)
+                || part.Equals("mssql", StringComparison.Ordinal))
+            {
+                return true;
+            }
         }
 
         return false;

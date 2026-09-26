@@ -45,13 +45,36 @@ internal static partial class RunExplanationAggregateJsonReader
             return 0.0;
         }
 
-        if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+        string numericText = raw.Trim();
+
+        if (numericText.EndsWith('%'))
+            numericText = numericText[..^1].TrimEnd();
+
+        if (double.TryParse(numericText, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
             && double.IsFinite(parsed))
         {
             return parsed;
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Maps aggregate faithfulness-style ratios to <c>[0, 1]</c>: values in <c>(1, 100]</c> are treated as
+    ///     percentages; values outside <c>[0, 100]</c> are discarded.
+    /// </summary>
+    public static double? NormalizeUnitRatio(double? value)
+    {
+        if (value is not { } numeric || !double.IsFinite(numeric))
+            return null;
+
+        if (numeric < 0 || numeric > 100)
+            return null;
+
+        if (numeric > 1)
+            return numeric / 100;
+
+        return numeric;
     }
 
     public static bool TryReadBoolean(JsonElement element)

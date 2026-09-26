@@ -63,6 +63,16 @@ public sealed class ExecDigestEmailDispatcher(
 
         if (string.IsNullOrWhiteSpace(unsubscribeAbsoluteUrl))
             throw new ArgumentException("Unsubscribe URL is required.", nameof(unsubscribeAbsoluteUrl));
+
+        if (string.IsNullOrWhiteSpace(composition.DashboardUrl))
+            throw new ArgumentException("Dashboard URL is required.", nameof(composition));
+
+        if (string.IsNullOrWhiteSpace(composition.SponsorValueReportUrl))
+            throw new ArgumentException("Sponsor value report URL is required.", nameof(composition));
+
+        string normalizedDashboardUrl = composition.DashboardUrl.Trim();
+        string normalizedSponsorValueReportUrl = composition.SponsorValueReportUrl.Trim();
+
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
@@ -74,8 +84,8 @@ public sealed class ExecDigestEmailDispatcher(
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
             FindingsDeltaSummary = composition.FindingsDeltaSummary,
-            DashboardUrl = composition.DashboardUrl,
-            SponsorValueReportUrl = composition.SponsorValueReportUrl,
+            DashboardUrl = normalizedDashboardUrl,
+            SponsorValueReportUrl = normalizedSponsorValueReportUrl,
             UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase),
             RehearsalSubjectPrefix = composition.RehearsalSubjectPrefix,

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE, ARCHITECTURE_INTELLIGENCE_SOURCES } from "@/lib/architecture/architecture-intelligence-evidence-copy";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import {
   ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER,
@@ -63,6 +64,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
   return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => ARCHITECTURE_INTELLIGENCE_PATH,
     useSearchParams: () => ({
       get: searchParamsGet,
       getAll: vi.fn(() => []),

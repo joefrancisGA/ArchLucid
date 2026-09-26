@@ -112,6 +112,14 @@ export function filterOrientationSourcesForJobContext(
   pathname: string,
   maxLinks: number = JOB_CONTEXT_ORIENTATION_SOURCES_MAX_LINKS,
 ): readonly EvidenceOrientationLink[] {
+  const normalizedPath = pathname.trim().split("?")[0]?.split("#")[0] ?? "";
+
+  // Architecture intelligence ships a curated five-link Sources index; do not truncate it to the
+  // generic three-link job-context cap (general scoring would drop help and audit follow-ups).
+  if (normalizedPath.startsWith("/architecture/architecture-intelligence")) {
+    return links;
+  }
+
   if (links.length <= maxLinks) {
     return links;
   }

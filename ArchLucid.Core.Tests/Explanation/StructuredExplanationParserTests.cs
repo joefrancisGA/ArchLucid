@@ -128,6 +128,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75%"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_string_encoded_schema_version()
     {
         const string json = """{"schemaVersion":"2","reasoning":"Main"}""";
@@ -329,6 +340,28 @@ public sealed class StructuredExplanationParserTests
     public void TryNormalizeStructuredJson_maps_object_shaped_scalar_evidence_ref()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":{"id":"dec-1"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs()
+    {
+        const string json = """{"reasoning":[["First paragraph."],["Second paragraph."]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[["dec-1"]]}""";
 
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
 

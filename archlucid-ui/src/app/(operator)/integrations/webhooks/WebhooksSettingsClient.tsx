@@ -213,7 +213,7 @@ export function WebhooksSettingsClient() {
                   </p>
                 ) : null}
               </div>
-              {webhookRows.length > 0 ? (
+              {webhookRows.length > 0 || failure !== null ? (
                 <RefreshButton busy={loading} onClick={() => void load()} />
               ) : null}
             </div>

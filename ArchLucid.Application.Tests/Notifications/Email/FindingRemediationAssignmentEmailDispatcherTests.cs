@@ -79,6 +79,29 @@ public sealed class FindingRemediationAssignmentEmailDispatcherTests
         sendAttempts.Should().Be(2);
     }
 
+    [Fact]
+    public async Task TryDispatchAsync_throws_when_assignee_mailbox_is_null()
+    {
+        FindingRemediationAssignmentEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<FindingRemediationAssignmentEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("12121212-1212-1212-1212-121212121212"),
+            Guid.Parse("13131313-1313-1313-1313-131313131313"),
+            "finding-null-mailbox",
+            "Open ingress",
+            null!,
+            remediationDueUtc: null,
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>()
+            .WithParameterName("assigneeMailbox");
+    }
+
     [Theory]
     [InlineData("finance@")]
     [InlineData("finance-team")]
