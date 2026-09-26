@@ -23639,13 +23639,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-10 — promote loop used stale MaxConcurrentAnonymousScans after options tightened during queue wait
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
+
+2026-09-26 seed hunt #6959 (seed-only): reseeded quick-scan-distributed-concurrency; cheap-disproof closed operational-emergency-during-queue-wait and stale lease-duration-on-renewal candidates; 17 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — operational emergency or `AnonymousExecutionAllowed=false` during queue wait still promotes and runs anonymous scan — **cheap-disproof 2026-09-26 seed hunt #6959:** promote loop intentionally polls store capacity only; `QuickScanExecutionBudgetAndConcurrencyStage` re-reads `GetSnapshotAsync` before provider and returns `EmergencyDisabled` while orchestrator `finally` disposes the admitted lease (`ExecuteAsync_releases_concurrency_lease_when_operational_emergency_flips_after_admission`, `Adversarial_emergency_flip_before_provider_blocks_without_provider_call`).
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — captures `LeaseDurationSeconds` once at loop start so mid-scan options shrink cannot shorten renewal TTL — **cheap-disproof 2026-09-26 seed hunt #6959:** in-flight distributed lease honors duration captured at permit time; promote path re-reads `MaxConcurrentAnonymousScans` each poll (#1542); renewal interval clamped at loop start (#1406).
 
 ### Hypotheses
 
