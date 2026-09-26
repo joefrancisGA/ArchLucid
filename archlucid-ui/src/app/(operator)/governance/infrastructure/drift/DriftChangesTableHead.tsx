@@ -84,6 +84,9 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Change categories describe what differed between the selected snapshots: Added, Removed, Changed, and Unchanged.
             </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Rows are grouped by resource so related property changes can be reviewed together.
+            </span>
           </th>
         </tr>
       ) : null}

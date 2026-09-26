@@ -45,6 +45,12 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
             {rulesResolution.rulesSourceQualifier}
           </p>
         ) : null}
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Conditions describe when a rule is evaluated; they do not describe a remediation.
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          The action is the governance outcome recorded when the rule applies. It does not change Azure.
+        </p>
       </div>
       {rulesResolution.rows.length === 0 ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="policy-pack-rules-empty">

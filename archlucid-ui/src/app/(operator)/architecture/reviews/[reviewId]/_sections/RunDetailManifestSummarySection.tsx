@@ -136,6 +136,9 @@ export function RunDetailManifestSummarySection(
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
                           : null}
                       </p>
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        This is the policy basis recorded when the review was finalized.
+                      </p>
                       {(manifestSummary.effectiveGovernanceAtCommit.packAssignments?.length ?? 0) > 0 ? (
                         <ul className="m-0 list-none space-y-0.5 p-0">
                           {(manifestSummary.effectiveGovernanceAtCommit.packAssignments ?? []).map((row) => (

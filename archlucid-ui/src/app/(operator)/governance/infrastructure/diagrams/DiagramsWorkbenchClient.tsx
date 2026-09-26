@@ -1911,6 +1911,9 @@ export function DiagramsWorkbenchClient() {
             </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Scope controls which inventory resources are drawn; it does not change the inventory.
+              </p>
               <select
                 id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}

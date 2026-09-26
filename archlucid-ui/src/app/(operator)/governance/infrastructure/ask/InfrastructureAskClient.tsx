@@ -873,6 +873,9 @@ export function InfrastructureAskClient() {
                   >
                     Apply this view
                   </Button>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Applying this view changes the page filters only. It does not change Azure.
+                  </p>
                   {!isDiagramViewPlanValid(turn.response.viewPlan) ? (
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
                       This view plan cannot be applied until required fields are present.
