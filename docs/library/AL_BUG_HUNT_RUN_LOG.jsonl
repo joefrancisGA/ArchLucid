@@ -6968,3 +6968,4 @@
 {"at":"2026-09-26T01:36:56.3039773Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-09-26T01:49:41.5154443Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-26T02:01:12.2798818Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-09-26T02:05:13.6043686Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only"}

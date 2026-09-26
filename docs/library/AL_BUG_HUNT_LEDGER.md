@@ -20513,13 +20513,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-11 — duplicate parallel edges after AS-018 diagram canonical bind remap
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-26 seed hunt (seed-only): reseeded knowledge-graph-provenance; scoped 347 KnowledgeGraph + 43 Provenance tests passed (3 pre-existing KnowledgeGraph.Tests failures: stale `GraphSnapshotCommittedReuseResolver` overload + `GraphEdge` contract surface drift); cheap-disproved inventory overlay builder ordinal `edgeKeys` for `RelationshipType` casing (inventory persists canonical `GraphEdgeTypes` constants); no new hunt-ready rows.
 
 2026-09-13 seed hunt #2270 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge graph`; no new hunt-ready rows.
 
@@ -20570,6 +20572,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` — duplicate parallel edges after diagram endpoint remap collides with existing inventory edge — **hit 2026-09-11 seed hunt #1722:** AS-050 rebind remapped `diagram-node:*` onto inventory `cloudResourceId` without deduping `from|to|type`; fixed with case-insensitive edge-key set matching overlay merger; regression `Rebind_matchingDisplayName_deduplicates_parallel_edges_after_endpoint_remap`
 
 - [x] (candidate) `StructuredDiagramCanonicalModelReconstructor` — `GroupBy(SourceId, Ordinal)` splits multi-diagram uploads whose `SourceId` differs only by case — invalid 2026-09-11 seed hunt #1722: `StructuredDiagramGraphMerger` only merges within one reconstructor pass; duplicate `SourceId` casing would be separate compile inputs, not a single merged snapshot defect today
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphBuilder` — ordinal `edgeKeys` omits duplicate relationships when `RelationshipType` differs only by case — cheap-disproof 2026-09-26 seed hunt: inventory relationship rows are written with canonical `GraphEdgeTypes` strings at persist time; no ARM/config path emits casing-variant relationship types into the overlay builder
 
 2026-09-11 seed hunt #1722 (seed→hit): reseeded after AS-050/SA-16–21 churn; proved κ→Γ `RelatedElementIds` dedup gap, findings-list `InfluencedByGraphNode` dedup gap, and AS-050 rebind parallel-edge dedup; cheap-disproved diagram `SourceId` ordinal split candidate; 265 scoped KnowledgeGraph + 43 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
