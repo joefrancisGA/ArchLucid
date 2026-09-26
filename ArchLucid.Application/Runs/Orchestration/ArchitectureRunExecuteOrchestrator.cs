@@ -187,6 +187,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid)
             && _runExecuteOwnershipLeaseService.IsEnabled)
         {
+            await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
             await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
             using CancellationTokenSource executeCancellation =
