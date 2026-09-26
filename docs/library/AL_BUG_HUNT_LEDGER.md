@@ -8897,11 +8897,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 34
-- **bugs-found:** 26
+- **hunts:** 35
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — TopologyDatastoreLabelHeuristic non-secret label false positive on secret substring
+- **last-bug:** 2026-09-26 — DeclarationSecurityBaselineClassifier nosql terraform type false weak-SQL signal
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8916,6 +8916,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded decisioning after TopologyAntiPattern fix; proved `TopologyDatastoreLabelHeuristic` bare `.Contains("secret")` matched `non-secret-*` topology labels and classified app gateways as regulated datastores; fixed with standalone `secret` token matching and `non-secret` / `non secret` negation (parity with PCI/sensitive keywords); regressions `IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_secret_label` and `IsRegulatedDatastoreTopologyNode_still_matches_keyvault_label`; 11 scoped TopologyDatastore + IdentityRegulatedDatastore tests passed.
 
 - [x] (proven) `TopologyDatastoreLabelHeuristic` treats `non-secret-*` labels as secret-bearing datastores — **hit 2026-09-26 seed hunt:** `IsRegulatedDatastoreTopologyNode` substring `secret` matched inside `non-secret`; fixed `ContainsAffirmativeSecretKeyword`; regressions in `TopologyDatastoreLabelHeuristicTests`.
+
+2026-09-26 seed hunt (hit): reseeded decisioning after TopologyDatastore secret fix; proved `DeclarationSecurityBaselineClassifier.IsWeakSqlPosture` `.Contains("sql")` on terraform/resource types matched `azurerm_cosmosdb_nosql` and emitted false `encryption` SQL posture signals; fixed with delimiter-split `sql`/`mssql` resource-type tokens; regressions `Classify_does_not_flag_nosql_terraform_type_as_weak_sql_posture` and `Classify_still_flags_microsoft_sql_with_public_network_as_weak_sql_posture`; 10 scoped DeclarationSecurityBaselineClassifier tests passed.
+
+- [x] (proven) `DeclarationSecurityBaselineClassifier` weak SQL posture on Cosmos NoSQL terraform types — **hit 2026-09-26 seed hunt:** public-network branch treated `nosql` types as SQL servers; fixed `IsSqlResourceType` delimiter token matching; regressions in `DeclarationSecurityBaselineClassifierTests`.
 
 2026-09-13 seed hunt #2444 (seed-only): reseeded decisioning; no new hunt-ready rows.
 
