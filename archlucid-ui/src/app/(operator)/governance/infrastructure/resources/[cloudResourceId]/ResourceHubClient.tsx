@@ -72,8 +72,7 @@ import {
 import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-scoped-workbench-href";
-import {
-} from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
+import { buildInfraEvidenceClearAuditScopeHref } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
@@ -779,14 +778,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
             runId: runId.length > 0 ? runId : undefined,
           })}
-          clearAuditScopeHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
-            tab: activeTab,
-            snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-            runId: runId.length > 0 ? runId : undefined,
-            assessmentId: "",
-            auditEvidenceSnapshotId: "",
-            controlId: "",
-          })}
+          clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(
+            cloudResourceId,
+            searchParams.toString(),
+            activeTab,
+            resolvedSnapshotId,
+            runId,
+          )}
         />
       ) : null}
 

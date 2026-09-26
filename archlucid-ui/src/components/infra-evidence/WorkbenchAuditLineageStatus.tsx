@@ -46,7 +46,7 @@ export function WorkbenchAuditLineageStatus(
 
   const trimmedCloudResourceId = cloudResourceId?.trim() ?? "";
   const clearAuditScopeHref = trimmedCloudResourceId.length > 0
-    ? buildInfraEvidenceClearAuditScopeHref(trimmedCloudResourceId, currentSearch, activeTab)
+    ? buildInfraEvidenceClearAuditScopeHref(trimmedCloudResourceId, currentSearch, activeTab, snapshotId, runId)
     : null;
   const auditTabHref = trimmedCloudResourceId.length > 0
     ? resourceHubFilterHrefFromSearch(trimmedCloudResourceId, currentSearch, {

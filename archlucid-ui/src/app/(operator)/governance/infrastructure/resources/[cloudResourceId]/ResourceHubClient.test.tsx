@@ -284,6 +284,24 @@ describe("ResourceHubClient", () => {
     expect(clearLink.getAttribute("href")).not.toContain("assessmentId=");
   });
 
+  it("preserves hub snapshot and runId when clearing active audit scope", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-audit-scope-bar-clear-scope"));
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+    expect(replace).toHaveBeenCalledWith(
+      expect.not.stringMatching(/assessmentId=|auditEvidenceSnapshotId=|controlId=/),
+    );
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),
