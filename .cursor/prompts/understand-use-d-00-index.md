@@ -51,3 +51,7 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 38 | `understand-use-38-filter-emptied-the-list.md` | `uu/38-filter-emptied-the-list` |
 | 39 | `understand-use-39-what-to-send.md` | `uu/39-what-to-send` |
 | 40 | `understand-use-40-finding-cites-a-path.md` | `uu/40-finding-cites-a-path` |
+
+## Wave E (UU-41–UU-50)
+
+Paste from [`understand-use-e-00-index.md`](understand-use-e-00-index.md). Do not implement wave E from this file.

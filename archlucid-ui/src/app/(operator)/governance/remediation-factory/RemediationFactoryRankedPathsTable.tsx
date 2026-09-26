@@ -68,7 +68,12 @@ export function RemediationFactoryRankedPathsTable(props: {
       <EnterpriseTable ariaLabel={SECURENOW_PATH_RANKED_PATHS_TITLE} role="grid">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                1 is the first path to inspect.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>What this means</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>

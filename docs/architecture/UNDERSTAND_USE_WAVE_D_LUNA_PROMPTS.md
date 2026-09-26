@@ -30,3 +30,7 @@ The sessions are independent. **UU-36** keeps the UU-06 data labels. **UU-40** k
 - Renaming disposition enums, `PathKind`, `ProvenanceKind`, or `PathConfidenceBand`
 - GTM **M-90 / M-44 / M-91 / M-92**
 - Closed assurance **TB-135 / TB-136**
+
+## Wave E
+
+The next ten sessions live in [`UNDERSTAND_USE_WAVE_E_LUNA_PROMPTS.md`](UNDERSTAND_USE_WAVE_E_LUNA_PROMPTS.md). Paste those files one at a time. Do not implement them from this page.
