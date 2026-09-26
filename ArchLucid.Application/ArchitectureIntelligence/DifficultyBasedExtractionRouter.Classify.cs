@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -96,45 +97,22 @@ public sealed partial class DifficultyBasedExtractionRouter
             || ContainsTokenMarker(sourceText, "to-be")
             || ContainsTokenMarker(sourceText, "as-is")
             || ContainsPhraseMarker(sourceText, "trust boundary")
-            || ContainsPhraseMarker(sourceText, "contradict");
+            || ContainsContradictMarker(sourceText);
     }
+
+    private static bool ContainsContradictMarker(string sourceText) =>
+        ContradictWordPattern().IsMatch(sourceText);
 
     private static bool ContainsPhraseMarker(string sourceText, string marker) =>
-        sourceText.Contains(marker, StringComparison.OrdinalIgnoreCase);
+        FindBoundedMarkerIndex(sourceText, marker, 0) >= 0;
 
-    private static bool ContainsTokenMarker(string sourceText, string marker)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(marker);
+    private static bool ContainsTokenMarker(string sourceText, string marker) =>
+        ContainsPhraseMarker(sourceText, marker);
 
-        ReadOnlySpan<char> text = sourceText.AsSpan();
-        ReadOnlySpan<char> needle = marker.AsSpan();
+    private static int FindTokenMarkerIndex(string sourceText, string marker, int startIndex) =>
+        FindBoundedMarkerIndex(sourceText, marker, startIndex);
 
-        if (needle.Length > text.Length)
-        {
-            return false;
-        }
-
-        for (int index = 0; index <= text.Length - needle.Length; index++)
-        {
-            if (!text.Slice(index, needle.Length).Equals(needle, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            bool startOk = index == 0 || !char.IsLetterOrDigit(text[index - 1]);
-            int end = index + needle.Length;
-            bool endOk = end >= text.Length || !char.IsLetterOrDigit(text[end]);
-
-            if (startOk && endOk)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static int FindTokenMarkerIndex(string sourceText, string marker, int startIndex)
+    private static int FindBoundedMarkerIndex(string sourceText, string marker, int startIndex)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(marker);
 
@@ -170,4 +148,7 @@ public sealed partial class DifficultyBasedExtractionRouter
     {
         return needles.Any(needle => sourceText.Contains(needle, StringComparison.OrdinalIgnoreCase));
     }
+
+    [GeneratedRegex(@"\bcontradict(?:s|ed|ing|ion)?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ContradictWordPattern();
 }

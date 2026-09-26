@@ -100,9 +100,7 @@ public sealed partial class DifficultyBasedExtractionRouter
 
         while (searchStart < sourceText.Length)
         {
-            int index = marker.Contains(' ', StringComparison.Ordinal)
-                ? sourceText.IndexOf(marker, searchStart, StringComparison.OrdinalIgnoreCase)
-                : FindTokenMarkerIndex(sourceText, marker, searchStart);
+            int index = FindBoundedMarkerIndex(sourceText, marker, searchStart);
 
             if (index < 0)
             {

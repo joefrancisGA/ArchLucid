@@ -43,6 +43,48 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Classify_does_not_treat_recurrent_state_substring_as_current_state_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("recurrent state deployment pattern");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
+    public void Classify_does_not_treat_contradictory_substring_as_contradict_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("This is a contradictory deployment note.");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            recurrent state deployment pattern.
+            Target state uses microservices.
+            Component: Orders API
+            """,
+            "src-recurrent-false-positive");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Assumption
+            && element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_contradiction_for_contradictory_substring()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "This is a contradictory deployment note.",
+            "src-contradictory-false-positive");
+
+        elements.Should().NotContain(element => element.Kind == ArchitectureElementKind.Contradiction);
+    }
+
+    [Fact]
     public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
