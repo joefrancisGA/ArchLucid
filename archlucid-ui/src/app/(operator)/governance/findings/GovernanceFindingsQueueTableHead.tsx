@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import {
   EnterpriseTableHead,
   EnterpriseTableHeadRow,
@@ -12,6 +13,7 @@ import {
   GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
   GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
 } from "@/lib/governance/governance-queue-sticky-identity";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceFindingsQueueSortHeaderCell } from "./GovernanceFindingsQueueSortHeaderCell";
 
@@ -69,8 +71,18 @@ export function GovernanceFindingsQueueTableHead(props: {
         {buyerPolishedShell ? (
           <>
             <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Record</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Confidence</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                How strongly the available evidence supports this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Record</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Findings need action. Decisions record what was decided.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
@@ -126,9 +138,24 @@ export function GovernanceFindingsQueueTableHead(props: {
             <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>Severity</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Age</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Exception expiry</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Last decision</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Age</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Days since the finding was opened.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Exception expiry</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Active risk exception ends on this date.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Last decision</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Last time this finding was reviewed in this queue.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
           </>
         )}

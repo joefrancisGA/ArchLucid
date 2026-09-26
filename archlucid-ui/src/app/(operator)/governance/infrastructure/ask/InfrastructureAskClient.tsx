@@ -891,7 +891,9 @@ export function InfrastructureAskClient() {
                     return (
                       <li key={key} data-testid={`infra-ask-citation-${citation.kind}-${citation.id}`}>
                         {link != null ? (
-                          <Link className="text-al-link hover:underline" href={link.href}>{link.label}</Link>
+                          <Link className="text-al-link hover:underline" href={link.href}>
+                            Open cited inventory evidence
+                          </Link>
                         ) : (
                           <span>{citation.label ?? `${citation.kind}: ${citation.id}`}</span>
                         )}

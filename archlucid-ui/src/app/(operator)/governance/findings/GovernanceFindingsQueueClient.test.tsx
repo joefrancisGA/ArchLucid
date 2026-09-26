@@ -382,6 +382,9 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Source review" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Exception expiry" })).toBeInTheDocument();
+    expect(screen.getByText("Days since the finding was opened.")).toBeInTheDocument();
+    expect(screen.getByText("Active risk exception ends on this date.")).toBeInTheDocument();
+    expect(screen.getByText("Last time this finding was reviewed in this queue.")).toBeInTheDocument();
     const desktopRegion = screen.getByTestId("governance-findings-queue-keyboard-region");
 
     expect(within(desktopRegion).getByRole("link", { name: "PHI minimization risk" })).toBeInTheDocument();

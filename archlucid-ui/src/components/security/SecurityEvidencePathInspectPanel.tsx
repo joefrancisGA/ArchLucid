@@ -219,6 +219,9 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_RANK_TITLE}</h3>
         <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
       </div>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+        Why this path scored the way it did. Not the table row number alone.
+      </p>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
         Composite score {props.rank.compositeSortScore.toFixed(4)} · Sort key. Not a percentage. ·{" "}
         {props.rank.explanationSummary}
@@ -529,6 +532,13 @@ export function SecurityEvidencePathInspectPanel(props: {
   const decisionReadiness = pathQuery.data != null
     ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
     : null;
+  const verificationStatusLabel = decisionReadiness == null
+    ? null
+    : decisionReadiness.verificationStatus.startsWith("No remediation instance linked")
+      ? "No remediation instance is linked; verification has not started."
+      : decisionReadiness.verificationStatus.startsWith("Verification snapshot recorded")
+        ? "Verification is recorded on a snapshot."
+        : "A remediation is recorded without a verification snapshot.";
   const hasSelection = props.findingId != null || props.pathIdOverride != null;
   const isLoadingFinding = props.findingId != null && findingQuery.isLoading;
   const isLoadingPath = resolvedPathId != null && pathQuery.isLoading;
@@ -681,7 +691,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                   ? decisionReadiness.affectedAssetIds.join(", ") : "none identified in path hops"}
               </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-verification-status">
-                {decisionReadiness.verificationStatus}
+                {verificationStatusLabel}
               </p>
               {props.findingId != null ? (
                 <Link className={OPERATOR_LINK.inline} href={buildRemediationWorkbenchHref({
@@ -743,6 +753,9 @@ export function SecurityEvidencePathInspectPanel(props: {
               data-testid="security-evidence-path-weakest-hop-callout"
             >
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE}</h3>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                This hop limits how strong the path evidence can be.
+              </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
                 Hop {pathQuery.data.weakestHop.hopOrdinal}: {pathQuery.data.weakestHop.edgeType}
               </p>
@@ -765,6 +778,7 @@ export function SecurityEvidencePathInspectPanel(props: {
           {pathQuery.data.relatedCutPoints.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-cut-points">
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE}</h3>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Where you could break this path.</p>
               <ul className="space-y-2">
                 {pathQuery.data.relatedCutPoints.map((cutPoint) => (
                   <li

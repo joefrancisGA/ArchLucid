@@ -78,6 +78,15 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
 
   return (
     <EnterpriseTableHead>
+      {showDiffColumns ? (
+        <tr>
+          <th colSpan={columnCount} className="px-3 py-2 text-left">
+            <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Change categories describe what differed between the selected snapshots: Added, Removed, Changed, and Unchanged.
+            </span>
+          </th>
+        </tr>
+      ) : null}
       <EnterpriseTableHeadRow>
         {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, {
           kind: "text",
