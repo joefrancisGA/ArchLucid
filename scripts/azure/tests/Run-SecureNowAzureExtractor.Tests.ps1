@@ -199,6 +199,54 @@ Write-Output "fake extractor success"
         Should -Invoke Connect-AzAccount -Times 1 -Exactly
     }
 
+    It "connects when a cached subscription exists but Set-AzContext requires login" {
+        [string]$tenantId = "13af8028-bc99-4f21-a8df-6072feb323be"
+        [string]$subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/$subscriptionId"
+                TenantId = $tenantId
+            }
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+                Tenant = [PSCustomObject]@{ Id = "88888888-7777-6666-5555-444444444444" }
+            }
+        }
+        Mock Set-AzContext {
+            throw "Run Connect-AzAccount to login."
+        }
+        Mock Disconnect-AzAccount { }
+        Mock Sync-ArchLucidAzureCliSubscriptionContext { }
+        Mock Connect-AzAccount {
+            param($Tenant, $Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Tenant = $Tenant
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        { $null = Ensure-ArchLucidAzureLogin `
+            -SubscriptionId $subscriptionId `
+            -TenantId $tenantId `
+            -AuthenticationMethod Browser } | Should -Not -Throw
+
+        $connectParams.Tenant | Should -Be $tenantId
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $false
+        Should -Invoke Connect-AzAccount -Times 1 -Exactly
+    }
+
     It "uses the discovered subscription tenant when selecting context" {
         [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         [hashtable]$contextParams = @{}
