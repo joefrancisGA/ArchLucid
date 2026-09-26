@@ -22,8 +22,8 @@ const JOBS: readonly {
   },
   {
     id: "security",
-    title: "See what this Azure estate can reach",
-    outcome: "You get a ranked path you can inspect.",
+    title: "Choose an architecture estate",
+    outcome: "After you choose an estate, you can see what it can reach.",
   },
 ];
 

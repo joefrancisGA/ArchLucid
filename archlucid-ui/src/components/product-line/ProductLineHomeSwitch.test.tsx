@@ -36,9 +36,25 @@ describe("ProductLineHomeSwitch", () => {
     expect(screen.getByTestId("architecture-home-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("infrastructure-overview-home-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Review an architecture" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Choose an architecture estate" })).toBeInTheDocument();
+    expect(screen.getByText("After you choose an estate, you can see what it can reach.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "See what this Azure estate can reach" })).not.toBeInTheDocument();
   });
 
   it("renders the infrastructure overview home when the shell is Security", () => {
+    productLineMock.value = "security";
+
+    render(<ProductLineHomeSwitch />);
+
+    expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-home-stub")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("product-line-home-job-chooser")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Review an architecture" })).not.toBeInTheDocument();
+  });
+
+  it("keeps the architecture review job available when this process hosts the architecture home", () => {
     productLineMock.value = "security";
 
     render(
@@ -47,7 +63,7 @@ describe("ProductLineHomeSwitch", () => {
 
     expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-home-stub")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Review an architecture" })).toBeInTheDocument();
   });
 
   it("shows the dual-start hint with an Internal product-line link", () => {
@@ -62,5 +78,6 @@ describe("ProductLineHomeSwitch", () => {
       INTERNAL_PRODUCT_LINE_PATH,
     );
     expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Review an architecture" })).not.toBeInTheDocument();
   });
 });

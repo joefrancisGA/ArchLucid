@@ -18,14 +18,18 @@ import {
 
 export function ProductLineHomeSwitch(props: { readonly architectureHome?: ReactNode }): React.JSX.Element {
   const { productLine, setProductLine } = useProductLine();
+  // SecureNow does not review architectures. Offer that job only when this process hosts the architecture home.
+  const architectureReviewAvailable = props.architectureHome !== undefined;
 
   if (productLine === "security") {
     return (
       <>
-        <ProductLineHomeJobChooser
-          selectedProductLine={productLine}
-          onSelect={setProductLine}
-        />
+        {architectureReviewAvailable ? (
+          <ProductLineHomeJobChooser
+            selectedProductLine={productLine}
+            onSelect={setProductLine}
+          />
+        ) : null}
         <InfrastructureOverviewClient secureNowHome />
       </>
     );
