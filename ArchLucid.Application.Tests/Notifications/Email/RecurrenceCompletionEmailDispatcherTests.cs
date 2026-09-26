@@ -352,4 +352,33 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
         captured.Should().NotBeNull();
         captured!.RunDetailUrl.Should().Be($"https://app.example.com/architecture/reviews/{runHex}");
     }
+
+    [Fact]
+    public async Task TryDispatchAsync_throws_for_whitespace_only_schedule_name()
+    {
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        RecurrenceCompletionEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<RecurrenceCompletionEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("2f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f"),
+            Guid.Parse("30303030-3030-3030-3030-303030303030"),
+            Guid.Parse("2e2e2e2e-2e2e-2e2e-2e2e-2e2e2e2e2e2e"),
+            scheduleName: "   ",
+            newFindingCount: 1,
+            resolvedFindingCount: 0,
+            Guid.Parse("31313131-3131-3131-3131-313131313131"),
+            ["ops@example.test"],
+            null,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("scheduleName");
+    }
 }

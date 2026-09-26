@@ -103,4 +103,28 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
     internal static string? BuildSyntheticDatastoreNodeId(string? datastoreName) =>
         string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName.Trim()}";
+
+    internal static string? NormalizeSyntheticEndpointReference(string? candidate)
+    {
+        if (string.IsNullOrWhiteSpace(candidate))
+            return null;
+
+        string trimmed = candidate.Trim();
+
+        if (trimmed.StartsWith("svc-", StringComparison.OrdinalIgnoreCase))
+        {
+            string name = trimmed[4..].Trim();
+
+            return BuildSyntheticServiceNodeId(name);
+        }
+
+        if (trimmed.StartsWith("ds-", StringComparison.OrdinalIgnoreCase))
+        {
+            string name = trimmed[3..].Trim();
+
+            return BuildSyntheticDatastoreNodeId(name);
+        }
+
+        return null;
+    }
 }

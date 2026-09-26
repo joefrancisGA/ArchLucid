@@ -17,4 +17,16 @@ public sealed class FindingInsightDensityColumnCodecTests
             .Should()
             .Be(FindingClassification.DecisionGradeFinding);
     }
+
+    [Fact]
+    public void FromClassificationStorage_returns_null_for_undefined_storage_byte()
+    {
+        FindingInsightDensityColumnCodec.FromClassificationStorage(99).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromTreatmentStorage_returns_null_for_undefined_storage_byte()
+    {
+        FindingInsightDensityColumnCodec.FromTreatmentStorage(99).Should().BeNull();
+    }
 }

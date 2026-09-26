@@ -58,6 +58,7 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
             "Graph projected from ArchitectureKnowledgeModel (κ→Γ morphism); not a sealed intake rebuild.");
 
         Dictionary<string, string> canonicalNodeIdsByKey = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureModelElement element in model.Elements)
         {
@@ -101,12 +102,18 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
                 if (!canonicalNodeIdsByKey.TryGetValue(toNodeId, out string? resolvedToNodeId))
                     continue;
 
+                string edgeType = MapEdgeType(element.Kind);
+                string edgeKey = $"{resolvedFromNodeId}|{resolvedToNodeId}|{edgeType}";
+
+                if (!edgeKeys.Add(edgeKey))
+                    continue;
+
                 edges.Add(new GraphEdge
                 {
                     EdgeId = $"{resolvedFromNodeId}->{resolvedToNodeId}:RELATES",
                     FromNodeId = resolvedFromNodeId,
                     ToNodeId = resolvedToNodeId,
-                    EdgeType = MapEdgeType(element.Kind),
+                    EdgeType = edgeType,
                     Label = element.Kind.ToString(),
                     Weight = element.ExtractionConfidence > 0 ? element.ExtractionConfidence : 1d,
                     InferenceSource = "knowledge-model-morphism",

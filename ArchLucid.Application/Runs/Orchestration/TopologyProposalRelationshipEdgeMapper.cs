@@ -107,6 +107,15 @@ public static class TopologyProposalRelationshipEdgeMapper
         if (endpointKeyToNodeId.TryGetValue(trimmedCandidate, out nodeId!))
             return true;
 
+        string? normalizedSynthetic =
+            TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedCandidate);
+
+        if (normalizedSynthetic is not null
+            && endpointKeyToNodeId.TryGetValue(normalizedSynthetic, out nodeId!))
+        {
+            return true;
+        }
+
         if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedCandidate)
             && endpointKeyToNodeId.TryGetValue(
                 GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedCandidate),

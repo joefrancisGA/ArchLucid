@@ -8,9 +8,16 @@ export function buildInfraEvidenceClearAuditScopeHref(
   cloudResourceId: string,
   currentSearch: string,
   activeTab?: ResourceHubTab,
+  snapshotId?: string | null,
+  runId?: string | null,
 ): string {
+  const trimmedSnapshotId = snapshotId?.trim() ?? "";
+  const trimmedRunId = runId?.trim() ?? "";
+
   return resourceHubFilterHrefFromSearch(cloudResourceId, currentSearch, {
     tab: activeTab,
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
     assessmentId: "",
     auditEvidenceSnapshotId: "",
     controlId: "",

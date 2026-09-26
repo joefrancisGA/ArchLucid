@@ -32,8 +32,17 @@ public sealed class IdentityProviderActivationService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        if (request.ClaimMapping is null)
+            throw new ArgumentException("ClaimMapping is required.", nameof(request));
+
+        if (request.ClaimMapping.Mappings is null)
+            throw new ArgumentException("ClaimMapping.Mappings is required.", nameof(request));
+
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (actorId is null)
+            throw new ArgumentException("actorId is required.", nameof(actorId));
 
         string trimmedActorId = actorId.Trim();
 
@@ -54,8 +63,10 @@ public sealed class IdentityProviderActivationService(
         if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
 
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
+
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
-        EnsureSubstantiveClaimMapping(mapping);
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveClaimMapping(mapping);
         IdentityClaimRoleMappingResolver.ValidateMapping(mapping);
 
         string claimMappingJson = JsonSerializer.Serialize(mapping, JsonOptions);
@@ -101,30 +112,5 @@ public sealed class IdentityProviderActivationService(
             return null;
 
         return trimmed;
-    }
-
-    private static void EnsureSubstantiveClaimMapping(IdentityClaimRoleMappingDocument mapping)
-    {
-        if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.RoleClaimName))
-        {
-            throw new ArgumentException(
-                "RoleClaimName is required (IdP claim carrying group or role values).");
-        }
-
-        if (mapping.CustomGroupClaimRegex is not null
-            && !IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.CustomGroupClaimRegex))
-        {
-            throw new ArgumentException("CustomGroupClaimRegex is not valid.");
-        }
-
-        foreach (IdentityClaimRoleMappingEntry entry in mapping.Mappings)
-        {
-
-            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(entry.IdpValue))
-                throw new ArgumentException("Mapping entry is missing IdpValue.");
-
-            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(entry.ArchLucidRole))
-                throw new ArgumentException("Mapping entry is missing ArchLucidRole.");
-        }
     }
 }

@@ -142,6 +142,7 @@ public abstract class RecoverableOutboxProcessorBase<TEntry, TRepository, TOptio
         await RecoverableOutboxFailureHandler.HandleAsync(
             outbox,
             entry,
+            fault,
             summary,
             opts,
             _timeProvider,

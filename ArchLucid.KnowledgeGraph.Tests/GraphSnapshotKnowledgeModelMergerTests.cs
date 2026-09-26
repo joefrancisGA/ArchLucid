@@ -98,6 +98,50 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_deduplicates_context_edges_when_endpoints_differ_only_by_case_from_prior_context_edge()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "FOO", NodeType = "context", Label = "foo" },
+                new GraphNode { NodeId = "BAR", NodeType = "context", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-upper",
+                    FromNodeId = "FOO",
+                    ToNodeId = "BAR",
+                    EdgeType = "depends-on",
+                },
+                new GraphEdge
+                {
+                    EdgeId = "e-lower",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes = [],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId.Equals("FOO", StringComparison.OrdinalIgnoreCase)
+            && edge.ToNodeId.Equals("BAR", StringComparison.OrdinalIgnoreCase)
+            && edge.EdgeType == "depends-on");
+    }
+
+    [Fact]
     public void HasAny_is_true_only_for_projectable_element_kinds()
     {
         ArchitectureKnowledgeModel empty = new() { ModelId = "m", Elements = [] };

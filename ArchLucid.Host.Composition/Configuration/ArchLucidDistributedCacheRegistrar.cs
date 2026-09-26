@@ -44,9 +44,6 @@ internal static class ArchLucidDistributedCacheRegistrar
         if (kg.Backend != GraphProjectionCacheBackend.Distributed)
             return;
 
-        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
-            return;
-
         HotPathCacheOptions hotPath =
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
             new HotPathCacheOptions();
@@ -69,7 +66,9 @@ internal static class ArchLucidDistributedCacheRegistrar
                 "ArchLucid:KnowledgeGraph:ProjectionCache:Backend is Distributed but no IDistributedCache is registered and no Redis connection string is available (configure ProjectionCache:RedisConnectionString, LlmCompletionCache:RedisConnectionString, or HotPathCache:RedisConnectionString).");
 
 
-        services.AddStackExchangeRedisCache(o => o.Configuration = redis);
+        if (!services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+            services.AddStackExchangeRedisCache(o => o.Configuration = redis);
+
         RegisterGraphProjectionRedisPubSub(services, redis);
     }
 

@@ -56,6 +56,9 @@ public sealed class InfraEvidenceCompositionModuleTests
         services.Should().Contain(static d => d.ServiceType == typeof(ITenantBrandingCacheInvalidator));
         services.Should().Contain(static d => d.ServiceType == typeof(ISecurityCrosswalkService));
         services.Should().Contain(static d => d.ServiceType == typeof(MermaidDiagramReadabilityThresholds));
+        services.Should().Contain(static d => d.ServiceType == typeof(IAzureInventorySnapshotDeleteService));
+        services.Should().Contain(static d => d.ServiceType == typeof(IGraphvizLayoutRenderer));
+        services.Should().Contain(static d => d.ServiceType == typeof(IDiagramPeelCatalogProvider));
     }
 
     [Fact]
@@ -264,6 +267,56 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         registry.ListDescriptors().Should().HaveCount(9,
             "AuditEvidenceSelectorRegistry injects one instance per selector type; collection does not enumerate IEnumerable<IAuditEvidenceSelector>");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_infra_evidence_peel_catalog_provider_wins_over_artifact_default()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            serviceScope.ServiceProvider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        peelCatalogProvider.Should().BeOfType<RepositoryDiagramPeelCatalogProvider>(
+            "AddInfraEvidenceCapability registers after Authority coordinator artifacts and last-wins the peel catalog provider");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_snapshot_delete_and_graphviz_from_module()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAzureInventorySnapshotDeleteService deleteService =
+            serviceScope.ServiceProvider.GetRequiredService<IAzureInventorySnapshotDeleteService>();
+        IGraphvizLayoutRenderer graphvizRenderer =
+            serviceScope.ServiceProvider.GetRequiredService<IGraphvizLayoutRenderer>();
+
+        deleteService.Should().BeOfType<AzureInventorySnapshotDeleteService>();
+        graphvizRenderer.Should().BeOfType<GraphvizFdpLayoutRenderer>();
     }
 
     [Fact]

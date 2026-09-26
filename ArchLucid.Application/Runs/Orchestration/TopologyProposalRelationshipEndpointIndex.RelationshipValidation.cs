@@ -58,6 +58,12 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (knownEndpointKeys.Contains(trimmed))
             return true;
 
+        string? normalizedSynthetic =
+            NormalizeSyntheticEndpointReference(trimmed);
+
+        if (normalizedSynthetic is not null && knownEndpointKeys.Contains(normalizedSynthetic))
+            return true;
+
         return TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys);
     }
 

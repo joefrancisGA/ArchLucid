@@ -74,7 +74,13 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
     snapshotId,
     runId,
   );
-  const clearScopeHref = buildInfraEvidenceClearAuditScopeHref(cloudResourceId, currentSearch, activeTab);
+  const clearScopeHref = buildInfraEvidenceClearAuditScopeHref(
+    cloudResourceId,
+    currentSearch,
+    activeTab,
+    snapshotId,
+    runId,
+  );
   const hasInlineControlPicker = auditControlOptions.length > 1 && onAuditControlChange != null;
 
   return (

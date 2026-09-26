@@ -72,9 +72,7 @@ import {
 import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-scoped-workbench-href";
-import {
-  buildInfraEvidenceClearAuditScopeHref,
-} from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
+import { buildInfraEvidenceClearAuditScopeHref } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
@@ -102,7 +100,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM,
-  infraResourceHubTechnicalDisclosureHrefFromSearch,
+  buildInfraResourceHubTechnicalDisclosureScopedHref,
   parseInfraResourceHubTechnicalKeyFromSearch,
 } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
 import {
@@ -322,24 +320,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     parseInfraResourceHubTechnicalKeyFromSearch(infraResourceHubTechnicalKeyParam),
   );
 
-  const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
-    (technicalKey: string | null) => {
-      router.replace(
-        infraResourceHubTechnicalDisclosureHrefFromSearch(searchParams.toString(), technicalKey, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setInfraResourceHubTechnicalKey = useCallback(
-    (technicalKey: string | null) => {
-      setInfraResourceHubTechnicalKeyState(technicalKey ?? "");
-      syncInfraResourceHubTechnicalKeyToUrl(technicalKey);
-    },
-    [syncInfraResourceHubTechnicalKeyToUrl],
-  );
-
   useEffect(() => {
     setInfraResourceHubTechnicalKeyState(parseInfraResourceHubTechnicalKeyFromSearch(infraResourceHubTechnicalKeyParam));
   }, [infraResourceHubTechnicalKeyParam]);
@@ -365,6 +345,33 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [hub?.currentConfiguration?.snapshotId, snapshotId]);
 
   const snapshotPinned = snapshotId.length > 0;
+
+  const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
+    (technicalKey: string | null) => {
+      router.replace(
+        buildInfraResourceHubTechnicalDisclosureScopedHref(
+          cloudResourceId,
+          searchParams.toString(),
+          technicalKey,
+          pathname,
+          {
+            snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+            runId: runId.length > 0 ? runId : undefined,
+          },
+        ),
+        { scroll: false },
+      );
+    },
+    [cloudResourceId, pathname, resolvedSnapshotId, router, runId, searchParams],
+  );
+
+  const setInfraResourceHubTechnicalKey = useCallback(
+    (technicalKey: string | null) => {
+      setInfraResourceHubTechnicalKeyState(technicalKey ?? "");
+      syncInfraResourceHubTechnicalKeyToUrl(technicalKey);
+    },
+    [syncInfraResourceHubTechnicalKeyToUrl],
+  );
 
   const explorerBackHref = useMemo(
     () => (workQueue !== "all" ? resourceExplorerFilterHrefFromSearch("", { workQueue }) : resourcesPath),
@@ -398,9 +405,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const setActiveTab = useCallback((tab: ResourceHubTab) => {
     setFindingActionMessages({});
     const sanitizedSearch = sanitizeResourceHubQueryForTab(searchParams.toString(), tab);
-    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, { tab });
+    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, {
+      tab,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+    });
     router.replace(nextHref);
-  }, [cloudResourceId, router, searchParams]);
+  }, [cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
 
   useResourceHubShortcuts({
     enabled: hub != null,
@@ -775,8 +786,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         <InfraAuditLineageUnavailableBanner
           degradedReason="Audit scope in the URL could not be resolved for this resource."
           testId="infra-resource-hub-stale-audit-scope"
-          auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), { tab: "audit" })}
-          clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(cloudResourceId, searchParams.toString(), activeTab)}
+          auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+            tab: "audit",
+            snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+            runId: runId.length > 0 ? runId : undefined,
+          })}
+          clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(
+            cloudResourceId,
+            searchParams.toString(),
+            activeTab,
+            resolvedSnapshotId,
+            runId,
+          )}
         />
       ) : null}
 
