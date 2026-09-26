@@ -45,7 +45,12 @@ internal static partial class RunExplanationAggregateJsonReader
             return 0.0;
         }
 
-        if (double.TryParse(raw.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+        string numericText = raw.Trim();
+
+        if (numericText.EndsWith('%'))
+            numericText = numericText[..^1].TrimEnd();
+
+        if (double.TryParse(numericText, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
             && double.IsFinite(parsed))
         {
             return parsed;
