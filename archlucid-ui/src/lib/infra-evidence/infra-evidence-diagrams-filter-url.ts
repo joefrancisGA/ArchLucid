@@ -39,17 +39,10 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
   { value: "avd", label: "AVD Farm" },
-<<<<<<< HEAD
   { value: "full", label: "Full subscription — every resource in scope" },
-  { value: "resourceGroup", label: "One resource group" },
-  { value: "selectedResources", label: "Resources you picked" },
-  { value: "dependencyNeighborhood", label: "What depends on one resource" },
-=======
-  { value: "full", label: "Full subscription" },
   { value: "resourceGroup", label: "Pick a Resource Group" },
-  { value: "selectedResources", label: "Selected resources" },
+  { value: "selectedResources", label: "Resources you picked" },
   { value: "dependencyNeighborhood", label: "Dependency neighborhood" },
->>>>>>> origin/cursor/inventory-diagram-excellence-nested-vnet-subnet-idx1
 ];
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));
