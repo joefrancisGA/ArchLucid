@@ -289,6 +289,44 @@ function infraDiagramModeJobCaption(mode: string): string | null {
   }
 }
 
+function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Element {
+  const content =
+    mode === "dataFlow"
+      ? {
+          boxes: "Boxes are resources on a declared path.",
+          connectors: "Connectors are declared pipeline wiring.",
+          evidence: "Evidence kind: configuration, not observed traffic.",
+        }
+      : mode === "dataArchitecture"
+        ? {
+            boxes: "Boxes are data stores.",
+            connectors: "Connectors are declared repository relationships.",
+            evidence: "Evidence kind: configuration from inventory.",
+          }
+        : mode === "data"
+          ? {
+              boxes: "Boxes are data resources in the infrastructure forest.",
+              connectors: "Connectors are the infrastructure relationships already drawn.",
+              evidence: "Evidence kind: configuration from inventory.",
+            }
+          : {
+              boxes: "Boxes are Azure resources in this view.",
+              connectors: "Connectors are relationships already present in inventory.",
+              evidence: "Evidence kind: configuration from inventory.",
+            };
+
+  return (
+    <section className="space-y-1" aria-label="How to read this diagram" data-testid="infra-diagrams-legend">
+      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>How to read this diagram</h3>
+      <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+        <li><span className="font-medium">What the boxes are:</span> {content.boxes}</li>
+        <li><span className="font-medium">What the connectors are:</span> {content.connectors}</li>
+        <li><span className="font-medium">Evidence kind:</span> {content.evidence}</li>
+      </ul>
+    </section>
+  );
+}
+
 function FallbackCard(props: {
   readonly artifact: InfraEvidenceMermaidFallbackArtifactSummary;
   readonly selected: boolean;
@@ -2478,6 +2516,7 @@ export function DiagramsWorkbenchClient() {
           {dataFlowCaptionPresentation != null ? (
             <InfraEvidenceDataFlowCaptionDisclosure presentation={dataFlowCaptionPresentation} />
           ) : null}
+          <InfraDiagramLegend mode={selectedMode} />
           {diagramWalkthrough != null ? (
             <div className="flex flex-col gap-2">
               <p

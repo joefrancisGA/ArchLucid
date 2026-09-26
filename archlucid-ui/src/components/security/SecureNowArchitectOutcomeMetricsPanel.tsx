@@ -234,6 +234,11 @@ function SnapshotIdentityDisclosure(props: {
 
   return (
     <div className="space-y-2" data-testid="securenow-architect-metrics-snapshot-identity">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-architect-metrics-scope-line">
+        {props.fromSnapshot != null ? `From: ${formatSnapshotOptionLabel(props.fromSnapshot)}` : "From: not selected"}
+        {" · "}
+        {props.toSnapshot != null ? `To: ${formatSnapshotOptionLabel(props.toSnapshot)}` : "To: not selected"}
+      </p>
       <Link
         href={remediationFactorySnapshotIdentityDisclosureHrefFromSearch(search, !open, pathname)}
         className="text-al-link text-sm underline-offset-2 hover:underline"
