@@ -50,6 +50,13 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
+        ArgumentNullException.ThrowIfNull(scheduleName);
+
+        if (string.IsNullOrWhiteSpace(scheduleName))
+            throw new ArgumentException("Schedule name is required.", nameof(scheduleName));
+
+        string normalizedScheduleName = scheduleName.Trim();
+
         List<string> normalizedMailboxes = [];
 
         foreach (string mailbox in toMailboxes)
@@ -79,7 +86,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         RecurrenceCompletionEmailModel model = new()
         {
             ProductName = productName,
-            ScheduleName = scheduleName.Trim(),
+            ScheduleName = normalizedScheduleName,
             NewFindingCount = newFindingCount,
             ResolvedFindingCount = resolvedFindingCount,
             RunDetailUrl = runDetailUrl,
