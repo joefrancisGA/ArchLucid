@@ -13,6 +13,8 @@ def evaluate(summary: dict, run: dict) -> dict:
     errors: list[str] = []
     if run.get("profile") != "synthetic-multitenant" or int(run.get("tenantCount") or 0) < 2:
         errors.append("run metadata must identify at least two synthetic tenants")
+    if int(run.get("seededPathsPerTenant") or 0) < 1:
+        errors.append("run metadata must identify a nonempty path corpus per tenant")
     if not run.get("gitSha") or not run.get("environment"):
         errors.append("run metadata needs gitSha and environment")
     if run.get("workload") != "scripts/load/securenow-multitenant-read.js":

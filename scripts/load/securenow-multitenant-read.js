@@ -4,8 +4,8 @@ import { check, sleep } from "k6";
 
 const base = (__ENV.ARCHLUCID_BASE_URL || "http://127.0.0.1:5128").replace(/\/$/, "");
 const scopes = JSON.parse(__ENV.SECURENOW_TEST_SCOPES_JSON || "[]");
-if (scopes.length < 2 || scopes.some((s) => !s.tenantId || !s.workspaceId || !s.projectId || !s.snapshotId || !s.apiKey)) {
-  throw new Error("SECURENOW_TEST_SCOPES_JSON requires at least two synthetic scopes with IDs, snapshotId, and apiKey");
+if (scopes.length < 2 || scopes.some((s) => !s.tenantId || !s.workspaceId || !s.projectId || !s.snapshotId)) {
+  throw new Error("SECURENOW_TEST_SCOPES_JSON requires at least two synthetic scopes with IDs and snapshotId");
 }
 if (new Set(scopes.map((s) => s.tenantId)).size !== scopes.length) {
   throw new Error("Each synthetic scope must use a distinct tenantId");
@@ -22,11 +22,23 @@ export const options = {
 
 function request(scope, path, name) {
   const response = http.get(`${base}${path}`, {
-    headers: { "X-Api-Key": scope.apiKey, "x-tenant-id": scope.tenantId,
+    headers: { ...(scope.apiKey ? { "X-Api-Key": scope.apiKey } : {}), "x-tenant-id": scope.tenantId,
       "x-workspace-id": scope.workspaceId, "x-project-id": scope.projectId },
     tags: { name },
   });
   check(response, { [`${name}_200`]: (r) => r.status === 200 });
+  return response;
+}
+
+export function setup() {
+  for (const scope of scopes) {
+    const ranked = request(scope, `/v1/operational-security/paths/ranked?snapshotId=${encodeURIComponent(scope.snapshotId)}&page=1&pageSize=20`, "ranked_paths_preflight");
+    let page;
+    try { page = ranked.json(); } catch (_) { throw new Error(`Ranked path preflight returned invalid JSON for tenant ${scope.tenantId}`); }
+    if (ranked.status !== 200 || !Array.isArray(page?.items) || page.items.length === 0) {
+      throw new Error(`No ranked paths in seeded scope for tenant ${scope.tenantId}`);
+    }
+  }
 }
 
 export default function () {

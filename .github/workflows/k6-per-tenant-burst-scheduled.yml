@@ -57,6 +57,38 @@ jobs:
       - name: Seed k6 per-tenant burst tenants
         run: bash scripts/ci/seed_k6_per_tenant_burst_tenants.sh ArchLucidK6PerTenantBurst
 
+      - name: Seed SecureNow synthetic path corpus
+        run: bash scripts/ci/seed_securenow_scale_fixtures.sh ArchLucidK6PerTenantBurst
+
+      - name: Run and classify SecureNow multi-tenant reads
+        shell: bash
+        env:
+          ARCHLUCID_BASE_URL: http://127.0.0.1:5128
+          VUS: "5"
+          DURATION: "90s"
+        run: |
+          set -euo pipefail
+          export SECURENOW_TEST_SCOPES_JSON='[{"tenantId":"10000000-0000-4000-8000-000000000001","workspaceId":"20000000-0000-4000-8000-000000000001","projectId":"30000000-0000-4000-8000-000000000001","snapshotId":"50000000-0000-4000-8000-000000000001"},{"tenantId":"10000000-0000-4000-8000-000000000002","workspaceId":"20000000-0000-4000-8000-000000000002","projectId":"30000000-0000-4000-8000-000000000002","snapshotId":"50000000-0000-4000-8000-000000000002"}]'
+          python3 -c 'import json,os; json.dump({"profile":"synthetic-multitenant","tenantCount":2,"seededPathsPerTenant":100,"gitSha":os.environ["GITHUB_SHA"],"environment":"isolated-ci-sql","workload":"scripts/load/securenow-multitenant-read.js"},open("securenow-run-metadata.json","w"))'
+          k6_exit=0
+          k6 run scripts/load/securenow-multitenant-read.js || k6_exit=$?
+          python3 scripts/ci/evaluate_securenow_scale_run.py \
+            --k6-summary securenow-multitenant-k6.json \
+            --run-metadata securenow-run-metadata.json \
+            --json-out securenow-scale-verdict.json
+          exit "$k6_exit"
+
+      - name: Upload SecureNow scale verdict
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: securenow-synthetic-multitenant-scale
+          path: |
+            securenow-multitenant-k6.json
+            securenow-run-metadata.json
+            securenow-scale-verdict.json
+          if-no-files-found: warn
+
       - name: Run k6 per-tenant burst
         env:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
