@@ -2847,6 +2847,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after role-scoped `EvidenceRef` fix; cheap-disproof closed chosen-family novel-ref vs grounded-name paths, cross-role ref parity, locked-chosen gate, and `ShouldTreatAsDuplicateByName` whitespace-ref behavior — all covered by existing regressions; no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
+
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after cross-role `EvidenceRef` hit; cheap-disproof closed stale reseed templates (distinct `EvidenceRef` with matching family+name remains intentional per `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; inventory `Chosen` with `CloudProvider.None` does not enter the same-family gate against Azure/AWS candidates); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved chosen-family insert gate treated `EvidenceRef` collisions across different `TechnologyLedgerRole` values as blocking compute-runtime candidates; fixed by scoping the novel-ref check to the candidate role; regression `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`; 60 scoped TechnologyLedger tests passed.
@@ -18527,6 +18529,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — unknown string labels (`"bogus"`) silently left `SourceAgent` at invalid default `0` while out-of-range ordinals throw — **hit 2026-09-11 seed hunt #1748 (seed→hit):** non-empty unknown labels now throw `JsonException`; regression `Deserialize_unknown_source_agent_string_throws`.
 
 2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
+
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` — numeric `semanticSupportBand` ordinals outside `Enum.IsDefined` returned false and left `SemanticSupportBand` null while sibling `treatment`/`classification` readers throw — **hit 2026-09-26 seed hunt:** out-of-range ordinals now throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
