@@ -277,6 +277,43 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             && item.Count == 1);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+            NotAssessedQualityDimensions =
+            [
+                new NotAssessedQualityDimensionSnapshot
+                {
+                    QualityDimension = QualityDimension.ReliabilityAndResilience.ToString(),
+                    Reason = "Captured at execute with stale reason text",
+                },
+            ],
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "not-assessed-quality-dimensions-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
     private static ArchitectureRequest CreateRequest(string description = "Design the order service.") =>
         new()
         {

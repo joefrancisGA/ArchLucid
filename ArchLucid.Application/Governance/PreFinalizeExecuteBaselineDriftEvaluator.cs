@@ -138,6 +138,22 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
+        if (snapshot.NotAssessedQualityDimensions.Count > 0
+            && !NotAssessedQualityDimensionsMatch(
+                snapshot.NotAssessedQualityDimensions,
+                currentResolution.NotAssessedQualityDimensions))
+        {
+            items.Add(new PreFinalizeChecklistItem
+            {
+                ItemId = "not-assessed-quality-dimensions-changed-since-execute",
+                Title = "Not-assessed quality dimensions unchanged since execute",
+                Detail =
+                    "Which quality dimensions were not assessed changed after execute. Re-run agents before finalize.",
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            });
+        }
+
         return items;
     }
 
@@ -163,6 +179,25 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             HashCoverageAssignments(snapshotRows),
             HashCoverageAssignments(currentRows),
             StringComparison.OrdinalIgnoreCase);
+
+    internal static bool NotAssessedQualityDimensionsMatch(
+        IReadOnlyList<NotAssessedQualityDimensionSnapshot> snapshotRows,
+        IReadOnlyList<NotAssessedQualityDimensionSnapshot> currentRows) =>
+        string.Equals(
+            HashNotAssessedQualityDimensions(snapshotRows),
+            HashNotAssessedQualityDimensions(currentRows),
+            StringComparison.OrdinalIgnoreCase);
+
+    internal static string HashNotAssessedQualityDimensions(IReadOnlyList<NotAssessedQualityDimensionSnapshot> rows)
+    {
+        string canonical = JsonSerializer.Serialize(
+            rows
+                .OrderBy(static row => row.QualityDimension, StringComparer.OrdinalIgnoreCase)
+                .Select(static row => new { row.QualityDimension, row.Reason }),
+            ContractJson.Default);
+
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
+    }
 
     internal static string HashCoverageAssignments(IReadOnlyList<CommittedCoverageAssignmentSnapshot> assignments)
     {
