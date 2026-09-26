@@ -5243,17 +5243,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved create save stayed enabled when `listAlertRoutingSubscriptions` failed so client duplicate-name guard ran against an empty `webhookRows` inventory; fixed with `hasLoadedSuccessfully` gate on save/submit; seeded connection-test network-error inline panel and empty-list refresh affordance candidates; 47 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
+
 - **id:** ui-webhooks-settings
 - **status:** open
 - **impact:** medium
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 19
-- **bugs-found:** 13
+- **hunts:** 20
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — create checklist marked enable step incomplete before subscription list hydration
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — create save enabled when subscription list load failed, bypassing duplicate-name guard
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -5319,6 +5321,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1720 (hit): reseeded ui-webhooks-settings; seeded create-checklist loading candidate; proved pre-hydration toggle-confirm deep-link clearing for enable and disable params; 47 scoped webhooks page/continue-last tests passed (1 pre-existing sources-strip failure unrelated).
 
 2026-09-12 seed hunt #1915 (hit): reseeded ui-webhooks-settings; proved create-checklist enable step incomplete before subscription hydration; 3 scoped webhooks-create-checklist tests passed.
+
+- [x] (proven) `useWebhooksSettingsMutations.submit` — client duplicate-name check skipped when `listAlertRoutingSubscriptions` failed and `webhookRows` stayed empty — **hit 2026-09-26 seed hunt (seed→hit):** save stayed enabled after list load failure so operators could create subscriptions without the local name collision guard; fixed by tracking `hasLoadedSuccessfully` in `useWebhooksSettingsLoad` and gating save/submit until the inventory hydrates; regression `blocks create when subscription list never loaded so duplicate names cannot be bypassed`.
+
+- [ ] (candidate) `useWebhooksSettingsConnectionTest` — network/request failure deletes inline test result instead of showing a structured failure panel
+- [ ] (candidate) `WebhooksSettingsClient` — no refresh control when the subscription list is empty after a failed initial load
 
 ## Zone: ui-host-gate
 

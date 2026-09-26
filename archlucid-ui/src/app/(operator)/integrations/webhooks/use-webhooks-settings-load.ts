@@ -19,6 +19,7 @@ export type UseWebhooksSettingsLoadOptions = {
 export type UseWebhooksSettingsLoadResult = {
   readonly items: AlertRoutingSubscription[];
   readonly loading: boolean;
+  readonly hasLoadedSuccessfully: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
   readonly load: () => Promise<boolean>;
@@ -35,6 +36,7 @@ export function useWebhooksSettingsLoad(
   const scope = useOperatorScopeQueryKey();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoadedSuccessfully, setHasLoadedSuccessfully] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
@@ -66,6 +68,7 @@ export function useWebhooksSettingsLoad(
 
       setItems(data);
       lastLoadFailureRef.current = null;
+      setHasLoadedSuccessfully(true);
 
       return true;
     } catch (error: unknown) {
@@ -88,6 +91,7 @@ export function useWebhooksSettingsLoad(
   const resetScopeState = useCallback(() => {
     setItems([]);
     setFailure(null);
+    setHasLoadedSuccessfully(false);
     lastLoadFailureRef.current = null;
   }, []);
 
@@ -114,6 +118,7 @@ export function useWebhooksSettingsLoad(
   return {
     items,
     loading,
+    hasLoadedSuccessfully,
     failure,
     setFailure,
     load,
