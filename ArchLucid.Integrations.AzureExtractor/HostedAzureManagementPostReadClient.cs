@@ -117,6 +117,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
                     if (!string.IsNullOrWhiteSpace(next))
                     {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(next, subscriptionId);
                         cursor = next;
                     }
                 }

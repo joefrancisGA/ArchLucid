@@ -21316,13 +21316,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 55
-- **bugs-found:** 24
+- **hunts:** 56
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — recovery vault, generic child-resource, and policy compliance pagination followed cross-scope nextLink
+- **last-bug:** 2026-09-26 — ActualCost query paging followed cross-subscription properties.nextLink
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `TryQueryActualCostSummaryAsync` followed `properties.nextLink` to another subscription without `EnsureTargetsSubscription`; regression `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`; 2 HostedAzureManagementPostReadClient tests passed.
+
 2026-09-26 thorough hunt (hit): proved recovery-vault protected-item, generic child-resource (`ListJsonElementsAtRelativePathAsync`), and policy-compliance pagination followed cross-scope `nextLink` without guards; fixed with `EnsureTargetsArmRelativeListingPath` and subscription check on policy cursor; regressions in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`, `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`, `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`; 26 scoped GetOnlyHostedAzureArmReadClient + HostedAzureManagementPostReadClient tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved ADF factory linked-service and child-resource pagination followed cross-factory `nextLink` without scope guard; seeded recovery-vault, generic child-resource, and policy-compliance nextLink candidates; 23 scoped GetOnlyHostedAzureArmReadClient tests passed.
@@ -21454,6 +21456,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — recovery vault protected-item pagination followed cross-vault `nextLink` — **hit 2026-09-26 thorough hunt:** mis-issued `nextLink` could merge another vault's protected items into the scanned vault; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath`; regression in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListJsonElementsAtRelativePathAsync` — generic child-resource pagination followed cross-parent `nextLink` — **hit 2026-09-26 thorough hunt:** SQL/Event Grid/Service Connector child listings could follow another parent's collection; same `EnsureTargetsArmRelativeListingPath` guard; regression in `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`.
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor followed cross-subscription `nextLink` — **hit 2026-09-26 thorough hunt:** `@odata.nextLink` to another subscription could merge foreign policy rows; fixed with `EnsureTargetsSubscription` before advancing cursor; regression in `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`.
+- [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — ActualCost `properties.nextLink` followed cross-subscription cursor — **hit 2026-09-26 seed hunt (seed→hit):** mis-issued cost query `nextLink` could merge another subscription's cost rows into the scanned subscription summary; fixed with `EnsureTargetsSubscription` before following `properties.nextLink`; regression in `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`.
 
 ---
 
