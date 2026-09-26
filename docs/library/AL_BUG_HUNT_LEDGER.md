@@ -5529,13 +5529,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 23
-- **bugs-found:** 12
+- **hunts:** 24
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — null ClaimMapping threw ArgumentNullException past activate/test-login validation envelopes
+- **last-bug:** 2026-09-26 — null actorId NRE on activate; null SampleClaimValues ANE on sandbox test-login
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): proved null `actorId` caused `NullReferenceException` on `Trim()` in `ActivateAsync` (bypassing controller `ArgumentException` handler) and null `SampleClaimValues` threw from `ResolveRoles` during sandbox test-login; fixed with explicit guards; regressions `ActivateAsync_rejects_null_actor_id` and `Execute_returns_failure_when_sample_claim_values_is_null`; 49 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — null `actorId` throws `NullReferenceException` on `Trim()` — **hit 2026-09-26 seed hunt:** guard before trim; regression `ActivateAsync_rejects_null_actor_id`.
+- [x] (proven) `SsoWizardTestLoginService.Execute` — null `SampleClaimValues` throws `ArgumentNullException` from `ResolveRoles` — **hit 2026-09-26 seed hunt:** structured failure before role resolution; regression `Execute_returns_failure_when_sample_claim_values_is_null`.
 
 2026-09-26 seed hunt (hit): proved null `ClaimMapping` on activate and sandbox test-login surfaced `ArgumentNullException` from `ToDocument` instead of validation failures mapped to HTTP 400 / `Success=false`; fixed with explicit guards in `IdentityProviderActivationService` and `SsoWizardTestLoginService`; regressions `ActivateAsync_rejects_null_claim_mapping` and `Execute_returns_failure_when_claim_mapping_is_null`; 47 scoped activation/controller/test-login tests passed.
 
