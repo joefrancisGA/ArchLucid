@@ -3509,13 +3509,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 42
-- **bugs-found:** 21
+- **hunts:** 43
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — InMemory representative lookup treated NULL `LegacyRunStatus` reruns as eligible while SQL `NOT IN` excludes them
+- **last-bug:** 2026-09-26 — `NormalizeArchitectureRequestId` collapsed tab separators while SQL `STRING_SPLIT` uses space-only delimiters
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6977 (seed→hit): reseeded architecture-request scope seeks after #6976; proved `RunRepositoryCore.NormalizeArchitectureRequestId` split on all Unicode whitespace so InMemory active-run / existence / representative seeks matched tab-stored ids to space-normalized callers while SQL `STRING_SPLIT(..., N' ')` does not; fixed space-only collapse to mirror SQL; regressions `InMemory_count_active_runs_matches_tab_collapsed_to_space_in_stored_architecture_request_id`, `Architecture_request_sql_normalization_uses_space_only_string_split`, and `InMemory_representative_run_id_excludes_quality_rejected_dead_letter_with_retained_manifest`; 130 scoped zone tests passed (1 SQL integration skipped).
+
+- [x] (proven) `RunRepositoryCore.NormalizeArchitectureRequestId` / `ArchitectureRequestIdMatches` — tab or non-space whitespace separators in stored `ArchitectureRequestId` match space-collapsed seeks in InMemory but not in SQL — **hit 2026-09-26 seed hunt #6977:** align InMemory normalization with space-only `STRING_SPLIT` collapse; regressions `InMemory_count_active_runs_matches_tab_collapsed_to_space_in_stored_architecture_request_id` and `Architecture_request_sql_normalization_uses_space_only_string_split`.
 
 2026-09-26 seed hunt #6976 (seed→hit): reseeded representative lookup after #6975; proved `TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` InMemory path could pick newer NULL-`LegacyRunStatus` reruns with `GoldenManifestId` while SQL `NOT IN` filter drops NULL statuses, skewing sealed-manifest guard parity for legacy/migration rows; fixed with `RunRepositoryCore.MatchesRepresentativeArchitectureRequestRun`; regressions `InMemory_representative_run_id_skips_null_legacy_status_rerun_like_sql_not_in` and `SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_null_legacy_status_like_not_in_filter`; 127 scoped zone tests passed (1 SQL integration skipped).
 
