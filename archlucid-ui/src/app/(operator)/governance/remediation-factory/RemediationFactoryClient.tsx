@@ -222,9 +222,17 @@ function PriorityTable(props: {
       <EnterpriseTable ariaLabel="Remediation priority queue">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                This rank is the SecureNow finding queue, not the path list.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Control</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Control</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Control this finding cites.</span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>

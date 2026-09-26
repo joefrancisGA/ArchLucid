@@ -26,6 +26,8 @@ import {
   findingApplyChangePreviewHref,
   isFindingApplyChangeDisposition,
 } from "@/lib/findings/finding-apply-change-preview-gate";
+import { decisionRegisterNextReviewHref } from "@/app/(operator)/governance/decision-register/DecisionRegisterNextReviewFooter";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 import { incrementalRereviewAfterApplyHref } from "@/lib/review-quality/incremental-rereview-handoff";
 import {
   dispositionRequiresRationale,
@@ -385,6 +387,19 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             </p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Recorded on this finding. The sealed review record is unchanged.
+            </p>
+            <p className="m-0">
+              <Link
+                href={
+                  runId.trim().length > 0
+                    ? decisionRegisterNextReviewHref(runId)
+                    : GOVERNANCE_DECISION_REGISTER_PATH
+                }
+                className={OPERATOR_LINK.inline}
+                data-testid="finding-disposition-decision-register-link"
+              >
+                See it in the decision register
+              </Link>
             </p>
           </div>
         ) : null}

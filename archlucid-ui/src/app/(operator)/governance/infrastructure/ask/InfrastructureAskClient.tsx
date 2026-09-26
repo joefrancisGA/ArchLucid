@@ -838,6 +838,9 @@ export function InfrastructureAskClient() {
             {turn.response.insufficientEvidence ? (
               <div className="grid gap-2" data-testid="infra-ask-insufficient-evidence">
                 <StatusTag kind="needs-attention" label="Insufficient evidence" />
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-ask-insufficient-evidence-scope">
+                  This snapshot does not have enough evidence to answer. Ask did not query live Azure.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
               </div>
             ) : (

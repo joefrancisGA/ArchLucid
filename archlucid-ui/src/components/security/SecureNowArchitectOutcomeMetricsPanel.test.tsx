@@ -147,6 +147,9 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
       hasUrlSnapshotPair: true,
     });
 
+    expect(screen.getByTestId("securenow-architect-metrics-snapshot-baseline")).toHaveTextContent(
+      "From is the baseline. To is the snapshot you compare against.",
+    );
     expect(screen.getByTestId("securenow-architect-outcome-metrics-grid")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_ARCHITECT_METRICS_CRITICAL_PATHS_REMOVED)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-metric-Critical/high paths removed")).toHaveTextContent("+3");

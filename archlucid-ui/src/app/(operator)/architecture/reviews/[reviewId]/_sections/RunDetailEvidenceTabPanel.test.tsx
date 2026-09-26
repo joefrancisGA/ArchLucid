@@ -116,6 +116,9 @@ describe("RunDetailEvidenceTabPanel", () => {
       </QueryClientProvider>,
     );
 
+    expect(screen.getByTestId("run-detail-evidence-tab-scope")).toHaveTextContent(
+      "Evidence here is what this review used.",
+    );
     expect(screen.getByRole("link", { name: "Submitted evidence" })).toHaveAttribute("href", "#submitted-evidence-inventory");
     expect(screen.getByRole("link", { name: "Deliverables" })).toHaveAttribute("href", "#artifacts-exports");
     expect(screen.getByRole("link", { name: "Evidence basis" })).toHaveAttribute("href", "#trust-evidence");

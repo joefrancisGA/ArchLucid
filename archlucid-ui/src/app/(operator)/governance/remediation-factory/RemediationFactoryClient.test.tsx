@@ -193,6 +193,9 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
     expect(screen.getByText(REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
+    expect(screen.getByText("Control this finding cites.")).toBeInTheDocument();
+    expect(screen.getByText("This rank is the SecureNow finding queue, not the path list.")).toBeInTheDocument();
+    expect(screen.getByText("1 is the first path to inspect.")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_RANKED_PATHS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-outcome-metrics-panel")).toBeInTheDocument();

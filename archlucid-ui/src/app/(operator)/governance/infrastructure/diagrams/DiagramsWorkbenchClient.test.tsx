@@ -1220,6 +1220,9 @@ describe("DiagramsWorkbenchClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
+    expect(screen.getByTestId("infra-diagrams-one-resource-group-caption")).toHaveTextContent(
+      "This diagram shows one resource group.",
+    );
     expect(screen.queryByTestId("infra-diagrams-resource-group-cards")).not.toBeInTheDocument();
   });
 
@@ -1303,6 +1306,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-resource-group-map-caption")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
     );
+    expect(screen.queryByTestId("infra-diagrams-one-resource-group-caption")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
   });
 

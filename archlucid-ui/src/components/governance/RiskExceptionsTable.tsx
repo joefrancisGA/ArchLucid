@@ -66,7 +66,12 @@ export function RiskExceptionsTable({
           <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Expires</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              After this time the exception no longer covers the finding.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
