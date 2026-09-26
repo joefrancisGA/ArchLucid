@@ -48,6 +48,18 @@ public static class AzureResourceTagPromptSanitizer
         return WrapUntrusted(StripControlChars(value));
     }
 
+    /// <summary>
+    ///     Collapses line-break injection characters and neutralizes embedded untrusted tags in persisted customer
+    ///     prose (for example starter-task objectives built before execute-time evidence sanitize).
+    /// </summary>
+    public static string SanitizePersistedCustomerProse(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return EscapeEmbeddedUntrustedTags(StripControlChars(value));
+    }
+
     private static string WrapUntrusted(string value)
     {
         return UntrustedOpen + EscapeEmbeddedUntrustedTags(value) + UntrustedClose;

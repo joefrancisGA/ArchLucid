@@ -8418,17 +8418,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-26 seed hunt (seed→hit): reseeded agent-runtime-safety; proved persisted starter-task objectives built before execute-time sanitize still carried raw Unicode line separators into the Task Objective quarantine while architecture fields were collapsed; fixed via `SanitizePersistedCustomerProse` at prompt render; seeded stale-objective `CUSTOMER_CONTENT_END` marker and cost/compliance objective parity candidates; 134 scoped agent-runtime-safety tests passed.
+
 - **id:** agent-runtime-safety
 - **status:** open
 - **impact:** high
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 18
-- **bugs-found:** 12
+- **hunts:** 19
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-09 — Unicode line separators bypassed #1410 newline collapse and enabled prompt field spoofing inside quarantine
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — persisted starter-task objective carried Unicode line separators into Task Objective quarantine after execute-time sanitize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
