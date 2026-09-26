@@ -1884,6 +1884,63 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByTestId("architecture-intelligence-page-skeleton")).not.toBeInTheDocument();
   });
 
+  it("does not show next-review footer while product context is loading", async () => {
+    let resolveSourceContext: (() => void) | null = null;
+    const sourceContextGate = new Promise<void>((resolve) => {
+      resolveSourceContext = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          await sourceContextGate;
+
+          return okJsonFetchResponse({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated after load.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-page-skeleton")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+
+    resolveSourceContext?.();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-next-review-footer-stub")).toBeInTheDocument();
+    });
+  });
+
   it("does not show inbound context line when product context load failure panel is visible", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {

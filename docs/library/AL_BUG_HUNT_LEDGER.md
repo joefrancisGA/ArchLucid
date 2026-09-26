@@ -5400,11 +5400,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 23
-- **bugs-found:** 18
+- **hunts:** 24
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — duplicate loading copy (inbound context line while product-context skeleton visible)
+- **last-bug:** 2026-09-26 — next-review footer visible during product-context skeleton load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5512,6 +5512,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence after duplicate failure-copy fix; proved deep-linked load showed inbound context loading copy concurrently with `ArchitectureIntelligencePageSkeleton`; fixed by suppressing inbound context line while `loadingInboundContext`; regression `does not show inbound context line while product context is loading`; 48 scoped ArchitectureIntelligence page client tests passed.
 
 - [x] (proven) Deep-linked product context load shows inbound context loading line above page skeleton — **hit 2026-09-26 seed hunt:** `inboundContextLine` rendered for `productContextStatus === "loading"` while `ArchitectureIntelligencePageSkeleton` was also mounted; fixed with `!loadingInboundContext` guard on inbound context paragraph; regression `does not show inbound context line while product context is loading`.
+
+2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence after inbound loading-line fix; proved deep-linked load mounted `ArchitectureIntelligenceNextReviewFooterClient` while `ArchitectureIntelligencePageSkeleton` was still visible (`activeRunId` set before source-context fetch completed); fixed by gating footer on `!loadingInboundContext`; regression `does not show next-review footer while product context is loading`; 49 scoped ArchitectureIntelligence page client tests passed.
+
+- [x] (proven) Deep-linked product context load shows next-review footer during skeleton — **hit 2026-09-26 seed hunt:** footer rendered whenever `activeRunId` was set, including `productContextStatus === "loading"`; fixed with `!loadingInboundContext` guard matching run-scope banner and run-model callout; regression `does not show next-review footer while product context is loading`.
 
 ---
 

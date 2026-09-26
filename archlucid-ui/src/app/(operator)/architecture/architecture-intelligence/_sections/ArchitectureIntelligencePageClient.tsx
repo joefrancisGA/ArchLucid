@@ -296,7 +296,7 @@ export function ArchitectureIntelligencePageClient() {
 
       {runState?.kind === "golden" ? <ArchitectureIntelligenceGoldenResults result={runState.result} /> : null}
 
-      {(activeRunId?.trim() ?? "").length > 0 ? (
+      {(activeRunId?.trim() ?? "").length > 0 && !loadingInboundContext ? (
         <ArchitectureIntelligenceNextReviewFooterClient runId={activeRunId?.trim() ?? ""} />
       ) : null}
     </>
