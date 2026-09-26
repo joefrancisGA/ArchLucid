@@ -19,6 +19,7 @@ public sealed class RemediationPathNarrativeBuilderTests
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
     private static readonly Guid PathId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    private static readonly Guid SnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
     private static readonly Guid StorageId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid SubnetId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
     private static readonly byte[] CanonicalHash = Enumerable.Repeat((byte)0xAB, 32).ToArray();
@@ -43,14 +44,16 @@ public sealed class RemediationPathNarrativeBuilderTests
 
         Mock<ISecurityEvidenceCutPointRepository> cutPointRepository = new();
         cutPointRepository
-            .Setup(repository => repository.ListByPathIdAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListByPathIdInScopeAsync(
+                It.Is<ProjectScopeKey>(key => key.TenantId == TenantId && key.WorkspaceId == WorkspaceId && key.ProjectId == ProjectId),
+                PathId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new SecurityEvidenceCutPointRecord
                 {
                     CutPointId = Guid.NewGuid(),
                     TenantId = TenantId,
-                    SnapshotId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
                     CutKind = SecurityEvidenceCutPointKind.Edge,
                     CutKey = "public-network-access",
                     PathsCollapsedCount = 3,
@@ -97,6 +100,33 @@ public sealed class RemediationPathNarrativeBuilderTests
             CancellationToken.None);
 
         narrative.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryBuildAsync_ignores_cut_point_from_another_snapshot()
+    {
+        Mock<ISecurityEvidencePathRepository> paths = new();
+        paths.Setup(repository => repository.TryGetByIdAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateReachabilityPath());
+        paths.Setup(repository => repository.ListHopsByPathInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePublicReachabilityHops());
+        Mock<ISecurityEvidenceCutPointRepository> cuts = new();
+        cuts.Setup(repository => repository.ListByPathIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new SecurityEvidenceCutPointRecord
+            {
+                TenantId = TenantId, SnapshotId = Guid.NewGuid(), CutKey = "stale-cut",
+                SuggestedPatternKey = "stale-pattern", PathsCollapsedCount = 10,
+            }]);
+        RemediationPathNarrativeBuilder sut = new(paths.Object, cuts.Object);
+
+        RemediationPathNarrative? narrative = await sut.TryBuildAsync(
+            CreateScope(), CreateFinding(), CreatePatternVersion(), CancellationToken.None);
+
+        narrative.Should().NotBeNull();
+        narrative!.RecommendedChangeSource.Should().NotBe(RemediationPathNarrativeRecommendedChangeSources.CutPoint);
+        narrative.RecommendedChange.Should().NotContain("stale-cut");
     }
 
     private static ScopeContext CreateScope() =>
@@ -147,7 +177,7 @@ public sealed class RemediationPathNarrativeBuilderTests
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
-            SnapshotId = Guid.NewGuid(),
+            SnapshotId = SnapshotId,
             PathKind = PathKind.IntendedReachability,
             PathConfidenceBand = PathConfidenceBand.HighlyLikely,
             CanonicalHopHashSha256 = CanonicalHash,
