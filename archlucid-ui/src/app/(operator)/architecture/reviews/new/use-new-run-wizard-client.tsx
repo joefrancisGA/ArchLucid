@@ -102,10 +102,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   );
 
   useEffect(() => {
-    if (urlPilotEnabled !== null) {
-      setFocusedPilotModeEnabledState(urlPilotEnabled);
-    }
-
+    setFocusedPilotModeEnabledState(urlPilotEnabled ?? true);
     setAdvancedConfigurationOptInState(urlAdvancedConfig);
   }, [urlAdvancedConfig, urlPilotEnabled]);
 
@@ -115,9 +112,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
         new URLSearchParams(readWindowLocationSearch()).get("pilot"),
       );
 
-      if (nextPilot !== null) {
-        setFocusedPilotModeEnabledState(nextPilot);
-      }
+      setFocusedPilotModeEnabledState(nextPilot ?? true);
 
       setAdvancedConfigurationOptInState(
         parseNewRunWizardAdvancedConfigFromSearch(
