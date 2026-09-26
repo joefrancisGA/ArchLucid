@@ -68,10 +68,10 @@ export function RemediationFactoryRankedPathsTable(props: {
         <EnterpriseTableHead>
           <EnterpriseTableRow>
             <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>What this means</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -92,6 +92,16 @@ export function RemediationFactoryRankedPathsTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <RemediationFactoryTableSummaryCell
+                    rowKey={row.pathId}
+                    summary={
+                      row.explanationSummary.trim().length > 0
+                        ? row.explanationSummary
+                        : "Path recorded. Open inspect for the hops."
+                    }
+                  />
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <StatusTag
@@ -100,9 +110,6 @@ export function RemediationFactoryRankedPathsTable(props: {
                   />
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="tabular-nums">{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <RemediationFactoryTableSummaryCell rowKey={row.pathId} summary={row.explanationSummary} />
-                </EnterpriseTableCell>
               </EnterpriseTableInteractiveRow>
             );
           })}

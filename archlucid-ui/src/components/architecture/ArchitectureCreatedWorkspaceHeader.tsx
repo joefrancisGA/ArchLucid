@@ -29,6 +29,12 @@ import {
 } from "@/lib/architecture/architecture-created-governance-sources";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  resolveReviewJourneyStep,
+  ReviewJourneyStrip,
+  ReviewObjectSentence,
+} from "@/components/reviews/ReviewJourneyStrip";
+import { ReviewVocabularyRail } from "@/components/reviews/ReviewVocabularyRail";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {
   readonly model: ArchitectureCreatedHomeModel;
@@ -52,6 +58,7 @@ export function ArchitectureCreatedWorkspaceHeader(
   );
   const architectureCreatedOverflowOpenRef = useRef(architectureCreatedOverflowOpen);
   architectureCreatedOverflowOpenRef.current = architectureCreatedOverflowOpen;
+  const isSealed = /sealed|finalized/i.test(model.lifecycleLabel);
   const syncArchitectureCreatedOverflowOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
@@ -129,6 +136,15 @@ export function ArchitectureCreatedWorkspaceHeader(
             </span>
           ) : null}
         </div>
+        <ReviewObjectSentence isSealed={isSealed} />
+        <ReviewJourneyStrip
+          currentStep={resolveReviewJourneyStep({
+            kind: model.lifecycleLabel,
+            label: model.lifecycleLabel,
+          })}
+          isSealed={isSealed}
+        />
+        <ReviewVocabularyRail />
         {showEvidenceClaimDiscipline ? (
           <p
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", HELP_PAGE_LAYOUT.readingBody)}

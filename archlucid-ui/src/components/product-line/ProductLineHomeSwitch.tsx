@@ -6,6 +6,7 @@ import Link from "next/link";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { InfrastructureOverviewClient } from "@/app/(operator)/governance/infrastructure/_sections/InfrastructureOverviewClient";
+import { ProductLineHomeJobChooser } from "@/components/product-line/ProductLineHomeJobChooser";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LAYOUT, OPERATOR_LINK } from "@/lib/design-tokens";
 import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
@@ -16,14 +17,30 @@ import {
 } from "@/lib/product-line/product-line-copy";
 
 export function ProductLineHomeSwitch(props: { readonly architectureHome?: ReactNode }): React.JSX.Element {
-  const { productLine } = useProductLine();
+  const { productLine, setProductLine } = useProductLine();
 
   if (productLine === "security") {
-    return <InfrastructureOverviewClient secureNowHome />;
+    return (
+      <>
+        <ProductLineHomeJobChooser
+          selectedProductLine={productLine}
+          onSelect={setProductLine}
+        />
+        <InfrastructureOverviewClient secureNowHome />
+      </>
+    );
   }
 
   if (props.architectureHome !== undefined) {
-    return <>{props.architectureHome}</>;
+    return (
+      <>
+        <ProductLineHomeJobChooser
+          selectedProductLine={productLine}
+          onSelect={setProductLine}
+        />
+        {props.architectureHome}
+      </>
+    );
   }
 
   return (
