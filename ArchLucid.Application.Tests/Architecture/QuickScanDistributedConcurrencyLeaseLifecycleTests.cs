@@ -664,6 +664,94 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_promote_after_options_change()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        List<Guid> activeLeaseIds = new();
+
+        for (int index = 0; index < 2; index++)
+        {
+            Guid leaseId = Guid.NewGuid();
+            QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+                BuildAdmitRequest(leaseId, Guid.NewGuid(), $"active-{index}", maxConcurrent: 2, maxQueued: 2));
+            direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+            activeLeaseIds.Add(leaseId);
+        }
+
+        TaskCompletionSource promoteReached = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource releasePromote = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 2,
+                MaxQueuedAnonymousScans = 2,
+                QueueWaitTimeoutSeconds = 5,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        QuickScanDistributedConcurrencyAdmitLimitRefreshStore refreshStore =
+            new(inner, safetyOptions.Object);
+        GatedPromoteStore store = new(refreshStore, promoteReached, releasePromote);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-promote-after-limit-tighten", CancellationToken.None);
+
+        await Task.Delay(50);
+
+        await inner.ReleaseLeaseAsync(activeLeaseIds[0]);
+
+        await promoteReached.Task.WaitAsync(TimeSpan.FromSeconds(2));
+
+        options.Concurrency.MaxConcurrentAnonymousScans = 1;
+        releasePromote.SetResult();
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.QueueTimeout);
+
+        refreshStore.LastRefreshedPromoteMaxConcurrentScans.Should().Be(
+            1,
+            "TryPromote must re-read MaxConcurrentAnonymousScans at store entry after options tighten");
+
+        QuickScanConcurrencyAdmitResult capacityProbe = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "capacity-probe", maxConcurrent: 1, maxQueued: 0));
+
+        capacityProbe.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.Busy,
+            "promote must not grant a second active lease when the tightened limit is 1");
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_direct_admit_after_options_change()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
@@ -1359,6 +1447,42 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             TimeSpan leaseDuration,
             CancellationToken cancellationToken = default) =>
             throw new NotImplementedException();
+    }
+
+    private sealed class GatedPromoteStore(
+        IQuickScanDistributedConcurrencyStore inner,
+        TaskCompletionSource promoteReached,
+        TaskCompletionSource releaseGate)
+        : IQuickScanDistributedConcurrencyStore
+    {
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default) =>
+            inner.TryAdmitAsync(request, cancellationToken);
+
+        public async Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            promoteReached.TrySetResult();
+
+            await releaseGate.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            return await inner.TryPromoteAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            inner.ReleaseLeaseAsync(leaseId, cancellationToken);
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
+            inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+
+        public Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default) =>
+            inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
     }
 
     private sealed class GatedAdmitStore(

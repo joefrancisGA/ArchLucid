@@ -6,8 +6,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Architecture;
 
 /// <summary>
-///     Re-reads concurrency limits at <see cref="IQuickScanDistributedConcurrencyStore.TryAdmitAsync" />
-///     so direct admits honor live <see cref="IOptionsMonitor{T}" /> changes (promote already re-reads each poll; #1542).
+///     Re-reads concurrency limits at store admit/promote entry so live
+///     <see cref="IOptionsMonitor{T}" /> changes apply before SQL/in-memory enforcement (#1542, #6964).
 /// </summary>
 internal sealed class QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
     IQuickScanDistributedConcurrencyStore inner,
@@ -20,6 +20,8 @@ internal sealed class QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
         safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions));
 
     internal int? LastRefreshedMaxConcurrentScans { get; private set; }
+
+    internal int? LastRefreshedPromoteMaxConcurrentScans { get; private set; }
 
     public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
         QuickScanConcurrencyAdmitRequest request,
@@ -48,8 +50,25 @@ internal sealed class QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
 
     public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
         QuickScanConcurrencyPromoteRequest request,
-        CancellationToken cancellationToken = default) =>
-        _inner.TryPromoteAsync(request, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        QuickScanSafetyConcurrencyLimits limits = _safetyOptions.CurrentValue.Concurrency;
+        LastRefreshedPromoteMaxConcurrentScans = limits.MaxConcurrentAnonymousScans;
+
+        QuickScanConcurrencyPromoteRequest refreshed = new()
+        {
+            QueueEntryId = request.QueueEntryId,
+            LeaseId = request.LeaseId,
+            HolderInstanceId = request.HolderInstanceId,
+            UtcNow = request.UtcNow,
+            MaxConcurrentScans = limits.MaxConcurrentAnonymousScans,
+            LeaseDuration = TimeSpan.FromSeconds(limits.LeaseDurationSeconds),
+        };
+
+        return _inner.TryPromoteAsync(refreshed, cancellationToken);
+    }
 
     public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
         _inner.ReleaseLeaseAsync(leaseId, cancellationToken);

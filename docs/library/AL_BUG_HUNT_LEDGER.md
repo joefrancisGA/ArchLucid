@@ -23639,13 +23639,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 15
-- **bugs-found:** 12
+- **hunts:** 16
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — direct `TryAdmit` used concurrency limits captured before store entry while promote re-reads live options (#1542)
+- **last-bug:** 2026-09-26 — `TryPromote` could use limits captured before store entry despite per-loop options read (#1542)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6965 (seed→hit): reseeded promote store-entry limit snapshot after #6964 admit refresh; proved `TryPromoteAsync` could still enforce stale `MaxConcurrentAnonymousScans` when options tightened between service loop read and store call; extended `QuickScanDistributedConcurrencyAdmitLimitRefreshStore` to refresh promote requests at store entry; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_promote_after_options_change`; 24 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote `TryPromote` honors stale limits captured before store entry — **hit 2026-09-26 seed hunt #6965:** limit refresh decorator re-reads promote caps at `TryPromoteAsync`; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_promote_after_options_change`.
 
 2026-09-26 seed hunt #6964 (seed→hit): reseeded direct-admit limit snapshot gap; proved `WaitForAdmissionAsync` built `TryAdmit` limits before store entry so a tightened `MaxConcurrentAnonymousScans` could still grant a second direct lease (promote loop already re-reads per #1542); fixed with `QuickScanDistributedConcurrencyAdmitLimitRefreshStore` re-reading limits at `TryAdmitAsync`; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_direct_admit_after_options_change`; 23 scoped QuickScanDistributedConcurrency tests passed.
 
