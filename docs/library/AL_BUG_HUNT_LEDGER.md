@@ -10937,7 +10937,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
 - **hunts:** 448
 - **bugs-found:** 3500
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `GraphSnapshotKnowledgeModelMerger` duplicate context edges when endpoint casing differed
 - **related-pd-tb:** none
