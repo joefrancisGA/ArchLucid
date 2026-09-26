@@ -119,8 +119,28 @@ function containsDotHomoglyph(path: string): boolean {
   return false;
 }
 
+function pathWithoutQueryOrFragment(path: string): string {
+  const queryIndex = path.indexOf("?");
+  const fragmentIndex = path.indexOf("#");
+  let endIndex = path.length;
+
+  if (queryIndex >= 0) {
+    endIndex = queryIndex;
+  }
+
+  if (fragmentIndex >= 0 && fragmentIndex < endIndex) {
+    endIndex = fragmentIndex;
+  }
+
+  return path.slice(0, endIndex);
+}
+
+function containsAtSignInPath(path: string): boolean {
+  return pathWithoutQueryOrFragment(path).includes("@");
+}
+
 function containsDotDotSegment(path: string): boolean {
-  const pathOnly = path.split("?")[0] ?? path;
+  const pathOnly = pathWithoutQueryOrFragment(path);
 
   for (const segment of pathOnly.split("/")) {
 
@@ -169,6 +189,10 @@ export function isSafeReturnPath(candidate: string | null | undefined): candidat
     return false;
   }
 
+  if (containsAtSignInPath(normalized)) {
+    return false;
+  }
+
   if (normalized.includes("://")) {
     return false;
   }
@@ -200,7 +224,7 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
       return false;
     }
 
-    if (decoded.includes("://") || decoded.includes("\\") || decoded.includes("@")) {
+    if (decoded.includes("://") || decoded.includes("\\")) {
       return false;
     }
 
@@ -213,6 +237,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
     }
 
     if (containsDotDotSegment(decoded)) {
+      return false;
+    }
+
+    if (containsAtSignInPath(decoded)) {
       return false;
     }
 
@@ -240,6 +268,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
   }
 
   if (containsDotDotSegment(working)) {
+    return false;
+  }
+
+  if (containsAtSignInPath(working)) {
     return false;
   }
 

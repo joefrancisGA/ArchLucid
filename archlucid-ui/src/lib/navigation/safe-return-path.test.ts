@@ -122,6 +122,16 @@ describe("isSafeReturnPath", () => {
     expect(isSafeReturnPath("/safe\uFF0F\uFF0Fevil.example")).toBe(false);
   });
 
+  it("rejects at-sign in the path portion (userinfo open-redirect shape)", () => {
+    expect(isSafeReturnPath("/path@evil")).toBe(false);
+    expect(isSafeReturnPath("/user@evil.example/phish")).toBe(false);
+  });
+
+  it("allows at-sign in query or fragment only", () => {
+    expect(isSafeReturnPath("/architecture/reviews?notify=user@example.com")).toBe(true);
+    expect(isSafeReturnPath("/reviews/1#notes@team")).toBe(true);
+  });
+
   it("rejects percent-encoded backslash segments after decoding", () => {
     expect(isSafeReturnPath("/welcome%5c..%5c..%5coperator")).toBe(false);
   });
