@@ -35,8 +35,10 @@ public sealed class ExecDigestEmailDispatcher(
         ArgumentNullException.ThrowIfNull(isoWeekIdempotencyKey);
         ArgumentNullException.ThrowIfNull(toMailboxes);
         ArgumentNullException.ThrowIfNull(unsubscribeAbsoluteUrl);
+
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 

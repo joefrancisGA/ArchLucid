@@ -1444,7 +1444,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
             .Returns(async () =>
             {
-                await releaseOperationalLookup.Task.ConfigureAwait(false);
+                await releaseOperationalLookup.Task;
 
                 return new QuickScanSafetyOperationalSnapshot
                 {
@@ -1841,7 +1841,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         {
             LastRequest = request;
 
-            return await inner.TryAdmitAsync(request, cancellationToken).ConfigureAwait(false);
+            return await inner.TryAdmitAsync(request, cancellationToken);
         }
 
         public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
@@ -2186,9 +2186,9 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         {
             promoteReached.TrySetResult();
 
-            await releaseGate.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await releaseGate.Task.WaitAsync(cancellationToken);
 
-            return await inner.TryPromoteAsync(request, cancellationToken).ConfigureAwait(false);
+            return await inner.TryPromoteAsync(request, cancellationToken);
         }
 
         public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
@@ -2217,9 +2217,9 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         {
             admitReached.TrySetResult();
 
-            await releaseGate.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await releaseGate.Task.WaitAsync(cancellationToken);
 
-            return await inner.TryAdmitAsync(request, cancellationToken).ConfigureAwait(false);
+            return await inner.TryAdmitAsync(request, cancellationToken);
         }
 
         public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
