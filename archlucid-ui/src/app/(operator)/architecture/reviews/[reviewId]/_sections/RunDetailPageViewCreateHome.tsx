@@ -241,6 +241,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 provenanceAsOfLabel={createHomeActivityProvenanceAsOfLabel}
                 preFinalizeReadyToFinalize={createHomePreFinalizeReadyToFinalize}
                 progressForPipelineUi={m.progressForPipelineUi}
+                loadedFindingsCount={quickDecisionFindings.length}
                 pipelineDiagnosticContext={m.pipelineDiagnosticContext}
                 outcomeCards={createHomeActivityOutcomeCardsEl}
                 lastFailureSummary={reviewPackageDoThisNextEvidenceProps.lastFailureSummary}

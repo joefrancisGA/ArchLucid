@@ -10,6 +10,13 @@ export type SecurityEvidencePathHop = {
   cloudResourceId: string | null;
 };
 
+export function securityEvidencePathHopNodeName(label: string): string {
+  const trimmed = label.trim();
+  const lastSegment = trimmed.split("/").filter((segment) => segment.length > 0).at(-1);
+
+  return lastSegment ?? trimmed;
+}
+
 export type SecurityEvidencePathWeakestHop = {
   hopOrdinal: number;
   edgeType: string;

@@ -11,6 +11,7 @@ import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCo
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorAdvisorySimulatorProvenanceBlock } from "@/components/usability/OperatorAdvisorySimulatorProvenanceBlock";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -35,7 +36,6 @@ import {
   SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE,
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
-  SECURENOW_PATH_INSPECT_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_LEAD,
@@ -48,7 +48,6 @@ import {
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_INSPECT_RANK_LOADING,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
-  SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
@@ -59,6 +58,7 @@ import {
 } from "@/lib/query/operator-query-stale-time";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathKindLabel,
   explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
@@ -72,6 +72,7 @@ import type {
   SecurityEvidencePathRankDetail,
   SecurityEvidencePathRankSummary,
 } from "@/lib/security-evidence-path-types";
+import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
@@ -123,12 +124,12 @@ function PathHopsTable(props: {
               <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {hop.fromNodeLabel} to {hop.toNodeLabel} by {hop.edgeType}. Source:{" "}
+                  {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by {hop.edgeType}. Source:{" "}
                   {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}.
                 </p>
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{hop.fromNodeLabel}</EnterpriseTableCell>
-              <EnterpriseTableCell>{hop.toNodeLabel}</EnterpriseTableCell>
+              <EnterpriseTableCell title={hop.fromNodeLabel}>{securityEvidencePathHopNodeName(hop.fromNodeLabel)}</EnterpriseTableCell>
+              <EnterpriseTableCell title={hop.toNodeLabel}>{securityEvidencePathHopNodeName(hop.toNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell>{hop.edgeType}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid="security-evidence-path-hop-provenance">
                 {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}
@@ -352,7 +353,7 @@ function InspectSelectionIdentityHeader(props: {
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           Path rank {props.pathSummary.rankOrder} · score {props.pathSummary.compositeSortScore.toFixed(4)} ·{" "}
-          {props.pathSummary.pathKind}
+          {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
@@ -537,13 +538,41 @@ export function SecurityEvidencePathInspectPanel(props: {
       ) : isLoadingFinding || isLoadingPath ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_LOADING}</p>
       ) : findingQuery.isError || pathQuery.isError ? (
-        <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_ERROR} />
+        <>
+          <OperatorErrorRecoveryContract
+            presentation={{
+              whatFailed: "Path inspect did not load.",
+              whatIsIntact: "The snapshot selection stays on this page.",
+              nextStep: "Retry the load. This does not change Azure.",
+            }}
+            testId="security-evidence-path-inspect-error-recovery"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void findingQuery.refetch();
+              void pathQuery.refetch();
+            }}
+            data-testid="security-evidence-path-inspect-retry"
+          >
+            Retry path inspect
+          </Button>
+        </>
       ) : resolvedPathId == null ? (
         <p className={OPERATOR_TYPOGRAPHY.body} data-testid="security-evidence-path-inspect-empty">
           {SECURENOW_PATH_INSPECT_EMPTY_NO_PATH}
         </p>
       ) : pathQuery.data == null ? (
-        <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_ERROR} />
+        <OperatorErrorRecoveryContract
+          presentation={{
+            whatFailed: "Path inspect did not load.",
+            whatIsIntact: "The snapshot selection stays on this page.",
+            nextStep: "Retry the load. This does not change Azure.",
+          }}
+          testId="security-evidence-path-inspect-empty-error-recovery"
+        />
       ) : (
         <>
           <InspectSelectionIdentityHeader
@@ -553,7 +582,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             pathId={resolvedPathId}
           />
           <div className="flex flex-wrap items-center gap-2">
-            <StatusTag kind="neutral" label={pathQuery.data.pathKind} />
+            <StatusTag kind="neutral" label={formatSecurityEvidencePathKindLabel(pathQuery.data.pathKind)} title={pathQuery.data.pathKind} />
             <StatusTag
               kind={securityEvidencePathConfidenceBandStatusKind(pathQuery.data.pathConfidenceBand)}
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
@@ -590,7 +619,19 @@ export function SecurityEvidencePathInspectPanel(props: {
           {pathRankQuery.isLoading ? (
             <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_RANK_LOADING}</p>
           ) : pathRankQuery.isError ? (
-            <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE} />
+            <>
+              <OperatorErrorRecoveryContract
+                presentation={{
+                  whatFailed: "Path inspect did not load.",
+                  whatIsIntact: "The snapshot selection stays on this page.",
+                  nextStep: "Retry the load. This does not change Azure.",
+                }}
+                testId="security-evidence-path-rank-error-recovery"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={() => void pathRankQuery.refetch()}>
+                Retry path inspect
+              </Button>
+            </>
           ) : pathRankQuery.data != null ? (
             <PathRankSection rank={pathRankQuery.data} />
           ) : null}

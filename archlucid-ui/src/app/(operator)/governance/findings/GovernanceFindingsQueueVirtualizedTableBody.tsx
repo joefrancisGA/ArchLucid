@@ -4,7 +4,10 @@ import type { CSSProperties, ReactElement } from "react";
 import { EnterpriseTableBody } from "@/components/ui/enterprise-table";
 
 import { GovernanceFindingsQueueTableRow } from "./GovernanceFindingsQueueTableRow";
-import type { GovernanceFindingsQueueTableBodyProps } from "./GovernanceFindingsQueueTableBody";
+import {
+  governanceFindingSeverityMeaning,
+  type GovernanceFindingsQueueTableBodyProps,
+} from "./GovernanceFindingsQueueTableBody";
 
 export type GovernanceFindingsQueueVirtualizedTableBodyProps = GovernanceFindingsQueueTableBodyProps & {
   readonly rowVirtualizer: ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;
@@ -64,6 +67,16 @@ export function GovernanceFindingsQueueVirtualizedTableBody(
             isFocused={isRowFocused?.(virtualRow.index)}
             style={rowStyle}
             showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
+            severityMeaning={
+              row.recordKind === "finding" &&
+              !rows.slice(0, virtualRow.index).some(
+                (candidate) =>
+                  candidate.recordKind === "finding" &&
+                  candidate.severity.trim().toLowerCase() === row.severity.trim().toLowerCase(),
+              )
+                ? governanceFindingSeverityMeaning(row.severity)
+                : ""
+            }
             onOpenRow={() => {
               onRowOpened?.(row);
             }}

@@ -16,6 +16,22 @@ const PROVENANCE_KIND_LABELS: Readonly<Record<string, string>> = {
   HumanAssertion: "Human assertion",
 };
 
+const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
+  IntendedReachability: "Can reach",
+  Privilege: "Privilege",
+  CapabilityToFlow: "May access",
+};
+
+export function formatSecurityEvidencePathKindLabel(kind: string | null | undefined): string {
+  const trimmed = kind?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "—";
+  }
+
+  return PATH_KIND_LABELS[trimmed] ?? trimmed;
+}
+
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
   const trimmed = band?.trim() ?? "";
 
