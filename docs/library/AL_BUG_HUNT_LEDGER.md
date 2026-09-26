@@ -23427,8 +23427,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 28
-- **bugs-found:** 19
+- **hunts:** 30
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `ListTenantIdsPendingTrialArchitecturePreseedAsync` omitted enqueued tenants with legacy lowercase `active` `TrialStatus`, stalling welcome pre-seed after bootstrap
@@ -23483,6 +23483,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialSeatAccountant` / `TenantTrialSeatPolicy` vs `TryClaimTrialSeatAsync` — legacy lowercase/padded `active` `TrialStatus` rows were seat-metered in application policy but repository seat claim/increment used Ordinal `Active` and silently no-oped — **hit 2026-09-26 seed hunt:** parity with #1248/#808 lifecycle casing fixes; `EqualsStatus` read guards and CI-trim SQL bumps in `DapperTenantRepository.TrialSeats` + `InMemoryTenantRepository.TrialSeats`; regression `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap`.
 
 - [x] (proven) `TrialTenantBootstrapService` / `EnqueueTrialArchitecturePreseedAsync` vs `ListTenantIdsPendingTrialArchitecturePreseedAsync` — bootstrap enqueued welcome pre-seed for active trials but worker poll required Ordinal `TrialStatus = Active`, leaving legacy lowercase `active` rows stuck without `TrialWelcomeRunId` — **hit 2026-09-26 seed hunt:** `EqualsStatus` filter in `InMemoryTenantRepository.TrialPreseed` and CI-trim SQL in `DapperTenantRepository.TrialPreseed`; regression `ListTenantIdsPendingTrialArchitecturePreseed_includes_lowercase_active_trial_status`.
+
+- [x] (valid-no-repro) `TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate` / `ListTrialLifecycleAutomationTenantIdsAsync` — Ordinal `Converted` exclusion leaves lowercase `converted` rows in lifecycle scheduler polls — **cheap-disproof 2026-09-26 seed hunt:** `TrialLifecycleTransitionEngine` + `TrialLifecyclePolicy` no-op on `EqualsStatus` Converted; no errant transitions or purge side effects; perf-only noise.
+- [x] (valid-no-repro) `TryIncrementActiveTrialRunAsync` — legacy lowercase `active` rows could bypass run caps like seat claims pre-#seat-hit — **cheap-disproof 2026-09-26 seed hunt:** seat-cap fix already applied `EqualsStatus` + CI-trim SQL to run increment path; regression `TryIncrementActiveTrialRun_enforces_cap_for_lowercase_active_trial_status`.
+
+2026-09-26 seed hunt (seed-only): reseeded application-tenancy-lifecycle after preseed poll hit; cheap-disproof closed lifecycle automation poll noise and confirmed run-increment casing parity; added run-cap regression; 126 scoped tenancy tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved architecture preseed worker skipped enqueued tenants with lowercase persisted `active` trial status; 125 scoped tenancy tests passed.
 
