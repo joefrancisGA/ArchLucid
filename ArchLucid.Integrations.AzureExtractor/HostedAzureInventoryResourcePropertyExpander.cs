@@ -88,6 +88,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         {
             AddAppServiceSubnetProperty(propertiesElement, properties);
             AddKindProperty(propertiesElement, properties);
+            AddSiteWorkflowConnectionParameters(propertiesElement, properties);
         }
 
         if (resourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase))
@@ -552,6 +553,31 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         if (!string.IsNullOrWhiteSpace(kind) && !properties.ContainsKey("kind"))
         {
             properties["kind"] = kind.Trim();
+        }
+    }
+
+    private static void AddSiteWorkflowConnectionParameters(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("parameters", out JsonElement parametersElement)
+            || parametersElement.ValueKind is not JsonValueKind.Object
+            || !parametersElement.TryGetProperty("$connections", out JsonElement connectionsElement))
+        {
+            return;
+        }
+
+        JsonElement connectionsObject = connectionsElement;
+
+        if (connectionsElement.TryGetProperty("value", out JsonElement valueElement)
+            && valueElement.ValueKind is JsonValueKind.Object)
+        {
+            connectionsObject = valueElement;
+        }
+
+        if (connectionsObject.ValueKind is JsonValueKind.Object)
+        {
+            properties["parameters.$connections.value"] = connectionsObject.GetRawText();
         }
     }
 

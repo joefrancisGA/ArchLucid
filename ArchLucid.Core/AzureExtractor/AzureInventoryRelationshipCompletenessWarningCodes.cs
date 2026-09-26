@@ -9,6 +9,8 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
 
     public const string ArgNicSubnetMissing = "arg-nic-subnet-missing";
 
+    public const string ArgPeTargetMissing = "arg-pe-target-missing";
+
     public const string ArgVnetPeeringMissing = "arg-vnet-peering-missing";
 
     public const string HostedNicListFailed = "hosted-nic-list-failed";
@@ -34,6 +36,8 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
     public const string SynapsePipelineFlowsMissing = "synapse-pipeline-flows-missing";
 
     public const string LogicAppStandardNotCollected = "logic-app-standard-not-collected";
+
+    public const string LogicAppConnectionsMissing = "logic-app-connections-missing";
 
     public const string AppSettingsNotCollectedHostedGetOnly = "app-settings-not-collected-hosted-get-only";
 
