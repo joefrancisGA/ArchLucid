@@ -23950,13 +23950,19 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed-only): reseeded host-infra-evidence-composition after Graphviz/delete/peel-catalog module churn; cheap-disproof closed duplicate peel-catalog provider and orphan bootstrapper candidates; 12 scoped InfraEvidenceComposition tests passed.
+
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` / `CoordinatorArtifactsCompositionModule` — duplicate `IDiagramPeelCatalogProvider` registration leaves artifact default provider active so infra mermaid ignores DB peel catalog — **cheap-disproof 2026-09-26 seed hunt:** `AddInfraEvidenceCapability` runs after Authority coordinator artifacts; InMemory resolves `RepositoryDiagramPeelCatalogProvider`; regression `InMemory_composition_infra_evidence_peel_catalog_provider_wins_over_artifact_default`.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — registers `DiagramPeelCatalogBootstrapper` without hosted startup wiring so SQL/InMemory peel catalog never seeds — **cheap-disproof 2026-09-26 seed hunt:** `RepositoryDiagramPeelCatalogProvider` seeds read-time defaults when repository count is zero; bootstrapper is optional persistence helper, not required for mermaid render.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — new `IAzureInventorySnapshotDeleteService` / `IGraphvizLayoutRenderer` registrations fail InMemory `ValidateOnBuild` — **cheap-disproof 2026-09-26 seed hunt:** full InMemory pipeline resolves `AzureInventorySnapshotDeleteService` and `GraphvizFdpLayoutRenderer`; regression `InMemory_composition_resolves_snapshot_delete_and_graphviz_from_module`.
 
 2026-09-12 thorough hunt #1948 (dry): cheap-disproof closed standalone persistence-validation candidate; no hunt-ready rows remain.
 
