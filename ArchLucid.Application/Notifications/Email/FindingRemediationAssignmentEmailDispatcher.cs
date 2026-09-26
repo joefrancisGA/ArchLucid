@@ -53,8 +53,6 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
-        ArgumentNullException.ThrowIfNull(assigneeMailbox);
-
         string mailbox = assigneeMailbox.Trim();
 
         if (!IdentityEmailNormalizer.TryNormalize(mailbox, out string normalizedMailbox, out _))

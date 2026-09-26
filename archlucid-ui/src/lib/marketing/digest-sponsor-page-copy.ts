@@ -43,21 +43,10 @@ export const DIGEST_SPONSOR_HIGHLIGHTED_REVIEWS_HEADING = "Highlighted reviews" 
 
 export const DIGEST_SPONSOR_COMMITTED_PACKAGES_PREFIX = "Architecture packages committed this period:" as const;
 
-function normalizeDigestSponsorRunIdHex(runIdHex: string): string {
-  return runIdHex.trim().replace(/-/g, "");
-}
-
-/** Canonical sponsor run collateral path without the email token (DIU issue shells). */
-export function buildDigestSponsorRunCollateralEntryPath(runIdHex: string): string {
-  const normalizedRunIdHex = normalizeDigestSponsorRunIdHex(runIdHex);
-
-  return `/digest/sponsor/run/${encodeURIComponent(normalizedRunIdHex)}`;
-}
-
 /** Post-auth return path for sponsor run collateral deep links (DIU). */
 export function buildDigestSponsorRunCollateralReturnPath(runIdHex: string, token: string): string {
-  const normalizedRunIdHex = normalizeDigestSponsorRunIdHex(runIdHex);
+  const normalizedRunIdHex = runIdHex.trim().replace(/-/g, "");
   const trimmedToken = token.trim();
 
-  return `${buildDigestSponsorRunCollateralEntryPath(normalizedRunIdHex)}?token=${encodeURIComponent(trimmedToken)}`;
+  return `/digest/sponsor/run/${encodeURIComponent(normalizedRunIdHex)}?token=${encodeURIComponent(trimmedToken)}`;
 }

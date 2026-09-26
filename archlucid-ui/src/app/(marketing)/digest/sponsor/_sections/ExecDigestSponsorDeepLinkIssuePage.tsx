@@ -13,7 +13,6 @@ import {
   DIGEST_SPONSOR_SIGN_IN_LABEL,
   DIGEST_SPONSOR_UNAVAILABLE_BODY,
   DIGEST_SPONSOR_UNAVAILABLE_TITLE,
-  buildDigestSponsorRunCollateralEntryPath,
 } from "@/lib/marketing/digest-sponsor-page-copy";
 import { DIGEST_SPONSOR_CANONICAL_PATH } from "@/lib/marketing/digest-sponsor-evidence-copy";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
@@ -22,15 +21,12 @@ import { cn } from "@/lib/utils";
 export type ExecDigestSponsorDeepLinkIssuePageProps = {
   readonly title: string;
   readonly body: string;
-  readonly signInReturnPath?: string;
 };
 
 /** Token-missing / expired sponsor digest shells share marketing orientation chrome (DIS). */
 export function ExecDigestSponsorDeepLinkIssuePage(
   props: ExecDigestSponsorDeepLinkIssuePageProps,
 ): React.JSX.Element {
-  const signInReturnPath = props.signInReturnPath ?? DIGEST_SPONSOR_CANONICAL_PATH;
-
   return (
     <MarketingPageShell variant="reading" data-testid="digest-sponsor-issue-page">
       <DigestSponsorPageChrome
@@ -45,7 +41,7 @@ export function ExecDigestSponsorDeepLinkIssuePage(
           <Link
             className={MARKETING_SURFACES.inlineLink}
             data-testid="digest-sponsor-issue-sign-in"
-            href={buildAuthSignInHref({ returnPath: signInReturnPath })}
+            href={buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })}
           >
             {DIGEST_SPONSOR_SIGN_IN_LABEL}
           </Link>
@@ -73,26 +69,20 @@ export function ExecDigestSponsorUnavailablePage(): React.JSX.Element {
   );
 }
 
-export function ExecDigestSponsorRunCollateralMissingTokenPage(props: {
-  readonly runIdHex: string;
-}): React.JSX.Element {
+export function ExecDigestSponsorRunCollateralMissingTokenPage(): React.JSX.Element {
   return (
     <ExecDigestSponsorDeepLinkIssuePage
       title={DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_TITLE}
       body={DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_BODY}
-      signInReturnPath={buildDigestSponsorRunCollateralEntryPath(props.runIdHex)}
     />
   );
 }
 
-export function ExecDigestSponsorRunCollateralUnavailablePage(props: {
-  readonly runIdHex: string;
-}): React.JSX.Element {
+export function ExecDigestSponsorRunCollateralUnavailablePage(): React.JSX.Element {
   return (
     <ExecDigestSponsorDeepLinkIssuePage
       title={DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_TITLE}
       body={DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_BODY}
-      signInReturnPath={buildDigestSponsorRunCollateralEntryPath(props.runIdHex)}
     />
   );
 }

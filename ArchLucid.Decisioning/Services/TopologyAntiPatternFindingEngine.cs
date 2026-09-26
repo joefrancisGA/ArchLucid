@@ -86,11 +86,11 @@ public sealed class TopologyAntiPatternFindingEngine : IFindingEngine
             return true;
         }
 
-        string label = (node.Label ?? string.Empty).ToLowerInvariant();
+        string label = node.Label ?? string.Empty;
 
-        return DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "public")
-               && (DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "sql")
-                   || label.Contains("storage", StringComparison.Ordinal)
-                   || label.Contains("blob", StringComparison.Ordinal));
+        return label.Contains("public", StringComparison.OrdinalIgnoreCase)
+               && (label.Contains("sql", StringComparison.OrdinalIgnoreCase)
+                   || label.Contains("storage", StringComparison.OrdinalIgnoreCase)
+                   || label.Contains("blob", StringComparison.OrdinalIgnoreCase));
     }
 }

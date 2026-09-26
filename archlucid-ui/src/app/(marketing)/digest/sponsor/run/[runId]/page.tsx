@@ -26,13 +26,13 @@ export default async function ExecDigestSponsorRunDeepLinkPage(props: PageProps)
   }
 
   if (!token) {
-    return <ExecDigestSponsorRunCollateralMissingTokenPage runIdHex={normalizedRunId} />;
+    return <ExecDigestSponsorRunCollateralMissingTokenPage />;
   }
 
   const view = await fetchExecDigestSponsorDeepLinkView(token, normalizedRunId);
 
   if (!view) {
-    return <ExecDigestSponsorRunCollateralUnavailablePage runIdHex={normalizedRunId} />;
+    return <ExecDigestSponsorRunCollateralUnavailablePage />;
   }
 
   return (

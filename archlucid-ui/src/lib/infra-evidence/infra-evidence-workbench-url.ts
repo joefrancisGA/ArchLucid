@@ -8,7 +8,6 @@ import {
   RESOURCE_HUB_CONTROL_ID_PARAM,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
-import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 
 export const DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -136,7 +135,6 @@ export function buildResourceHubWorkbenchHref(context: {
   readonly tab?: ResourceHubTab;
   readonly snapshotId?: string | null;
   readonly runId?: string | null;
-  readonly workQueue?: CloudResourceExplorerWorkQueue;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
@@ -145,7 +143,6 @@ export function buildResourceHubWorkbenchHref(context: {
     tab: context.tab,
     snapshotId: context.snapshotId ?? undefined,
     runId: context.runId ?? undefined,
-    workQueue: context.workQueue != null && context.workQueue !== "all" ? context.workQueue : undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
     controlId: context.controlId ?? undefined,

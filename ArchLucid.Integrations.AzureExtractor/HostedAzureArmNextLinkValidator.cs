@@ -10,8 +10,6 @@ internal static class HostedAzureArmNextLinkValidator
 
     private const string FederatedIdentityCredentialsPathSuffix = "/federatedIdentityCredentials";
 
-    private const string BuiltInPolicyDefinitionsPathPrefix = "/providers/Microsoft.Authorization/policyDefinitions";
-
     public static void EnsureTargetsSubscription(string nextLink, string subscriptionId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
@@ -91,48 +89,6 @@ internal static class HostedAzureArmNextLinkValidator
         {
             throw new InvalidOperationException(
                 "Hosted Azure extractor stopped federated credential listing because nextLink targets a different identity.");
-        }
-    }
-
-    public static void EnsureTargetsBuiltInPolicyDefinitionsListing(string nextLink)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
-
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped built-in policy definition listing due to an invalid nextLink.");
-        }
-
-        string absolutePath = uri.AbsolutePath;
-
-        if (!absolutePath.Equals(BuiltInPolicyDefinitionsPathPrefix, StringComparison.OrdinalIgnoreCase)
-            && !absolutePath.StartsWith(BuiltInPolicyDefinitionsPathPrefix + "/", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped built-in policy definition listing because nextLink targets a different collection.");
-        }
-    }
-
-    public static void EnsureTargetsArmRelativeListingPath(string nextLink, string listingRelativePath)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
-        ArgumentException.ThrowIfNullOrWhiteSpace(listingRelativePath);
-
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped ARM resource listing due to an invalid nextLink.");
-        }
-
-        string normalizedListingPath = "/" + listingRelativePath.Trim().TrimStart('/');
-        string absolutePath = uri.AbsolutePath;
-
-        if (!absolutePath.Equals(normalizedListingPath, StringComparison.OrdinalIgnoreCase)
-            && !absolutePath.StartsWith(normalizedListingPath + "/", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped ARM resource listing because nextLink targets a different resource scope.");
         }
     }
 

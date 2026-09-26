@@ -1,5 +1,3 @@
-using System.Net;
-
 using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Cli.Commands;
@@ -187,12 +185,6 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ServerError, lastCorrelationId);
 
             if (lastStatusCode is < 200 or >= 300)
-                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable, lastCorrelationId);
-
-            if (lastStatusCode == (int)HttpStatusCode.NoContent || string.IsNullOrWhiteSpace(body))
-                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable, lastCorrelationId);
-
-            if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(body))
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable, lastCorrelationId);
 
             if (TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(body, runId))

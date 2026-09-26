@@ -4,7 +4,6 @@ using ArchLucid.Application.WeeklySponsorSummary;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Jobs;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -52,7 +51,6 @@ public sealed class WeeklySponsorSummaryArchLucidJobTests
         services.Configure<WeeklySponsorSummaryOptions>(static o => o.Enabled = false);
         services.AddSingleton(tenants.Object);
         services.AddSingleton(Mock.Of<IAuthorityQueryService>());
-        services.AddSingleton(Mock.Of<IRunRepository>());
         services.AddSingleton(Mock.Of<IRunSummaryOnePagerExportService>());
         services.AddSingleton(Mock.Of<ISponsorReportRecipientLookup>());
         services.AddSingleton(Mock.Of<IWeeklySponsorSummaryEmailDispatcher>());

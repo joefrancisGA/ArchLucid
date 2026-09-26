@@ -104,8 +104,7 @@ public static class RunExplanationConfidenceCalloutBuilder
         double? ratio = null;
 
         if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
-            ratio = RunExplanationAggregateJsonReader.NormalizeUnitRatio(
-                RunExplanationAggregateJsonReader.TryReadFiniteDouble(ratioEl));
+            ratio = RunExplanationAggregateJsonReader.TryReadFiniteDouble(ratioEl);
 
         bool fallback =
             (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)

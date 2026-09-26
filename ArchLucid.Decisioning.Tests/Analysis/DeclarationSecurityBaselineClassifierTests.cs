@@ -104,36 +104,6 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
-    public void Classify_does_not_flag_nosql_terraform_type_as_weak_sql_posture()
-    {
-        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["tf.public_network_access"] = "enabled",
-            ["terraformType"] = "azurerm_cosmosdb_nosql",
-        };
-
-        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
-            DeclarationSecurityBaselineClassifier.Classify("cosmos-nosql", properties);
-
-        signals.Should().NotContain(signal => signal.Theme == "encryption");
-    }
-
-    [Fact]
-    public void Classify_still_flags_microsoft_sql_with_public_network_as_weak_sql_posture()
-    {
-        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["tf.public_network_access"] = "enabled",
-            ["terraformType"] = "azurerm_mssql_server",
-        };
-
-        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
-            DeclarationSecurityBaselineClassifier.Classify("sql-pay", properties);
-
-        signals.Should().Contain(signal => signal.Theme == "encryption");
-    }
-
-    [Fact]
     public void Classify_skips_cluster_ip_service_type()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

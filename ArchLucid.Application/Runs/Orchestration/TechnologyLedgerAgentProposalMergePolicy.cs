@@ -32,9 +32,7 @@ public static class TechnologyLedgerAgentProposalMergePolicy
             }
 
             if (HasSubstantiveEvidenceRef(candidate.EvidenceRef)
-                && !existingRows.Any(existing =>
-                    existing.Role == candidate.Role
-                    && EvidenceRefsMatch(existing.EvidenceRef, candidate.EvidenceRef)))
+                && !existingRows.Any(existing => EvidenceRefsMatch(existing.EvidenceRef, candidate.EvidenceRef)))
             {
                 return candidate;
             }

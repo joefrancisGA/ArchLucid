@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPackBeforeAfterDiff;
 using ArchLucid.Contracts.Compliance;
 using ArchLucid.Contracts.Findings;
@@ -138,9 +137,7 @@ public sealed class PolicyPackCompoundingEvidenceLedgerBuilder
         PolicyPackContentDocument content)
     {
         bool? blockCritical = TryReadNullableBool(content.Metadata, ["governance.blockCommitOnCritical", "blockCommitOnCritical"]);
-        int? minimumSeverity = PreCommitGateThresholdParser.TryParseMinimumSeverityOrdinalFromMetadata(
-            content.Metadata,
-            ["governance.blockCommitMinimumSeverity", "blockCommitMinimumSeverity"]);
+        int? minimumSeverity = TryReadNullableInt(content.Metadata, ["governance.blockCommitMinimumSeverity", "blockCommitMinimumSeverity"]);
 
         return (blockCritical ?? false, minimumSeverity);
     }
@@ -174,4 +171,17 @@ public sealed class PolicyPackCompoundingEvidenceLedgerBuilder
         return null;
     }
 
+    private static int? TryReadNullableInt(IReadOnlyDictionary<string, string> metadata, string[] keys)
+    {
+        foreach (string key in keys)
+        {
+            if (!PolicyPackContentMetadataReader.TryGetValue(metadata, key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+                continue;
+
+            if (int.TryParse(raw.Trim(), out int value))
+                return value;
+        }
+
+        return null;
+    }
 }

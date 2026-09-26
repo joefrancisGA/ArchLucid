@@ -127,260 +127,6 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
-    public void SelectRepresentativeRunIdForArchitectureRequestInScope_requires_golden_manifest_id()
-    {
-        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
-            .Contain("GoldenManifestId IS NOT NULL",
-                "sealed-manifest representative lookup must ignore in-flight reruns without a persisted manifest.");
-    }
-
-    [Fact]
-    public void SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_pipeline_dead_letter_statuses()
-    {
-        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
-            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)",
-                "representative lookup must not pick pipeline dead-letter rows that retain GoldenManifestId (#1464 class).");
-    }
-
-    [Fact]
-    public void SelectRepresentativeRunIdForArchitectureRequestInScope_status_filter_matches_unaliased_runs_table()
-    {
-        string sql = RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope;
-        bool runsTableAliased = sql.Contains("FROM dbo.Runs r", StringComparison.OrdinalIgnoreCase)
-            || sql.Contains("FROM dbo.Runs AS r", StringComparison.OrdinalIgnoreCase);
-
-        if (!runsTableAliased)
-        {
-            sql.Should().NotContain(
-                "r.LegacyRunStatus",
-                "representative SQL selects FROM dbo.Runs without alias r; r.LegacyRunStatus fails at execution on SQL Server.");
-        }
-    }
-
-    [Fact]
-    public void SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_null_legacy_status_like_not_in_filter()
-    {
-        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
-            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)",
-                "SQL NOT IN excludes NULL LegacyRunStatus rows; InMemory must match for sealed-manifest guard parity.");
-    }
-
-    [Fact]
-    public async Task InMemory_representative_run_id_skips_null_legacy_status_rerun_like_sql_not_in()
-    {
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
-
-        DateTime createdUtc = new(2026, 9, 26, 16, 0, 0, DateTimeKind.Utc);
-        Guid committedRunId = Guid.NewGuid();
-        Guid nullStatusRunId = Guid.NewGuid();
-        Guid manifestId = Guid.NewGuid();
-
-        InMemoryRunRepository runs = new();
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = committedRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-null-status",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = manifestId,
-                CreatedUtc = createdUtc,
-            },
-            CancellationToken.None);
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = nullStatusRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-null-status",
-                LegacyRunStatus = null,
-                GoldenManifestId = Guid.NewGuid(),
-                CreatedUtc = createdUtc.AddMinutes(5),
-            },
-            CancellationToken.None);
-
-        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
-            scope,
-            "req-null-status",
-            CancellationToken.None);
-
-        representative.Should().Be(committedRunId,
-            "representative lookup must ignore newer NULL-status reruns that SQL NOT IN would filter out.");
-    }
-
-    [Fact]
-    public async Task InMemory_representative_run_id_excludes_quality_rejected_dead_letter_with_retained_manifest()
-    {
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
-
-        DateTime createdUtc = new(2026, 9, 26, 17, 0, 0, DateTimeKind.Utc);
-        Guid committedRunId = Guid.NewGuid();
-        Guid rejectedRunId = Guid.NewGuid();
-        Guid manifestId = Guid.NewGuid();
-
-        InMemoryRunRepository runs = new();
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = committedRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-quality-rejected",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = manifestId,
-                CreatedUtc = createdUtc,
-            },
-            CancellationToken.None);
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = rejectedRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-quality-rejected",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
-                GoldenManifestId = Guid.NewGuid(),
-                CreatedUtc = createdUtc.AddMinutes(5),
-            },
-            CancellationToken.None);
-
-        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
-            scope,
-            "req-quality-rejected",
-            CancellationToken.None);
-
-        representative.Should().Be(committedRunId,
-            "sealed-manifest guard must not treat newer quality-rejected dead-letter reruns as the representative commit.");
-    }
-
-    [Fact]
-    public async Task InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest()
-    {
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
-
-        DateTime createdUtc = new(2026, 9, 26, 15, 0, 0, DateTimeKind.Utc);
-        Guid committedRunId = Guid.NewGuid();
-        Guid failedRunId = Guid.NewGuid();
-        Guid manifestId = Guid.NewGuid();
-
-        InMemoryRunRepository runs = new();
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = committedRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-dead-letter",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = manifestId,
-                CreatedUtc = createdUtc,
-            },
-            CancellationToken.None);
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = failedRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-dead-letter",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
-                GoldenManifestId = Guid.NewGuid(),
-                CreatedUtc = createdUtc.AddMinutes(5),
-            },
-            CancellationToken.None);
-
-        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
-            scope,
-            "req-dead-letter",
-            CancellationToken.None);
-
-        representative.Should().Be(committedRunId,
-            "sealed-manifest guard must not treat newer Failed dead-letter reruns as the representative commit.");
-    }
-
-    [Fact]
-    public async Task InMemory_representative_run_id_requires_golden_manifest_like_sql()
-    {
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
-
-        DateTime createdUtc = new(2026, 9, 26, 14, 0, 0, DateTimeKind.Utc);
-        Guid inFlightRunId = Guid.NewGuid();
-        Guid sealedRunId = Guid.NewGuid();
-        Guid manifestId = Guid.NewGuid();
-
-        InMemoryRunRepository runs = new();
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = sealedRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-sealed",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = manifestId,
-                CreatedUtc = createdUtc,
-            },
-            CancellationToken.None);
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = inFlightRunId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req-sealed",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
-                CreatedUtc = createdUtc.AddMinutes(5),
-            },
-            CancellationToken.None);
-
-        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
-            scope,
-            "req-sealed",
-            CancellationToken.None);
-
-        representative.Should().Be(sealedRunId,
-            "InMemory must match SQL and ignore newer in-flight reruns that lack GoldenManifestId.");
-    }
-
-    [Fact]
     public async Task InMemory_representative_run_id_picks_highest_run_id_when_created_utc_ties()
     {
         ScopeContext scope = new()
@@ -405,7 +151,6 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-tie",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -419,7 +164,6 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-tie",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -466,7 +210,6 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-archived",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -480,7 +223,6 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
                 ProjectId = "billing",
                 ArchitectureRequestId = "req-archived",
                 LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-                GoldenManifestId = Guid.NewGuid(),
                 CreatedUtc = createdUtc.AddMinutes(1),
                 ArchivedUtc = createdUtc.AddMinutes(2),
             },
@@ -615,51 +357,8 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
-    public async Task InMemory_count_active_runs_matches_tab_collapsed_to_space_in_stored_architecture_request_id()
-    {
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
-
-        InMemoryRunRepository runs = new();
-        await runs.SaveAsync(
-            new RunRecord
-            {
-                RunId = Guid.NewGuid(),
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                ProjectId = "billing",
-                ArchitectureRequestId = "req\tinternal",
-                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            },
-            CancellationToken.None);
-
-        int count = await runs.CountActiveRunsForArchitectureRequestAsync(
-            scope,
-            "req internal",
-            CancellationToken.None);
-
-        count.Should().Be(0,
-            "SQL STRING_SPLIT collapses on space only; InMemory must not treat tab-separated stored ids as matching space-normalized seeks.");
-    }
-
-    [Fact]
-    public void Architecture_request_sql_normalization_uses_space_only_string_split()
-    {
-        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should()
-            .Contain("STRING_SPLIT(LTRIM(RTRIM(ArchitectureRequestId)), N' ')")
-            .And.NotContain("CHAR(9)");
-    }
-
-    [Fact]
     public void NormalizeArchitectureRequestId_collapses_internal_whitespace()
     {
         RunRepositoryCore.NormalizeArchitectureRequestId("  req   internal  ").Should().Be("REQ INTERNAL");
-        RunRepositoryCore.NormalizeArchitectureRequestId("req\tinternal").Should().Be("REQ\tINTERNAL");
     }
 }

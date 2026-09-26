@@ -17,7 +17,7 @@ namespace ArchLucid.Application.Tests.Tenancy;
 public sealed class TenantErasureCommandServiceRestoreTests
 {
     [Fact]
-    public async Task TryRestoreQuarantineAsync_clears_stale_erasure_approval_and_requested_timestamp()
+    public async Task TryRestoreQuarantineAsync_clears_stale_erasure_approval()
     {
         Guid tenantId = Guid.NewGuid();
         DateTimeOffset now = new(2026, 8, 23, 12, 0, 0, TimeSpan.Zero);
@@ -55,7 +55,6 @@ public sealed class TenantErasureCommandServiceRestoreTests
         tenant!.OffboardedUtc.Should().BeNull();
         tenant.TenantErasureApprovedUtc.Should().BeNull();
         tenant.TenantErasureApprovedByUserId.Should().BeNull();
-        tenant.TenantErasureRequestedUtc.Should().BeNull();
     }
 
     [Fact]

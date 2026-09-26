@@ -276,8 +276,6 @@ internal static class RunListQueryParameters
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(architectureRequestId),
-            FailedStatus = nameof(ArchitectureRunStatus.Failed),
-            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 

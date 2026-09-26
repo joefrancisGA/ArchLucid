@@ -130,7 +130,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Operational ownership gap detected."));
         }
 
-        if (ContainsDualLifecycleMarkers(sourceText))
+        if (sourceText.Contains("current state", StringComparison.OrdinalIgnoreCase)
+            && sourceText.Contains("target state", StringComparison.OrdinalIgnoreCase))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.Assumption,

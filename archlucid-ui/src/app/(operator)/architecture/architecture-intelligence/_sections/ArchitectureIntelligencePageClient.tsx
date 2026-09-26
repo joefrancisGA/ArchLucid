@@ -93,7 +93,7 @@ export function ArchitectureIntelligencePageClient() {
 
   const architectureIntelligenceMainBody = (
     <>
-      {inboundContextLine && !productContextLoadFailed && !loadingInboundContext ? (
+      {inboundContextLine ? (
         <p
           className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
           data-testid="architecture-intelligence-inbound-context"
@@ -140,7 +140,7 @@ export function ArchitectureIntelligencePageClient() {
         </p>
       ) : null}
 
-      {activeRunId && !loadingInboundContext && !productContextLoadFailed ? (
+      {activeRunId && !loadingInboundContext ? (
         <ArchitectureIntelligenceRunModelGuardCallout runId={activeRunId} />
       ) : null}
 
@@ -296,7 +296,7 @@ export function ArchitectureIntelligencePageClient() {
 
       {runState?.kind === "golden" ? <ArchitectureIntelligenceGoldenResults result={runState.result} /> : null}
 
-      {(activeRunId?.trim() ?? "").length > 0 && !loadingInboundContext ? (
+      {(activeRunId?.trim() ?? "").length > 0 ? (
         <ArchitectureIntelligenceNextReviewFooterClient runId={activeRunId?.trim() ?? ""} />
       ) : null}
     </>

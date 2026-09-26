@@ -116,9 +116,6 @@ export const WEBHOOKS_SAVE_BLOCKED_UNTIL_SUBSCRIPTIONS_LOAD =
   "Load subscriptions before saving so duplicate names can be checked.";
 
 /** Heading for the saved-subscription list. */
-export const WEBHOOKS_CONFIGURATION_STATUS_UNAVAILABLE =
-  "Could not verify subscriptions";
-
 export const WEBHOOKS_SUBSCRIPTIONS_HEADING = "Subscriptions";
 
 export const WEBHOOKS_ACTIVE_HEADING = WEBHOOKS_SUBSCRIPTIONS_HEADING;

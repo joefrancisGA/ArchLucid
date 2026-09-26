@@ -56,16 +56,13 @@ export function useWebhooksSettingsConnectionTest(
           return;
         }
 
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        setTestResults((prev) => ({
-          ...prev,
-          [routingSubscriptionId]: {
-            transportSucceeded: false,
-            statusCode: 0,
-            error: errorMessage,
-            responseBodyTruncated: false,
-          },
-        }));
+        setTestResults((prev) => {
+          const next = { ...prev };
+
+          delete next[routingSubscriptionId];
+
+          return next;
+        });
         presentWebhookConnectionTestRequestFailure(error);
       } finally {
         if (options.scopeGenerationRef.current === generation) {

@@ -26,8 +26,8 @@ internal static class TopologyDatastoreLabelHeuristic
         return combined.Contains("keyvault", StringComparison.Ordinal)
             || combined.Contains("key-vault", StringComparison.Ordinal)
             || DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
-            || ContainsAffirmativeStorageKeyword(combined)
-            || ContainsAffirmativeSecretKeyword(combined)
+            || combined.Contains("storage", StringComparison.Ordinal)
+            || combined.Contains("secret", StringComparison.Ordinal)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("postgres", StringComparison.Ordinal)
             || combined.Contains("mysql", StringComparison.Ordinal)
@@ -49,7 +49,7 @@ internal static class TopologyDatastoreLabelHeuristic
         string combined = BuildCombinedLabel(node);
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
-            || ContainsAffirmativeStorageKeyword(combined)
+            || combined.Contains("storage", StringComparison.Ordinal)
             || combined.Contains("database", StringComparison.Ordinal)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("redis", StringComparison.Ordinal)
@@ -92,45 +92,7 @@ internal static class TopologyDatastoreLabelHeuristic
             || combined.Contains("redis", StringComparison.Ordinal)
             || combined.Contains("postgres", StringComparison.Ordinal)
             || combined.Contains("mysql", StringComparison.Ordinal)
-            || ContainsAffirmativeStorageKeyword(combined);
-    }
-
-    private static bool ContainsAffirmativeStorageKeyword(string text)
-    {
-        string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
-
-        for (int index = 0; index < parts.Length; index++)
-        {
-            if (!parts[index].Equals("storage", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (index > 0 && parts[index - 1].Equals("non", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool ContainsAffirmativeSecretKeyword(string text)
-    {
-        if (!DecisioningTextTokenMatcher.ContainsStandaloneToken(text, "secret"))
-        {
-            return false;
-        }
-
-        if (text.Contains("non-secret", StringComparison.Ordinal)
-            || text.Contains("non secret", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return true;
+            || combined.Contains("storage", StringComparison.Ordinal);
     }
 
     private static bool TryGetProperty(

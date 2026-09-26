@@ -238,10 +238,10 @@ public sealed partial class InMemoryRunRepository
         RunRecord? match = _store.Values
             .Where(r =>
                 RunRepositoryCore.MatchesScope(r, scope) &&
-                RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key) &&
-                RunRepositoryCore.MatchesRepresentativeArchitectureRequestRun(r))
+                RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key))
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
+
             .FirstOrDefault();
 
         return Task.FromResult(match?.RunId);

@@ -136,10 +136,6 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                     {
                         HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, scopeKey);
                     }
-                    else
-                    {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsBuiltInPolicyDefinitionsListing(candidateNextLink);
-                    }
 
                     nextLink = candidateNextLink;
                 }

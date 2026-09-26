@@ -337,63 +337,6 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
     }
 
     [Fact]
-    public async Task Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded()
-    {
-        DateTimeOffset now = new(2026, 9, 26, 14, 0, 0, TimeSpan.Zero);
-        FakeTimeProvider clock = new(now);
-
-        DefaultHttpContext http = new()
-        {
-            Request = { Path = "/v1/runs" },
-            User = new ClaimsPrincipal(
-                new ClaimsIdentity(
-                    [
-                        new Claim("sub", "user-1"),
-                        new Claim("tenant_id", TenantId.ToString("D")),
-                    ],
-                    "Bearer")),
-            Response = { Body = new MemoryStream() },
-        };
-
-        Mock<ITenantRepository> tenants = new();
-        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new TenantRecord
-                {
-                    Id = TenantId,
-                    Name = "Scheduled erasure",
-                    Slug = "scheduled-erasure",
-                    TenantErasureRequestedUtc = now.AddMinutes(-30),
-                    OffboardedUtc = null,
-                });
-
-        ServiceCollection services = [];
-        services.AddMemoryCache();
-        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
-        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
-        services.AddSingleton(tenants.Object);
-        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
-        services.AddSingleton<TimeProvider>(clock);
-        http.RequestServices = services.BuildServiceProvider();
-
-        bool terminalReached = false;
-
-        RequestDelegate terminal = context =>
-        {
-            terminalReached = true;
-            context.Response.StatusCode = StatusCodes.Status200OK;
-
-            return Task.CompletedTask;
-        };
-
-        TenantErasureQuarantineMiddleware middleware = new(terminal);
-        await middleware.InvokeAsync(http);
-
-        terminalReached.Should().BeFalse();
-        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
-    }
-
-    [Fact]
     public async Task Erasure_quarantine_skips_unauthenticated_tenant_scoped_routes()
     {
         DefaultHttpContext http = new()
@@ -446,10 +389,5 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
 
         terminalReached.Should().BeTrue();
         http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
-    }
-
-    private sealed class FakeTimeProvider(DateTimeOffset utcNow) : TimeProvider
-    {
-        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }

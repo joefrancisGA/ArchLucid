@@ -87,34 +87,6 @@ internal static partial class RunRepositoryCore
         return run.GoldenManifestId.HasValue;
     }
 
-    /// <summary>
-    ///     Mirrors <see cref="RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope" /> eligibility
-    ///     (<c>GoldenManifestId IS NOT NULL</c> and terminal dead-letter exclusion; SQL <c>NOT IN</c> drops NULL status).
-    /// </summary>
-    public static bool MatchesRepresentativeArchitectureRequestRun(RunRecord run)
-    {
-        ArgumentNullException.ThrowIfNull(run);
-
-        if (!run.GoldenManifestId.HasValue)
-            return false;
-
-        if (run.LegacyRunStatus is null)
-            return false;
-
-        if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (string.Equals(
-                run.LegacyRunStatus,
-                nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
     public static bool LegacyRunStatusIsNonTerminal(string? legacyRunStatus)
     {
         // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.

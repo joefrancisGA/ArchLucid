@@ -42,27 +42,16 @@ public static partial class StructuredExplanationParser
         List<string> values = [];
 
         foreach (JsonElement item in arrayElement.EnumerateArray())
-            CollectStringListEntries(item, values);
-
-        return values;
-    }
-
-    private static void CollectStringListEntries(JsonElement item, List<string> values)
-    {
-        if (item.ValueKind == JsonValueKind.Array)
         {
-            foreach (JsonElement inner in item.EnumerateArray())
-                CollectStringListEntries(inner, values);
+            string? raw = TryReadStringListEntry(item);
 
-            return;
+            if (string.IsNullOrWhiteSpace(raw))
+                continue;
+
+            values.Add(raw.Trim());
         }
 
-        string? raw = TryReadStringListEntry(item);
-
-        if (string.IsNullOrWhiteSpace(raw))
-            return;
-
-        values.Add(raw.Trim());
+        return values;
     }
 
     private static string? TryReadStringListEntry(JsonElement item)
@@ -111,36 +100,25 @@ public static partial class StructuredExplanationParser
         List<string> parts = [];
 
         foreach (JsonElement item in reasoningElement.EnumerateArray())
-            CollectReasoningParts(item, parts);
+        {
+            string? part = item.ValueKind switch
+            {
+                JsonValueKind.String => item.GetString(),
+                JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
+                _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
+                    ? scalar
+                    : null,
+            };
+
+            if (string.IsNullOrWhiteSpace(part))
+                continue;
+
+            parts.Add(part.Trim());
+        }
 
         if (parts.Count == 0)
             return null;
 
         return string.Join("\n\n", parts);
-    }
-
-    private static void CollectReasoningParts(JsonElement item, List<string> parts)
-    {
-        if (item.ValueKind == JsonValueKind.Array)
-        {
-            foreach (JsonElement inner in item.EnumerateArray())
-                CollectReasoningParts(inner, parts);
-
-            return;
-        }
-
-        string? part = item.ValueKind switch
-        {
-            JsonValueKind.String => item.GetString(),
-            JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
-            _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
-                ? scalar
-                : null,
-        };
-
-        if (string.IsNullOrWhiteSpace(part))
-            return;
-
-        parts.Add(part.Trim());
     }
 }

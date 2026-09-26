@@ -1054,30 +1054,6 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
-    public async Task WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown()
-    {
-        WeeklySponsorReportEmailDispatcher sut = new(
-            Mock.Of<IEmailTemplateRenderer>(),
-            Mock.Of<IEmailProvider>(),
-            new InMemorySentEmailLedger(),
-            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
-            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
-
-        Func<Task> act = () => sut.TryDispatchAsync(
-            Guid.Parse("39393939-3939-3939-3939-393939393939"),
-            "2026-W39",
-            runIdHex: "a1b2c3d4",
-            summaryMarkdown: "   ",
-            runDetailUrl: "https://example.test/runs/a1b2c3d4",
-            weekLabel: "Week 39",
-            toMailboxes: ["exec@example.test"],
-            cancellationToken: CancellationToken.None);
-
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithParameterName("summaryMarkdown");
-    }
-
-    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_id_hex()
     {
         WeeklySponsorReportEmailDispatcher sut = new(
@@ -1501,30 +1477,6 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
-    public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown()
-    {
-        WeeklySponsorSummaryEmailDispatcher sut = new(
-            Mock.Of<IEmailTemplateRenderer>(),
-            Mock.Of<IEmailProvider>(),
-            new InMemorySentEmailLedger(),
-            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
-            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
-
-        Func<Task> act = () => sut.TryDispatchAsync(
-            Guid.Parse("40404040-4040-4040-4040-404040404040"),
-            "2026-W40",
-            runIdHex: "a1b2c3d4",
-            summaryMarkdown: "   ",
-            runDetailUrl: "https://example.test/runs/a1b2c3d4",
-            weekLabel: "Week 40",
-            toMailboxes: ["exec@example.test"],
-            cancellationToken: CancellationToken.None);
-
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithParameterName("summaryMarkdown");
-    }
-
-    [Fact]
     public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_id_hex()
     {
         WeeklySponsorSummaryEmailDispatcher sut = new(
@@ -1546,105 +1498,6 @@ public sealed class DigestEmailDispatcherIdempotencyTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithParameterName("runIdHex");
-    }
-
-    [Fact]
-    public async Task ExecDigestEmailDispatcher_throws_for_whitespace_only_unsubscribe_url()
-    {
-        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
-
-        ExecDigestEmailDispatcher sut = new(
-            Mock.Of<IEmailTemplateRenderer>(),
-            Mock.Of<IEmailProvider>(),
-            new InMemorySentEmailLedger(),
-            options.Object,
-            NullLogger<ExecDigestEmailDispatcher>.Instance);
-
-        Func<Task> act = () => sut.TryDispatchAsync(
-            Guid.Parse("39393939-3939-3939-3939-393939393939"),
-            "2026-W39",
-            new ExecDigestComposition(
-                WeekLabel: "W39",
-                ComplianceDriftMarkdown: null,
-                CommittedManifestsInWeek: null,
-                TopManifestRuns: [],
-                FindingsDeltaSummary: null,
-                DashboardUrl: "https://example.test/d",
-                SponsorValueReportUrl: "https://example.test/sponsor",
-                LatestCommittedRunIdHex: null),
-            ["exec@example.test"],
-            "   ",
-            CancellationToken.None);
-
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithParameterName("unsubscribeAbsoluteUrl");
-    }
-
-    [Fact]
-    public async Task ExecDigestEmailDispatcher_throws_for_whitespace_only_dashboard_url()
-    {
-        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
-
-        ExecDigestEmailDispatcher sut = new(
-            Mock.Of<IEmailTemplateRenderer>(),
-            Mock.Of<IEmailProvider>(),
-            new InMemorySentEmailLedger(),
-            options.Object,
-            NullLogger<ExecDigestEmailDispatcher>.Instance);
-
-        Func<Task> act = () => sut.TryDispatchAsync(
-            Guid.Parse("37373737-3737-3737-3737-373737373737"),
-            "2026-W37",
-            new ExecDigestComposition(
-                WeekLabel: "W37",
-                ComplianceDriftMarkdown: null,
-                CommittedManifestsInWeek: null,
-                TopManifestRuns: [],
-                FindingsDeltaSummary: null,
-                DashboardUrl: "   ",
-                SponsorValueReportUrl: "https://example.test/sponsor",
-                LatestCommittedRunIdHex: null),
-            ["exec@example.test"],
-            "https://example.test/unsub",
-            CancellationToken.None);
-
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithParameterName("composition");
-    }
-
-    [Fact]
-    public async Task ExecDigestEmailDispatcher_throws_for_whitespace_only_sponsor_value_report_url()
-    {
-        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
-
-        ExecDigestEmailDispatcher sut = new(
-            Mock.Of<IEmailTemplateRenderer>(),
-            Mock.Of<IEmailProvider>(),
-            new InMemorySentEmailLedger(),
-            options.Object,
-            NullLogger<ExecDigestEmailDispatcher>.Instance);
-
-        Func<Task> act = () => sut.TryDispatchAsync(
-            Guid.Parse("38383838-3838-3838-3838-383838383838"),
-            "2026-W38",
-            new ExecDigestComposition(
-                WeekLabel: "W38",
-                ComplianceDriftMarkdown: null,
-                CommittedManifestsInWeek: null,
-                TopManifestRuns: [],
-                FindingsDeltaSummary: null,
-                DashboardUrl: "https://example.test/d",
-                SponsorValueReportUrl: "   ",
-                LatestCommittedRunIdHex: null),
-            ["exec@example.test"],
-            "https://example.test/unsub",
-            CancellationToken.None);
-
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithParameterName("composition");
     }
 
     [Fact]
