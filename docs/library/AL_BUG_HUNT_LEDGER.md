@@ -8541,11 +8541,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 34
-- **bugs-found:** 26
+- **hunts:** 35
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — UI `isSafeReturnPath` accepted `@` in path portion (userinfo open-redirect shape)
+- **last-bug:** 2026-09-26 — UI `isSafeReturnPath` omitted residual `%2e` encoded-dot guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -8601,6 +8601,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `isSafeReturnPath` — accepted Unicode slash/dot homoglyph return URLs that `AuthSignInReturnPathGuard` rejects — **hit 2026-09-26 seed hunt (seed→hit):** sign-in `returnUrl`, `buildAuthSignInHref`, email-OTP post-auth, and livelihood idle restore used UI-only checks while Application guard already blocked fullwidth solidus and full-stop homoglyphs; fixed with `containsSlashHomoglyph` / `containsDotHomoglyph` parity in `safe-return-path.ts`; regressions in `safe-return-path.test.ts`.
 
 - [x] (proven) `isSafeReturnPath` — accepted `@` in the path portion without percent-encoding (`/path@evil`) while `AuthSignInReturnPathGuard` rejects userinfo-shaped open redirects — **hit 2026-09-26 seed hunt (seed→hit):** `@` was only checked during percent-decoding so unencoded userinfo paths passed sign-in return-url gates; fixed with `containsAtSignInPath` on path-only (query/fragment emails still allowed); removed blanket `decoded.includes("@")` that blocked safe query strings; regressions in `safe-return-path.test.ts`.
+
+- [x] (proven) `isSafeReturnPath` — accepted percent-encoded dot segments (`/welcome%2e%2e/admin`) while `AuthSignInReturnPathGuard.ContainsResidualEncodedTraversal` rejects `%2e` before decode completes — **hit 2026-09-26 seed hunt (seed→hit):** UI only blocked `%2f`/`%5c` residuals, not `%2e`; fixed with `containsPercentEncodedPathSeparator` parity in decode loop and final guard; regressions in `safe-return-path.test.ts`.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-auth-proxy; proved UI return path accepted residual `%2e` encoded-dot traversal shapes; 36 scoped return-path vitest tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-auth-proxy; proved UI return path accepted unencoded at-sign userinfo open-redirect shapes; 35 scoped return-path vitest tests passed.
 
