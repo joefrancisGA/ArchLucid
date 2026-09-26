@@ -3139,13 +3139,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-25 — double-reverse-solidus and script full-stop dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved remaining BMP non-SOLIDUS slash glyphs, deep percent-decode cap parity, and conservative backslash-in-query rejection; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) KANGXI RADICAL SLASH (`⼃`, `U+2F03`), MODIFIER LETTER DOT SLASH (`ꜘ`, `U+A718`), APL FUNCTIONAL SYMBOL SLASH BAR (`⌿`, `U+233F`), INTEGRAL AVERAGE WITH SLASH (`⨏`, `U+2A0F`), and DIVISION SIGN (`÷`, `U+00F7`) protocol-relative pairs — **valid-no-repro 2026-09-26 seed hunt:** compatibility/APL/math notation; WHATWG path segments split only on U+002F; same-origin relative prefix only.
+- [x] (valid-no-repro) Ninth-or-higher percent-decode introducing embedded `//` after the eight-pass loop — **valid-no-repro 2026-09-26 seed hunt:** `ContainsResidualEncodedTraversal` and `%2f`/`%5c`/`%2e` residue checks reject before redirect; regressions `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap` and `TryNormalize_rejects_deeply_encoded_embedded_protocol_relative_segment`.
+- [x] (valid-no-repro) Leading horizontal whitespace trim (`\t/signin/ok`) and backslash only in query (`/safe?x=test\foo`) — **valid-no-repro 2026-09-26 seed hunt:** trim collapses attacker-leading whitespace without reintroducing `//`; full-candidate backslash scan is conservative over-rejection, not open-redirect under-acceptance.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved supplementary-plane ornamental solidus pairs, remaining FULL STOP script punctuation parent-segment pairs, and TAG solidus pairs; 122 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
