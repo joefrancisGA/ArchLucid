@@ -8703,13 +8703,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 26
-- **bugs-found:** 22
+- **hunts:** 27
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — agent over-count kept top finding on agent Info while snapshot Critical drove governed/narrative
+- **last-bug:** 2026-09-26 — agent over-count left FindingsBySeverity on agent Info while snapshot drove other delta fields
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (hit): proved agent-over-count with `preferSnapshotMaterialFindings` still left `FindingsBySeverity` on agent Info buckets while governed coverage, narrative, and top finding used snapshot Critical/Warning; fixed by applying `snapshotSeverityBuckets` when material prefers snapshot but count gate kept agent totals; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
+
+- [x] (proven) `PilotRunDeltaComputer.FindingsBySeverity` — agent over-count kept agent severity buckets while snapshot drove governed/narrative/top — **hit 2026-09-26 seed hunt:** align severity buckets with `preferSnapshotMaterialFindings`; regression extended on `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 
 2026-09-26 seed hunt (hit): proved agent-over-count with stronger snapshot material still selected agent Info as `TopFindingId` while governed coverage and sponsor narrative used snapshot Critical; fixed by applying snapshot top-finding selection when `preferSnapshotMaterialFindings`; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
 
