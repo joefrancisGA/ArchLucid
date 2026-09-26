@@ -8194,13 +8194,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-11
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-26 seed hunt (seed-only): reseeded itsm-inbound-webhooks after #3911 Jira numeric key/status rejection; scoped 48 Application + 5 Persistence + 18 API inbound webhook tests passed; cheap-disproved ServiceNow numeric `sys_id` (32-char hex contract); no new hunt-ready rows.
 
 ### Hypotheses
 
@@ -8242,6 +8244,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ItsmInboundJiraPayloadReader` drops whitespace-padded status names — **cheap-disproof 2026-09-11 seed hunt #1704:** status trimmed before length guard; regression `TryRead_trims_whitespace_from_status_name`
 
 2026-09-11 seed hunt #1704 (dry): reseeded itsm-inbound-webhooks JSON reader parity; cheap-disproof closed four hunt-ready rows; 48 scoped ITSM inbound webhook tests passed.
+
+- [x] (invalid) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` accepted as external key — cheap-disproof 2026-09-26 seed hunt: ServiceNow correlation requires 32-character hexadecimal sys_id; `GetString()` on numeric returns null and `TryRead` fails; no ARM/vendor path emits numeric sys_id
 
 ---
 
