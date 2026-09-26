@@ -5400,11 +5400,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 21
-- **bugs-found:** 16
+- **hunts:** 22
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — Architecture intelligence Sources strip truncated Evidence trail help and Audit links
+- **last-bug:** 2026-09-26 — duplicate intake failure copy above product-context load failure panel
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5504,6 +5504,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Architecture intelligence buyer Sources strip omits Evidence trail help and Audit follow-ups — **hit 2026-09-26 seed hunt:** job-context three-link cap on `general` pathname scored ties and dropped help/audit rows; fixed `filterOrientationSourcesForJobContext` to return the full curated index on `/architecture/architecture-intelligence`; regression `keeps the full Architecture intelligence Sources index without job-context truncation`.
 
 - [x] (valid-no-repro) Deep-linked `runId` / `contextRunId` / operator-scope switches leave stale analysis depth when `tier` drops from the URL — **cheap-disproof 2026-09-26 seed hunt:** `urlReviewTier` effect and inbound-run reset already re-sync `reviewTier` to Standard; regressions `resets analysis depth to Standard when deep-linked runId switches without tier search param`, `resets analysis depth when contextRunId switches without tier search param`, and `resets analysis depth when operator scope switches without tier search param`.
+
+2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence after Sources index fix; proved deep-linked product context HTTP failure rendered duplicate intake failure copy in `architecture-intelligence-inbound-context` above the retry panel; fixed by suppressing inbound context line and run-model guard callout while `productContextLoadFailed`; regression `does not show inbound context line when product context load failure panel is visible`; 47 scoped ArchitectureIntelligence page client tests passed.
+
+- [x] (proven) `ArchitectureIntelligencePageClient` shows inbound context failure copy while `ArchitectureIntelligenceProductContextLoadFailure` is visible — **hit 2026-09-26 seed hunt:** `inboundContextLine` stayed mounted for `productContextStatus === "error"` alongside the dedicated retry alert; fixed with `!productContextLoadFailed` guard and matching run-model callout suppression; regression `does not show inbound context line when product context load failure panel is visible`.
 
 ---
 
