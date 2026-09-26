@@ -408,6 +408,43 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ConnectorIntake_returns_bad_request_when_description_contains_invalid_surrogate()
+    {
+        Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
+
+        RunsController controller = CreateController();
+
+        const string terraformJson = """
+                                     {
+                                       "format_version": "1.0",
+                                       "values": {
+                                         "root_module": {
+                                           "resources": [
+                                             { "type": "azurerm_resource_group", "name": "rg" }
+                                           ]
+                                         }
+                                       }
+                                     }
+                                     """;
+
+        ConnectorIntakeRequest input = new()
+        {
+            Source = "terraform-show-json",
+            TerraformShowJson = terraformJson,
+            Description = "Imported connector description \uD800",
+        };
+
+        IActionResult action = await controller.ConnectorIntake(input, intakeFacade.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        intakeFacade.Verify(
+            static f => f.ParseConnectorIntakeAsync(It.IsAny<ConnectorIntakeRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ChatIntake_returns_bad_request_when_raw_text_missing()
     {
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();

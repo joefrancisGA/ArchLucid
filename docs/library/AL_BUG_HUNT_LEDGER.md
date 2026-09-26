@@ -21507,15 +21507,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 49
-- **bugs-found:** 45
+- **hunts:** 50
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — pricing-quote acknowledge AssignedOwner max-length and surrogate gaps
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — connector intake Description/SystemName surrogate guard gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+2026-09-26 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved connector intake optional Description/SystemName surrogate guard gap; 38 scoped `RunsControllerTests` passed.
+
+- [x] (proven) `RunsController.ConnectorIntake` — optional `Description` and `SystemName` omitted invalid-Unicode surrogate guard present on sibling `ChatIntake` via `ValidateDraftFreeText` — **hit 2026-09-26 seed hunt:** `ValidateOptionalUnicodeFreeText` before `ParseConnectorIntakeAsync`; regression `ConnectorIntake_returns_bad_request_when_description_contains_invalid_surrogate`.
 
 2026-09-25 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved pricing-quote acknowledge AssignedOwner max-length and surrogate gaps; 25 scoped unit tests passed.
 

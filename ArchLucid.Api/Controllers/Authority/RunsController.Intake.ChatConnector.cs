@@ -48,6 +48,14 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(input.Source))
             return this.BadRequestProblem("Source is required.", ProblemTypes.ValidationFailed);
 
+        IActionResult? descriptionValidation = ValidateOptionalUnicodeFreeText(input.Description, "Description");
+        if (descriptionValidation is not null)
+            return descriptionValidation;
+
+        IActionResult? systemNameValidation = ValidateOptionalUnicodeFreeText(input.SystemName, "SystemName");
+        if (systemNameValidation is not null)
+            return systemNameValidation;
+
         return MapIntakeParseResult(await intakeFacade.ParseConnectorIntakeAsync(input, cancellationToken));
     }
 }
