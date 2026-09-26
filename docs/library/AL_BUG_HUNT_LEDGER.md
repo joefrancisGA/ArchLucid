@@ -21311,14 +21311,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 39
-- **bugs-found:** 22
+- **hunts:** 40
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — graph projection cache factory ignored explicit Backend=Distributed when CacheProvider=Memory
+- **last-bug:** 2026-09-26 — graph projection Redis pub/sub used projection Redis while IDistributedCache reused LLM Redis
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+2026-09-26 seed hunt #40 (seed→hit): reseeded host-composition; proved `RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` wired graph projection invalidation pub/sub to `ProjectionCache:RedisConnectionString` while reusing an existing `IDistributedCache` from distributed LLM completion cache on a different Redis; aligned pub/sub connection resolution with shared distributed cache; regressions `ResolveGraphProjectionRedisConnectionString_when_cache_already_registered_ignores_projection_specific_redis` and `ResolveGraphProjectionRedisConnectionString_when_registering_new_cache_prefers_projection_specific_redis`; 389 scoped host-composition tests passed.
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` — graph projection invalidation pub/sub connected to projection-specific Redis while `IDistributedCache` entries stayed on LLM/hot-path Redis when both were already registered — **hit 2026-09-26 seed hunt #40:** invalidation missed distributed projection keys; fixed `ResolveGraphProjectionRedisConnectionString` to reuse LLM/hot-path Redis when `IDistributedCache` already exists; regressions in `ArchLucidDistributedCacheRegistrarRedisAlignmentTests`
 - [x] (valid-no-repro) `ContextIngestionCompositionRegistrar` + `ArchLucidDistributedCacheRegistrar` — `TryAddSingleton` Null `IGraphProjectionCacheInvalidationBroadcaster` prevents Redis broadcaster when registration order inverts — **cheap-disproof 2026-09-26 seed hunt #39:** `AddPlatformCapability` → `AddArchLucidStorage` (Redis pub/sub) always runs before `AddAuthorityCapability` → `PipelineCompositionModule`; `AddSingleton<RedisGraphProjectionCacheInvalidationBroadcaster>` remains the effective `GetRequiredService` implementation; graph-projection registration regressions in `ServiceCollectionExtensionsRegistrationTests`.
 - [x] (valid-no-repro) `ProjectionCache:Backend=Memory` with `CacheProvider=Auto` on multi-replica hosts still promotes distributed projection cache — **cheap-disproof 2026-09-26 seed hunt #39:** operator scale-out contract in `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md` requires `Backend=Distributed`; Auto + `ExpectedApiReplicaCount` promotion is intentional; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`.
 - [x] (valid-no-repro) `RegisterTenancyMetering` registers `ApiRequestUsageEventBatchFlushHostedService` on Api/Worker/Combined without leader election — **cheap-disproof 2026-09-26 seed hunt #39:** flushes are per-process `ApiRequestUsageEventBuffer` batches, not cross-replica shared queues; regression `AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`.
