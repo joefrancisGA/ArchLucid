@@ -4589,13 +4589,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 14
-- **bugs-found:** 8
+- **hunts:** 15
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — whitespace-only `weekLabel` sent weekly sponsor report with blank subject week segment
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — whitespace-only `summaryMarkdown` sent weekly sponsor report with empty body
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 2026-09-12 seed hunt #2138 (seed-only): reseeded weekly-digest-email; no new hunt-ready rows.
 
@@ -4644,6 +4644,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — whitespace-only `weekLabel` trimmed to empty and still sent weekly report — **hit 2026-09-11 seed hunt #1773:** `isoWeekIdempotencyKey` rejects whitespace-only input but `weekLabel` did not, producing buyer-facing subject `weekly Sponsor report — ` and empty template week segment; fixed with `ArgumentException` parity; regression `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_week_label`
 
 2026-09-11 seed hunt #1773 (hit): reseeded weekly-digest-email; proved weekLabel whitespace-only validation gap vs iso-week guard; 3 scoped tests passed.
+
+2026-09-26 seed hunt (hit): reseeded weekly-digest-email after master merge; proved `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` accepted whitespace-only `summaryMarkdown` after `weekLabel`/`runDetailUrl`/`runIdHex` guards; fixed with required summary validation and trim; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`; repaired job test DI for `IRunRepository`; 2 scoped `WeeklyExecutiveSummaryJobTests` passed.
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `summaryMarkdown` sent weekly mail with empty report body — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
