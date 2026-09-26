@@ -27,7 +27,7 @@ internal static class TopologyDatastoreLabelHeuristic
             || combined.Contains("key-vault", StringComparison.Ordinal)
             || DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || combined.Contains("storage", StringComparison.Ordinal)
-            || combined.Contains("secret", StringComparison.Ordinal)
+            || ContainsAffirmativeSecretKeyword(combined)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("postgres", StringComparison.Ordinal)
             || combined.Contains("mysql", StringComparison.Ordinal)
@@ -93,6 +93,22 @@ internal static class TopologyDatastoreLabelHeuristic
             || combined.Contains("postgres", StringComparison.Ordinal)
             || combined.Contains("mysql", StringComparison.Ordinal)
             || combined.Contains("storage", StringComparison.Ordinal);
+    }
+
+    private static bool ContainsAffirmativeSecretKeyword(string text)
+    {
+        if (!DecisioningTextTokenMatcher.ContainsStandaloneToken(text, "secret"))
+        {
+            return false;
+        }
+
+        if (text.Contains("non-secret", StringComparison.Ordinal)
+            || text.Contains("non secret", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool TryGetProperty(
