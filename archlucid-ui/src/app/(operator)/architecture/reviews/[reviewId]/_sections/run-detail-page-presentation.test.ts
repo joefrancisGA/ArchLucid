@@ -48,6 +48,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     createdLabel: "Aug 1, 2026",
     goldenManifestJsonForExport: null,
     progressForPipelineUi: { runId: "run-1", description: "Claims intake modernization" },
+    runCompleted: run.completedUtc != null || run.legacyRunStatus === "Completed",
     showProgressTracker: false,
     manifestSummary: null,
     manifestSummaryForUi: null,

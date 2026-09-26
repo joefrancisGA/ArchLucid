@@ -26,6 +26,7 @@ export type RunDetailPageModel = {
   readonly createdLabel: string;
   readonly goldenManifestJsonForExport: unknown | null;
   readonly progressForPipelineUi: RunSummary;
+  readonly runCompleted: boolean;
   readonly showProgressTracker: boolean;
   readonly pipelineDiagnosticContext: ReviewPipelineDiagnosticContext | null;
   readonly manifestSummary: ManifestSummary | null;

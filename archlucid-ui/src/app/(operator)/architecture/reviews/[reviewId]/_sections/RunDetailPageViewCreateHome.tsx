@@ -92,7 +92,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
         manifestStatus={m.manifestSummary?.status ?? null}
-        runCompleted={m.resolvedDetail.run.completedUtc != null}
+        runCompleted={m.runCompleted}
         nextAction={reviewStatusSummary.nextAction}
         showProgressTracker={m.showProgressTracker}
         legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
@@ -137,7 +137,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
       {!m.manifestId ? (
         <RunDetailOverviewTransparencyTrail
           feasibilityVerdict={m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null}
-          runCompleted={m.resolvedDetail.run.completedUtc != null}
+          runCompleted={m.runCompleted}
         />
       ) : null}
       <RunDetailWorkspaceDisclosureControls />

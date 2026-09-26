@@ -187,8 +187,7 @@ export function resolveRunDetailPageViewChrome(
           const isDeadLettered = m.resolvedDetail.run.isDeadLettered === true;
           const stalled = detectStalledReview(
             m.resolvedDetail.run.createdUtc,
-            m.resolvedDetail.run.completedUtc != null ||
-              legacyStatus === "Completed" ||
+            m.runCompleted ||
               legacyStatus === "Failed",
             Date.now(),
             isDeadLettered,
@@ -310,7 +309,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
         manifestStatus={m.manifestSummary?.status ?? null}
-        runCompleted={m.resolvedDetail.run.completedUtc != null}
+        runCompleted={m.runCompleted}
         showProgressTracker={m.showProgressTracker}
         commitBlockedReason={commitBlockedReason}
         serverFinalizeReadinessBlocks={finalizeReadinessBlocks}

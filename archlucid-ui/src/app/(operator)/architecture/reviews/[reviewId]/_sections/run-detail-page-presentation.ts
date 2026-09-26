@@ -202,7 +202,7 @@ export async function buildRunDetailPresentation(
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: model.manifestSummary?.status ?? null,
-    runCompleted: model.resolvedDetail.run.completedUtc != null,
+    runCompleted: model.runCompleted,
     evidenceCoverageComplete,
     skipDuplicateFindingsActions: coverageBlocking || (hasManifest && blockingApprovalCount > 0),
   });

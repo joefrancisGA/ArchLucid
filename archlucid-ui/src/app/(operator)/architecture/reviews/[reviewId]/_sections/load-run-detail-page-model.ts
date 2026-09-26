@@ -50,7 +50,7 @@ import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from 
 import type { RunExplanationSummary } from "@/types/explanation";
 
 import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
-import { pipelineCompleteOnSummary } from "./pipeline-complete-on-summary";
+import { deriveRunDetailProgressState } from "./derive-run-detail-progress-state";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 export type RunDetailNotFoundReason = "missing" | "workspace-mismatch";
@@ -203,9 +203,11 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail);
 
-  const showProgressTracker =
-    resolvedDetail.run.completedUtc == null
-    && (!manifestId || !pipelineCompleteOnSummary(progressForPipelineUi));
+  const { runCompleted, showProgressTracker } = deriveRunDetailProgressState(
+    resolvedDetail.run,
+    manifestId,
+    progressForPipelineUi,
+  );
 
   const buyerPolishedSections = buyerPolishedArtifactTable;
 
@@ -305,6 +307,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     createdLabel,
     goldenManifestJsonForExport,
     progressForPipelineUi,
+    runCompleted,
     showProgressTracker,
     pipelineDiagnosticContext,
     manifestSummary,
