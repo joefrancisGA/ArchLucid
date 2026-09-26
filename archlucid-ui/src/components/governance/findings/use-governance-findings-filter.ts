@@ -101,6 +101,10 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     (searchParams.get("filter")?.trim().length ?? 0) > 0,
   );
   const hadGroupByInUrlRef = useRef((searchParams.get("groupBy")?.trim().length ?? 0) > 0);
+  const hadArchitectureIdInUrlRef = useRef(
+    (searchParams.get("architectureId")?.trim().length ?? 0) > 0,
+  );
+  const suppressDeskContinuityArchitectureRef = useRef(false);
 
   useEffect(() => {
     const rawFilter = searchParams.get("filter");
@@ -120,11 +124,26 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
 
+    const rawArchitectureId = searchParams.get("architectureId");
+    const hasActiveArchitectureId = (rawArchitectureId?.trim().length ?? 0) > 0;
+
     if (isSecureNowFindingsQueue) {
       setScopedArchitectureIdState(null);
-    } else {
+    } else if (hasActiveArchitectureId) {
       const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
-        searchParams.get("architectureId"),
+        rawArchitectureId,
+        null,
+      );
+      setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
+      hadArchitectureIdInUrlRef.current = true;
+      suppressDeskContinuityArchitectureRef.current = false;
+    } else if (hadArchitectureIdInUrlRef.current) {
+      setScopedArchitectureIdState(null);
+      hadArchitectureIdInUrlRef.current = false;
+      suppressDeskContinuityArchitectureRef.current = true;
+    } else if (!suppressDeskContinuityArchitectureRef.current) {
+      const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
+        rawArchitectureId,
         isWorkingMode ? readCachedLastOpenArchitectureId() : null,
       );
       setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
@@ -144,7 +163,7 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   }, [isSecureNowFindingsQueue, isWorkingMode, mode, searchParams]);
 
   useEffect(() => {
-    if (!isWorkingMode || isSecureNowFindingsQueue) {
+    if (!isWorkingMode || isSecureNowFindingsQueue || suppressDeskContinuityArchitectureRef.current) {
       return;
     }
 

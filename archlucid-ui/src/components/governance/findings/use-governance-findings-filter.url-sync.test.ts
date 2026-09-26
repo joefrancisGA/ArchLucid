@@ -38,8 +38,10 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "architecture" }),
 }));
 
+const readCachedLastOpenArchitectureId = vi.hoisted(() => vi.fn(() => null));
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => null),
+  readCachedLastOpenArchitectureId,
 }));
 
 import { writeGroupByResourcePreference } from "@/lib/governance/governance-findings-group-by-resource-storage";
@@ -108,6 +110,24 @@ describe("useGovernanceFindingsFilter URL sync", () => {
     rerender();
 
     expect(result.current.groupByResource).toBe(false);
+  });
+
+  it("clears architecture scope when architectureId= is removed from the URL without a popstate event", () => {
+    readCachedLastOpenArchitectureId.mockReturnValue("arch-cached");
+
+    searchParamsHarness.state.query = "architectureId=arch-explicit";
+
+    const { result, rerender } = renderHook(
+      () => useGovernanceFindingsFilter({ mode: "tenant", isWorkingMode: true }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(result.current.scopedArchitectureId).toBe("arch-explicit");
+
+    searchParamsHarness.applyQuery("");
+    rerender();
+
+    expect(result.current.scopedArchitectureId).toBeNull();
   });
 
   it("follows groupBy URL changes without a popstate event", () => {

@@ -24329,11 +24329,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 15
-- **bugs-found:** 15
+- **hunts:** 16
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — groupBy stayed on after groupBy= cleared from URL (restored storage true)
+- **last-bug:** 2026-09-26 — architectureId scope reverted to desk cache after architectureId= cleared from URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24379,6 +24379,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useGovernanceFindingsFilter` / `GovernanceFindingsQueueClient.clearAllFilters` — `groupByResource` stayed enabled after App Router cleared `groupBy=` without `popstate` because the URL-sync effect always reapplied `readGroupByResourcePreference()` — **hit 2026-09-26 seed hunt (seed→hit):** mirror register-filter `had*InUrlRef` for groupBy; reset to off and persist false when a prior URL had `groupBy=` and the param clears; `clearAllFilters` / `showAllFilteredFindings` call `applyGroupByResource(false)`; regressions in `use-governance-findings-filter.url-sync.test.ts`; 11 scoped filter URL-sync, clear-all, and saved-view unit tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-governance-findings-queue; proved stale groupBy after URL navigation cleared `groupBy=`; 11 scoped governance-findings filter URL-sync and clear-all unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter` — `scopedArchitectureId` reverted to desk-continuity cache after App Router cleared `architectureId=` without `popstate` — **hit 2026-09-26 seed hunt #16:** URL-sync effect fell back to `readCachedLastOpenArchitectureId()` when the param disappeared; desk-continuity auto-inject effect re-applied cache on the next pass; fixed with `hadArchitectureIdInUrlRef` + `suppressDeskContinuityArchitectureRef` mirroring register/groupBy URL sync; regression `clears architecture scope when architectureId= is removed from the URL without a popstate event`.
+
+2026-09-26 seed hunt #16 (seed→hit): reseeded ui-governance-findings-queue after groupBy URL sync hit; proved stale architecture scope after URL navigation cleared `architectureId=`; 16 scoped governance-findings filter URL-sync and clear/pick-review unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
