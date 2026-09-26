@@ -15969,11 +15969,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 28
-- **bugs-found:** 19
+- **hunts:** 29
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — Access connector external target parser ignored JSON reference property values
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — Public IP reference parser ignored JSON reference property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16196,6 +16196,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryAccessConnectorTargetParser` — `ParseExternalTargetArmId` required path-shaped `targetResourceId` values and ignored package-serialized JSON reference blobs — **hit 2026-09-25 seed hunt #28:** `targetResourceId` object properties stored as `{"id":"..."}` returned null, dropping access-connector external targets from NR-03 parent attachment resolution; fixed with shared `TryResolveArmReferenceValue` for path and JSON reference shapes; regression `ParseExternalTargetArmId_reads_arm_id_from_json_reference_property_values`.
 
 2026-09-25 seed hunt #28 (seed→hit): reseeded core-azure-extractor after network connection JSON reference hit; proved access connector external target parser ignored JSON reference property values; 1386 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureInventoryPublicIpReferenceParser` — carrier property values serialized as package JSON reference blobs (`{"id":"..."}`) were ignored because only path-shaped strings and JSON arrays were parsed — **hit 2026-09-26 seed hunt #29:** `properties.publicIPAddress` object references dropped from NR-03 parent attachment and orphaned-state resolution; fixed with `AddFromJsonObject` using existing `TryReadPublicIpArmId`; regression `Parse_reads_arm_id_from_json_reference_property_values`.
+- [ ] (candidate) `AzureInventoryWorkflowActionTargetParser.NormalizeArmId` — explicit workflow action target properties storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` instead of extracting `id` (reachability: package `ReadProperties` emits object `GetRawText()`; NR-01 explicit flattened keys on hydrator-built nodes)
+
+2026-09-26 seed hunt #29 (seed→hit): reseeded core-azure-extractor after access-connector JSON reference hit; proved public IP reference parser ignored JSON reference property values; seeded workflow action target JSON reference normalization candidate; 1395 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary

@@ -26,6 +26,10 @@ public static class AzureInventoryPublicIpReferenceParser
                 {
                     AddFromJsonArray(value, publicIpArmIds);
                 }
+                else if (value.TrimStart().StartsWith("{", StringComparison.Ordinal))
+                {
+                    AddFromJsonObject(value, publicIpArmIds);
+                }
                 else if (value.StartsWith("/", StringComparison.Ordinal))
                 {
                     publicIpArmIds.Add(ArmResourceIdNormalizer.Normalize(value));
@@ -42,6 +46,24 @@ public static class AzureInventoryPublicIpReferenceParser
             || key.Contains("publicIpAddresses", StringComparison.OrdinalIgnoreCase)
             || key.Equals("frontendIPConfigurations", StringComparison.OrdinalIgnoreCase)
             || key.Equals("ipConfigurations", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void AddFromJsonObject(string json, ISet<string> publicIpArmIds)
+    {
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+
+            string? armId = TryReadPublicIpArmId(document.RootElement);
+
+            if (!string.IsNullOrWhiteSpace(armId))
+            {
+                publicIpArmIds.Add(ArmResourceIdNormalizer.Normalize(armId));
+            }
+        }
+        catch (JsonException)
+        {
+        }
     }
 
     private static void AddFromJsonArray(string json, ISet<string> publicIpArmIds)

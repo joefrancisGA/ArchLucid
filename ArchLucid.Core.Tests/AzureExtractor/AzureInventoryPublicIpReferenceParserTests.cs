@@ -27,6 +27,23 @@ public sealed class AzureInventoryPublicIpReferenceParserTests
     }
 
     [Fact]
+    public void Parse_reads_arm_id_from_json_reference_property_values()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["properties.publicIPAddress"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-front"}
+                """,
+        };
+
+        IReadOnlyList<string> publicIpArmIds = AzureInventoryPublicIpReferenceParser.Parse(properties);
+
+        publicIpArmIds.Should().ContainSingle(id =>
+            id.Equals(PublicIpArmId, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Parse_without_public_ip_reference_returns_empty()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
