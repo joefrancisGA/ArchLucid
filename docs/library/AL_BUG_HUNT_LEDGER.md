@@ -20771,11 +20771,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 41
-- **bugs-found:** 33
+- **hunts:** 42
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — recurrence completion email accepted whitespace-only scheduleName
+- **last-bug:** 2026-09-26 — weekly sponsor report/summary email accepted whitespace-only runDetailUrl
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -20891,6 +20891,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-26 seed hunt (hit): proved `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` accepted whitespace-only `scheduleName` and rendered completion mail with an empty schedule label (weekly digest dispatchers already reject blank week labels); fixed with required schedule-name validation; regression `TryDispatchAsync_throws_for_whitespace_only_schedule_name`; 126 scoped notifications/digest tests passed.
 
 - [x] (proven) `RecurrenceCompletionEmailDispatcher` — whitespace-only `scheduleName` sent recurrence completion email with empty schedule label — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with weekly dispatchers; regression `TryDispatchAsync_throws_for_whitespace_only_schedule_name`.
+
+2026-09-26 thorough hunt (hit): proved `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` accepted whitespace-only `runDetailUrl` after `weekLabel` guards (#1858/#1773) and still reached template render with an empty CTA link; fixed with required run-detail URL validation; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_detail_url` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_detail_url`; 128 scoped notifications/digest tests passed.
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `runDetailUrl` sent weekly mail with blank run link — **hit 2026-09-26 thorough hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_detail_url` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_detail_url`.
 
 ## Zone: artifact-synthesis
 
