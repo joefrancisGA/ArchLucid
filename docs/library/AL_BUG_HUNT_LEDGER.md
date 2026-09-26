@@ -5529,13 +5529,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 21
-- **bugs-found:** 10
+- **hunts:** 22
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-11 — activation persisted invisible-only claim-mapping IdpValue/ArchLucidRole entries
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — sandbox test-login accepted invisible-only RoleClaimName while activate rejected it
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): proved `SsoWizardTestLoginService` / `IdentityProviderConfigurationController.TestLogin` skipped `EnsureSubstantiveClaimMapping` so invisible-only `RoleClaimName` returned sandbox success while `ActivateAsync` rejected the same payload; shared `IdentityProviderClaimMappingSubstantiveGuards` now covers activate and test-login; regressions `Execute_rejects_invisible_unicode_only_role_claim_name` and `TestLogin_rejects_invisible_unicode_only_role_claim_name`; 45 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `SsoWizardTestLoginService` / `IdentityProviderConfigurationController.TestLogin` — invisible-only `RoleClaimName` passed `ValidateMapping` whitespace checks and returned sandbox JWT success while `ActivateAsync` rejected the same mapping — **hit 2026-09-26 seed hunt:** extracted shared substantive claim-mapping guards; regressions above.
 
 2026-09-13 seed hunt #2442 (seed-only): reseeded identity-provider-config; no new hunt-ready rows.
 
