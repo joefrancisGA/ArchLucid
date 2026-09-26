@@ -6,6 +6,20 @@ import {
 } from "@/lib/infra-evidence/strip-infra-evidence-executive-overflow-from-mermaid";
 
 describe("stripExecutiveOverflowNodesFromInfraEvidenceMermaid", () => {
+  it("removes outline-only metadata nodes and their edges from display mermaid", () => {
+    const source = `flowchart TD
+    %% al-type=Microsoft.Network/networkSecurityGroups al-outline-only=true
+    nsg_app["nsg-app"]
+    core_vnet["core-vnet"]
+    nsg_app --> core_vnet`;
+
+    const stripped = stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source);
+
+    expect(stripped).not.toContain('nsg_app["nsg-app"]');
+    expect(stripped).not.toContain("al-outline-only=true");
+    expect(stripped).toContain('core_vnet["core-vnet"]');
+  });
+
   it("removes executive overflow rollup nodes and their edges from display mermaid", () => {
     const source = `flowchart TD
     executive_overflow_storage["+22 more storage accounts"]
