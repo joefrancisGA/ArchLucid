@@ -130,6 +130,8 @@ public sealed class AgentUserPromptPrefixOrderingTests
     [Theory]
     [InlineData(AgentType.Topology, nameof(AgentUserPromptComposer.BuildTopologyUserPrompt))]
     [InlineData(AgentType.Compliance, nameof(AgentUserPromptComposer.BuildComplianceUserPrompt))]
+    [InlineData(AgentType.Cost, nameof(AgentUserPromptComposer.BuildCostUserPrompt))]
+    [InlineData(AgentType.Critic, nameof(AgentUserPromptComposer.BuildCriticUserPrompt))]
     public void UserPrompt_static_prefix_is_byte_stable_across_runs(AgentType agentType, string builderName)
     {
         ArchitectureRequest request = SampleRequest();
@@ -146,6 +148,13 @@ public sealed class AgentUserPromptPrefixOrderingTests
         SHA256.HashData(Encoding.UTF8.GetBytes(firstPrefix))
             .Should()
             .Equal(SHA256.HashData(Encoding.UTF8.GetBytes(secondPrefix)));
+
+        first.IndexOf("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", StringComparison.Ordinal)
+            .Should()
+            .BeGreaterThan(firstPrefix.Length);
+        second.IndexOf("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", StringComparison.Ordinal)
+            .Should()
+            .BeGreaterThan(secondPrefix.Length);
     }
 
     private static string BuildPrompt(
@@ -160,6 +169,22 @@ public sealed class AgentUserPromptPrefixOrderingTests
                 AgentUserPromptComposer.BuildTopologyUserPrompt(runId, request, evidence, task, CloudProvider.Azure),
             nameof(AgentUserPromptComposer.BuildComplianceUserPrompt) =>
                 AgentUserPromptComposer.BuildComplianceUserPrompt(runId, request, evidence, task, CloudProvider.Azure),
+            nameof(AgentUserPromptComposer.BuildCostUserPrompt) =>
+                AgentUserPromptComposer.BuildCostUserPrompt(
+                    runId,
+                    request,
+                    evidence,
+                    task,
+                    CloudProvider.Azure,
+                    CostRetailGroundingBuilder.Build(
+                        request,
+                        evidence,
+                        new CostRetailGroundingLookups(
+                            new InMemoryAzureRetailPriceStructuredLookup(),
+                            new InMemoryAwsRetailPriceStructuredLookup(),
+                            new InMemoryGcpRetailPriceStructuredLookup()))),
+            nameof(AgentUserPromptComposer.BuildCriticUserPrompt) =>
+                AgentUserPromptComposer.BuildCriticUserPrompt(runId, request, evidence, task, CloudProvider.Azure),
             _ => throw new ArgumentOutOfRangeException(nameof(builderName), builderName, null)
         };
 
