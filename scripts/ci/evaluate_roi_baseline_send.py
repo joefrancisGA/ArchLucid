@@ -19,6 +19,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--go-no-go-summary", type=Path, required=True)
     parser.add_argument("--override-json", type=Path, default=None)
+    parser.add_argument("--baseline-json", type=Path, default=None)
+    parser.add_argument("--measurement-json", type=Path, default=None)
     parser.add_argument("--json-out", type=Path, required=True)
     parser.add_argument("--strict-send", action="store_true")
     args = parser.parse_args(argv)
@@ -33,7 +35,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.override_json and args.override_json.is_file()
         else None
     )
-    evaluation = evaluate_send_eligibility(summary, override)
+    baseline = load_json(args.baseline_json) if args.baseline_json and args.baseline_json.is_file() else None
+    measurement = load_json(args.measurement_json) if args.measurement_json and args.measurement_json.is_file() else None
+    evaluation = evaluate_send_eligibility(summary, override, baseline=baseline, measurement=measurement,
+                                           require_recorded_evidence=args.strict_send)
     evaluation["roiBasisStatus"] = summary.get("roiBasisStatus")
     evaluation["roiSponsorSafe"] = summary.get("roiSponsorSafe")
 

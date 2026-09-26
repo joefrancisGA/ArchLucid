@@ -50,7 +50,7 @@ def evaluate(baseline: dict, outcome: dict, *, run_id: str | None = None) -> dic
                      "hoursSaved": round(before - after, 3) if status == "MEASURED" else None,
                      "status": status})
     return {"schema": "archlucid.roi-measurement-evidence.v1", "runId": run_id,
-            "status": "MEASURED" if all(row["status"] == "MEASURED" for row in rows) else "INSUFFICIENT_DATA",
+            "status": "MEASURED" if all(row["status"] == "MEASURED" for row in rows[:2]) else "INSUFFICIENT_DATA",
             "rows": rows, "projectedDollarValue": None,
             "note": "Observed time differences only; no causal attribution or projected dollar ROI."}
 

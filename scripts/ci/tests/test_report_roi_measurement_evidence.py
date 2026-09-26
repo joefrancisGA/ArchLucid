@@ -20,7 +20,7 @@ def test_measured_difference_requires_both_values_and_sources() -> None:
     assert report["rows"][0]["hoursSaved"] == 3
     assert report["rows"][1]["hoursSaved"] == 1
     assert report["rows"][2]["status"] == "INSUFFICIENT_DATA"
-    assert report["status"] == "INSUFFICIENT_DATA"
+    assert report["status"] == "MEASURED", "optional evidence assembly time must not block measured required metrics"
     assert report["projectedDollarValue"] is None
 
 

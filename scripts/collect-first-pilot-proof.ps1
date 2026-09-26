@@ -2333,6 +2333,11 @@ function Invoke-RoiBaselineSendEvaluation {
         $args += @('--override-json', $overridePath)
     }
 
+    $baselinePath = Join-Path $ProofDirectory 'paid-pilot-baseline.json'
+    $measurementPath = Join-Path $ProofDirectory 'roi-measurement-evidence.json'
+    if (Test-Path -LiteralPath $baselinePath) { $args += @('--baseline-json', $baselinePath) }
+    if (Test-Path -LiteralPath $measurementPath) { $args += @('--measurement-json', $measurementPath) }
+
     if ($StrictSend) {
         $args += '--strict-send'
     }
@@ -2354,6 +2359,7 @@ function Invoke-RoiBaselineSendEvaluation {
     return [ordered]@{
         baselineCompletenessStatus    = [string]$evaluation.baselineCompletenessStatus
         sendEligible                  = [bool]$evaluation.sendEligible
+        projectedDollarClaimsEligible = [bool]$evaluation.projectedDollarClaimsEligible
         overrideApplied               = [bool]$evaluation.overrideApplied
         sendBlockReasons              = @($evaluation.sendBlockReasons)
         missingRequiredBaselineFields = @($evaluation.missingRequiredBaselineFields)
@@ -3695,17 +3701,6 @@ if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
     }
 }
 
-$baselineSendEval = Invoke-RoiBaselineSendEvaluation `
-    -ProofDirectory $proofDir `
-    -StrictSend:$SponsorHandoff `
-    -SummaryPayload ([ordered]@{
-        roiBasisStatus           = $script:roiBasisStatus
-        roiSponsorSafe           = $script:roiSponsorSafe
-        blockCount               = $blockCount
-        sponsorPacketDisposition = $sponsorPacketDisposition
-        runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
-    })
-
 # Sidecar for first-value and sponsor packet review: only observed, source-labeled
 # measurements receive a numeric difference. Missing inputs stay INSUFFICIENT_DATA.
 $roiMeasurementArgs = @(
@@ -3723,6 +3718,18 @@ if (Test-Path -LiteralPath (Join-Path $proofDir 'roi-measurement-evidence.json')
     Add-ProofArtifact -Name 'roi-measurement-evidence.json' -Path 'roi-measurement-evidence.json' -Purpose 'Source-labeled observed ROI metrics, or explicit insufficient-data status.'
     Add-ProofArtifact -Name 'roi-measurement-evidence.md' -Path 'roi-measurement-evidence.md' -Purpose 'First-value and sponsor review of measured time differences and missing inputs.'
 }
+
+$baselineSendEval = Invoke-RoiBaselineSendEvaluation `
+    -ProofDirectory $proofDir `
+    -StrictSend:$SponsorHandoff `
+    -SummaryPayload ([ordered]@{
+        roiBasisStatus           = $script:roiBasisStatus
+        roiSponsorSafe           = $script:roiSponsorSafe
+        blockCount               = $blockCount
+        sponsorPacketDisposition = $sponsorPacketDisposition
+        runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
+    })
+
 
 if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
     $missingFields = @($baselineSendEval.missingRequiredBaselineFields) -join ', '
@@ -3862,6 +3869,7 @@ $summary = [ordered]@{
     roiSponsorSafe            = $script:roiSponsorSafe
     baselineCompletenessStatus = [string]$baselineSendEval.baselineCompletenessStatus
     sendEligible              = [bool]$baselineSendEval.sendEligible
+    projectedDollarClaimsEligible = [bool]$baselineSendEval.projectedDollarClaimsEligible
     overrideApplied           = [bool]$baselineSendEval.overrideApplied
     roiBaselineSendOverrideAudit = if ([bool]$baselineSendEval.overrideApplied -and (Test-Path -LiteralPath (Join-Path $proofDir 'roi-baseline-send-override.json'))) {
         [ordered]@{
