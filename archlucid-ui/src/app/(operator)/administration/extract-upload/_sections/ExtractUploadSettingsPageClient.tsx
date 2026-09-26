@@ -135,6 +135,7 @@ function ExtractUploadSettingsPageClientInner() {
 
   const {
     productLine,
+    localize,
     extractorScriptDownloadUrl,
     validateDisclosureOpen,
     setValidateDisclosureOpen,
