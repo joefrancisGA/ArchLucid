@@ -25,6 +25,7 @@ import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architecture-draft-spawn-one-writer";
 
 import type { RunDetailPageModel } from "./run-detail-page-model";
+import { resolveReviewPackagePipelineInFlight } from "./resolve-review-package-pipeline-in-flight";
 import {
   RecurrenceSchedulePostCommitCardDeferred,
   RunDetailArchitectureGraphIsland,
@@ -353,7 +354,7 @@ export function resolveRunDetailTabbedWorkspace(
               hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
               operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
               isArchived={m.resolvedDetail.run.isArchived === true}
-              pipelineInFlight={m.showProgressTracker && !m.manifestId}
+              pipelineInFlight={resolveReviewPackagePipelineInFlight(m.showProgressTracker)}
             />
           ) : null}
         </div>

@@ -21,7 +21,6 @@ import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import { RunDetailExplanationSkeleton, RunDetailMidDeferredSkeleton } from "./RunDetailDeferredSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailCreateHomeFindingsPanel } from "./RunDetailCreateHomeFindingsPanel";
-import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
@@ -134,12 +133,6 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
         {...reviewPackageDoThisNextEvidenceProps}
       />
-      {!m.manifestId ? (
-        <RunDetailOverviewTransparencyTrail
-          feasibilityVerdict={m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null}
-          runCompleted={m.runCompleted}
-        />
-      ) : null}
       <RunDetailWorkspaceDisclosureControls />
       <Suspense fallback={<RunDetailExplanationSkeleton />}>
         <RunDetailArchitectureCreatedWorkspaceDeferred
