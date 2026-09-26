@@ -3147,6 +3147,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path after `U+FF61`/`U+FE12` fix; NFKC scan found no further BMP FULL STOP compatibility gaps; cheap-disproved script punctuation and presentation vertical punctuation pairs; 126 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Post-fix BMP FULL STOP / ideographic compatibility inventory — **valid-no-repro 2026-09-26 seed hunt:** after `U+FF61`/`U+FE12` guard extension, Unicode NFKC scan shows no remaining FULL STOP-named code points mapping to `.` or `U+3002` outside `IsDotHomoglyph`.
+- [x] (valid-no-repro) COPTIC (`U+2CFE`/`U+2CF9`), LISU (`U+A4FF`), VAI (`U+A60E`), BAMUM (`U+A6F3`), and STENOGRAPHIC (`U+2E3C`) full-stop parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** script sentence punctuation; not browser-normalized to ASCII `.` for `..` traversal; extends prior Armenian/Mongolian rows.
+- [x] (valid-no-repro) Presentation vertical punctuation (`U+FE11`–`U+FE16`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** vertical comma/colon/semicolon/exclamation/question forms are not FULL STOP homoglyphs; only `U+FE12` was in the proven ideographic-stop class (fixed same day).
+
 2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved HALFWIDTH IDEOGRAPHIC FULL STOP and presentation vertical ideographic full-stop dot homoglyph traversal bypasses; cheap-disproved fragment-only encoded dot-dot and Coptic full-stop pairs; 126 scoped AuthSignInReturnPathGuard tests passed.
 
 - [x] (proven) HALFWIDTH IDEOGRAPHIC FULL STOP (`｡`, `U+FF61`) and PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC FULL STOP (`︒`, `U+FE12`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** parent-segment pairs evaded ASCII `..` checks while parity glyphs `U+3002`/`U+FF0E` were already blocked; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_halfwidth_and_presentation_ideographic_full_stop_dot_homoglyph_path_traversal_segments`.
