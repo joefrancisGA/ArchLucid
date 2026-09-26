@@ -32,7 +32,7 @@ public sealed partial class DapperTenantRepository
                                  UPDATE dbo.Tenants
                                  SET TrialRunsUsed = TrialRunsUsed + 1
                                  WHERE Id = @Id
-                                   AND TrialStatus = @Active
+                                   AND LTRIM(RTRIM(TrialStatus)) COLLATE Latin1_General_CI_AI = LTRIM(RTRIM(@Active))
                                    AND TrialRunsLimit IS NOT NULL
                                    AND TrialRunsLimit > 0
                                    AND TrialExpiresUtc > SYSUTCDATETIME()
@@ -78,7 +78,7 @@ public sealed partial class DapperTenantRepository
         if (row is null)
             return;
 
-        if (!string.Equals(row.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+        if (!TrialLifecycleStatus.EqualsStatus(row.TrialStatus, TrialLifecycleStatus.Active) ||
             row.TrialRunsLimit is null ||
             row.TrialRunsLimit.Value < 1)
             return;
@@ -137,7 +137,7 @@ public sealed partial class DapperTenantRepository
             }, tran, cancellationToken: ct)).ConfigureAwait(false);
 
         if (t is null ||
-            !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+            !TrialLifecycleStatus.EqualsStatus(t.TrialStatus, TrialLifecycleStatus.Active) ||
             t.TrialSeatsLimit is null ||
             t.TrialSeatsLimit.Value < 1)
         {
@@ -181,7 +181,7 @@ public sealed partial class DapperTenantRepository
                                UPDATE dbo.Tenants
                                SET TrialSeatsUsed = TrialSeatsUsed + 1
                                WHERE Id = @Id
-                                 AND TrialStatus = @Active
+                                 AND LTRIM(RTRIM(TrialStatus)) COLLATE Latin1_General_CI_AI = LTRIM(RTRIM(@Active))
                                  AND TrialSeatsUsed < @SeatLimit;
                                """;
 
