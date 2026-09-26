@@ -51,3 +51,7 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 08 | `understand-use-08-sample-vs-yours.md` | `uu/08-sample-vs-yours` |
 | 09 | `understand-use-09-what-could-break.md` | `uu/09-what-could-break` |
 | 10 | `understand-use-10-first-encounter-definitions.md` | `uu/10-first-encounter-definitions` |
+
+## Wave B (UU-11–UU-20)
+
+Paste from [`understand-use-b-00-index.md`](understand-use-b-00-index.md). Do not implement wave B from this file.
