@@ -66,6 +66,7 @@ import {
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import type {
+  SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
   SecurityEvidencePathHop,
   SecurityEvidencePathRankDetail,
