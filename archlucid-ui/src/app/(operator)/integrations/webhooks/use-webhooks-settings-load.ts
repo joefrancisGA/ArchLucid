@@ -78,6 +78,7 @@ export function useWebhooksSettingsLoad(
 
       const apiFailure = toApiLoadFailure(error);
       lastLoadFailureRef.current = apiFailure;
+      setHasLoadedSuccessfully(false);
       setFailure(apiFailure);
 
       return false;

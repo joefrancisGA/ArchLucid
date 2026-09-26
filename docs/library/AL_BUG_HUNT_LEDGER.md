@@ -5319,6 +5319,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved manual `Refresh` after a successful hydration left `hasLoadedSuccessfully` true when `listAlertRoutingSubscriptions` failed, so create stayed enabled against a stale `webhookRows` inventory; fixed by clearing `hasLoadedSuccessfully` on load failure; regression `blocks create when manual refresh fails after subscriptions loaded`; 50 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
+
 2026-09-26 thorough hunt (hit): proved promoted candidates — `useWebhooksSettingsConnectionTest` cleared `testResults` on thrown test API errors so the subscriptions table never rendered the inline failure panel (toast only); fixed by persisting a synthetic `WebhookTestResponse`; `WebhooksSettingsClient` hid `RefreshButton` when `webhookRows` was empty even after `listAlertRoutingSubscriptions` failed; fixed by showing refresh when `failure !== null`; regressions `shows inline test failure when webhook test request throws before a structured response` and `shows refresh control when subscription list fails to load`; 49 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
 - **id:** ui-webhooks-settings
@@ -5327,11 +5329,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 21
-- **bugs-found:** 16
+- **hunts:** 22
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — webhook test request failures dropped inline result panel; failed list load hid refresh
+- **last-bug:** 2026-09-26 — create stayed enabled after failed subscription list refresh with stale rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5404,6 +5406,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `useWebhooksSettingsConnectionTest` — network/request failure deletes inline test result instead of showing a structured failure panel — **hit 2026-09-26 thorough hunt:** catch path removed `testResults[id]` while toast fired, so `WebhooksSubscriptionsTable` never rendered the structured failure panel; fixed by storing synthetic `transportSucceeded: false` payload; regression `shows inline test failure when webhook test request throws before a structured response`.
 - [x] (proven) `WebhooksSettingsClient` — no refresh control when the subscription list is empty after a failed initial load — **hit 2026-09-26 thorough hunt:** `RefreshButton` gated on `webhookRows.length > 0` left failed initial loads with page alert but no retry control; fixed by also rendering refresh when `failure !== null`; regression `shows refresh control when subscription list fails to load`.
+- [x] (proven) `useWebhooksSettingsLoad.load` — failed refresh after successful hydration left `hasLoadedSuccessfully` true — **hit 2026-09-26 seed hunt (seed→hit):** operators could save new subscriptions while duplicate-name guard used stale rows; fixed by setting `hasLoadedSuccessfully` false in the load catch path; regression `blocks create when manual refresh fails after subscriptions loaded`.
 
 ## Zone: ui-host-gate
 
