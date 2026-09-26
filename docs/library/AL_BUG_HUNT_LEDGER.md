@@ -23647,6 +23647,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
+2026-09-26 seed hunt #6967 (seed-only): picker repeat; cheap-disproof closed tightened `MaxQueuedAnonymousScans` evicting in-flight waiters and queue-timeout capacity pin when abandon no-ops on `TimedOut` rows; regressions `WaitForAdmissionAsync_still_promotes_when_max_queued_tightened_to_zero_during_queue_wait`, `WaitForAdmissionAsync_queue_timeout_frees_queue_capacity_when_abandon_noops_on_timed_out_row`; 28 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — live `MaxQueuedAnonymousScans=0` during queue wait must evict enqueued waiter — **cheap-disproof 2026-09-26 seed hunt #6967:** queue row is retained until promote/timeout/abandon; tightened cap applies to new admits via admit refresh (#6964); regression `WaitForAdmissionAsync_still_promotes_when_max_queued_tightened_to_zero_during_queue_wait`.
+- [x] (valid-no-repro) `AbandonQueueEntryForCleanupAsync` on `QueueTimeout` leaves queue capacity pinned when store already marked row `TimedOut` — **cheap-disproof 2026-09-26 seed hunt #6967:** `ExpireStale` clears waiting capacity before abandon no-op; regression `WaitForAdmissionAsync_queue_timeout_frees_queue_capacity_when_abandon_noops_on_timed_out_row`.
+
 2026-09-26 seed hunt #6966 (seed-only): picker repeat after #6965; cheap-disproof closed live `Enabled=false` during queue wait and in-flight `QueueWaitTimeoutSeconds` shorten candidates; regressions `WaitForAdmissionAsync_still_promotes_when_safety_enabled_flips_false_during_queue_wait`, `WaitForAdmissionAsync_keeps_queue_wait_deadline_captured_at_enqueue_when_options_shorten`; 26 scoped QuickScanDistributedConcurrency tests passed.
 
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `QuickScanSafetyOptions.Enabled=false` during queue wait must reject before promote — **cheap-disproof 2026-09-26 seed hunt #6966:** promote loop polls store capacity only; budget-stage operational re-check and orchestrator dispose cover downstream kill-switch; regression `WaitForAdmissionAsync_still_promotes_when_safety_enabled_flips_false_during_queue_wait`.
