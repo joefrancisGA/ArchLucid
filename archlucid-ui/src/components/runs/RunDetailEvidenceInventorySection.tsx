@@ -131,6 +131,9 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
           Evidence items ingested for this review and how many findings cite each source. Stored files can be opened or
           downloaded — submitted evidence, not the sealed review record.
         </p>
+        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Each row is an evidence item used by this review.
+        </p>
         <div className="mt-3">
           <EnterpriseTable ariaLabel="Submitted and cited evidence inventory">
             <EnterpriseTableHead>

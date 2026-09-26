@@ -69,8 +69,18 @@ export function GovernanceFindingsQueueTableHead(props: {
         {buyerPolishedShell ? (
           <>
             <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Record</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Confidence</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                How strongly the available evidence supports this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Record</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Findings need action. Decisions record what was decided.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>

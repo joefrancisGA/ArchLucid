@@ -364,6 +364,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
             <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {markdownOptionLabel}
             </span>
+            <span className={OPERATOR_TYPOGRAPHY.micro}>Readable summary of the sealed review record.</span>
             <ExportFormatWhenToUseHint format="markdown" />
           </span>
         </SelectItem>
@@ -371,6 +372,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
             Download server manifest export (Markdown)
           </span>
+          <span className={OPERATOR_TYPOGRAPHY.micro}>Server-generated manifest export.</span>
         </SelectItem>
       </SelectContent>
     </Select>
