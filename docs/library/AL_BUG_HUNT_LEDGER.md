@@ -4887,6 +4887,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved run-list exclude probe false-passed on HTTP 200 payloads missing the `items` array (non-`CursorPagedResponse` shape); fixed with `RunListPayloadIsScannable` gate before scan; regressions `RunListPayloadIsScannable_RejectsCursorPageObjectWithoutItemsArray` and `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`; 39 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved run-list exclude probe false-passed on HTTP 204 No Content (and empty 2xx bodies) by treating foreign runId absent; fixed in `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` with list-unavailable SKIP; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives204NoContent`; 37 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - **id:** cli-tenant-isolation
@@ -4895,11 +4897,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 21
-- **bugs-found:** 9
+- **hunts:** 22
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — run-list exclude probe false-passed on HTTP 204 empty body
+- **last-bug:** 2026-09-26 — run-list exclude probe false-passed without items array
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -4911,6 +4913,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` post-loop fallthrough returns `ForeignRunIdAbsent` after refactor — **cheap-disproof 2026-09-26 seed hunt #6956:** loop still returns on every iteration (`ScanIncomplete`, `ListUnavailable`, or terminal absent/present); trailing return remains unreachable dead code (#1437).
 
 - [x] (proven) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — HTTP 204 No Content (and empty 2xx bodies) on `/v1/runs` false-passed exclude-run-id probe — **hit 2026-09-26 seed hunt (seed→hit):** 2xx with no JSON list payload reported foreign runId absent; fixed by mapping to `ListUnavailable` → SKIP; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives204NoContent`.
+
+- [x] (proven) `TenantIsolationNegativeTestAggregator` / run-list scan — HTTP 200 JSON without `items` array false-passed exclude-run-id probe — **hit 2026-09-26 seed hunt (seed→hit):** `TryFindRunIdInRunList` returned absent on `{}` / `{hasMore:false}` shapes that are not `CursorPagedResponse` list pages; fixed with `RunListPayloadIsScannable` before paging; regressions `RunListPayloadIsScannable_RejectsCursorPageObjectWithoutItemsArray` and `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`.
 
 2026-09-12 seed hunt #2083 (seed-only): reseeded cli-tenant-isolation; no new hunt-ready rows
 
