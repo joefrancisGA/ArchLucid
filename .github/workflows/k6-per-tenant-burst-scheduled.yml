@@ -58,6 +58,8 @@ jobs:
         run: bash scripts/ci/install_k6_apt.sh
 
       - name: Create catalog + start API (Simulator)
+        env:
+          ARCHLUCID_K6_SKIP_WRITE_SMOKE: "true"
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6PerTenantBurst "${RUNNER_TEMP}/k6-burst-api.log" "${RUNNER_TEMP}/k6-burst-api.pid"
 
       - name: Seed k6 per-tenant burst tenants
