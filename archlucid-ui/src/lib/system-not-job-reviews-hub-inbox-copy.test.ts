@@ -6,9 +6,14 @@ import { REVIEWS_HUB_CLAIM_DISCIPLINE } from "@/lib/reviews-hub-evidence-copy";
 import {
   resolveSystemNotJobReviewsHubClaimDiscipline,
   SYSTEM_NOT_JOB_REVIEWS_HUB_INBOX_DOC_ANCHOR,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_CLAIM_DISCIPLINE,
   SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL,
   SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE,
   SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+  SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
 } from "@/lib/system-not-job-reviews-hub-inbox-copy";
 
 const repoRoot = join(__dirname, "..", "..", "..");
@@ -23,10 +28,29 @@ describe("SN-011 reviews hub inbox copy", () => {
     expect(SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION.toLowerCase()).toContain("architectures");
   });
 
-  it("uses inbox claim discipline in Working mode and Guided package teaching otherwise", () => {
-    expect(resolveSystemNotJobReviewsHubClaimDiscipline(true).toLowerCase()).toContain("inbox");
+  it("uses Working claim discipline in Working mode and Guided package teaching otherwise", () => {
+    expect(resolveSystemNotJobReviewsHubClaimDiscipline(true)).toBe(
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_CLAIM_DISCIPLINE,
+    );
     expect(resolveSystemNotJobReviewsHubClaimDiscipline(true).toLowerCase()).toContain("monday-morning");
     expect(resolveSystemNotJobReviewsHubClaimDiscipline(false)).toBe(REVIEWS_HUB_CLAIM_DISCIPLINE);
+  });
+
+  it("does not use inbox vocabulary on the Working reviews hub surface", () => {
+    const hubCopy = [
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_TITLE,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_PAGE_SUBTITLE,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_CLAIM_DISCIPLINE,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+      SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL,
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    expect(hubCopy).not.toContain("inbox");
   });
 
   it("points at ADR 0079 for desk-as-work-surface", () => {
