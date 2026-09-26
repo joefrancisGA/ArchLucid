@@ -206,6 +206,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
                 if (!string.IsNullOrWhiteSpace(nextAbsolute))
                 {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(nextAbsolute, subscriptionId);
                     cursor = TryToRelativePath(nextAbsolute) ?? nextAbsolute;
                 }
             }

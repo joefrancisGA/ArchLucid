@@ -2859,13 +2859,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — cross-role EvidenceRef blocked compute candidate insert
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed duplicate-display-name topology batch `(candidate)` — `TechnologyLedgerTopologyProposalMapper` keys `EvidenceRef` by `ServiceId` slug so distinct ids stay distinct; regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`; no new hunt-ready rows; 59 scoped TechnologyLedger tests passed.
 
@@ -21316,13 +21316,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 54
-- **bugs-found:** 21
+- **hunts:** 55
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — ADF factory linked-service pagination followed cross-factory nextLink
+- **last-bug:** 2026-09-26 — recovery vault, generic child-resource, and policy compliance pagination followed cross-scope nextLink
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-26 thorough hunt (hit): proved recovery-vault protected-item, generic child-resource (`ListJsonElementsAtRelativePathAsync`), and policy-compliance pagination followed cross-scope `nextLink` without guards; fixed with `EnsureTargetsArmRelativeListingPath` and subscription check on policy cursor; regressions in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`, `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`, `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`; 26 scoped GetOnlyHostedAzureArmReadClient + HostedAzureManagementPostReadClient tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved ADF factory linked-service and child-resource pagination followed cross-factory `nextLink` without scope guard; seeded recovery-vault, generic child-resource, and policy-compliance nextLink candidates; 23 scoped GetOnlyHostedAzureArmReadClient tests passed.
 
 2026-09-12 seed hunt #2235 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
@@ -21449,9 +21451,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ListManagementGroupRoleEligibilitySchedulesAsync` follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1911:** shared `ListRoleEligibilitySchedulesAtRestPathAsync` uses `EnsureTargetsManagementGroup`.
 
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync` followed ARM `nextLink` without validating factory resource scope — **hit 2026-09-26 seed hunt (seed→hit):** malicious or mis-issued `nextLink` to another Data Factory's linked services/pipelines could leak metadata attributed to the scanned factory; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsFactoryResource`; regression in `ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_resource_id`.
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — recovery vault protected-item pagination follows cross-vault `nextLink`
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListJsonElementsAtRelativePathAsync` — generic child-resource pagination follows cross-parent `nextLink`
-- [ ] (candidate) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor follows cross-subscription `nextLink`
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — recovery vault protected-item pagination followed cross-vault `nextLink` — **hit 2026-09-26 thorough hunt:** mis-issued `nextLink` could merge another vault's protected items into the scanned vault; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath`; regression in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListJsonElementsAtRelativePathAsync` — generic child-resource pagination followed cross-parent `nextLink` — **hit 2026-09-26 thorough hunt:** SQL/Event Grid/Service Connector child listings could follow another parent's collection; same `EnsureTargetsArmRelativeListingPath` guard; regression in `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`.
+- [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor followed cross-subscription `nextLink` — **hit 2026-09-26 thorough hunt:** `@odata.nextLink` to another subscription could merge foreign policy rows; fixed with `EnsureTargetsSubscription` before advancing cursor; regression in `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`.
 
 ---
 

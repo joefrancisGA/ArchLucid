@@ -426,6 +426,163 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id()
+    {
+        const string vaultResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.RecoveryServices/vaults/vault-a";
+        const string otherVaultResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.RecoveryServices/vaults/vault-b";
+        const string crossVaultNextLink =
+            $"https://management.azure.com{otherVaultResourceId}/backupProtectedItems?api-version=2023-04-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "item-a",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.RecoveryServices/vaults/vault-a/backupProtectedItems/item-a"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_VAULT_LINK"
+                               }
+                               """.Replace("CROSS_VAULT_LINK", crossVaultNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "item-b",
+                                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.RecoveryServices/vaults/vault-b/backupProtectedItems/item-b"
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossVaultNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: vault protected-item listing did not stop on cross-vault nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListVaultBackupProtectedItemsAsync(
+                "token-abc",
+                vaultResourceId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id()
+    {
+        const string parentResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-a";
+        const string otherParentResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-b";
+        const string crossParentNextLink =
+            $"https://management.azure.com{otherParentResourceId}/databases?api-version=2021-11-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "db-a",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-a/databases/db-a"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_PARENT_LINK"
+                               }
+                               """.Replace("CROSS_PARENT_LINK", crossParentNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "name": "db-b",
+                                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-b/databases/db-b"
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossParentNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: child-resource listing did not stop on cross-parent nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListChildJsonElementsAsync(
+                "token-abc",
+                parentResourceId,
+                "databases",
+                "2021-11-01",
+                "SQL databases",
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionRoleEligibilitySchedulesAsync_maps_eligible_assignments()
     {
         HttpMessageHandler handler = new RecordingHandler(
