@@ -36,6 +36,19 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
   return PROVENANCE_KIND_LABELS[trimmed] ?? trimmed;
 }
 
+const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {
+  ObservedFact: "This hop was read from collected evidence.",
+  DerivedFact: "This hop was calculated from collected evidence.",
+  DeterministicInference: "A fixed rule produced this hop.",
+  AiInference: "A model proposed this hop. It is not an observed fact.",
+  HumanAssertion: "A person recorded this hop.",
+};
+
+export function explainSecurityEvidenceProvenanceKind(kind: string | null | undefined): string | null {
+  const trimmed = kind?.trim() ?? "";
+  return PROVENANCE_KIND_MEANINGS[trimmed] ?? null;
+}
+
 export function securityEvidencePathConfidenceBandStatusKind(
   band: string | null | undefined,
 ): EnterpriseStatusKind {

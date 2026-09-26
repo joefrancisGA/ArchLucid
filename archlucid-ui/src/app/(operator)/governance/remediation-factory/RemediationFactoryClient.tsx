@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
@@ -16,6 +17,7 @@ import {
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   PageContextualHelpButton,
@@ -60,6 +62,13 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
+
+const PATH_VIEWS = [
+  { value: "all", label: "All paths" },
+  { value: "public-exposure", label: "Public exposure" },
+  { value: "privilege", label: "Privilege paths" },
+  { value: "insufficient-evidence", label: "Insufficient evidence" },
+] as const;
 import {
   REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY,
   REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING,
@@ -362,6 +371,8 @@ function RemediationSimulatorOutput(props: {
 
 export function RemediationFactoryClient() {
   const { productLine } = useProductLine();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const navHref = remediationFactoryPathForProductLine(productLine);
   const openFindingsHref = assignedToMeFindingsPathForProductLine(productLine);
   const {
@@ -384,6 +395,30 @@ export function RemediationFactoryClient() {
 
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
+  const pathView = searchParams.get("pathView") ?? "all";
+  const visibleRankedPaths = useMemo(() => {
+    switch (pathView) {
+      case "public-exposure":
+        return rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("reachability"));
+      case "privilege":
+        return rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege"));
+      case "insufficient-evidence":
+        return rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence");
+      default:
+        return rankedPaths;
+    }
+  }, [pathView, rankedPaths]);
+
+  const setPathView = useCallback((value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "all") {
+      params.delete("pathView");
+    } else {
+      params.set("pathView", value);
+    }
+    const query = params.toString();
+    router.replace(query.length > 0 ? `?${query}` : window.location.pathname, { scroll: false });
+  }, [router, searchParams]);
 
   const refreshing =
     rankedQuery.isFetching
@@ -577,14 +612,34 @@ export function RemediationFactoryClient() {
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
           <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
+          <p className={cn("m-0 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+            Queue shortcuts:
+            <span className="inline-flex items-center gap-1">next <ShortcutHint shortcut="alt+j" /></span>
+            <span className="inline-flex items-center gap-1">previous <ShortcutHint shortcut="alt+k" /></span>
+            <span className="inline-flex items-center gap-1">inspect <ShortcutHint shortcut="alt+i" /></span>
+          </p>
         </header>
+        <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
+          {PATH_VIEWS.map((view) => (
+            <Button
+              key={view.value}
+              type="button"
+              size="sm"
+              variant={pathView === view.value ? "default" : "outline"}
+              aria-pressed={pathView === view.value}
+              onClick={() => setPathView(view.value)}
+            >
+              {view.label}
+            </Button>
+          ))}
+        </div>
         {rankedPathsQuery.isError ? (
           <StatusTag kind="needs-attention" label={SECURENOW_PATH_RANKED_PATHS_ERROR} />
-        ) : rankedPaths.length === 0 ? (
+        ) : visibleRankedPaths.length === 0 ? (
           <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
         ) : (
           <RankedPathsTable
-            rows={rankedPaths}
+            rows={visibleRankedPaths}
             selectedPathId={selectedPathId}
             onSelect={selectPath}
           />

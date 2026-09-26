@@ -59,6 +59,7 @@ import {
 } from "@/lib/query/operator-query-stale-time";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
@@ -130,6 +131,11 @@ function PathHopsTable(props: {
               <EnterpriseTableCell>{hop.edgeType}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid="security-evidence-path-hop-provenance">
                 {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}
+                {hop.hopOrdinal === 1 && explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                    {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag
@@ -147,6 +153,26 @@ function PathHopsTable(props: {
         })}
       </EnterpriseTableBody>
     </EnterpriseTable>
+  );
+}
+
+function PathConfidenceWhy(props: { readonly band: string }): React.JSX.Element | null {
+  if (props.band !== "InsufficientEvidence" && props.band !== "Possible") {
+    return null;
+  }
+
+  const message =
+    props.band === "InsufficientEvidence"
+      ? "This result stays open because the cited evidence does not support a stronger band."
+      : "The control plane allows this path. No observed traffic is claimed.";
+
+  return (
+    <details className="text-sm" data-testid="security-evidence-path-confidence-why">
+      <summary className="cursor-pointer text-al-link underline-offset-2 hover:underline">
+        Why am I seeing this?
+      </summary>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{message}</p>
+    </details>
   );
 }
 
@@ -246,6 +272,63 @@ function PathExplanationSection(props: {
           testId="security-evidence-path-explanation-output"
         />
       ) : null}
+    </div>
+  );
+}
+
+function RecommendedActionSection(props: {
+  readonly path: SecurityEvidencePathDetail;
+  readonly rank: SecurityEvidencePathRankDetail | null;
+}): React.JSX.Element {
+  const firstCutPoint = props.path.relatedCutPoints[0];
+  const firstRoute = props.path.routing[0];
+  const lines = [
+    {
+      label: "Problem",
+      value:
+        props.path.explanationTemplate?.architectSentence?.trim() ||
+        props.rank?.explanationSummary?.trim() ||
+        "Not cited.",
+    },
+    {
+      label: "Evidence",
+      value:
+        props.path.weakestHop?.reason?.trim() ||
+        props.path.hops[0]?.evidenceReference?.trim() ||
+        "Not cited.",
+    },
+    {
+      label: "Consequence",
+      value: props.rank?.dimensionProse.blastRadius?.trim() || "Not cited.",
+    },
+    {
+      label: "Recommended change",
+      value:
+        firstCutPoint?.explanationSummary?.trim() ||
+        props.path.explanationTemplate?.proposedChange?.trim() ||
+        "Not cited.",
+    },
+    {
+      label: "Owner",
+      value: firstRoute?.displayName?.trim() || firstRoute?.role?.trim() || "Not cited.",
+    },
+    {
+      label: "Verification",
+      value: props.path.explanationTemplate?.verify?.trim() || "Not cited.",
+    },
+  ];
+
+  return (
+    <div className="space-y-2 rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-recommended-action">
+      <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Recommended action</h3>
+      <dl className="m-0 space-y-2">
+        {lines.map((line) => (
+          <div key={line.label}>
+            <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{line.label}</dt>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>{line.value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
@@ -474,6 +557,7 @@ export function SecurityEvidencePathInspectPanel(props: {
               kind={securityEvidencePathConfidenceBandStatusKind(pathQuery.data.pathConfidenceBand)}
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
             />
+            <PathConfidenceWhy band={pathQuery.data.pathConfidenceBand} />
           </div>
 
           {decisionReadiness != null ? (
@@ -509,6 +593,8 @@ export function SecurityEvidencePathInspectPanel(props: {
           ) : pathRankQuery.data != null ? (
             <PathRankSection rank={pathRankQuery.data} />
           ) : null}
+
+          <RecommendedActionSection path={pathQuery.data} rank={pathRankQuery.data ?? null} />
 
           <PathExplanationSection
             pathId={resolvedPathId}
