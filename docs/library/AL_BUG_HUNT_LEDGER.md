@@ -24291,11 +24291,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 14
-- **bugs-found:** 14
+- **hunts:** 15
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — search field cleared storage-backed q on mount when URL had no q param
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — groupBy stayed on after groupBy= cleared from URL (restored storage true)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24337,6 +24337,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueSearchField` — storage-backed search query cleared on mount when URL had no `q=` param — **hit 2026-09-25 seed hunt #31:** unconditional `setSearchQuery(urlSearchQuery)` on every `urlSearchQuery` change overwrote `readGovernanceFindingsQueueFacets(mode).searchQuery` before the debounced URL sync could restore it; fixed with `hadSearchQueryInUrlRef` mirroring other queue URL-sync hooks; regressions `preserves storage search query when URL has no q param` and `follows q= URL changes without a popstate event`
 
 2026-09-25 seed hunt #31 (seed→hit): reseeded ui-governance-findings-queue after findingJobView URL sync hit; proved search field mount overwrite of storage-backed query; 22 scoped governance-findings URL-sync and saved-view unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter` / `GovernanceFindingsQueueClient.clearAllFilters` — `groupByResource` stayed enabled after App Router cleared `groupBy=` without `popstate` because the URL-sync effect always reapplied `readGroupByResourcePreference()` — **hit 2026-09-26 seed hunt (seed→hit):** mirror register-filter `had*InUrlRef` for groupBy; reset to off and persist false when a prior URL had `groupBy=` and the param clears; `clearAllFilters` / `showAllFilteredFindings` call `applyGroupByResource(false)`; regressions in `use-governance-findings-filter.url-sync.test.ts`; 11 scoped filter URL-sync, clear-all, and saved-view unit tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-governance-findings-queue; proved stale groupBy after URL navigation cleared `groupBy=`; 11 scoped governance-findings filter URL-sync and clear-all unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 

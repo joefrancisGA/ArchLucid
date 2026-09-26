@@ -100,6 +100,7 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   const hadRegisterFilterInUrlRef = useRef(
     (searchParams.get("filter")?.trim().length ?? 0) > 0,
   );
+  const hadGroupByInUrlRef = useRef((searchParams.get("groupBy")?.trim().length ?? 0) > 0);
 
   useEffect(() => {
     const rawFilter = searchParams.get("filter");
@@ -130,11 +131,15 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     }
 
     const rawGroupBy = searchParams.get("groupBy");
+    const hasActiveGroupBy = (rawGroupBy?.trim().length ?? 0) > 0;
 
-    if (rawGroupBy !== null && rawGroupBy.trim().length > 0) {
+    if (hasActiveGroupBy) {
       setGroupByResource(parseGovernanceFindingsGroupByResourceFromSearch(rawGroupBy));
-    } else {
-      setGroupByResource(readGroupByResourcePreference());
+      hadGroupByInUrlRef.current = true;
+    } else if (hadGroupByInUrlRef.current) {
+      setGroupByResource(false);
+      writeGroupByResourcePreference(false);
+      hadGroupByInUrlRef.current = false;
     }
   }, [isSecureNowFindingsQueue, isWorkingMode, mode, searchParams]);
 
