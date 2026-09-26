@@ -46,7 +46,7 @@ public sealed partial class DapperTenantRepository
                              AND TrialWelcomeRunId IS NULL
                              AND TrialArchitecturePreseedFailedUtc IS NULL
                              AND TrialArchitecturePreseedAttemptCount < 5
-                             AND TrialStatus = @Active
+                             AND LTRIM(RTRIM(TrialStatus)) COLLATE Latin1_General_CI_AI = LTRIM(RTRIM(@Active))
                            ORDER BY TrialArchitecturePreseedEnqueuedUtc ASC;
                            """;
 

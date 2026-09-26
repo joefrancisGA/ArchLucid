@@ -39,7 +39,7 @@ public sealed partial class InMemoryTenantRepository
                     && t.TrialWelcomeRunId is null
                     && t.TrialArchitecturePreseedFailedUtc is null
                     && t.TrialArchitecturePreseedAttemptCount < 5
-                    && string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+                    && TrialLifecycleStatus.EqualsStatus(t.TrialStatus, TrialLifecycleStatus.Active))
                 .OrderBy(static t => t.TrialArchitecturePreseedEnqueuedUtc)
                 .Take(Math.Clamp(take, 1, 50))
                 .Select(static t => t.Id)
