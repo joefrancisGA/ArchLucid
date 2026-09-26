@@ -111,6 +111,20 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
+        if (snapshot.CoverageAssignments.Count > 0
+            && !CoverageAssignmentsMatch(snapshot.CoverageAssignments, currentResolution.CoverageAssignments))
+        {
+            items.Add(new PreFinalizeChecklistItem
+            {
+                ItemId = "coverage-assignments-changed-since-execute",
+                Title = "Coverage assignments unchanged since execute",
+                Detail =
+                    "Coverage selection or exclusion state changed after execute. Re-run agents or revert coverage acknowledgements before finalize.",
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            });
+        }
+
         return items;
     }
 
@@ -127,6 +141,35 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
                 .ToList();
 
         return Normalize(snapshotKeys).SequenceEqual(Normalize(currentKeys), StringComparer.OrdinalIgnoreCase);
+    }
+
+    internal static bool CoverageAssignmentsMatch(
+        IReadOnlyList<CommittedCoverageAssignmentSnapshot> snapshotRows,
+        IReadOnlyList<CommittedCoverageAssignmentSnapshot> currentRows) =>
+        string.Equals(
+            HashCoverageAssignments(snapshotRows),
+            HashCoverageAssignments(currentRows),
+            StringComparison.OrdinalIgnoreCase);
+
+    internal static string HashCoverageAssignments(IReadOnlyList<CommittedCoverageAssignmentSnapshot> assignments)
+    {
+        string canonical = JsonSerializer.Serialize(
+            assignments
+                .OrderBy(static row => row.PolicyPackId)
+                .ThenBy(static row => row.PolicyPackVersion, StringComparer.Ordinal)
+                .ThenBy(static row => row.CoverageType, StringComparer.Ordinal)
+                .Select(static row => new
+                {
+                    row.PolicyPackId,
+                    row.PolicyPackVersion,
+                    row.CoverageType,
+                    row.SelectionState,
+                    row.ExclusionReason,
+                    row.QualityDimension,
+                }),
+            ContractJson.Default);
+
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
 
     internal static string HashPackAssignments(IReadOnlyList<CommittedGovernancePackAssignmentSnapshot> assignments)

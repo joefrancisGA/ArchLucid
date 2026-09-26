@@ -2,6 +2,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.Resolution;
@@ -180,6 +181,47 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
 
         items.Should().ContainSingle(item =>
             item.ItemId == "compliance-rule-keys-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        CommittedCoverageAssignmentSnapshot executeCoverage = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.RecommendedButExcluded.ToString(),
+            ExclusionReason = "Operator excluded at execute",
+            QualityDimension = QualityDimension.Security.ToString(),
+            EvaluationVersion = "execute-scope-v1",
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            CoverageAssignments = [executeCoverage],
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "coverage-assignments-changed-since-execute"
             && item.Status == PreFinalizeChecklistItemStatus.Blocking
             && item.Count == 1);
     }
