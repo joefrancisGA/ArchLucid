@@ -8619,13 +8619,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 22
-- **bugs-found:** 17
+- **hunts:** 23
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-11 — ROI freshness regression used Simulator mode and tripped career-artifact PDF gate before ZIP build
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — equal-count snapshot severity tie in sponsor material findings resolver
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed→hit): reseeded application-pilots; proved equal-count snapshot/agent severity tie left decision-delta on agent Warning while deltas JSON used snapshot Error; seeded governed-coverage agent-over-count, reference-evidence receipt gate, and explainability muted-finding candidates; 28 scoped BuyerProofPack/BoardPack/decision-delta tests passed.
 
 2026-09-13 seed hunt #2443 (seed-only): reseeded application-pilots; no new hunt-ready rows.
 
@@ -8688,6 +8690,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BuyerProofPackBuilderRoiFreshnessTests` committed detail used `StructuralExecutionMode.Simulator` so `TryBuildZipAsync` threw `SponsorFirstValuePdfBlockedException` before stale ROI freshness could be asserted — **hit 2026-09-11 seed hunt #1746 (seed→hit):** test fixture now uses `StructuralExecutionMode.Real` for sendable sponsor proof; regression `TryBuildZipAsync_when_extractor_is_stale_emits_hold_freshness_in_deltas_json` passes; 22 scoped BuyerProofPack/BoardPack tests green.
 
 2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
+
+- [x] (proven) `PilotSponsorMaterialFindingsResolver` equal-count severity tie — decision-delta / semantic-support used agent findings while deltas JSON used snapshot severity after #1417 computer fix — **hit 2026-09-26 seed hunt (seed→hit):** prefer `SponsorNarrativeFindings` when equal counts and snapshot max severity rank is higher; regression `Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding` (`SponsorDecisionDeltaNoveltyResolverTests`).
+- [ ] (candidate) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations
+- [ ] (candidate) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run
+- [ ] (candidate) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths
 
 ---
 
