@@ -1,3 +1,4 @@
+using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
@@ -136,5 +137,47 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedServiceTests
                 0,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task RunSinglePassAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+
+        repository
+            .Setup(r => r.ResetStaleRunningJobsOlderThanAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { "job-canceled" });
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-canceled", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+
+        repository
+            .Setup(r => r.GetAsync("job-canceled", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BackgroundJobRow
+            {
+                JobId = "job-canceled",
+                State = nameof(BackgroundJobState.Canceled),
+            });
+
+        ServiceCollection services = new();
+        services.AddSingleton(repository.Object);
+        services.AddSingleton(notifySender.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        await BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new BackgroundJobsOptions { ProcessorVisibilityMinutes = 15 }),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
