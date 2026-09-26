@@ -22776,13 +22776,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `FindingIacStubGenerator` dropped `WithheldFindings` from enriched result JSON overlay
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed-only): reseeded application-agents; cheap-disproved consensus merge reintroducing structurally dropped services; seeded dual-model post-merge post-processor and emission-gate IaC stub candidates; 86 scoped Application.Tests.Agents tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved IaC stub enrichment overwrote enriched JSON without `WithheldFindings`; fixed `CloneResult` via `ContractJson` round-trip; 86 scoped Application.Tests.Agents tests passed.
 
@@ -22810,6 +22812,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `AgentCuratedEvidenceProposer` / `AgentResultPostExecutionEnricher` — curated evidence LLM ran for prose-only or provenance-hold findings that `AgentArchitectureFindingEmissionEnricher` later withheld — **hit 2026-09-25 seed hunt #31:** post-execution enricher ran before emission gate and `BuildUserPrompt` serialized all `result.Findings`; fixed by running `AgentArchitectureFindingEmissionEnricher` first and gating proposals on `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `EnrichAsync_skips_curated_evidence_when_findings_are_withheld_by_emission_gate`
 - [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — `CloneResult` omitted `WithheldFindings` (and other emission metadata) when upserting `EnrichedResultJson`, so `AgentResultEnrichmentMerger` replaced the base row and dropped withheld summaries on read — **hit 2026-09-26 seed hunt:** fixed by deep-cloning via `ContractJson` round-trip before mutating findings; regression `GenerateAndPersistStubsForRunAsync_preserves_withheld_findings_in_enriched_json`
+- [x] (invalid) `TopologyProposalDualModelConsensusEnricher` — consensus intersection reintroduces services removed by `AgentProposalStructuralPostProcessor` / `ApplyBriefGrounding` — **invalid 2026-09-26 seed hunt:** `TopologyProposalConsensusMerger` intersects against the already-mutated primary list; secondary-only additions cannot flow back into the merged proposal
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher` — merged topology `ProposedChanges` does not re-run `AgentProposalStructuralPostProcessor` or `CrossAgentProposalConsistencyGate` after intersection replace (enricher order in `AgentEnrichersCompositionModule`)
+- [ ] (candidate) `FindingIacStubGenerator` — post-commit stub generation gates on `HasEvidenceReferences`/`IsMuted` only, not `AgentArchitectureFindingEmissionGate.HasTypedEmission`, if withheld findings are re-hydrated into `Findings` on enrichment merge
 
 2026-09-25 seed hunt #31 (seed→hit): reseeded application-agents after muted IaC stub hit; proved curated evidence proposals for emission-withheld findings; 85 scoped Application.Tests.Agents tests passed.
 
