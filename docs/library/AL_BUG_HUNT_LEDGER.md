@@ -22790,13 +22790,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 17
-- **bugs-found:** 17
+- **hunts:** 18
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — dual-model consensus left dangling topology relationships; IaC stubs for non-emission findings
+- **last-bug:** 2026-09-26 — IaC stub enrichment dropped ProposedEvidenceJson envelope field
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `FindingIacStubGenerator` enrichment upsert dropped `ProposedEvidenceJson` (`[JsonIgnore]` envelope column) via clone/serialize and full enrichment merge replace; fixed clone carry-forward, enrichment JSON envelope fields, and `AgentResultEnrichmentMerger` base-column preservation; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`; 88 scoped Application.Tests.Agents tests passed.
 
 2026-09-26 thorough hunt (hit): proved `TopologyProposalConsensusMerger` kept relationships whose endpoints were dropped by service intersection (dual-model consensus runs after structural post-process); fixed by pruning relationships to intersected endpoint keys; regression `Merge_prunes_relationships_when_intersected_services_no_longer_declares_both_endpoints`; proved `FindingIacStubGenerator` generated stubs for prose-only findings re-hydrated in `Findings` on enrichment read; fixed with `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs`; 87 scoped Application.Tests.Agents tests passed.
 
@@ -22831,6 +22833,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TopologyProposalDualModelConsensusEnricher` — consensus intersection reintroduces services removed by `AgentProposalStructuralPostProcessor` / `ApplyBriefGrounding` — **invalid 2026-09-26 seed hunt:** `TopologyProposalConsensusMerger` intersects against the already-mutated primary list; secondary-only additions cannot flow back into the merged proposal
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — service intersection could drop endpoints while relationship intersection kept cross-endpoint edges (consensus enricher runs after structural post-process without re-filtering) — **hit 2026-09-26 thorough hunt:** prune merged relationships to declared intersected endpoint keys; regression `Merge_prunes_relationships_when_intersected_services_no_longer_declares_both_endpoints`
 - [x] (proven) `FindingIacStubGenerator` — post-commit stub generation gated on evidence/mute only, so enrichment-merge rows with emission-withheld findings in `Findings` still invoked LLM — **hit 2026-09-26 thorough hunt:** skip findings failing `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs`
+- [x] (proven) `FindingIacStubGenerator` / `AgentResultEnrichmentMerger` — IaC stub enrichment clone/serialize omitted `[JsonIgnore]` `ProposedEvidenceJson`, and full enriched JSON replace dropped the base-table envelope on read — **hit 2026-09-26 seed hunt:** carry envelope fields through clone + enrichment JSON write; preserve base envelope columns on merge; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`
+- [ ] (candidate) `AgentResultRegionMismatchEnricher` — null `AddedServices`/`AddedDatastores` throws when invoked without `AgentProposalStructuralPostProcessorEnricher` (production composite order prevents)
 
 2026-09-25 seed hunt #31 (seed→hit): reseeded application-agents after muted IaC stub hit; proved curated evidence proposals for emission-withheld findings; 85 scoped Application.Tests.Agents tests passed.
 

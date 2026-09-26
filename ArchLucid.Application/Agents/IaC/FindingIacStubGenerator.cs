@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Nodes;
 
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
@@ -103,7 +104,7 @@ public sealed class FindingIacStubGenerator(
 
         foreach (AgentResult updatedResult in updatedResults)
         {
-            string json = System.Text.Json.JsonSerializer.Serialize(updatedResult, ContractJson.Default);
+            string json = SerializeAgentResultForEnrichment(updatedResult);
             await _agentResultEnrichmentRepository
                 .UpsertEnrichedResultJsonAsync(updatedResult.ResultId, json, cancellationToken)
                 .ConfigureAwait(false);
@@ -208,6 +209,25 @@ public sealed class FindingIacStubGenerator(
         string json = System.Text.Json.JsonSerializer.Serialize(source, ContractJson.Default);
         AgentResult? copy = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
 
-        return copy ?? throw new InvalidOperationException("Clone produced null AgentResult.");
+        if (copy is null)
+            throw new InvalidOperationException("Clone produced null AgentResult.");
+
+        copy.ProposedEvidenceJson = source.ProposedEvidenceJson;
+        copy.PromptVariantKey = source.PromptVariantKey;
+
+        return copy;
+    }
+
+    private static string SerializeAgentResultForEnrichment(AgentResult result)
+    {
+        JsonObject root = System.Text.Json.JsonSerializer.SerializeToNode(result, ContractJson.Default)!.AsObject();
+
+        if (!string.IsNullOrWhiteSpace(result.ProposedEvidenceJson))
+            root["proposedEvidenceJson"] = result.ProposedEvidenceJson;
+
+        if (!string.IsNullOrWhiteSpace(result.PromptVariantKey))
+            root["promptVariantKey"] = result.PromptVariantKey;
+
+        return root.ToJsonString(ContractJson.Default);
     }
 }
