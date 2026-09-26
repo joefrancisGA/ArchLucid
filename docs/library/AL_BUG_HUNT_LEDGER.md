@@ -2847,6 +2847,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed stale reseed-script rows (same-family distinct `EvidenceRef` inserts remain allowed via `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; `CloudProvider.None` chosen rows do not match Azure/AWS via `==` so provider-conflict insert path still applies); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
+
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after role-scoped `EvidenceRef` fix; cheap-disproof closed chosen-family novel-ref vs grounded-name paths, cross-role ref parity, locked-chosen gate, and `ShouldTreatAsDuplicateByName` whitespace-ref behavior — all covered by existing regressions; no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after cross-role `EvidenceRef` hit; cheap-disproof closed stale reseed templates (distinct `EvidenceRef` with matching family+name remains intentional per `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; inventory `Chosen` with `CloudProvider.None` does not enter the same-family gate against Azure/AWS candidates); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
@@ -2859,7 +2861,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -2878,6 +2880,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Grounded `Chosen` row with same provider family and `TechnologyName` still accepted a second assumed agent row when only `EvidenceRef` differed — **hit 2026-09-26 seed hunt:** chosen-family branch only checked novel refs, not whether authoritative chosen already grounded the technology name; fixed by returning null when chosen name matches and chosen `EvidenceRef` is substantive; regression `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref`.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — two topology services sharing a `ServiceName` with distinct `agentTopologyProposal:*` refs may both insert — **cheap-disproof 2026-09-26 seed hunt:** mapper emits per-`ServiceId` refs; merge policy intentionally keeps distinct grounded refs (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`); regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`.
 - [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — chosen-family novel-ref gate consulted `EvidenceRef` collisions across roles — **hit 2026-09-26 seed hunt (seed→hit):** a datastore row sharing an `agentTopologyProposal:*` ref suppressed a compute-runtime candidate with the same ref even though `HasMatchingProposal` is role-scoped; fixed by limiting the chosen-family ref scan to `existing.Role == candidate.Role`; regression `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — same `ProviderFamily` with distinct `EvidenceRef` values dropped on second agent proposal — **cheap-disproof 2026-09-26 seed hunt:** `HasMatchingProposal` dedupes by ref and name rules but intentionally retains distinct substantive refs when technology names match (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`).
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy` — inventory `Chosen` with `CloudProvider.None` suppresses all provider-specific agent proposals via same-family gate — **cheap-disproof 2026-09-26 seed hunt:** `chosen.ProviderFamily == candidate.ProviderFamily` is false for `None` vs Azure/AWS, so `Resolve` returns the candidate on the provider-conflict path (`Resolve_inserts_assumed_on_provider_conflict`).
 
 2026-09-25 seed hunt (seed-only): reseeded technology-ledger-merge; no new hunt-ready hypotheses — evidence-ref, case/whitespace name dedupe, and chosen-family distinct-ref paths remain covered; repaired stale `Resolve_skips_duplicate_same_family_when_chosen_exists` fixture (candidate always carried topology `EvidenceRef` after `CreateCandidate` helper); 56 scoped TechnologyLedger tests passed.
 
@@ -21462,6 +21466,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor followed cross-subscription `nextLink` — **hit 2026-09-26 thorough hunt:** `@odata.nextLink` to another subscription could merge foreign policy rows; fixed with `EnsureTargetsSubscription` before advancing cursor; regression in `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`.
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — ActualCost `properties.nextLink` followed cross-subscription cursor — **hit 2026-09-26 seed hunt (seed→hit):** mis-issued cost query `nextLink` could merge another subscription's cost rows into the scanned subscription summary; fixed with `EnsureTargetsSubscription` before following `properties.nextLink`; regression in `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListBuiltInPolicyDefinitionDocumentsAsync` — built-in policy definition pagination followed cross-collection `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** `validateSubscriptionNextLink: false` path had no scope guard; mis-issued `nextLink` to subscription policy definitions could merge non-built-in rows; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression in `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListPrivateDnsZoneVirtualNetworkLinksAsync` — private DNS virtual network link pagination followed cross-zone `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** network enricher child listing had no `nextLink` scope guard; fixed with `EnsureTargetsArmRelativeListingPath`; regression in `ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVirtualNetworkPeeringsAsync` — virtual network peering pagination followed cross-vnet `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** same gap as private DNS links; regression in `ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id`.
 
 ---
 
