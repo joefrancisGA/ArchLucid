@@ -1380,5 +1380,7 @@ public sealed class PilotRunDeltaComputerTests
         deltas.SponsorNarrativeFindings.Select(static finding => finding.FindingId)
             .Should()
             .BeEquivalentTo(["snapshot-governed", "snapshot-advisory"]);
+        deltas.TopFindingId.Should().Be("snapshot-governed");
+        deltas.TopFindingSeverity.Should().Be("Critical");
     }
 }

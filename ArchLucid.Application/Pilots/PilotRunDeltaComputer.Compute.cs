@@ -74,7 +74,8 @@ public sealed partial class PilotRunDeltaComputer
         string? topFindingId = topAgentFinding?.FindingId;
         string? topFindingSeverity = topAgentFinding?.Severity.ToString();
 
-        if (findingsFromSnapshot && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
+        if ((findingsFromSnapshot || preferSnapshotMaterialFindings)
+            && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
         {
             Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(snapshotTopCandidates);
 
