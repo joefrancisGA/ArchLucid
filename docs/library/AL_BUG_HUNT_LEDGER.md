@@ -24199,11 +24199,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 24
-- **bugs-found:** 18
+- **hunts:** 25
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — detailed wizard kept pilot=0 focused scope after pilot param removed from URL
+- **last-bug:** 2026-09-26 — detailed/guided wizards kept deep-linked step after step= / intakeStep= cleared from URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24264,6 +24264,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards; proved `guidedIntakeViewAllClarificationsOpen`, `reviewsNewMoreWaysToStartOpen`, `firstPilotStandardsSelectionOpen`, and `simplifiedPilotAdvancedConfigOpen` disclosure state stayed stale after App Router navigation cleared URL params (only `popstate` listeners updated); fixed by syncing from `useSearchParams` like #3908e; regression `follows reviewsNewMoreWaysToStartOpen= URL changes without a popstate event`; 3 scoped URL-sync vitest files passed (8 tests).
 
 - [x] (proven) `useGuidedIntakeDraftWorkflow` / `ReviewsNewMoreWaysToStart` / `FirstPilotIntakeFields` / `SimplifiedPilotWizard` — disclosure open state initialized from URL but not re-synced when `searchParams` changed without `popstate` — **hit 2026-09-26 seed hunt:** add `useSearchParams`-driven `useEffect` sync for each URL-backed disclosure; regression above (view-all clarifications shares mechanism with returning job chooser #3908e).
+
+- [x] (proven) `useNewRunWizardSteps` / `useGuidedIntakeWizard` — wizard step index stayed on a deep-linked slide after App Router cleared `step=` / `intakeStep=` without `popstate` — **hit 2026-09-26 seed hunt (seed→hit):** URL sync effects ignored absent params (same class as #3908 step forward-only sync); fixed by resetting to step 0 when the param is cleared; regressions `resets to step 0 when step= is cleared without a popstate event` and `use-guided-intake-wizard.intake-step-url.test.ts`; 3 scoped step URL vitest tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards after disclosure URL sync hits; proved stale detailed/guided wizard step when step params cleared via client navigation; 3 scoped step URL vitest tests passed.
 
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 

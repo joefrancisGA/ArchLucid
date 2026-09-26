@@ -101,24 +101,25 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   );
 
   useEffect(() => {
-    if (urlStepIndex === null) {
-      return;
-    }
+    const nextStep =
+      urlStepIndex === null
+        ? 0
+        : clampWizardStepIndex(urlStepIndex, INTAKE_STEP_DEFINITIONS.length);
 
-    goToStep(clampWizardStepIndex(urlStepIndex, INTAKE_STEP_DEFINITIONS.length));
+    goToStep(nextStep);
   }, [urlStepIndex, goToStep]);
 
   useEffect(() => {
     const syncIntakeStepFromUrl = (): void => {
-      const nextStep = parseGuidedIntakeStepFromSearch(
+      const parsedStep = parseGuidedIntakeStepFromSearch(
         new URLSearchParams(readWindowLocationSearch()).get("intakeStep"),
       );
+      const nextStep =
+        parsedStep === null
+          ? 0
+          : clampWizardStepIndex(parsedStep, INTAKE_STEP_DEFINITIONS.length);
 
-      if (nextStep === null) {
-        return;
-      }
-
-      goToStep(clampWizardStepIndex(nextStep, INTAKE_STEP_DEFINITIONS.length));
+      goToStep(nextStep);
     };
 
     syncIntakeStepFromUrl();

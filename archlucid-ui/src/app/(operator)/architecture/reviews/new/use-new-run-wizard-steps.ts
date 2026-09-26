@@ -120,24 +120,21 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   }, [setStepIndex, stepDefinitions.length, syncStepToUrl]);
 
   useEffect(() => {
-    if (urlStepIndex === null) {
-      return;
-    }
+    const nextStep =
+      urlStepIndex === null ? 0 : clampWizardStepIndex(urlStepIndex, stepDefinitions.length);
 
-    goToStep(clampWizardStepIndex(urlStepIndex, stepDefinitions.length));
+    goToStep(nextStep);
   }, [urlStepIndex, goToStep, stepDefinitions.length]);
 
   useEffect(() => {
     const syncStepFromUrl = (): void => {
-      const nextStep = parseNewRunWizardStepFromSearch(
+      const parsedStep = parseNewRunWizardStepFromSearch(
         new URLSearchParams(readWindowLocationSearch()).get("step"),
       );
+      const nextStep =
+        parsedStep === null ? 0 : clampWizardStepIndex(parsedStep, stepDefinitions.length);
 
-      if (nextStep === null) {
-        return;
-      }
-
-      goToStep(clampWizardStepIndex(nextStep, stepDefinitions.length));
+      goToStep(nextStep);
     };
 
     syncStepFromUrl();
