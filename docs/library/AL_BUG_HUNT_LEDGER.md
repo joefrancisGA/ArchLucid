@@ -15984,11 +15984,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 12
-- **bugs-found:** 11
+- **hunts:** 13
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — equals/ampersand-delimited slugs false-positive constraints
+- **last-bug:** 2026-09-26 — percent/tilde-delimited slugs false-positive constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16011,6 +16011,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — at/hash-delimited product names (e.g. `field@encryption@module`, `field#encryption#module`) may false-positive phrase and standalone token constraints — **hit 2026-09-26 seed hunt:** `#1372` guarded `|`, `+`, and earlier delimiters only; `@` and `#` were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `@` and `#`; regressions in `RequestConstraintCompoundIdentifierAtHashTests`
 - [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — comma/semicolon-delimited capability slugs (e.g. `field,encryption,module`, `my;sql;server`) may false-positive phrase and standalone token constraints — **hit 2026-09-26 thorough hunt:** cheap-disproof confirmed spaced-comma natural-language lists still match (`encryption, private endpoint`); compact slug delimiters fixed by extending `IsCompoundIdentifierDelimiter` to `,` and `;` (connector must be followed immediately by alphanumeric); regressions in `RequestConstraintCompoundIdentifierCommaSemicolonTests`
 - [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — equals/ampersand-delimited product slugs (e.g. `field=encryption=module`, `my&sql&server`) may false-positive phrase and standalone token constraints — **hit 2026-09-26 thorough hunt:** cheap-disproof confirmed plain-language encryption and spaced `search & sql` still match; compact slug delimiters fixed by extending `IsCompoundIdentifierDelimiter` to `=` and `&`; regressions in `RequestConstraintCompoundIdentifierEqualsAmpersandTests`
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — percent/tilde-delimited product slugs (e.g. `field%encryption%module`, `my~sql~server`) may false-positive phrase and standalone token constraints — **hit 2026-09-26 seed hunt:** extended `IsCompoundIdentifierDelimiter` to `%` and `~`; regressions in `RequestConstraintCompoundIdentifierPercentTildeTests`
+- [ ] (candidate) `RequestConstraintTokenMatcher` — delimiter-expansion class may be saturated for common slug separators; remaining shapes likely need negation/phrase semantics rather than more `IsCompoundIdentifierDelimiter` characters
+
+2026-09-26 seed hunt (seed→hit): reseeded core-requests-constraints; proved percent/tilde compact-slug false positives; seeded delimiter-saturation candidate; 859 scoped RequestConstraint tests passed.
 
 2026-09-26 thorough hunt (hit): proved equals/ampersand compact-slug false positives; 856 scoped RequestConstraint tests passed.
 
