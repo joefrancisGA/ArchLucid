@@ -92,6 +92,27 @@ internal static class HostedAzureArmNextLinkValidator
         }
     }
 
+    public static void EnsureTargetsFactoryResource(string nextLink, string factoryResourceId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
+        ArgumentException.ThrowIfNullOrWhiteSpace(factoryResourceId);
+
+        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ADF factory listing due to an invalid nextLink.");
+        }
+
+        string normalizedFactoryResourceId = "/" + factoryResourceId.Trim().TrimStart('/');
+        string expectedPathPrefix = normalizedFactoryResourceId + "/";
+
+        if (!uri.AbsolutePath.StartsWith(expectedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ADF factory listing because nextLink targets a different factory.");
+        }
+    }
+
     public static void EnsureTargetsManagementGroup(string nextLink, string managementGroupId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
