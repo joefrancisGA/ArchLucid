@@ -933,6 +933,156 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_still_promotes_when_max_queued_tightened_to_zero_during_queue_wait()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        List<Guid> activeLeaseIds = new();
+
+        for (int index = 0; index < 2; index++)
+        {
+            Guid leaseId = Guid.NewGuid();
+            QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+                BuildAdmitRequest(leaseId, Guid.NewGuid(), $"active-{index}", maxConcurrent: 2, maxQueued: 2));
+            direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+            activeLeaseIds.Add(leaseId);
+        }
+
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 2,
+                MaxQueuedAnonymousScans = 2,
+                QueueWaitTimeoutSeconds = 5,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            inner,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-after-max-queued-tighten", CancellationToken.None);
+
+        await Task.Delay(50);
+
+        options.Concurrency.MaxQueuedAnonymousScans = 0;
+        await inner.ReleaseLeaseAsync(activeLeaseIds[0]);
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeTrue(
+            "an enqueued waiter is not evicted when MaxQueuedAnonymousScans is tightened; promote still honors refreshed max-concurrent limits");
+
+        await admission.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task WaitForAdmissionAsync_queue_timeout_frees_queue_capacity_when_abandon_noops_on_timed_out_row()
+    {
+        DateTimeOffset start = new(2026, 9, 26, 14, 0, 0, TimeSpan.Zero);
+        SteppingTimeProvider timeProvider = new(start);
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 1,
+                QueueWaitTimeoutSeconds = 2,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            inner,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            timeProvider,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Guid activeLeaseId = Guid.NewGuid();
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(
+                activeLeaseId,
+                Guid.NewGuid(),
+                "active",
+                maxConcurrent: 1,
+                maxQueued: 1,
+                utcNow: start));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-until-timeout", CancellationToken.None);
+
+        await Task.Delay(50);
+        timeProvider.Advance(TimeSpan.FromSeconds(3));
+
+        await Task.Delay(500);
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.QueueTimeout);
+
+        QuickScanConcurrencyAdmitResult followUpQueue = await inner.TryAdmitAsync(
+            BuildAdmitRequest(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "after-queue-timeout",
+                maxConcurrent: 1,
+                maxQueued: 1,
+                utcNow: timeProvider.GetUtcNow()));
+
+        followUpQueue.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.Queued,
+            "TimedOut queue rows must not pin MaxQueuedAnonymousScans after QueueTimeout cleanup");
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_still_promotes_when_safety_enabled_flips_false_during_queue_wait()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
