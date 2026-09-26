@@ -3509,13 +3509,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 41
-- **bugs-found:** 20
+- **hunts:** 42
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — representative request-run SQL referenced `r.LegacyRunStatus` without a `Runs` table alias
+- **last-bug:** 2026-09-26 — InMemory representative lookup treated NULL `LegacyRunStatus` reruns as eligible while SQL `NOT IN` excludes them
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6976 (seed→hit): reseeded representative lookup after #6975; proved `TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` InMemory path could pick newer NULL-`LegacyRunStatus` reruns with `GoldenManifestId` while SQL `NOT IN` filter drops NULL statuses, skewing sealed-manifest guard parity for legacy/migration rows; fixed with `RunRepositoryCore.MatchesRepresentativeArchitectureRequestRun`; regressions `InMemory_representative_run_id_skips_null_legacy_status_rerun_like_sql_not_in` and `SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_null_legacy_status_like_not_in_filter`; 127 scoped zone tests passed (1 SQL integration skipped).
+
+- [x] (proven) `InMemoryRunRepository.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` — NULL `LegacyRunStatus` with `GoldenManifestId` wins over older committed reruns — **hit 2026-09-26 seed hunt #6976:** SQL `LegacyRunStatus NOT IN` excludes NULL; InMemory now uses `MatchesRepresentativeArchitectureRequestRun`; regressions `InMemory_representative_run_id_skips_null_legacy_status_rerun_like_sql_not_in` and shape test `SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_null_legacy_status_like_not_in_filter`.
 
 2026-09-26 seed hunt #6975 (seed→hit): reseeded representative lookup after #6974; proved `SelectRepresentativeRunIdForArchitectureRequestInScope` used `r.LegacyRunStatus` while `FROM dbo.Runs` had no alias, breaking SQL Server execution for sealed-manifest representative reads; fixed unqualified `LegacyRunStatus` filter; regression `SelectRepresentativeRunIdForArchitectureRequestInScope_status_filter_matches_unaliased_runs_table`; 125 scoped zone tests passed (1 SQL integration skipped).
 
