@@ -65,6 +65,8 @@ docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
   mcr.microsoft.com/mssql/server:2022-latest \
   -S "127.0.0.1,1433" -U sa -P "${SA_PASSWORD}" -C -d "${DB_NAME}" -b -Q "
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
 IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = '${smoke_tenant_id}')
     INSERT INTO dbo.Tenants (Id, Name, Slug, Tier)
     VALUES ('${smoke_tenant_id}', N'k6 startup smoke tenant', N'k6-startup-smoke', N'Standard');
