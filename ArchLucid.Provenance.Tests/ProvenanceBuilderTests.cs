@@ -530,4 +530,50 @@ public sealed class ProvenanceBuilderTests
 
         graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Finding).Should().Be(1);
     }
+
+    [Fact]
+    public void Build_deduplicates_contributed_to_artifact_when_artifact_bundle_lists_duplicate_entries()
+    {
+        const string decisionId = "dec-1";
+
+        ResolvedArchitectureDecision decision = new()
+        {
+            DecisionId = decisionId,
+            Category = "c",
+            Title = "Decide",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        SynthesizedArtifact artifact = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [decisionId],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [decision],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [artifact, artifact],
+        });
+
+        graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Artifact).Should().Be(1);
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.ContributedToArtifact).Should().Be(1);
+    }
 }

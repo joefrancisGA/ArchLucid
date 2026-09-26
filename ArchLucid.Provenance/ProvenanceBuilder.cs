@@ -169,8 +169,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             }
         }
 
-        // Decisions → Artifacts
-        foreach (SynthesizedArtifact a in artifacts)
+        // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
+        foreach (SynthesizedArtifact a in artifacts
+                     .GroupBy(static artifact => artifact.ArtifactId)
+                     .Select(static group => group.First()))
         {
             string ak = $"artifact:{a.ArtifactId:N}";
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
