@@ -23559,13 +23559,15 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 10
-- **bugs-found:** 6
+- **hunts:** 11
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-10 — outcome cards omitted detail snapshot finding counts when explanation deferred
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — same-route `reviewTab` soft navigation left workspace tab state stale
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-detail-workspace; proved `useReviewDetailWorkspaceTabs` ignored `reviewTab` query changes from Next.js soft `<Link>` navigation because `activeTab` only synced on mount and `popstate`; fixed via `searchParamTab` effect; seeded legacy `Completed` status vs `completedUtc` lifecycle split candidate; 46 targeted review-detail vitest tests passed.
 
 ABQ-09 churn hotspot; review detail route tree.
 
@@ -23578,6 +23580,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailPageViewCommitted` / `resolveRunDetailReviewPackageInspectSteps` — inspect checklist keyed on deferred `findingCountDisplay` only while tab badge already falls back to detail snapshot triage counts — **hit 2026-09-08 hunt #1301 (seed→hit):** create-home inspect checklist kept findings step incomplete when `explanationSummary` null but `quickDecisionFindings` already had triage-visible rows; fixed via `resolveRunDetailFindingsReviewed` shared with tab badge fallback; regressions in `run-detail-findings-tab-badge-count.test.ts` and `run-detail-review-package-inspect-checklist.test.ts`
 - [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunts #1381/#1383/#1387/#1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount` / `resolveRunDetailFindingsReviewed`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
 - [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` / `RunDetailPageViewShell` / `buildRunDetailOutcomeCards` — `RunDetailOutcomeCardsDeferred` received raw `findingCountDisplay` while tab badge and summary strip already fell back to detail snapshot triage counts when explanation deferred — **hit 2026-09-10 seed hunt #1524:** wire outcome cards through `resolveRunDetailOutcomeCardsFindingCountDisplay`; regression `run-detail-outcome-cards-finding-count.test.ts`
+- [x] (proven) `useReviewDetailWorkspaceTabs` — same-route `reviewTab` soft navigation desyncs tab strip/panel state — **hit 2026-09-26 seed hunt:** Next.js `<Link href="...?reviewTab=findings">` updated `useSearchParams` without `popstate` while `activeTab` stayed on prior tab; fixed by syncing `activeTab` when `searchParamTab` changes; regression `use-review-detail-workspace-tabs.url-sync.test.ts`
+- [ ] (candidate) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` — `legacyRunStatus === "Completed"` with `completedUtc == null` leaves `showProgressTracker` true and Do this next on "View assessment progress" while workspace status reads review complete
 
 2026-09-25 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready hypotheses — deferred-explanation finding-count parity remains covered via `resolveRunDetailDeferredSurfaceFindingCount` / `resolveRunDetailOutcomeCardsFindingCountDisplay` on tab badges, outcome cards, policy callout, inspect checklist, and review-package summary; `RunExplanationSection` falls back to `summary.findingCount` inside deferred explanation load; 34 scoped RunDetail/reviewId unit tests passed.
 
