@@ -23393,16 +23393,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context eligibility parity and post-acquire authority lease-pin candidates; seeded stale forced-task snapshot candidate; 43 scoped ownership/orchestrator tests passed.
+
 - **id:** run-execute-ownership
 - **status:** open
 - **impact:** high
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-09 — full execute acquired ownership before no-scheduled-tasks gate
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -23422,6 +23424,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1391):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed with `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfAuthorityPipelineCompleteAsync` while selective execute re-checked authority completion before acquire (#1327); authority-complete runs held SQL lease until refused execute released it — **hit 2026-09-09 (#1392):** extended pre-acquire eligibility guard to authority-pipeline completion; regression `ExecuteRunAsync_does_not_acquire_ownership_when_authority_pipeline_is_complete`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfRunHasNoAgentWorkOrDeferredContext` while selective execute rejected zero-task runs before `AcquireAsync`; empty-task executes held SQL lease until `NoScheduledAgentTasksException` released it — **hit 2026-09-09 (#1393):** extended pre-acquire eligibility with shared `ThrowIfRunHasNoAgentWorkOrDeferredContext`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_has_no_scheduled_tasks`.
+
+- [x] (invalid) `ExecuteSelectiveRunAsync` vs `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` — deferred-context-only runs (`ContextSnapshotId` without scheduled tasks) blocked by selective task-count gate while full execute may proceed — **cheap-disproof 2026-09-26 seed hunt:** selective execute requires a resolved force list from scheduled tasks; deferred-context resume is full-execute only; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_no_scheduled_tasks_even_with_deferred_context`
+- [x] (valid-no-repro) `ExecuteSelectiveRunOwnedCoreAsync` — authority-pipeline or committed transition after `AcquireAsync` but before prep reload may hold SQL lease until `EnsureSelectiveExecuteStillEligibleAsync` throws — **cheap-disproof 2026-09-26 seed hunt:** narrow post-acquire window mirrors full execute `ExecuteRunCoreInnerAsync` authority re-check after ownership acquire; pre-acquire guards (#1327/#1392/#1393) already minimize lease pins for known refusal paths
+- [ ] (candidate) `ExecuteSelectiveRunAsync` — forced-task list frozen from first `GetByRunIdAsync` snapshot; concurrent task deletion before `ExecuteSelectiveRunOwnedCoreAsync` prep does not re-validate forced tasks against live schedule
+
+2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
 2026-09-25 seed hunt (seed-only): reseeded run-execute-ownership; no new hunt-ready hypotheses — pre-acquire eligibility (`EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync`), selective acquire-before-prep (`EnsureSelectiveExecuteStillEligibleAsync`), renewal-scope dispose-before-release, and renewal-failure execute cancellation remain covered; `SelectiveAgentExecutePlanner` rejects empty selections before acquire; 42 scoped ownership/orchestrator tests passed.
 

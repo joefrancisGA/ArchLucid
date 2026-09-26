@@ -151,6 +151,53 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
     }
 
     [Fact]
+    public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_no_scheduled_tasks_even_with_deferred_context()
+    {
+        Guid runGuid = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        string runId = runGuid.ToString("N");
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentExecutor> executor = new();
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            executor.Object,
+            Mock.Of<IAgentResultRepository>(),
+            ownership.Object,
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-selective-ownership",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+                ContextSnapshotId = Guid.Parse("13131313-1313-1313-1313-131313131313"),
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            taskRepo: taskRepo);
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<NoScheduledAgentTasksException>().WithMessage("*No tasks found*");
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never,
+            "selective execute requires scheduled tasks to resolve a force list; deferred context alone is full-execute only");
+    }
+
+    [Fact]
     public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire()
     {
         Guid runGuid = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
@@ -212,7 +259,8 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         IAgentResultRepository resultRepo,
         IRunExecuteOwnershipLeaseService ownershipLeaseService,
         RunRecord? header = null,
-        Action? onRunRecordLoad = null)
+        Action? onRunRecordLoad = null,
+        Mock<IAgentTaskRepository>? taskRepo = null)
     {
         header ??= new RunRecord
         {
@@ -250,13 +298,17 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
                 SystemName = "SelectiveOwnership",
             });
 
-        Mock<IAgentTaskRepository> taskRepo = new();
-        taskRepo
-            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new AgentTask { RunId = runId, AgentType = AgentType.Cost, TaskId = "cost-task-ownership" },
-            ]);
+        Mock<IAgentTaskRepository> resolvedTaskRepo = taskRepo ?? new Mock<IAgentTaskRepository>();
+
+        if (taskRepo is null)
+        {
+            resolvedTaskRepo
+                .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new AgentTask { RunId = runId, AgentType = AgentType.Cost, TaskId = "cost-task-ownership" },
+                ]);
+        }
 
         Mock<IRequestContentSafetyPrecheck> safety = new();
         safety
@@ -270,7 +322,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
             runRepo.Object,
             scopeProvider.Object,
             requestRepo.Object,
-            taskRepo.Object,
+            resolvedTaskRepo.Object,
             executor,
             new ArchitectureRunExecuteOrchestratorCreateArgs
             {
