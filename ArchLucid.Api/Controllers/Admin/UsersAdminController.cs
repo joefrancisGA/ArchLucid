@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Common;
@@ -50,6 +51,18 @@ public sealed class UsersAdminController(
         if (request is null)
         {
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
+
+        if (request.Message is { } inviteMessage)
+        {
+            string trimmedMessage = inviteMessage.Trim();
+
+            if (!UnicodeTextValidation.IsValidUnicodeText(trimmedMessage))
+            {
+                return this.BadRequestProblem(
+                    "Message must not contain invalid Unicode surrogate pairs.",
+                    ProblemTypes.ValidationFailed);
+            }
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

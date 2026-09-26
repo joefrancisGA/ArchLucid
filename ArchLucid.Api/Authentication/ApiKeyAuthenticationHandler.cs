@@ -147,10 +147,17 @@ public class ApiKeyAuthenticationHandler(
             if (string.IsNullOrWhiteSpace(value))
                 continue;
 
-            return value.Trim();
+            return NormalizeKeyMaterial(value);
         }
 
         return string.Empty;
+    }
+
+    private static string NormalizeKeyMaterial(string value)
+    {
+        string trimmed = value.Trim();
+
+        return trimmed.TrimStart('\uFEFF');
     }
 
     /// <summary>
@@ -203,9 +210,9 @@ public class ApiKeyAuthenticationHandler(
 
                 if (!segment.IsEmpty)
                 {
-                    string expected = segment.ToString();
+                    string expected = NormalizeKeyMaterial(segment.ToString());
 
-                    if (ConstantTimeKeyEquals(provided, expected))
+                    if (expected.Length > 0 && ConstantTimeKeyEquals(provided, expected))
                         return true;
                 }
 

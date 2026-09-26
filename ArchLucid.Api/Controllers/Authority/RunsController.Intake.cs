@@ -28,6 +28,21 @@ public sealed partial class RunsController
         return null;
     }
 
+    private IActionResult? ValidateOptionalUnicodeFreeText(string? text, string fieldName)
+    {
+        if (string.IsNullOrEmpty(text))
+            return null;
+
+        if (!UnicodeTextValidation.IsValidUnicodeText(text))
+        {
+            return this.BadRequestProblem(
+                $"{fieldName} must not contain invalid Unicode surrogate pairs.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     private IActionResult MapIntakeParseResult(ArchitectureRequestIntakeParseResult result) => result.Outcome switch
     {
         ArchitectureRequestIntakeOutcome.Success => Ok(result.Request!),
