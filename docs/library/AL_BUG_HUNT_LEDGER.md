@@ -23088,11 +23088,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 26
-- **bugs-found:** 21
+- **hunts:** 27
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — execute-baseline drift ignored coverage assignment changes
+- **last-bug:** 2026-09-26 — execute-baseline drift ignored governance conflict count changes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23148,6 +23148,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after compliance-key drift fix; proved `PreFinalizeExecuteBaselineDriftEvaluator` ignored execute-time `CoverageAssignments` when pack-assignment hash unchanged (e.g. coverage acknowledgement or selection state drift); fixed with canonical coverage snapshot hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`; 8 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `CoverageAssignments` not compared before finalize — **hit 2026-09-26 seed hunt:** finalize `ResolveAsync` omits run coverage acknowledgements while execute snapshot freezes coverage rows; fixed with `HashCoverageAssignments` parity when execute captured coverage; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`.
+
+2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after coverage drift fix; proved execute snapshot `ConflictCount` not compared at finalize when effective governance conflicts changed without pack-assignment hash drift; fixed with `governance-conflict-count-changed-since-execute` checklist item; regression `EvaluateAsync_adds_blocking_item_when_governance_conflict_count_drifts`; 9 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
+
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `ConflictCount` not compared before finalize — **hit 2026-09-26 seed hunt:** `ExecuteTimeGovernanceScopeCaptureService` records `resolution.ConflictCount` at execute but drift evaluator ignored changes before finalize; regression `EvaluateAsync_adds_blocking_item_when_governance_conflict_count_drifts`.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
