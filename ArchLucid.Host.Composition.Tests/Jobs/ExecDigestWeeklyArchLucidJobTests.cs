@@ -2,8 +2,10 @@ using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -55,6 +57,8 @@ public sealed class ExecDigestWeeklyArchLucidJobTests
         services.AddSingleton(Mock.Of<ITenantTrialEmailContactLookup>());
         services.AddSingleton(Mock.Of<IExecDigestUnsubscribeTokenFactory>());
         services.AddSingleton(Mock.Of<IExecDigestSponsorDeepLinkTokenFactory>());
+        services.AddSingleton(Mock.Of<IAuthorityQueryService>());
+        services.AddSingleton(Mock.Of<IManifestHashService>());
         services.AddSingleton(Mock.Of<IOptionsMonitor<EmailNotificationOptions>>());
         services.AddScoped<ExecDigestWeeklyDeliveryScanner>();
         services.AddSingleton<ILogger<ExecDigestWeeklyDeliveryScanner>>(
