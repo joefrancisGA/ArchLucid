@@ -19,6 +19,12 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
         string ClusterId,
         string Label,
         string VnetNodeId,
+        IReadOnlyList<DiagramNode> Nodes,
+        IReadOnlyList<SubnetClusterPlan> SubnetClusters);
+
+    public sealed record SubnetClusterPlan(
+        string ClusterId,
+        string Label,
         IReadOnlyList<DiagramNode> Nodes);
 
     public static IReadOnlyList<ClusterPlan> Plan(DiagramAst ast)
@@ -120,9 +126,52 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
                 $"vnet_{GraphvizIdEscaper.SanitizeClusterId(vnetNodeId)}",
                 vnet.Label,
                 vnetNodeId,
-                members));
+                members,
+                PlanSubnetClusters(ast, vnetNodeId, members)));
         }
 
         return plans;
+    }
+
+    private static IReadOnlyList<SubnetClusterPlan> PlanSubnetClusters(
+        DiagramAst ast,
+        string vnetNodeId,
+        IReadOnlyList<DiagramNode> vnetMembers)
+    {
+        HashSet<string> memberIds = vnetMembers
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+        List<SubnetClusterPlan> plans = [];
+
+        foreach (DiagramNode subnet in vnetMembers.Where(IsSubnet))
+        {
+            List<DiagramNode> subnetMembers = vnetMembers
+                .Where(node => string.Equals(node.NodeId, subnet.NodeId, StringComparison.Ordinal)
+                               || ast.Edges.Any(edge =>
+                                   string.Equals(edge.ToNodeId, subnet.NodeId, StringComparison.Ordinal)
+                                   && memberIds.Contains(edge.FromNodeId)
+                                   && string.Equals(edge.FromNodeId, node.NodeId, StringComparison.Ordinal)
+                                   && DiagramForestVnetMembership.IsCitedPlacementEdge(edge)))
+                .ToList();
+
+            if (subnetMembers.Count < 2)
+            {
+                continue;
+            }
+
+            plans.Add(new SubnetClusterPlan(
+                $"subnet_{GraphvizIdEscaper.SanitizeClusterId(vnetNodeId)}_{GraphvizIdEscaper.SanitizeClusterId(subnet.NodeId)}",
+                subnet.Label,
+                subnetMembers));
+        }
+
+        return plans;
+    }
+
+    private static bool IsSubnet(DiagramNode node)
+    {
+        return (node.ArmResourceType ?? string.Empty).Contains(
+            "Microsoft.Network/virtualNetworks/subnets",
+            StringComparison.OrdinalIgnoreCase);
     }
 }

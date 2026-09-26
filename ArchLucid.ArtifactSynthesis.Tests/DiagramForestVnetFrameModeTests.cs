@@ -86,6 +86,31 @@ public sealed class DiagramForestVnetFrameModeTests
         svg.ToString().Should().NotContain("outside-vnet");
     }
 
+    [Fact]
+    public void Render_network_mode_nests_distinct_subnets_inside_vnet()
+    {
+        XDocument svg = RenderSvg(new DiagramAst
+        {
+            Title = "Azure inventory (Network)",
+            Nodes =
+            [
+                Node("vnet", "app-vnet", "Microsoft.Network/virtualNetworks", "rg-app"),
+                Node("subnet-a", "subnet-a", "Microsoft.Network/virtualNetworks/subnets", "rg-app"),
+                Node("subnet-b", "subnet-b", "Microsoft.Network/virtualNetworks/subnets", "rg-app"),
+                Node("vm-a", "vm-a", "Microsoft.Compute/virtualMachines", "rg-app"),
+                Node("vm-b", "vm-b", "Microsoft.Compute/virtualMachines", "rg-app"),
+            ],
+            Edges =
+            [
+                Placement("vm-a", "subnet-a"),
+                Placement("vm-b", "subnet-b"),
+            ],
+        });
+
+        svg.Descendants().Count(element => element.Attribute("class")?.Value == "vnet-frame").Should().Be(1);
+        svg.Descendants().Count(element => element.Attribute("class")?.Value == "subnet-frame").Should().Be(2);
+    }
+
     private XDocument Render(DiagramMode mode, string workloadId, string armType)
     {
         return RenderSvg(new DiagramAst
@@ -132,6 +157,17 @@ public sealed class DiagramForestVnetFrameModeTests
             ArmResourceId = $"/subscriptions/s/resourceGroups/{resourceGroup}/providers/{armType}/{nodeId}",
             ArmResourceGroup = resourceGroup,
             SubgraphId = subgraphId,
+        };
+    }
+
+    private static DiagramEdge Placement(string fromNodeId, string toNodeId)
+    {
+        return new DiagramEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            Label = "in",
+            InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
         };
     }
 }
