@@ -85,6 +85,28 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_does_not_stamp_public_api_substring_in_republic_as_interface()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The republic api gateway routes northbound traffic.",
+            "src-republic-api");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Interface
+            && element.Name.Contains("Public endpoint", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "CARTOON rendering service batches frames overnight.",
+            "src-cartoon-rto");
+
+        elements.Should().NotContain(element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+    }
+
+    [Fact]
     public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(

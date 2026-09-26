@@ -146,7 +146,25 @@ public sealed partial class DifficultyBasedExtractionRouter
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {
-        return needles.Any(needle => sourceText.Contains(needle, StringComparison.OrdinalIgnoreCase));
+        return needles.Any(needle => ContainsHumanReviewMarker(sourceText, needle));
+    }
+
+    private static bool ContainsHumanReviewMarker(string sourceText, string marker)
+    {
+        if (FindBoundedMarkerIndex(sourceText, marker, 0) >= 0)
+        {
+            return true;
+        }
+
+        if (!marker.Contains(' ')
+            && !marker.Contains('-')
+            && !marker.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            && FindBoundedMarkerIndex(sourceText, marker + "s", 0) >= 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     [GeneratedRegex(@"\bcontradict(?:s|ed|ing|ion)?\b", RegexOptions.IgnoreCase)]

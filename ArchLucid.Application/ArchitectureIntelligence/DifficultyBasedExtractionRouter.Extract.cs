@@ -45,8 +45,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 InferLifecycleScopeForIndex(sourceText, match.Index)));
         }
 
-        if (sourceText.Contains("RTO", StringComparison.OrdinalIgnoreCase)
-            || sourceText.Contains("RPO", StringComparison.OrdinalIgnoreCase))
+        if (ContainsTokenMarker(sourceText, "RTO")
+            || ContainsTokenMarker(sourceText, "RPO"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.RecoveryObjective,
@@ -83,8 +83,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Monthly cost ceiling extracted from source text."));
         }
 
-        if (sourceText.Contains("cost driver", StringComparison.OrdinalIgnoreCase)
-            || sourceText.Contains("primary cost", StringComparison.OrdinalIgnoreCase))
+        if (ContainsPhraseMarker(sourceText, "cost driver")
+            || ContainsPhraseMarker(sourceText, "primary cost"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.CostDriver,
@@ -106,8 +106,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Trust boundary mention detected."));
         }
 
-        if (sourceText.Contains("public endpoint", StringComparison.OrdinalIgnoreCase)
-            || sourceText.Contains("public api", StringComparison.OrdinalIgnoreCase))
+        if (ContainsPhraseMarker(sourceText, "public endpoint")
+            || ContainsPhraseMarker(sourceText, "public api"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.Interface,
@@ -118,8 +118,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Public endpoint mention detected."));
         }
 
-        if (sourceText.Contains("owner", StringComparison.OrdinalIgnoreCase)
-            && sourceText.Contains("unowned", StringComparison.OrdinalIgnoreCase))
+        if (ContainsTokenMarker(sourceText, "owner")
+            && ContainsTokenMarker(sourceText, "unowned"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.OperationalOwnership,
@@ -154,7 +154,7 @@ public sealed partial class DifficultyBasedExtractionRouter
                 notes));
         }
 
-        if (sourceText.Contains("backup", StringComparison.OrdinalIgnoreCase)
+        if (ContainsTokenMarker(sourceText, "backup")
             && elements.All(element =>
                 !element.Name.Contains("backup", StringComparison.OrdinalIgnoreCase)))
         {
@@ -167,8 +167,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Backup schedule mention detected."));
         }
 
-        if (sourceText.Contains("trade-off", StringComparison.OrdinalIgnoreCase)
-            || sourceText.Contains("trade off", StringComparison.OrdinalIgnoreCase))
+        if (ContainsTokenMarker(sourceText, "trade-off")
+            || ContainsPhraseMarker(sourceText, "trade off"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.TradeOff,
@@ -179,7 +179,7 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Trade-off marker detected."));
         }
 
-        if (sourceText.Contains("single-region", StringComparison.OrdinalIgnoreCase))
+        if (ContainsTokenMarker(sourceText, "single-region"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.Decision,
