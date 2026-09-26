@@ -20,7 +20,6 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   }
 
   parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
 
   return parts.join(" · ");
 }
