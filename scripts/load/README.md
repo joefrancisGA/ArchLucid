@@ -74,3 +74,30 @@ Full runbook: `docs/architecture/SCALE_MICRO_DRILL.md`.
 ## CI
 
 The workflow `.github/workflows/load-test.yml` runs on **manual** `workflow_dispatch` against Compose `full-stack` with fixed runner resources (see workflow). It uploads a summary snippet to the job log; copy p50/p95/p99 into `docs/LOAD_TEST_BASELINE.md` after each formal baseline run.
+
+## SecureNow synthetic multi-tenant read envelope
+
+Provision at least two disposable, distinct tenants with seeded snapshots and
+ranked paths. Supply `SECURENOW_TEST_SCOPES_JSON` as an array of objects with
+`tenantId`, `workspaceId`, `projectId`, `snapshotId`, and `apiKey`. Keep that
+secret-bearing input outside the repository and evidence files. Run:
+
+```bash
+k6 run scripts/load/securenow-multitenant-read.js
+```
+
+The script emits `securenow-multitenant-k6.json`. Create a separate metadata JSON
+with `profile: "synthetic-multitenant"`, `tenantCount`, `gitSha`,
+`environment`, and `workload: "scripts/load/securenow-multitenant-read.js"`.
+Evaluate the run without writing credentials into the report:
+
+```bash
+python3 scripts/ci/evaluate_securenow_scale_run.py \
+  --k6-summary securenow-multitenant-k6.json \
+  --run-metadata run-metadata.json --json-out scale-verdict.json
+```
+
+Only HTTP 200 responses count as successful checks. The evaluator requires
+complete metrics, passing thresholds, and at least two declared tenants.
+It labels the result as synthetic read evidence, not a production SLA or proof
+of ingestion/write throughput.
