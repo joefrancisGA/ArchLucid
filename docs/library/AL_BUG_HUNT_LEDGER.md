@@ -3139,13 +3139,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 37
-- **bugs-found:** 21
+- **hunts:** 38
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — presentation two-dot leader and katakana middle-dot homoglyphs evaded return-path guard
+- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+- [x] (proven) `AuthSignInReturnPathGuard.ContainsAtSignInPath` — accepted FULLWIDTH COMMERCIAL AT (`U+FF20`) and SMALL COMMERCIAL AT (`U+FE6B`) in the path portion — **hit 2026-09-26 seed hunt (seed→hit):** only ASCII `@` was checked; userinfo-shaped open redirects like `/user＠evil.example/phish` passed `TryNormalize`; fixed with `IsAtSignHomoglyph`; regression `TryNormalize_rejects_fullwidth_commercial_at_userinfo_homoglyphs`; mirrored in UI `isSafeReturnPath`.
+
+2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved commercial-at homoglyph userinfo bypass; 136 scoped AuthSignInReturnPathGuard tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved format-character-split dot segments and re-ran BMP NFKC single-char bypass scan; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 

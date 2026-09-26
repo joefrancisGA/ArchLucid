@@ -201,8 +201,22 @@ public static class AuthSignInReturnPathGuard
     {
         ReadOnlySpan<char> pathOnly = GetPathWithoutQueryOrFragment(candidate);
 
-        return pathOnly.IndexOf('@') >= 0;
+        foreach (char ch in pathOnly)
+        {
+            if (IsAtSignHomoglyph(ch))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
+
+    // Browsers may normalize these to "@" and treat the path as userinfo-shaped open redirects.
+    private static bool IsAtSignHomoglyph(char ch) =>
+        ch == '@'
+        || ch == '\uFF20' // ＠ FULLWIDTH COMMERCIAL AT
+        || ch == '\uFE6B'; // ﹫ SMALL COMMERCIAL AT
 
     private static ReadOnlySpan<char> GetPathWithoutQueryOrFragment(string candidate)
     {

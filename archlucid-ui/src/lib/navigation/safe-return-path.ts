@@ -136,8 +136,20 @@ function pathWithoutQueryOrFragment(path: string): string {
   return path.slice(0, endIndex);
 }
 
+function isAtSignHomoglyph(ch: string): boolean {
+  const code = ch.codePointAt(0);
+
+  return code === 0x40 || code === 0xff20 || code === 0xfe6b;
+}
+
 function containsAtSignInPath(path: string): boolean {
-  return pathWithoutQueryOrFragment(path).includes("@");
+  for (const ch of pathWithoutQueryOrFragment(path)) {
+    if (isAtSignHomoglyph(ch)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function containsDotDotSegment(path: string): boolean {
