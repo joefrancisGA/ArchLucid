@@ -16,6 +16,10 @@ vi.mock("@/components/architecture/ArchitectureDraftStructuredBriefFields", () =
   ArchitectureDraftStructuredBriefFields: () => <div data-testid="architecture-draft-structured-brief-stub" />,
 }));
 
+vi.mock("@/components/architecture/ArchitectureDraftRequirementsUploadPanel", () => ({
+  ArchitectureDraftRequirementsUploadPanel: () => <div data-testid="architecture-draft-requirements-upload-stub" />,
+}));
+
 function renderFields(overview: string): void {
   render(
     <ArchitectureDraftFormFields
