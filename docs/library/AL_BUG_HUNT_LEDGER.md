@@ -23879,13 +23879,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — buyer-polished technical disclosure URL sync omitted hub-resolved snapshotId when URL had no snapshotId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed-only): reseeded ui-infra-resource-hub; cheap-disproof closed explorer `workQueue` loss on tab-bar navigation and audit scope chip vs snapshot/runId parity class; no new hunt-ready rows; 26 scoped ResourceHubClient unit tests passed.
+
+- [x] (valid-no-repro) `ResourceHubClient.setActiveTab` / `auditScopeChipHref` — explorer `workQueue` param dropped on tab switch or audit scope chip while snapshot/runId are pinned — **cheap-disproof 2026-09-26 seed hunt:** `sanitizeResourceHubQueryForTab` retains `workQueue`; chip patch forwards `workQueue`; regressions `preserves explorer workQueue when switching hub tabs from the tab bar` and `preserves explorer workQueue on audit scope chip href`.
 
 2026-09-26 seed hunt (seed-only): reseeded ui-infra-resource-hub after snapshot/runId parity fixes; cheap-disproof closed `switchActiveAuditControl` inline picker vs tab-bar/chip parity; no new hunt-ready rows; 24 scoped ResourceHubClient unit tests passed.
 
