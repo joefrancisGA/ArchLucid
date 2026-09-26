@@ -28,20 +28,20 @@ export const INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM = "showTrivialComponen
 export const INFRA_DIAGRAMS_DEFAULT_MODE = "executive";
 
 export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; readonly label: string }[] = [
-  { value: "executive", label: "Executive" },
-  { value: "architecture", label: "Architecture" },
-  { value: "network", label: "Network" },
-  { value: "security", label: "Security" },
-  { value: "businessContinuity", label: "Business continuity" },
-  { value: "identity", label: "Identity" },
+  { value: "executive", label: "Executive — the sponsor view" },
+  { value: "architecture", label: "Architecture — how parts fit" },
+  { value: "network", label: "Network — what can reach what" },
+  { value: "security", label: "Security — where controls sit" },
+  { value: "businessContinuity", label: "Business continuity — what can be restored" },
+  { value: "identity", label: "Identity — who can act" },
   { value: "data", label: "Data category" },
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
   { value: "avd", label: "Azure Virtual Desktop" },
-  { value: "full", label: "Full subscription" },
-  { value: "resourceGroup", label: "Pick a Resource Group" },
-  { value: "selectedResources", label: "Selected resources" },
-  { value: "dependencyNeighborhood", label: "Dependency neighborhood" },
+  { value: "full", label: "Full subscription — every resource in scope" },
+  { value: "resourceGroup", label: "One resource group" },
+  { value: "selectedResources", label: "Resources you picked" },
+  { value: "dependencyNeighborhood", label: "What depends on one resource" },
 ];
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));

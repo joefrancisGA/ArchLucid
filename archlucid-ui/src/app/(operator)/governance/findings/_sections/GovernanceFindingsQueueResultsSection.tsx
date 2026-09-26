@@ -41,7 +41,10 @@ export function GovernanceFindingsQueueResultsSection(
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findings…</p>
       ) : null}
 
-      {!props.loading && props.rows.length > 0 && props.displayedRows.length === 0 ? (
+      {!props.loading
+      && props.rows.length > 0
+      && props.displayedRows.length === 0
+      && props.activeFiltersSummary !== null ? (
         <EnterpriseCompactEmptyState
           {...props.filterNoMatchPreset}
           description={

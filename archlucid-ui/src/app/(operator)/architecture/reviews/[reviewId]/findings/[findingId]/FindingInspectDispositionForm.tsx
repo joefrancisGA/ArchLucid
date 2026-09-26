@@ -45,6 +45,14 @@ const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "RejectedAsNotApplicable",
 ];
 
+const DISPOSITION_LABELS: Partial<Record<FindingDispositionKind, string>> = {
+  Accepted: "Accept the risk",
+  Deferred: "Decide later",
+  NeedsEvidence: "Need more evidence",
+  Remediated: "Change is done",
+  RejectedAsNotApplicable: "Does not apply",
+};
+
 export type FindingInspectDispositionFormProps = Pick<
   FindingInspectDispositionControlsViewModel,
   | "findingId"
@@ -252,7 +260,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
           >
             {DISPOSITION_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {option}
+                {DISPOSITION_LABELS[option] ?? option}
               </option>
             ))}
           </select>

@@ -72,7 +72,10 @@ export function RemediationFactoryRankedPathsTable(props: {
             <EnterpriseTableHeaderCell>What this means</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Score</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
+            </EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>

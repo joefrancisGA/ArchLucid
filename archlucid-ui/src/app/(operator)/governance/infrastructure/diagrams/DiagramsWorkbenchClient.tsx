@@ -747,6 +747,8 @@ export function DiagramsWorkbenchClient() {
     selectedMode,
     appliedSeedNodeId,
   );
+  const selectedResourcesAwaitingSeed =
+    selectedMode === "selectedResources" && appliedSeedNodeId.trim().length === 0;
   const layoutSvg = renderResult?.layoutSvg ?? null;
   const paintDiagramCanvas = shouldPaintInfraDiagramsCanvas({
     mermaidSource,
@@ -2435,6 +2437,10 @@ export function DiagramsWorkbenchClient() {
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}
           testId="infra-diagrams-type-prompt"
         />
+      ) : selectedResourcesAwaitingSeed ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-selected-resources-seed-prompt">
+          Choose a resource to draw this diagram.
+        </p>
       ) : dependencyNeighborhoodAwaitingSeed ? (
         <>
           {loadingSeedCatalog ? (
