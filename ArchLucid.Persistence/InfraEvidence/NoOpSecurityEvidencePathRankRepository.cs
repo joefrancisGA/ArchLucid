@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -11,10 +12,7 @@ public sealed class NoOpSecurityEvidencePathRankRepository : ISecurityEvidencePa
         => Task.FromResult<SecurityEvidencePathRankRecord?>(null);
 
     public Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
 

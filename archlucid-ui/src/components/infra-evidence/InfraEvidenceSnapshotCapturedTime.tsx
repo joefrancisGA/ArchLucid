@@ -3,7 +3,6 @@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import {
-  formatInfraEvidenceSnapshotCapturedTimeTitle,
   formatInfraEvidenceSnapshotCapturedUtcLabel,
   resolveInfraEvidenceSnapshotCapturedTimeIso,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-captured-time";
@@ -34,7 +33,6 @@ export function InfraEvidenceSnapshotCapturedTime(props: {
   return (
     <time
       dateTime={dateTimeAttribute ?? undefined}
-      title={formatInfraEvidenceSnapshotCapturedTimeTitle(props.capturedUtc, ianaTimeZoneId)}
       className={cn(props.className, OPERATOR_TYPOGRAPHY.helper)}
       data-testid={props.testId}
     >

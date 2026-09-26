@@ -93,10 +93,7 @@ public sealed class CutPointAnalysisEngineTests
             => Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(([], 0));
 
         public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
     }
@@ -110,10 +107,7 @@ public sealed class CutPointAnalysisEngineTests
             => Task.FromResult<SecurityEvidencePathRankRecord?>(null);
 
         public Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
 
@@ -160,10 +154,7 @@ public sealed class CutPointAnalysisEngineTests
         } = [];
 
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
-            Guid tenantId,
-            Guid workspaceId,
-            Guid projectId,
-            Guid snapshotId,
+            ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
 

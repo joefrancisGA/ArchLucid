@@ -299,6 +299,5 @@ export function executiveMayAccessRenderResponse(): InfraEvidenceMermaidRenderRe
     fallbackArtifacts: [],
     collapseReport: null,
     completenessWarnings: [],
-    collapseReport: null,
   };
 }

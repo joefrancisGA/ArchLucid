@@ -5,10 +5,7 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public interface ISecurityEvidenceCutPointRepository
 {
     Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdAsync(

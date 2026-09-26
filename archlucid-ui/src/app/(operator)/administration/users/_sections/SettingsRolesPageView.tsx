@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -38,12 +38,16 @@ import {
 import {
   parseSettingsRolesMemberRoleFromSearch,
   parseSettingsRolesMemberStatusFromSearch,
+  SETTINGS_ROLES_MEMBER_ROLE_PARAM,
+  SETTINGS_ROLES_MEMBER_STATUS_PARAM,
+  type SettingsRolesMemberStatusFilter,
 } from "@/lib/administration/settings-roles-member-filters-url";
 import {
   parseSettingsUsersInviteOpenFromSearch,
   settingsUsersInviteHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-url";
-import { commitHrefIfChanged, readWindowLocationSearch, replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import type { ArchLucidAppRole } from "@/lib/current-principal";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -94,6 +98,20 @@ import { SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/settings-roles-s
 
 const settingsUsersInviteAutoOpenAttempted = new Set<string>();
 
+function readSettingsRolesMemberFiltersFromUrl(): {
+  readonly activeMemberRole: ArchLucidAppRole | null;
+  readonly activeMemberStatus: SettingsRolesMemberStatusFilter | null;
+  readonly currentSearch: string;
+} {
+  const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+  return {
+    activeMemberRole: parseSettingsRolesMemberRoleFromSearch(params.get(SETTINGS_ROLES_MEMBER_ROLE_PARAM)),
+    activeMemberStatus: parseSettingsRolesMemberStatusFromSearch(params.get(SETTINGS_ROLES_MEMBER_STATUS_PARAM)),
+    currentSearch: params.toString(),
+  };
+}
+
 type Props = {
   readonly model: SettingsRolesPageViewModel;
 };
@@ -101,27 +119,25 @@ type Props = {
 export function SettingsRolesPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const inviteEmailInputRef = useRef<HTMLInputElement | null>(null);
   const canManageApiKeys =
     isApiKeysSettingsSurfaceEnabled() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
   const hubPathname = settingsUsersNavigationPathname(pathname);
-  const urlTab = settingsUsersTabFromLocation(pathname, searchParams.get("tab"), canManageApiKeys);
-  const activeMemberRole = parseSettingsRolesMemberRoleFromSearch(searchParams.get("role"));
-  const activeMemberStatus = parseSettingsRolesMemberStatusFromSearch(searchParams.get("status"));
-  const urlInviteOpen = parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite"));
-  const currentSearch = searchParams.toString();
-  const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(urlTab);
+  const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(() =>
+    settingsUsersTabFromLocation(hubPathname, null, canManageApiKeys),
+  );
+  const [activeMemberRole, setActiveMemberRoleState] = useState<ArchLucidAppRole | null>(null);
+  const [activeMemberStatus, setActiveMemberStatusState] = useState<SettingsRolesMemberStatusFilter | null>(null);
+  const [currentSearch, setCurrentSearchState] = useState("");
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
   const [seededInvitations, setSeededInvitations] = useState<AdminUserInvitationRow[]>([]);
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
-  const [inviteSectionOpen, setInviteSectionOpenState] = useState(urlInviteOpen);
-  const inviteSectionOpenRef = useRef(urlInviteOpen);
+  const [inviteSectionOpen, setInviteSectionOpenState] = useState(false);
+  const inviteSectionOpenRef = useRef(false);
   const rolesTabBuyerPolished = buyerPolishedShell && activeTab === "roles";
   const usersTabBuyerPolished = buyerPolishedShell && activeTab === "users";
   const buyerPolishedMutationTab = rolesTabBuyerPolished || usersTabBuyerPolished;
@@ -190,6 +206,25 @@ export function SettingsRolesPageView(props: Props) {
     }
 
     setPendingInvitationCount(count);
+  }, []);
+
+  useEffect(() => {
+    const syncMemberFiltersFromUrl = (): void => {
+      const next = readSettingsRolesMemberFiltersFromUrl();
+
+      setActiveMemberRoleState((current) => (current === next.activeMemberRole ? current : next.activeMemberRole));
+      setActiveMemberStatusState((current) =>
+        current === next.activeMemberStatus ? current : next.activeMemberStatus,
+      );
+      setCurrentSearchState((current) => (current === next.currentSearch ? current : next.currentSearch));
+    };
+
+    syncMemberFiltersFromUrl();
+    window.addEventListener("popstate", syncMemberFiltersFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncMemberFiltersFromUrl);
+    };
   }, []);
 
   useEffect(() => {
@@ -295,7 +330,7 @@ export function SettingsRolesPageView(props: Props) {
   function openPrincipal(principalId: string): void {
     writeSettingsPrincipalLastViewedId("user", principalId);
     setActiveTab("users");
-    replaceIfHrefChanged(router, SETTINGS_USERS_USERS_TAB_PATH);
+    commitHrefIfChanged(SETTINGS_USERS_USERS_TAB_PATH, { notify: false });
     window.setTimeout(() => {
       document
         .querySelector(`[data-principal-id="${CSS.escape(principalId)}"]`)

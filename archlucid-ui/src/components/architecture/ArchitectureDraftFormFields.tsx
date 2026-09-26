@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import { cn } from "@/lib/utils";
 
 import { ArchitectureDraftOverviewRewritePanel } from "@/components/architecture/ArchitectureDraftOverviewRewritePanel";
+import { ArchitectureDraftRequirementsUploadPanel } from "@/components/architecture/ArchitectureDraftRequirementsUploadPanel";
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { useArchitectureDraftRequirementsImport } from "@/hooks/use-architecture-draft-requirements-import";
 import { WorkspaceSystemNameAvailabilityFeedback } from "@/components/intake/WorkspaceSystemNameAvailabilityFeedback";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { Input } from "@/components/ui/input";
@@ -72,6 +74,17 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
     systemNameAvailability.conflictMessage !== null;
   const overviewInvalid = markInvalid && intentTrimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
   const outcomeInvalid = markInvalid && outcomeTrimmedLength < MIN_OUTCOME_CHARS;
+  const handleRequirementsImportOverview = useCallback(
+    (nextOverview: string) => {
+      props.onFieldsChange((fields) => ({ ...fields, freeTextIntent: nextOverview }));
+    },
+    [props.onFieldsChange],
+  );
+  const requirementsImport = useArchitectureDraftRequirementsImport({
+    disabled: props.disabled === true,
+    currentOverview: props.fields.freeTextIntent,
+    onOverviewChange: handleRequirementsImportOverview,
+  });
 
   return (
     <div className="space-y-6" data-testid="architecture-draft-form-fields">
@@ -113,11 +126,18 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
             props.onFieldsChange((fields) => ({ ...fields, freeTextIntent: event.target.value }));
           }}
           rows={4}
-          disabled={props.disabled === true}
+          disabled={props.disabled === true || requirementsImport.importing}
           placeholder={GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER}
           data-testid="architecture-draft-intent"
           aria-required
           aria-invalid={overviewInvalid}
+        />
+        <ArchitectureDraftRequirementsUploadPanel
+          disabled={props.disabled === true}
+          importing={requirementsImport.importing}
+          importError={requirementsImport.importError}
+          statusMessage={requirementsImport.statusMessage}
+          onFilesSelected={requirementsImport.onRequirementsFilesSelected}
         />
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           {guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)}

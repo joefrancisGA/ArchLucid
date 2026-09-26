@@ -107,6 +107,7 @@
         "src/testing",
         "src/types",
         "src/app/api",
+        "src/app/layout.metadata.test.ts",
         "src/app/not-found.test.tsx",
         "scripts",
         "src/next.config.*.test.ts"

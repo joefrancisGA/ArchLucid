@@ -16,10 +16,7 @@ public interface ISecurityEvidencePathRankRepository
         TryGetRankAsync(scope.TenantId, pathId, cancellationToken);
 
     Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid snapshotId,
+        ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default);
 
     Task ReplaceRanksForSnapshotAsync(
