@@ -87,7 +87,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.UpdateComparisonRecordRequest bodyModel = new() { Label = label, Tags = tags?.ToList() };
-            Gen.Body35? body = MapToOpenApiRequestBody<Gen.Body35>(bodyModel, ContractEnumAwareJson);
+            Gen.Body36? body = MapToOpenApiRequestBody<Gen.Body36>(bodyModel, ContractEnumAwareJson);
 
             await _api.ComparisonsPATCHAsync(comparisonRecordId, null, body, ct);
 

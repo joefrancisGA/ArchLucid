@@ -23,7 +23,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.Body51? body = MapToOpenApiRequestBody<Gen.Body51>(MapToGenerated(request), GenNumericEnumBridgeJson);
+            Gen.Body52? body = MapToOpenApiRequestBody<Gen.Body52>(MapToGenerated(request), GenNumericEnumBridgeJson);
 
             if (body is null)
                 return CreateRunResult.Fail(null, "Invalid architecture request payload.");
