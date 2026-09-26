@@ -51,7 +51,7 @@ export function ArchitectureDraftRequirementsUploadPanel(
         </p>
       ) : null}
 
-      {importError !== null && importError.length > 0 ? (
+      {(importError ?? "").length > 0 ? (
         <p
           className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_FORM_FIELD_HELPER_CLASS)}
           role="alert"
