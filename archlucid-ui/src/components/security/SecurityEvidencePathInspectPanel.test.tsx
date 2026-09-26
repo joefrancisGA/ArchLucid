@@ -264,6 +264,105 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
   });
 
+  it("collapses multiple Not cited recommended-action lines into one summary", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: null,
+          verify: null,
+          architectSentence: null,
+        },
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel("finding-1");
+
+    expect(screen.getByTestId("security-evidence-path-recommended-action-not-cited-summary")).toHaveTextContent(
+      "Not cited: Problem, Evidence, Consequence, Recommended change, Owner, How to check.",
+    );
+    expect(screen.queryAllByText("Not cited.")).toHaveLength(0);
+  });
+
+  it("links hop resource evidence when cloudResourceId is present", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Public exposure.",
+        hops: [
+          {
+            hopOrdinal: 1,
+            fromNodeLabel: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+            toNodeLabel: "Key vault",
+            edgeType: "RoleAssignment",
+            provenanceKind: "ObservedFact",
+            hopConfidenceBand: "HighlyLikely",
+            inferenceSource: null,
+            evidenceReference: "evidence-1",
+            cloudResourceId: "22222222-2222-2222-2222-222222222222",
+          },
+        ],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel("finding-1");
+
+    expect(screen.getByRole("link", { name: "Open resource evidence" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222"),
+    );
+    expect(screen.getByRole("link", { name: "Open resource evidence" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("snapshotId=snapshot-1"),
+    );
+  });
+
   it("generates simulator explanation for the selected path", async () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },

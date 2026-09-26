@@ -23,6 +23,8 @@ import {
   RunDetailTrustEvidenceCardSectionDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import type { RunTrustEvidenceCard } from "@/types/authority";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type RunDetailEvidenceTabPanelProps = {
   readonly packageName: string;
@@ -85,6 +87,12 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
 
   return (
     <div className="space-y-4">
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="run-detail-evidence-tab-scope"
+      >
+        Evidence here is what this review used.
+      </p>
       <RunDetailSectionNav runId={props.runId} sections={sectionNavSections} />
       <RunDetailEvidenceScopeHeader
         packageName={props.packageName}

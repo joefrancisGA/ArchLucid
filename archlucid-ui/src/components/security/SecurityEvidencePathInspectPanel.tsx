@@ -29,6 +29,7 @@ import {
   infraRemediationFindingIdDisclosureHrefFromSearch,
   parseInfraRemediationFindingIdDisclosureOpenFromSearch,
 } from "@/lib/infra-evidence/infra-remediation-finding-id-disclosure-url";
+import { buildResourceHubOverviewHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import {
@@ -79,6 +80,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
   readonly weakestHopOrdinal: number;
+  readonly snapshotId: string;
 }) {
   const internetHopOrdinal = props.hops.find(
     (hop) =>
@@ -136,6 +138,19 @@ function PathHopsTable(props: {
                 {hop.hopOrdinal === internetHopOrdinal ? (
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-internet-boundary">
                     Internet is the public boundary, not an Azure resource.
+                  </p>
+                ) : null}
+                {hop.cloudResourceId != null && hop.cloudResourceId.trim().length > 0 ? (
+                  <p className="m-0 mt-1">
+                    <Link
+                      href={buildResourceHubOverviewHref(hop.cloudResourceId, {
+                        snapshotId: props.snapshotId,
+                      })}
+                      className={OPERATOR_LINK.inline}
+                      data-testid="security-evidence-path-hop-resource-evidence"
+                    >
+                      Open resource evidence
+                    </Link>
                   </p>
                 ) : null}
               </EnterpriseTableCell>
@@ -337,20 +352,50 @@ function RecommendedActionSection(props: {
   const verificationValue = lines[lines.length - 1]?.value ?? "Not cited.";
   const verificationIsProse = /\s/.test(verificationValue);
 
+  const displayForLine = (line: { readonly label: string; readonly value: string }): string => {
+    if (line.label === "How to check") {
+      if (line.value === "Not cited.") {
+        return "Not cited.";
+      }
+
+      if (!verificationIsProse) {
+        return "A check is recorded for this path.";
+      }
+    }
+
+    return line.value;
+  };
+
+  const linesWithDisplay = lines.map((line) => ({
+    ...line,
+    display: displayForLine(line),
+  }));
+  const notCitedLabels = linesWithDisplay.filter((line) => line.display === "Not cited.").map((line) => line.label);
+  const citedLines = linesWithDisplay.filter((line) => line.display !== "Not cited.");
+  const showSingleNotCitedLine = notCitedLabels.length === 1;
+  const showNotCitedSummary = notCitedLabels.length >= 2;
+
   return (
     <div className="space-y-2 rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-recommended-action">
       <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Recommended action</h3>
+      {showNotCitedSummary ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-recommended-action-not-cited-summary">
+          Not cited: {notCitedLabels.join(", ")}.
+        </p>
+      ) : null}
       <dl className="m-0 space-y-2">
-        {lines.map((line) => (
+        {citedLines.map((line) => (
           <div key={line.label}>
             <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{line.label}</dt>
-            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>
-              {line.label === "How to check" && !verificationIsProse
-                ? "A check is recorded for this path."
-                : line.value}
-            </dd>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>{line.display}</dd>
           </div>
         ))}
+        {showSingleNotCitedLine ? (
+          <div>
+            <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{notCitedLabels[0]}</dt>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Not cited.</dd>
+          </div>
+        ) : null}
       </dl>
     </div>
   );
@@ -723,7 +768,11 @@ export function SecurityEvidencePathInspectPanel(props: {
           ) : null}
 
           {pathQuery.data.hops.length > 0 ? (
-            <PathHopsTable hops={pathQuery.data.hops} weakestHopOrdinal={pathQuery.data.weakestHopOrdinal} />
+            <PathHopsTable
+              hops={pathQuery.data.hops}
+              weakestHopOrdinal={pathQuery.data.weakestHopOrdinal}
+              snapshotId={pathQuery.data.snapshotId}
+            />
           ) : null}
 
           {pathQuery.data.relatedCutPoints.length > 0 ? (

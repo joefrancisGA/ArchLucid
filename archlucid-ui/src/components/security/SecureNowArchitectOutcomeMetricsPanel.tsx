@@ -234,6 +234,9 @@ function SnapshotIdentityDisclosure(props: {
 
   return (
     <div className="space-y-2" data-testid="securenow-architect-metrics-snapshot-identity">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-architect-metrics-snapshot-baseline">
+        From is the baseline. To is the snapshot you compare against.
+      </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-architect-metrics-scope-line">
         {props.fromSnapshot != null ? `From: ${formatSnapshotOptionLabel(props.fromSnapshot)}` : "From: not selected"}
         {" · "}

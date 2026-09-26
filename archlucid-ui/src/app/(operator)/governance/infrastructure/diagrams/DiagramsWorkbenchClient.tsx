@@ -2542,6 +2542,14 @@ export function DiagramsWorkbenchClient() {
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION}
             </p>
           ) : null}
+          {isInfraDiagramsResourceGroupMode(selectedMode) && selectedResourceGroupName.length > 0 && !isResourceGroupMapDiagram ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-one-resource-group-caption"
+            >
+              This diagram shows one resource group.
+            </p>
+          ) : null}
           {isBackboneKeepDiagram ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
