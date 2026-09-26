@@ -2853,13 +2853,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — grounded Chosen row still accepted duplicate technology name when agent carried a new EvidenceRef
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed duplicate-display-name topology batch `(candidate)` — `TechnologyLedgerTopologyProposalMapper` keys `EvidenceRef` by `ServiceId` slug so distinct ids stay distinct; regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`; no new hunt-ready rows; 59 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; attempted failing repros for ungrounded-assumed→grounded-candidate same-name insert and ungrounded-chosen→grounded-candidate same-name insert — both match intentional `ShouldTreatAsDuplicateByName` / `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref` behavior; seeded multi-service same `TechnologyName` with distinct topology refs as `(candidate)` (reachability: `TechnologyLedgerTopologyProposalMapper` per-service `EvidenceRef`); 58 scoped TechnologyLedger tests passed.
 
@@ -2868,7 +2870,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): proved chosen-family gate treated any novel agent `EvidenceRef` as insert-worthy even when a grounded `Chosen` row already shared the same `TechnologyName`; fixed by skipping when chosen name matches and chosen ref is substantive; regressions `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref` / `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref`; 58 scoped TechnologyLedger tests passed.
 
 - [x] (proven) Grounded `Chosen` row with same provider family and `TechnologyName` still accepted a second assumed agent row when only `EvidenceRef` differed — **hit 2026-09-26 seed hunt:** chosen-family branch only checked novel refs, not whether authoritative chosen already grounded the technology name; fixed by returning null when chosen name matches and chosen `EvidenceRef` is substantive; regression `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref`.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — two topology services sharing a `ServiceName` with distinct `agentTopologyProposal:*` refs may both insert (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`); reachability requires duplicate display names in one `AgentTopologyProposal` batch.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — two topology services sharing a `ServiceName` with distinct `agentTopologyProposal:*` refs may both insert — **cheap-disproof 2026-09-26 seed hunt:** mapper emits per-`ServiceId` refs; merge policy intentionally keeps distinct grounded refs (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`); regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`.
 
 2026-09-25 seed hunt (seed-only): reseeded technology-ledger-merge; no new hunt-ready hypotheses — evidence-ref, case/whitespace name dedupe, and chosen-family distinct-ref paths remain covered; repaired stale `Resolve_skips_duplicate_same_family_when_chosen_exists` fixture (candidate always carried topology `EvidenceRef` after `CreateCandidate` helper); 56 scoped TechnologyLedger tests passed.
 
