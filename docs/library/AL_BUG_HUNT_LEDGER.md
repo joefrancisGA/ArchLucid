@@ -22847,13 +22847,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 25
-- **bugs-found:** 17
+- **hunts:** 26
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — `TenantTrialConversionStage` reported convert success while `MarkTrialConvertedAsync` no-oped on non-canonical Active labels
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — `TrialTenantBootstrapService` claimed trial seat with admin email while middleware uses JWT `sub`, double-counting the registering admin
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -22891,6 +22891,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantSuspendCommandService.TryUnsuspendAsync` — platform admin unsuspend during active catalog migration clears scope-freeze suspend while migration record stays open — **cheap-disproof 2026-09-25 seed hunt:** intentional operator override via `POST /v1/admin/tenants/{id}/unsuspend`; `TenantMigrationVerificationProbe` fails closed when `SuspendedUtc` is null (`Write freeze is not active`); fan-out docs require operator sequencing per `TENANT_MIGRATION_FANOUT.md`.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — no active-migration guard before erasure offboard — **cheap-disproof 2026-09-25 seed hunt:** operator-driven conflict outside automated fan-out happy path; `StartAsync` already blocks new migrations for offboarded tenants; `CompleteAsync` unsuspend no-ops under erasure quarantine.
 - [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — post-active trial lifecycle statuses set `isTrial=false` while `CommercialPackagingTierResolver` returns null for Free-tier rows — **cheap-disproof 2026-09-25 seed hunt:** packaging snapshot semantics; authoritative trial state remains on `GET /v1/tenant/trial-status`; `Expired`/`ReadOnly`/`ExportOnly` rows keep `Tier=Free` so resolver short-circuits before subscription inference.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — bootstrap `TryClaimTrialSeatAsync` used admin email while `TrialSeatReservationMiddleware` reserves seats with JWT `sub` (platform user GUID), double-counting the registering admin — **hit 2026-09-26 seed hunt:** removed bootstrap seat claim; first authenticated request claims one seat via middleware/accountant; regression `Self_service_bootstrap_and_middleware_claim_one_seat_for_registering_admin`.
+- [x] (valid-no-repro) `TenantTrialSeatSkipCache` / `TrialSeatAccountant` — 5-minute negative cache skips seat claims after tenant row gains metered active trial within TTL — **cheap-disproof 2026-09-26 seed hunt:** `PersistBootstrapRegistrationAsync` awaits bootstrap before returning; `CommitSelfServiceTrialAsync` always sets positive `TrialSeatsLimit`; skip cache only warms when `RequiresSeatClaim` is false on first read; no tenant API mutates seat cap mid-cache without operator SQL.
+
+2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved bootstrap email principal double-counted registering admin against JWT `sub` seat claims; cheap-disproof closed stale seat-skip-cache candidate; 123 scoped tenancy tests passed.
 
 2026-09-25 seed hunt (seed-only): reseeded application-tenancy-lifecycle; cheap-disproof closed admin unsuspend during migration, erasure offboard without migration guard, and usage-status post-active trial packaging candidates; 122 scoped tenancy tests passed.
 

@@ -157,7 +157,9 @@ public sealed class TrialTenantBootstrapServiceTests
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialProvisioned), It.IsAny<CancellationToken>()),
             Times.Once);
         repo.Verify(r => r.EnqueueTrialArchitecturePreseedAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
-        repo.Verify(r => r.TryClaimTrialSeatAsync(tenantId, "owner@example.com", It.IsAny<CancellationToken>()), Times.Once);
+        repo.Verify(
+            r => r.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [SkippableFact]
