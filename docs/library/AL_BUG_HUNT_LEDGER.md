@@ -20838,7 +20838,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -20978,6 +20978,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ExecDigestEmailDispatcher.TryDispatchAsync` — whitespace-only `unsubscribeAbsoluteUrl` — **cheap-disproof 2026-09-26 seed hunt:** dispatcher throws `ArgumentException` before render; sole production caller `ExecDigestWeeklyDeliveryScanner` builds `{apiBase}/v1.0/notifications/exec-digest/unsubscribe?token=…` from operator base + signed token (never blank).
 - [x] (valid-no-repro) `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` — null `toMailboxes` causes `NullReferenceException` instead of `ArgumentNullException` — **cheap-disproof 2026-09-26 seed hunt:** `RecurrenceCompletionNotificationService` always passes `RecurrenceCompletionRecipientResolver.ListRecipientMailboxesAsync`, which returns `mailboxes.ToArray()` (empty at worst, never null).
 - [x] (valid-no-repro) `DigestSlackWebhookDeliveryChannel` / `DigestTeamsWebhookDeliveryChannel` — blank webhook destination posts empty URL — **cheap-disproof 2026-09-26 seed hunt:** `ChatOpsWebhookDeliveryService.DeliverAsync` rejects whitespace destinations via `ThrowIfNullOrWhiteSpace(webhookAbsoluteUri)`; digest subscription create applies SSRF policy + trim (#425).
+
+2026-09-26 seed hunt (seed-only): reseeded notifications-pipeline after runIdHex/weekLabel/runDetailUrl parity fixes; no new hunt-ready rows; cheap-disproved `ExecDigestEmailDispatchSealedManifestHashGuard` skipping seal verification for non-Guid `RunIdHex` values (composer highlights and `LatestCommittedRunIdHex` originate from committed run ids via `ExecDigestComposer` / authority queries); 132 scoped Application notifications/digest tests passed (2 Api SQL integration auth tests skipped on VM without `ARCHLUCID_API_TEST_SQL`).
+
+- [x] (valid-no-repro) `ExecDigestEmailDispatchSealedManifestHashGuard.EnsureCompositionRunsSealedOrThrowAsync` — invalid `RunIdHex` in composition skips per-run seal check via `Guid.TryParse` continue — **cheap-disproof 2026-09-26 seed hunt:** `ExecDigestWeeklyDeliveryScanner` invokes the guard only after `ExecDigestComposer.ComposeAsync` builds highlights/`LatestCommittedRunIdHex` from committed run repository ids (`ToString("N")`); malformed hex is not reachable from the production compose → dispatch path.
 
 ## Zone: artifact-synthesis
 
