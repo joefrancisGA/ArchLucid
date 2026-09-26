@@ -1,10 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION,
   SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION_TEST_ID,
@@ -20,11 +18,10 @@ export function ReviewsHubWorkingInboxCaption(): React.JSX.Element | null {
   }
 
   return (
-    <p
-      className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-      data-testid={SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION_TEST_ID}
-    >
-      {SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION}
-    </p>
+    <PageHeaderClaimDiscipline
+      text={SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION}
+      testId={SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION_TEST_ID}
+      className="mt-0 w-full max-w-3xl"
+    />
   );
 }
