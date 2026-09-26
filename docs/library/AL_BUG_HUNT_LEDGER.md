@@ -2850,13 +2850,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — grounded Chosen row still accepted duplicate technology name when agent carried a new EvidenceRef
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after chosen-name grounding hit; no new hunt-ready rows — same-family-without-novel-ref suppression, distinct-ref/name dedupe, evidence-ref parity, and `CloudProvider.None` chosen rows remain covered by existing regressions; 58 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (hit): proved chosen-family gate treated any novel agent `EvidenceRef` as insert-worthy even when a grounded `Chosen` row already shared the same `TechnologyName`; fixed by skipping when chosen name matches and chosen ref is substantive; regressions `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref` / `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref`; 58 scoped TechnologyLedger tests passed.
 
