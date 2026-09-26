@@ -139,6 +139,83 @@ public sealed class AgentResultRegionMismatchEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_initializes_warnings_when_null_before_appending_region_mismatch()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        proposal.Warnings = null!;
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+    }
+
+    [Fact]
+    public async Task EnrichAsync_tolerates_null_added_services_after_structural_lists_normalized()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:westeurope"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices = null!,
+            AddedDatastores = null!,
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        Func<Task> act = async () =>
+            await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        proposal.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task EnrichAsync_skips_results_without_proposed_changes()
     {
         List<AgentResult> results =
