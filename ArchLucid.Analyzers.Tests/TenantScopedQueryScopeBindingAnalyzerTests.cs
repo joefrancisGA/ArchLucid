@@ -558,6 +558,38 @@ public sealed class SwitchExpressionRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_local_function_returning_sql()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class LocalFunctionRunsRepository
+{
+    public void Load(IDbConnection connection)
+    {
+        _ = SqlMapper.Query<int>(connection, GetRunsSql());
+    }
+
+    private static string GetRunsSql() =>
+        "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(68, 13, 68, 59)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_does_not_crash_when_sql_field_lives_in_partial_class_sibling_file()
     {
         const string sqlFieldFile =

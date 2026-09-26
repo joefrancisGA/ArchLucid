@@ -90,6 +90,9 @@ internal static class TenantScopedSqlExpressionResolver
                      string.Equals(concatAccess.Name.Identifier.Text, "Join", StringComparison.Ordinal)))
                     return ResolveStringConcat(invocation, semanticModel);
 
+                if (TryResolveFromMethodInvocation(invocation, semanticModel, out ResolutionResult methodResolution))
+                    return methodResolution;
+
                 return ResolveFromSymbol(invocation, semanticModel);
 
             case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.AddExpression } add:
@@ -387,6 +390,49 @@ internal static class TenantScopedSqlExpressionResolver
             return IsRecognizedScopeHelper(memberAccess, semanticModel);
 
         return false;
+    }
+
+    private static bool TryResolveFromMethodInvocation(
+        InvocationExpressionSyntax invocation,
+        SemanticModel semanticModel,
+        out ResolutionResult result)
+    {
+        result = null!;
+
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        if (method.Parameters.Length > 0 || invocation.ArgumentList.Arguments.Count > 0)
+            return false;
+
+        SyntaxReference? syntaxReference = method.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference is null)
+            return false;
+
+        SyntaxNode syntax = syntaxReference.GetSyntax();
+
+        if (syntax is not MethodDeclarationSyntax methodDeclaration)
+            return false;
+
+        ExpressionSyntax? returnExpression = methodDeclaration.ExpressionBody?.Expression;
+
+        if (returnExpression is null && methodDeclaration.Body is BlockSyntax block)
+        {
+            ReturnStatementSyntax? returnStatement = block.Statements
+                .OfType<ReturnStatementSyntax>()
+                .SingleOrDefault();
+
+            returnExpression = returnStatement?.Expression;
+        }
+
+        if (returnExpression is null)
+            return false;
+
+        SemanticModel modelForSyntax = GetSemanticModelForSyntax(syntax, semanticModel);
+        result = ResolveCore(returnExpression, modelForSyntax, visitingInterpolatedHole: false);
+
+        return result.IsStaticallyResolved || result.BranchSqlTexts.Count > 0 || result.HasScopeHelperInvocation;
     }
 
     private static bool TryResolveStringFormatInvocation(
