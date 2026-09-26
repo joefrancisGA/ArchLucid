@@ -26,18 +26,18 @@ public sealed class FindingInspectReadRepositoryCoreTests
             "trace-text");
 
         ruleId.Should().Be("rule-1");
-        ruleName.Should().Be("trace-text");
+        ruleName.Should().Be("rule-1");
     }
 
     [Fact]
-    public void ResolveRuleFields_when_applied_rule_ids_present_keeps_trace_rule_name()
+    public void ResolveRuleFields_when_applied_rule_ids_present_uses_rule_id_for_display_name()
     {
         (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
             """["cost-guardrail"]""",
             firstRuleText: "Encrypt data at rest");
 
         ruleId.Should().Be("cost-guardrail");
-        ruleName.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("cost-guardrail");
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class FindingInspectReadRepositoryCoreTests
             firstRuleText: null);
 
         ruleId.Should().Be("cost-guardrail");
-        ruleName.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("cost-guardrail");
     }
 
     [Fact]
