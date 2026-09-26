@@ -9,7 +9,7 @@ Paste **one** prompt per Luna session. Do not implement from this index.
 
 | ID | Prompt | Intent |
 |----|--------|--------|
-| **UU-01** | [understand-use-01-job-chooser.md](../../.cursor/prompts/understand-use-01-job-chooser.md) | Signed-in home names two jobs and the outcome of each |
+| **UU-01** | [understand-use-01-job-chooser.md](../../.cursor/prompts/understand-use-01-job-chooser.md) | Architecture home names two jobs and the outcome of each. SecureNow home does not offer architecture review. |
 | **UU-02** | [understand-use-02-review-progress-line.md](../../.cursor/prompts/understand-use-02-review-progress-line.md) | Five-step progress line on every review tab until seal |
 | **UU-03** | [understand-use-03-review-object-sentence.md](../../.cursor/prompts/understand-use-03-review-object-sentence.md) | Header sentence: this review is open, or it is sealed |
 | **UU-04** | [understand-use-04-path-queue-consequence.md](../../.cursor/prompts/understand-use-04-path-queue-consequence.md) | Ranked path rows lead with the consequence sentence |
