@@ -325,6 +325,27 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref()
+    {
+        TechnologyLedgerEntry databaseAssumed = CreateCandidate(CloudProvider.Aws);
+        databaseAssumed.Role = TechnologyLedgerRole.PrimaryDatastore;
+        databaseAssumed.EvidenceRef = "agentTopologyProposal:p1:shared";
+        databaseAssumed.TechnologyName = "Cosmos DB";
+
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Aws);
+        chosen.EvidenceRef = "inventory:ecs";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:shared";
+        candidate.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [databaseAssumed, chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
     public void Resolve_skips_when_evidence_ref_differs_only_by_outer_whitespace()
     {
         TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
