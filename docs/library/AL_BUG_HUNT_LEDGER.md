@@ -3139,13 +3139,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — presentation two-dot leader and katakana middle-dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; cheap-disproved format-character-split dot segments and re-ran BMP NFKC single-char bypass scan; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Format characters splitting dot segments (`/signin/.\u200B./other`, `/signin/.%E2%80%8B./other`, ZWNJ/ZWJ/WORD JOINER variants) accepted while `ContainsDotDotSegment` compares literal `..` segments — **valid-no-repro 2026-09-26 seed hunt:** `System.Uri` preserves `%E2%80%8B` in `AbsolutePath`; not proven browser parent-segment normalization; extends prior bidi/format-char valid-no-repro rows.
+- [x] (valid-no-repro) Post-scan BMP single-codepoint NFKC dot/slash bypass inventory (ellipsis and compatibility abbreviation pairs only) — **valid-no-repro 2026-09-26 seed hunt:** no new accepted protocol-relative or parent-traversal shapes beyond prior ledger rows.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path; randomized 5k-path fuzz found no accepted literal or normalized `//`/`..` shapes; reconfirmed multi-segment percent-encoded traversal rejects; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
