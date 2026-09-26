@@ -318,4 +318,14 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/user\uFF20evil.example/phish")]
+    [InlineData("/user\uFE6Bevil.example/phish")]
+    [InlineData("/user%EF%BC%A0evil.example/phish")]
+    [InlineData("/user%EF%B9%ABevil.example/phish")]
+    public void TryNormalize_rejects_fullwidth_commercial_at_userinfo_homoglyphs(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }

@@ -125,6 +125,8 @@ describe("isSafeReturnPath", () => {
   it("rejects at-sign in the path portion (userinfo open-redirect shape)", () => {
     expect(isSafeReturnPath("/path@evil")).toBe(false);
     expect(isSafeReturnPath("/user@evil.example/phish")).toBe(false);
+    expect(isSafeReturnPath("/user\uFF20evil.example/phish")).toBe(false);
+    expect(isSafeReturnPath("/user\uFE6Bevil.example/phish")).toBe(false);
   });
 
   it("allows at-sign in query or fragment only", () => {
