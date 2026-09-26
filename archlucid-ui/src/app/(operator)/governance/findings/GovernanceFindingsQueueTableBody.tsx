@@ -20,6 +20,36 @@ export type GovernanceFindingsQueueTableBodyProps = {
   readonly ariaRowCount?: number;
 };
 
+export function governanceFindingSeverityMeaning(severity: string): string {
+  switch (severity.trim().toLowerCase()) {
+    case "critical":
+      return "Resolve this before you finalize.";
+    case "high":
+      return "Resolve this or record a decision before you finalize.";
+    case "medium":
+      return "Record a decision. It does not block finalize by itself.";
+    case "low":
+      return "Record a decision when you triage the rest.";
+    default:
+      return "";
+  }
+}
+
+function severityMeaningForRow(rows: readonly GovernanceFindingQueueRow[], index: number): string {
+  const row = rows[index];
+  if (row?.recordKind !== "finding") {
+    return "";
+  }
+
+  return rows.slice(0, index).some(
+    (candidate) =>
+      candidate.recordKind === "finding" &&
+      candidate.severity.trim().toLowerCase() === row.severity.trim().toLowerCase(),
+  )
+    ? ""
+    : governanceFindingSeverityMeaning(row.severity);
+}
+
 export function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBodyProps): ReactElement {
   const {
     rows,
@@ -48,6 +78,7 @@ export function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueT
           onToggleRow={onToggleRow}
           isFocused={isRowFocused?.(rowIndex)}
           showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
+          severityMeaning={severityMeaningForRow(rows, rowIndex)}
           showInsightDensityScore={showInsightDensityScore}
           onOpenRow={() => {
             onRowOpened?.(row);

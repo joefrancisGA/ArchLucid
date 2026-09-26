@@ -35,6 +35,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { resolvePageCapabilityBoundary } from "@/lib/page-capability-boundary";
+import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance/governance-findings-evidence-copy";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -243,7 +244,14 @@ export function GovernanceFindingsQueueHeader({
           )
         }
       />
-      {!isAssignedToMe ? <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" /> : null}
+      {!isAssignedToMe ? (
+        <>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-findings-audience-line">
+            {GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE}
+          </p>
+          <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" />
+        </>
+      ) : null}
       {!isAssignedToMe && !buyerPolishedShell ? (
         <>
           <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />

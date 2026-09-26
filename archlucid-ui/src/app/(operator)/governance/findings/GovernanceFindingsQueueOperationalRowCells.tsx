@@ -95,7 +95,11 @@ export function GovernanceFindingsQueueDueCell(props: { readonly row: Governance
   );
 }
 
-export function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
+export function governanceQueueSeverityCell(
+  row: GovernanceFindingQueueRow,
+  buyerPolishedShell: boolean,
+  severityMeaning?: string,
+): ReactElement {
   if (buyerPolishedShell && row.recordKind === "decision") {
     return (
       <span className="text-al-text-secondary">
@@ -106,7 +110,12 @@ export function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buye
   }
 
   if (row.recordKind === "finding") {
-    return <SeverityTag severity={row.severity} />;
+    return (
+      <>
+        <SeverityTag severity={row.severity} />
+        {severityMeaning ? <span className={cn("ml-2", OPERATOR_TYPOGRAPHY.helper)}>{severityMeaning}</span> : null}
+      </>
+    );
   }
 
   return <span className="text-al-text-primary">{row.severity}</span>;
@@ -115,10 +124,11 @@ export function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buye
 export type GovernanceFindingsQueueOperationalRowCellsProps = {
   readonly row: GovernanceFindingQueueRow;
   readonly showInsightDensityScore?: boolean;
+  readonly severityMeaning?: string;
 };
 
 export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFindingsQueueOperationalRowCellsProps): ReactElement {
-  const { row, showInsightDensityScore = false } = props;
+  const { row, showInsightDensityScore = false, severityMeaning } = props;
   const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
@@ -220,7 +230,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         </Link>
       </EnterpriseTableCell>
       <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
-        {governanceQueueSeverityCell(row, false)}
+        {governanceQueueSeverityCell(row, false, severityMeaning)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding" ? row.ownerUserId ?? " — " : " — "}

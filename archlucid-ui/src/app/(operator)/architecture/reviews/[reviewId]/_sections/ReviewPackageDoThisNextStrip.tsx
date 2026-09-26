@@ -125,6 +125,7 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly failureRecordedAtUtc?: string | null;
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly reviewTitle?: string | null;
 };
 
 function ReviewFailureAdminHandoffPanel(props: {
@@ -413,6 +414,7 @@ export function ReviewPackageDoThisNextStrip(
     failureRecordedAtUtc = null,
     pipelineDiagnosticContext = null,
     pipelineSummary = null,
+    reviewTitle = null,
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
@@ -623,11 +625,26 @@ export function ReviewPackageDoThisNextStrip(
   }
 
   return (
-    <section
-      className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
-      data-testid="review-package-do-this-next-strip"
-      aria-labelledby="review-package-do-this-next-heading"
-    >
+    <div className="space-y-3" data-testid="review-package-do-this-next-strip">
+      {hasGoldenManifest ? (
+        <div className="space-y-1" data-testid="review-package-sponsor-read-first">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold">Reviewed:</span>{" "}
+            {reviewTitle?.trim() || "This review"}. Finalized architecture package.
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold">Sharing:</span>{" "}
+            {commitBlockedReason?.trim() || "Nothing on this package blocks sharing."}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold">Send:</span> {next.actionLabel}
+          </p>
+        </div>
+      ) : null}
+      <section
+        className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
+        aria-labelledby="review-package-do-this-next-heading"
+      >
       <div className="min-w-0 max-w-full space-y-1">
         <h2
           id="review-package-do-this-next-heading"
@@ -652,6 +669,7 @@ export function ReviewPackageDoThisNextStrip(
       >
         {actionRow}
       </div>
-    </section>
+      </section>
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
@@ -102,7 +103,7 @@ export function RemediationFactoryRankedPathsTable(props: {
                     }
                   />
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
+                <EnterpriseTableCell title={row.pathKind}>{formatSecurityEvidencePathKindLabel(row.pathKind)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <StatusTag
                     kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}

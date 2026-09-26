@@ -10,6 +10,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   SecureNowArchitectOutcomeMetricsPanel,
   type SecureNowArchitectOutcomeQueryState,
@@ -50,11 +51,11 @@ import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/secur
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
 import {
-  SECURENOW_PATH_RANKED_PATHS_ERROR,
   SECURENOW_PATH_RANKED_PATHS_LEAD,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -312,7 +313,7 @@ function RankedPathsTable(props: {
               onKeyDown={(event) => handleRowKeyDown(event, index)}
             >
               <EnterpriseTableCell>{row.rankOrder}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
+              <EnterpriseTableCell title={row.pathKind}>{formatSecurityEvidencePathKindLabel(row.pathKind)}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag
                   kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}
@@ -595,6 +596,9 @@ export function RemediationFactoryClient() {
 
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
+          These are SecureNow findings for the current inventory snapshot. They are not architecture review findings.
+        </p>
         {rankedQuery.isError ? (
           <StatusTag kind="needs-attention" label="Priority queue unavailable" />
         ) : ranked.length === 0 ? (
@@ -629,12 +633,41 @@ export function RemediationFactoryClient() {
               aria-pressed={pathView === view.value}
               onClick={() => setPathView(view.value)}
             >
-              {view.label}
+              {rankedPathsQuery.isSuccess
+                ? `${view.label} · ${
+                    view.value === "all"
+                      ? rankedPaths.length
+                      : view.value === "public-exposure"
+                        ? rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("reachability")).length
+                        : view.value === "privilege"
+                          ? rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege")).length
+                          : rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence").length
+                  }`
+                : view.label}
             </Button>
           ))}
         </div>
-        {rankedPathsQuery.isError ? (
-          <StatusTag kind="needs-attention" label={SECURENOW_PATH_RANKED_PATHS_ERROR} />
+        {rankedPathsQuery.isLoading ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
+        ) : rankedPathsQuery.isError ? (
+          <>
+            <OperatorErrorRecoveryContract
+              presentation={{
+                whatFailed: "Ranked paths did not load.",
+                whatIsIntact: rankedQuery.isSuccess
+                  ? "The priority queue and the selected snapshot stay on this page."
+                  : "The snapshot selection stays on this page.",
+                nextStep: "Retry the load. This does not change Azure.",
+              }}
+              testId="remediation-ranked-paths-error-recovery"
+            />
+            <RefreshButton
+              busy={rankedPathsQuery.isFetching}
+              label="Retry ranked paths"
+              data-testid="remediation-ranked-paths-retry"
+              onClick={() => void rankedPathsQuery.refetch()}
+            />
+          </>
         ) : visibleRankedPaths.length === 0 ? (
           <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
         ) : (

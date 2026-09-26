@@ -56,6 +56,7 @@ export type GovernanceFindingsQueueTableRowProps = {
   readonly showNewSinceLastVisit?: boolean;
   readonly showInsightDensityScore?: boolean;
   readonly onOpenRow?: () => void;
+  readonly severityMeaning?: string;
 };
 
 /** Single policy findings queue row (flat list; supports virtualization). */
@@ -72,6 +73,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
     showNewSinceLastVisit = false,
     showInsightDensityScore = false,
     onOpenRow,
+    severityMeaning,
   } = props;
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
@@ -107,7 +109,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
       ) : null}
       {buyerPolishedShell ? (
         <>
-          <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell)}</EnterpriseTableCell>
+          <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell, severityMeaning)}</EnterpriseTableCell>
           <EnterpriseTableCell>
             {row.recordKind === "decision" ? (
               <span className="text-al-text-secondary">—</span>
@@ -206,7 +208,11 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           onOpenRow={onOpenRow}
         />
       ) : (
-        <GovernanceFindingsQueueOperationalRowCells row={row} showInsightDensityScore={showInsightDensityScore} />
+        <GovernanceFindingsQueueOperationalRowCells
+          row={row}
+          showInsightDensityScore={showInsightDensityScore}
+          severityMeaning={severityMeaning}
+        />
       )}
       <EnterpriseTableCell>
         {buyerPolishedShell ? (
