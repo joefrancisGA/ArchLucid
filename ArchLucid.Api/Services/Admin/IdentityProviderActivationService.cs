@@ -35,6 +35,9 @@ public sealed class IdentityProviderActivationService(
         if (request.ClaimMapping is null)
             throw new ArgumentException("ClaimMapping is required.", nameof(request));
 
+        if (request.ClaimMapping.Mappings is null)
+            throw new ArgumentException("ClaimMapping.Mappings is required.", nameof(request));
+
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
 

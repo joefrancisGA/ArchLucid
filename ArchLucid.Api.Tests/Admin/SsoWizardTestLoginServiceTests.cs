@@ -157,6 +157,35 @@ public sealed class SsoWizardTestLoginServiceTests
     }
 
     [Fact]
+    public void Execute_returns_failure_when_claim_mapping_mappings_is_null()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings = null!,
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("ClaimMapping.Mappings");
+    }
+
+    [Fact]
     public void Execute_returns_failure_when_claim_mapping_is_null()
     {
         SsoWizardTestLoginService sut = new();

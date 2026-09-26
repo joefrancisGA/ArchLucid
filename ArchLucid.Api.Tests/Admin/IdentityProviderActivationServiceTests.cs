@@ -362,7 +362,8 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*ClaimMapping.Mappings*");
     }
 
     [Fact]
