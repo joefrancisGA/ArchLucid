@@ -111,12 +111,14 @@ export function WebhooksSettingsClient() {
 
   const watchedFormValues = useWatch({ control });
   const subscriptionsLoaded = !loading;
+  const subscriptionEnableStepSatisfied =
+    hasLoadedSuccessfully && activeSubscriptionCount > 0;
   const webhooksCreateSteps = resolveWebhooksCreateSteps({
     destinationConfigured:
       (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
       (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
-    subscriptionEnabled: activeSubscriptionCount > 0,
+    subscriptionEnabled: subscriptionEnableStepSatisfied,
     subscriptionsLoaded,
   });
   const webhooksCreateEmphasizedStepId = resolveWebhooksCreateEmphasizedStepId({
@@ -124,7 +126,7 @@ export function WebhooksSettingsClient() {
       (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
       (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
-    subscriptionEnabled: activeSubscriptionCount > 0,
+    subscriptionEnabled: subscriptionEnableStepSatisfied,
     subscriptionsLoaded,
   });
   const continueLastSubscription = useMemo(
@@ -210,7 +212,7 @@ export function WebhooksSettingsClient() {
                 <h2 id="webhook-existing-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                   {WEBHOOKS_SUBSCRIPTIONS_HEADING}
                 </h2>
-                {webhookRows.length > 0 ? (
+                {webhookRows.length > 0 && hasLoadedSuccessfully ? (
                   <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {webhookRows.length} subscription{webhookRows.length === 1 ? "" : "s"} in this workspace.
                   </p>
