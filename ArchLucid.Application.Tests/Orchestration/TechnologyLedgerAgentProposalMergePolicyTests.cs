@@ -312,6 +312,7 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
         computeCandidates.Select(entry => entry.EvidenceRef).Should().OnlyHaveUniqueItems();
 
         List<TechnologyLedgerEntry> existing = [];
+
         foreach (TechnologyLedgerEntry candidate in computeCandidates)
         {
             TechnologyLedgerEntry? resolved =
