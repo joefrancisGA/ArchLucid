@@ -3139,13 +3139,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — presentation two-dot leader and katakana middle-dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path; proved Unicode-wide `NFKC` closure for single-codepoint `..` expansion (`U+2025`, `U+FE30` only); cheap-disproved two-dot punctuation and Manichaean dot pairs; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Unicode-wide single-codepoint `NFKC` equals `..` inventory — **valid-no-repro 2026-09-26 seed hunt:** only `U+2025` TWO DOT LEADER and `U+FE30` PRESENTATION FORM FOR VERTICAL TWO DOT LEADER expand to ASCII `..`; both are in `IsDotHomoglyph`; no further single-char parent-segment bypass remains.
+- [x] (valid-no-repro) TWO DOT PUNCTUATION (`⁚`, `U+205A`), TWO DOTS OVER/UNDER ONE DOT (`U+2E2A`/`U+2E2B`), and MANICHAEAN PUNCTUATION TWO DOTS (`U+10AF5`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** NFKC does not yield ASCII `..` parent segments; not browser-normalized traversal class.
 
 2026-09-26 seed hunt (seed-only): reseeded auth-return-path after `U+FE30`/`U+30FB`/`U+FF65` fix; full BMP NFKC dot/slash inventory scan found no further accepted traversal pairs; cheap-disproved circled digit full stops and letter-symbol compatibility forms; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
 
