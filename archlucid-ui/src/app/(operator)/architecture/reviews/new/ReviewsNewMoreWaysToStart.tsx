@@ -17,7 +17,7 @@ import {
   parseReviewsNewMoreWaysToStartOpenFromSearch,
   reviewsNewMoreWaysToStartDisclosureHrefFromSearch,
 } from "@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ReviewsNewActivePath } from "./reviews-new-path-switcher-state";
@@ -51,13 +51,11 @@ function secondaryPathTestId(path: ReviewsNewActivePath): string {
 export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps): React.JSX.Element {
   const { onSelectPath } = props;
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseReviewsNewMoreWaysToStartOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
-    ),
+  const searchParams = useSearchParams();
+  const urlMoreWaysOpen = parseReviewsNewMoreWaysToStartOpenFromSearch(
+    searchParams.get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlMoreWaysOpen);
   const openRef = useRef(open);
   openRef.current = open;
   const syncOpenToUrl = useCallback(
@@ -81,6 +79,13 @@ export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps)
     },
     [syncOpenToUrl],
   );
+
+  useEffect(() => {
+    if (openRef.current !== urlMoreWaysOpen) {
+      openRef.current = urlMoreWaysOpen;
+      setOpenState(urlMoreWaysOpen);
+    }
+  }, [urlMoreWaysOpen]);
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
