@@ -16,10 +16,11 @@ function containsProtocolRelativeTraversal(path: string): boolean {
   return path.startsWith("//") || path.startsWith("/\\") || path.includes("//") || path.includes("/\\");
 }
 
-function containsPercentEncodedSlash(value: string): boolean {
+/** Mirrors `AuthSignInReturnPathGuard.ContainsPercentEncodedPathSeparator`. */
+function containsPercentEncodedPathSeparator(value: string): boolean {
   const lower = value.toLowerCase();
 
-  return lower.includes("%2f") || lower.includes("%5c");
+  return lower.includes("%2f") || lower.includes("%5c") || lower.includes("%2e");
 }
 
 function containsBackslash(path: string): boolean {
@@ -204,6 +205,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
   let working = candidate;
 
   for (let decodePass = 0; decodePass < MAX_RETURN_PATH_DECODE_PASSES && working.includes("%"); decodePass++) {
+    if (containsPercentEncodedPathSeparator(working)) {
+      return false;
+    }
+
     let decoded: string;
 
     try {
@@ -251,7 +256,7 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
     return false;
   }
 
-  if (containsPercentEncodedSlash(working)) {
+  if (containsPercentEncodedPathSeparator(working)) {
     return false;
   }
 

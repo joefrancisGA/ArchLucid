@@ -132,6 +132,11 @@ describe("isSafeReturnPath", () => {
     expect(isSafeReturnPath("/reviews/1#notes@team")).toBe(true);
   });
 
+  it("rejects residual percent-encoded dot segments before traversal fully decodes", () => {
+    expect(isSafeReturnPath("/welcome%2e%2e/admin")).toBe(false);
+    expect(isSafeReturnPath("/segment%2e%2e%2foperator")).toBe(false);
+  });
+
   it("rejects percent-encoded backslash segments after decoding", () => {
     expect(isSafeReturnPath("/welcome%5c..%5c..%5coperator")).toBe(false);
   });
