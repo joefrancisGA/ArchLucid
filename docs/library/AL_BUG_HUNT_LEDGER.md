@@ -15984,11 +15984,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-08 — pipe/plus-delimited product names false-positive phrase and token constraints
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — at/hash-delimited product names false-positive phrase and token constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16008,6 +16008,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — colon/backslash-delimited product names (e.g. `field:encryption:module`, `field\encryption\module`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1370:** `#1335` guarded `.` and `/` only; `:` and `\` delimiters were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `:` and `\`; regressions in `RequestConstraintCompoundIdentifierColonBackslashTests`
 
 - [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — pipe/plus-delimited product names (e.g. `field|encryption|module`, `field+encryption+module`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1372:** `#1370` guarded `:`, `\`, `.`, and `/` only; `|` and `+` delimiters were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `|` and `+`; regressions in `RequestConstraintCompoundIdentifierPipePlusTests`
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — at/hash-delimited product names (e.g. `field@encryption@module`, `field#encryption#module`) may false-positive phrase and standalone token constraints — **hit 2026-09-26 seed hunt:** `#1372` guarded `|`, `+`, and earlier delimiters only; `@` and `#` were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `@` and `#`; regressions in `RequestConstraintCompoundIdentifierAtHashTests`
+- [ ] (candidate) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — comma/semicolon-delimited capability slugs may false-positive constraints — needs reachability vs natural-language comma lists
+
+2026-09-26 seed hunt (seed→hit): reseeded core-requests-constraints; proved at/hash compound-identifier false positives for encryption/openai/search/sql tokens; seeded comma/semicolon delimiter candidate; 847 scoped RequestConstraint tests passed.
 
 2026-09-08 seed hunt #1372 (hit): reseeded core-requests-constraints; proved pipe/plus compound-identifier false positives for encryption/openai/search/sql tokens; 841 scoped RequestConstraint tests passed.
 2026-09-08 seed hunt #1370 (hit): reseeded core-requests-constraints; proved colon/backslash compound-identifier false positives for encryption/openai/search/sql tokens; 836 scoped RequestConstraint tests passed.
