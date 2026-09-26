@@ -1476,6 +1476,133 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         await sut.StopAsync(CancellationToken.None);
     }
 
+    [Fact]
+    public async Task ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_before_exhausted_retry_terminal_assignment()
+    {
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IBackgroundJobWorkUnitExecutor> executor = new();
+        string workJson = BackgroundJobWorkUnitJson.Serialize(
+            new AnalysisReportDocxWorkUnit(
+                new AnalysisReportDocxJobPayload { RunId = "run-cancel-exhausted-terminal", IncludeDiagram = false },
+                "report.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+        int getAsyncCalls = 0;
+
+        BackgroundJobRow BuildRunningRow()
+        {
+            return new BackgroundJobRow
+            {
+                JobId = "job-cancel-exhausted-terminal",
+                WorkUnitJson = workJson,
+                RetryCount = 1,
+                MaxRetries = 1,
+                State = "Running",
+            };
+        }
+
+        BackgroundJobRow BuildCanceledRow()
+        {
+            return new BackgroundJobRow
+            {
+                JobId = "job-cancel-exhausted-terminal",
+                WorkUnitJson = workJson,
+                RetryCount = 1,
+                MaxRetries = 1,
+                State = "Canceled",
+            };
+        }
+
+        executor
+            .Setup(e => e.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+            .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
+            {
+                started.TrySetResult(true);
+                await release.Task.WaitAsync(ct);
+
+                throw new InvalidOperationException("export failed after retries exhausted");
+            });
+
+        ServiceCollection serviceCollection = new();
+        serviceCollection.AddSingleton<IBackgroundJobWorkUnitExecutor>(executor.Object);
+        serviceCollection.AddSingleton(Mock.Of<IBackgroundJobResultBlobAccessor>());
+        using ServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory,
+            new OperationCancellationRegistry(),
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage(
+            "msg-cancel-exhausted-terminal",
+            "rcpt-cancel-exhausted-terminal",
+            "job-cancel-exhausted-terminal",
+            1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-cancel-exhausted-terminal", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, BuildRunningRow()));
+
+        repo.Setup(r => r.GetAsync("job-cancel-exhausted-terminal", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                getAsyncCalls++;
+
+                return getAsyncCalls < 3 ? BuildRunningRow() : BuildCanceledRow();
+            });
+
+        queueClient.Setup(q => q.DeleteMessageAsync("msg-cancel-exhausted-terminal", "rcpt-cancel-exhausted-terminal", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        release.TrySetResult(true);
+        await Task.Delay(300, CancellationToken.None);
+
+        repo.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        getAsyncCalls.Should().BeGreaterThan(2, "exhausted-retry terminal failure should re-read cancel state before MarkFailedTerminal");
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
     [Theory]
     [InlineData(null, 750, 10_000)]
     [InlineData(5_000, 750, 5_000)]
