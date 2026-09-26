@@ -23431,7 +23431,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `TryClaimTrialSeatAsync` no-oped for legacy lowercase `active` `TrialStatus` while `TenantTrialSeatPolicy`/`TrialSeatAccountant` still treated tenant as seat-metered
+- **last-bug:** 2026-09-26 — `ListTenantIdsPendingTrialArchitecturePreseedAsync` omitted enqueued tenants with legacy lowercase `active` `TrialStatus`, stalling welcome pre-seed after bootstrap
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23481,6 +23481,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status retry path re-invokes hard purge without a separate `LegalHoldUntilUtc` guard inside the branch — **cheap-disproof 2026-09-26 seed hunt:** active legal hold short-circuits before the `Deleted` retry block on every scheduler tick; `Deleted` is only recorded after ExportOnly policy timers and the same pre-check.
 
 - [x] (proven) `TrialSeatAccountant` / `TenantTrialSeatPolicy` vs `TryClaimTrialSeatAsync` — legacy lowercase/padded `active` `TrialStatus` rows were seat-metered in application policy but repository seat claim/increment used Ordinal `Active` and silently no-oped — **hit 2026-09-26 seed hunt:** parity with #1248/#808 lifecycle casing fixes; `EqualsStatus` read guards and CI-trim SQL bumps in `DapperTenantRepository.TrialSeats` + `InMemoryTenantRepository.TrialSeats`; regression `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap`.
+
+- [x] (proven) `TrialTenantBootstrapService` / `EnqueueTrialArchitecturePreseedAsync` vs `ListTenantIdsPendingTrialArchitecturePreseedAsync` — bootstrap enqueued welcome pre-seed for active trials but worker poll required Ordinal `TrialStatus = Active`, leaving legacy lowercase `active` rows stuck without `TrialWelcomeRunId` — **hit 2026-09-26 seed hunt:** `EqualsStatus` filter in `InMemoryTenantRepository.TrialPreseed` and CI-trim SQL in `DapperTenantRepository.TrialPreseed`; regression `ListTenantIdsPendingTrialArchitecturePreseed_includes_lowercase_active_trial_status`.
+
+2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved architecture preseed worker skipped enqueued tenants with lowercase persisted `active` trial status; 125 scoped tenancy tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved seat claims bypassed cap for lowercase persisted `active` trial status; 124 scoped tenancy tests passed.
 
