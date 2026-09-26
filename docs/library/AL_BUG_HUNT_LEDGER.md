@@ -2847,6 +2847,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved `SharesProviderFamilyGate` only treated cloud-neutral on the chosen side, so authoritative Azure/AWS `Chosen` rows failed to suppress agent candidates with `CloudProvider.None` but matching `TechnologyName`; extended gate to cloud-neutral candidates; regressions `Resolve_skips_when_authoritative_chosen_shares_technology_name_with_cloud_neutral_candidate` and `Resolve_keeps_cloud_neutral_candidate_when_authoritative_chosen_has_different_technology_name`; 65 scoped TechnologyLedger tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved cloud-neutral (`CloudProvider.None`) authoritative `Chosen` rows did not enter the same-family gate, so agent proposals with matching `TechnologyName` on a concrete provider duplicated grounded inventory; fixed via `SharesProviderFamilyGate`; regressions `Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name` and `Resolve_keeps_agent_candidate_when_cloud_neutral_chosen_has_different_technology_name`; 63 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved cold-start `Chosen` agent rows (`TechnologyLedgerColdStartChosenPromoter`) triggered the authoritative chosen-name gate so a second topology service with the same `ServiceName` but distinct `EvidenceRef` was dropped after the first insert; fixed by limiting name-based suppression to `User`/`Evidence` chosen sources; regression `Resolve_keeps_second_compute_candidate_after_cold_start_chosen_shares_display_name`; 61 scoped TechnologyLedger tests passed.
@@ -2865,11 +2867,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 23
-- **bugs-found:** 13
+- **hunts:** 24
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — cloud-neutral Chosen skipped same-family authoritative name gate
+- **last-bug:** 2026-09-26 — cloud-neutral candidate bypassed authoritative name gate
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2889,6 +2891,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — cold-start agent `Chosen` rows suppressed later topology services sharing `TechnologyName` — **hit 2026-09-26 seed hunt (seed→hit):** grounded-name skip treated cold-start `AgentProposed` `Chosen` like inventory/user authority, so sequential seeding dropped distinct `agentTopologyProposal:*` refs; fixed via `IsAuthoritativeChosenSource`; regression `Resolve_keeps_second_compute_candidate_after_cold_start_chosen_shares_display_name`.
 - [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `CloudProvider.None` authoritative `Chosen` rows skipped same-family gate — **hit 2026-09-26 seed hunt (seed→hit):** `chosen.ProviderFamily == candidate.ProviderFamily` excluded cloud-neutral inventory, so matching `TechnologyName` agent rows on Azure/AWS duplicated grounded evidence; fixed via `SharesProviderFamilyGate`; regressions `Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name` and `Resolve_keeps_agent_candidate_when_cloud_neutral_chosen_has_different_technology_name`.
 - [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy` — inventory `Chosen` with `CloudProvider.None` suppresses all provider-specific agent proposals via same-family gate — **cheap-disproof 2026-09-26 seed hunt:** over-broad reading; `None` vs concrete provider still returns candidates on provider-conflict path when technology names differ; same-name suppression now handled explicitly via `SharesProviderFamilyGate` (#cloud-neutral hit).
+- [x] (proven) `SharesProviderFamilyGate` — cloud-neutral **candidate** `ProviderFamily` bypassed authoritative name suppression — **hit 2026-09-26 seed hunt (seed→hit):** prior fix aligned cloud-neutral chosen rows only; agent/`None` candidates with matching `TechnologyName` still inserted against grounded Azure/AWS chosen rows; fixed by treating `candidateFamily == CloudProvider.None` as gate-aligned; regressions `Resolve_skips_when_authoritative_chosen_shares_technology_name_with_cloud_neutral_candidate` and `Resolve_keeps_cloud_neutral_candidate_when_authoritative_chosen_has_different_technology_name`.
 
 2026-09-25 seed hunt (seed-only): reseeded technology-ledger-merge; no new hunt-ready hypotheses — evidence-ref, case/whitespace name dedupe, and chosen-family distinct-ref paths remain covered; repaired stale `Resolve_skips_duplicate_same_family_when_chosen_exists` fixture (candidate always carried topology `EvidenceRef` after `CreateCandidate` helper); 56 scoped TechnologyLedger tests passed.
 
@@ -5949,17 +5952,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
+2026-09-26 seed hunt (seed→hit): reseeded api-key-auth; proved `Authentication:ApiKey:*` values pasted with a UTF-8 BOM prefix failed `MatchesAnyCommaSeparatedKey` while operators still saw configured slots; fixed by stripping BOM during key-material normalization in `ApiKeyAuthenticationHandler`; regression `When_admin_key_config_has_utf8_bom_prefix_still_authenticates`; 45 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
 - **id:** api-key-auth
 - **status:** open
 - **impact:** high
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 51
-- **bugs-found:** 9
+- **hunts:** 52
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-11 — comma-only AdminKey config made zero-downtime rotation Append instead of Replace
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — UTF-8 BOM in configured API key material broke authentication
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -411,6 +411,27 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_admin_key_config_has_utf8_bom_prefix_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "\uFEFFsecret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task When_enabled_true_and_admin_key_has_surrounding_whitespace_in_header_still_authenticates()
     {
         DefaultHttpContext http = new();
