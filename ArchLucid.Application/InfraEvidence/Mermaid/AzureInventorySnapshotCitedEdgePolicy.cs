@@ -13,10 +13,17 @@ internal static class AzureInventorySnapshotCitedEdgePolicy
     {
         ArgumentNullException.ThrowIfNull(edge);
 
-        return !string.Equals(
-            edge.InferenceSource,
-            GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
-            StringComparison.OrdinalIgnoreCase);
+        string source = edge.InferenceSource ?? string.Empty;
+
+        if (GraphEdgeInferenceSources.TrySplitQualifier(source, out string baseSource, out _))
+        {
+            source = baseSource;
+        }
+
+        return !source.Equals(GraphEdgeInferenceSources.InventoryResourceGroupCollocation, StringComparison.OrdinalIgnoreCase)
+               && !source.Equals(GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+               && !source.Equals(GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+               && !source.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool HasCitedEdgeFrom(
