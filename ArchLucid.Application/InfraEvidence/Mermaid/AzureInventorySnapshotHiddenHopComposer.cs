@@ -36,7 +36,7 @@ internal static class AzureInventorySnapshotHiddenHopComposer
 
         foreach (GraphEdge edge in edges)
         {
-            if (!IsVmToNicEdge(edge)
+            if ((!IsVmToNicEdge(edge) && !IsPrivateEndpointToNicEdge(edge))
                 || !nodesById.TryGetValue(edge.ToNodeId, out GraphNode? nic)
                 || !IsNetworkInterfaceNode(nic))
             {
@@ -142,6 +142,12 @@ internal static class AzureInventorySnapshotHiddenHopComposer
     {
         return string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
                || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsPrivateEndpointToNicEdge(GraphEdge edge)
+    {
+        return string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeNic, StringComparison.OrdinalIgnoreCase)
+               || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToNic, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsPrivateEndpointTargetEdge(GraphEdge edge)
