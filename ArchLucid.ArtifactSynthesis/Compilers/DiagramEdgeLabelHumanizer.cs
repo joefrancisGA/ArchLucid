@@ -49,6 +49,16 @@ internal static class DiagramEdgeLabelHumanizer
             return authorizedLabel;
         }
 
+        if (DiagramRelationshipVerbCatalog.TryResolve(inferenceSource, out string inferenceVerb))
+        {
+            return inferenceVerb;
+        }
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(edgeType, out string edgeVerb))
+        {
+            return edgeVerb;
+        }
+
         string fromStored = HumanizeLabel(storedLabel);
 
         if (!string.IsNullOrWhiteSpace(fromStored))
@@ -204,6 +214,11 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         string trimmed = label.Trim();
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
+        {
+            return catalogVerb;
+        }
 
         if (TryHumanizeGraphEdgeType(trimmed, out string humanized))
         {
