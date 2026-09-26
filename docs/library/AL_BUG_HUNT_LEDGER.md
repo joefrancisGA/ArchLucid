@@ -23639,13 +23639,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 19
-- **bugs-found:** 13
+- **hunts:** 20
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `TryPromote` could use limits captured before store entry despite per-loop options read (#1542)
+- **last-bug:** 2026-09-26 — `TryAdmit` used stale `UtcNow` so expired leases blocked direct admit after operational delay
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6969 (seed→hit): reseeded admit timestamp freshness; proved `TryAdmitAsync` used `UtcNow` captured before operational lookup so expired leases still counted as active (false `Busy` when `MaxQueuedAnonymousScans=0`); fixed by refreshing `UtcNow` at store admit entry via `TimeProvider` in `QuickScanDistributedConcurrencyAdmitLimitRefreshStore` and anchoring queue-wait deadline to post-admit clock; regression `WaitForAdmissionAsync_uses_current_utc_now_on_try_admit_after_operational_delay`; 31 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — stale `UtcNow` on `TryAdmit` treats expired leases as active after slow operational snapshot — **hit 2026-09-26 seed hunt #6969:** admit limit refresh store re-reads `TimeProvider.GetUtcNow()` at `TryAdmitAsync` entry; regression `WaitForAdmissionAsync_uses_current_utc_now_on_try_admit_after_operational_delay`.
 
 2026-09-26 seed hunt #6968 (seed-only): reseeded admit refresh decorator boundaries; cheap-disproof closed live `QueueWaitTimeout` overwrite at store entry and `MaxQueuedAnonymousScans=0` at refreshed admit returning `Busy`; regressions `AdmitLimitRefreshStore_preserves_queue_wait_timeout_from_request_when_options_change`, `WaitForAdmissionAsync_returns_busy_when_refresh_applies_zero_max_queued_at_admit`; 30 scoped QuickScanDistributedConcurrency tests passed.
 

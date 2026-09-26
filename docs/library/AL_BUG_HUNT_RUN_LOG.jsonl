@@ -7057,3 +7057,4 @@
 {"at":"2026-09-26T13:43:07.9308673Z","zoneId":"quick-scan-distributed-concurrency","outcome":"seed-only"}
 {"at":"2026-09-26T13:46:54.5044966Z","zoneId":"quick-scan-distributed-concurrency","outcome":"seed-only"}
 {"at":"2026-09-26T13:51:00.1346492Z","zoneId":"quick-scan-distributed-concurrency","outcome":"seed-only"}
+{"at":"2026-09-26T14:00:44.1014352Z","zoneId":"quick-scan-distributed-concurrency","outcome":"hit"}
