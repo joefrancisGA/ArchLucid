@@ -98,7 +98,35 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
+        if (!ComplianceRuleKeysMatch(snapshot.ComplianceRuleKeys, currentResolution.ComplianceRuleKeys))
+        {
+            items.Add(new PreFinalizeChecklistItem
+            {
+                ItemId = "compliance-rule-keys-changed-since-execute",
+                Title = "Effective compliance rule keys unchanged since execute",
+                Detail =
+                    "Effective compliance rule keys changed after execute. Re-run agents or revert governance changes before finalize.",
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            });
+        }
+
         return items;
+    }
+
+    internal static bool ComplianceRuleKeysMatch(
+        IReadOnlyList<string> snapshotKeys,
+        IReadOnlyList<string> currentKeys)
+    {
+        static List<string> Normalize(IReadOnlyList<string> keys) =>
+            keys
+                .Where(key => !string.IsNullOrWhiteSpace(key))
+                .Select(key => key.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        return Normalize(snapshotKeys).SequenceEqual(Normalize(currentKeys), StringComparer.OrdinalIgnoreCase);
     }
 
     internal static string HashPackAssignments(IReadOnlyList<CommittedGovernancePackAssignmentSnapshot> assignments)

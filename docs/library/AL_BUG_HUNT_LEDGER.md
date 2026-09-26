@@ -23088,11 +23088,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 24
-- **bugs-found:** 18
+- **hunts:** 25
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — finalize readiness scorecard omitted supplemental findings
+- **last-bug:** 2026-09-26 — governance dry-run undefined numeric minimum severity bypassed threshold parser
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23139,9 +23139,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-12 seed hunt #1851 (hit): reseeded application-governance-policy; proved undefined numeric pre-commit threshold parsing; 4 scoped PreCommitGateThresholdParser tests passed.
 
 - [x] (proven) `FinalizeReadinessService` finalize quality scorecard used raw snapshot findings while `PreCommitGovernanceGate` evaluated supplemental technology-consistency findings — **hit 2026-09-26 seed hunt (seed→hit):** empty snapshot showed `BlockingFindingCount == 0` beside `pre_commit_gate` block; fixed by scoring via `PreFinalizeGateParityFindingLoader` (parity with #1418 checklist fix); regression `BuildAsync_scorecard_counts_supplemental_findings_when_technology_consistency_would_block_gate`.
-- [ ] (candidate) `PolicyPackGovernanceDryRunService.MergeEnforcement` — metadata `"blockCommitMinimumSeverity": "99"` bypasses undefined-numeric guard proven on `PreCommitGateThresholdParser`
-- [ ] (candidate) `GovernanceLineageService.GetApprovalRequestLineageAsync` — promotions returned on unsealed manifest while summary/findings redacted
-- [ ] (candidate) `PreFinalizeExecuteBaselineDriftEvaluator` — compliance-rule-key changes not diffed against execute snapshot
+- [x] (proven) `PolicyPackGovernanceDryRunService.MergeEnforcement` — metadata `"blockCommitMinimumSeverity": "99"` activated a severity gate that never matched findings and reported a false pass — **hit 2026-09-26 thorough hunt:** route pack metadata and request overrides through `PreCommitGateThresholdParser` (parity with #1851); regression `EvaluateAsync_skips_severity_gate_when_metadata_minimum_severity_is_undefined_numeric`
+- [x] (valid-no-repro) `GovernanceLineageService.GetApprovalRequestLineageAsync` — promotions returned when golden manifest fails seal verification — **cheap-disproof 2026-09-26 thorough hunt:** `GovernancePromotionRecord` rows are tenant-scoped workflow audit metadata (environments, manifest version label, optional notes), not golden-manifest projections; sealed-hash guard redacts manifest summary, risk posture, and top findings only
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — effective compliance rule key changes after execute not detected when pack-assignment hash unchanged — **hit 2026-09-26 thorough hunt:** compare normalized execute-time `ComplianceRuleKeys` to current resolution; regression `EvaluateAsync_adds_blocking_item_when_compliance_rule_keys_drift`
+
+2026-09-26 thorough hunt (hit): proved governance dry-run undefined numeric minimum severity bypass and execute-baseline compliance-rule-key drift gaps; cheap-disproved lineage promotions-on-unsealed-manifest; 25 targeted + 736 scoped PolicyPack/Governance Application tests passed (4 unrelated bundled-pack/audit demo failures on VM).
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
