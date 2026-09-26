@@ -615,4 +615,55 @@ public sealed class ProvenanceBuilderTests
         graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Rule).Should().Be(1);
         graph.Edges.Count(e => e.Type == ProvenanceEdgeType.TriggeredByRule).Should().Be(1);
     }
+
+    [Fact]
+    public void Build_links_graph_influence_when_graph_node_id_differs_only_by_surrounding_whitespace()
+    {
+        const string graphNodeId = "node-1";
+        const string findingId = "finding-1";
+
+        GraphSnapshot graphSnap = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = $"{graphNodeId} ",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                },
+            ],
+        };
+
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = findingId,
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Finding",
+                    Rationale = "r",
+                    RelatedNodeIds = [graphNodeId],
+                },
+            ],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = graphSnap,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges.Should().ContainSingle(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode);
+    }
 }

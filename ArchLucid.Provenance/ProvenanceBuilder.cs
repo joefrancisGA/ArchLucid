@@ -25,7 +25,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         Dictionary<string, Guid> nodeMap = new(StringComparer.OrdinalIgnoreCase);
 
-        HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.OrdinalIgnoreCase);
+        HashSet<string> graphNodeIds = new(
+            graph.Nodes.Select(n => NormalizeId(n.NodeId)),
+            StringComparer.OrdinalIgnoreCase);
 
         IEnumerable<string> DistinctDecisionKeys()
         {
@@ -38,11 +40,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (GraphNode n in graph.Nodes)
 
             AddNode(
-                $"graph:{n.NodeId}",
+                $"graph:{NormalizeId(n.NodeId)}",
                 new ProvenanceNode
                 {
                     Type = ProvenanceNodeType.GraphNode,
-                    ReferenceId = n.NodeId,
+                    ReferenceId = NormalizeId(n.NodeId),
                     Name = string.IsNullOrWhiteSpace(n.Label) ? n.NodeId : n.Label,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
