@@ -902,7 +902,8 @@ internal static class ConfigurationSensitiveConfigPathMatcher
 
     private static bool IsCompoundSecretCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.EndsWith("SigningSecret", StringComparison.OrdinalIgnoreCase)
-        || segment.EndsWith("SecretKey", StringComparison.OrdinalIgnoreCase);
+        || segment.EndsWith("SecretKey", StringComparison.OrdinalIgnoreCase)
+        || segment.EndsWith("SharedSecret", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsCompoundTokenCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.EndsWith("AccessToken", StringComparison.OrdinalIgnoreCase)

@@ -15880,13 +15880,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 13
-- **bugs-found:** 8
+- **hunts:** 14
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-08 — compound ConnectionString config paths leaked through config summary redaction
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — compound SharedSecret config paths leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed→hit): reseeded core-configuration-summary; proved `SharedSecret` / `HmacSha256SharedSecret` compound segments leaked operator config summary values; fixed via `IsCompoundSecretCredentialSegment`; cheap-disproved `Authentication:ApiKey:AdminKey` (parent `ApiKey` segment already redacts); 1030 scoped Configuration tests passed.
 
 2026-09-25 seed hunt (seed-only): reseeded core-configuration-summary; no new hunt-ready hypotheses — compound Secret/Token/Password/ApiKey/ConnectionString segment redaction, key-material Salt/Pepper suffixes, certificate/signing paths, and production-like Quick Scan / Email OTP validators remain covered; 844 scoped ConfigurationEffectiveValueResolver + safety validator tests passed.
 
@@ -15906,6 +15908,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound password paths bypass embedded-`Password` fragment matching — **hit 2026-09-08 (#1292):** documented path `Email:SmtpPassword` leaked raw SMTP credentials because mid-segment `Password` is treated as embedded; fixed with `IsCompoundPasswordCredentialSegment` suffix rule; regression `Resolve_redacts_compound_password_credential_config_paths`
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound ApiKey credential segments bypass embedded-`ApiKey` fragment matching — **hit 2026-09-08 (#1313):** production path `AzureDevOps:ArchLucidApiKey` leaked raw API key because mid-segment `ApiKey` is treated as embedded; fixed with `IsCompoundApiKeyCredentialSegment` suffix rule; regression `Resolve_redacts_compound_api_key_credential_config_paths`
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound ConnectionString credential segments bypass embedded-`ConnectionString` fragment matching — **hit 2026-09-08 (#1314):** catalog paths such as `HotPathCache:RedisConnectionString` and `IntegrationEvents:ServiceBusConnectionString` leaked raw connection strings because mid-segment `ConnectionString` is treated as embedded; fixed with `IsCompoundConnectionStringCredentialSegment` suffix rule; regression `Resolve_redacts_compound_connection_string_config_paths`
+- [x] (invalid) `Authentication:ApiKey:AdminKey` / `ReadOnlyKey` leak because segment ends with `Key` not `ApiKey` — **invalid 2026-09-26 seed hunt:** parent `ApiKey` path segment already triggers redaction for the full config path
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `SharedSecret` credential segments bypass embedded-`Secret` fragment matching — **hit 2026-09-26 seed hunt:** `ArchLucid:E2eHarness:SharedSecret` and `WebhookDelivery:HmacSha256SharedSecret` leaked raw HMAC shared secrets in operator config summary; fixed by extending `IsCompoundSecretCredentialSegment`; regression `Resolve_redacts_compound_shared_secret_config_paths`
+- [ ] (candidate) `ConfigurationSensitiveConfigPathMatcher` — compound `WebhookSecret` segments (without `SigningSecret` suffix) may bypass embedded-`Secret` skip when added to host config
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.

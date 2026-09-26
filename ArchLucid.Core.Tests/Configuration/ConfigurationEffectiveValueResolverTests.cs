@@ -161,6 +161,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("ArchLucid:E2eHarness:SharedSecret")]
+    [InlineData("WebhookDelivery:HmacSha256SharedSecret")]
+    public void Resolve_redacts_compound_shared_secret_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
     [InlineData("Email:SmtpPassword")]
     public void Resolve_redacts_compound_password_credential_config_paths(string configPath)
     {
