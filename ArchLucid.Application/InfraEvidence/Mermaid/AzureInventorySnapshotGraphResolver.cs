@@ -241,6 +241,10 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodes,
             edges,
             edgeKeys);
+        AzureInventorySnapshotHiddenHopComposer.AddComposedEdges(
+            nodes,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotSameResourceGroupEdgeHydrator.AddMissingCollocationEdges(
             snapshot,
             nodeIdByArmId,
@@ -258,10 +262,6 @@ public sealed class AzureInventorySnapshotGraphResolver(
             edgeKeys);
         AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
             nodeIdByArmId,
-            edges,
-            edgeKeys);
-        AzureInventorySnapshotHiddenHopComposer.AddComposedEdges(
-            nodes,
             edges,
             edgeKeys);
         AzureInventorySnapshotNodeRelationshipGraphHydrator.Hydrate(snapshot, nodes);

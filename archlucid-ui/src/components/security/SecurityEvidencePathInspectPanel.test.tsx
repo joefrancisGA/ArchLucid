@@ -251,6 +251,12 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
+    expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
+    expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent("At least one hop is inferred");
+    expect(screen.getByTestId("security-evidence-path-verification-status")).toHaveTextContent("verification has not started");
+    expect(screen.getByRole("link", { name: "Review remediation and verification" })).toHaveAttribute(
+      "href", expect.stringContaining("findingId=finding-1"),
+    );
   });
 
   it("generates simulator explanation for the selected path", async () => {

@@ -33,9 +33,9 @@ public sealed class SecurityEvidencePathRankQueryService(
 
         if (snapshotId is not null && snapshotId != Guid.Empty)
         {
-            topCutPoints = await cutPointRepository.ListBySnapshotAsync(
+            topCutPoints = (await cutPointRepository.ListBySnapshotAsync(
                 ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId.Value),
-                cancellationToken);
+                cancellationToken)).Where(cutPoint => cutPoint.SnapshotId == snapshotId.Value).ToList();
         }
 
         if (ranks.Count == 0)
@@ -65,7 +65,8 @@ public sealed class SecurityEvidencePathRankQueryService(
             SecurityEvidencePathRecord? path =
                 await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
 
-            if (path is not null)
+            if (path is not null && path.SnapshotId == rank.SnapshotId
+                && (snapshotId is null || snapshotId == rank.SnapshotId))
             {
                 pathHeaders[rank.PathId] = path;
             }
@@ -82,7 +83,8 @@ public sealed class SecurityEvidencePathRankQueryService(
             }
 
             IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
-                await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
+                (await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken))
+                .Where(cutPoint => cutPoint.SnapshotId == path.SnapshotId).ToList();
 
             summaries.Add(MapSummary(rank, path, relatedCutPoints));
         }
@@ -122,7 +124,7 @@ public sealed class SecurityEvidencePathRankQueryService(
         SecurityEvidencePathRankRecord? rank =
             await rankRepository.TryGetRankInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        if (rank is null)
+        if (rank is null || rank.PathId != path.PathId || rank.SnapshotId != path.SnapshotId)
         {
             return null;
         }

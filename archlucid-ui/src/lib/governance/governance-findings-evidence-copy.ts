@@ -20,6 +20,9 @@ export const GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE =
 
 export const GOVERNANCE_FINDINGS_CLAIM_HEADING = "What the findings queue is not";
 
+export const GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE =
+  "These are architecture review findings for the open review.";
+
 export const GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.governanceFindings;
 
 export const GOVERNANCE_FINDINGS_SOURCES_INTRO = hubSecondaryFollowUpsIntro(

@@ -19,7 +19,7 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
 describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
   it("leads with the Azure subscription display name in Eastern Time using military time", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot())).toBe(
-      "Contoso Production · 9/10/2026, 13:45 EDT · 889 resources",
+      "Contoso Production · 9/10/2026, 09:45 EDT",
     );
   });
 
@@ -27,13 +27,13 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
     const unlabeled = snapshot({ subscriptionName: null });
 
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(unlabeled)).toBe(
-      "9/10/2026, 13:45 EDT · 889 resources",
+      "9/10/2026, 09:45 EDT",
     );
   });
 
   it("follows the operator IANA preference", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot(), "America/Chicago")).toBe(
-      "Contoso Production · 9/10/2026, 08:45 CDT · 889 resources",
+      "Contoso Production · 9/10/2026, 08:45 CDT",
     );
   });
 });

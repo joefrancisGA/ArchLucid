@@ -82,7 +82,7 @@ public sealed class ArchitecturesControllerTests
         IActionResult result = await sut.ListArchitectures(cancellationToken: CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        ok.Value.Should().BeSameAs(page);
+        ok.Value.Should().BeEquivalentTo(page);
     }
 
     [Fact]

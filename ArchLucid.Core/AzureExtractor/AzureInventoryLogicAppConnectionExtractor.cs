@@ -71,6 +71,29 @@ public static class AzureInventoryLogicAppConnectionExtractor
         return rows;
     }
 
+    public static IReadOnlyList<AzureInventoryLogicAppConnectionRow> ExtractFromStoredConnectionParameters(
+        string workflowResourceId,
+        string workflowName,
+        string connectionsValueJson)
+    {
+        if (string.IsNullOrWhiteSpace(workflowResourceId)
+            || string.IsNullOrWhiteSpace(workflowName)
+            || string.IsNullOrWhiteSpace(connectionsValueJson))
+        {
+            return [];
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(connectionsValueJson);
+            return ExtractFromConnectionsObject(workflowResourceId, workflowName, document.RootElement);
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+
     public static AzureInventoryLogicAppConnectionRow? ExtractFromWebConnection(
         JsonElement connectionResource)
     {
@@ -109,6 +132,47 @@ public static class AzureInventoryLogicAppConnectionExtractor
             TargetHost = targetHost,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
         };
+    }
+
+    private static IReadOnlyList<AzureInventoryLogicAppConnectionRow> ExtractFromConnectionsObject(
+        string workflowResourceId,
+        string workflowName,
+        JsonElement connectionsObject)
+    {
+        List<AzureInventoryLogicAppConnectionRow> rows = [];
+
+        if (connectionsObject.ValueKind is not JsonValueKind.Object)
+        {
+            return rows;
+        }
+
+        foreach (JsonProperty connectionProperty in connectionsObject.EnumerateObject())
+        {
+            if (connectionProperty.Value.ValueKind is not JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            string? connectionResourceId = TryReadString(connectionProperty.Value, "connectionId")
+                                           ?? TryReadString(connectionProperty.Value, "id");
+
+            if (!AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(connectionProperty.Name)
+                || string.IsNullOrWhiteSpace(connectionResourceId))
+            {
+                continue;
+            }
+
+            rows.Add(new AzureInventoryLogicAppConnectionRow
+            {
+                WorkflowResourceId = workflowResourceId.Trim(),
+                WorkflowName = workflowName.Trim(),
+                ConnectionName = connectionProperty.Name.Trim(),
+                ConnectionResourceId = connectionResourceId.Trim(),
+                CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+            });
+        }
+
+        return rows;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

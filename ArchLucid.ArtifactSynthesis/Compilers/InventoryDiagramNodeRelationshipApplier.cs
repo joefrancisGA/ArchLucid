@@ -283,6 +283,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
         if (emittedEdgeCount == 0)
         {
+            nsgNode.IsUnresolvedPolicyOutlineOnly = true;
             return false;
         }
 

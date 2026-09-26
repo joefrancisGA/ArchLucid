@@ -8,7 +8,7 @@ Full **monorepo map**, **`*.slnf`** filters, and assessment pointers: **`[docs/e
 
 **Debug `dotnet build` success is not evidence** that trunk will stay green. The **master/main push corset** (`.github/workflows/ui-typecheck-on-push.yml`) builds **Release** with `TreatWarningsAsErrors=true`. Prefer `scripts/ci/run_push_corset_dotnet.sh` or `scripts/ci/agent-compile-check.ps1` before claiming compile health.
 
-After `npm ci` in `archlucid-ui`, CI asserts a single resolved `@tanstack/query-core` version (`scripts/ci/assert_single_npm_dependency_version.py`). Stale `node_modules` can hide duplicate nested copies that fail clean install on CI.
+After `npm ci` in `archlucid-ui`, CI asserts a single resolved `@tanstack/query-core` version (`scripts/ci/assert_single_npm_dependency_version.py`). Stale `node_modules` can hide duplicate nested copies that fail clean install on CI. Locally, `npm ls @tanstack/query-core` should show one version under the override (same check CI runs after `npm ci`).
 
 ## Cursor Cloud specific instructions
 

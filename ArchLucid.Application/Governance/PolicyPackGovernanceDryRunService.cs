@@ -102,6 +102,7 @@ public sealed class PolicyPackGovernanceDryRunService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? usedManifestId = null;
         Guid runKey;
+
         if (!string.IsNullOrWhiteSpace(targetRunId))
         {
             if (!Guid.TryParse(targetRunId.Trim(), out runKey))
@@ -110,6 +111,7 @@ public sealed class PolicyPackGovernanceDryRunService(
         else if (targetManifestId is { } manifestKey)
         {
             ManifestDocument? manifest = await _goldenManifestRepository.GetByIdAsync(scope, manifestKey, cancellationToken).ConfigureAwait(false);
+
             if (manifest is null)
                 return null;
             runKey = manifest.RunId;
@@ -119,6 +121,7 @@ public sealed class PolicyPackGovernanceDryRunService(
             throw new InvalidOperationException("Target run or manifest is required.");
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+
         if (run is null)
             return null;
 
@@ -131,9 +134,11 @@ public sealed class PolicyPackGovernanceDryRunService(
             _manifestHashService);
 
         List<Finding> findings = [];
+
         if (run.FindingsSnapshotId is { } snapshotId)
         {
             FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
+
             if (snapshot?.Findings is { Count: > 0 } list)
                 findings = list.ToList();
         }
@@ -167,6 +172,7 @@ public sealed class PolicyPackGovernanceDryRunService(
             : PreCommitGateResult.Allowed();
         List<string> passed = ["policy_pack_content_json: parsed", "target: resolved run under tenant/workspace/project scope"];
         List<string> failed = [];
+
         if (gateActive)
         {
             if (gate.Blocked)
@@ -212,18 +218,22 @@ public sealed class PolicyPackGovernanceDryRunService(
         {
             if (!PolicyPackContentMetadataReader.TryGetValue(metadata, key, out string? raw) || string.IsNullOrWhiteSpace(raw))
                 continue;
+
             if (bool.TryParse(raw.Trim(), out bool b))
                 return b;
+
             if (int.TryParse(raw.Trim(), out int i))
             {
                 if (i == 1)
                     return true;
+
                 if (i == 0)
                     return false;
             }
 
             if (string.Equals(raw.Trim(), "yes", StringComparison.OrdinalIgnoreCase))
                 return true;
+
             if (string.Equals(raw.Trim(), "no", StringComparison.OrdinalIgnoreCase))
                 return false;
         }

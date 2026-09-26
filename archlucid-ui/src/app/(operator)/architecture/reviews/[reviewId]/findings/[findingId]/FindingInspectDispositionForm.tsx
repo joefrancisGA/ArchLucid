@@ -45,6 +45,14 @@ const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "RejectedAsNotApplicable",
 ];
 
+const DISPOSITION_LABELS: Partial<Record<FindingDispositionKind, string>> = {
+  Accepted: "Accept the risk",
+  Deferred: "Decide later",
+  NeedsEvidence: "Need more evidence",
+  Remediated: "Change is done",
+  RejectedAsNotApplicable: "Does not apply",
+};
+
 export type FindingInspectDispositionFormProps = Pick<
   FindingInspectDispositionControlsViewModel,
   | "findingId"
@@ -252,7 +260,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
           >
             {DISPOSITION_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {option}
+                {DISPOSITION_LABELS[option] ?? option}
               </option>
             ))}
           </select>
@@ -371,12 +379,14 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
           />
         ) : null}
         {dispositionLastSavedUtc !== null ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="finding-disposition-last-saved"
-          >
-            {formatLivelihoodLastSavedLabel(dispositionLastSavedUtc)}
-          </p>
+          <div data-testid="finding-disposition-last-saved">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatLivelihoodLastSavedLabel(dispositionLastSavedUtc)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Recorded on this finding. The sealed review record is unchanged.
+            </p>
+          </div>
         ) : null}
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {markRemediatedTransitionCopy()}

@@ -73,7 +73,14 @@ public static class AzureInventoryDataFlowEvidenceCatalog
             return false;
         }
 
-        if (LookupByKey.TryGetValue(associationTypeOrInferenceSource.Trim(), out AzureInventoryDataFlowEvidenceAssociation? found))
+        string lookupKey = associationTypeOrInferenceSource.Trim();
+
+        if (AzureInventoryInferenceSourceQualifier.TryGetBaseSource(lookupKey, out string baseSource))
+        {
+            lookupKey = baseSource;
+        }
+
+        if (LookupByKey.TryGetValue(lookupKey, out AzureInventoryDataFlowEvidenceAssociation? found))
         {
             evidence = found;
 

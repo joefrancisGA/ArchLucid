@@ -1,7 +1,13 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { createRequire } from "node:module";
 import type { NextConfig } from "next";
 
 import { BOOKMARK_PERMANENT_REDIRECTS } from "./src/lib/next/bookmark-permanent-redirects";
+import packageJson from "./package.json" with { type: "json" };
+
+const require = createRequire(import.meta.url);
+const installedNextJsVersion = require("next/package.json").version as string;
+const pinnedNextJsVersion = packageJson.dependencies.next;
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true" || process.env.ANALYZE === "1",
@@ -59,6 +65,10 @@ const nextConfig: NextConfig = {
   env: {
     /** Mirrors Vite-style naming — exposed to client/server bundles for opt-in API mocks (see `sandbox-api-mocks`). */
     VITE_USE_SANDBOX_MOCKS: process.env.VITE_USE_SANDBOX_MOCKS ?? "",
+    /** Installed `next` semver (from node_modules at dev/build startup). */
+    NEXT_PUBLIC_NEXTJS_PACKAGE_VERSION: installedNextJsVersion,
+    /** Exact pin from package.json — compare to detect stale node_modules after a bump. */
+    NEXT_PUBLIC_NEXTJS_PINNED_VERSION: pinnedNextJsVersion,
   },
   /** Production/Docker `next build` must not typecheck Vitest-only roots (`testing/`, `vitest.*.ts`). IDE keeps `tsconfig.json`. */
   typescript: {

@@ -15,9 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
-import { ARCHITECTURE_DRAFT_ALTERNATIVES_HINT } from "@/lib/create-vs-review-intake-copy";
 import {
-  ARCHITECTURE_OPEN_QUESTIONS_HELPER,
   ARCHITECTURE_OPEN_QUESTIONS_LABEL,
   ARCHITECTURE_OPEN_QUESTIONS_PLACEHOLDER,
 } from "@/lib/architecture/architecture-open-questions-copy";
@@ -139,15 +137,11 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           statusMessage={requirementsImport.statusMessage}
           onFilesSelected={requirementsImport.onRequirementsFilesSelected}
         />
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-          {guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)}
-        </p>
-        <p
-          className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
-          data-testid="architecture-draft-intent-alternatives-hint"
-        >
-          {ARCHITECTURE_DRAFT_ALTERNATIVES_HINT}
-        </p>
+        {intentTrimmedLength > 0 ? (
+          <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+            {guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)}
+          </p>
+        ) : null}
         <ArchitectureDraftOverviewRewritePanel
           currentOverview={props.fields.freeTextIntent}
           systemName={props.fields.systemName}
@@ -183,13 +177,13 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           aria-required
           aria-invalid={outcomeInvalid}
         />
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-          {outcomeTrimmedLength === 0
-            ? GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER
-            : outcomeMeetsMinimum
+        {outcomeTrimmedLength > 0 ? (
+          <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+            {outcomeMeetsMinimum
               ? `${outcomeTrimmedLength} characters.`
               : `${outcomeTrimmedLength} / ${MIN_OUTCOME_CHARS} characters. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`}
-        </p>
+          </p>
+        ) : null}
       </div>
 
       <DraftIntakeActorEditor
@@ -241,9 +235,6 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           placeholder={ARCHITECTURE_OPEN_QUESTIONS_PLACEHOLDER}
           data-testid="architecture-draft-open-questions-input"
         />
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-          {ARCHITECTURE_OPEN_QUESTIONS_HELPER}
-        </p>
       </div>
     </div>
   );

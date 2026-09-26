@@ -4,6 +4,8 @@ import {
   SECURENOW_PATH_RANKED_PATHS_EMPTY,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { SECURENOW_ARCHITECT_METRICS_SNAPSHOTS_EMPTY } from "@/lib/product-line/securenow-architect-metrics-copy";
+import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 export const REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING =
   "Loading executive remediation metrics for the current workspace scope…" as const;
@@ -12,12 +14,14 @@ export const REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY: EnterpriseCompactEmptySta
   title: "Priority queue empty",
   description:
     "No open operational security findings to rank in the current workspace scope. Refresh after new findings arrive or widen scope via inventory snapshots.",
+  actions: [{ label: "Start an architecture review", href: REVIEWS_NEW_PATH, variant: "primary" }],
   testId: "remediation-factory-priority-queue-empty",
 };
 
 export const REMEDIATION_FACTORY_RANKED_PATHS_EMPTY: EnterpriseCompactEmptyStateProps = {
   title: "No ranked architect paths",
   description: SECURENOW_PATH_RANKED_PATHS_EMPTY,
+  actions: [{ label: "Upload inventory", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, variant: "primary" }],
   testId: "remediation-factory-ranked-paths-empty",
 };
 

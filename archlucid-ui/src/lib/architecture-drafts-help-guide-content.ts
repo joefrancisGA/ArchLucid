@@ -79,7 +79,8 @@ export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDrafts
   },
   {
     label: CREATE_ARCHITECTURE_LABEL,
-    detail: "Start a new architecture draft when you need a fresh system brief.",
+    detail:
+      "Start a new architecture draft when you need a fresh system brief. Field-by-field tips live in How to create an architecture help.",
   },
   {
     label: "Evidence intake",

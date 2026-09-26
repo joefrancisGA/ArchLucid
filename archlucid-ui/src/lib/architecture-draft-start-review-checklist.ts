@@ -3,10 +3,10 @@ import type { IntegrationConnectChecklistStep } from "@/components/integrations/
 export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE = "Architecture draft readiness checklist" as const;
 
 export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION_PAGE_LOCAL =
-  "These three steps prepare this architecture draft for review." as const;
+  "Before analysis, confirm the architecture scope, evidence, and review readiness." as const;
 
 export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION_WITH_BANNER =
-  "These three steps prepare this architecture draft for review. Your overall first review progress (7 steps) is tracked in the banner above." as const;
+  "Before analysis, confirm the architecture scope, evidence, and review readiness. Your overall first review progress (7 steps) is tracked in the banner above." as const;
 
 /** @deprecated Prefer {@link resolveArchitectureDraftStartReviewChecklistDescription}. */
 export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION =

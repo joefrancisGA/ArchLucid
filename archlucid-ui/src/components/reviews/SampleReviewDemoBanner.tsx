@@ -24,13 +24,18 @@ export function SampleReviewDemoBanner(props: SampleReviewDemoBannerProps): Reac
       role="status"
     >
       <DemoDataBadge />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-        You are viewing a curated sample review.{" "}
+      <div className="min-w-0">
+        <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          This is a sample architecture package.
+        </p>
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          You are viewing a curated sample review. The findings and exports here are demo data.{" "}
         <Link href="/architecture/reviews/new" className="text-al-link underline-offset-2 hover:underline">
           Start your own review
         </Link>{" "}
         when you are ready.
-      </p>
+        </p>
+      </div>
     </div>
   );
 }

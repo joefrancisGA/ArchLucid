@@ -5,8 +5,11 @@ using ArchLucid.Application.Search;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Search;
 
+using System.Security.Claims;
+
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -108,6 +111,15 @@ public sealed class SearchControllerTests
 
         GlobalSearchShareAccessFilter shareAccessFilter = new(ArchitectureShareAccessGateTestDefaults.CreatePermissiveGate().Object);
 
-        return new SearchController(searchService, shareAccessFilter, scopeProvider.Object);
+        return new SearchController(searchService, shareAccessFilter, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity("unit-test")),
+                },
+            },
+        };
     }
 }

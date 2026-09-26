@@ -177,6 +177,26 @@ Describe 'ArchLucid.CostManagement.helpers' {
         $script:AzRestAttemptCount | Should -Be 1
     }
 
+    It 'bounds transient ActualCost retries when a timeout is supplied' {
+
+        Mock Invoke-ArchLucidActualCostRestCaptured {
+            return @{
+                Exit = 1
+                Stdout = ''
+                Stderr = 'ERROR: Too Many Requests({"error":{"code":"429"}})'
+            }
+        }
+
+        [hashtable]$result =
+            Invoke-ArchLucidActualCostRestRetryable `
+                -Method 'POST' `
+                -Url 'https://example.test/query' `
+                -TimeoutSeconds 1
+
+        $result.Exit | Should -Be 124
+        $result.Stderr | Should -Match 'timed out after 1 seconds'
+    }
+
     It 'parses 429 from az rest stderr payloads' {
 
         [int]$parsed =

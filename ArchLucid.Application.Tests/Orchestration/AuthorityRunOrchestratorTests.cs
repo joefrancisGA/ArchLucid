@@ -24,6 +24,7 @@ using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.SealedManifest;
 
 using Microsoft.Data.SqlClient;
 
@@ -1216,8 +1217,8 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts,
             publicSiteOpts,
             NonCachingGraphSnapshotProjectionCache.Instance,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             audit,
             NullLogger<AuthorityCommittedPipelineFinalizer>.Instance);
 

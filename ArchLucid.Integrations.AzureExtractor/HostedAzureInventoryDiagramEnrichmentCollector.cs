@@ -41,11 +41,6 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
                 logger,
                 cancellationToken).ConfigureAwait(false);
 
-        if (logicAppConnectionsResult.StandardLogicAppPresent)
-        {
-            collectionWarnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.LogicAppStandardNotCollected);
-        }
-
         IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociations =
             await HostedAzureInventoryMessagingAssociationCollector.CollectAsync(
                 armReadClient,

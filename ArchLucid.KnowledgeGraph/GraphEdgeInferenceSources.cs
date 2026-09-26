@@ -86,6 +86,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryEventHubCapture = "inventory-event-hub-capture";
 
+    public const char InferenceSourceQualifierSeparator = ':';
+
     public const string InventoryEventHubMayPublish = "inventory-event-hub-may-publish";
     public const string InventoryEventHubMayConsume = "inventory-event-hub-may-consume";
     public const string InventoryServiceBusMaySend = "inventory-service-bus-may-send";
@@ -180,5 +182,38 @@ public static class GraphEdgeInferenceSources
             || inferenceSource.Equals(InventorySynapseWritesTo, StringComparison.OrdinalIgnoreCase)
             || inferenceSource.Equals(InventorySynapseLinkedService, StringComparison.OrdinalIgnoreCase)
             || inferenceSource.Equals(InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static string WithQualifier(string inferenceSource, string qualifier)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inferenceSource);
+        ArgumentException.ThrowIfNullOrWhiteSpace(qualifier);
+
+        return $"{inferenceSource.Trim()}{InferenceSourceQualifierSeparator}{qualifier.Trim()}";
+    }
+
+    public static bool TrySplitQualifier(string? inferenceSource, out string baseSource, out string? qualifier)
+    {
+        baseSource = inferenceSource ?? string.Empty;
+        qualifier = null;
+
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        int separatorIndex = inferenceSource.IndexOf(InferenceSourceQualifierSeparator);
+
+        if (separatorIndex <= 0 || separatorIndex >= inferenceSource.Length - 1)
+        {
+            baseSource = inferenceSource.Trim();
+
+            return false;
+        }
+
+        baseSource = inferenceSource[..separatorIndex].Trim();
+        qualifier = inferenceSource[(separatorIndex + 1)..].Trim();
+
+        return !string.IsNullOrWhiteSpace(baseSource) && !string.IsNullOrWhiteSpace(qualifier);
     }
 }

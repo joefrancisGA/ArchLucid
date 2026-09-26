@@ -816,29 +816,73 @@ function Ensure-ArchLucidAzureSubscriptionSession
 
     if ($null -ne $subscription)
     {
+        if ([string]::IsNullOrWhiteSpace($trimmedTenantId) -and -not [string]::IsNullOrWhiteSpace($resolvedTenantId))
+        {
+            Write-Host ("Using tenant {0} discovered from subscription {1}." -f $resolvedTenantId, $trimmedSubscriptionId) -ForegroundColor Cyan
+        }
+
         if (-not [string]::IsNullOrWhiteSpace($resolvedTenantId))
         {
             Clear-ArchLucidAzureAccountSessions -ExceptTenantIds @($resolvedTenantId)
         }
 
         [object]$currentContext = Get-AzContext -ErrorAction SilentlyContinue
-        [string]$currentSubscriptionId = "$( $currentContext.Subscription.Id )".Trim()
-        [string]$currentTenantId = "$( $currentContext.Tenant.Id )".Trim()
+        [string]$currentSubscriptionId = ""
+        [string]$currentTenantId = ""
+
+        if ($null -ne $currentContext)
+        {
+            if ($null -ne $currentContext.PSObject.Properties['Subscription'])
+            {
+                $currentSubscriptionId = "$( $currentContext.Subscription.Id )".Trim()
+            }
+
+            if ($null -ne $currentContext.PSObject.Properties['Tenant'])
+            {
+                $currentTenantId = "$( $currentContext.Tenant.Id )".Trim()
+            }
+        }
+
+        [bool]$loginRequired = $false
 
         if (-not (Test-ArchLucidAzureSubscriptionIdsMatch -Left $currentSubscriptionId -Right $trimmedSubscriptionId) -or
             (-not [string]::IsNullOrWhiteSpace($resolvedTenantId) -and $currentTenantId -ne $resolvedTenantId))
         {
-            $null = Set-AzContext `
-                -SubscriptionId $trimmedSubscriptionId `
-                -Tenant $resolvedTenantId `
-                -ErrorAction Stop
+            # A saved subscription can still be returned when no account is signed in.
+            # Set-AzContext then reports that Connect-AzAccount is required.
+            try
+            {
+                $null = Set-AzContext `
+                    -SubscriptionId $trimmedSubscriptionId `
+                    -Tenant $resolvedTenantId `
+                    -ErrorAction Stop
+            }
+            catch
+            {
+                [string]$contextFailure = "$_"
+
+                if ($null -ne $_.Exception -and -not [string]::IsNullOrWhiteSpace("$($_.Exception.Message)"))
+                {
+                    $contextFailure = "$($_.Exception.Message)"
+                }
+
+                if ($contextFailure -notlike '*Run Connect-AzAccount to login*')
+                {
+                    throw
+                }
+
+                $loginRequired = $true
+            }
         }
 
-        Sync-ArchLucidAzureCliSubscriptionContext `
-            -SubscriptionId $trimmedSubscriptionId `
-            -TenantId $resolvedTenantId
+        if (-not $loginRequired)
+        {
+            Sync-ArchLucidAzureCliSubscriptionContext `
+                -SubscriptionId $trimmedSubscriptionId `
+                -TenantId $resolvedTenantId
 
-        return
+            return
+        }
     }
 
     Clear-ArchLucidAzureAccountSessions
@@ -854,7 +898,7 @@ function Ensure-ArchLucidAzureSubscriptionSession
     }
 
     Connect-ArchLucidAzureAccountForSubscription `
-        -TenantId $trimmedTenantId `
+        -TenantId $resolvedTenantId `
         -SubscriptionId $trimmedSubscriptionId `
         -AuthenticationMethod $AuthenticationMethod `
         -Credential $resolvedCredential

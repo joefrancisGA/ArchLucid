@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import { resolveOperatorHomePageMetadataTitle } from "@/lib/product-line/resolve-operator-home-page-metadata";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 
 import { CtoDemoSponsorLandingRedirectDeferred } from "./_sections/operator-home-page-view-deferred-chunks";
@@ -22,22 +23,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const evalChromeShell = resolveProductionEvalChromeForServer();
-  const productLine = await resolveProductLineIdForServer();
+  const hostedProductLine = resolveProductLineIdFromEnv();
 
   return (
     <>
       <CtoDemoSponsorLandingRedirectDeferred />
-      {productLine === "security" ? (
-        <ProductLineHomeSwitch />
-      ) : (
-        <ProductLineHomeSwitch
-          architectureHome={
+      <ProductLineHomeSwitch
+        architectureHome={
+          hostedProductLine === "security" ? undefined : (
             <Suspense fallback={<OperatorHomePageSuspenseFallback />}>
               <OperatorHomeRunsDashboardAsync buyerPolishedShell={evalChromeShell} />
             </Suspense>
-          }
-        />
-      )}
+          )
+        }
+      />
     </>
   );
 }

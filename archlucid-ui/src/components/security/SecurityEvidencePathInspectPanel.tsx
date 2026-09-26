@@ -11,6 +11,7 @@ import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCo
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorAdvisorySimulatorProvenanceBlock } from "@/components/usability/OperatorAdvisorySimulatorProvenanceBlock";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -35,7 +36,6 @@ import {
   SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE,
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
-  SECURENOW_PATH_INSPECT_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_LEAD,
@@ -48,7 +48,6 @@ import {
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_INSPECT_RANK_LOADING,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
-  SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
@@ -59,27 +58,57 @@ import {
 } from "@/lib/query/operator-query-stale-time";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathKindLabel,
+  explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
+import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import type {
+  SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
   SecurityEvidencePathHop,
   SecurityEvidencePathRankDetail,
   SecurityEvidencePathRankSummary,
 } from "@/lib/security-evidence-path-types";
+import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
+import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
   readonly weakestHopOrdinal: number;
 }) {
+  const internetHopOrdinal = props.hops.find(
+    (hop) =>
+      securityEvidencePathHopNodeName(hop.fromNodeLabel) === "Internet"
+      || securityEvidencePathHopNodeName(hop.toNodeLabel) === "Internet",
+  )?.hopOrdinal;
+
+  const bandMeaning = (band: string): string | null => {
+    switch (band) {
+      case "Confirmed":
+        return "The evidence for this hop is confirmed.";
+      case "HighlyLikely":
+        return "The evidence for this hop is highly likely.";
+      case "Probable":
+        return "The evidence for this hop is probable.";
+      case "Possible":
+        return "The control plane allows this hop. No traffic was seen.";
+      case "InsufficientEvidence":
+        return "This hop does not have enough evidence.";
+      default:
+        return null;
+    }
+  };
+
   return (
     <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_HOPS_TITLE}>
       <EnterpriseTableHead>
         <EnterpriseTableRow>
           <EnterpriseTableHeaderCell>#</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Hop</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Edge</EnterpriseTableHeaderCell>
@@ -99,23 +128,64 @@ function PathHopsTable(props: {
               aria-current={isWeakest ? "true" : undefined}
             >
               <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
-              <EnterpriseTableCell>{hop.fromNodeLabel}</EnterpriseTableCell>
-              <EnterpriseTableCell>{hop.toNodeLabel}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by {hop.edgeType}. Source:{" "}
+                  {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}.
+                </p>
+                {hop.hopOrdinal === internetHopOrdinal ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-internet-boundary">
+                    Internet is the public boundary, not an Azure resource.
+                  </p>
+                ) : null}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell title={hop.fromNodeLabel}>{securityEvidencePathHopNodeName(hop.fromNodeLabel)}</EnterpriseTableCell>
+              <EnterpriseTableCell title={hop.toNodeLabel}>{securityEvidencePathHopNodeName(hop.toNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell>{hop.edgeType}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid="security-evidence-path-hop-provenance">
                 {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}
+                {hop.hopOrdinal === 1 && explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                    {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag
                   kind={securityEvidencePathConfidenceBandStatusKind(hop.hopConfidenceBand)}
                   label={formatSecurityEvidencePathConfidenceBandLabel(hop.hopConfidenceBand)}
                 />
+                {bandMeaning(hop.hopConfidenceBand) != null ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                    {bandMeaning(hop.hopConfidenceBand)}
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
             </EnterpriseTableRow>
           );
         })}
       </EnterpriseTableBody>
     </EnterpriseTable>
+  );
+}
+
+function PathConfidenceWhy(props: { readonly band: string }): React.JSX.Element | null {
+  if (props.band !== "InsufficientEvidence" && props.band !== "Possible") {
+    return null;
+  }
+
+  const message =
+    props.band === "InsufficientEvidence"
+      ? "This result stays open because the cited evidence does not support a stronger band."
+      : "The control plane allows this path. No observed traffic is claimed.";
+
+  return (
+    <details className="text-sm" data-testid="security-evidence-path-confidence-why">
+      <summary className="cursor-pointer text-al-link underline-offset-2 hover:underline">
+        Why am I seeing this?
+      </summary>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{message}</p>
+    </details>
   );
 }
 
@@ -135,7 +205,8 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-        Composite score {props.rank.compositeSortScore.toFixed(4)} · {props.rank.explanationSummary}
+        Composite score {props.rank.compositeSortScore.toFixed(4)} · Sort key. Not a percentage. ·{" "}
+        {props.rank.explanationSummary}
       </p>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
@@ -219,11 +290,75 @@ function PathExplanationSection(props: {
   );
 }
 
+function RecommendedActionSection(props: {
+  readonly path: SecurityEvidencePathDetail;
+  readonly rank: SecurityEvidencePathRankDetail | null;
+}): React.JSX.Element {
+  const firstCutPoint = props.path.relatedCutPoints[0];
+  const firstRoute = props.path.routing[0];
+  const lines = [
+    {
+      label: "Problem",
+      value:
+        props.path.explanationTemplate?.architectSentence?.trim() ||
+        props.rank?.explanationSummary?.trim() ||
+        "Not cited.",
+    },
+    {
+      label: "Evidence",
+      value:
+        props.path.weakestHop?.reason?.trim() ||
+        props.path.hops[0]?.evidenceReference?.trim() ||
+        "Not cited.",
+    },
+    {
+      label: "Consequence",
+      value: props.rank?.dimensionProse.blastRadius?.trim() || "Not cited.",
+    },
+    {
+      label: "Recommended change",
+      value:
+        firstCutPoint?.explanationSummary?.trim() ||
+        props.path.explanationTemplate?.proposedChange?.trim() ||
+        "Not cited.",
+    },
+    {
+      label: "Owner",
+      value: firstRoute?.displayName?.trim() || firstRoute?.role?.trim() || "Not cited.",
+    },
+    {
+      label: "How to check",
+      value: props.path.explanationTemplate?.verify?.trim() || "Not cited.",
+    },
+  ];
+  const verificationValue = lines[lines.length - 1]?.value ?? "Not cited.";
+  const verificationIsProse = /\s/.test(verificationValue);
+
+  return (
+    <div className="space-y-2 rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-recommended-action">
+      <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Recommended action</h3>
+      <dl className="m-0 space-y-2">
+        {lines.map((line) => (
+          <div key={line.label}>
+            <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{line.label}</dt>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>
+              {line.label === "How to check" && !verificationIsProse
+                ? "A check is recorded for this path."
+                : line.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
 function InspectSelectionIdentityHeader(props: {
   readonly findingSummary: RemediationPrioritizedFinding | null | undefined;
   readonly pathSummary: SecurityEvidencePathRankSummary | null | undefined;
   readonly findingId: string | null;
   readonly pathId: string | null;
+  readonly verificationId?: string | null;
 }) {
   const pathname = usePathname() ?? "/governance/remediation-factory";
   const searchParams = useSearchParams();
@@ -237,7 +372,7 @@ function InspectSelectionIdentityHeader(props: {
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           Path rank {props.pathSummary.rankOrder} · score {props.pathSummary.compositeSortScore.toFixed(4)} ·{" "}
-          {props.pathSummary.pathKind}
+          {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
@@ -259,9 +394,9 @@ function InspectSelectionIdentityHeader(props: {
     return (
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          Finding rank {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"} · score{" "}
+          <InlineGlossaryChip nounId="finding">Finding</InlineGlossaryChip> rank{" "}
+          {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"} · score{" "}
           {props.findingSummary.totalScore.toFixed(4)}
-          {props.findingSummary.patternKey != null ? ` · ${props.findingSummary.patternKey}` : ""}
         </p>
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
@@ -271,9 +406,21 @@ function InspectSelectionIdentityHeader(props: {
           {idsOpen ? "Hide identifiers" : "Show identifiers"}
         </Link>
         {idsOpen ? (
-          <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-finding-id">
-            Finding ID: {props.findingId}
-          </p>
+          <div className="space-y-1">
+            <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-finding-id">
+              Finding ID: {props.findingId}
+            </p>
+            {props.findingSummary?.patternKey != null ? (
+              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                Pattern key: {props.findingSummary.patternKey}
+              </p>
+            ) : null}
+            {props.verificationId != null && props.verificationId.trim().length > 0 ? (
+              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                Verification ID: {props.verificationId}
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </div>
     );
@@ -334,6 +481,9 @@ export function SecurityEvidencePathInspectPanel(props: {
     retry: false,
   });
   const advisoryInstance = instancesQuery.data?.[0] ?? null;
+  const decisionReadiness = pathQuery.data != null
+    ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
+    : null;
   const hasSelection = props.findingId != null || props.pathIdOverride != null;
   const isLoadingFinding = props.findingId != null && findingQuery.isLoading;
   const isLoadingPath = resolvedPathId != null && pathQuery.isLoading;
@@ -418,13 +568,41 @@ export function SecurityEvidencePathInspectPanel(props: {
       ) : isLoadingFinding || isLoadingPath ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_LOADING}</p>
       ) : findingQuery.isError || pathQuery.isError ? (
-        <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_ERROR} />
+        <>
+          <OperatorErrorRecoveryContract
+            presentation={{
+              whatFailed: "Path inspect did not load.",
+              whatIsIntact: "The snapshot selection stays on this page.",
+              nextStep: "Retry the load. This does not change Azure.",
+            }}
+            testId="security-evidence-path-inspect-error-recovery"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void findingQuery.refetch();
+              void pathQuery.refetch();
+            }}
+            data-testid="security-evidence-path-inspect-retry"
+          >
+            Retry path inspect
+          </Button>
+        </>
       ) : resolvedPathId == null ? (
         <p className={OPERATOR_TYPOGRAPHY.body} data-testid="security-evidence-path-inspect-empty">
           {SECURENOW_PATH_INSPECT_EMPTY_NO_PATH}
         </p>
       ) : pathQuery.data == null ? (
-        <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_ERROR} />
+        <OperatorErrorRecoveryContract
+          presentation={{
+            whatFailed: "Path inspect did not load.",
+            whatIsIntact: "The snapshot selection stays on this page.",
+            nextStep: "Retry the load. This does not change Azure.",
+          }}
+          testId="security-evidence-path-inspect-empty-error-recovery"
+        />
       ) : (
         <>
           <InspectSelectionIdentityHeader
@@ -432,22 +610,64 @@ export function SecurityEvidencePathInspectPanel(props: {
             pathSummary={selectedPath}
             findingId={props.findingId}
             pathId={resolvedPathId}
+            verificationId={pathQuery.data.explanationTemplate?.verify}
           />
           <div className="flex flex-wrap items-center gap-2">
-            <StatusTag kind="neutral" label={pathQuery.data.pathKind} />
+            <StatusTag kind="neutral" label={formatSecurityEvidencePathKindLabel(pathQuery.data.pathKind)} title={pathQuery.data.pathKind} />
             <StatusTag
               kind={securityEvidencePathConfidenceBandStatusKind(pathQuery.data.pathConfidenceBand)}
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
             />
+            <PathConfidenceWhy band={pathQuery.data.pathConfidenceBand} />
           </div>
+
+          {decisionReadiness != null ? (
+            <div className="space-y-2 rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-decision-readiness">
+              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Evidence-to-action readiness</h3>
+              <StatusTag kind={decisionReadiness.status === "READY_FOR_REVIEW" ? "neutral" : "needs-attention"}
+                label={decisionReadiness.status === "READY_FOR_REVIEW" ? "Ready for operator review" : "Verify evidence before action"} />
+              {decisionReadiness.issues.length > 0 ? (
+                <ul className="list-disc space-y-1 pl-5" data-testid="security-evidence-path-evidence-issues">
+                  {decisionReadiness.issues.map((issue) => <li key={issue} className={OPERATOR_TYPOGRAPHY.helper}>{issue}</li>)}
+                </ul>
+              ) : null}
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Affected assets with resource IDs: {decisionReadiness.affectedAssetIds.length > 0
+                  ? decisionReadiness.affectedAssetIds.join(", ") : "none identified in path hops"}
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-verification-status">
+                {decisionReadiness.verificationStatus}
+              </p>
+              {props.findingId != null ? (
+                <Link className={OPERATOR_LINK.inline} href={buildRemediationWorkbenchHref({
+                  findingId: props.findingId, snapshotId: pathQuery.data.snapshotId,
+                  instanceId: advisoryInstance?.instanceId,
+                })}>Review remediation and verification</Link>
+              ) : null}
+            </div>
+          ) : null}
 
           {pathRankQuery.isLoading ? (
             <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_RANK_LOADING}</p>
           ) : pathRankQuery.isError ? (
-            <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE} />
+            <>
+              <OperatorErrorRecoveryContract
+                presentation={{
+                  whatFailed: "Path inspect did not load.",
+                  whatIsIntact: "The snapshot selection stays on this page.",
+                  nextStep: "Retry the load. This does not change Azure.",
+                }}
+                testId="security-evidence-path-rank-error-recovery"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={() => void pathRankQuery.refetch()}>
+                Retry path inspect
+              </Button>
+            </>
           ) : pathRankQuery.data != null ? (
             <PathRankSection rank={pathRankQuery.data} />
           ) : null}
+
+          <RecommendedActionSection path={pathQuery.data} rank={pathRankQuery.data ?? null} />
 
           <PathExplanationSection
             pathId={resolvedPathId}
@@ -520,6 +740,35 @@ export function SecurityEvidencePathInspectPanel(props: {
               </ul>
             </div>
           ) : null}
+
+          <div className="space-y-2" data-testid="security-evidence-path-what-could-break">
+            <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>What could break</h3>
+            {[
+              ...pathQuery.data.relatedCutPoints
+                .map((cutPoint) => cutPoint.explanationSummary.trim())
+                .filter((summary) => summary.length > 0),
+              pathRankQuery.data?.dimensionProse.blastRadius.trim() ?? "",
+            ].filter((summary) => summary.length > 0).length > 0 ? (
+              <ul className="m-0 list-disc space-y-1 pl-5">
+                {[
+                  ...pathQuery.data.relatedCutPoints
+                    .map((cutPoint) => cutPoint.explanationSummary.trim())
+                    .filter((summary) => summary.length > 0),
+                  pathRankQuery.data?.dimensionProse.blastRadius.trim() ?? "",
+                ]
+                  .filter((summary) => summary.length > 0)
+                  .map((summary) => (
+                    <li key={summary} className={OPERATOR_TYPOGRAPHY.body}>
+                      {summary}
+                    </li>
+                  ))}
+              </ul>
+            ) : (
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                No dependent or shared control is cited for this change.
+              </p>
+            )}
+          </div>
 
           {pathQuery.data.routing.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-routing">

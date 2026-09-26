@@ -19,6 +19,7 @@ public static class PreCommitGateThresholdParser
             return parsed;
 
         // Enterprise questionnaires often say "High" where the product enum uses Error.
+
         if (string.Equals(normalized, "High", StringComparison.OrdinalIgnoreCase))
             return FindingSeverity.Error;
 
@@ -47,6 +48,7 @@ public static class PreCommitGateThresholdParser
                 continue;
 
             FindingSeverity? parsed = TryParseMinimumSeverity(raw);
+
             if (parsed.HasValue)
                 return (int)parsed.Value;
         }

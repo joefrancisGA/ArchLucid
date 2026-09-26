@@ -2,7 +2,10 @@
 
 import { clientHasDeploymentBuildIdentity, readClientDeploymentFingerprint } from "@/lib/deployment-fingerprint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION_BODY,
+  GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION_LABEL,
+} from "@/lib/governance/governance-infrastructure-copy";
 import { cn } from "@/lib/utils";
 
 export type InfraEvidenceWorkbenchBuildProvenanceStripProps = {
@@ -23,7 +26,8 @@ export function InfraEvidenceWorkbenchBuildProvenanceStrip(
       data-testid={props.testId}
       role="note"
     >
-      {GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION}
+      <span className="font-semibold">{GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION_LABEL}</span>{" "}
+      {GOVERNANCE_INFRASTRUCTURE_WORKBENCH_BUILD_PROVENANCE_LIMITATION_BODY}
     </p>
   );
 }

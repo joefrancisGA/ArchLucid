@@ -4,7 +4,7 @@ export const SECURENOW_PATH_INSPECT_PANEL_LEAD =
   "Review architect path hops, confidence band, weakest link, cut points, and advisory remediation for the selected finding." as const;
 
 export const SECURENOW_PATH_INSPECT_EMPTY_NO_PATH =
-  "No architect path cited — this finding is resource-scoped." as const;
+  "This finding does not cite a path." as const;
 
 export const SECURENOW_PATH_INSPECT_LOADING = "Loading path inspect…" as const;
 

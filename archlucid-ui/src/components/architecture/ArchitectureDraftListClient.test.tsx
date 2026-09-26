@@ -3,7 +3,6 @@ import { useSyncExternalStore, type ReactElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 
 import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
@@ -103,7 +102,6 @@ describe("ArchitectureDraftListClient", () => {
     useArchitectureDraftRegistryEntries.mockReset();
     useArchitectureDraftRegistryHydrated.mockReset();
     useArchitectureDraftRegistryHydrated.mockReturnValue(true);
-    window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
   });
 
   it("counts abandoned drafts under Archived only, not No review yet", () => {
@@ -210,16 +208,6 @@ describe("ArchitectureDraftListClient", () => {
     expect(screen.getByTestId("architecture-draft-list-empty")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create architecture" })).toBeInTheDocument();
-  });
-
-  it("shows draft-vs-review disclosure only when drafts exist (TB-1449)", async () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
-
-    renderClient();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-guidance-disclosure")).toBeInTheDocument();
-    });
   });
 
   it("uses compact inventory toolbar search height", () => {

@@ -4303,6 +4303,7 @@ jobs:
         run: |
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
+          python3 ../scripts/ci/assert_archlucid_ui_next_pin.py --prefix .
           npm run typecheck
 
   ui-static-quality:
@@ -5364,6 +5365,7 @@ jobs:
           python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
+          python3 ../scripts/ci/assert_archlucid_ui_next_pin.py --prefix .
           npm run typecheck
 
       - name: Build Next (standalone, jwt-bearer client)

@@ -45,7 +45,19 @@ function lineConnectsOverflowNode(line: string, overflowIds: ReadonlySet<string>
   return false;
 }
 
-/** Removes Executive "+N more …" rollup nodes from Mermaid used to paint the canvas; outline parsing keeps the full source. */
+export function isInfraEvidenceOutlineOnlyCanvasExcludedNode(
+  node: InfraEvidenceMermaidOutlineNode,
+): boolean {
+  return node.outlineOnlyOnCanvas === true || isInfraEvidenceExecutiveOverflowOutlineNode(node);
+}
+
+function lineIsOutlineOnlyMetadataComment(line: string): boolean {
+  const trimmed = line.trim();
+
+  return trimmed.startsWith("%%") && trimmed.includes("al-outline-only=true");
+}
+
+/** Removes outline-only nodes (Executive rollups, unresolved NSG policy) from Mermaid used to paint the canvas; outline parsing keeps the full source. */
 export function stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source: string): string {
   if (source.trim().length === 0) {
     return source;
@@ -53,9 +65,7 @@ export function stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source: stri
 
   const outline = parseInfraEvidenceMermaidOutline(source);
   const overflowIds = new Set(
-    outline.nodes
-      .filter(isInfraEvidenceExecutiveOverflowOutlineNode)
-      .map((node) => node.id),
+    outline.nodes.filter(isInfraEvidenceOutlineOnlyCanvasExcludedNode).map((node) => node.id),
   );
 
   if (overflowIds.size === 0) {
@@ -64,6 +74,11 @@ export function stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source: stri
 
   return source
     .split("\n")
-    .filter((line) => !lineDefinesOverflowNode(line, overflowIds) && !lineConnectsOverflowNode(line, overflowIds))
+    .filter(
+      (line) =>
+        !lineIsOutlineOnlyMetadataComment(line)
+        && !lineDefinesOverflowNode(line, overflowIds)
+        && !lineConnectsOverflowNode(line, overflowIds),
+    )
     .join("\n");
 }

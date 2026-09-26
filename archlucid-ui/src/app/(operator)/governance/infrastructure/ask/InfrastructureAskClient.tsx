@@ -1031,6 +1031,9 @@ export function InfrastructureAskClient() {
       )}
 
       <section className={cn("grid gap-3", cnCard)} aria-label="Infrastructure Ask prompt">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-snapshot-honesty">
+          Answers use the inventory snapshot on this page. They do not query live Azure.
+        </p>
         <div className="grid gap-2">
           <Label htmlFor="infra-ask-question">{GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL}</Label>
           <Textarea

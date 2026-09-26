@@ -31,7 +31,7 @@ public sealed partial class DraftRequestsController
             .GetPriorPackageSemanticCountsAsync(scope, priorRunId, cancellationToken);
 
         if (counts is null)
-            return NotFound();
+            return this.NotFoundProblem($"Prior run '{priorRunId.Trim()}' was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(counts);
     }

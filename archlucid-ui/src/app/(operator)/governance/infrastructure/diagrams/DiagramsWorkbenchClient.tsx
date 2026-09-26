@@ -214,8 +214,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
@@ -276,6 +274,57 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
   const option = INFRA_DIAGRAMS_MODE_OPTIONS.find((entry) => entry.value === mode);
 
   return option?.label ?? mode;
+}
+
+function infraDiagramModeJobCaption(mode: string): string | null {
+  switch (mode) {
+    case "data":
+      return "This view filters the infrastructure forest to data resources.";
+    case "dataArchitecture":
+      return "This diagram shows what stores data.";
+    case "dataFlow":
+      return "This diagram shows what may connect. It is not observed traffic.";
+    default:
+      return null;
+  }
+}
+
+function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Element {
+  const content =
+    mode === "dataFlow"
+      ? {
+          boxes: "Boxes are resources on a declared path.",
+          connectors: "Connectors are declared pipeline wiring.",
+          evidence: "Evidence kind: configuration, not observed traffic.",
+        }
+      : mode === "dataArchitecture"
+        ? {
+            boxes: "Boxes are data stores.",
+            connectors: "Connectors are declared repository relationships.",
+            evidence: "Evidence kind: configuration from inventory.",
+          }
+        : mode === "data"
+          ? {
+              boxes: "Boxes are data resources in the infrastructure forest.",
+              connectors: "Connectors are the infrastructure relationships already drawn.",
+              evidence: "Evidence kind: configuration from inventory.",
+            }
+          : {
+              boxes: "Boxes are Azure resources in this view.",
+              connectors: "Connectors are relationships already present in inventory.",
+              evidence: "Evidence kind: configuration from inventory.",
+            };
+
+  return (
+    <section className="space-y-1" aria-label="How to read this diagram" data-testid="infra-diagrams-legend">
+      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>How to read this diagram</h3>
+      <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+        <li><span className="font-medium">What the boxes are:</span> {content.boxes}</li>
+        <li><span className="font-medium">What the connectors are:</span> {content.connectors}</li>
+        <li><span className="font-medium">Evidence kind:</span> {content.evidence}</li>
+      </ul>
+    </section>
+  );
 }
 
 function FallbackCard(props: {
@@ -623,13 +672,6 @@ export function DiagramsWorkbenchClient() {
     && selectedResourceGroupName.length === 0
     && resourceGroupPickerArtifacts.length > 0;
 
-  const awaitingSnapshotSelection =
-    !loadingSnapshots
-    && !deepLinkedSnapshotMissing
-    && diagramsSubscriptionChosen
-    && selectedSnapshotId.length === 0
-    && snapshots.length > 0;
-
   const awaitingDiagramTypeSelection =
     diagramTypePickerEnabled && !diagramTypeSelected;
 
@@ -705,6 +747,8 @@ export function DiagramsWorkbenchClient() {
     selectedMode,
     appliedSeedNodeId,
   );
+  const selectedResourcesAwaitingSeed =
+    selectedMode === "selectedResources" && appliedSeedNodeId.trim().length === 0;
   const layoutSvg = renderResult?.layoutSvg ?? null;
   const paintDiagramCanvas = shouldPaintInfraDiagramsCanvas({
     mermaidSource,
@@ -734,6 +778,8 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
+  const dataFlowHasNoConnections =
+    selectedMode === "dataFlow" && (metrics?.edgeCount ?? 0) === 0;
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy
@@ -1861,6 +1907,11 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
+              {infraDiagramModeJobCaption(diagramTypePickerValue) != null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {infraDiagramModeJobCaption(diagramTypePickerValue)}
+                </p>
+              ) : null}
             </div>
             {selectedSnapshot != null ? (
               <div
@@ -1975,6 +2026,11 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
+              {infraDiagramModeJobCaption(diagramTypePickerValue) != null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {infraDiagramModeJobCaption(diagramTypePickerValue)}
+                </p>
+              ) : null}
             </div>
             {selectedSnapshot != null ? (
               <div
@@ -2375,18 +2431,16 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {awaitingSnapshotSelection ? (
-        <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_PROMPT_BODY}
-          testId="infra-diagrams-snapshot-prompt"
-        />
-      ) : awaitingDiagramTypeSelection ? (
+      {awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}
           testId="infra-diagrams-type-prompt"
         />
+      ) : selectedResourcesAwaitingSeed ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-selected-resources-seed-prompt">
+          Choose a resource to draw this diagram.
+        </p>
       ) : dependencyNeighborhoodAwaitingSeed ? (
         <>
           {loadingSeedCatalog ? (
@@ -2435,8 +2489,16 @@ export function DiagramsWorkbenchClient() {
         </>
       ) : showGenericEmptyContent ? (
         <EnterpriseCompactEmptyState
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY}
+          title={
+            dataFlowHasNoConnections
+              ? "This data-flow canvas is empty."
+              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
+          }
+          description={
+            dataFlowHasNoConnections
+              ? "The snapshot has inventory and no declared connection to draw."
+              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
+          }
           testId="infra-diagrams-empty-content"
         />
       ) : paintDiagramCanvas ? (
@@ -2460,6 +2522,7 @@ export function DiagramsWorkbenchClient() {
           {dataFlowCaptionPresentation != null ? (
             <InfraEvidenceDataFlowCaptionDisclosure presentation={dataFlowCaptionPresentation} />
           ) : null}
+          <InfraDiagramLegend mode={selectedMode} />
           {diagramWalkthrough != null ? (
             <div className="flex flex-col gap-2">
               <p

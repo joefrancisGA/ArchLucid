@@ -1,4 +1,6 @@
 using ArchLucid.Application.Planning.AdvisoryDraft;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Planning;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,6 +10,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
 {
     private static void RegisterAdvisoryDraftOperations(IServiceCollection services)
     {
+        services.AddSingleton<IAdvisoryDraftOperationRepository, InMemoryAdvisoryDraftOperationRepository>();
         services.AddSingleton<IAdvisoryDraftOperationStore, InMemoryAdvisoryDraftOperationStore>();
     }
 }

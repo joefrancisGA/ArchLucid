@@ -46,7 +46,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
       SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
     );
     expect(screen.getByRole("heading", { name: SCOPE_UNDERSTANDING_HEADING })).toBeInTheDocument();
-    expect(screen.getByText(SCOPE_UNDERSTANDING_HELPER)).toBeInTheDocument();
+    expect(screen.queryByText(SCOPE_UNDERSTANDING_HELPER)).not.toBeInTheDocument();
     expect(screen.getByLabelText(SCOPE_UNDERSTANDING_ADD_LABEL)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(SCOPE_UNDERSTANDING_ADD_PLACEHOLDER)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-scope-understanding-add-effect")).toHaveTextContent(

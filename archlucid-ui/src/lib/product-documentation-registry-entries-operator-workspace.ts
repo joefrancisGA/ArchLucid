@@ -537,8 +537,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
   },
   {
     "slug": "structured-brief",
-    "title": "Structured brief fields",
-    "summary": "How to fill constraints, assumptions, required capabilities, and quality attributes before evidence intake.",
+    "title": "How to create an architecture",
+    "summary": "Field-by-field guidance for the create and edit architecture workspace — structured brief, scope confirmation, and review-start readiness.",
     "audience": "operator",
     "sourcePaths": [
     ],

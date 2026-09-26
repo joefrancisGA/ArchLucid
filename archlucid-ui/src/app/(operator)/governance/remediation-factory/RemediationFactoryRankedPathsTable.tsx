@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
@@ -67,11 +68,19 @@ export function RemediationFactoryRankedPathsTable(props: {
       <EnterpriseTable ariaLabel={SECURENOW_PATH_RANKED_PATHS_TITLE} role="grid">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                1 is the first path to inspect.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>What this means</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Score</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
+            </EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -92,7 +101,17 @@ export function RemediationFactoryRankedPathsTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <RemediationFactoryTableSummaryCell
+                    rowKey={row.pathId}
+                    summary={
+                      row.explanationSummary.trim().length > 0
+                        ? row.explanationSummary
+                        : "Path recorded. Open inspect for the hops."
+                    }
+                  />
+                </EnterpriseTableCell>
+                <EnterpriseTableCell title={row.pathKind}>{formatSecurityEvidencePathKindLabel(row.pathKind)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <StatusTag
                     kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}
@@ -100,9 +119,6 @@ export function RemediationFactoryRankedPathsTable(props: {
                   />
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="tabular-nums">{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <RemediationFactoryTableSummaryCell rowKey={row.pathId} summary={row.explanationSummary} />
-                </EnterpriseTableCell>
               </EnterpriseTableInteractiveRow>
             );
           })}

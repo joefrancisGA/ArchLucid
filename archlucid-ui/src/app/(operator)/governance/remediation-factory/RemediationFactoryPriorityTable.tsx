@@ -61,7 +61,7 @@ export function RemediationFactoryPriorityTable(props: {
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="tabular-nums">{row.totalScore.toFixed(4)}</EnterpriseTableCell>
                 <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.patternKey ?? "—"}</EnterpriseTableCell>
+                <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <RemediationFactoryTableSummaryCell rowKey={row.findingId} summary={row.explanationSummary} />
                 </EnterpriseTableCell>

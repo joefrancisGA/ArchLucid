@@ -1,8 +1,17 @@
-# Weekly per-tenant burst load (10 tenant scopes × operator path @ 5 RPS each, Simulator-friendly).
+# Weekly isolated SecureNow read and architecture async-admission envelopes.
 name: "Performance: k6 per-tenant burst (scheduled)"
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/k6-per-tenant-burst-scheduled.yml
+      - scripts/ci/seed_securenow_scale_fixtures.sh
+      - scripts/ci/evaluate_securenow_scale_run.py
+      - scripts/load/securenow-multitenant-read.js
+      - tests/load/per-tenant-burst.js
+      - scripts/ci/assert_k6_ci_smoke_summary.py
+      - scripts/ci/evaluate_architecture_admission_run.py
   schedule:
     - cron: "15 6 * * 1"
 
@@ -12,9 +21,13 @@ concurrency:
 
 jobs:
   k6-per-tenant-burst:
-    name: k6 per-tenant burst (operator path)
+    name: k6 ${{ matrix.profile }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [securenow-read, architecture-admission]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -52,49 +65,105 @@ jobs:
         run: bash scripts/ci/install_k6_apt.sh
 
       - name: Create catalog + start API (Simulator)
+        env:
+          ARCHLUCID_K6_SKIP_WRITE_SMOKE: "true"
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6PerTenantBurst "${RUNNER_TEMP}/k6-burst-api.log" "${RUNNER_TEMP}/k6-burst-api.pid"
 
       - name: Seed k6 per-tenant burst tenants
         run: bash scripts/ci/seed_k6_per_tenant_burst_tenants.sh ArchLucidK6PerTenantBurst
 
-      - name: Run k6 per-tenant burst
+      - name: Seed SecureNow synthetic path corpus
+        if: matrix.profile == 'securenow-read'
+        run: bash scripts/ci/seed_securenow_scale_fixtures.sh ArchLucidK6PerTenantBurst
+
+      - name: Run and classify SecureNow multi-tenant reads
+        if: matrix.profile == 'securenow-read'
+        shell: bash
         env:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
-          K6_BURST_DURATION: "3m"
+          VUS: "5"
+          DURATION: "90s"
+        run: |
+          set -euo pipefail
+          export SECURENOW_TEST_SCOPES_JSON='[{"tenantId":"10000000-0000-4000-8000-000000000001","workspaceId":"20000000-0000-4000-8000-000000000001","projectId":"30000000-0000-4000-8000-000000000001","snapshotId":"50000000-0000-4000-8000-000000000001"},{"tenantId":"10000000-0000-4000-8000-000000000002","workspaceId":"20000000-0000-4000-8000-000000000002","projectId":"30000000-0000-4000-8000-000000000002","snapshotId":"50000000-0000-4000-8000-000000000002"}]'
+          python3 -c 'import json,os; json.dump({"profile":"synthetic-multitenant","tenantCount":2,"seededPathsPerTenant":100,"gitSha":os.environ["GITHUB_SHA"],"environment":"isolated-ci-sql","workload":"scripts/load/securenow-multitenant-read.js"},open("securenow-run-metadata.json","w"))'
+          k6_exit=0
+          k6 run scripts/load/securenow-multitenant-read.js || k6_exit=$?
+          python3 scripts/ci/evaluate_securenow_scale_run.py \
+            --k6-summary securenow-multitenant-k6.json \
+            --run-metadata securenow-run-metadata.json \
+            --json-out securenow-scale-verdict.json
+          exit "$k6_exit"
+
+      - name: Upload SecureNow scale verdict
+        if: always() && matrix.profile == 'securenow-read'
+        uses: actions/upload-artifact@v7
+        with:
+          name: securenow-synthetic-multitenant-scale
+          path: |
+            securenow-multitenant-k6.json
+            securenow-run-metadata.json
+            securenow-scale-verdict.json
+          if-no-files-found: warn
+
+      - name: Run architecture async-admission envelope
+        if: matrix.profile == 'architecture-admission'
+        env:
+          ARCHLUCID_BASE_URL: http://127.0.0.1:5128
+          K6_BURST_PROFILE: async-admission
+          K6_BURST_DURATION: "1m"
           K6_BURST_RATE: "1"
+          K6_BURST_TIME_UNIT: "5s"
           K6_BURST_TENANT_COUNT: "2"
           K6_BURST_P95_MS: "30000"
-          K6_BURST_HTTP_TIMEOUT: "240s"
+          K6_BURST_HTTP_TIMEOUT: "30s"
+          K6_BURST_GRACEFUL_STOP: "35s"
+          K6_BURST_PREALLOCATED_VUS: "2"
+          K6_BURST_MAX_VUS: "5"
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
         run: |
           set -euo pipefail
           k6 run --no-thresholds "${GITHUB_WORKSPACE}/tests/load/per-tenant-burst.js"
 
-      - name: Assert k6 burst thresholds
+      - name: Classify architecture admission
+        if: matrix.profile == 'architecture-admission'
+        run: |
+          python3 scripts/ci/evaluate_architecture_admission_run.py \
+            --k6-summary "${{ runner.temp }}/k6-per-tenant-burst-summary.json" \
+            --git-sha "$GITHUB_SHA" \
+            --json-out architecture-admission-verdict.json
+
+      - name: Assert architecture admission thresholds
+        if: matrix.profile == 'architecture-admission'
         run: |
           python3 scripts/ci/assert_k6_ci_smoke_summary.py \
             "${{ runner.temp }}/k6-per-tenant-burst-summary.json" \
             --max-failed-rate 0.05 \
-            --max-p95-ms 30000
+            --max-p95-ms 30000 \
+            --min-http-requests 2 \
+            --max-dropped-iterations 0 \
+            --min-check-rate 1
 
       - name: k6 burst summary (job log)
-        if: always()
+        if: always() && matrix.profile == 'architecture-admission'
         continue-on-error: true
         run: python3 scripts/ci/print_k6_summary_metrics.py "${{ runner.temp }}/k6-per-tenant-burst-summary.json"
 
       - name: Upload k6 per-tenant burst summary
-        if: always()
+        if: always() && matrix.profile == 'architecture-admission'
         uses: actions/upload-artifact@v7
         with:
-          name: k6-per-tenant-burst-summary
-          path: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
+          name: architecture-admission-summary
+          path: |
+            ${{ runner.temp }}/k6-per-tenant-burst-summary.json
+            architecture-admission-verdict.json
           if-no-files-found: warn
 
       - name: Upload k6 burst API log
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: k6-per-tenant-burst-api-log
+          name: k6-${{ matrix.profile }}-api-log
           path: ${{ runner.temp }}/k6-burst-api.log
           if-no-files-found: warn
 

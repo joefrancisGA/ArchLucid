@@ -9,6 +9,11 @@ import {
 } from "@/lib/deployment-fingerprint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readPublicBrowserApiBaseDefault } from "@/lib/legacy-arch-env";
+import {
+  nextJsPinMatchesInstalledPackage,
+  readNextJsPackageVersion,
+  readNextJsPinnedVersion,
+} from "@/lib/read-nextjs-package-version";
 import { cn } from "@/lib/utils";
 
 const DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE = "Not set in this build" as const;
@@ -25,6 +30,9 @@ function formatDeveloperFingerprintValue(value: string): string {
 export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
   const fingerprint = readClientDeploymentFingerprint();
   const apiBaseUrl = readPublicBrowserApiBaseDefault().trim().replace(/\/$/, "");
+  const nextJsVersion = readNextJsPackageVersion();
+  const nextJsPin = readNextJsPinnedVersion();
+  const nextJsPinMismatch = !nextJsPinMatchesInstalledPackage();
 
   return (
     <Card data-testid="developer-settings-build-identity-card">
@@ -68,6 +76,27 @@ export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
               {apiBaseUrl.length > 0 ? apiBaseUrl : DEVELOPER_SETTINGS_FINGERPRINT_UNAVAILABLE}
             </dd>
           </div>
+          <div>
+            <dt className="text-al-text-secondary">Next.js (installed)</dt>
+            <dd
+              className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="developer-settings-nextjs-version"
+            >
+              {nextJsVersion}
+            </dd>
+          </div>
+          {nextJsPinMismatch ? (
+            <div className="sm:col-span-2">
+              <dt className="text-al-text-secondary">Next.js pin mismatch</dt>
+              <dd
+                className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="developer-settings-nextjs-pin-mismatch"
+                role="alert"
+              >
+                {`package.json pins ${nextJsPin} but this process loaded next@${nextJsVersion}. Run npm ci in archlucid-ui and restart the dev server.`}
+              </dd>
+            </div>
+          ) : null}
         </dl>
       </CardContent>
     </Card>

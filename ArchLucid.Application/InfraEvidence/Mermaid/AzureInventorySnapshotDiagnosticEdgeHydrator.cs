@@ -22,6 +22,9 @@ internal static class AzureInventorySnapshotDiagnosticEdgeHydrator
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
+        HashSet<string> inventoriedArmIds = AzureInventoryEventHubVisibleEndpointResolver.BuildInventoriedArmIds(
+            snapshot.Resources.Select(resource => resource.AzureResourceId));
+
         foreach (AzureInventoryDiagnosticConfigurationReadModel diagnostic in snapshot.Diagnostics)
         {
             if (string.IsNullOrWhiteSpace(diagnostic.TargetAzureResourceId)
@@ -38,9 +41,15 @@ internal static class AzureInventorySnapshotDiagnosticEdgeHydrator
                 continue;
             }
 
+            AzureInventoryEventHubVisibleEndpointResolver.ResolveDiagnosticDestination(
+                diagnostic.WorkspaceResourceId,
+                inventoriedArmIds,
+                out string resolvedWorkspaceArmId,
+                out string diagnosticInferenceSource);
+
             foreach (string toNodeId in AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
                          nodeIdByArmId,
-                         ArmResourceIdNormalizer.Normalize(diagnostic.WorkspaceResourceId)))
+                         ArmResourceIdNormalizer.Normalize(resolvedWorkspaceArmId)))
             {
                 AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                     edges,
@@ -48,7 +57,7 @@ internal static class AzureInventorySnapshotDiagnosticEdgeHydrator
                     fromNodeId,
                     toNodeId,
                     GraphEdgeTypes.ConnectsTo,
-                    GraphEdgeInferenceSources.InventoryDiagnosticDestination,
+                    diagnosticInferenceSource,
                     provenanceKind: ProvenanceKind.ObservedFact.ToString());
             }
         }

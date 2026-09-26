@@ -45,6 +45,7 @@ import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCo
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
+import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import { cn } from "@/lib/utils";
 import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 
@@ -283,10 +284,19 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         testId="golden-manifest-export-verify-recovery"
       />
     ) : null;
+  const sealedReviewSponsorCopy = isManifestCommittedForPilotScorecardPackage(manifestSummary) ? (
+    <p
+      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="golden-manifest-export-sponsor-copy"
+    >
+      Send the sponsor the architecture package export. Markdown is a summary of the sealed review record.
+    </p>
+  ) : null;
 
   if (buyerMarkdownAsPrimaryButton === true) {
     return (
       <div className="flex max-w-xs flex-col gap-1">
+        {sealedReviewSponsorCopy}
         <Button
           type="button"
           variant="outline"
@@ -320,6 +330,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   return (
     <div className="flex max-w-xs flex-col gap-1">
+    {sealedReviewSponsorCopy}
     <Select
       key={exportMenuKey}
       onValueChange={(value: string) => {

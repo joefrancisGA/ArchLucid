@@ -538,12 +538,13 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     );
   });
 
-  it("states optional-but-helpful guidance once at section level instead of per-field labels", () => {
+  it("does not repeat structured brief teaching copy on the form (help topic owns field guidance)", () => {
     render(
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(screen.getByText(/All fields below are optional but help reviewers ground their analysis/i)).toBeInTheDocument();
+    expect(screen.queryByText(/All fields below are optional but help reviewers ground their analysis/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("structured-brief-capabilities-quality-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByText("(optional)")).not.toBeInTheDocument();
     expect(screen.queryByText(/Required capabilities.*\(required\)/i)).not.toBeInTheDocument();
   });
@@ -571,8 +572,11 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
         name: /Mark unknown/i,
       }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/Numeric targets \(latency, RTO, throughput\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/qualitative ones \(defense in depth, zero trust\)/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Numeric targets \(latency, RTO, throughput\)/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Read quality attributes help" })).toHaveAttribute(
+      "href",
+      "/help/structured-brief#field-concepts",
+    );
     expect(screen.getByRole("textbox", { name: /Quality Attributes/i })).toBeInTheDocument();
   });
 

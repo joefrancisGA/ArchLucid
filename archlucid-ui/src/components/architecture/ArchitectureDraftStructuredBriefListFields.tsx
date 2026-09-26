@@ -12,7 +12,6 @@ import {
   type StructuredBriefListFieldKey,
 } from "@/components/architecture/structured-brief-list-mutations";
 import type { StructuredBriefSuggestionsState } from "@/components/architecture/use-structured-brief-suggestions";
-import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
 import {
   joinQualityAttributeEntries,
   mergeUniqueStrings,
@@ -21,10 +20,8 @@ import {
   type StructuredBriefSuggestedFieldKey,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
-  GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
-  GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
 } from "@/lib/guided-intake-copy";
 
@@ -57,11 +54,9 @@ export function ArchitectureDraftStructuredBriefListFields(
 
   return (
     <>
-      <StructuredBriefCapabilitiesQualityVocabularyRail currentSurfaceId="architecture-draft-structured-brief" />
-
       <ArchitectureDraftStructuredBriefConfirmableChipList
         label="Constraints"
-        hint="Hard limits the architecture must not violate — budget, regions, compliance. Leave empty if none are stated."
+        hint=""
         inputId="architecture-draft-constraints"
         items={brief.confirmedConstraints}
         suggestedItems={brief.suggestedConstraints}
@@ -101,7 +96,7 @@ export function ArchitectureDraftStructuredBriefListFields(
 
       <ArchitectureDraftStructuredBriefConfirmableChipList
         label="Assumptions"
-        hint="Facts agents may rely on unless evidence contradicts them. Leave empty if none are stated."
+        hint=""
         inputId="architecture-draft-assumptions"
         items={brief.confirmedAssumptions}
         suggestedItems={brief.suggestedAssumptions}
@@ -143,7 +138,7 @@ export function ArchitectureDraftStructuredBriefListFields(
 
       <ArchitectureDraftStructuredBriefConfirmableChipList
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
-        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT}
+        hint=""
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
         suggestedItems={brief.suggestedRequiredCapabilities}
@@ -183,7 +178,7 @@ export function ArchitectureDraftStructuredBriefListFields(
 
       <ArchitectureDraftStructuredBriefConfirmableChipList
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL}
-        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT}
+        hint=""
         inputId="architecture-draft-quality-attributes"
         inputPlaceholder={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER}
         items={parseQualityAttributeEntries(brief.qualityAttribute)}

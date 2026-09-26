@@ -65,7 +65,7 @@ For UI changes, verify from a **clean install**, not a long-lived `node_modules`
 cd archlucid-ui && npm ci && npm run typecheck
 ```
 
-Stale `node_modules` can hide duplicate nested resolutions (for example two `@tanstack/query-core` copies) that clean `npm ci` on CI surfaces as `TS2322`. After `npm ci`, CI runs `python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .` to fail PRs that introduce multiple resolved versions.
+Stale `node_modules` can hide duplicate nested resolutions (for example two `@tanstack/query-core` copies) that clean `npm ci` on CI surfaces as `TS2322`. After `npm ci`, CI runs `python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .` to fail PRs that introduce multiple resolved versions. Locally, `npm ls @tanstack/query-core` from `archlucid-ui/` should list a single overridden version before you push UI dependency changes.
 
 Scoped compile check for agents: `.\scripts\ci\agent-compile-check.ps1` (see `.cursor/rules/shell-hygiene.mdc`).
 

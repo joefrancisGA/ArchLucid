@@ -9,6 +9,8 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
   readonly seedNodeId?: string | null;
+  /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
+  readonly outlineOnlyOnCanvas?: boolean;
 };
 
 export type InfraEvidenceDiagramOutlineEdgeSource =
@@ -149,7 +151,8 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
-const OUTLINE_METADATA_TOKEN = /(?:^|\s)(al-type|al-rg|al-seed)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+const OUTLINE_METADATA_TOKEN =
+  /(?:^|\s)(al-type|al-rg|al-seed|al-outline-only)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
 
 const EDGE_OUTLINE_METADATA_TOKEN =
   /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
@@ -158,6 +161,7 @@ type OutlineNodeMetadata = {
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
   readonly seedNodeId: string | null;
+  readonly outlineOnlyOnCanvas: boolean;
 };
 
 type OutlineEdgeMetadata = {
@@ -191,6 +195,7 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let resourceType: string | null = null;
   let resourceGroup: string | null = null;
   let seedNodeId: string | null = null;
+  let outlineOnlyOnCanvas = false;
 
   for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
     const key = match[1];
@@ -211,13 +216,17 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     if (key === "al-seed") {
       seedNodeId = value;
     }
+
+    if (key === "al-outline-only" && (value === "true" || value === "1")) {
+      outlineOnlyOnCanvas = true;
+    }
   }
 
-  return { resourceType, resourceGroup, seedNodeId };
+  return { resourceType, resourceGroup, seedNodeId, outlineOnlyOnCanvas };
 }
 
 function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
-  return { resourceType: null, resourceGroup: null, seedNodeId: null };
+  return { resourceType: null, resourceGroup: null, seedNodeId: null, outlineOnlyOnCanvas: false };
 }
 
 function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
@@ -374,6 +383,7 @@ function mergeOutlineNodeMetadata(
     resourceType: preferred.resourceType ?? fallback.resourceType,
     resourceGroup: preferred.resourceGroup ?? fallback.resourceGroup,
     seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
+    outlineOnlyOnCanvas: preferred.outlineOnlyOnCanvas || fallback.outlineOnlyOnCanvas,
   };
 }
 
@@ -390,6 +400,7 @@ function withPrecedingMetadata(
     resourceType: node.resourceType ?? preceding.resourceType,
     resourceGroup: node.resourceGroup ?? preceding.resourceGroup,
     seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
+    outlineOnlyOnCanvas: node.outlineOnlyOnCanvas === true || preceding.outlineOnlyOnCanvas,
   };
 }
 
@@ -432,6 +443,7 @@ function readNodeToken(
     resourceType: metadata.resourceType,
     resourceGroup: metadata.resourceGroup ?? subgraphResourceGroup,
     seedNodeId: metadata.seedNodeId,
+    outlineOnlyOnCanvas: metadata.outlineOnlyOnCanvas ? true : undefined,
   };
 }
 
@@ -456,6 +468,12 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, seedNodeId: node.seedNodeId });
+    }
+
+    if (existing.outlineOnlyOnCanvas !== true && node.outlineOnlyOnCanvas === true) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, outlineOnlyOnCanvas: true });
     }
 
     return;

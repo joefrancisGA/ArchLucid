@@ -3,7 +3,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-/// Executive overflow rollups stay in Mermaid for the Nodes outline but are not painted on diagram canvases.
+///     Executive overflow rollups and unresolved policy nodes stay in Mermaid for the Nodes outline but are not painted on canvases.
 /// </summary>
 internal static class DiagramExecutiveOverflowCanvasExclusion
 {
@@ -11,7 +11,7 @@ internal static class DiagramExecutiveOverflowCanvasExclusion
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        return !node.IsExecutiveOverflow;
+        return !node.IsExecutiveOverflow && !node.IsUnresolvedPolicyOutlineOnly;
     }
 
     public static HashSet<string> OverflowNodeIds(IReadOnlyList<DiagramNode> nodes)
@@ -19,7 +19,7 @@ internal static class DiagramExecutiveOverflowCanvasExclusion
         ArgumentNullException.ThrowIfNull(nodes);
 
         return nodes
-            .Where(node => node.IsExecutiveOverflow)
+            .Where(node => node.IsExecutiveOverflow || node.IsUnresolvedPolicyOutlineOnly)
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
     }

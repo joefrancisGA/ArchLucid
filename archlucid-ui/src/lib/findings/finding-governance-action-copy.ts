@@ -30,21 +30,29 @@ export function remediationAssignmentTransitionCopy(): string {
 }
 
 export function dispositionTransitionCopy(disposition: FindingDispositionKind): string {
-  const base = "Appends a disposition event to the audit trail. The Finalized review record is not automatically changed.";
+  const base = "The Finalized review record is not automatically changed.";
+  const transition =
+    disposition === "Accepted"
+      ? "The finding stays, and the accepted risk is recorded."
+      : disposition === "Deferred"
+        ? "The finding stays open until the revisit date."
+        : disposition === "NeedsEvidence"
+          ? "The finding stays open until more evidence is recorded."
+          : disposition === "RejectedAsNotApplicable"
+            ? "The finding does not apply to this review."
+            : disposition === "Remediated"
+              ? "The change is recorded as done."
+              : null;
+  const detail =
+    disposition === "Remediated"
+      ? "Monitoring may continue per review acceptance criteria."
+      : disposition === "Deferred"
+        ? "Sets a revisit date for approval follow-up."
+        : disposition === "NeedsEvidence"
+          ? "Requests additional evidence before closure."
+          : "";
 
-  if (disposition === "Remediated") {
-    return `${base} Monitoring may continue per review acceptance criteria.`;
-  }
-
-  if (disposition === "Deferred") {
-    return `${base} Sets a revisit date for approval follow-up.`;
-  }
-
-  if (disposition === "NeedsEvidence") {
-    return `${base} Requests additional evidence before closure.`;
-  }
-
-  return base;
+  return transition === null ? base : `${transition} ${base}${detail.length > 0 ? ` ${detail}` : ""}`;
 }
 
 export function markRemediatedTransitionCopy(): string {

@@ -1,8 +1,6 @@
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
 import {
   REVIEW_SCORECARD_EMPTY_VALUE,
-  REVIEW_SCORECARD_MEASURED_DETAIL,
-  REVIEW_SCORECARD_MEASURED_ZERO_DETAIL,
   REVIEW_SCORECARD_NOT_MEASURED_LABEL,
 } from "@/lib/pilot-scorecard-present";
 
@@ -35,7 +33,7 @@ export function remediationFactoryCountMetricPresentation(input: {
 
   return {
     displayValue: String(input.value),
-    scopeNote: input.value === 0 ? REVIEW_SCORECARD_MEASURED_ZERO_DETAIL : REVIEW_SCORECARD_MEASURED_DETAIL,
+    scopeNote: input.scopeNote,
     state: input.value === 0 ? "measuredZero" : "measured",
     href: input.href,
   };
@@ -56,7 +54,7 @@ export function remediationFactoryDecimalMetricPresentation(input: {
 
   return {
     displayValue: input.value.toFixed(input.fractionDigits ?? 2),
-    scopeNote: input.value === 0 ? REVIEW_SCORECARD_MEASURED_ZERO_DETAIL : REVIEW_SCORECARD_MEASURED_DETAIL,
+    scopeNote: input.scopeNote,
     state: input.value === 0 ? "measuredZero" : "measured",
   };
 }
@@ -75,7 +73,7 @@ export function remediationFactoryPercentMetricPresentation(input: {
 
   return {
     displayValue: `${input.value}%`,
-    scopeNote: input.value === 0 ? REVIEW_SCORECARD_MEASURED_ZERO_DETAIL : input.scopeNote,
+    scopeNote: input.scopeNote,
     state: input.value === 0 ? "measuredZero" : "measured",
   };
 }
@@ -97,7 +95,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Open findings",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.openFindings,
-        scopeNote: REVIEW_SCORECARD_MEASURED_DETAIL,
+        scopeNote: "SecureNow findings that are still open.",
         href: input.openFindingsHref,
       }),
     },
@@ -106,7 +104,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Risk-weighted open",
       presentation: remediationFactoryDecimalMetricPresentation({
         value: metrics?.riskWeightedOpen,
-        scopeNote: "Risk-weighted sum across open findings.",
+        scopeNote: "A weighted count of those open findings. Not a percentage.",
       }),
     },
     {
@@ -114,7 +112,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Critical exposure",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.criticalExposureCount,
-        scopeNote: "Findings tagged with critical exposure.",
+        scopeNote: "Open findings marked critical.",
       }),
     },
     {
@@ -122,7 +120,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Net burn (7d)",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.netBurn,
-        scopeNote: "Created minus remediated in the last seven days.",
+        scopeNote: "Findings opened minus findings closed in seven days.",
       }),
       hint:
         metrics == null
@@ -134,7 +132,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Pattern ExactMatch %",
       presentation: remediationFactoryPercentMetricPresentation({
         value: metrics?.patternCoverageExactMatchPercent,
-        scopeNote: "Share of open findings with exact pattern match coverage.",
+        scopeNote: "Share of open findings whose pattern matched exactly.",
       }),
     },
     {
@@ -142,7 +140,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Automation %",
       presentation: remediationFactoryPercentMetricPresentation({
         value: metrics?.automationPercent,
-        scopeNote: "Share of open findings with automation-ready patterns.",
+        scopeNote: "Share of open findings with an automated check.",
       }),
     },
     {
@@ -150,7 +148,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Exceptions active",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.exceptionsActive,
-        scopeNote: "Active risk exceptions in workspace scope.",
+        scopeNote: "Risk exceptions still in force.",
       }),
       hint:
         metrics == null
@@ -163,7 +161,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       presentation: remediationFactoryDecimalMetricPresentation({
         value: metrics?.averageAgeDays,
         fractionDigits: 1,
-        scopeNote: "Average age of open findings in days.",
+        scopeNote: "Average age of the open findings, in days.",
       }),
     },
   ];

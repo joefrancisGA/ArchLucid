@@ -38,7 +38,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "uses")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "Likely connected to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
     [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
@@ -64,6 +64,26 @@ public sealed class DiagramEdgeLabelHumanizerTests
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_event_hub_may_publish_and_qualified_capture()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.CanWrite,
+                GraphEdgeInferenceSources.InventoryEventHubMayPublish)
+            .Should()
+            .Be("May publish");
+
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.WithQualifier(
+                    GraphEdgeInferenceSources.InventoryEventHubCapture,
+                    "orders"))
+            .Should()
+            .Be("orders · Captures to");
     }
 
     [Theory]

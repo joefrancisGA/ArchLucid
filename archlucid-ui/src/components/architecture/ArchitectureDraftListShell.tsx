@@ -8,7 +8,6 @@ import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/arch
 import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture/ArchitectureDraftCloneSnapshotControl";
 import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
 import { ArchitectureDraftContinueLastRow } from "@/components/architecture/ArchitectureDraftContinueLastRow";
-import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
@@ -216,7 +215,6 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
       {continueLastDraft !== null && !workingPortfolioPresentation ? (
         <ArchitectureDraftContinueLastRow entry={continueLastDraft} />
       ) : null}
-      <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
         data-testid="architecture-draft-list-toolbar"

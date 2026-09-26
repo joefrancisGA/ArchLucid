@@ -8,10 +8,6 @@ import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import type { ArchitectureDraftCreatedPayload } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import {
-  resolveArchitectureDraftStartReviewChecklistDescription,
-} from "@/lib/architecture-draft-start-review-checklist";
-import { usePersistentWorkspaceNextActionStripVisible } from "@/lib/use-persistent-workspace-next-action-strip-visible";
 import { useArchitectureDraftStartReview } from "@/hooks/use-architecture-draft-start-review";
 import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
@@ -356,11 +352,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     persistedScopeFingerprint,
   });
 
-  const showWorkspaceFirstReviewProgress = usePersistentWorkspaceNextActionStripVisible();
-  const draftStartReviewChecklistDescription = resolveArchitectureDraftStartReviewChecklistDescription(
-    showWorkspaceFirstReviewProgress,
-  );
-
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
   useUnsavedChangesGuard({ when: hasUnsavedChanges && !editorLocked });
   const inAppNavigationGuard = useInAppNavigationGuard({
@@ -495,7 +486,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         void keepLocalDraftOnConflict();
       }}
       onLoadDraft={loadDraft}
-      draftStartReviewChecklistDescription={draftStartReviewChecklistDescription}
       draftStartReviewSteps={draftStartReviewSteps}
       draftStartReviewEmphasizedStepId={draftStartReviewEmphasizedStepId}
       fields={fields}

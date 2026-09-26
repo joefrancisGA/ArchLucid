@@ -39,6 +39,10 @@ param(
     [switch] $IncludeCost,
 
     [Parameter(Mandatory = $false)]
+    [ValidateRange(1, 1800)]
+    [int] $CostTimeoutSeconds = 180,
+
+    [Parameter(Mandatory = $false)]
     [switch] $IncludeAdvisor,
 
     [Parameter(Mandatory = $false)]
@@ -65,8 +69,19 @@ try {
     {
         if (-not (Get-Module -ListAvailable -Name Az.Accounts)) { throw "Az.Accounts missing" }
         if (-not (Get-Module -ListAvailable -Name Az.Resources)) { throw "Az.Resources missing" }
-        Import-Module Az.Accounts -ErrorAction Stop
-        Import-Module Az.Resources -ErrorAction Stop
+        [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
+        try
+        {
+            # Az.Accounts can warn while refreshing an unrelated cached tenant. The
+            # subscription-scoped sign-in below reports actionable authentication errors.
+            $WarningPreference = 'SilentlyContinue'
+            Import-Module Az.Accounts -ErrorAction Stop
+            Import-Module Az.Resources -ErrorAction Stop
+        }
+        finally
+        {
+            $WarningPreference = $previousWarningPreference
+        }
     }
 } catch {
     Write-Host "WARNING: Required Azure modules (Az.Accounts, Az.Resources) are missing or failed to import. Please run 'Install-Module Az' to install them." -ForegroundColor Yellow
@@ -490,7 +505,18 @@ try
             Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step ActualCostSummary
 
             $manifest["actualCostSummary"] =
-                $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
+                $(Get-ArchLucidActualCostSummary `
+                    -SubscriptionId $SubscriptionId `
+                    -TimeoutSeconds $CostTimeoutSeconds)
+
+            if ($null -eq $manifest["actualCostSummary"])
+            {
+                Write-Host "ActualCostSummary unavailable; continuing without cost data." -ForegroundColor Yellow
+            }
+            else
+            {
+                Write-Host "ActualCostSummary collected successfully." -ForegroundColor Green
+            }
 
             Complete-ArchLucidExtractorStep `
                 -Telemetry $telemetry `

@@ -65,6 +65,8 @@ docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
   mcr.microsoft.com/mssql/server:2022-latest \
   -S "127.0.0.1,1433" -U sa -P "${SA_PASSWORD}" -C -d "${DB_NAME}" -b -Q "
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
 IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = '${smoke_tenant_id}')
     INSERT INTO dbo.Tenants (Id, Name, Slug, Tier)
     VALUES ('${smoke_tenant_id}', N'k6 startup smoke tenant', N'k6-startup-smoke', N'Standard');
@@ -91,6 +93,7 @@ if [ "${list_runs_code}" != "200" ]; then
   exit 1
 fi
 
+if [ "${ARCHLUCID_K6_SKIP_WRITE_SMOKE:-false}" != "true" ]; then
 create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
 # GreenfieldSqlApiFactory allows 15 min per POST (3 min applock + 5 min pipeline + cold SQL headroom).
 create_run_smoke_max_time_seconds="${ARCHLUCID_K6_CREATE_RUN_SMOKE_MAX_TIME_SECONDS:-900}"
@@ -108,4 +111,5 @@ if [ "${create_run_code}" != "200" ] && [ "${create_run_code}" != "201" ]; then
   echo ""
   tail -n 200 "${LOG_FILE}" || true
   exit 1
+fi
 fi

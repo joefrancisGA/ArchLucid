@@ -38,7 +38,8 @@ public sealed class RemediationPathNarrativeBuilder(
             await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints =
-            await cutPointRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+            (await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken))
+            .Where(cutPoint => cutPoint.SnapshotId == path.SnapshotId).ToList();
 
         RemediationInstanceGuard.TryParsePatternContent(
             patternVersion,

@@ -93,6 +93,15 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>
+    ///     Unresolved NSG policy (NR-02) kept in Mermaid for the Nodes outline, but omitted from painted canvases.
+    /// </summary>
+    public bool IsUnresolvedPolicyOutlineOnly
+    {
+        get;
+        set;
+    }
+
     /// <summary>Child resources attached to this parent after NR-03 parent-property projection.</summary>
     public List<string> ParentAttachmentDetails
     {

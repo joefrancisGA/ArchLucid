@@ -348,6 +348,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         })}
         pipelineDiagnosticContext={props.pipelineDiagnosticContext ?? null}
         pipelineSummary={props.pipelineSummary ?? null}
+        reviewTitle={props.intakeSystemName ?? props.intakeDescription ?? null}
       />
     </>
   );

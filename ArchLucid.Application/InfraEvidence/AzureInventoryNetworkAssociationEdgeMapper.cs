@@ -81,6 +81,9 @@ internal static class AzureInventoryNetworkAssociationEdgeMapper
         bool hasNetworkInterface = resources.Any(resource =>
             resource.ResourceType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase));
 
+        bool hasPrivateEndpoint = resources.Any(resource =>
+            resource.ResourceType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase));
+
         HashSet<string> associationTypes = networkAssociations
             .Select(TryReadAssociationType)
             .Where(type => !string.IsNullOrWhiteSpace(type))
@@ -94,6 +97,12 @@ internal static class AzureInventoryNetworkAssociationEdgeMapper
         if (hasNetworkInterface && !associationTypes.Contains(AzureInventoryRelationshipAssociationTypes.NicToSubnet))
         {
             warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.ArgNicSubnetMissing);
+        }
+
+        if (hasPrivateEndpoint
+            && !associationTypes.Contains(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget))
+        {
+            warnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.ArgPeTargetMissing);
         }
 
         bool hasPeeringEvidence = resources.Any(resource =>

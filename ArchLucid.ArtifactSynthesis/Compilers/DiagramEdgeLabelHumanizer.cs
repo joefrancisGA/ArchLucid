@@ -34,6 +34,11 @@ internal static class DiagramEdgeLabelHumanizer
             return observedLabel;
         }
 
+        if (TryResolveQualifiedMessagingLabel(inferenceSource, out string qualifiedMessagingLabel))
+        {
+            return qualifiedMessagingLabel;
+        }
+
         if (TryResolveCatalogDiagramLabel(edgeType, inferenceSource, out string catalogLabel))
         {
             return catalogLabel;
@@ -42,6 +47,16 @@ internal static class DiagramEdgeLabelHumanizer
         if (TryResolveAuthorizedAccessLabel(edgeType, inferenceSource, out string authorizedLabel))
         {
             return authorizedLabel;
+        }
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(inferenceSource, out string inferenceVerb))
+        {
+            return inferenceVerb;
+        }
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(edgeType, out string edgeVerb))
+        {
+            return edgeVerb;
         }
 
         string fromStored = HumanizeLabel(storedLabel);
@@ -127,6 +142,33 @@ internal static class DiagramEdgeLabelHumanizer
         return true;
     }
 
+    private static bool TryResolveQualifiedMessagingLabel(string? inferenceSource, out string label)
+    {
+        label = string.Empty;
+
+        if (!GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string baseSource, out string? qualifier)
+            || string.IsNullOrWhiteSpace(qualifier))
+        {
+            return false;
+        }
+
+        if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryEventHubCapture, StringComparison.OrdinalIgnoreCase))
+        {
+            label = $"{qualifier} · Captures to";
+
+            return true;
+        }
+
+        if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase))
+        {
+            label = $"Sends diagnostics to {qualifier}";
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool TryResolveCatalogDiagramLabel(
         string? edgeType,
         string? inferenceSource,
@@ -134,7 +176,14 @@ internal static class DiagramEdgeLabelHumanizer
     {
         label = string.Empty;
 
-        if (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(inferenceSource, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
+        string lookupInference = inferenceSource ?? string.Empty;
+
+        if (GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string baseInference, out _))
+        {
+            lookupInference = baseInference;
+        }
+
+        if (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(lookupInference, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
             && fromInference is not null
             && fromInference.IncludeOnDataFlow
             && !string.IsNullOrWhiteSpace(fromInference.DiagramLabel))
@@ -165,6 +214,11 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         string trimmed = label.Trim();
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
+        {
+            return catalogVerb;
+        }
 
         if (TryHumanizeGraphEdgeType(trimmed, out string humanized))
         {

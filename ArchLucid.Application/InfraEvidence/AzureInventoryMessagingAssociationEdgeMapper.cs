@@ -16,12 +16,15 @@ internal static class AzureInventoryMessagingAssociationEdgeMapper
         IReadOnlyList<AzureInventoryMessagingAssociationRow> associations,
         List<AzureInventoryResourceRelationshipWrite> relationships,
         HashSet<string> relationshipKeys,
-        List<string> warnings)
+        List<string> warnings,
+        IReadOnlySet<string>? inventoriedArmIds = null)
     {
         ArgumentNullException.ThrowIfNull(associations);
         ArgumentNullException.ThrowIfNull(relationships);
         ArgumentNullException.ThrowIfNull(relationshipKeys);
         ArgumentNullException.ThrowIfNull(warnings);
+
+        inventoriedArmIds ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         if (!AzureInventoryRelationshipAssociationTypes.TryGet(
                 AzureInventoryRelationshipAssociationTypes.EventHubCapture,
@@ -57,15 +60,21 @@ internal static class AzureInventoryMessagingAssociationEdgeMapper
 
             if (!string.IsNullOrWhiteSpace(association.CaptureStorageAccountId))
             {
+                AzureInventoryEventHubVisibleEndpointResolver.ResolveCaptureEdge(
+                    association,
+                    inventoriedArmIds,
+                    out string captureFromAzureResourceId,
+                    out string captureInferenceSource);
+
                 AddRelationship(
                     relationships,
                     relationshipKeys,
-                    ArmResourceIdNormalizer.Normalize(association.ChildResourceId),
+                    captureFromAzureResourceId,
                     ArmResourceIdNormalizer.Normalize(association.CaptureStorageAccountId),
                     captureDefinition.DefaultGraphEdgeType,
                     captureDefinition.DefaultProvenanceKind,
                     ObservedFactConfidence,
-                    captureDefinition.DefaultInferenceSource);
+                    captureInferenceSource);
             }
 
             AddForwardRelationship(

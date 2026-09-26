@@ -27,6 +27,7 @@ export type RunDetailCreateHomeActivityPanelProps = {
   readonly provenanceAsOfLabel: string;
   readonly preFinalizeReadyToFinalize: boolean;
   readonly progressForPipelineUi: RunSummary;
+  readonly loadedFindingsCount?: number | null;
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly outcomeCards: ReactNode;
   readonly midDeferred: ReactNode;
@@ -93,6 +94,13 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         >
           {props.statusLine}
         </p>
+        {props.loadedFindingsCount !== null && props.loadedFindingsCount !== undefined ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-activity-findings-delta">
+            {props.loadedFindingsCount > 0
+              ? `This analysis added ${props.loadedFindingsCount} findings.`
+              : "This analysis added no findings."}
+          </p>
+        ) : null}
 
         {!hasManifest && showTracker ? (
           <div id="architecture-assessment-progress" className="scroll-mt-24">

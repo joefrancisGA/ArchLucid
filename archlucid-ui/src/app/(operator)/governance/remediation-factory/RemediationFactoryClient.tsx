@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
@@ -9,6 +10,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   SecureNowArchitectOutcomeMetricsPanel,
   type SecureNowArchitectOutcomeQueryState,
@@ -16,6 +18,7 @@ import {
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   PageContextualHelpButton,
@@ -48,11 +51,11 @@ import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/secur
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
 import {
-  SECURENOW_PATH_RANKED_PATHS_ERROR,
   SECURENOW_PATH_RANKED_PATHS_LEAD,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -60,6 +63,13 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
+
+const PATH_VIEWS = [
+  { value: "all", label: "All paths" },
+  { value: "public-exposure", label: "Public exposure" },
+  { value: "privilege", label: "Privilege paths" },
+  { value: "insufficient-evidence", label: "Insufficient evidence" },
+] as const;
 import {
   REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY,
   REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING,
@@ -239,7 +249,7 @@ function PriorityTable(props: {
               <EnterpriseTableCell>{index + 1}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.totalScore.toFixed(4)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.patternKey ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
               <CompareDiffExpandableValueCell value={row.explanationSummary} />
             </EnterpriseTableRow>
           ))}
@@ -278,7 +288,12 @@ function RankedPathsTable(props: {
       <EnterpriseTable ariaLabel={SECURENOW_PATH_RANKED_PATHS_TITLE}>
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                1 is the first path to inspect.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
@@ -303,7 +318,7 @@ function RankedPathsTable(props: {
               onKeyDown={(event) => handleRowKeyDown(event, index)}
             >
               <EnterpriseTableCell>{row.rankOrder}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.pathKind}</EnterpriseTableCell>
+              <EnterpriseTableCell title={row.pathKind}>{formatSecurityEvidencePathKindLabel(row.pathKind)}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag
                   kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}
@@ -362,6 +377,8 @@ function RemediationSimulatorOutput(props: {
 
 export function RemediationFactoryClient() {
   const { productLine } = useProductLine();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const navHref = remediationFactoryPathForProductLine(productLine);
   const openFindingsHref = assignedToMeFindingsPathForProductLine(productLine);
   const {
@@ -384,6 +401,45 @@ export function RemediationFactoryClient() {
 
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
+  const pathView = searchParams.get("pathView") ?? "all";
+  const visibleRankedPaths = useMemo(() => {
+    switch (pathView) {
+      case "public-exposure":
+        return rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("reachability"));
+      case "privilege":
+        return rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege"));
+      case "insufficient-evidence":
+        return rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence");
+      default:
+        return rankedPaths;
+    }
+  }, [pathView, rankedPaths]);
+  const rankedPathsComputedLine = useMemo(() => {
+    if (rankedPaths.length === 0) {
+      return null;
+    }
+
+    const computedTimes = rankedPaths.map((row) => row.computedUtc.trim());
+
+    if (computedTimes.some((computedUtc) => computedUtc.length === 0)) {
+      return null;
+    }
+
+    return computedTimes.every((computedUtc) => computedUtc === computedTimes[0])
+      ? `Computed ${formatIsoUtcForDisplay(computedTimes[0]!)}.`
+      : "Computed times differ across this page.";
+  }, [rankedPaths]);
+
+  const setPathView = useCallback((value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "all") {
+      params.delete("pathView");
+    } else {
+      params.set("pathView", value);
+    }
+    const query = params.toString();
+    router.replace(query.length > 0 ? `?${query}` : window.location.pathname, { scroll: false });
+  }, [router, searchParams]);
 
   const refreshing =
     rankedQuery.isFetching
@@ -429,7 +485,7 @@ export function RemediationFactoryClient() {
 
   const selectionLabel = useMemo(() => {
     if (selectedFinding != null) {
-      return `Finding ${selectedFinding.controlId ?? "—"} · ${selectedFinding.patternKey ?? "—"} · rank ${ranked.indexOf(selectedFinding) + 1}`;
+      return `Finding ${selectedFinding.controlId ?? "—"} · rank ${ranked.indexOf(selectedFinding) + 1}`;
     }
 
     if (selectedPath != null) {
@@ -521,9 +577,14 @@ export function RemediationFactoryClient() {
               {freshnessLabel}
             </OperatorPageFreshnessMetadata>
             {staleCue !== null ? (
-              <span data-testid="remediation-factory-stale-cue">
-                <StatusTag kind="needs-attention" label={staleCue} />
-              </span>
+              <>
+                <span data-testid="remediation-factory-stale-cue">
+                  <StatusTag kind="needs-attention" label={staleCue} />
+                </span>
+                <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-stale-refresh-honesty">
+                  Refresh rereads the SecureNow lists on this page. It does not change Azure.
+                </span>
+              </>
             ) : null}
           </div>
         }
@@ -560,6 +621,9 @@ export function RemediationFactoryClient() {
 
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
+          These are SecureNow findings for the current inventory snapshot. They are not architecture review findings.
+        </p>
         {rankedQuery.isError ? (
           <StatusTag kind="needs-attention" label="Priority queue unavailable" />
         ) : ranked.length === 0 ? (
@@ -577,14 +641,78 @@ export function RemediationFactoryClient() {
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
           <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
+          <p className={cn("m-0 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+            Queue shortcuts:
+            <span className="inline-flex items-center gap-1">next <ShortcutHint shortcut="alt+j" /></span>
+            <span className="inline-flex items-center gap-1">previous <ShortcutHint shortcut="alt+k" /></span>
+            <span className="inline-flex items-center gap-1">inspect <ShortcutHint shortcut="alt+i" /></span>
+          </p>
         </header>
-        {rankedPathsQuery.isError ? (
-          <StatusTag kind="needs-attention" label={SECURENOW_PATH_RANKED_PATHS_ERROR} />
-        ) : rankedPaths.length === 0 ? (
+        <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
+          {PATH_VIEWS.map((view) => (
+            <Button
+              key={view.value}
+              type="button"
+              size="sm"
+              variant={pathView === view.value ? "default" : "outline"}
+              aria-pressed={pathView === view.value}
+              onClick={() => setPathView(view.value)}
+            >
+              {rankedPathsQuery.isSuccess
+                ? `${view.label} · ${
+                    view.value === "all"
+                      ? rankedPaths.length
+                      : view.value === "public-exposure"
+                        ? rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("reachability")).length
+                        : view.value === "privilege"
+                          ? rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege")).length
+                          : rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence").length
+                  }`
+                : view.label}
+            </Button>
+          ))}
+        </div>
+        {rankedPathsQuery.isLoading ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
+        ) : rankedPathsQuery.isError ? (
+          <>
+            <OperatorErrorRecoveryContract
+              presentation={{
+                whatFailed: "Ranked paths did not load.",
+                whatIsIntact: rankedQuery.isSuccess
+                  ? "The priority queue and the selected snapshot stay on this page."
+                  : "The snapshot selection stays on this page.",
+                nextStep: "Retry the load. This does not change Azure.",
+              }}
+              testId="remediation-ranked-paths-error-recovery"
+            />
+            <RefreshButton
+              busy={rankedPathsQuery.isFetching}
+              label="Retry ranked paths"
+              data-testid="remediation-ranked-paths-retry"
+              onClick={() => void rankedPathsQuery.refetch()}
+            />
+          </>
+        ) : rankedPathsComputedLine !== null ? (
+          <>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-computed">
+              {rankedPathsComputedLine}
+            </p>
+            {visibleRankedPaths.length === 0 ? (
+              <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
+            ) : (
+              <RankedPathsTable
+                rows={visibleRankedPaths}
+                selectedPathId={selectedPathId}
+                onSelect={selectPath}
+              />
+            )}
+          </>
+        ) : visibleRankedPaths.length === 0 ? (
           <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
         ) : (
           <RankedPathsTable
-            rows={rankedPaths}
+            rows={visibleRankedPaths}
             selectedPathId={selectedPathId}
             onSelect={selectPath}
           />

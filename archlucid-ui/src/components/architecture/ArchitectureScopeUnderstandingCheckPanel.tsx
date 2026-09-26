@@ -12,7 +12,6 @@ import {
   validateScopeUnderstandingItem,
   SCOPE_UNDERSTANDING_BRIEF_REGION_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
-  SCOPE_UNDERSTANDING_HELPER,
   canConfirmScopeUnderstanding,
   scopeBriefLines,
   scopeBulletsFingerprint,
@@ -284,9 +283,6 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         >
           {SCOPE_UNDERSTANDING_HEADING}
         </h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {SCOPE_UNDERSTANDING_HELPER}
-        </p>
       </div>
 
       <ArchitectureScopeUnderstandingCheckFields
