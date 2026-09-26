@@ -3,6 +3,12 @@ name: "Performance: k6 per-tenant burst (scheduled)"
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/k6-per-tenant-burst-scheduled.yml
+      - scripts/ci/seed_securenow_scale_fixtures.sh
+      - scripts/ci/evaluate_securenow_scale_run.py
+      - scripts/load/securenow-multitenant-read.js
   schedule:
     - cron: "15 6 * * 1"
 
