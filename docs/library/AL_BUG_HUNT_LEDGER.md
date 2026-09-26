@@ -5400,11 +5400,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 22
-- **bugs-found:** 17
+- **hunts:** 23
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — duplicate intake failure copy above product-context load failure panel
+- **last-bug:** 2026-09-26 — duplicate loading copy (inbound context line while product-context skeleton visible)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5508,6 +5508,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence after Sources index fix; proved deep-linked product context HTTP failure rendered duplicate intake failure copy in `architecture-intelligence-inbound-context` above the retry panel; fixed by suppressing inbound context line and run-model guard callout while `productContextLoadFailed`; regression `does not show inbound context line when product context load failure panel is visible`; 47 scoped ArchitectureIntelligence page client tests passed.
 
 - [x] (proven) `ArchitectureIntelligencePageClient` shows inbound context failure copy while `ArchitectureIntelligenceProductContextLoadFailure` is visible — **hit 2026-09-26 seed hunt:** `inboundContextLine` stayed mounted for `productContextStatus === "error"` alongside the dedicated retry alert; fixed with `!productContextLoadFailed` guard and matching run-model callout suppression; regression `does not show inbound context line when product context load failure panel is visible`.
+
+2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence after duplicate failure-copy fix; proved deep-linked load showed inbound context loading copy concurrently with `ArchitectureIntelligencePageSkeleton`; fixed by suppressing inbound context line while `loadingInboundContext`; regression `does not show inbound context line while product context is loading`; 48 scoped ArchitectureIntelligence page client tests passed.
+
+- [x] (proven) Deep-linked product context load shows inbound context loading line above page skeleton — **hit 2026-09-26 seed hunt:** `inboundContextLine` rendered for `productContextStatus === "loading"` while `ArchitectureIntelligencePageSkeleton` was also mounted; fixed with `!loadingInboundContext` guard on inbound context paragraph; regression `does not show inbound context line while product context is loading`.
 
 ---
 

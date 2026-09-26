@@ -93,7 +93,7 @@ export function ArchitectureIntelligencePageClient() {
 
   const architectureIntelligenceMainBody = (
     <>
-      {inboundContextLine && !productContextLoadFailed ? (
+      {inboundContextLine && !productContextLoadFailed && !loadingInboundContext ? (
         <p
           className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
           data-testid="architecture-intelligence-inbound-context"
