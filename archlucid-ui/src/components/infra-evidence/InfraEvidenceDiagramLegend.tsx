@@ -30,8 +30,9 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const hasProbable = hasInfraEvidenceProbableDiagramEdges(props.outline, props.mermaidSource);
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
+  const showConnectorLegend = hasDeclared || hasProbable || hasInferred;
 
-  if (!hasDeclared && !hasProbable && !hasInferred && accentKinds.length === 0) {
+  if (!showConnectorLegend && accentKinds.length === 0) {
     return null;
   }
 
@@ -41,22 +42,24 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
       data-testid="infra-evidence-diagram-legend"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
-        <div className="min-w-0 flex-1 space-y-2">
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            {INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING}
-          </p>
-          <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-            <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}</li>
-            {hasDeclared ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}</li> : null}
-            {hasProbable ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</li> : null}
-            {hasInferred ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</li> : null}
-          </ul>
-          {hasInferred ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}
+        {showConnectorLegend ? (
+          <div className="min-w-0 flex-1 space-y-2">
+            <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+              {INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING}
             </p>
-          ) : null}
-        </div>
+            <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+              <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}</li>
+              {hasDeclared ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}</li> : null}
+              {hasProbable ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</li> : null}
+              {hasInferred ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</li> : null}
+            </ul>
+            {hasInferred ? (
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         {accentKinds.length > 0 ? (
           <div className="min-w-0 space-y-2 sm:shrink-0">
             <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>

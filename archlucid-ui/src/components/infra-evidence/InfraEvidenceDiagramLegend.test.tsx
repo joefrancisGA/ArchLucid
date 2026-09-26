@@ -134,7 +134,8 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByTestId("infra-evidence-diagram-legend")).toBeInTheDocument();
-    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).toBeInTheDocument();
+    expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING)).not.toBeInTheDocument();
+    expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).not.toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_IDENTITY)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE)).toBeInTheDocument();
