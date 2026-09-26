@@ -3509,13 +3509,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 40
-- **bugs-found:** 19
+- **hunts:** 41
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — representative request-run lookup could pick pipeline dead-letter Failed rows with retained GoldenManifestId
+- **last-bug:** 2026-09-26 — representative request-run SQL referenced `r.LegacyRunStatus` without a `Runs` table alias
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6975 (seed→hit): reseeded representative lookup after #6974; proved `SelectRepresentativeRunIdForArchitectureRequestInScope` used `r.LegacyRunStatus` while `FROM dbo.Runs` had no alias, breaking SQL Server execution for sealed-manifest representative reads; fixed unqualified `LegacyRunStatus` filter; regression `SelectRepresentativeRunIdForArchitectureRequestInScope_status_filter_matches_unaliased_runs_table`; 125 scoped zone tests passed (1 SQL integration skipped).
+
+- [x] (proven) `SelectRepresentativeRunIdForArchitectureRequestInScope` — `r.LegacyRunStatus` without `Runs` alias — **hit 2026-09-26 seed hunt #6975:** #6974 dead-letter filter copied committed-lookup `r.` prefix onto an unaliased `FROM dbo.Runs`; SQL Server rejects the batch; regression `SelectRepresentativeRunIdForArchitectureRequestInScope_status_filter_matches_unaliased_runs_table`.
 
 2026-09-26 seed hunt #6974 (seed→hit): reseeded representative lookup after #6973; proved `SelectRepresentativeRunIdForArchitectureRequestInScope` / InMemory representative path could pick newer `Failed` or `ExecutionCompletedQualityRejected` dead-letter reruns that retained `GoldenManifestId`, breaking sealed-manifest guard parity with #1464 committed lookups; fixed SQL status filter and InMemory `IsCommittedRun` gate; regressions `SelectRepresentativeRunIdForArchitectureRequestInScope_excludes_pipeline_dead_letter_statuses` and `InMemory_representative_run_id_excludes_failed_dead_letter_with_retained_manifest`; 124 scoped zone tests passed (1 SQL integration skipped).
 
