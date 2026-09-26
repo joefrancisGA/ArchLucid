@@ -130,6 +130,24 @@ describe("useGovernanceFindingsFilter URL sync", () => {
     expect(result.current.scopedArchitectureId).toBeNull();
   });
 
+  it("clears desk-continuity architecture when setScopedArchitectureId(null) without architectureId in URL", () => {
+    readCachedLastOpenArchitectureId.mockReturnValue("arch-cached");
+
+    const { result, rerender } = renderHook(
+      () => useGovernanceFindingsFilter({ mode: "tenant", isWorkingMode: true }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(result.current.scopedArchitectureId).toBe("arch-cached");
+
+    act(() => {
+      result.current.setScopedArchitectureId(null);
+    });
+    rerender();
+
+    expect(result.current.scopedArchitectureId).toBeNull();
+  });
+
   it("follows groupBy URL changes without a popstate event", () => {
     searchParamsHarness.state.query = "groupBy=resource";
 

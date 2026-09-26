@@ -254,6 +254,14 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   }, [pathname, router, searchParams]);
 
   const setScopedArchitectureId = useCallback((next: string | null): void => {
+    if (next === null) {
+      suppressDeskContinuityArchitectureRef.current = true;
+      hadArchitectureIdInUrlRef.current = false;
+    } else {
+      suppressDeskContinuityArchitectureRef.current = false;
+      hadArchitectureIdInUrlRef.current = true;
+    }
+
     setScopedArchitectureIdState(next);
     router.replace(
       governanceFindingsArchitectureScopeHrefFromSearch(searchParams.toString(), next, pathname),

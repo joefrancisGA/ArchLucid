@@ -24329,11 +24329,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 16
-- **bugs-found:** 16
+- **hunts:** 17
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — architectureId scope reverted to desk cache after architectureId= cleared from URL
+- **last-bug:** 2026-09-26 — desk-continuity architecture scope survived explicit clear when URL never had architectureId=
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24383,6 +24383,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useGovernanceFindingsFilter` — `scopedArchitectureId` reverted to desk-continuity cache after App Router cleared `architectureId=` without `popstate` — **hit 2026-09-26 seed hunt #16:** URL-sync effect fell back to `readCachedLastOpenArchitectureId()` when the param disappeared; desk-continuity auto-inject effect re-applied cache on the next pass; fixed with `hadArchitectureIdInUrlRef` + `suppressDeskContinuityArchitectureRef` mirroring register/groupBy URL sync; regression `clears architecture scope when architectureId= is removed from the URL without a popstate event`.
 
 2026-09-26 seed hunt #16 (seed→hit): reseeded ui-governance-findings-queue after groupBy URL sync hit; proved stale architecture scope after URL navigation cleared `architectureId=`; 16 scoped governance-findings filter URL-sync and clear/pick-review unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter.setScopedArchitectureId` — clearing architecture scope in the queue UI re-applied desk-continuity cache when scope lived only in state (no `architectureId=` in URL) — **hit 2026-09-26 seed hunt #17:** `#16` suppressed cache only after URL param clear; explicit `setScopedArchitectureId(null)` left `suppressDeskContinuityArchitectureRef` false so the URL-sync effect re-read `readCachedLastOpenArchitectureId()`; fixed by setting suppress + clearing `hadArchitectureIdInUrlRef` on explicit scope updates; regression `clears desk-continuity architecture when setScopedArchitectureId(null) without architectureId in URL`.
+
+2026-09-26 seed hunt #17 (seed→hit): reseeded ui-governance-findings-queue after architecture URL-clear hit; proved desk cache survived explicit architecture scope clear without URL param; 14 scoped filter URL-sync, clear-all, and pick-review unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
