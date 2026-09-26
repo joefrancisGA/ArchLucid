@@ -3147,6 +3147,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
+2026-09-26 seed hunt (seed-only): reseeded auth-return-path after `U+FE30`/`U+30FB`/`U+FF65` fix; full BMP NFKC dot/slash inventory scan found no further accepted traversal pairs; cheap-disproved circled digit full stops and letter-symbol compatibility forms; 132 scoped AuthSignInReturnPathGuard tests passed; no new hunt-ready rows.
+
+- [x] (valid-no-repro) Post-fix BMP NFKC dot/slash inventory — **valid-no-repro 2026-09-26 seed hunt:** after `U+FE30`/`U+30FB`/`U+FF65` extension, automated scan shows no remaining BMP code points whose NFKC contains `.`, `..`, `‥`, `。`, or `/` while `TryNormalize` still accepts protocol-relative or parent-segment traversal shapes.
+- [x] (valid-no-repro) Circled digit full-stop symbols (`U+2488`–`U+249B`) and letter-symbol compatibility forms (`U+33C2`, `U+33C7`, `U+33D8`) parent-segment pairs — **valid-no-repro 2026-09-26 seed hunt:** NFKC expands to digit/letter plus `.` (e.g. `1.`, `Co.`), not ASCII `..` parent segments.
+- [x] (valid-no-repro) Letter-like symbols with slash in NFKC (`U+2100`–`U+2106` pairs) — **valid-no-repro 2026-09-26 seed hunt:** compatibility abbreviations (`a/c`, `c/o`) are not contiguous `//` protocol-relative traversal; same-origin relative prefix only.
+
 2026-09-26 seed hunt (seed→hit): reseeded auth-return-path; proved presentation vertical two-dot leader and katakana middle-dot homoglyph traversal bypasses via NFKC inventory scan; cheap-disproved horizontal ellipsis pairs; 132 scoped AuthSignInReturnPathGuard tests passed.
 
 - [x] (proven) PRESENTATION FORM FOR VERTICAL TWO DOT LEADER (`︰`, `U+FE30`) bypass `ContainsDotHomoglyph` — **hit 2026-09-26 seed hunt:** single-segment NFKC expands to ASCII `..` while `U+2025` was already blocked; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_presentation_two_dot_leader_and_katakana_middle_dot_homoglyph_path_traversal_segments`.
