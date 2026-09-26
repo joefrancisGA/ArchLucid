@@ -3419,13 +3419,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 252
+- **hunts:** 253
 - **bugs-found:** 484
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-11
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt #6972 (seed-only): reseeded tenant-erasure after middleware fail-closed churn (#3469); cheap-disproof closed past-due `TenantErasureRequestedUtc`-only legal-hold gap (production offboard always sets both timestamps); regressions `Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`, `TryRestoreQuarantineAsync_clears_stale_erasure_approval` assertion extended for `TenantErasureRequestedUtc`; 35 scoped TenantErasure tests passed.
+
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects tenants blocked only by past-due `TenantErasureRequestedUtc` without `OffboardedUtc` — **cheap-disproof 2026-09-26 seed hunt #6972:** `TryStartTenantErasureOffboardAsync` sets both columns together (SQL + `CopyTenant`); orphan/scheduled-only rows are not reachable from tenant-admin erasure APIs in this zone.
 
 2026-09-13 seed hunt #2277 (seed-only): reseeded tenant-erasure with `-Hint tenant erasure`; no new hunt-ready rows.
 
@@ -23643,7 +23647,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `TryAdmit` used stale `UtcNow` so expired leases blocked direct admit after operational delay
+- **last-bug:** 2026-09-26 — queue-wait deadline skewed past store `QueueExpiresUtc` after slow `TryAdmit`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
