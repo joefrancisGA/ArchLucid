@@ -8541,10 +8541,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-25 — unparseable BFF session cookie left stale HttpOnly cookie on proxy guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -8590,6 +8590,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
 - [x] (proven) `POST /api/auth/bff-session/refresh` — no refresh token or expired session cookie returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** refresh probe on access-only or expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` when cookie present but not refreshable; regressions `clears BFF session cookies when the session has no refresh token` and `clears BFF session cookies when the session cookie is expired`
 - [x] (proven) `enforceProxyBffSessionGuard` / `POST /api/auth/bff-session/activity` — present but unparseable BFF session cookie returned 401 or forwarded anonymously without clearing HttpOnly cookies — **hit 2026-09-25 seed hunt (seed→hit):** signing-secret rotation or corrupted cookie left stale value blocking operator mutations; consolidated with `hasPresentButUnparseableBffSessionCookie`; regressions `clears BFF cookies when a mutating proxy call has an unparseable session cookie`, `clears unparseable BFF cookies on anonymous marketing mutations`, `clears BFF session cookies when the session cookie cannot be parsed`, and `forwards anonymous marketing early-access POST and clears an unparseable BFF session cookie`
+
+- [x] (invalid) `isPublicAnonymousProxyPath` — omits staging `v1/auth/trial/local/dev-verify` harness — **invalid 2026-09-26 seed hunt:** path is staging Playwright-only; not in shipped `TrialLocalIdentityAuthController` OpenAPI surface; buyer signup uses `v1/register` already on the pre-auth allowlist
+- [x] (valid-no-repro) `isPublicAnonymousProxyPath` / `isAnonymousMarketingProxyPath` OpenAPI parity — **valid-no-repro 2026-09-26 seed hunt:** re-grepped `paths.generated.ts` `/v1/marketing/*` (nine routes) and pre-auth `v1/auth/*` buyer flows against `proxy-anonymous-marketing-paths.ts`; UI `/api/proxy/` callers match; process risk only when new anonymous routes ship without allowlist update
+- [x] (invalid) `POST /api/auth/bff-session/refresh` — unparseable session cookie leaves stale HttpOnly cookies — **invalid 2026-09-26 seed hunt:** `refresh/route.ts` appends `buildBffSessionClearCookieHeaders` when `cookieValue` is present and `payload === null` (same bar as activity route)
+- [x] (invalid) Unsigned visitor stale `archlucid_operator_scope_v1` poisons anonymous marketing `/api/proxy` scope headers — **invalid 2026-09-26 seed hunt:** `clearOidcSession()` clears operator scope storage; registration-scope priority after sign-out covered in 2026-09-25 hit; marketing controllers are `[AllowUnscopedRoute]`
+
+2026-09-26 seed hunt (seed-only): reseeded ui-auth-proxy after unparseable-cookie hit wave; cheap-disproved trial/local dev-verify allowlist gap, refresh unparseable stale-cookie regression, and unsigned stale-operator marketing scope; reaffirmed OpenAPI marketing + pre-auth allowlist parity; 90 scoped proxy/BFF/return-path vitest tests passed.
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy after prior hit; proved unparseable BFF session cookie left stale HttpOnly cookie on proxy guard and activity route; 147 scoped auth/proxy tests passed.
 
