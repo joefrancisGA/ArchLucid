@@ -66,6 +66,15 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             };
         }
 
+        if (request.SampleClaimValues is null)
+        {
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "SampleClaimValues is required."
+            };
+        }
+
         IReadOnlyList<string> mappedRoles =
             IdentityClaimRoleMappingResolver.ResolveRoles(mapping, request.SampleClaimValues);
 

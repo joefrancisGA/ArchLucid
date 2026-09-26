@@ -406,6 +406,26 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_rejects_null_actor_id()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("88888888-8888-8888-8888-888888888888"),
+            null!,
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("actorId");
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_blank_actor_id()
     {
         IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());

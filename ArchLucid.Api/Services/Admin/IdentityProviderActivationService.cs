@@ -38,6 +38,9 @@ public sealed class IdentityProviderActivationService(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
+        if (actorId is null)
+            throw new ArgumentException("actorId is required.", nameof(actorId));
+
         string trimmedActorId = actorId.Trim();
 
         if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(trimmedActorId))
