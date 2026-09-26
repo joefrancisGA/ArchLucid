@@ -125,6 +125,19 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
+        if (snapshot.ConflictCount != currentResolution.ConflictCount)
+        {
+            items.Add(new PreFinalizeChecklistItem
+            {
+                ItemId = "governance-conflict-count-changed-since-execute",
+                Title = "Governance conflict count unchanged since execute",
+                Detail =
+                    "Effective governance conflicts changed after execute. Re-run agents or resolve governance conflicts before finalize.",
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            });
+        }
+
         return items;
     }
 
