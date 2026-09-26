@@ -51,3 +51,7 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 28 | `understand-use-28-analysis-delta.md` | `uu/28-analysis-delta` |
 | 29 | `understand-use-29-sticky-next-action.md` | `uu/29-sticky-next-action` |
 | 30 | `understand-use-30-severity-meaning.md` | `uu/30-severity-meaning` |
+
+## Wave D (UU-31–UU-40)
+
+Paste from [`understand-use-d-00-index.md`](understand-use-d-00-index.md). Do not implement wave D from this file.
