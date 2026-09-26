@@ -222,17 +222,14 @@ function PriorityTable(props: {
       <EnterpriseTable ariaLabel="Remediation priority queue">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
+            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
-              <span>Rank</span>
+              <span>Score</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                This rank is the SecureNow finding queue, not the path list.
+                Sort key for this queue. Not a percentage.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>
-              <span>Control</span>
-              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Control this finding cites.</span>
-            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Control</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
@@ -303,7 +300,12 @@ function RankedPathsTable(props: {
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Band</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Evidence strength for the whole path.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
@@ -656,6 +658,9 @@ export function RemediationFactoryClient() {
             <span className="inline-flex items-center gap-1">inspect <ShortcutHint shortcut="alt+i" /></span>
           </p>
         </header>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
+          These filters narrow the path list only.
+        </p>
         <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
           {PATH_VIEWS.map((view) => (
             <Button

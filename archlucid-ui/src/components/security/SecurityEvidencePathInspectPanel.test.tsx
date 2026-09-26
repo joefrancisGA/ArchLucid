@@ -244,16 +244,21 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
     );
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
+    expect(screen.getByText("This hop limits how strong the path evidence can be.")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
+    expect(screen.getByText("Where you could break this path.")).toBeInTheDocument();
+    expect(screen.getByText("Why this path scored the way it did. Not the table row number alone.")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
     expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent("At least one hop is inferred");
-    expect(screen.getByTestId("security-evidence-path-verification-status")).toHaveTextContent("verification has not started");
+    expect(screen.getByTestId("security-evidence-path-verification-status")).toHaveTextContent(
+      "No remediation instance is linked; verification has not started.",
+    );
     expect(screen.getByRole("link", { name: "Review remediation and verification" })).toHaveAttribute(
       "href", expect.stringContaining("findingId=finding-1"),
     );
