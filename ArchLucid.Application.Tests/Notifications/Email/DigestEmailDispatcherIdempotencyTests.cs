@@ -1030,6 +1030,30 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_run_detail_url()
+    {
+        WeeklySponsorReportEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("34343434-3434-3434-3434-343434343434"),
+            "2026-W34",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "   ",
+            weekLabel: "Week 34",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("runDetailUrl");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_iso_week_key()
     {
         WeeklySponsorReportEmailDispatcher sut = new(
@@ -1402,6 +1426,30 @@ public sealed class DigestEmailDispatcherIdempotencyTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithParameterName("weekLabel");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_run_detail_url()
+    {
+        WeeklySponsorSummaryEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            new InMemorySentEmailLedger(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("36363636-3636-3636-3636-363636363636"),
+            "2026-W36",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "   ",
+            weekLabel: "Week 36",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithParameterName("runDetailUrl");
     }
 
     [Fact]
