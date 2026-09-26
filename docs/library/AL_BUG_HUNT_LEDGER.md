@@ -23639,13 +23639,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-10 — promote loop used stale MaxConcurrentAnonymousScans after options tightened during queue wait
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6960 (seed-only): picker repeat; reseeded quick-scan-distributed-concurrency; cheap-disproof closed queue-wait deadline/options snapshot candidates; 17 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `QueueWaitTimeoutSeconds` shortened in `IOptionsMonitor` during queue wait keeps polling past the new timeout — **cheap-disproof 2026-09-26 seed hunt #6960:** `deadline` is `utcNow + queueWaitTimeout` from the admit attempt; in-flight waiters honor the timeout captured at enqueue (same pattern as #1542 promoting with live max-concurrent reads only for capacity, not wait budget).
+- [x] (valid-no-repro) `QuickScanExecutionBudgetAndConcurrencyStage` — `state.SafetyOptions.Enabled` snapshot from pre-execute allows anonymous concurrency admission after live `Enabled=false` — **cheap-disproof 2026-09-26 seed hunt #6960:** pipeline stores `_quickScanSafetyOptions.CurrentValue` once in pre-execute; operational kill-switch still re-reads `GetSnapshotAsync` before provider (`preProviderOperational.AnonymousExecutionAllowed`); concurrency service separately gates on live effective feature state at `WaitForAdmissionAsync` entry.
 
 2026-09-26 seed hunt #6959 (seed-only): reseeded quick-scan-distributed-concurrency; cheap-disproof closed operational-emergency-during-queue-wait and stale lease-duration-on-renewal candidates; 17 scoped QuickScanDistributedConcurrency tests passed.
 
