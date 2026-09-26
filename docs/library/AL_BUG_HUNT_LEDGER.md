@@ -4887,6 +4887,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when captured list payloads were not scannable (HTTP 200 without `items` array) while live mode already SKIPped; fixed offline replay with optional manifest `runListPayloadScannable: false` → SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListPayloadUnscannable`; 41 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when `observedStatusCode` was 204 No Content; fixed `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` to SKIP like live list-unavailable handling; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedStatusIs204NoContent`; 40 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved run-list exclude probe false-passed on HTTP 200 payloads missing the `items` array (non-`CursorPagedResponse` shape); fixed with `RunListPayloadIsScannable` gate before scan; regressions `RunListPayloadIsScannable_RejectsCursorPageObjectWithoutItemsArray` and `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`; 39 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -4899,11 +4901,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 23
-- **bugs-found:** 11
+- **hunts:** 24
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — offline exclude-run-id replay false-passed on HTTP 204
+- **last-bug:** 2026-09-26 — offline replay false-passed unscannable run-list captures
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -4919,6 +4921,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantIsolationNegativeTestAggregator` / run-list scan — HTTP 200 JSON without `items` array false-passed exclude-run-id probe — **hit 2026-09-26 seed hunt (seed→hit):** `TryFindRunIdInRunList` returned absent on `{}` / `{hasMore:false}` shapes that are not `CursorPagedResponse` list pages; fixed with `RunListPayloadIsScannable` before paging; regressions `RunListPayloadIsScannable_RejectsCursorPageObjectWithoutItemsArray` and `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` — HTTP 204 on exclude-run-id manifest replay false-passed — **hit 2026-09-26 seed hunt (seed→hit):** offline fixture replay treated 204 like an empty verified list; fixed by mapping 204 to SKIP (parity with live `ScanRunListForForeignRunIdAsync`); regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedStatusIs204NoContent`.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — non-scannable HTTP 200 list captures false-passed exclude-run-id probes — **hit 2026-09-26 seed hunt (seed→hit):** offline replay ignored live `RunListPayloadIsScannable` failures when fixtures recorded 200 + absent foreign id without an `items` array; fixed with optional manifest `runListPayloadScannable: false` mapping to SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListPayloadUnscannable`.
 
 2026-09-12 seed hunt #2083 (seed-only): reseeded cli-tenant-isolation; no new hunt-ready rows
 
