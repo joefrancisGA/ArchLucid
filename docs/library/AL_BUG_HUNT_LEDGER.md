@@ -18131,13 +18131,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 19
-- **bugs-found:** 14
+- **hunts:** 20
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — null `citations` skipped zero-citation WARN gate
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — object-shaped scalar list fields dropped in structured normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (seed→hit): reseeded core-explanation-json; proved object-shaped scalar `alternativesConsidered` / `evidenceRefs` / `caveats` dropped in `TryReadStringList` while array and reasoning object paths worked; seeded percent-suffixed confidence and risk-posture object candidates; 35 scoped RunExplanation unit tests passed.
 
 2026-09-12 seed hunt #2258 (seed-only): reseeded core-explanation-json with `-Hint explanation json`; no new hunt-ready rows.
 
@@ -18162,6 +18164,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped reasoning array paragraphs ignored — **hit 2026-09-11 seed hunt #1716 (seed→hit):** array loop accepted only string tokens so `{"text":"..."}` paragraphs rejected normalize; fixed by mapping object `text` entries; regression `TryNormalizeStructuredJson_maps_object_shaped_reasoning_array_entries`
 
 2026-09-11 seed hunt #1716 (hit): reseeded core-explanation-json; proved object `text` list and reasoning-array coercion gaps; 32 scoped RunExplanation unit tests passed.
+
+- [x] (proven) `StructuredExplanationParser.TryReadStringList` — object-shaped scalar `alternativesConsidered` / `evidenceRefs` / `caveats` silently dropped — **hit 2026-09-26 seed hunt (seed→hit):** non-array branch accepted string and numeric tokens but not `JsonValueKind.Object` while array entries and object-scalar reasoning already mapped `{text}`/`{id}`; fixed by delegating object tokens to `TryReadStringListEntry`; regressions `TryNormalizeStructuredJson_maps_object_shaped_scalar_alternatives_considered`, `TryNormalizeStructuredJson_maps_object_shaped_scalar_evidence_ref`, `TryNormalizeStructuredJson_maps_object_shaped_scalar_caveats`.
+- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — percent-suffixed confidence string (`"75%"`) silently dropped while numeric `75` and string `"75"` coerce
+- [ ] (candidate) `RunExplanationRiskCalloutBuilder.TryParseRiskPosture` — object-shaped `riskPosture` dropped (weak reachability today)
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 

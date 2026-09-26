@@ -312,4 +312,38 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_scalar_alternatives_considered()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":{"text":"Keep monolith — rejected for scaling."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith — rejected for scaling.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_scalar_evidence_ref()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":{"id":"dec-1"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_scalar_caveats()
+    {
+        const string json = """{"reasoning":"Main","caveats":{"text":"Assumes single-region deployment."}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Assumes single-region deployment.");
+    }
 }
