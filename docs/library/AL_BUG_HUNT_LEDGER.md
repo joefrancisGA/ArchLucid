@@ -2847,6 +2847,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after cross-role `EvidenceRef` hit; cheap-disproof closed stale reseed templates (distinct `EvidenceRef` with matching family+name remains intentional per `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; inventory `Chosen` with `CloudProvider.None` does not enter the same-family gate against Azure/AWS candidates); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved chosen-family insert gate treated `EvidenceRef` collisions across different `TechnologyLedgerRole` values as blocking compute-runtime candidates; fixed by scoping the novel-ref check to the candidate role; regression `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`; 60 scoped TechnologyLedger tests passed.
 
 - **id:** technology-ledger-merge
@@ -2855,7 +2857,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
