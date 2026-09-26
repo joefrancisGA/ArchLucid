@@ -11,13 +11,17 @@ namespace ArchLucid.Application.Architecture;
 /// </summary>
 internal sealed class QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
     IQuickScanDistributedConcurrencyStore inner,
-    IOptionsMonitor<QuickScanSafetyOptions> safetyOptions) : IQuickScanDistributedConcurrencyStore
+    IOptionsMonitor<QuickScanSafetyOptions> safetyOptions,
+    TimeProvider timeProvider) : IQuickScanDistributedConcurrencyStore
 {
     private readonly IQuickScanDistributedConcurrencyStore _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly IOptionsMonitor<QuickScanSafetyOptions> _safetyOptions =
         safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     internal int? LastRefreshedMaxConcurrentScans { get; private set; }
 
@@ -38,7 +42,7 @@ internal sealed class QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
             QueueEntryId = request.QueueEntryId,
             RequestKey = request.RequestKey,
             HolderInstanceId = request.HolderInstanceId,
-            UtcNow = request.UtcNow,
+            UtcNow = _timeProvider.GetUtcNow(),
             QueueWaitTimeout = request.QueueWaitTimeout,
             MaxConcurrentScans = limits.MaxConcurrentAnonymousScans,
             MaxQueuedScans = limits.MaxQueuedAnonymousScans,

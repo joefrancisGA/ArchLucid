@@ -31,7 +31,8 @@ public sealed class QuickScanDistributedConcurrencyService(
     private readonly IQuickScanDistributedConcurrencyStore _store =
         new QuickScanDistributedConcurrencyAdmitLimitRefreshStore(
             store ?? throw new ArgumentNullException(nameof(store)),
-            safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions)));
+            safetyOptions ?? throw new ArgumentNullException(nameof(safetyOptions)),
+            timeProvider ?? throw new ArgumentNullException(nameof(timeProvider)));
 
     private readonly IQuickScanTelemetry _telemetry =
         telemetry ?? throw new ArgumentNullException(nameof(telemetry));
@@ -63,7 +64,6 @@ public sealed class QuickScanDistributedConcurrencyService(
                 QuickScanConcurrencyRejectionReason.EmergencyDisabled);
         }
 
-        DateTimeOffset utcNow = _timeProvider.GetUtcNow();
         TimeSpan queueWaitTimeout = TimeSpan.FromSeconds(safety.Concurrency.QueueWaitTimeoutSeconds);
         Guid leaseId = Guid.NewGuid();
         Guid queueEntryId = Guid.NewGuid();
@@ -78,7 +78,7 @@ public sealed class QuickScanDistributedConcurrencyService(
                 QueueEntryId = queueEntryId,
                 RequestKey = requestKey,
                 HolderInstanceId = HolderInstanceId,
-                UtcNow = utcNow,
+                UtcNow = _timeProvider.GetUtcNow(),
                 MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
                 MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
                 QueueWaitTimeout = queueWaitTimeout,
@@ -135,7 +135,7 @@ public sealed class QuickScanDistributedConcurrencyService(
 
         _telemetry.RecordConcurrencyQueued(telemetryContext);
 
-        DateTimeOffset deadline = utcNow + queueWaitTimeout;
+        DateTimeOffset deadline = _timeProvider.GetUtcNow() + queueWaitTimeout;
         TimeSpan pollInterval = TimeSpan.FromMilliseconds(250);
         Guid promotedLeaseId = Guid.NewGuid();
         Guid waitingQueueEntryId = admitResult.QueueEntryId!.Value;

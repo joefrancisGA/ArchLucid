@@ -23639,13 +23639,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `TryPromote` could use limits captured before store entry despite per-loop options read (#1542)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6968 (seed-only): reseeded admit refresh decorator boundaries; cheap-disproof closed live `QueueWaitTimeout` overwrite at store entry and `MaxQueuedAnonymousScans=0` at refreshed admit returning `Busy`; regressions `AdmitLimitRefreshStore_preserves_queue_wait_timeout_from_request_when_options_change`, `WaitForAdmissionAsync_returns_busy_when_refresh_applies_zero_max_queued_at_admit`; 30 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryAdmitAsync` — live `QueueWaitTimeoutSeconds` overwrites in-flight `QueueWaitTimeout` on the admit request — **cheap-disproof 2026-09-26 seed hunt #6968:** refresh replaces concurrency caps only; `QueueWaitTimeout` stays caller-captured (#6960/#6966); regression `AdmitLimitRefreshStore_preserves_queue_wait_timeout_from_request_when_options_change`.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryAdmitAsync` — refreshed `MaxQueuedAnonymousScans=0` still queues when capacity full — **cheap-disproof 2026-09-26 seed hunt #6968:** store returns `Busy` when `MaxQueuedScans <= 0` and at capacity; regression `WaitForAdmissionAsync_returns_busy_when_refresh_applies_zero_max_queued_at_admit`.
 
 2026-09-26 seed hunt #6967 (seed-only): picker repeat; cheap-disproof closed tightened `MaxQueuedAnonymousScans` evicting in-flight waiters and queue-timeout capacity pin when abandon no-ops on `TimedOut` rows; regressions `WaitForAdmissionAsync_still_promotes_when_max_queued_tightened_to_zero_during_queue_wait`, `WaitForAdmissionAsync_queue_timeout_frees_queue_capacity_when_abandon_noops_on_timed_out_row`; 28 scoped QuickScanDistributedConcurrency tests passed.
 
