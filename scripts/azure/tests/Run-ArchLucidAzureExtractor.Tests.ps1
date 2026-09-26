@@ -414,4 +414,24 @@ Write-Output "fake extractor success"
 
         $name | Should -Be $null
     }
+
+    It "swallows warnings from unrelated cached tenants during optional name lookup" {
+        Mock Get-AzSubscription {
+            Write-Warning "Authentication failed against an unrelated cached tenant."
+            return [PSCustomObject]@{
+                Id = "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                Name = "Contoso Production"
+            }
+        }
+
+        $warnings = @(
+            & {
+                Resolve-ArchLucidAzureSubscriptionDisplayName `
+                    -SubscriptionId "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+            } 3>&1 |
+                Where-Object { $_ -is [System.Management.Automation.WarningRecord] }
+        )
+
+        $warnings | Should -BeNullOrEmpty
+    }
 }
