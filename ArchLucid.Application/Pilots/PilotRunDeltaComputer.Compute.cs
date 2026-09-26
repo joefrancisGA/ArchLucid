@@ -30,6 +30,7 @@ public sealed partial class PilotRunDeltaComputer
         IReadOnlyList<KeyValuePair<string, int>> findings = agentFindings;
         FindingsSnapshot? persistedFindingsSnapshot = null;
         bool findingsFromSnapshot = false;
+        IReadOnlyList<KeyValuePair<string, int>>? snapshotSeverityBuckets = null;
 
         if (run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
         {
@@ -38,12 +39,11 @@ public sealed partial class PilotRunDeltaComputer
 
             if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindingsList)
             {
-                IReadOnlyList<KeyValuePair<string, int>> snapshotFindings =
-                    AggregateFindingsBySeverity(snapshotFindingsList);
+                snapshotSeverityBuckets = AggregateFindingsBySeverity(snapshotFindingsList);
 
-                if (ShouldPreferSnapshotFindings(agentFindings, snapshotFindings, detail, snapshotFindingsList))
+                if (ShouldPreferSnapshotFindings(agentFindings, snapshotSeverityBuckets, detail, snapshotFindingsList))
                 {
-                    findings = snapshotFindings;
+                    findings = snapshotSeverityBuckets;
                     findingsFromSnapshot = true;
                 }
             }
@@ -69,6 +69,9 @@ public sealed partial class PilotRunDeltaComputer
                 preferSnapshotMaterialFindings = true;
             }
         }
+
+        if (preferSnapshotMaterialFindings && !findingsFromSnapshot && snapshotSeverityBuckets is not null)
+            findings = snapshotSeverityBuckets;
 
         ArchitectureFinding? topAgentFinding = SelectTopSeverityFinding(detail);
         string? topFindingId = topAgentFinding?.FindingId;

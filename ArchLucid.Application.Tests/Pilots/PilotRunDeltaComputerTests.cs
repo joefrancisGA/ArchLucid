@@ -1372,7 +1372,9 @@ public sealed class PilotRunDeltaComputerTests
 
         PilotRunDeltas deltas = await sut.ComputeAsync(detail);
 
-        deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(3);
+        deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(2);
+        deltas.FindingsBySeverity.Should().ContainSingle(static p => p.Key == "Critical" && p.Value == 1);
+        deltas.FindingsBySeverity.Should().ContainSingle(static p => p.Key == "Warning" && p.Value == 1);
         deltas.GovernedFindingCoverage.IsAvailable.Should().BeTrue();
         deltas.GovernedFindingCoverage.GovernedCount.Should().Be(1);
         deltas.GovernedFindingCoverage.TotalDecisionGradeCount.Should().Be(2);
