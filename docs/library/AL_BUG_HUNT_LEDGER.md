@@ -4836,6 +4836,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved dual-lifecycle `Transition` assumption emission only checked literal `current state`/`target state` while synonym markers were recognized elsewhere; fixed with `ContainsDualLifecycleMarkers`; regressions `Extract_tags_present_and_future_state_elements_with_lifecycle_scope` and `Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope`; 38 scoped DifficultyBasedExtractionRouter tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved `LooksAmbiguous` omitted `present state`/`future state`/`as-is`/`to-be` while `InferLifecycleScopeForIndex` already recognized them, so dual-lifecycle prose classified `ClearExtraction` and stamped `DirectlyEstablished`; fixed by extending ambiguous markers; regressions `Classify_returns_ambiguous_for_present_and_future_state` and `Extract_does_not_treat_present_and_future_state_prose_as_directly_established`; 36 scoped DifficultyBasedExtractionRouter tests passed.
 
 - **id:** extraction-router

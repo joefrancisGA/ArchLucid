@@ -66,6 +66,30 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_tags_present_and_future_state_elements_with_lifecycle_scope()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Present state uses monolith. Future state uses microservices.",
+            "src-lifecycle-present-future");
+
+        elements.Should().Contain(element =>
+            element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
+    }
+
+    [Fact]
+    public void Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "as-is: monolith\nto-be: microservices",
+            "src-lifecycle-as-is-to-be");
+
+        elements.Should().Contain(element =>
+            element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
+    }
+
+    [Fact]
     public void Extract_tags_component_after_current_state_section_even_when_target_state_appears_first()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
