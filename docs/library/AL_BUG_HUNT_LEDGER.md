@@ -23879,13 +23879,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 11
-- **bugs-found:** 9
+- **hunts:** 12
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — stale audit scope banner links omitted hub-resolved snapshotId when URL had partial audit params only
+- **last-bug:** 2026-09-26 — active audit scope bar clear action dropped hub-resolved snapshotId when URL omitted snapshotId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 seed hunt (hit): reseeded ui-infra-resource-hub after stale-banner fix; proved `InfraEvidenceAuditScopeBar` clear-scope href ignored hub-resolved `snapshotId`/`runId` props (same gap as stale banner); extended `buildInfraEvidenceClearAuditScopeHref`; regression `preserves hub snapshot and runId when clearing active audit scope`; 25 scoped ResourceHubClient tests passed.
+
+- [x] (proven) `InfraEvidenceAuditScopeBar` clear audit scope dropped hub-resolved `snapshotId` and preserved `runId` only when already in URL — **hit 2026-09-26 seed hunt:** `buildInfraEvidenceClearAuditScopeHref` rebuilt from `currentSearch` only while change-control tab href forwarded `snapshotId`/`runId`; fixed helper + ResourceHubClient stale-banner clear reuse; regression above.
 
 2026-09-26 thorough hunt (hit): proved stale `InfraAuditLineageUnavailableBanner` audit-tab and clear-scope links rebuilt hrefs from URL search only, dropping hub-resolved `snapshotId` while sibling scope-chip links forwarded `resolvedSnapshotId`; fixed by threading `resolvedSnapshotId` and `runId` into stale-banner navigation patches; regression `preserves hub snapshot and runId on stale audit scope banner audit tab link`; 24 scoped ResourceHubClient tests passed.
 

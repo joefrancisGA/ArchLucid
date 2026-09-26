@@ -396,9 +396,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const setActiveTab = useCallback((tab: ResourceHubTab) => {
     setFindingActionMessages({});
     const sanitizedSearch = sanitizeResourceHubQueryForTab(searchParams.toString(), tab);
-    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, { tab });
+    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, {
+      tab,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+    });
     router.replace(nextHref);
-  }, [cloudResourceId, router, searchParams]);
+  }, [cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
 
   useResourceHubShortcuts({
     enabled: hub != null,

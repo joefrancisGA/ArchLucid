@@ -253,6 +253,19 @@ describe("ResourceHubClient", () => {
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
   });
 
+  it("pins hub snapshotId when switching tabs without snapshot in URL", async () => {
+    searchParams = new URLSearchParams("tab=overview&runId=run-1");
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
   it("surfaces stale audit banner for partial URL audit params", async () => {
     searchParams = new URLSearchParams("tab=overview&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
