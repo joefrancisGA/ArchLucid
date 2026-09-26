@@ -36,6 +36,7 @@ public sealed class TrialLifecycleTransitionEngine(
     public async Task<bool> TryAdvanceTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
         if (tenant is null)
             return false;
 
@@ -48,6 +49,7 @@ public sealed class TrialLifecycleTransitionEngine(
             return false;
 
         TrialLifecycleSchedulerOptions options = _lifecycleOptions.CurrentValue;
+
         if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
             TenantHardPurgeResult retry = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
@@ -56,6 +58,7 @@ public sealed class TrialLifecycleTransitionEngine(
         }
 
         TrialLifecycleAdvancement? advancement = TrialLifecyclePolicy.TryGetNextAdvancement(tenant, _timeProvider.GetUtcNow(), options);
+
         if (advancement is null)
             return false;
 
@@ -69,8 +72,10 @@ public sealed class TrialLifecycleTransitionEngine(
                 advancement.ToStatus,
                 advancement.Reason,
                 cancellationToken);
+
             if (!recorded)
                 return false;
+
             await EmitAuditAsync(tenant, advancement, cancellationToken);
             ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
             TenantHardPurgeResult purgeResult = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
@@ -85,8 +90,10 @@ public sealed class TrialLifecycleTransitionEngine(
             advancement.ToStatus,
             advancement.Reason,
             cancellationToken);
+
         if (!ok)
             return false;
+
         await EmitAuditAsync(tenant, advancement, cancellationToken);
         ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
         return true;

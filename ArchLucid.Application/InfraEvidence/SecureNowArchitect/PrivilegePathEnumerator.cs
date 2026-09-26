@@ -169,6 +169,7 @@ internal static class PrivilegePathEnumerator
 
         // An explicit data-plane edge is stronger evidence than an inferred "unknown role actions" terminal.
         // Let traversal continue to that concrete resource instead of emitting both paths for the same role.
+
         if (HasExplicitActionEdge(graph, hasRoleHop.ToNodeId))
         {
             return false;
