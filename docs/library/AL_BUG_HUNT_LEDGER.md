@@ -8122,11 +8122,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 20
-- **bugs-found:** 18
+- **hunts:** 21
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-12 — invalid WorkUnitJson path overwrote cancel before terminal failure
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — invalid WorkUnitJson cancel race before terminal failure assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8176,6 +8176,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch called `MarkFailedTerminalAsync` before cancel registry check and without `GetAsync` cancel re-read — **hit 2026-09-12 seed hunt #1926:** moved registry cancel check before deserialize; invalid-payload branch skips terminal failure when row is already `Canceled`; regressions `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_requested_before_invalid_payload` and `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_invalid_payload_job_already_canceled`.
+
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs success/retry/terminal failure second-read fixes) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before invalid-payload terminal assignment; regression `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_before_invalid_payload_assignment`.
+
+2026-09-26 seed hunt (seed→hit): reseeded host-core-jobs; proved invalid WorkUnitJson cancel race after first state read; 20 processor + 70 Host.Core scoped tests passed.
 
 2026-09-12 seed hunt #1926 (hit): reseeded host-core-jobs; proved invalid WorkUnitJson path skipped cancel before terminal failure; 3 scoped processor tests passed.
 
