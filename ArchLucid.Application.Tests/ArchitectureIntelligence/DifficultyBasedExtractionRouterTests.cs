@@ -26,11 +26,152 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Classify_returns_ambiguous_for_present_and_future_state()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("Present state is monolith. Future state is services.");
+
+        difficulty.Should().Be(ExtractionDifficulty.AmbiguousExtraction);
+    }
+
+    [Fact]
+    public void Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify(
+            "The workload as-isolated from the internet without lifecycle section headers.");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
+    public void Classify_does_not_treat_recurrent_state_substring_as_current_state_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("recurrent state deployment pattern");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
+    public void Classify_does_not_treat_contradictory_substring_as_contradict_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("This is a contradictory deployment note.");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            recurrent state deployment pattern.
+            Target state uses microservices.
+            Component: Orders API
+            """,
+            "src-recurrent-false-positive");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Assumption
+            && element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_contradiction_for_contradictory_substring()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "This is a contradictory deployment note.",
+            "src-contradictory-false-positive");
+
+        elements.Should().NotContain(element => element.Kind == ArchitectureElementKind.Contradiction);
+    }
+
+    [Fact]
+    public void Extract_does_not_stamp_public_api_substring_in_republic_as_interface()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The republic api gateway routes northbound traffic.",
+            "src-republic-api");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Interface
+            && element.Name.Contains("Public endpoint", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "CARTOON rendering service batches frames overnight.",
+            "src-cartoon-rto");
+
+        elements.Should().NotContain(element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            The workload as-isolated from the internet.
+            Target state uses microservices.
+            Component: Orders API
+            """,
+            "src-as-isolated-false-positive");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Assumption
+            && element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_treat_present_and_future_state_prose_as_directly_established()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            Present state is monolith.
+            Future state is services.
+            Component: Orders API
+            """,
+            "src-present-future-classify");
+
+        ArchitectureModelElement component = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Component)
+            .Subject;
+
+        component.Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);
+        component.ExtractionConfidence.Should().BeApproximately(0.55, 0.001);
+    }
+
+    [Fact]
     public void Extract_tags_current_and_target_state_elements_with_lifecycle_scope()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
             "Current state uses monolith. Target state uses microservices.",
             "src-lifecycle");
+
+        elements.Should().Contain(element =>
+            element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
+    }
+
+    [Fact]
+    public void Extract_tags_present_and_future_state_elements_with_lifecycle_scope()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Present state uses monolith. Future state uses microservices.",
+            "src-lifecycle-present-future");
+
+        elements.Should().Contain(element =>
+            element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
+    }
+
+    [Fact]
+    public void Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "as-is: monolith\nto-be: microservices",
+            "src-lifecycle-as-is-to-be");
 
         elements.Should().Contain(element =>
             element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)

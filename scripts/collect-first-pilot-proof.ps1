@@ -1332,22 +1332,41 @@ function Add-ProcurementDealReadyFinding {
     $reportPath = Join-Path $ProofDirectory 'procurement-deal-ready-check.txt'
     $jsonPath = Join-Path $ProofDirectory 'procurement-deal-ready-summary.json'
     $classificationPath = Join-Path $ProofDirectory 'procurement-deal-ready-classification.md'
+    $zipPath = Join-Path $ProofDirectory 'procurement-pack.zip'
+    $verificationPath = Join-Path $ProofDirectory 'procurement-pack-verification.json'
+    $isolatedStage = Join-Path ([System.IO.Path]::GetTempPath()) ("archlucid-procurement-" + [guid]::NewGuid().ToString('N'))
     $scriptPath = Join-Path $PSScriptRoot 'build_procurement_pack.py'
     $prevErrorActionPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
 
     try {
-        $output = & python $scriptPath --dry-run --deal-ready --json-summary-out $jsonPath --classification-md-out $classificationPath 2>&1
+        $buildArgs = @($scriptPath, '--deal-ready', '--json-summary-out', $jsonPath,
+            '--classification-md-out', $classificationPath)
+        if ($SponsorHandoff) {
+            $buildArgs += @('--out', $zipPath, '--stage-dir', $isolatedStage,
+                '--verification-json-out', $verificationPath)
+        }
+        else { $buildArgs += '--dry-run' }
+        $output = & python @buildArgs 2>&1
         $exitCode = $LASTEXITCODE
     }
     finally {
         $ErrorActionPreference = $prevErrorActionPreference
+        if (Test-Path -LiteralPath $isolatedStage) {
+            Remove-Item -LiteralPath $isolatedStage -Recurse -Force
+        }
     }
     $script:procurementReportText = ($output | Out-String)
     [System.IO.File]::WriteAllText($reportPath, $script:procurementReportText, [System.Text.UTF8Encoding]::new($false))
     Add-ProofArtifact -Name 'procurement-deal-ready-check.txt' -Path 'procurement-deal-ready-check.txt' -Purpose 'Deal-ready procurement pack dry-run output with deferred-scope labels.'
     Add-ProofArtifact -Name 'procurement-deal-ready-summary.json' -Path 'procurement-deal-ready-summary.json' -Purpose 'Machine-readable procurement deal-ready disposition with deferred realism notes.'
     Add-ProofArtifact -Name 'procurement-deal-ready-classification.md' -Path 'procurement-deal-ready-classification.md' -Purpose 'Deal-ready scope classification table (V1_READY, BLOCKING, DEFERRED_SCOPE, OWNER_REQUIRED, INFORMATIONAL_B_ONLY).'
+    if (Test-Path -LiteralPath $verificationPath) {
+        Add-ProofArtifact -Name 'procurement-pack-verification.json' -Path 'procurement-pack-verification.json' -Purpose 'Byte-level ZIP integrity and artifact classification verdict.'
+    }
+    if (Test-Path -LiteralPath $zipPath) {
+        Add-ProofArtifact -Name 'procurement-pack.zip' -Path 'procurement-pack.zip' -Purpose 'Verified deal-ready procurement ZIP for sponsor handoff.'
+    }
 
     $disposition = 'HOLD'
     $blockingCount = 0
@@ -1363,8 +1382,17 @@ function Add-ProcurementDealReadyFinding {
         }
     }
 
-    if ($disposition -eq 'PASS' -or ($blockingCount -eq 0 -and $exitCode -eq 0)) {
-        Add-ProofFinding -Disposition 'PASS' -Name 'procurement-deal-ready' -Detail 'Procurement pack deal-ready dry-run passed (deferred procurement realism notes may still apply).' -Remediation ''
+    $zipVerified = -not $SponsorHandoff
+    if ($SponsorHandoff -and (Test-Path -LiteralPath $verificationPath)) {
+        try {
+            $verification = Get-Content -LiteralPath $verificationPath -Raw | ConvertFrom-Json -ErrorAction Stop
+            $zipVerified = ([string]$verification.disposition -eq 'PASS')
+        }
+        catch { $zipVerified = $false }
+    }
+
+    if (($disposition -eq 'PASS' -or ($blockingCount -eq 0 -and $exitCode -eq 0)) -and $exitCode -eq 0 -and $zipVerified) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'procurement-deal-ready' -Detail 'Procurement deal-ready checks and sponsor ZIP verification passed (deferred notes may still apply).' -Remediation ''
         return
     }
 
@@ -2333,6 +2361,11 @@ function Invoke-RoiBaselineSendEvaluation {
         $args += @('--override-json', $overridePath)
     }
 
+    $baselinePath = Join-Path $ProofDirectory 'paid-pilot-baseline.json'
+    $measurementPath = Join-Path $ProofDirectory 'roi-measurement-evidence.json'
+    if (Test-Path -LiteralPath $baselinePath) { $args += @('--baseline-json', $baselinePath) }
+    if (Test-Path -LiteralPath $measurementPath) { $args += @('--measurement-json', $measurementPath) }
+
     if ($StrictSend) {
         $args += '--strict-send'
     }
@@ -2354,6 +2387,7 @@ function Invoke-RoiBaselineSendEvaluation {
     return [ordered]@{
         baselineCompletenessStatus    = [string]$evaluation.baselineCompletenessStatus
         sendEligible                  = [bool]$evaluation.sendEligible
+        projectedDollarClaimsEligible = [bool]$evaluation.projectedDollarClaimsEligible
         overrideApplied               = [bool]$evaluation.overrideApplied
         sendBlockReasons              = @($evaluation.sendBlockReasons)
         missingRequiredBaselineFields = @($evaluation.missingRequiredBaselineFields)
@@ -3695,6 +3729,24 @@ if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
     }
 }
 
+# Sidecar for first-value and sponsor packet review: only observed, source-labeled
+# measurements receive a numeric difference. Missing inputs stay INSUFFICIENT_DATA.
+$roiMeasurementArgs = @(
+    (Join-Path $PSScriptRoot 'ci\report_roi_measurement_evidence.py'),
+    '--json-out', (Join-Path $proofDir 'roi-measurement-evidence.json'),
+    '--markdown-out', (Join-Path $proofDir 'roi-measurement-evidence.md')
+)
+$roiBaselinePath = Join-Path $proofDir 'paid-pilot-baseline.json'
+$roiOutcomesPath = Join-Path $proofDir 'roi-measured-outcomes.json'
+if (Test-Path -LiteralPath $roiBaselinePath) { $roiMeasurementArgs += @('--baseline-json', $roiBaselinePath) }
+if (Test-Path -LiteralPath $roiOutcomesPath) { $roiMeasurementArgs += @('--outcomes-json', $roiOutcomesPath) }
+if (-not [string]::IsNullOrWhiteSpace($RunId)) { $roiMeasurementArgs += @('--run-id', $RunId.Trim()) }
+$null = Invoke-ProofPythonProcess -ArgumentList $roiMeasurementArgs
+if (Test-Path -LiteralPath (Join-Path $proofDir 'roi-measurement-evidence.json')) {
+    Add-ProofArtifact -Name 'roi-measurement-evidence.json' -Path 'roi-measurement-evidence.json' -Purpose 'Source-labeled observed ROI metrics, or explicit insufficient-data status.'
+    Add-ProofArtifact -Name 'roi-measurement-evidence.md' -Path 'roi-measurement-evidence.md' -Purpose 'First-value and sponsor review of measured time differences and missing inputs.'
+}
+
 $baselineSendEval = Invoke-RoiBaselineSendEvaluation `
     -ProofDirectory $proofDir `
     -StrictSend:$SponsorHandoff `
@@ -3705,6 +3757,7 @@ $baselineSendEval = Invoke-RoiBaselineSendEvaluation `
         sponsorPacketDisposition = $sponsorPacketDisposition
         runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
     })
+
 
 if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
     $missingFields = @($baselineSendEval.missingRequiredBaselineFields) -join ', '
@@ -3844,6 +3897,7 @@ $summary = [ordered]@{
     roiSponsorSafe            = $script:roiSponsorSafe
     baselineCompletenessStatus = [string]$baselineSendEval.baselineCompletenessStatus
     sendEligible              = [bool]$baselineSendEval.sendEligible
+    projectedDollarClaimsEligible = [bool]$baselineSendEval.projectedDollarClaimsEligible
     overrideApplied           = [bool]$baselineSendEval.overrideApplied
     roiBaselineSendOverrideAudit = if ([bool]$baselineSendEval.overrideApplied -and (Test-Path -LiteralPath (Join-Path $proofDir 'roi-baseline-send-override.json'))) {
         [ordered]@{

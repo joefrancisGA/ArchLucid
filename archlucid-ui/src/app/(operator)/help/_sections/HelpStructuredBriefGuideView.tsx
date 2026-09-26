@@ -19,6 +19,21 @@ import { HELP_HUB_CANONICAL_PATH, HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
+  CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_BODY,
+  CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_EXAMPLES,
+  CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_HEADING,
+  CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_HEADING_ID,
+  CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_DETAIL,
+  CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_HEADING,
+  CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_HEADING_ID,
+  CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_LEAD,
+  CREATE_ARCHITECTURE_HELP_FIELD_TIPS,
+  CREATE_ARCHITECTURE_HELP_FIELD_TIPS_HEADING,
+  CREATE_ARCHITECTURE_HELP_FIELD_TIPS_HEADING_ID,
+  CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_BODY,
+  CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_HEADING,
+  CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_HEADING_ID,
+  CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_WITH_BANNER_BODY,
   STRUCTURED_BRIEF_HELP_APPLICABILITY,
   STRUCTURED_BRIEF_HELP_BREADCRUMB_TOPIC_TITLE,
   STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID,
@@ -129,6 +144,64 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
           </section>
 
           <section
+            aria-labelledby={CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_HEADING_ID}
+            className="space-y-2"
+            data-testid="help-create-architecture-draft-vs-review"
+          >
+            <HelpSectionHeading id={CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_HEADING_ID}>
+              {CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_HEADING}
+            </HelpSectionHeading>
+            <p className={readingBodyClass}>{CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_LEAD}</p>
+            <p className={cn(readingBodyClass, "text-al-text-secondary")}>{CREATE_ARCHITECTURE_HELP_DRAFT_VS_REVIEW_DETAIL}</p>
+          </section>
+
+          <section
+            aria-labelledby={CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_HEADING_ID}
+            className="space-y-2"
+            data-testid="help-create-architecture-readiness-checklist"
+          >
+            <HelpSectionHeading id={CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_HEADING_ID}>
+              {CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_HEADING}
+            </HelpSectionHeading>
+            <p className={readingBodyClass}>{CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_BODY}</p>
+            <p className={cn(readingBodyClass, "text-al-text-secondary")}>
+              {CREATE_ARCHITECTURE_HELP_READINESS_CHECKLIST_WITH_BANNER_BODY}
+            </p>
+          </section>
+
+          <section
+            aria-labelledby={CREATE_ARCHITECTURE_HELP_FIELD_TIPS_HEADING_ID}
+            className="space-y-3"
+            data-testid="help-create-architecture-field-tips"
+          >
+            <HelpSectionHeading id={CREATE_ARCHITECTURE_HELP_FIELD_TIPS_HEADING_ID}>
+              {CREATE_ARCHITECTURE_HELP_FIELD_TIPS_HEADING}
+            </HelpSectionHeading>
+            <ul className="m-0 list-none space-y-3 p-0">
+              {CREATE_ARCHITECTURE_HELP_FIELD_TIPS.map((tip) => (
+                <li key={tip.label} className="space-y-1 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+                  <p className={cn("m-0 font-medium text-al-text-primary", readingBodyClass)}>{tip.label}</p>
+                  <p className={cn("m-0 text-al-text-secondary", readingBodyClass)}>{tip.detail}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section
+            aria-labelledby={CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_HEADING_ID}
+            className="space-y-2"
+            data-testid="help-create-architecture-capabilities-quality"
+          >
+            <HelpSectionHeading id={CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_HEADING_ID}>
+              {CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_HEADING}
+            </HelpSectionHeading>
+            <p className={readingBodyClass}>{CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_BODY}</p>
+            <p className={cn(readingBodyClass, "text-al-text-secondary")}>
+              Examples: {CREATE_ARCHITECTURE_HELP_CAPABILITIES_QUALITY_EXAMPLES}
+            </p>
+          </section>
+
+          <section
             className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-structured-brief-action-panel"
             aria-labelledby="help-structured-brief-action-panel-heading"
@@ -145,7 +218,7 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
           </section>
 
           <section aria-labelledby="field-concepts" className="space-y-4">
-            <HelpSectionHeading id="field-concepts">Field concepts</HelpSectionHeading>
+            <HelpSectionHeading id="field-concepts">Structured brief field concepts</HelpSectionHeading>
             <ul className="m-0 list-none space-y-4 p-0" data-testid="help-structured-brief-concept-items">
               {STRUCTURED_BRIEF_HELP_CONCEPT_ITEMS.map((item) => (
                 <li key={item.label} className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">

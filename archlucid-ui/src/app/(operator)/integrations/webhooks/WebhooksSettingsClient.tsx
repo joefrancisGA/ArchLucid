@@ -37,6 +37,7 @@ import {
 import {
   WEBHOOKS_ENABLE_CONFIRM_LABEL,
   WEBHOOKS_ENABLE_CONFIRM_TITLE,
+  WEBHOOKS_CONFIGURATION_STATUS_UNAVAILABLE,
   WEBHOOKS_NOT_CONFIGURED_NEXT_STEP,
   WEBHOOKS_PAGE_DESCRIPTION,
   WEBHOOKS_PAGE_TITLE,
@@ -110,12 +111,14 @@ export function WebhooksSettingsClient() {
 
   const watchedFormValues = useWatch({ control });
   const subscriptionsLoaded = !loading;
+  const subscriptionEnableStepSatisfied =
+    hasLoadedSuccessfully && activeSubscriptionCount > 0;
   const webhooksCreateSteps = resolveWebhooksCreateSteps({
     destinationConfigured:
       (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
       (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
-    subscriptionEnabled: activeSubscriptionCount > 0,
+    subscriptionEnabled: subscriptionEnableStepSatisfied,
     subscriptionsLoaded,
   });
   const webhooksCreateEmphasizedStepId = resolveWebhooksCreateEmphasizedStepId({
@@ -123,7 +126,7 @@ export function WebhooksSettingsClient() {
       (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
       (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
-    subscriptionEnabled: activeSubscriptionCount > 0,
+    subscriptionEnabled: subscriptionEnableStepSatisfied,
     subscriptionsLoaded,
   });
   const continueLastSubscription = useMemo(
@@ -145,6 +148,8 @@ export function WebhooksSettingsClient() {
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Loading configuration status…
         </p>
+      ) : !hasLoadedSuccessfully ? (
+        <StatusTag kind="needs-attention" label={WEBHOOKS_CONFIGURATION_STATUS_UNAVAILABLE} />
       ) : (
         <StatusTag
           kind={webhooksConfigurationStatusTagKind(webhookRows.length, activeSubscriptionCount)}
@@ -207,7 +212,7 @@ export function WebhooksSettingsClient() {
                 <h2 id="webhook-existing-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                   {WEBHOOKS_SUBSCRIPTIONS_HEADING}
                 </h2>
-                {webhookRows.length > 0 ? (
+                {webhookRows.length > 0 && hasLoadedSuccessfully ? (
                   <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {webhookRows.length} subscription{webhookRows.length === 1 ? "" : "s"} in this workspace.
                   </p>

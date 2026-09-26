@@ -81,3 +81,368 @@ public sealed class TechnologyLedgerTopologyProposalMapperTests
         candidates.Should().OnlyContain(entry => entry.Status == TechnologyLedgerStatus.Assumed);
     }
 }
+
+[Trait("Suite", "Core")]
+public sealed class TechnologyLedgerAgentProposalMergePolicyTests
+{
+    [Fact]
+    public void Resolve_inserts_assumed_when_role_has_no_entries()
+    {
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved = TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, []);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_duplicate_same_family_when_chosen_exists()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = null;
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_inserts_assumed_on_provider_conflict()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_chosen_is_locked()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.IsLocked = true;
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_duplicate_assumed_when_no_chosen_exists()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_duplicate_assumed_when_chosen_provider_differs()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen, existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_treats_technology_name_case_insensitively()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.TechnologyName = "PostgreSQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.TechnologyName = "postgresql";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_when_evidence_ref_already_present()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existingAssumed.TechnologyName = "api-a";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "api-b";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_when_evidence_ref_matches_across_provider_families()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "Azure Container Apps";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+        candidate.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_distinct_evidence_ref_when_chosen_provider_family_matches()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.EvidenceRef = "inventory:chosen";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_evidence_ref_matches_case_insensitively()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:P1:svc-api";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "Azure Container Apps";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_when_technology_name_differs_only_by_internal_whitespace()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = null;
+        candidate.TechnologyName = "Amazon  ECS";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_distinct_evidence_ref_when_existing_row_has_whitespace_only_ref()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "   ";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+        candidate.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Amazon ECS";
+        chosen.EvidenceRef = null;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Amazon ECS";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Amazon ECS";
+        chosen.EvidenceRef = "inventory:arm:ecs-cluster";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Amazon ECS";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref()
+    {
+        TechnologyLedgerEntry databaseAssumed = CreateCandidate(CloudProvider.Aws);
+        databaseAssumed.Role = TechnologyLedgerRole.PrimaryDatastore;
+        databaseAssumed.EvidenceRef = "agentTopologyProposal:p1:shared";
+        databaseAssumed.TechnologyName = "Cosmos DB";
+
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Aws);
+        chosen.EvidenceRef = "inventory:ecs";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:shared";
+        candidate.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [databaseAssumed, chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_evidence_ref_differs_only_by_outer_whitespace()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "  agentTopologyProposal:p1:svc-api  ";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "Azure Container Apps";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            ProposalId = "p1",
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-a",
+                    ServiceName = "shared-display",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceId = "svc-b",
+                    ServiceName = "shared-display",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        IReadOnlyList<TechnologyLedgerEntry> mapped =
+            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
+
+        IReadOnlyList<TechnologyLedgerEntry> computeCandidates = mapped
+            .Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime)
+            .ToList();
+
+        computeCandidates.Should().HaveCount(2);
+        computeCandidates.Select(entry => entry.EvidenceRef).Should().OnlyHaveUniqueItems();
+
+        List<TechnologyLedgerEntry> existing = [];
+        foreach (TechnologyLedgerEntry candidate in computeCandidates)
+        {
+            TechnologyLedgerEntry? resolved =
+                TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing);
+
+            resolved.Should().NotBeNull();
+            existing.Add(resolved!);
+        }
+
+        existing.Should().HaveCount(2);
+        existing.Select(entry => entry.TechnologyName).Should().AllBe("shared-display");
+    }
+
+    private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
+        new()
+        {
+            RunId = "run-1",
+            Role = TechnologyLedgerRole.ComputeRuntime,
+            TechnologyName = "chosen",
+            ProviderFamily = provider,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
+    private static TechnologyLedgerEntry CreateCandidate(CloudProvider provider) =>
+        new()
+        {
+            RunId = "run-1",
+            Role = TechnologyLedgerRole.ComputeRuntime,
+            TechnologyName = "candidate",
+            ProviderFamily = provider,
+            Status = TechnologyLedgerStatus.Assumed,
+            Source = TechnologyLedgerSource.AgentProposed,
+            EvidenceRef = "agentTopologyProposal:p1:candidate",
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+}

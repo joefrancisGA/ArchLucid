@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AzureExtractor;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
@@ -17,6 +18,35 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
     private static readonly Guid TenantB = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
     private static readonly Guid WorkspaceId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3");
     private static readonly Guid ProjectId = Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4");
+
+    [SkippableFact]
+    public async Task Snapshot_read_rejects_other_tenant_project_and_snapshot()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+
+        await repository.InsertIfNotExistsAsync(
+            CreatePathHeader(pathId, TenantA, snapshotId, DateTime.UtcNow),
+            CreateHops(pathId, TenantA, PathConfidenceBand.Confirmed),
+            CancellationToken.None);
+
+        ProjectScopeKey project = ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId);
+        ProjectSnapshotScopeKey correct = ProjectSnapshotScopeKey.Create(project, snapshotId);
+        ProjectSnapshotScopeKey wrongTenant = ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantB, WorkspaceId, ProjectId), snapshotId);
+        ProjectSnapshotScopeKey wrongProject = ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantA, WorkspaceId, Guid.NewGuid()), snapshotId);
+        ProjectSnapshotScopeKey wrongSnapshot = ProjectSnapshotScopeKey.Create(project, Guid.NewGuid());
+
+        (await repository.ListBySnapshotAsync(correct)).Select(path => path.PathId).Should().Contain(pathId);
+        (await repository.ListBySnapshotAsync(wrongTenant)).Should().BeEmpty();
+        (await repository.ListBySnapshotAsync(wrongProject)).Should().BeEmpty();
+        (await repository.ListBySnapshotAsync(wrongSnapshot)).Should().BeEmpty();
+    }
 
     [SkippableFact]
     public async Task Duplicate_canonical_hash_is_idempotent_and_tenant_isolated()

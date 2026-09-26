@@ -88,6 +88,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
         HashSet<string> relationshipKeys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> inventoriedArmIds = AzureInventoryEventHubVisibleEndpointResolver.BuildInventoriedArmIds(
+            resources.Select(resource => resource.AzureResourceId));
 
         if (!federatedCredentialsFilePresent)
         {
@@ -172,7 +174,7 @@ public static class AzureInventorySecurityEdgeMaterializer
             warnings);
 
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
-        AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys, warnings);
+        AddDiagnosticEdges(diagnosticSettings, inventoriedArmIds, relationships, relationshipKeys, warnings);
 
         HashSet<string> directionalFactoryTargetPairs = new(StringComparer.OrdinalIgnoreCase);
 
@@ -222,7 +224,8 @@ public static class AzureInventorySecurityEdgeMaterializer
             messagingAssociationRows,
             relationships,
             relationshipKeys,
-            warnings);
+            warnings,
+            inventoriedArmIds);
 
         AzureInventoryPaasChildAssociationEdgeMapper.MapAssociations(
             paasChildAssociationRows,
@@ -713,6 +716,7 @@ public static class AzureInventorySecurityEdgeMaterializer
 
     private static void AddDiagnosticEdges(
         IReadOnlyList<JsonElement> diagnosticSettings,
+        IReadOnlySet<string> inventoriedArmIds,
         List<AzureInventoryResourceRelationshipWrite> relationships,
         HashSet<string> relationshipKeys,
         List<string> warnings)
@@ -743,15 +747,21 @@ public static class AzureInventorySecurityEdgeMaterializer
 
             foreach (string destinationArmId in AzureInventoryDiagnosticDestinationParser.EnumerateDestinationArmIds(diagnostic))
             {
+                AzureInventoryEventHubVisibleEndpointResolver.ResolveDiagnosticDestination(
+                    destinationArmId,
+                    inventoriedArmIds,
+                    out string resolvedDestinationArmId,
+                    out string diagnosticInferenceSource);
+
                 AddRelationship(
                     relationships,
                     relationshipKeys,
                     normalizedTargetId,
-                    destinationArmId,
+                    resolvedDestinationArmId,
                     definition.DefaultGraphEdgeType,
                     definition.DefaultProvenanceKind,
                     ObservedFactConfidence,
-                    definition.DefaultInferenceSource);
+                    diagnosticInferenceSource);
 
                 emittedDestination = true;
             }

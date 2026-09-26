@@ -38,7 +38,12 @@ public sealed class AzureInventoryMessagingAssociationEdgeMapperTests
         HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
 
-        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(associations, relationships, keys, warnings);
+        HashSet<string> inventoried = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ArmResourceIdNormalizer.Normalize(eventHubId),
+        };
+
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(associations, relationships, keys, warnings, inventoried);
 
         relationships.Should().HaveCount(2);
         relationships.Should().Contain(r =>
@@ -51,6 +56,49 @@ public sealed class AzureInventoryMessagingAssociationEdgeMapperTests
             && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(captureStorageId)
             && r.RelationshipType == GraphEdgeTypes.ConnectsTo
             && r.InferenceSource == GraphEdgeInferenceSources.InventoryEventHubCapture);
+    }
+
+    [Fact]
+    public void MapAssociations_attaches_capture_to_namespace_when_child_hub_is_not_inventoried()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
+        const string eventHubId = $"{namespaceId}/eventhubs/orders";
+        const string captureStorageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/capturestore";
+
+        List<AzureInventoryMessagingAssociationRow> associations =
+        [
+            new()
+            {
+                ParentResourceId = namespaceId,
+                ChildResourceId = eventHubId,
+                ChildName = "orders",
+                ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
+                CaptureStorageAccountId = captureStorageId,
+                CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+            },
+        ];
+
+        HashSet<string> inventoried = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ArmResourceIdNormalizer.Normalize(namespaceId),
+        };
+
+        List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        AzureInventoryMessagingAssociationEdgeMapper.MapAssociations(
+            associations,
+            relationships,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            [],
+            inventoried);
+
+        relationships.Should().Contain(r =>
+            r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(namespaceId)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(captureStorageId)
+            && r.InferenceSource == GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryEventHubCapture,
+                "orders"));
     }
 
     [Fact]

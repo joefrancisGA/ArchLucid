@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -89,16 +90,83 @@ public sealed partial class DifficultyBasedExtractionRouter
             return true;
         }
 
-        return ContainsAny(
-            sourceText,
-            "target state",
-            "current state",
-            "trust boundary",
-            "contradict");
+        return ContainsPhraseMarker(sourceText, "target state")
+            || ContainsPhraseMarker(sourceText, "current state")
+            || ContainsPhraseMarker(sourceText, "future state")
+            || ContainsPhraseMarker(sourceText, "present state")
+            || ContainsTokenMarker(sourceText, "to-be")
+            || ContainsTokenMarker(sourceText, "as-is")
+            || ContainsPhraseMarker(sourceText, "trust boundary")
+            || ContainsContradictMarker(sourceText);
+    }
+
+    private static bool ContainsContradictMarker(string sourceText) =>
+        ContradictWordPattern().IsMatch(sourceText);
+
+    private static bool ContainsPhraseMarker(string sourceText, string marker) =>
+        FindBoundedMarkerIndex(sourceText, marker, 0) >= 0;
+
+    private static bool ContainsTokenMarker(string sourceText, string marker) =>
+        ContainsPhraseMarker(sourceText, marker);
+
+    private static int FindTokenMarkerIndex(string sourceText, string marker, int startIndex) =>
+        FindBoundedMarkerIndex(sourceText, marker, startIndex);
+
+    private static int FindBoundedMarkerIndex(string sourceText, string marker, int startIndex)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(marker);
+
+        ReadOnlySpan<char> text = sourceText.AsSpan();
+        ReadOnlySpan<char> needle = marker.AsSpan();
+
+        if (startIndex < 0 || startIndex > text.Length || needle.Length > text.Length - startIndex)
+        {
+            return -1;
+        }
+
+        for (int index = startIndex; index <= text.Length - needle.Length; index++)
+        {
+            if (!text.Slice(index, needle.Length).Equals(needle, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            bool startOk = index == 0 || !char.IsLetterOrDigit(text[index - 1]);
+            int end = index + needle.Length;
+            bool endOk = end >= text.Length || !char.IsLetterOrDigit(text[end]);
+
+            if (startOk && endOk)
+            {
+                return index;
+            }
+        }
+
+        return -1;
     }
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {
-        return needles.Any(needle => sourceText.Contains(needle, StringComparison.OrdinalIgnoreCase));
+        return needles.Any(needle => ContainsHumanReviewMarker(sourceText, needle));
     }
+
+    private static bool ContainsHumanReviewMarker(string sourceText, string marker)
+    {
+        if (FindBoundedMarkerIndex(sourceText, marker, 0) >= 0)
+        {
+            return true;
+        }
+
+        if (!marker.Contains(' ')
+            && !marker.Contains('-')
+            && !marker.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+            && FindBoundedMarkerIndex(sourceText, marker + "s", 0) >= 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    [GeneratedRegex(@"\bcontradict(?:s|ed|ing|ion)?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ContradictWordPattern();
 }

@@ -74,6 +74,7 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
   const privacySrc = path.join(monorepoDocs, "go-to-market", "PRIVACY_POLICY.md");
   const trustSrc = path.join(monorepoDocs, "go-to-market", "trust-center.md");
   const bulletinSrc = path.join(monorepoDocs, "go-to-market", "SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md");
+  const accessibilitySrc = path.join(projectRoot, "..", "ACCESSIBILITY.md");
   if (fs.existsSync(privacySrc)) {
     fs.copyFileSync(privacySrc, path.join(gtmDest, "PRIVACY_POLICY.md"));
   }
@@ -82,6 +83,9 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
   }
   if (fs.existsSync(bulletinSrc)) {
     fs.copyFileSync(bulletinSrc, path.join(gtmDest, "SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"));
+  }
+  if (fs.existsSync(accessibilitySrc)) {
+    fs.copyFileSync(accessibilitySrc, path.join(gtmDest, "ACCESSIBILITY.md"));
   }
 
   /**

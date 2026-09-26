@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
@@ -37,11 +36,6 @@ export function ArchitectureDraftStructuredBriefSuggestRail(
       <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
         {GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL}
       </p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-        Confirm constraints and assumptions so review engines do not invent them from free text alone.
-        {" "}
-        {GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE}
-      </p>
       <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
@@ -62,9 +56,6 @@ export function ArchitectureDraftStructuredBriefSuggestRail(
             "Suggest from overview"
           )}
         </Button>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-          Suggestions stay unconfirmed until you add or confirm them.
-        </p>
       </div>
       <LongOperationWaitNotice
         active={suggestions.suggestBusy}

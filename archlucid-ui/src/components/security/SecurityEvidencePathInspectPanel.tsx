@@ -63,6 +63,7 @@ import {
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
+import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import type {
   SecurityEvidencePathExplanation,
   SecurityEvidencePathHop,
@@ -334,6 +335,9 @@ export function SecurityEvidencePathInspectPanel(props: {
     retry: false,
   });
   const advisoryInstance = instancesQuery.data?.[0] ?? null;
+  const decisionReadiness = pathQuery.data != null
+    ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
+    : null;
   const hasSelection = props.findingId != null || props.pathIdOverride != null;
   const isLoadingFinding = props.findingId != null && findingQuery.isLoading;
   const isLoadingPath = resolvedPathId != null && pathQuery.isLoading;
@@ -440,6 +444,32 @@ export function SecurityEvidencePathInspectPanel(props: {
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
             />
           </div>
+
+          {decisionReadiness != null ? (
+            <div className="space-y-2 rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-decision-readiness">
+              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Evidence-to-action readiness</h3>
+              <StatusTag kind={decisionReadiness.status === "READY_FOR_REVIEW" ? "neutral" : "needs-attention"}
+                label={decisionReadiness.status === "READY_FOR_REVIEW" ? "Ready for operator review" : "Verify evidence before action"} />
+              {decisionReadiness.issues.length > 0 ? (
+                <ul className="list-disc space-y-1 pl-5" data-testid="security-evidence-path-evidence-issues">
+                  {decisionReadiness.issues.map((issue) => <li key={issue} className={OPERATOR_TYPOGRAPHY.helper}>{issue}</li>)}
+                </ul>
+              ) : null}
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Affected assets with resource IDs: {decisionReadiness.affectedAssetIds.length > 0
+                  ? decisionReadiness.affectedAssetIds.join(", ") : "none identified in path hops"}
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-verification-status">
+                {decisionReadiness.verificationStatus}
+              </p>
+              {props.findingId != null ? (
+                <Link className={OPERATOR_LINK.inline} href={buildRemediationWorkbenchHref({
+                  findingId: props.findingId, snapshotId: pathQuery.data.snapshotId,
+                  instanceId: advisoryInstance?.instanceId,
+                })}>Review remediation and verification</Link>
+              ) : null}
+            </div>
+          ) : null}
 
           {pathRankQuery.isLoading ? (
             <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_RANK_LOADING}</p>

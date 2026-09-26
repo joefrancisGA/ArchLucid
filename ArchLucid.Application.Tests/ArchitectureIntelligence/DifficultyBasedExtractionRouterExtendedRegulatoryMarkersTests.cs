@@ -9,6 +9,22 @@ public sealed class DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTest
 {
     private readonly DifficultyBasedExtractionRouter _router = new();
 
+    [Fact]
+    public void Classify_returns_human_review_for_regulations_plural()
+    {
+        _router.Classify("Regulations require documented retention.")
+            .Should()
+            .Be(ExtractionDifficulty.HumanReviewRequired);
+    }
+
+    [Fact]
+    public void Classify_does_not_treat_delphi_substring_as_phi_marker()
+    {
+        _router.Classify("Delphi legacy service handles batch exports.")
+            .Should()
+            .Be(ExtractionDifficulty.ClearExtraction);
+    }
+
     [Theory]
     [InlineData("CCPA: customer opt-out rights must be documented.")]
     [InlineData("SOC 2 Type II controls cover availability.")]

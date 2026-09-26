@@ -14,6 +14,26 @@ CI = REPO_ROOT / "scripts" / "ci"
 
 
 class RoiBaselineSendPolicyTests(unittest.TestCase):
+    def test_strict_send_requires_recorded_fields_and_measured_outcomes(self) -> None:
+        sys.path.insert(0, str(CI))
+        from roi_baseline_send_policy import evaluate_send_eligibility
+
+        summary = {"blockCount": 0, "sponsorPacketDisposition": "READY", "roiBasisStatus": "buyer-provided",
+                   "roiSponsorSafe": True, "runId": "run-1"}
+        baseline = {"baselineReviewCycleHours": 12, "architectPrepHoursPerReview": 6,
+                    "baselineReviewCycleSource": "buyer-provided"}
+        measured = {"schema": "archlucid.roi-measurement-evidence.v1", "status": "MEASURED"}
+        proxy_only = evaluate_send_eligibility(summary, require_recorded_evidence=True)
+        self.assertFalse(proxy_only["sendEligible"])
+        self.assertIn("reviewCycleHoursBaseline", proxy_only["missingRequiredBaselineFields"])
+        actual = evaluate_send_eligibility(summary, baseline=baseline, measurement=measured,
+                                           require_recorded_evidence=True)
+        self.assertTrue(actual["sendEligible"])
+        self.assertTrue(actual["projectedDollarClaimsEligible"])
+        no_measurement = evaluate_send_eligibility(summary, baseline=baseline,
+                                                   require_recorded_evidence=True)
+        self.assertFalse(no_measurement["sendEligible"])
+
     def test_complete_buyer_provided_is_send_eligible(self) -> None:
         sys.path.insert(0, str(CI))
         from roi_baseline_send_policy import evaluate_send_eligibility

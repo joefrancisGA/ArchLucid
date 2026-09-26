@@ -14,6 +14,7 @@ vi.mock("@/lib/digest/exec-digest-sponsor-deep-link-server", () => ({
 
 vi.mock("next/navigation", () => ({
   notFound: () => notFound(),
+  usePathname: () => "/digest/sponsor/run/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
 }));
 
 import ExecDigestSponsorRunDeepLinkPage from "./page";
@@ -46,6 +47,10 @@ describe("ExecDigestSponsorRunDeepLinkPage (DIU)", () => {
     expect(screen.getByTestId("digest-sponsor-issue-page")).toBeInTheDocument();
     expect(screen.getByTestId("digest-sponsor-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("digest-sponsor-first-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-sponsor-issue-sign-in")).toHaveAttribute(
+      "href",
+      "/auth/signin?returnUrl=%2Fdigest%2Fsponsor%2Frun%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    );
   });
 
   it("loads collateral view through shared digest panel", async () => {

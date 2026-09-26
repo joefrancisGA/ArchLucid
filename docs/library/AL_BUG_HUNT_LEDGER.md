@@ -2847,19 +2847,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed stale reseed-script rows (same-family distinct `EvidenceRef` inserts remain allowed via `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; `CloudProvider.None` chosen rows do not match Azure/AWS via `==` so provider-conflict insert path still applies); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
+
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after role-scoped `EvidenceRef` fix; cheap-disproof closed chosen-family novel-ref vs grounded-name paths, cross-role ref parity, locked-chosen gate, and `ShouldTreatAsDuplicateByName` whitespace-ref behavior — all covered by existing regressions; no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
+
+2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after cross-role `EvidenceRef` hit; cheap-disproof closed stale reseed templates (distinct `EvidenceRef` with matching family+name remains intentional per `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; inventory `Chosen` with `CloudProvider.None` does not enter the same-family gate against Azure/AWS candidates); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved chosen-family insert gate treated `EvidenceRef` collisions across different `TechnologyLedgerRole` values as blocking compute-runtime candidates; fixed by scoping the novel-ref check to the candidate role; regression `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`; 60 scoped TechnologyLedger tests passed.
+
 - **id:** technology-ledger-merge
 - **status:** open
 - **impact:** medium
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 17
-- **bugs-found:** 10
+- **hunts:** 21
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — grounded Chosen row still accepted duplicate technology name when agent carried a new EvidenceRef
+- **last-bug:** 2026-09-26 — cross-role EvidenceRef blocked compute candidate insert
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed duplicate-display-name topology batch `(candidate)` — `TechnologyLedgerTopologyProposalMapper` keys `EvidenceRef` by `ServiceId` slug so distinct ids stay distinct; regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`; no new hunt-ready rows; 59 scoped TechnologyLedger tests passed.
 
@@ -2871,6 +2879,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) Grounded `Chosen` row with same provider family and `TechnologyName` still accepted a second assumed agent row when only `EvidenceRef` differed — **hit 2026-09-26 seed hunt:** chosen-family branch only checked novel refs, not whether authoritative chosen already grounded the technology name; fixed by returning null when chosen name matches and chosen `EvidenceRef` is substantive; regression `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref`.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — two topology services sharing a `ServiceName` with distinct `agentTopologyProposal:*` refs may both insert — **cheap-disproof 2026-09-26 seed hunt:** mapper emits per-`ServiceId` refs; merge policy intentionally keeps distinct grounded refs (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`); regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`.
+- [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — chosen-family novel-ref gate consulted `EvidenceRef` collisions across roles — **hit 2026-09-26 seed hunt (seed→hit):** a datastore row sharing an `agentTopologyProposal:*` ref suppressed a compute-runtime candidate with the same ref even though `HasMatchingProposal` is role-scoped; fixed by limiting the chosen-family ref scan to `existing.Role == candidate.Role`; regression `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — same `ProviderFamily` with distinct `EvidenceRef` values dropped on second agent proposal — **cheap-disproof 2026-09-26 seed hunt:** `HasMatchingProposal` dedupes by ref and name rules but intentionally retains distinct substantive refs when technology names match (`Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`).
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy` — inventory `Chosen` with `CloudProvider.None` suppresses all provider-specific agent proposals via same-family gate — **cheap-disproof 2026-09-26 seed hunt:** `chosen.ProviderFamily == candidate.ProviderFamily` is false for `None` vs Azure/AWS, so `Resolve` returns the candidate on the provider-conflict path (`Resolve_inserts_assumed_on_provider_conflict`).
 
 2026-09-25 seed hunt (seed-only): reseeded technology-ledger-merge; no new hunt-ready hypotheses — evidence-ref, case/whitespace name dedupe, and chosen-family distinct-ref paths remain covered; repaired stale `Resolve_skips_duplicate_same_family_when_chosen_exists` fixture (candidate always carried topology `EvidenceRef` after `CreateCandidate` helper); 56 scoped TechnologyLedger tests passed.
 
@@ -2902,19 +2913,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
+2026-09-26 seed hunt (seed-only): reseeded orchestrator-transient-retry; cheap-disproof closed mixed `AggregateException` retry (`inners.All(SqlTransientDetector.IsTransient)` fail-fast remains intentional per `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate`); budget/attempt/delay boundaries and SQL transient codes remain covered; no new hunt-ready rows; 50 scoped transient-retry tests passed (34 Persistence + 16 Application).
+
 - **id:** orchestrator-transient-retry
 - **status:** open
 - **impact:** medium
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-26
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** no
 
 2026-09-12 seed hunt #2019 (seed-only): reseeded orchestrator-transient-retry; no new hunt-ready rows.
 
@@ -4823,17 +4836,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved lifecycle phrase markers (`current state`, etc.) and bare `contradict` used substring `Contains`, so `recurrent state`/`contradictory` falsely classified `AmbiguousExtraction` and emitted transition/contradiction elements; fixed with `FindBoundedMarkerIndex` for phrases and `ContainsContradictMarker` word-form regex; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`; 44 scoped DifficultyBasedExtractionRouter tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved `as-is`/`to-be` token markers matched inside unrelated words (`as-isolated`) for `LooksAmbiguous`, `ContainsDualLifecycleMarkers`, and `InferLifecycleScopeForIndex`; fixed with boundary-aware `ContainsTokenMarker`/`FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`; 40 scoped DifficultyBasedExtractionRouter tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved dual-lifecycle `Transition` assumption emission only checked literal `current state`/`target state` while synonym markers were recognized elsewhere; fixed with `ContainsDualLifecycleMarkers`; regressions `Extract_tags_present_and_future_state_elements_with_lifecycle_scope` and `Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope`; 38 scoped DifficultyBasedExtractionRouter tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved `LooksAmbiguous` omitted `present state`/`future state`/`as-is`/`to-be` while `InferLifecycleScopeForIndex` already recognized them, so dual-lifecycle prose classified `ClearExtraction` and stamped `DirectlyEstablished`; fixed by extending ambiguous markers; regressions `Classify_returns_ambiguous_for_present_and_future_state` and `Extract_does_not_treat_present_and_future_state_prose_as_directly_established`; 36 scoped DifficultyBasedExtractionRouter tests passed.
+
 - **id:** extraction-router
 - **status:** open
 - **impact:** medium
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 18
-- **bugs-found:** 10
+- **hunts:** 22
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-09 — present/future lifecycle synonyms ignored in `InferLifecycleScopeForIndex`
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — phrase lifecycle / contradict substring false positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4883,9 +4904,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1917 (seed-only): reseeded extraction-router; cheap-disproof closed present/future lifecycle synonym gap as fixed in #1421; scoped DifficultyBasedExtractionRouter tests passed.
 
 - [x] (valid-no-repro) `InferLifecycleScopeForIndex` ignores `present state`/`future state` section headers — **cheap-disproof 2026-09-12 seed hunt #1917:** regression `Extract_tags_component_after_present_state_section_even_when_future_state_appears_first` (#1421).
+- [x] (proven) `LooksAmbiguous` — `present state`/`future state`/`as-is`/`to-be` dual-lifecycle prose classified `ClearExtraction` — **hit 2026-09-26 seed hunt (seed→hit):** lifecycle synonym support added to `InferLifecycleScopeForIndex` in #1421 but ambiguous classifier still only matched `current state`/`target state`, so provenance stayed `DirectlyEstablished`; fixed by extending `LooksAmbiguous` markers; regressions `Classify_returns_ambiguous_for_present_and_future_state` and `Extract_does_not_treat_present_and_future_state_prose_as_directly_established`.
+- [x] (proven) `Extract` dual-lifecycle `Transition` assumption — only literal `current state` + `target state` detected — **hit 2026-09-26 seed hunt (seed→hit):** present/future and as-is/to-be synonym docs skipped the `Current vs target state` assumption despite #1421 lifecycle boundaries; fixed via shared `ContainsDualLifecycleMarkers`; regressions `Extract_tags_present_and_future_state_elements_with_lifecycle_scope` and `Extract_tags_as_is_and_to_be_elements_with_lifecycle_scope`.
+- [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
+- [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
+
 ---
 
 ## Zone: cli-tenant-isolation
+
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when `observedOutcome` recorded live scan-incomplete / list-unavailable / server-error skip text but manifest `verdict` was still `pass`; fixed `TenantIsolationNegativeTestOfflineRunner` to derive SKIP from observed outcome strings (parity with live exclude probe copy); regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedOutcomeIsScanIncomplete`; 42 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when captured list payloads were not scannable (HTTP 200 without `items` array) while live mode already SKIPped; fixed offline replay with optional manifest `runListPayloadScannable: false` → SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListPayloadUnscannable`; 41 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when `observedStatusCode` was 204 No Content; fixed `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` to SKIP like live list-unavailable handling; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedStatusIs204NoContent`; 40 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved run-list exclude probe false-passed on HTTP 200 payloads missing the `items` array (non-`CursorPagedResponse` shape); fixed with `RunListPayloadIsScannable` gate before scan; regressions `RunListPayloadIsScannable_RejectsCursorPageObjectWithoutItemsArray` and `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`; 39 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved run-list exclude probe false-passed on HTTP 204 No Content (and empty 2xx bodies) by treating foreign runId absent; fixed in `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` with list-unavailable SKIP; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives204NoContent`; 37 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - **id:** cli-tenant-isolation
 - **status:** open
@@ -4893,11 +4929,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 20
-- **bugs-found:** 8
+- **hunts:** 25
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
+- **last-bug:** 2026-09-26 — offline replay ignored scan-incomplete observed outcomes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -4907,6 +4943,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) Live run-list scan `ServerError` outcome false-passes as foreign runId absent — **cheap-disproof 2026-09-26 seed hunt #6956:** `ScanRunListForForeignRunIdAsync` returns before parsing body when `lastStatusCode >= 500`; `EvaluateExcludeRunIdProbeVerdict` maps `statusCode >= 500` to SKIP (same as pre-split); regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives503`.
 - [x] (invalid) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` post-loop fallthrough returns `ForeignRunIdAbsent` after refactor — **cheap-disproof 2026-09-26 seed hunt #6956:** loop still returns on every iteration (`ScanIncomplete`, `ListUnavailable`, or terminal absent/present); trailing return remains unreachable dead code (#1437).
+
+- [x] (proven) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — HTTP 204 No Content (and empty 2xx bodies) on `/v1/runs` false-passed exclude-run-id probe — **hit 2026-09-26 seed hunt (seed→hit):** 2xx with no JSON list payload reported foreign runId absent; fixed by mapping to `ListUnavailable` → SKIP; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives204NoContent`.
+
+- [x] (proven) `TenantIsolationNegativeTestAggregator` / run-list scan — HTTP 200 JSON without `items` array false-passed exclude-run-id probe — **hit 2026-09-26 seed hunt (seed→hit):** `TryFindRunIdInRunList` returned absent on `{}` / `{hasMore:false}` shapes that are not `CursorPagedResponse` list pages; fixed with `RunListPayloadIsScannable` before paging; regressions `RunListPayloadIsScannable_RejectsCursorPageObjectWithoutItemsArray` and `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives200WithoutItemsArray`.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` — HTTP 204 on exclude-run-id manifest replay false-passed — **hit 2026-09-26 seed hunt (seed→hit):** offline fixture replay treated 204 like an empty verified list; fixed by mapping 204 to SKIP (parity with live `ScanRunListForForeignRunIdAsync`); regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedStatusIs204NoContent`.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — non-scannable HTTP 200 list captures false-passed exclude-run-id probes — **hit 2026-09-26 seed hunt (seed→hit):** offline replay ignored live `RunListPayloadIsScannable` failures when fixtures recorded 200 + absent foreign id without an `items` array; fixed with optional manifest `runListPayloadScannable: false` mapping to SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListPayloadUnscannable`.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — scan-incomplete observed outcomes false-passed when manifest `verdict` was `pass` — **hit 2026-09-26 seed hunt (seed→hit):** live exclude probe emits `scan incomplete` / `run list unavailable` / `skipped server error` copy before SKIP; offline replay only honored explicit manifest `verdict: skip`; fixed by mapping those observed-outcome phrases to SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedOutcomeIsScanIncomplete`.
 
 2026-09-12 seed hunt #2083 (seed-only): reseeded cli-tenant-isolation; no new hunt-ready rows
 
@@ -5319,6 +5365,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved subscriptions section subtitle and create enable-step checklist still derived stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false); fixed by gating count copy on `hasLoadedSuccessfully` and enable-step satisfaction on verified inventory; regression `hides stale subscription count subtitle when manual refresh fails`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved configuration `StatusTag` still showed active subscription copy from stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false) while the page alert showed the load error; fixed by gating configuration status on `hasLoadedSuccessfully`; regression `shows unavailable configuration status when manual refresh fails with stale rows`; 50 scoped webhooks folder tests passed (1 pre-existing sources-strip failure unrelated).
+
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved manual `Refresh` after a successful hydration left `hasLoadedSuccessfully` true when `listAlertRoutingSubscriptions` failed, so create stayed enabled against a stale `webhookRows` inventory; fixed by clearing `hasLoadedSuccessfully` on load failure; regression `blocks create when manual refresh fails after subscriptions loaded`; 50 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
 2026-09-26 thorough hunt (hit): proved promoted candidates — `useWebhooksSettingsConnectionTest` cleared `testResults` on thrown test API errors so the subscriptions table never rendered the inline failure panel (toast only); fixed by persisting a synthetic `WebhookTestResponse`; `WebhooksSettingsClient` hid `RefreshButton` when `webhookRows` was empty even after `listAlertRoutingSubscriptions` failed; fixed by showing refresh when `failure !== null`; regressions `shows inline test failure when webhook test request throws before a structured response` and `shows refresh control when subscription list fails to load`; 49 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
@@ -5329,11 +5379,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 22
-- **bugs-found:** 17
+- **hunts:** 24
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — create stayed enabled after failed subscription list refresh with stale rows
+- **last-bug:** 2026-09-26 — stale subscription count and enable checklist after failed refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5407,6 +5457,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useWebhooksSettingsConnectionTest` — network/request failure deletes inline test result instead of showing a structured failure panel — **hit 2026-09-26 thorough hunt:** catch path removed `testResults[id]` while toast fired, so `WebhooksSubscriptionsTable` never rendered the structured failure panel; fixed by storing synthetic `transportSucceeded: false` payload; regression `shows inline test failure when webhook test request throws before a structured response`.
 - [x] (proven) `WebhooksSettingsClient` — no refresh control when the subscription list is empty after a failed initial load — **hit 2026-09-26 thorough hunt:** `RefreshButton` gated on `webhookRows.length > 0` left failed initial loads with page alert but no retry control; fixed by also rendering refresh when `failure !== null`; regression `shows refresh control when subscription list fails to load`.
 - [x] (proven) `useWebhooksSettingsLoad.load` — failed refresh after successful hydration left `hasLoadedSuccessfully` true — **hit 2026-09-26 seed hunt (seed→hit):** operators could save new subscriptions while duplicate-name guard used stale rows; fixed by setting `hasLoadedSuccessfully` false in the load catch path; regression `blocks create when manual refresh fails after subscriptions loaded`.
+
+- [x] (proven) `WebhooksSettingsClient` configuration status — stale `webhookRows` after failed refresh still render active-subscription `StatusTag` — **hit 2026-09-26 seed hunt (seed→hit):** header status ignored `hasLoadedSuccessfully` and mislabeled configuration while the page alert showed the refresh error; fixed by showing needs-attention unavailable status when subscriptions are not verified; regression `shows unavailable configuration status when manual refresh fails with stale rows`.
+
+- [x] (proven) `WebhooksSettingsClient` subscriptions section — stale `webhookRows` after failed refresh still drive count subtitle and create enable-step checklist — **hit 2026-09-26 seed hunt (seed→hit):** count helper and enable step treated stale inventory as verified; fixed by gating subtitle and `subscriptionEnabled` checklist input on `hasLoadedSuccessfully`; regression `hides stale subscription count subtitle when manual refresh fails`.
 
 ## Zone: ui-host-gate
 
@@ -18425,17 +18479,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-09-26 seed hunt (seed→hit): reseeded archlucid-contracts; proved `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` dropped out-of-range numeric ordinals instead of throwing like `treatment`/`classification`; fixed to throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`; 22 scoped `ArchitectureFindingJsonConverter` tests passed.
+
 - **id:** archlucid-contracts
 - **status:** open
 - **impact:** low
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 20
-- **bugs-found:** 27
+- **hunts:** 21
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — unknown sourceAgent string silently left invalid default AgentType
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — semanticSupportBand out-of-range ordinal silently ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18490,6 +18546,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — unknown string labels (`"bogus"`) silently left `SourceAgent` at invalid default `0` while out-of-range ordinals throw — **hit 2026-09-11 seed hunt #1748 (seed→hit):** non-empty unknown labels now throw `JsonException`; regression `Deserialize_unknown_source_agent_string_throws`.
 
 2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
+
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` — numeric `semanticSupportBand` ordinals outside `Enum.IsDefined` returned false and left `SemanticSupportBand` null while sibling `treatment`/`classification` readers throw — **hit 2026-09-26 seed hunt:** out-of-range ordinals now throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
@@ -21275,13 +21333,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 54
-- **bugs-found:** 21
+- **hunts:** 58
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — ADF factory linked-service pagination followed cross-factory nextLink
+- **last-bug:** 2026-09-26 — private DNS vnet link and VNet peering pagination followed cross-parent nextLink
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors network type-list paths; proved `ListPrivateDnsZoneVirtualNetworkLinksAsync` and `ListVirtualNetworkPeeringsAsync` followed cross-zone/cross-vnet `nextLink` without scope guards; fixed with `EnsureTargetsArmRelativeListingPath`; regressions `ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id` and `ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id`; 2 scoped GetOnlyHostedAzureArmReadClient tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListBuiltInPolicyDefinitionDocumentsAsync` followed `nextLink` to subscription-scoped policy definitions without a built-in collection guard; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`; 1 scoped GetOnlyHostedAzureArmReadClient test passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `TryQueryActualCostSummaryAsync` followed `properties.nextLink` to another subscription without `EnsureTargetsSubscription`; regression `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`; 2 HostedAzureManagementPostReadClient tests passed.
+
+2026-09-26 thorough hunt (hit): proved recovery-vault protected-item, generic child-resource (`ListJsonElementsAtRelativePathAsync`), and policy-compliance pagination followed cross-scope `nextLink` without guards; fixed with `EnsureTargetsArmRelativeListingPath` and subscription check on policy cursor; regressions in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`, `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`, `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`; 26 scoped GetOnlyHostedAzureArmReadClient + HostedAzureManagementPostReadClient tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved ADF factory linked-service and child-resource pagination followed cross-factory `nextLink` without scope guard; seeded recovery-vault, generic child-resource, and policy-compliance nextLink candidates; 23 scoped GetOnlyHostedAzureArmReadClient tests passed.
 
 2026-09-12 seed hunt #2235 (seed-only): reseeded cloud-extractors with `-Hint cloud-extractors`; no new hunt-ready rows.
@@ -21408,9 +21474,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ListManagementGroupRoleEligibilitySchedulesAsync` follows cross-management-group `nextLink` — **cheap-disproof 2026-09-12 seed hunt #1911:** shared `ListRoleEligibilitySchedulesAtRestPathAsync` uses `EnsureTargetsManagementGroup`.
 
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync` followed ARM `nextLink` without validating factory resource scope — **hit 2026-09-26 seed hunt (seed→hit):** malicious or mis-issued `nextLink` to another Data Factory's linked services/pipelines could leak metadata attributed to the scanned factory; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsFactoryResource`; regression in `ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_resource_id`.
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — recovery vault protected-item pagination follows cross-vault `nextLink`
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListJsonElementsAtRelativePathAsync` — generic child-resource pagination follows cross-parent `nextLink`
-- [ ] (candidate) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor follows cross-subscription `nextLink`
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — recovery vault protected-item pagination followed cross-vault `nextLink` — **hit 2026-09-26 thorough hunt:** mis-issued `nextLink` could merge another vault's protected items into the scanned vault; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath`; regression in `ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListJsonElementsAtRelativePathAsync` — generic child-resource pagination followed cross-parent `nextLink` — **hit 2026-09-26 thorough hunt:** SQL/Event Grid/Service Connector child listings could follow another parent's collection; same `EnsureTargetsArmRelativeListingPath` guard; regression in `ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id`.
+- [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — policy compliance cursor followed cross-subscription `nextLink` — **hit 2026-09-26 thorough hunt:** `@odata.nextLink` to another subscription could merge foreign policy rows; fixed with `EnsureTargetsSubscription` before advancing cursor; regression in `QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id`.
+- [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — ActualCost `properties.nextLink` followed cross-subscription cursor — **hit 2026-09-26 seed hunt (seed→hit):** mis-issued cost query `nextLink` could merge another subscription's cost rows into the scanned subscription summary; fixed with `EnsureTargetsSubscription` before following `properties.nextLink`; regression in `TryQueryActualCostSummaryAsync_rejects_next_link_for_different_subscription_id`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListBuiltInPolicyDefinitionDocumentsAsync` — built-in policy definition pagination followed cross-collection `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** `validateSubscriptionNextLink: false` path had no scope guard; mis-issued `nextLink` to subscription policy definitions could merge non-built-in rows; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression in `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListPrivateDnsZoneVirtualNetworkLinksAsync` — private DNS virtual network link pagination followed cross-zone `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** network enricher child listing had no `nextLink` scope guard; fixed with `EnsureTargetsArmRelativeListingPath`; regression in `ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVirtualNetworkPeeringsAsync` — virtual network peering pagination followed cross-vnet `nextLink` — **hit 2026-09-26 seed hunt (seed→hit):** same gap as private DNS links; regression in `ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id`.
 
 ---
 
@@ -23480,17 +23550,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-09-26 seed hunt (seed→hit): reseeded ui-marketing-surfaces; proved sponsor run collateral issue shells (`ExecDigestSponsorRunCollateralMissingTokenPage` / unavailable) hardcoded sign-in `returnUrl` to `/digest/sponsor` instead of the run collateral path; fixed with `buildDigestSponsorRunCollateralEntryPath` + threaded `runIdHex`; regression in `digest/sponsor/run/[runId]/page.test.tsx`; digest sponsor issue/page tests passed.
+
 - **id:** ui-marketing-surfaces
 - **status:** open
 - **impact:** low
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 14
-- **bugs-found:** 21
+- **hunts:** 15
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-10 — /see-it live disclosure after thin API JSON upgraded to static showcase
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — sponsor run collateral issue shell sign-in returnUrl
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23530,6 +23602,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ExecDigestSponsorDeepLinkPanel` success view used raw `view.signInUrl` without `returnUrl` — **hit 2026-09-05 (#813):** workspace sign-in CTA on loaded sponsor digest did not return to `/digest/sponsor` after auth unlike issue-page parity fix; fixed with `buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })` (`ExecDigestSponsorDeepLinkPanel.test.tsx`).
 - [x] (proven) `SignupVerifyClient.refreshTrialStatus` set `initialLoadFailed` on every poll error — **hit 2026-09-05 (#813):** background `STATUS_POLL_MS` fetch error replaced check-inbox UX with delivery-failure copy after a successful pending probe; fixed by limiting `initialLoadFailed` to the initial load (`SignupVerifyClient.test.tsx`).
 - [x] (proven) `/see-it` keeps `source="live"` disclosure when `normalizeSeeItMarketingPayload` upgrades thin API JSON to static showcase payload — **hit 2026-09-10 (#1576):** `page.tsx` passed fetch `source` while rendering normalized static showcase; fixed with `resolveSeeItMarketingRenderPlan` downgrading disclosure to snapshot when normalization replaces payload; regression in `see-it.test.tsx`.
+- [x] (proven) `ExecDigestSponsorRunCollateralMissingTokenPage` / unavailable shells — sign-in CTA used `DIGEST_SPONSOR_CANONICAL_PATH` so authenticated users returning from `/digest/sponsor/run/{runId}` without a token landed on overview instead of the collateral route — **hit 2026-09-26 seed hunt:** `buildDigestSponsorRunCollateralEntryPath` + optional `signInReturnPath` on issue shell; regression `renders collateral issue shell when token is missing` in `page.test.tsx`.
 
 2026-09-10 thorough hunt #1576 (hit): proved /see-it live-vs-snapshot disclosure mismatch after thin live JSON normalization; 26 scoped see-it tests passed.
 

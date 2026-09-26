@@ -155,6 +155,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             tokens.Add($"al-seed={QuoteMetadataValue(node.SeedNodeId)}");
         }
 
+        if (node.IsUnresolvedPolicyOutlineOnly)
+        {
+            tokens.Add("al-outline-only=true");
+        }
+
         if (tokens.Count == 0)
         {
             return string.Empty;

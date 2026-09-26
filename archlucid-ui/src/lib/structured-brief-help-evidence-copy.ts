@@ -1,15 +1,16 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { ARCHITECTURES_NEW_HELP_TOPIC_LABEL } from "@/lib/architectures-new-evidence-copy";
 import { ARCHITECTURE_DRAFTS_CANONICAL_PATH } from "@/lib/architecture-drafts-evidence-copy";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 export const STRUCTURED_BRIEF_HELP_CANONICAL_PATH = "/help/structured-brief" as const;
 
-export const STRUCTURED_BRIEF_HELP_TOPIC_LABEL = "Structured brief fields" as const;
+export const STRUCTURED_BRIEF_HELP_TOPIC_LABEL = ARCHITECTURES_NEW_HELP_TOPIC_LABEL;
 
 export const STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
 
 export const STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE =
-  "This guide explains architecture draft structured brief fields before review intake. It is not a finalized review record citation pack for procurement.";
+  "This guide explains how to fill the create and edit architecture workspace before review intake. It is not a finalized review record citation pack for procurement.";
 
 export const STRUCTURED_BRIEF_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

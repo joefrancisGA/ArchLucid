@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -35,6 +36,11 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
+            else if (probe.RunListPayloadScannable == false
+                     || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Skip;
+            }
             else
             {
                 verdict = EvaluateExcludeRunIdProbeVerdict(probe.ObservedStatusCode ?? 0, probe.ForeignRunIdVisible);
@@ -62,9 +68,21 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         };
     }
 
+    private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase)
+            || observedOutcome.Contains("run list unavailable", StringComparison.OrdinalIgnoreCase)
+            || observedOutcome.Contains("skipped server error", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
     {
-        if (statusCode >= 500 || statusCode is < 200 or >= 300)
+        if (statusCode == (int)HttpStatusCode.NoContent
+            || statusCode >= 500
+            || statusCode is < 200 or >= 300)
             return TenantIsolationNegativeTestVerdict.Skip;
 
         return foreignRunIdVisible
@@ -185,6 +203,11 @@ internal sealed class TenantIsolationNegativeTestManifestProbe
     public string Evidence { get; init; } = string.Empty;
 
     public bool ForeignRunIdVisible { get; init; }
+
+    /// <summary>
+    /// When false, offline replay treats the captured list response as unverifiable (parity with live <c>RunListPayloadIsScannable</c>).
+    /// </summary>
+    public bool? RunListPayloadScannable { get; init; }
 
     public string? Verdict { get; init; }
 }

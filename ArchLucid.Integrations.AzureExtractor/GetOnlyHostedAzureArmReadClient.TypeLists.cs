@@ -123,9 +123,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
         List<HostedAzureArmResourceRecord> resources = [];
-        string trimmedZoneId = privateDnsZoneResourceId.Trim();
+        string trimmedZoneId = privateDnsZoneResourceId.Trim().TrimStart('/');
+        string listingRelativePath = $"{trimmedZoneId}/virtualNetworkLinks";
         string? nextLink =
-            $"https://management.azure.com/{trimmedZoneId}/virtualNetworkLinks?api-version={HostedAzureArmNetworkTypeListDescriptors.PrivateDnsApiVersion}";
+            $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.PrivateDnsApiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -178,7 +179,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
                 && nextLinkElement.ValueKind == JsonValueKind.String)
             {
-                nextLink = nextLinkElement.GetString();
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
             }
         }
 
@@ -197,8 +206,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
         List<HostedAzureArmResourceRecord> resources = [];
         string trimmedVnetId = virtualNetworkResourceId.Trim().TrimStart('/');
+        string listingRelativePath = $"{trimmedVnetId}/virtualNetworkPeerings";
         string? nextLink =
-            $"https://management.azure.com/{trimmedVnetId}/virtualNetworkPeerings?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkApiVersion}";
+            $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkApiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -251,7 +261,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
                 && nextLinkElement.ValueKind == JsonValueKind.String)
             {
-                nextLink = nextLinkElement.GetString();
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
             }
         }
 

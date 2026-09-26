@@ -74,3 +74,37 @@ Full runbook: `docs/architecture/SCALE_MICRO_DRILL.md`.
 ## CI
 
 The workflow `.github/workflows/load-test.yml` runs on **manual** `workflow_dispatch` against Compose `full-stack` with fixed runner resources (see workflow). It uploads a summary snippet to the job log; copy p50/p95/p99 into `docs/LOAD_TEST_BASELINE.md` after each formal baseline run.
+
+## SecureNow synthetic multi-tenant read envelope
+
+Provision at least two disposable, distinct tenants with seeded snapshots and
+ranked paths. Supply `SECURENOW_TEST_SCOPES_JSON` as an array of objects with
+`tenantId`, `workspaceId`, `projectId`, and `snapshotId`. Include `apiKey` when
+not using the isolated CI DevelopmentBypass configuration. Keep any
+secret-bearing input outside the repository and evidence files. Run:
+
+```bash
+k6 run scripts/load/securenow-multitenant-read.js
+```
+
+The script emits `securenow-multitenant-k6.json`. Create a separate metadata JSON
+with `profile: "synthetic-multitenant"`, `tenantCount`, `gitSha`,
+`environment`, and `workload: "scripts/load/securenow-multitenant-read.js"`.
+Evaluate the run without writing credentials into the report:
+
+```bash
+python3 scripts/ci/evaluate_securenow_scale_run.py \
+  --k6-summary securenow-multitenant-k6.json \
+  --run-metadata run-metadata.json --json-out scale-verdict.json
+```
+
+Only HTTP 200 responses count as successful checks. The evaluator requires
+complete metrics, passing thresholds, at least two declared tenants, and a
+positive `seededPathsPerTenant` count. The workload preflights nonempty ranked
+pages for every tenant. The scheduled and manual
+`k6-per-tenant-burst-scheduled.yml` workflow provisions two disposable SQL
+tenants with 100 paths each, runs this workload, and uploads the verdict. It
+also runs on pull requests that change the workflow or scale workload files,
+so a changed harness gets an observed verdict before merging.
+It labels the result as synthetic read evidence, not a production SLA or proof
+of ingestion/write throughput.
