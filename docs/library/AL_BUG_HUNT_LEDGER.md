@@ -5400,11 +5400,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 20
-- **bugs-found:** 15
+- **hunts:** 21
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — deep-linked runId switch left Deep analysis depth when tier param dropped
+- **last-bug:** 2026-09-26 — Architecture intelligence Sources strip truncated Evidence trail help and Audit links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5498,6 +5498,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence; proved deep-linked `runId` switch left prior `tier=Deep` analysis depth when the next review URL omitted `tier`; fixed tier hydration to default to Standard when the search param is absent and to re-sync on inbound run change; regression `resets analysis depth to Standard when deep-linked runId switches without tier search param`; 41 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 - [x] (proven) Deep-linked `runId` switch leaves prior Deep analysis depth when `tier` search param is absent on the next review — **hit 2026-09-26 seed hunt:** `reviewTier` state only updated when URL carried `tier`; fixed `urlReviewTier` sync on inbound run change and default-to-Standard when param missing; regression `resets analysis depth to Standard when deep-linked runId switches without tier search param`.
+
+2026-09-26 seed hunt (hit): reseeded ui-architecture-intelligence after tier sync fix; proved buyer-polished Where-to-go-next Sources omitted Evidence trail help and Audit because `filterOrientationSourcesForJobContext` capped general routes to three links on `/architecture/architecture-intelligence`; fixed with full-index bypass for that path; aligned buyer-polished vitest `usePathname` to the live route; regressions in `job-context-orientation-sources-filter.test.ts` and `ArchitectureIntelligencePageClient.buyer-polished.test.tsx`; 43 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
+
+- [x] (proven) Architecture intelligence buyer Sources strip omits Evidence trail help and Audit follow-ups — **hit 2026-09-26 seed hunt:** job-context three-link cap on `general` pathname scored ties and dropped help/audit rows; fixed `filterOrientationSourcesForJobContext` to return the full curated index on `/architecture/architecture-intelligence`; regression `keeps the full Architecture intelligence Sources index without job-context truncation`.
+
+- [x] (valid-no-repro) Deep-linked `runId` / `contextRunId` / operator-scope switches leave stale analysis depth when `tier` drops from the URL — **cheap-disproof 2026-09-26 seed hunt:** `urlReviewTier` effect and inbound-run reset already re-sync `reviewTier` to Standard; regressions `resets analysis depth to Standard when deep-linked runId switches without tier search param`, `resets analysis depth when contextRunId switches without tier search param`, and `resets analysis depth when operator scope switches without tier search param`.
 
 ---
 
