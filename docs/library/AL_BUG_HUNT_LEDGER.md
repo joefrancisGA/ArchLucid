@@ -21213,13 +21213,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 35
-- **bugs-found:** 19
+- **hunts:** 36
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — graph projection Redis invalidation subscriber skipped when distributed LLM completion cache registered `IDistributedCache` first
+- **last-bug:** 2026-09-26 — Auto projection cache multi-replica promotion skipped Redis invalidation pub/sub
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved Auto projection cache promotion to distributed on multi-replica hosts skipped Redis invalidation pub/sub because registrar gated only on `Backend` while runtime uses `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend`; fixed combined `Backend` + Auto promotion check; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`; 25 scoped `ServiceCollectionExtensionsRegistrationTests` passed.
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` — `CacheProvider=Auto` with `ExpectedApiReplicaCount>1` and Redis configured promoted to distributed projection cache at runtime but omitted `RegisterGraphProjectionRedisPubSub` because only `ProjectionCache:Backend` was checked — **hit 2026-09-26 seed hunt:** align registrar with `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend` while preserving explicit `Backend=Distributed`; regression above.
 
 2026-09-26 seed hunt (hit): reseeded host-composition; proved `RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` returned before `RegisterGraphProjectionRedisPubSub` when `IDistributedCache` was already registered for distributed LLM completion cache; fixed by always wiring pub/sub when projection cache backend is Distributed; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_llm_distributed_cache_already_registered`; 378 scoped host-composition tests passed (4 pre-existing unrelated failures).
 
