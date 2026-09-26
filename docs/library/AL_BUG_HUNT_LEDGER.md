@@ -23879,13 +23879,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 10
-- **bugs-found:** 8
+- **hunts:** 11
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-08 — inventory diagrams and terraform workbench links dropped review runId while diagram reconcile and hub tab links preserved it
+- **last-bug:** 2026-09-26 — stale audit scope banner links omitted hub-resolved snapshotId when URL had partial audit params only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-26 thorough hunt (hit): proved stale `InfraAuditLineageUnavailableBanner` audit-tab and clear-scope links rebuilt hrefs from URL search only, dropping hub-resolved `snapshotId` while sibling scope-chip links forwarded `resolvedSnapshotId`; fixed by threading `resolvedSnapshotId` and `runId` into stale-banner navigation patches; regression `preserves hub snapshot and runId on stale audit scope banner audit tab link`; 24 scoped ResourceHubClient tests passed.
+
+- [x] (proven) Stale audit scope banner `auditTabHref` / `clearAuditScopeHref` omitted hub-resolved `snapshotId` when partial audit URL params lacked `snapshotId` — **hit 2026-09-26 thorough hunt:** links used `searchParams.toString()` without `resolvedSnapshotId` unlike `auditScopeChipHref`; fixed stale-banner navigation patches; regression above.
 
 ABQ-09 churn hotspot.
 
@@ -23901,7 +23905,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `buildDriftWorkbenchHref` / `buildResourceHubDriftWorkbenchHref` / `buildHubDriftChangeWorkbenchHref` — overview/drift-tab drift workbench and drift-change row links omit `runId` while remediation factory, diagram reconcile, and Ask links preserve review scope — **hit 2026-09-08 seed hunt #1376:** `buildDriftWorkbenchHref` ignored `runId` despite `InfraEvidenceWorkbenchContext`; fixed by threading `runId` through drift helpers and ResourceHubClient call sites; regressions in `preserves runId on overview/drift-tab drift workbench links` and `preserves runId on overview drift change workbench links`
 - [x] (proven) `buildResourceHubDiagramsWorkbenchHref` / `buildTerraformWorkbenchHref` — overview inventory diagrams and terraform-tab workbench links omit `runId` while diagram reconcile, drift workbench, and hub tab cross-links preserve review scope — **hit 2026-09-08 seed hunt #1378:** diagrams/terraform filter helpers ignored `runId`; fixed by threading `runId` through workbench href builders and ResourceHubClient call sites; regressions in `preserves runId on overview inventory diagrams link` and `preserves runId on terraform tab terraform workbench link`
 - [x] (valid-no-repro) `ResourceHubClient` post-GOL refactor (`d8416b0f64`) dropped runId matrix regressions while hub cross-links still thread `runId` — **cheap-disproof 2026-09-26 seed hunt:** re-proved drift change workbench, findings stream-more remediation, and tab-bar `runId` preservation; no failing repro
-- [ ] (candidate) `buildAuditEvidenceLineageUiPath` links from audit tab omit hub `runId` — separate audit-evidence route; no review-run return contract on that surface yet
+- [x] (valid-no-repro) `buildAuditEvidenceLineageUiPath` links from audit tab omit hub `runId` — **cheap-disproof 2026-09-26 thorough hunt:** separate audit-evidence route; no review-run return contract on that surface; Ask and hub tab links already thread `runId`.
 
 2026-09-26 seed hunt (seed-only): reseeded ui-infra-resource-hub after GOL refactor; restored runId regression tests on ResourceHubClient; no hunt-ready row proved; 23 scoped ResourceHubClient unit tests passed.
 

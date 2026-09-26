@@ -73,7 +73,6 @@ import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-scoped-workbench-href";
 import {
-  buildInfraEvidenceClearAuditScopeHref,
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
@@ -775,8 +774,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         <InfraAuditLineageUnavailableBanner
           degradedReason="Audit scope in the URL could not be resolved for this resource."
           testId="infra-resource-hub-stale-audit-scope"
-          auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), { tab: "audit" })}
-          clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(cloudResourceId, searchParams.toString(), activeTab)}
+          auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+            tab: "audit",
+            snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+            runId: runId.length > 0 ? runId : undefined,
+          })}
+          clearAuditScopeHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+            tab: activeTab,
+            snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+            runId: runId.length > 0 ? runId : undefined,
+            assessmentId: "",
+            auditEvidenceSnapshotId: "",
+            controlId: "",
+          })}
         />
       ) : null}
 

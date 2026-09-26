@@ -260,6 +260,30 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-stale-audit-scope")).toBeInTheDocument();
   });
 
+  it("preserves hub snapshot and runId on stale audit scope banner audit tab link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const banner = await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const auditTabLink = within(banner).getByRole("link", { name: "Open audit tab" });
+
+    expect(auditTabLink).toHaveAttribute(
+      "href",
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(auditTabLink).toHaveAttribute("href", expect.stringContaining("runId=run-1"));
+
+    const clearLink = within(banner).getByRole("link", { name: "Clear stale audit scope" });
+    expect(clearLink).toHaveAttribute(
+      "href",
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(clearLink).toHaveAttribute("href", expect.stringContaining("runId=run-1"));
+    expect(clearLink.getAttribute("href")).not.toContain("assessmentId=");
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),
