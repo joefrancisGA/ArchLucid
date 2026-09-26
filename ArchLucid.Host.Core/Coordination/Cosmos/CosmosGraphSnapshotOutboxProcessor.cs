@@ -98,6 +98,20 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
             IManifestHashService manifestHashService =
                 scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 
+            RunDetailDto? manifestCompareDetail = await authorityQueryService
+                .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (manifestCompareDetail?.GoldenManifest is null)
+            {
+                Logger.LogWarning(
+                    "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: run detail no longer found.",
+                    entry.GraphSnapshotId);
+                await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+                return;
+            }
+
             await CosmosGraphSnapshotOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
                 entry.RunId,
                 scopeContext,

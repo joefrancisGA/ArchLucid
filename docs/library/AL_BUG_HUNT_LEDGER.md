@@ -23045,11 +23045,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 13
-- **bugs-found:** 12
+- **hunts:** 14
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — cosmos/post-commit outbox sealed-hash guard blocked skip-as-processed on purged runs
+- **last-bug:** 2026-09-26 — cosmos outbox sealed-hash guard on purged run when SQL graph row still exists
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23081,6 +23081,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before `IRunExportPackageBuilder` not-found skip — purged runs (`GetRunDetailForManifestCompareAsync` returns null) throw `ConflictException` and retry until DLQ instead of skip-as-processed — **hit 2026-09-10 seed hunt #1557:** skip when manifest-compare detail is missing before sealed-hash guard; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found`
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before SQL graph load — purged runs throw on missing manifest compare before the missing-graph skip-as-processed path — **hit 2026-09-26 thorough hunt:** load SQL graph before sealed-hash guard so orphan rows after `PurgeCascade_Core` graph deletion skip-as-processed; regression `ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing` now omits manifest-compare mock
 - [x] (proven) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before `ProvenanceSnapshotMaterialization` null-detail benign skip — purged runs throw when `GetRunDetailForManifestCompareAsync` returns null — **hit 2026-09-26 thorough hunt:** skip when manifest-compare detail is missing before sealed-hash guard (parity with run-export/retrieval); regression `ProcessPendingBatchAsync_marks_processed_when_run_detail_no_longer_found` now omits manifest-compare mock
+- [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard when SQL graph row still exists but authority run was purged (`GetRunDetailForManifestCompareAsync` returns null) — throws and retries until DLQ instead of skip-as-processed like run-export/post-commit — **hit 2026-09-26 seed hunt:** skip when manifest-compare detail is missing after SQL load; regression `ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_but_sql_graph_exists`
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor` replicates graph to Cosmos after sealed-hash guard passes even when `snapshot.RunId` on the SQL row disagrees with outbox `entry.RunId` (stale enqueue vs graph replacement) — needs reachability proof from enqueue path
+
+2026-09-26 seed hunt (seed→hit): reseeded host-core-coordination; proved cosmos outbox sealed-hash guard blocked skip-as-processed when SQL graph lingered after run purge; seeded runId/graphSnapshotId mismatch candidate; 24 scoped coordination processor tests passed.
 
 2026-09-26 thorough hunt (hit): proved cosmos graph snapshot outbox sealed-hash guard ordering blocked skip-as-processed on purged runs with missing SQL graph; proved post-commit projection outbox sealed-hash guard blocked skip-as-processed on purged runs; 23 scoped coordination processor tests passed.
 
