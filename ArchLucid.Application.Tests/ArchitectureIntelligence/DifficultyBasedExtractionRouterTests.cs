@@ -34,6 +34,31 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify(
+            "The workload as-isolated from the internet without lifecycle section headers.");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            The workload as-isolated from the internet.
+            Target state uses microservices.
+            Component: Orders API
+            """,
+            "src-as-isolated-false-positive");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Assumption
+            && element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Extract_does_not_treat_present_and_future_state_prose_as_directly_established()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
