@@ -39,6 +39,9 @@ public sealed class OutboundWebhookDryRunController(
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (body.TargetUrl is null)
+            return this.BadRequestProblem("TargetUrl is required.", ProblemTypes.ValidationFailed);
+
         string? targetUrlRejection = await AllowedOutboundWebhookProbeUrlPolicy
             .TryGetRejectionReasonAfterDnsResolveAsync(body.TargetUrl.ToString(), cancellationToken);
 

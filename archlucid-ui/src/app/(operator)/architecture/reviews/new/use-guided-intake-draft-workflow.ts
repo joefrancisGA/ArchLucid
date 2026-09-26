@@ -92,6 +92,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const guidedIntakeViewAllClarificationsOpenParam = searchParams.get("guidedIntakeViewAllClarificationsOpen");
+  const urlViewAllClarifications = parseGuidedIntakeViewAllClarificationsOpenFromSearch(
+    guidedIntakeViewAllClarificationsOpenParam,
+  );
   const {
     clearSession,
     form,
@@ -120,9 +123,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const [viewAllClarifications, setViewAllClarificationsState] = useState(() =>
-    parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
-  );
+  const [viewAllClarifications, setViewAllClarificationsState] = useState(urlViewAllClarifications);
   const viewAllClarificationsRef = useRef(viewAllClarifications);
   viewAllClarificationsRef.current = viewAllClarifications;
 
@@ -151,6 +152,13 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     },
     [syncViewAllClarificationsToUrl],
   );
+
+  useEffect(() => {
+    if (viewAllClarificationsRef.current !== urlViewAllClarifications) {
+      viewAllClarificationsRef.current = urlViewAllClarifications;
+      setViewAllClarificationsState(urlViewAllClarifications);
+    }
+  }, [urlViewAllClarifications]);
 
   useEffect(() => {
     const syncViewAllClarificationsFromUrl = (): void => {

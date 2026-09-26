@@ -23,7 +23,7 @@ public sealed partial class InMemoryTenantRepository
         lock (_trialGate)
         {
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t) ||
-                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+                !TrialLifecycleStatus.EqualsStatus(t.TrialStatus, TrialLifecycleStatus.Active) ||
                 t.TrialRunsLimit is not { } runCap ||
                 runCap < 1)
                 return Task.CompletedTask;
@@ -60,7 +60,7 @@ public sealed partial class InMemoryTenantRepository
         lock (_trialGate)
         {
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t) ||
-                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+                !TrialLifecycleStatus.EqualsStatus(t.TrialStatus, TrialLifecycleStatus.Active) ||
                 t.TrialSeatsLimit is not { } seatCap ||
                 seatCap < 1)
                 return Task.CompletedTask;

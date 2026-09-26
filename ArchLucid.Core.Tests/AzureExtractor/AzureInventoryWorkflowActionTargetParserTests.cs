@@ -13,6 +13,26 @@ public sealed class AzureInventoryWorkflowActionTargetParserTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stnotify";
 
     [Fact]
+    public void Parse_reads_arm_id_from_json_reference_on_explicit_action_property()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [$"{InventoryDiagramNodeRelationshipPropertyKeys.WorkflowActionPrefix}CallStorage{InventoryDiagramNodeRelationshipPropertyKeys.WorkflowActionTargetSuffix}"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stnotify"}
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryWorkflowActionTarget> targets =
+            AzureInventoryWorkflowActionTargetParser.Parse(properties);
+
+        targets.Should().ContainSingle(action => action.ActionName == "CallStorage");
+        targets.Single(action => action.ActionName == "CallStorage").TargetArmId
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(StorageArmId));
+    }
+
+    [Fact]
     public void Parse_reads_action_targets_from_definition_json()
     {
         string definition = """

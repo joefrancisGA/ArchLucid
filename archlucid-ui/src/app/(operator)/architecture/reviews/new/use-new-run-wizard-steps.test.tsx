@@ -101,4 +101,18 @@ describe("useNewRunWizardSteps", () => {
 
     expect(result.current.stepIndex).toBe(3);
   });
+
+  it("resets to step 0 when step= is cleared without a popstate event", () => {
+    wizardSearchParamsHarness.state.query = "step=3";
+    const { result, rerender } = renderHook(() => useNewRunWizardSteps(baseOptions), {
+      wrapper: WizardSearchParamsRerenderHost,
+    });
+
+    expect(result.current.stepIndex).toBe(3);
+
+    wizardSearchParamsHarness.applyHref("/architecture/reviews/new");
+    rerender();
+
+    expect(result.current.stepIndex).toBe(0);
+  });
 });

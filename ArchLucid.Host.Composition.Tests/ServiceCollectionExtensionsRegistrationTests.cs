@@ -9,6 +9,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Composition.Startup;
+using ArchLucid.KnowledgeGraph.Caching;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Services;
@@ -253,6 +255,50 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         registered.Should().BeTrue(
             "Auto projection cache on multi-replica hosts must wire Redis invalidation pub/sub like explicit Distributed backend");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_uses_distributed_graph_projection_cache_when_backend_distributed_even_if_cache_provider_memory()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Hosting:Role"] = "Api",
+                    ["ConnectionStrings:ArchLucid"] =
+                        "Server=localhost;Database=ArchLucidCompositionTests;Trusted_Connection=True;TrustServerCertificate=True",
+                    ["ArchLucid:StorageProvider"] = "Sql",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:Backend"] = "Distributed",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:CacheProvider"] = "Memory",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:RedisConnectionString"] = "localhost:6379",
+                    ["AgentExecution:Mode"] = "Simulator",
+                    ["AzureOpenAI:Endpoint"] = "",
+                    ["AzureOpenAI:ApiKey"] = "",
+                    ["AzureOpenAI:DeploymentName"] = "",
+                    ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                    ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+                    ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                    ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["CosmosDb:GraphSnapshotsEnabled"] = "false",
+                    ["LlmCompletionCache:Enabled"] = "false",
+                    ["HotPathCache:Enabled"] = "false",
+                })
+            .Build();
+        ServiceCollection services = [];
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddLogging();
+        services.AddSingleton(Mock.Of<IConnectionMultiplexer>());
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(validateScopes: true);
+
+        IGraphSnapshotProjectionCache cache = provider.GetRequiredService<IGraphSnapshotProjectionCache>();
+
+        cache.Should().BeOfType<GraphSnapshotProjectionDistributedCache>(
+            "explicit ProjectionCache:Backend=Distributed must not fall back to in-process memory when CacheProvider=Memory");
     }
 
     [Fact]

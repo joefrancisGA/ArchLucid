@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -64,13 +64,11 @@ type FirstPilotIntakeFieldsProps = {
 export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): React.JSX.Element {
   const { wizard } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
-  const [standardsSelectionOpen, setStandardsSelectionOpenState] = useState(() =>
-    parseFirstPilotStandardsSelectionOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("firstPilotStandardsSelectionOpen"),
-    ),
+  const searchParams = useSearchParams();
+  const urlStandardsSelectionOpen = parseFirstPilotStandardsSelectionOpenFromSearch(
+    searchParams.get("firstPilotStandardsSelectionOpen"),
   );
+  const [standardsSelectionOpen, setStandardsSelectionOpenState] = useState(urlStandardsSelectionOpen);
   const standardsSelectionOpenRef = useRef(standardsSelectionOpen);
   standardsSelectionOpenRef.current = standardsSelectionOpen;
   const expertIntakePosture = useExpertIntakePostureEnabled();
@@ -101,6 +99,13 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
     },
     [syncStandardsSelectionOpenToUrl],
   );
+
+  useEffect(() => {
+    if (standardsSelectionOpenRef.current !== urlStandardsSelectionOpen) {
+      standardsSelectionOpenRef.current = urlStandardsSelectionOpen;
+      setStandardsSelectionOpenState(urlStandardsSelectionOpen);
+    }
+  }, [urlStandardsSelectionOpen]);
 
   useEffect(() => {
     const syncStandardsSelectionOpenFromUrl = (): void => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -62,14 +62,12 @@ export type SimplifiedPilotWizardProps = {
 export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution, onPendingZipFileChange } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
-  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
-  const [advancedConfigOpen, setAdvancedConfigOpenState] = useState(() =>
-    parseSimplifiedPilotAdvancedConfigOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("simplifiedPilotAdvancedConfigOpen"),
-    ),
+  const searchParams = useSearchParams();
+  const urlAdvancedConfigOpen = parseSimplifiedPilotAdvancedConfigOpenFromSearch(
+    searchParams.get("simplifiedPilotAdvancedConfigOpen"),
   );
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [advancedConfigOpen, setAdvancedConfigOpenState] = useState(urlAdvancedConfigOpen);
   const advancedConfigOpenRef = useRef(advancedConfigOpen);
   advancedConfigOpenRef.current = advancedConfigOpen;
   const {
@@ -131,6 +129,13 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     },
     [syncAdvancedConfigOpenToUrl],
   );
+
+  useEffect(() => {
+    if (advancedConfigOpenRef.current !== urlAdvancedConfigOpen) {
+      advancedConfigOpenRef.current = urlAdvancedConfigOpen;
+      setAdvancedConfigOpenState(urlAdvancedConfigOpen);
+    }
+  }, [urlAdvancedConfigOpen]);
 
   useEffect(() => {
     const syncAdvancedConfigOpenFromUrl = (): void => {

@@ -189,17 +189,19 @@ export default function GovernanceFindingsQueueClient({
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
     clearFacetFilters();
+    applyGroupByResource(false);
     router.replace(governanceFindingsClearAllFiltersHref(searchParams.toString(), navHref), { scroll: false });
-  }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
+  }, [applyGroupByResource, clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const showAllFilteredFindings = useCallback((): void => {
     setRegisterFilter("all");
     clearFacetFilters();
+    applyGroupByResource(false);
     router.replace(
       governanceFindingsShowAllFilteredFindingsHref(searchParams.toString(), navHref),
       { scroll: false },
     );
-  }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
+  }, [applyGroupByResource, clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {

@@ -4,7 +4,7 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-24**).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-09-26**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
@@ -13,18 +13,21 @@ Regenerate after opening or closing summary-table rows:
 | --- | ---: |
 | Reliability | 3 |
 | Deployability | 1 |
-| AI/Agent readiness | 3 |
+| AI/Agent readiness | 8 |
 | Architectural integrity | 3 |
 | Cutting-edge AI | 2 |
+| Explainability | 1 |
+| Trustworthiness | 4 |
 | Interoperability | 3 |
 | Performance | 3 |
 | Cost-effectiveness | 3 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
 | Differentiability | 2 |
-| **Total (unique open)** | **25** |
+| Security | 5 |
+| **Total (unique open)** | **40** |
 
-**By priority band:** P0 **0** | P1 **2** | P2 **15** | P3 **8**.
+**By priority band:** P0 **0** | P1 **10** | P2 **21** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 

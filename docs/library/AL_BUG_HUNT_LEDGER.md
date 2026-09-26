@@ -2104,6 +2104,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — relationship endpoints such as `svc-  api` / `ds-  sql` only outer-trimmed before lookup so internal whitespace after the synthetic prefix missed indexed `svc-api` / `ds-sql` keys and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** normalize synthetic prefix references before alias lookup; regression `MapRelationships_resolves_synthetic_service_id_when_relationship_endpoint_has_internal_whitespace_after_prefix`.
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown` — merge-gate relationship filter did not normalize synthetic prefix references so `FilterKnownRelationships` dropped relationships the edge mapper would resolve — **hit 2026-09-26 seed hunt (seed→hit):** parity with `TryResolveNodeId` synthetic normalization; regressions `EndpointKeyIsKnown_accepts_synthetic_endpoint_with_internal_whitespace_after_prefix` and `FilterKnownRelationships_keeps_relationship_when_synthetic_endpoints_have_internal_whitespace_after_prefix`.
 
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` keys such as `svc-  api` were outer-trimmed only so relationships using normalized `svc-api` missed alias-only rename mappings and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** index normalized synthetic alias keys when merging declared aliases; regression `MapRelationships_resolves_synthetic_alias_key_when_declared_alias_has_internal_whitespace_after_prefix`; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-key normalization gap; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved merge-gate synthetic endpoint normalization parity gap; 306 scoped edge-mapper/graph-merge/endpoint-index tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved synthetic endpoint internal-whitespace resolution gap; 304 scoped edge-mapper/graph-merge tests passed.
@@ -2118,14 +2122,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 71
-- **bugs-found:** 59
+- **hunts:** 72
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — merge gate dropped relationships whose synthetic endpoints had internal whitespace after prefix
-- **hunts:** 69
-- **bugs-found:** 57
-- **last-bug:** 2026-09-26 — shared-label svc/ds synthetic aliases collapsed to first node
+- **last-bug:** 2026-09-26 — declared endpoint alias keys with internal whitespace after svc-/ds- prefix did not normalize for relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4787,17 +4788,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 14
-- **bugs-found:** 8
+- **hunts:** 15
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-08 — webhook dry-run connect-time guard blocks DNS rebind to private networks
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
 - **code-changed-since:** 7
 
 2026-09-12 seed hunt #2139 (seed-only): reseeded outbound-webhook-dry-run with `-Refresh`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2080 (seed-only): reseeded outbound-webhook-dry-run; 22 scoped tests passed; no new hunt-ready rows
+
+- [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` — JSON body with null/missing `targetUrl` dereferenced `body.TargetUrl` before SSRF validation and threw `NullReferenceException` (500) instead of validation `400` — **hit 2026-09-26 seed hunt #15 (hint `b`):** model binding can leave `required Uri TargetUrl` null when the property is absent; fixed with explicit null guard before `ToString()`; regression `DryRunAsync_missing_target_url_returns_400`.
+- [ ] (candidate) `Integrations/WebhookSimulationController` — same null `TargetUrl` ordering as pre-fix dry-run controller (reachability: simulate endpoint shares `OutboundWebhookDryRunRequest`; out of zone paths)
+
+2026-09-26 seed hunt #15 (seed→hit, hint `b`): reseeded outbound-webhook-dry-run after post-#1364 cooling; proved missing `TargetUrl` validation gap; seeded simulate-controller parity candidate; 24 scoped controller/service tests passed.
 
 ### Hypotheses
 
@@ -15968,11 +15974,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 28
-- **bugs-found:** 19
+- **hunts:** 30
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — Access connector external target parser ignored JSON reference property values
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — Workflow action target parser normalized raw JSON reference blobs as ARM ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16195,6 +16201,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryAccessConnectorTargetParser` — `ParseExternalTargetArmId` required path-shaped `targetResourceId` values and ignored package-serialized JSON reference blobs — **hit 2026-09-25 seed hunt #28:** `targetResourceId` object properties stored as `{"id":"..."}` returned null, dropping access-connector external targets from NR-03 parent attachment resolution; fixed with shared `TryResolveArmReferenceValue` for path and JSON reference shapes; regression `ParseExternalTargetArmId_reads_arm_id_from_json_reference_property_values`.
 
 2026-09-25 seed hunt #28 (seed→hit): reseeded core-azure-extractor after network connection JSON reference hit; proved access connector external target parser ignored JSON reference property values; 1386 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureInventoryPublicIpReferenceParser` — carrier property values serialized as package JSON reference blobs (`{"id":"..."}`) were ignored because only path-shaped strings and JSON arrays were parsed — **hit 2026-09-26 seed hunt #29:** `properties.publicIPAddress` object references dropped from NR-03 parent attachment and orphaned-state resolution; fixed with `AddFromJsonObject` using existing `TryReadPublicIpArmId`; regression `Parse_reads_arm_id_from_json_reference_property_values`.
+- [x] (proven) `AzureInventoryWorkflowActionTargetParser.NormalizeArmId` — explicit `inventory.workflow.action.*.targetArmId` properties storing package JSON reference blobs (`{"id":"..."}`) were lowercased wholesale because `NormalizeArmId` only required `/subscriptions/` substring — **hit 2026-09-26 thorough hunt #30:** promoted #29 candidate; hydrator `HydrateWorkflowNode` and orphaned-state workflow classification read explicit keys from inventory property bags serialized via `ReadProperties` `GetRawText()`; fixed with JSON `id` extraction parity to `AzureInventoryNetworkConnectionEndpointParser`; regression `Parse_reads_arm_id_from_json_reference_on_explicit_action_property`.
+
+2026-09-26 thorough hunt #30 (hit): proved workflow action target parser JSON reference normalization gap; 1396 scoped `AzureExtractor` tests passed.
+
+2026-09-26 seed hunt #29 (seed→hit): reseeded core-azure-extractor after access-connector JSON reference hit; proved public IP reference parser ignored JSON reference property values; seeded workflow action target JSON reference normalization candidate; 1395 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
@@ -21293,13 +21306,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 37
-- **bugs-found:** 21
+- **hunts:** 38
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — graph projection pub/sub skipped when IConnectionMultiplexer pre-registered
+- **last-bug:** 2026-09-26 — graph projection cache factory ignored explicit Backend=Distributed when CacheProvider=Memory
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `ContextIngestionCompositionRegistrar` `IGraphSnapshotProjectionCache` factory used only `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend` while `ArchLucidDistributedCacheRegistrar` already treated explicit `ProjectionCache:Backend=Distributed` as distributed — hosts wired Redis pub/sub but resolved `GraphSnapshotProjectionMemoryCache` when `CacheProvider=Memory`; aligned factory with combined `Backend` + effective-backend check; regression `AddArchLucidApplicationServices_uses_distributed_graph_projection_cache_when_backend_distributed_even_if_cache_provider_memory`; 385/387 scoped host-composition tests passed (2 pre-existing unrelated failures).
+
+- [x] (proven) `ContextIngestionCompositionRegistrar` `IGraphSnapshotProjectionCache` factory — explicit `ProjectionCache:Backend=Distributed` with `CacheProvider=Memory` registered distributed invalidation infra but materialized in-process memory cache — **hit 2026-09-26 seed hunt:** mirror `ArchLucidDistributedCacheRegistrar` distributed gate; regression above.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `RegisterGraphProjectionRedisPubSub` returned before wiring broadcaster/subscriber when `IConnectionMultiplexer` was already in DI; fixed idempotent per-service registration; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_invalidation_when_connection_multiplexer_pre_registered`; 4 scoped graph-projection registration tests passed.
 
@@ -23422,11 +23439,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 30
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `TrialTenantBootstrapService` claimed trial seat with admin email while middleware uses JWT `sub`, double-counting the registering admin
+- **last-bug:** 2026-09-26 — `ListTenantIdsPendingTrialArchitecturePreseedAsync` omitted enqueued tenants with legacy lowercase `active` `TrialStatus`, stalling welcome pre-seed after bootstrap
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23469,6 +23486,26 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — bootstrap `TryClaimTrialSeatAsync` used admin email while `TrialSeatReservationMiddleware` reserves seats with JWT `sub` (platform user GUID), double-counting the registering admin — **hit 2026-09-26 seed hunt:** removed bootstrap seat claim; first authenticated request claims one seat via middleware/accountant; regression `Self_service_bootstrap_and_middleware_claim_one_seat_for_registering_admin`.
 - [x] (valid-no-repro) `TenantTrialSeatSkipCache` / `TrialSeatAccountant` — 5-minute negative cache skips seat claims after tenant row gains metered active trial within TTL — **cheap-disproof 2026-09-26 seed hunt:** `PersistBootstrapRegistrationAsync` awaits bootstrap before returning; `CommitSelfServiceTrialAsync` always sets positive `TrialSeatsLimit`; skip cache only warms when `RequiresSeatClaim` is false on first read; no tenant API mutates seat cap mid-cache without operator SQL.
+
+- [x] (valid-no-repro) `TrialVerticalWelcomeRequestFactory.Create` — Ordinal vertical label matching would drop non-canonical casing to the generic welcome pre-seed brief — **cheap-disproof 2026-09-26 seed hunt:** `RegistrationRequestBaselineValidator.IndustryVerticals` and UI `industryVerticalOptions` only accept exact canonical labels; post-auth `BuildCompanyProfile` trims without altering casing; no tenant-controlled writer stores alternate casing.
+- [x] (valid-no-repro) `TrialLimitGate` / `TenantTrialFacade.LinkEntraAsync` — whitespace-only `TrialStatus` bypasses trial write limits and Converted-or-commercial link-entra guard like empty commercial rows — **cheap-disproof 2026-09-26 seed hunt:** same unreachable-writer class as unrecognized lifecycle labels (#1705); lifecycle SQL hooks emit canonical non-whitespace labels; facade status API already treats whitespace as commercial display-only.
+- [x] (valid-no-repro) `TenantMigrationProjectionRefreshService.RefreshAsync` — retrieval outbox drainer batches are not filtered to the migrating `tenantId` — **cheap-disproof 2026-09-26 seed hunt:** operator fan-out step intentionally runs shared `IRetrievalIndexingOutboxProcessor` dequeue; tenant-scoped hot-path cache keys and policy-pack invalidation still target the migration triple; parity with #1859 optional drainer contract.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status retry path re-invokes hard purge without a separate `LegalHoldUntilUtc` guard inside the branch — **cheap-disproof 2026-09-26 seed hunt:** active legal hold short-circuits before the `Deleted` retry block on every scheduler tick; `Deleted` is only recorded after ExportOnly policy timers and the same pre-check.
+
+- [x] (proven) `TrialSeatAccountant` / `TenantTrialSeatPolicy` vs `TryClaimTrialSeatAsync` — legacy lowercase/padded `active` `TrialStatus` rows were seat-metered in application policy but repository seat claim/increment used Ordinal `Active` and silently no-oped — **hit 2026-09-26 seed hunt:** parity with #1248/#808 lifecycle casing fixes; `EqualsStatus` read guards and CI-trim SQL bumps in `DapperTenantRepository.TrialSeats` + `InMemoryTenantRepository.TrialSeats`; regression `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap`.
+
+- [x] (proven) `TrialTenantBootstrapService` / `EnqueueTrialArchitecturePreseedAsync` vs `ListTenantIdsPendingTrialArchitecturePreseedAsync` — bootstrap enqueued welcome pre-seed for active trials but worker poll required Ordinal `TrialStatus = Active`, leaving legacy lowercase `active` rows stuck without `TrialWelcomeRunId` — **hit 2026-09-26 seed hunt:** `EqualsStatus` filter in `InMemoryTenantRepository.TrialPreseed` and CI-trim SQL in `DapperTenantRepository.TrialPreseed`; regression `ListTenantIdsPendingTrialArchitecturePreseed_includes_lowercase_active_trial_status`.
+
+- [x] (valid-no-repro) `TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate` / `ListTrialLifecycleAutomationTenantIdsAsync` — Ordinal `Converted` exclusion leaves lowercase `converted` rows in lifecycle scheduler polls — **cheap-disproof 2026-09-26 seed hunt:** `TrialLifecycleTransitionEngine` + `TrialLifecyclePolicy` no-op on `EqualsStatus` Converted; no errant transitions or purge side effects; perf-only noise.
+- [x] (valid-no-repro) `TryIncrementActiveTrialRunAsync` — legacy lowercase `active` rows could bypass run caps like seat claims pre-#seat-hit — **cheap-disproof 2026-09-26 seed hunt:** seat-cap fix already applied `EqualsStatus` + CI-trim SQL to run increment path; regression `TryIncrementActiveTrialRun_enforces_cap_for_lowercase_active_trial_status`.
+
+2026-09-26 seed hunt (seed-only): reseeded application-tenancy-lifecycle after preseed poll hit; cheap-disproof closed lifecycle automation poll noise and confirmed run-increment casing parity; added run-cap regression; 126 scoped tenancy tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved architecture preseed worker skipped enqueued tenants with lowercase persisted `active` trial status; 125 scoped tenancy tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved seat claims bypassed cap for lowercase persisted `active` trial status; 124 scoped tenancy tests passed.
+
+2026-09-26 seed hunt (seed-only): reseeded application-tenancy-lifecycle after bootstrap seat parity hit; cheap-disproof closed vertical casing, whitespace trial-status guard bypass, global migration outbox drain, and Deleted-purge legal-hold retry candidates; 123 scoped tenancy tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved bootstrap email principal double-counted registering admin against JWT `sub` seat claims; cheap-disproof closed stale seat-skip-cache candidate; 123 scoped tenancy tests passed.
 
@@ -24195,11 +24232,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 22
-- **bugs-found:** 16
+- **hunts:** 25
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — returning-tenant job chooser stayed open after URL cleared reviewsNewReturningJobChooserOpen without popstate
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — detailed/guided wizards kept deep-linked step after step= / intakeStep= cleared from URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24253,6 +24290,18 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 2026-09-25 seed hunt #3908e (seed→hit): reseeded ui-review-intake-wizards after scopeGate URL sync hit; proved stale returning job chooser disclosure after URL navigation; 11 scoped intake URL-sync unit tests passed.
 
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards; proved `useNewRunWizardClient` left `focusedPilotModeEnabled` false after App Router cleared `pilot=` (absent param means enabled per `newRunWizardPilotHrefFromSearch`); fixed `useSearchParams` sync and popstate handler to use `urlPilotEnabled ?? true`; regression `use-new-run-wizard-client.pilot-url.test.ts`; 2 scoped pilot/advanced-config URL vitest files passed.
+
+- [x] (proven) `useNewRunWizardClient` — `focusedPilotModeEnabled` stayed false when `pilot=0` was removed from URL without `popstate` because sync only applied when `parseNewRunWizardPilotFromSearch` returned non-null — **hit 2026-09-26 seed hunt:** treat absent `pilot` as enabled; regression above.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards; proved `guidedIntakeViewAllClarificationsOpen`, `reviewsNewMoreWaysToStartOpen`, `firstPilotStandardsSelectionOpen`, and `simplifiedPilotAdvancedConfigOpen` disclosure state stayed stale after App Router navigation cleared URL params (only `popstate` listeners updated); fixed by syncing from `useSearchParams` like #3908e; regression `follows reviewsNewMoreWaysToStartOpen= URL changes without a popstate event`; 3 scoped URL-sync vitest files passed (8 tests).
+
+- [x] (proven) `useGuidedIntakeDraftWorkflow` / `ReviewsNewMoreWaysToStart` / `FirstPilotIntakeFields` / `SimplifiedPilotWizard` — disclosure open state initialized from URL but not re-synced when `searchParams` changed without `popstate` — **hit 2026-09-26 seed hunt:** add `useSearchParams`-driven `useEffect` sync for each URL-backed disclosure; regression above (view-all clarifications shares mechanism with returning job chooser #3908e).
+
+- [x] (proven) `useNewRunWizardSteps` / `useGuidedIntakeWizard` — wizard step index stayed on a deep-linked slide after App Router cleared `step=` / `intakeStep=` without `popstate` — **hit 2026-09-26 seed hunt (seed→hit):** URL sync effects ignored absent params (same class as #3908 step forward-only sync); fixed by resetting to step 0 when the param is cleared; regressions `resets to step 0 when step= is cleared without a popstate event` and `use-guided-intake-wizard.intake-step-url.test.ts`; 3 scoped step URL vitest tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-review-intake-wizards after disclosure URL sync hits; proved stale detailed/guided wizard step when step params cleared via client navigation; 3 scoped step URL vitest tests passed.
+
 2026-09-10 seed hunt #1683 (seed-only): reseeded ui-review-intake-wizards after #1682; cheap-disproof closed guided-intake param survival on detailed path switch; 24 scoped intake path + brief-form unit tests passed.
 
 2026-09-10 seed hunt #1682 (seed-only): reseeded ui-review-intake-wizards after #1525; cheap-disproof closed detailed-param path-switch and scopeGate+bullets advance candidates; 23 scoped intake path + brief-form unit tests passed.
@@ -24275,11 +24324,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 14
-- **bugs-found:** 14
+- **hunts:** 15
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
-- **last-bug:** 2026-09-25 — search field cleared storage-backed q on mount when URL had no q param
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — groupBy stayed on after groupBy= cleared from URL (restored storage true)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24321,6 +24370,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueSearchField` — storage-backed search query cleared on mount when URL had no `q=` param — **hit 2026-09-25 seed hunt #31:** unconditional `setSearchQuery(urlSearchQuery)` on every `urlSearchQuery` change overwrote `readGovernanceFindingsQueueFacets(mode).searchQuery` before the debounced URL sync could restore it; fixed with `hadSearchQueryInUrlRef` mirroring other queue URL-sync hooks; regressions `preserves storage search query when URL has no q param` and `follows q= URL changes without a popstate event`
 
 2026-09-25 seed hunt #31 (seed→hit): reseeded ui-governance-findings-queue after findingJobView URL sync hit; proved search field mount overwrite of storage-backed query; 22 scoped governance-findings URL-sync and saved-view unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter` / `GovernanceFindingsQueueClient.clearAllFilters` — `groupByResource` stayed enabled after App Router cleared `groupBy=` without `popstate` because the URL-sync effect always reapplied `readGroupByResourcePreference()` — **hit 2026-09-26 seed hunt (seed→hit):** mirror register-filter `had*InUrlRef` for groupBy; reset to off and persist false when a prior URL had `groupBy=` and the param clears; `clearAllFilters` / `showAllFilteredFindings` call `applyGroupByResource(false)`; regressions in `use-governance-findings-filter.url-sync.test.ts`; 11 scoped filter URL-sync, clear-all, and saved-view unit tests passed.
+
+2026-09-26 seed hunt (seed→hit): reseeded ui-governance-findings-queue; proved stale groupBy after URL navigation cleared `groupBy=`; 11 scoped governance-findings filter URL-sync and clear-all unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 

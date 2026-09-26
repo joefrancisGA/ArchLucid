@@ -1,4 +1,4 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { act, renderHook, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -42,6 +42,8 @@ vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: vi.fn(() => null),
 }));
 
+import { writeGroupByResourcePreference } from "@/lib/governance/governance-findings-group-by-resource-storage";
+
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 
 function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
@@ -73,6 +75,39 @@ describe("useGovernanceFindingsFilter URL sync", () => {
     rerender();
 
     expect(result.current.registerFilter).toBe("all");
+  });
+
+  it("preserves in-session groupBy when URL never had groupBy and another param changes", () => {
+    const { result, rerender } = renderHook(() => useGovernanceFindingsFilter({ mode: "tenant" }), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    act(() => {
+      result.current.applyGroupByResource(true);
+    });
+    rerender();
+    expect(result.current.groupByResource).toBe(true);
+
+    searchParamsHarness.applyQuery("filter=open");
+    rerender();
+
+    expect(result.current.groupByResource).toBe(true);
+  });
+
+  it("turns groupBy off when groupBy= is cleared from the URL without a popstate event", () => {
+    writeGroupByResourcePreference(true);
+    searchParamsHarness.state.query = "groupBy=resource&runId=run-1";
+
+    const { result, rerender } = renderHook(() => useGovernanceFindingsFilter({ mode: "tenant" }), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.groupByResource).toBe(true);
+
+    searchParamsHarness.applyQuery("runId=run-1");
+    rerender();
+
+    expect(result.current.groupByResource).toBe(false);
   });
 
   it("follows groupBy URL changes without a popstate event", () => {
