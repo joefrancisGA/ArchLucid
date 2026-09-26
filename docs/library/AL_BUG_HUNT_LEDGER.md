@@ -23639,13 +23639,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — `TryPromote` could use limits captured before store entry despite per-loop options read (#1542)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-26 seed hunt #6966 (seed-only): picker repeat after #6965; cheap-disproof closed live `Enabled=false` during queue wait and in-flight `QueueWaitTimeoutSeconds` shorten candidates; regressions `WaitForAdmissionAsync_still_promotes_when_safety_enabled_flips_false_during_queue_wait`, `WaitForAdmissionAsync_keeps_queue_wait_deadline_captured_at_enqueue_when_options_shorten`; 26 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `QuickScanSafetyOptions.Enabled=false` during queue wait must reject before promote — **cheap-disproof 2026-09-26 seed hunt #6966:** promote loop polls store capacity only; budget-stage operational re-check and orchestrator dispose cover downstream kill-switch; regression `WaitForAdmissionAsync_still_promotes_when_safety_enabled_flips_false_during_queue_wait`.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — shortened `QueueWaitTimeoutSeconds` in `IOptionsMonitor` during queue wait ends wait early — **cheap-disproof 2026-09-26 seed hunt #6966:** `deadline` and store `QueueExpiresUtc` are captured at enqueue; regression `WaitForAdmissionAsync_keeps_queue_wait_deadline_captured_at_enqueue_when_options_shorten` (extends #6960).
 
 2026-09-26 seed hunt #6965 (seed→hit): reseeded promote store-entry limit snapshot after #6964 admit refresh; proved `TryPromoteAsync` could still enforce stale `MaxConcurrentAnonymousScans` when options tightened between service loop read and store call; extended `QuickScanDistributedConcurrencyAdmitLimitRefreshStore` to refresh promote requests at store entry; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_on_promote_after_options_change`; 24 scoped QuickScanDistributedConcurrency tests passed.
 

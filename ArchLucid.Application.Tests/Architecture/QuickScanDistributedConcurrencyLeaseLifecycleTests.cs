@@ -933,6 +933,145 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_still_promotes_when_safety_enabled_flips_false_during_queue_wait()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 2,
+                QueueWaitTimeoutSeconds = 5,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            inner,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Guid activeLeaseId = Guid.NewGuid();
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(activeLeaseId, Guid.NewGuid(), "active", maxConcurrent: 1, maxQueued: 2));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-after-enabled-off", CancellationToken.None);
+
+        await Task.Delay(50);
+
+        await inner.ReleaseLeaseAsync(activeLeaseId);
+        options.Enabled = false;
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeTrue(
+            "promote loop polls store capacity only; budget-stage operational re-check and orchestrator dispose handle downstream kill-switch");
+
+        await admission.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task WaitForAdmissionAsync_keeps_queue_wait_deadline_captured_at_enqueue_when_options_shorten()
+    {
+        DateTimeOffset start = new(2026, 9, 26, 12, 0, 0, TimeSpan.Zero);
+        SteppingTimeProvider timeProvider = new(start);
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 2,
+                QueueWaitTimeoutSeconds = 30,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            inner,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            timeProvider,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Guid activeLeaseId = Guid.NewGuid();
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(
+                activeLeaseId,
+                Guid.NewGuid(),
+                "active",
+                maxConcurrent: 1,
+                maxQueued: 2,
+                utcNow: start));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-after-timeout-shorten", CancellationToken.None);
+
+        await Task.Delay(50);
+
+        timeProvider.Advance(TimeSpan.FromSeconds(5));
+        options.Concurrency.QueueWaitTimeoutSeconds = 1;
+
+        timeProvider.Advance(TimeSpan.FromSeconds(10));
+
+        await inner.ReleaseLeaseAsync(activeLeaseId);
+
+        await Task.Delay(300);
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeTrue(
+            "in-flight queue wait deadline is captured at enqueue; live QueueWaitTimeoutSeconds changes apply only to new waiters (#6960)");
+
+        await admission.DisposeAsync();
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_still_promotes_when_anonymous_execution_disabled_during_queue_wait()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
@@ -1134,9 +1273,10 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         string requestKey,
         int maxConcurrent,
         int maxQueued,
-        int leaseDurationSeconds = 60)
+        int leaseDurationSeconds = 60,
+        DateTimeOffset? utcNow = null)
     {
-        DateTimeOffset utcNow = TimeProvider.System.GetUtcNow();
+        DateTimeOffset effectiveUtcNow = utcNow ?? TimeProvider.System.GetUtcNow();
 
         return new QuickScanConcurrencyAdmitRequest
         {
@@ -1144,12 +1284,21 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             QueueEntryId = queueEntryId,
             RequestKey = requestKey,
             HolderInstanceId = "test-instance",
-            UtcNow = utcNow,
+            UtcNow = effectiveUtcNow,
             MaxConcurrentScans = maxConcurrent,
             MaxQueuedScans = maxQueued,
             QueueWaitTimeout = TimeSpan.FromSeconds(30),
             LeaseDuration = TimeSpan.FromSeconds(leaseDurationSeconds),
         };
+    }
+
+    private sealed class SteppingTimeProvider(DateTimeOffset startUtc) : TimeProvider
+    {
+        private DateTimeOffset _utcNow = startUtc;
+
+        public void Advance(TimeSpan delta) => _utcNow += delta;
+
+        public override DateTimeOffset GetUtcNow() => _utcNow;
     }
 
     private sealed class CancellationTokenPromoteStore(InMemoryQuickScanDistributedConcurrencyStore inner, Guid queuedEntryId)
