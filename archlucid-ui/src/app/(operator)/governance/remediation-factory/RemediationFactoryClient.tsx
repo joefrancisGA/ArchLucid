@@ -223,7 +223,12 @@ function PriorityTable(props: {
         <EnterpriseTableHead>
           <EnterpriseTableRow>
             <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Score</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Sort key for this queue. Not a percentage.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Control</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
@@ -295,7 +300,12 @@ function RankedPathsTable(props: {
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Band</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Evidence strength for the whole path.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
@@ -648,6 +658,9 @@ export function RemediationFactoryClient() {
             <span className="inline-flex items-center gap-1">inspect <ShortcutHint shortcut="alt+i" /></span>
           </p>
         </header>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
+          These filters narrow the path list only.
+        </p>
         <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
           {PATH_VIEWS.map((view) => (
             <Button
