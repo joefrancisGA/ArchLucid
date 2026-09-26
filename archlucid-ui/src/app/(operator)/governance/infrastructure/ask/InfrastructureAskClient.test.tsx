@@ -93,6 +93,9 @@ describe("InfrastructureAskClient", () => {
 
     expect(await screen.findByTestId("infra-ask-response")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-insufficient-evidence")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-ask-insufficient-evidence-scope")).toHaveTextContent(
+      "This snapshot does not have enough evidence to answer. Ask did not query live Azure.",
+    );
     expect(screen.getByTestId("infra-ask-simulator-banner")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-citation-CloudResourceId-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
   });

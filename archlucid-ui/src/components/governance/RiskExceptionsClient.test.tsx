@@ -122,6 +122,7 @@ describe("RiskExceptionsClient", () => {
     render(<RiskExceptionsClient />);
 
     expect(await screen.findByTestId("risk-exceptions-expiring-warning")).toBeInTheDocument();
+    expect(screen.getByText("After this time the exception no longer covers the finding.")).toBeInTheDocument();
   });
 
   it("renders empty state with create architecture CTA", async () => {
