@@ -225,10 +225,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         {
 
             if (!Enum.IsDefined(typeof(FindingSemanticSupportBand), numeric))
-            {
-                supportBand = default;
-                return false;
-            }
+                throw new JsonException($"Unknown finding semantic support band value '{numeric}'.");
 
             supportBand = (FindingSemanticSupportBand)numeric;
             return true;
