@@ -325,4 +325,71 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
             Times.Never);
         cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_sql_graph_run_id_disagrees_with_outbox_entry()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid outboxRunId = Guid.NewGuid();
+        Guid sqlRunId = Guid.NewGuid();
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = sqlRunId,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CosmosGraphSnapshotOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
+                    RunId = outboxRunId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
+        sqlLoader
+            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
+        Mock<IAuthorityQueryService> authorityQuery = new();
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => sqlLoader.Object);
+        services.AddScoped(_ => cosmosWriter.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new CosmosGraphSnapshotOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        authorityQuery.Verify(
+            q => q.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

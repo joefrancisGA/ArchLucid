@@ -91,6 +91,18 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
             return;
         }
 
+        if (entry.RunId != Guid.Empty && snapshot.RunId != entry.RunId)
+        {
+            Logger.LogWarning(
+                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: SQL graph RunId {SqlRunId} does not match outbox RunId {OutboxRunId}.",
+                entry.GraphSnapshotId,
+                snapshot.RunId,
+                entry.RunId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
+        }
+
         if (entry.RunId != Guid.Empty)
         {
             IAuthorityQueryService authorityQueryService =
