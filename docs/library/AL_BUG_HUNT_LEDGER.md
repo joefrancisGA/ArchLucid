@@ -24762,13 +24762,21 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 18
-- **bugs-found:** 14
+- **hunts:** 20
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — audit scope bar change-control link dropped explorer workQueue
+- **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed-only): reseeded ui-infra-resource-hub after Ask `workQueue` ship; cheap-disproof closed remaining explorer `workQueue` parity on findings Ask, audit-scope clear, and stale audit banner navigation (all preserve `workQueue` via threaded Ask helpers or `currentSearch`); added regressions `preserves explorer workQueue on findings Infrastructure Ask links`, `preserves explorer workQueue when clearing active audit scope`, and `preserves explorer workQueue on stale audit scope banner links`; 33 scoped ResourceHubClient tests passed.
+
+- [x] (valid-no-repro) `buildHubFindingAskHref` / `buildInfraEvidenceClearAuditScopeHref` / stale audit banner — explorer `workQueue` dropped on findings Ask or audit-scope exit while overview/drift Ask preserve queue — **cheap-disproof 2026-09-27 seed hunt:** tab-scoped Ask helpers thread `workQueue`; clear/banner hrefs rebuild from `searchParams.toString()`; regressions above.
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-infra-resource-hub after audit scope bar fix; proved hub `buildInfrastructureAskHref` / `buildHub*AskHref` helpers forwarded `runId` but never explorer `workQueue`, so overview and drift Ask exits dropped queue context while tab cross-links preserved it; fixed by threading `workQueue` through Ask helpers; regressions `preserves explorer workQueue on overview Infrastructure Ask link` and `preserves explorer workQueue on drift Infrastructure Ask links`; 30 scoped ResourceHubClient tests passed.
+
+- [x] (proven) Resource hub Infrastructure Ask links omit explorer `workQueue` — **hit 2026-09-27 seed hunt:** `buildHubDriftChangeAskHref` and overview Ask call sites omitted `workQueue` on `buildInfrastructureAskHref`; fixed in `ResourceHubClient.tsx`; regressions in `ResourceHubClient.test.tsx`.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-infra-resource-hub; proved `buildInfraEvidenceAuditScopeBarAuditTabHref` rebuilt audit-tab URLs from an empty search string so `InfraEvidenceAuditScopeBar` “Change control” dropped explorer `workQueue` while chip and tab-bar links preserved it; fixed by threading `currentSearch` into the helper; regression `preserves explorer workQueue on audit scope bar change-control link`; 28 scoped ResourceHubClient tests passed.
 

@@ -163,6 +163,12 @@ type ResourceHubClientProps = {
   readonly cloudResourceId: string;
 };
 
+type ResourceHubExplorerWorkQueue = ReturnType<typeof parseResourceExplorerWorkQueueFromSearch>;
+
+function infrastructureAskWorkQueueForExplorer(explorerWorkQueue: ResourceHubExplorerWorkQueue) {
+  return explorerWorkQueue !== "all" ? explorerWorkQueue : undefined;
+}
+
 function buildHubDriftChangeWorkbenchHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -179,6 +185,7 @@ function buildHubDriftChangeAskHref(
   runId: string,
   change: CloudResourceInventoryChangeSummary,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
@@ -186,6 +193,7 @@ function buildHubDriftChangeAskHref(
     runId: runId.length > 0 ? runId : undefined,
     diffId: change.diffId,
     hubTab: "drift",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
@@ -196,6 +204,7 @@ function buildHubFindingAskHref(
   runId: string,
   findingId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
@@ -203,6 +212,7 @@ function buildHubFindingAskHref(
     runId: runId.length > 0 ? runId : undefined,
     findingId,
     hubTab: "findings",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
@@ -213,6 +223,7 @@ function buildHubRemediationAskHref(
   runId: string,
   instanceId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
@@ -220,6 +231,7 @@ function buildHubRemediationAskHref(
     runId: runId.length > 0 ? runId : undefined,
     instanceId,
     hubTab: "remediation",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
@@ -233,6 +245,7 @@ function buildHubAuditLineageAskHref(
     readonly auditEvidenceSnapshotId: string;
     readonly controlId: string;
   },
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
@@ -242,6 +255,7 @@ function buildHubAuditLineageAskHref(
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
     hubTab: "audit",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
   });
 }
 
@@ -289,6 +303,7 @@ function buildHubDiagramCorrespondenceAskHref(
   runId: string,
   correspondenceId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
@@ -296,6 +311,7 @@ function buildHubDiagramCorrespondenceAskHref(
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId,
     hubTab: "diagram",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
@@ -887,6 +903,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     snapshotId: resolvedSnapshotId,
                     runId,
                     hubTab: "overview",
+                    workQueue: infrastructureAskWorkQueueForExplorer(workQueue),
                     ...askAuditContext,
                   })}
                 >
@@ -1138,7 +1155,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   buildChangeWorkbenchHref={(change) =>
                     buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                   buildChangeAskHref={(change) =>
-                    buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
+                    buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
                   testIdPrefix="infra-resource-hub-drift"
                 />
               </section>
@@ -1166,7 +1183,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 buildChangeWorkbenchHref={(change) =>
                   buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                 buildChangeAskHref={(change) =>
-                  buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
+                  buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
                 testIdPrefix="infra-resource-hub-drift-tab"
               />
             ) : (
@@ -1253,6 +1270,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         runId,
                         hub.diagramCorrespondence.correspondenceId,
                         askAuditContext,
+                        workQueue,
                       )}
                     >
                       Ask about this correspondence
@@ -1429,7 +1447,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
+                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
                                     data-testid={`infra-resource-hub-finding-ask-${item.id}`}
                                   >
                                     Ask
@@ -1439,7 +1457,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             ) : (
                               <Button asChild size="sm" variant="outline">
                                 <Link
-                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
+                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
                                   data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
                                 >
                                   Ask
@@ -1513,7 +1531,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           </Button>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext)}
+                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext, workQueue)}
                               data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
                             >
                               Ask
@@ -1552,7 +1570,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
-                    })}
+                    }, workQueue)}
                     data-testid="infra-resource-hub-audit-ask"
                   >
                     Ask about this control
@@ -1581,7 +1599,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 assessmentId: match.assessmentId,
                                 auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
                                 controlId: match.controlId,
-                              })}
+                              }, workQueue)}
                               data-testid={`infra-resource-hub-audit-ask-${match.controlId}`}
                             >
                               Ask

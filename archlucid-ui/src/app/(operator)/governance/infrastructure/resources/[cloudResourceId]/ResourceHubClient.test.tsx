@@ -238,6 +238,42 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves explorer workQueue on overview Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-ask")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on drift Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on findings Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=findings&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
   it("preserves runId on overview drift change workbench links", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
@@ -330,6 +366,20 @@ describe("ResourceHubClient", () => {
     expect(clearLink.getAttribute("href")).not.toContain("assessmentId=");
   });
 
+  it("preserves explorer workQueue on stale audit scope banner links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&workQueue=open-findings&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const banner = await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const auditTabLink = within(banner).getByRole("link", { name: "Open audit tab" });
+    const clearLink = within(banner).getByRole("link", { name: "Clear stale audit scope" });
+
+    expect(auditTabLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+    expect(clearLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+  });
+
   it("preserves hub snapshot and runId when clearing active audit scope", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
@@ -346,6 +396,18 @@ describe("ResourceHubClient", () => {
     expect(replace).toHaveBeenCalledWith(
       expect.not.stringMatching(/assessmentId=|auditEvidenceSnapshotId=|controlId=/),
     );
+  });
+
+  it("preserves explorer workQueue when clearing active audit scope", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-audit-scope-bar-clear-scope"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
   });
 
   it("preserves hub snapshot and runId when switching audit control via inline picker", async () => {
