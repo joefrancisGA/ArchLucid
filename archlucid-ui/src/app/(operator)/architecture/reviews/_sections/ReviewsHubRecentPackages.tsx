@@ -90,10 +90,25 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
       <EnterpriseTableHeadRow>
         <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Last updated</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            When this review was last changed in ArchLucid.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Findings</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Recorded issues for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Evidence</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Evidence</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Evidence items recorded for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>

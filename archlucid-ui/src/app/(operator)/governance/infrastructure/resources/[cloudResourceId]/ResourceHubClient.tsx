@@ -964,6 +964,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
             <section className={cnCard}>
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Current configuration</h2>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                These values come from the selected snapshot. They are not a live Azure read.
+              </p>
               {hub.currentConfiguration == null ? (
                 <EnterpriseCompactEmptyState
                   title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
@@ -989,6 +992,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {Object.keys(hub.currentConfiguration.properties).length > 0 ? (
                     <div className="mt-4">
                       <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Properties</h3>
+                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                        Configuration keys and values recorded in the snapshot.
+                      </p>
                       <EnterpriseTable ariaLabel="Resource properties">
                         <EnterpriseTableHead>
                           <EnterpriseTableRow>
@@ -1012,6 +1018,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {Object.keys(hub.currentConfiguration.tags).length > 0 ? (
                     <div className="mt-4">
                       <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Tags</h3>
+                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                        Tags recorded on this resource in the snapshot.
+                      </p>
                       <EnterpriseTable ariaLabel="Resource tags">
                         <EnterpriseTableHead>
                           <EnterpriseTableRow>
@@ -1042,6 +1051,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {hub.rbacAssignments.length > 0 ? (
                   <div className="mb-4">
                     <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>RBAC assignments</h3>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      Principal is the identity granted the role. Role is the role recorded in the snapshot. Scope is where that role applies.
+                    </p>
                     <EnterpriseTable ariaLabel="RBAC assignments">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
@@ -1067,6 +1079,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {hub.networkRelationships.length > 0 ? (
                   <div className="mb-4">
                     <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Network relationships</h3>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      Type is the kind of network relationship recorded between the two resources.
+                    </p>
                     <EnterpriseTable ariaLabel="Network relationships">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
@@ -1092,6 +1107,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {hub.evidencePointers.length > 0 ? (
                   <div>
                     <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Evidence pointers</h3>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      A pointer to captured evidence. It does not open Azure.
+                    </p>
                     <EnterpriseTable ariaLabel="Evidence pointers">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
@@ -1348,7 +1366,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     <EnterpriseTableHead>
                       <EnterpriseTableRow>
                         <EnterpriseTableHeaderCell>Title</EnterpriseTableHeaderCell>
-                        <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Severity</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            How serious this finding is recorded as.
+                          </span>
+                        </EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                       </EnterpriseTableRow>
@@ -1484,7 +1507,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>
                     <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Status</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        The recorded state of this remediation instance. It does not change Azure.
+                      </span>
+                    </EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
