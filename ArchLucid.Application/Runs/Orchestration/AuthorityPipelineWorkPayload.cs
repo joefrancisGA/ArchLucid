@@ -39,7 +39,8 @@ public sealed class AuthorityPipelineWorkPayload
     public bool IsValidForProcessing()
     {
         return ContextIngestionRequest is not null
-               && HasSubstantiveText(EvidenceBundleId);
+               && HasSubstantiveText(EvidenceBundleId)
+               && Enum.IsDefined(WorkKind);
     }
 
     /// <summary>
