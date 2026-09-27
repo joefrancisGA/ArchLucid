@@ -5525,6 +5525,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after continue-last gating; proved failed manual `listAlertRoutingSubscriptions` refresh still rendered `WebhooksSubscriptionsTable` from stale `webhookRows` while configuration status and continue-last were already gated on `hasLoadedSuccessfully`; fixed by rendering the table only when `hasLoadedSuccessfully`; regression `hides stale subscriptions table when manual refresh fails`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
+
+- [x] (proven) `WebhooksSettingsClient` — stale subscriptions table after failed manual refresh — **hit 2026-09-27 seed hunt:** table branch ignored `hasLoadedSuccessfully` while other subscription chrome gated; regression `hides stale subscriptions table when manual refresh fails`
+
 2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after master merge; proved `WebhooksContinueLastViewedRow` still rendered from stale `webhookRows` when manual refresh failed (`hasLoadedSuccessfully` false) while configuration status already showed unavailable; fixed by gating continue-last on `hasLoadedSuccessfully`; regression `hides continue-last viewed row when manual refresh fails with stale rows`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
 
 - [x] (proven) `WebhooksSettingsClient` — continue-last row still shown from stale `webhookRows` after failed manual refresh — **hit 2026-09-27 seed hunt:** continue-last ignored `hasLoadedSuccessfully` while status and enable checklist already gated; regression `hides continue-last viewed row when manual refresh fails with stale rows`
@@ -5547,11 +5551,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 25
-- **bugs-found:** 20
+- **hunts:** 26
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — continue-last row after failed subscription refresh
+- **last-bug:** 2026-09-27 — stale subscriptions table after failed refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

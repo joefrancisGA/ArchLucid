@@ -232,9 +232,9 @@ export function WebhooksSettingsClient() {
               </p>
             ) : webhookRows.length === 0 && hasLoadedSuccessfully ? (
               <EnterpriseCompactEmptyState {...WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT} />
-            ) : webhookRows.length === 0 ? null : (
+            ) : webhookRows.length > 0 && hasLoadedSuccessfully ? (
               <>
-                {continueLastSubscription !== null && hasLoadedSuccessfully ? (
+                {continueLastSubscription !== null ? (
                   <WebhooksContinueLastViewedRow
                     target={continueLastSubscription}
                     onOpen={openSubscription}
@@ -254,7 +254,7 @@ export function WebhooksSettingsClient() {
                   }}
                 />
               </>
-            )}
+            ) : null}
           </section>
 
           <WebhooksCreateSubscriptionForm
