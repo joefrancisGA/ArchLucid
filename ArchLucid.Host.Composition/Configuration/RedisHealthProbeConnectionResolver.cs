@@ -11,7 +11,8 @@ namespace ArchLucid.Host.Composition.Configuration;
 
 /// <summary>
 ///     Resolves the Redis connection string for health probing using the same precedence as distributed-cache registration
-///     for knowledge-graph projection (projection explicit, then LLM cache, then hot-path cache).
+///     for distributed graph projection when enabled, otherwise LLM cache then hot-path cache (orphan projection strings
+///     are ignored when the graph cache is in-process memory).
 /// </summary>
 internal static class RedisHealthProbeConnectionResolver
 {
@@ -69,9 +70,10 @@ internal static class RedisHealthProbeConnectionResolver
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        KgProjectionCacheOptions projection =
-            configuration.GetSection(KgProjectionCacheOptions.SectionName)
-                .Get<KgProjectionCacheOptions>() ?? new KgProjectionCacheOptions();
+        string? graphProjectionRedis = TryResolveGraphProjectionDistributedRedisConnectionString(configuration);
+
+        if (graphProjectionRedis is not null)
+            return graphProjectionRedis;
 
         HotPathCacheOptions hotPath =
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
@@ -84,18 +86,13 @@ internal static class RedisHealthProbeConnectionResolver
         if (InferDistributedCacheRegisteredBeforeKnowledgeGraphProjection(hotPath, llm))
         {
             string shared = ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString(
-                projection.RedisConnectionString,
+                kgRedis: null,
                 llm,
                 hotPath,
                 distributedCacheAlreadyRegistered: true);
 
             return string.IsNullOrEmpty(shared) ? null : shared;
         }
-
-        string? projectionRedis = projection.RedisConnectionString?.Trim();
-
-        if (!string.IsNullOrEmpty(projectionRedis))
-            return projectionRedis;
 
         if (!string.IsNullOrWhiteSpace(llm.RedisConnectionString))
             return llm.RedisConnectionString.Trim();

@@ -23,12 +23,13 @@ public sealed class RedisHealthProbeConnectionResolverTests
     }
 
     [Fact]
-    public void TryResolve_projection_string_wins_over_llm_and_hot_path()
+    public void TryResolve_projection_string_wins_over_llm_and_hot_path_when_graph_cache_is_distributed()
     {
         RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(
                 new ConfigurationBuilder()
                     .AddInMemoryCollection(new Dictionary<string, string?>
                     {
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:Backend"] = "Distributed",
                         [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:RedisConnectionString"] = "projection",
                         [$"{LlmCompletionResponseCacheOptions.SectionName}:RedisConnectionString"] = "llm",
                         [$"{HotPathCacheOptions.SectionName}:RedisConnectionString"] = "hot",
@@ -36,6 +37,23 @@ public sealed class RedisHealthProbeConnectionResolverTests
                     .Build())
             .Should()
             .Be("projection");
+    }
+
+    [Fact]
+    public void TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory()
+    {
+        RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(
+                new ConfigurationBuilder()
+                    .AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:Enabled"] = "true",
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:Backend"] = "Memory",
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:RedisConnectionString"] = "orphan-projection",
+                        [$"{LlmCompletionResponseCacheOptions.SectionName}:RedisConnectionString"] = "llm",
+                    })
+                    .Build())
+            .Should()
+            .Be("llm");
     }
 
     [Fact]
