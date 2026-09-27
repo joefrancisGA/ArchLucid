@@ -9281,11 +9281,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 37
-- **bugs-found:** 29
+- **hunts:** 38
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — public-exposure / segmentation heuristics still substring-matched storage in non-storage labels
+- **last-bug:** 2026-09-27 — non-database labels and non-private Strengthen rationales false-triggered datastore and private-endpoint promotion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
