@@ -5797,13 +5797,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 26
-- **bugs-found:** 15
+- **hunts:** 27
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — null entry in ClaimMapping.Mappings array threw NullReferenceException in ToDocument
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — whitespace-only mapping IdpValue silently dropped by ToDocument so activate succeeded with empty explicit mappings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded identity-provider-config; proved whitespace-only `IdpValue` in mapping entries was filtered by `ToDocument` so activation persisted with zero explicit mappings; `EnsureSubstantiveMappingEntries` before `ToDocument`; regressions `ActivateAsync_rejects_whitespace_only_idp_value_in_mapping` and `Execute_returns_failure_when_mapping_entry_has_whitespace_only_idp_value`; 54 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService` / `SsoWizardTestLoginService` — whitespace-only `IdpValue` in `ClaimMapping.Mappings` was dropped by `ToDocument` so `ValidateMapping` allowed activation with zero explicit mappings while the operator believed a role mapping was configured — **hit 2026-09-27 seed hunt (seed→hit):** `EnsureSubstantiveMappingEntries` on request before `ToDocument`; regressions above.
 
 2026-09-26 seed hunt (hit): proved a null element inside `ClaimMapping.Mappings` caused `NullReferenceException` in `IdentityClaimRoleMappingResolver.ToDocument` on activate (HTTP 500 risk) and sandbox test-login; `EnsureNoNullMappingEntries` guard before `ToDocument`; regressions `ActivateAsync_rejects_null_mapping_entry_in_claim_mapping` and `Execute_returns_failure_when_claim_mapping_contains_null_entry`; 48 scoped activation/test-login tests passed.
 
