@@ -201,6 +201,15 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (item.ValueKind == JsonValueKind.String)
             return string.IsNullOrWhiteSpace(item.GetString()) ? 0 : 1;
 
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return item.ValueKind == JsonValueKind.True ? 1 : 0;
+
+        if (item.ValueKind == JsonValueKind.Number
+            && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out _))
+        {
+            return 1;
+        }
+
         return 0;
     }
 }
