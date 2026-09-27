@@ -227,6 +227,17 @@ public sealed partial class PilotRunDeltaComputer
 
         if (snapshotTotal < agentTotal)
         {
+            GovernedFindingCoverageMetric agentCoverage = AggregateGovernedFindingCoverage(detail);
+            GovernedFindingCoverageMetric snapshotCoverage = AggregateGovernedFindingCoverage(snapshotFindingsList);
+
+            if (snapshotCoverage.IsAvailable
+                && agentCoverage.IsAvailable
+                && snapshotTotal > 0
+                && snapshotCoverage.GovernedCount >= agentCoverage.GovernedCount)
+            {
+                return true;
+            }
+
             return false;
         }
 
