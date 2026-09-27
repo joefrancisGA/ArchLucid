@@ -65,6 +65,11 @@ public sealed class AuthorityPipelineWorkPayload
             if (category is UnicodeCategory.Format or UnicodeCategory.Control)
                 return false;
 
+            if (category is UnicodeCategory.NonSpacingMark
+                or UnicodeCategory.SpacingCombiningMark
+                or UnicodeCategory.EnclosingMark)
+                continue;
+
             hasSubstantive = true;
         }
 

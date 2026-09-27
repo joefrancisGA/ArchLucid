@@ -93,6 +93,23 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void IsValidForProcessing_rejects_combining_mark_only_evidence_bundle_id()
+    {
+        AuthorityPipelineWorkPayload payload = new()
+        {
+            ContextIngestionRequest = new ContextIngestionRequest
+            {
+                RunId = Guid.NewGuid(),
+                ProjectId = "default",
+            },
+            EvidenceBundleId = "\u0300",
+        };
+
+        payload.IsValidForProcessing().Should().BeFalse(
+            "combining marks are not whitespace or format characters but are not usable evidence bundle ids");
+    }
+
+    [SkippableFact]
     public void IsValidForProcessing_rejects_embedded_zero_width_in_evidence_bundle_id()
     {
         AuthorityPipelineWorkPayload payload = new()
@@ -212,6 +229,29 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
             .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_combining_mark_only_string_list_entries()
+    {
+        Guid runId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["\u0300", "keep-me"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("keep-me");
         back.IsValidForProcessing().Should().BeTrue();
     }
 
