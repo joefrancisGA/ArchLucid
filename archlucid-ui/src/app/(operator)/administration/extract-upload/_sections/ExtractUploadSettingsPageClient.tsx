@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
-import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUploadConstraintsPanel";
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import {
   AlertDialog,
@@ -49,8 +48,6 @@ import {
   EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE,
   EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
-  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
-  EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
   EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION,
   EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE,
   extractUploadNonAzureScriptSourceHint,
@@ -472,8 +469,6 @@ function ExtractUploadSettingsPageClientInner() {
               className={cn(OPERATOR_LAYOUT.stickyAsideTop, OPERATOR_LAYOUT.sectionStack)}
               data-testid="extract-upload-page-aside"
             >
-              <ExtractUploadConstraintsPanel platform={selectedPlatform} />
-
               <details
                 className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
                 data-testid="extract-upload-validate-disclosure"
@@ -499,16 +494,6 @@ function ExtractUploadSettingsPageClientInner() {
                   </p>
                 </div>
               </details>
-
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                <Link
-                  href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
-                  className={OPERATOR_LINK.inline}
-                  data-testid="extract-upload-evidence-trail-link"
-                >
-                  {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
-                </Link>
-              </p>
 
               <section
                 className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"

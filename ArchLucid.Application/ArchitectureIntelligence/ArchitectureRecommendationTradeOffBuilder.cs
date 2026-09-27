@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -69,9 +71,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         string costOrRisk)
     {
         bool hasFirstFinding = findings.Any(
-            finding => finding.Dimension == firstDimension && finding.Conclusion != ReviewConclusion.Pass);
+            finding => finding.Dimension == firstDimension && IsActionableForTradeOff(finding));
         bool hasSecondFinding = findings.Any(
-            finding => finding.Dimension == secondDimension && finding.Conclusion != ReviewConclusion.Pass);
+            finding => finding.Dimension == secondDimension && IsActionableForTradeOff(finding));
 
         if (!hasFirstFinding || !hasSecondFinding)
         {
@@ -115,9 +117,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         string secondToken = secondDimension.ToString();
 
         bool prefersFirst = declaredPriorities.Any(
-            priority => priority.Contains(firstToken, StringComparison.OrdinalIgnoreCase));
+            priority => DeclaredPriorityPrefersDimension(priority, firstToken));
         bool prefersSecond = declaredPriorities.Any(
-            priority => priority.Contains(secondToken, StringComparison.OrdinalIgnoreCase));
+            priority => DeclaredPriorityPrefersDimension(priority, secondToken));
 
         if (prefersFirst && !prefersSecond)
         {
@@ -130,6 +132,57 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         }
 
         return $"Balance {firstDimension} and {secondDimension} with explicit human approval.";
+    }
+
+    private static bool DeclaredPriorityPrefersDimension(string priority, string dimensionToken)
+    {
+        if (string.IsNullOrWhiteSpace(priority) || string.IsNullOrWhiteSpace(dimensionToken))
+            return false;
+
+        if (IsNegatedDimensionMention(priority, dimensionToken))
+            return false;
+
+        return CreateDimensionWordPattern(dimensionToken).IsMatch(priority);
+    }
+
+    private static bool IsNegatedDimensionMention(string priority, string dimensionToken)
+    {
+        if (string.IsNullOrWhiteSpace(dimensionToken))
+            return false;
+
+        if (dimensionToken.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
+            && UnreliabilityNegationPattern().IsMatch(priority))
+        {
+            return true;
+        }
+
+        return CreateNegatedDimensionPattern("non", dimensionToken).IsMatch(priority)
+            || CreateNegatedDimensionPattern("no", dimensionToken).IsMatch(priority);
+    }
+
+    private static Regex CreateNegatedDimensionPattern(string negationPrefix, string dimensionToken)
+    {
+        return new Regex(
+            $@"\b{negationPrefix}[-\s]?{Regex.Escape(dimensionToken)}\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    private static Regex CreateDimensionWordPattern(string dimensionToken)
+    {
+        return new Regex(
+            $"(?:^|[^A-Za-z]){Regex.Escape(dimensionToken)}(?:$|[^A-Za-z])",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    private static Regex UnreliabilityNegationPattern() =>
+        new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
+    {
+        if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
+            return false;
+
+        return ProvenancePresentationMapper.MapFinding(finding) != ProvenancePresentationBucket.Unverified;
     }
 
     private static ArchitectureRecommendation? FindRecommendationForDimension(

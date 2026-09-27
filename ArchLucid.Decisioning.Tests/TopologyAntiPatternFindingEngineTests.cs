@@ -91,6 +91,30 @@ public sealed class TopologyAntiPatternFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_WhenLabelIsPublicNonStorage_DoesNotEmitPublicExposureFinding()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "api-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "public-non-storage-telemetry",
+                    Category = GraphTopologyCategories.Compute,
+                    Properties = new(),
+                },
+            ],
+        };
+
+        TopologyAntiPatternFindingEngine sut = new();
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotContain(f => f.Title.Contains("publicly exposed", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_WhenLabelIsNonPublicSql_StillDoesNotEmitPublicExposureFinding()
     {
         GraphSnapshot graph = new()

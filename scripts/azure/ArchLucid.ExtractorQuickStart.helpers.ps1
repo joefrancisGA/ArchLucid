@@ -1067,9 +1067,14 @@ function Resolve-ArchLucidAzureSubscriptionDisplayName
     }
 
     [object]$subscription = $null
+    [System.Management.Automation.ActionPreference]$previousWarningPreference = $WarningPreference
 
     try
     {
+        # Resolving the display name is optional metadata. Az.Accounts can refresh
+        # every cached tenant while doing this lookup, so warnings from unrelated
+        # cached tenants must not make a subscription-scoped extraction noisy.
+        $WarningPreference = 'SilentlyContinue'
         $subscription = Get-AzSubscription `
             -SubscriptionId $trimmedSubscriptionId `
             -ErrorAction Stop
@@ -1077,6 +1082,10 @@ function Resolve-ArchLucidAzureSubscriptionDisplayName
     catch
     {
         return $null
+    }
+    finally
+    {
+        $WarningPreference = $previousWarningPreference
     }
 
     if ($null -eq $subscription)

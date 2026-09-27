@@ -586,6 +586,10 @@ describe("WebhooksIntegrationPage", () => {
     });
 
     expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL })).toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-not-configured-next-step")).toBeNull();
+    expect(screen.queryByTestId("webhooks-empty-state")).toBeNull();
+    expect(screen.queryByLabelText("Status: Not configured")).toBeNull();
+    expect(screen.getByLabelText("Status: Could not verify subscriptions")).toBeInTheDocument();
   });
 
   it("blocks create when manual refresh fails after subscriptions loaded", async () => {
@@ -690,6 +694,72 @@ describe("WebhooksIntegrationPage", () => {
 
     expect(screen.queryByText(/1 subscription in this workspace/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("webhooks-create-setup-step-enable")).toHaveTextContent(/Pending/i);
+  });
+
+  it("hides stale subscriptions table when manual refresh fails", async () => {
+    const subscriptionId = "77777777-7777-7777-7777-777777777777";
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("refresh failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.queryByTestId(`webhook-subscription-${subscriptionId}`)).toBeNull();
+  });
+
+  it("hides continue-last viewed row when manual refresh fails with stale rows", async () => {
+    const subscriptionId = "66666666-6666-6666-6666-666666666666";
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("refresh failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId("webhooks-continue-last-viewed-row");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.queryByTestId("webhooks-continue-last-viewed-row")).toBeNull();
   });
 
   it("does not show save success when list refresh fails after create", async () => {

@@ -38,15 +38,55 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
           <ReviewPinGlyph filled={false} className="h-3.5 w-3.5 text-al-text-secondary" />
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className={REVIEW_TITLE_COLUMN_CLASS}>Review</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Architecture</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className={STATUS_COLUMN_CLASS}>Status</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Architecture</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The architecture this review belongs to.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className={STATUS_COLUMN_CLASS}>
+          <span>Status</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Where the review is in the workflow.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Approval</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The recorded governance outcome.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Stage</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The recorded stage of this review.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Owner</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The person recorded as responsible for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Actions</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Findings</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Recorded issues for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Risks</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Warnings recorded for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Actions</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Open this review or its related workspace.
+          </span>
+        </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );

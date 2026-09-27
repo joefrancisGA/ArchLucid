@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Core.TechnologyLedger;
 using ArchLucid.Contracts.Common;
@@ -43,8 +44,40 @@ public static class TechnologyLedgerUserPromptInjection
             return;
 
         StringBuilder ledgerBlock = new();
-        TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext(ledgerBlock, entries);
-        sb.Append(PromptFieldRedactor.RedactForPrompt(ledgerBlock.ToString()));
+        TechnologyLedgerPromptFormatter.AppendTechnologyLedgerContext(ledgerBlock, SanitizeEntriesForPrompt(entries));
+        string ledgerText = CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(
+            PromptFieldRedactor.RedactForPrompt(ledgerBlock.ToString()));
+        sb.Append(ledgerText);
+    }
+
+    private static List<TechnologyLedgerEntry> SanitizeEntriesForPrompt(IReadOnlyList<TechnologyLedgerEntry> entries)
+    {
+        List<TechnologyLedgerEntry> sanitized = new(entries.Count);
+
+        foreach (TechnologyLedgerEntry entry in entries)
+        {
+            sanitized.Add(new TechnologyLedgerEntry
+            {
+                EntryId = entry.EntryId,
+                RunId = entry.RunId,
+                Role = entry.Role,
+                TechnologyName = AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse(entry.TechnologyName),
+                ProviderFamily = entry.ProviderFamily,
+                Status = entry.Status,
+                Source = entry.Source,
+                EvidenceRef = string.IsNullOrWhiteSpace(entry.EvidenceRef)
+                    ? entry.EvidenceRef
+                    : AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse(entry.EvidenceRef),
+                Rationale = string.IsNullOrWhiteSpace(entry.Rationale)
+                    ? entry.Rationale
+                    : AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse(entry.Rationale),
+                IsLocked = entry.IsLocked,
+                CreatedUtc = entry.CreatedUtc,
+                UpdatedUtc = entry.UpdatedUtc,
+            });
+        }
+
+        return sanitized;
     }
 
     public static string AppendLedgerContext(string baseUserPrompt, IReadOnlyList<TechnologyLedgerEntry> entries)

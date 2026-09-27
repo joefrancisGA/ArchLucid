@@ -17,7 +17,12 @@ public sealed partial class GovernanceController
         string runId,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(runId, out Guid runGuid))
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+
+        string normalizedRunId = runId.Trim();
+
+        if (!Guid.TryParse(normalizedRunId, out Guid runGuid))
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

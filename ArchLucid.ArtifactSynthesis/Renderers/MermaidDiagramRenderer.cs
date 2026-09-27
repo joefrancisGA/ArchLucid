@@ -160,6 +160,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             tokens.Add("al-outline-only=true");
         }
 
+        if (node.ConnectionState is not null)
+        {
+            tokens.Add($"al-state={node.ConnectionState.Value}");
+        }
+
         if (tokens.Count == 0)
         {
             return string.Empty;

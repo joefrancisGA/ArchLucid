@@ -65,7 +65,12 @@ export function RiskExceptionsTable({
           <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Status</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Active means the exception currently covers the finding.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Expires</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -93,7 +98,16 @@ export function RiskExceptionsTable({
               </EnterpriseTableCell>
               <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>
               <EnterpriseTableCell title={record.rationale ?? undefined}>
-                {truncateMiddle(record.rationale ?? "", 80)}
+                {(record.rationale ?? "").length > 80 ? (
+                  <details>
+                    <summary className="cursor-pointer text-al-link underline-offset-2 hover:underline">
+                      View full rationale
+                    </summary>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{record.rationale}</p>
+                  </details>
+                ) : (
+                  record.rationale ?? ""
+                )}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag kind={tag.kind} label={tag.label} />

@@ -109,13 +109,43 @@ function PathHopsTable(props: {
     <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_HOPS_TITLE}>
       <EnterpriseTableHead>
         <EnterpriseTableRow>
-          <EnterpriseTableHeaderCell>#</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Hop</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Edge</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>#</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The hop order in this path.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Hop</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The plain-language step in this path.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>From</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The starting node in this hop.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>To</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The destination node in this hop.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Edge</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The relationship this hop uses between the two nodes.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Provenance</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Band</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Evidence strength for this hop.
+            </span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
@@ -836,6 +866,9 @@ export function SecurityEvidencePathInspectPanel(props: {
           {pathQuery.data.routing.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-routing">
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ROUTING_TITLE}</h3>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                These rows name who the path cites. They are not new assignments.
+              </p>
               <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_ROUTING_TITLE}>
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>

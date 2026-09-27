@@ -43,11 +43,9 @@ vi.mock("@/lib/query/operator-query-client", () => ({
 
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import {
-  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
-  EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
@@ -129,10 +127,8 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-evidence-trail-link")).toHaveAttribute(
-      "href",
-      EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
-    );
+    expect(screen.queryByTestId("extract-upload-evidence-trail-link")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-constraints")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
@@ -414,7 +410,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     });
   });
 
-  it("announces upload success in a live region", async () => {
+  it("does not render an upload-success hero after acceptance", async () => {
     const fetchMock = baselineUnavailableFetchMock((input, init) => {
       const url = String(input);
 
@@ -451,12 +447,11 @@ describe("ExtractUploadSettingsPageClient", () => {
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(screen.getByTestId("extract-upload-success-live")).toHaveAttribute("role", "status");
+      expect(screen.getByTestId("extract-upload-accepted-drop-summary")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("extract-upload-success-live")).toHaveTextContent(
-      EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
-    );
+    expect(screen.queryByText(/Inventory package uploaded/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-success-live")).not.toBeInTheDocument();
   });
 
   it("uploads immediately when workspace baseline inventory already exists", async () => {

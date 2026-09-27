@@ -5,9 +5,17 @@ const selectFinding = vi.fn();
 const selectPath = vi.fn();
 const setSnapshotPair = vi.fn();
 const syncSelection = vi.fn();
+const routerReplaceMock = vi.hoisted(() => vi.fn());
+let searchParams = vi.hoisted(() => new URLSearchParams());
 
 let mockedFindingId: string | null = null;
 let mockedPathId: string | null = null;
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/remediation-factory",
+  useRouter: () => ({ replace: routerReplaceMock, push: vi.fn() }),
+  useSearchParams: () => searchParams,
+}));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({
@@ -175,6 +183,8 @@ describe("RemediationFactoryClient", () => {
   beforeEach(() => {
     mockedFindingId = null;
     mockedPathId = null;
+    searchParams = new URLSearchParams();
+    routerReplaceMock.mockReset();
     selectFinding.mockReset();
     selectPath.mockReset();
     syncSelection.mockReset();
@@ -231,6 +241,18 @@ describe("RemediationFactoryClient", () => {
 
   it("clears stale pathId from the URL when the path is missing from loaded ranked paths", async () => {
     mockedPathId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    mockRankedPathsQuery();
+
+    render(<RemediationFactoryClient />);
+
+    await waitFor(() => {
+      expect(syncSelection).toHaveBeenCalledWith({ pathId: null });
+    });
+  });
+
+  it("clears pathId from the URL when the ranked path view filter hides the selected row", async () => {
+    mockedPathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    searchParams = new URLSearchParams("pathView=public-exposure");
     mockRankedPathsQuery();
 
     render(<RemediationFactoryClient />);

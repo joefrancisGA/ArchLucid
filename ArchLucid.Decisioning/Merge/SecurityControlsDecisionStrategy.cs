@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Decisions;
 
 using EvalTypes = ArchLucid.Decisioning.Decisions.EvaluationTypes;
@@ -32,7 +33,7 @@ internal sealed class SecurityControlsDecisionStrategy : IDecisionStrategy
 
         bool promotePrivateEndpoints = relevant.Any(e =>
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
-            e.Rationale.Contains("private", StringComparison.OrdinalIgnoreCase));
+            DecisioningTextTokenMatcher.ContainsAffirmativePrivateKeyword(e.Rationale));
 
         bool promoteManagedIdentity = relevant.Any(e =>
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&

@@ -205,9 +205,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
 
-        if (isDataFlowMode)
+        if (!isDataArchitectureMode)
         {
             InventoryDiagramDataFlowNsgAnnotationApplier.Apply(ast, graph, nodeIdMap);
+        }
+
+        if (isDataFlowMode)
+        {
             ast.FlowchartDirection = "LR";
             ast.CaptionLines = DiagramDataFlowCaptionBuilder.BuildCaptions(topologyNodes, includedEdges).ToList();
         }

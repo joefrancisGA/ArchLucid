@@ -120,17 +120,43 @@ public sealed class RetrievalIndexingOutboxProcessor(
             return;
         }
 
+        RunDetailDto? manifestCompareDetail = await query
+            .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (manifestCompareDetail?.GoldenManifest is null)
+        {
+            Logger.LogWarning(
+                "Skipping retrieval indexing for run {RunId}: run detail no longer found.",
+                entry.RunId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+            return;
+        }
+
         IManifestHashService manifestHashService =
             scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 
-        await RetrievalIndexingOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-            entry.RunId,
-            scopeContext,
-            query,
-            manifestHashService,
-            cancellationToken).ConfigureAwait(false);
+        ManifestDocument compareManifest = manifestCompareDetail.GoldenManifest;
 
-        ManifestDocument manifest = detail.GoldenManifest;
+        if (detail.GoldenManifest.ManifestId != compareManifest.ManifestId)
+        {
+            Logger.LogWarning(
+                "Skipping retrieval indexing for run {RunId}: retrieval golden manifest {RetrievalManifestId} does not match manifest-compare golden manifest {CompareManifestId}.",
+                entry.RunId,
+                detail.GoldenManifest.ManifestId,
+                compareManifest.ManifestId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+            return;
+        }
+
+        RetrievalIndexingOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+            compareManifest,
+            entry.RunId,
+            manifestHashService);
+
+        ManifestDocument manifest = compareManifest;
         GraphSnapshot graphSnapshot = detail.GraphSnapshot;
         FindingsSnapshot findings = detail.FindingsSnapshot;
         IReadOnlyList<SynthesizedArtifact> provenanceArtifacts = detail.ArtifactBundle?.Artifacts ?? [];

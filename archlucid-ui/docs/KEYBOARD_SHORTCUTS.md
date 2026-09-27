@@ -117,7 +117,7 @@ Implemented in [`use-extract-upload-shortcuts.ts`](../src/app/(operator)/adminis
 
 | Combo | Action |
 |-------|--------|
-| **Ctrl+U** | Focus the inventory upload surface, or activate **Replace inventory** when a package is already accepted |
+| **Ctrl+U** | Focus the inventory upload surface |
 | **Ctrl+Shift+C** | Copy the quick-start packager command for the selected cloud provider |
 
 ## Page-specific: Remediation patterns (`/governance/remediation-patterns`, `/security/remediation-patterns`)

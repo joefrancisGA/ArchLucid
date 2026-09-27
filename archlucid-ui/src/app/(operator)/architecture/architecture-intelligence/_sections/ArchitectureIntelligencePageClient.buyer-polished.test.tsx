@@ -178,7 +178,8 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell (AIN)", () => 
       expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("architecture-intelligence-description")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-description")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-load-fixture-button")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL }),
     ).toBeInTheDocument();

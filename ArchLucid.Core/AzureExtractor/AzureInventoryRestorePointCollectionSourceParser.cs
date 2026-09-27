@@ -16,30 +16,52 @@ public static class AzureInventoryRestorePointCollectionSourceParser
                 out string? hydrated)
             && !string.IsNullOrWhiteSpace(hydrated))
         {
-            return ArmResourceIdNormalizer.Normalize(hydrated);
+            return TryResolveArmReferenceValue(hydrated);
         }
 
         if (properties.TryGetValue("source.id", out string? sourceId)
             && !string.IsNullOrWhiteSpace(sourceId))
         {
-            return ArmResourceIdNormalizer.Normalize(sourceId);
+            return TryResolveArmReferenceValue(sourceId);
         }
 
         if (properties.TryGetValue("source", out string? sourceJson)
-            && !string.IsNullOrWhiteSpace(sourceJson)
-            && sourceJson.TrimStart().StartsWith("{", StringComparison.Ordinal))
+            && !string.IsNullOrWhiteSpace(sourceJson))
         {
-            return TryReadSourceArmIdFromJson(sourceJson);
+            return TryResolveArmReferenceValue(sourceJson);
         }
 
         return null;
     }
 
-    private static string? TryReadSourceArmIdFromJson(string sourceJson)
+    private static string? TryResolveArmReferenceValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        string trimmed = value.Trim();
+
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return TryReadArmIdFromJson(trimmed);
+        }
+
+        if (!trimmed.StartsWith("/", StringComparison.Ordinal)
+            || !trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(trimmed);
+    }
+
+    private static string? TryReadArmIdFromJson(string json)
     {
         try
         {
-            using JsonDocument document = JsonDocument.Parse(sourceJson);
+            using JsonDocument document = JsonDocument.Parse(json);
 
             if (document.RootElement.ValueKind is not JsonValueKind.Object)
             {
@@ -49,9 +71,7 @@ public static class AzureInventoryRestorePointCollectionSourceParser
             if (document.RootElement.TryGetProperty("id", out JsonElement idElement)
                 && idElement.ValueKind is JsonValueKind.String)
             {
-                string? id = idElement.GetString();
-
-                return string.IsNullOrWhiteSpace(id) ? null : ArmResourceIdNormalizer.Normalize(id);
+                return TryResolveArmReferenceValue(idElement.GetString());
             }
         }
         catch (JsonException)

@@ -411,6 +411,27 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_admin_key_config_is_only_utf8_bom_returns_invalid_key()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "\uFEFF"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("Invalid API key");
+    }
+
+    [SkippableFact]
     public async Task When_admin_key_config_has_utf8_bom_prefix_still_authenticates()
     {
         DefaultHttpContext http = new();

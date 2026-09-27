@@ -1,10 +1,13 @@
 using System.Globalization;
 
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -20,6 +23,52 @@ public sealed class TrialLimitGateTests
 
     private static readonly TimeProvider FixedTime =
         new FixedUtcTimeProvider(new DateTime(2026, 4, 17, 12, 0, 0, DateTimeKind.Utc));
+
+    private static readonly TrialLifecycleSchedulerOptions DefaultLifecycleOptions = new();
+
+    private static TrialLimitGate CreateGate(Mock<ITenantRepository> tenants, TimeProvider time) =>
+        new(
+            tenants.Object,
+            time,
+            Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>(
+                monitor => monitor.CurrentValue == DefaultLifecycleOptions));
+
+    [SkippableFact]
+    public async Task GuardWriteAsync_expired_reports_days_until_read_only_phase()
+    {
+        DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
+        DateTimeOffset now = anchor.AddDays(3);
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Expired,
+            TrialExpiresUtc = anchor,
+        };
+
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        int? expectedDays = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
+            tenant,
+            now,
+            DefaultLifecycleOptions);
+
+        expectedDays.Should().NotBeNull().And.BeGreaterThan(0);
+
+        TrialLimitGate gate = CreateGate(tenants, new FixedUtcTimeProvider(now.UtcDateTime));
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<TrialLimitExceededException>())
+            .Which.DaysRemaining.Should()
+            .Be(expectedDays!.Value);
+    }
 
     [SkippableFact]
     public async Task GuardWriteAsync_lowercase_active_expired_throws_Expired()
@@ -41,7 +90,7 @@ public sealed class TrialLimitGateTests
                     TrialRunsUsed = 0,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -67,7 +116,7 @@ public sealed class TrialLimitGateTests
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -99,7 +148,7 @@ public sealed class TrialLimitGateTests
                     TrialSeatsUsed = 2,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -127,7 +176,7 @@ public sealed class TrialLimitGateTests
                     TrialRunsUsed = 0,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -157,7 +206,7 @@ public sealed class TrialLimitGateTests
                     TrialSeatsUsed = 3,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -185,7 +234,7 @@ public sealed class TrialLimitGateTests
                     TrialRunsUsed = 10,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -212,7 +261,7 @@ public sealed class TrialLimitGateTests
                     TrialRunsUsed = 99,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -242,7 +291,7 @@ public sealed class TrialLimitGateTests
                     TrialSeatsUsed = 1,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -272,7 +321,7 @@ public sealed class TrialLimitGateTests
                     TrialSeatsUsed = 99,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -297,7 +346,7 @@ public sealed class TrialLimitGateTests
                     TrialStatus = null,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -323,7 +372,7 @@ public sealed class TrialLimitGateTests
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
@@ -351,7 +400,7 @@ public sealed class TrialLimitGateTests
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardDeleteAsync(scope, CancellationToken.None);
@@ -379,7 +428,7 @@ public sealed class TrialLimitGateTests
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardDeleteAsync(scope, CancellationToken.None);
@@ -407,7 +456,7 @@ public sealed class TrialLimitGateTests
                     TrialRunsUsed = 99,
                 });
 
-        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        TrialLimitGate gate = CreateGate(tenants, FixedTime);
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);

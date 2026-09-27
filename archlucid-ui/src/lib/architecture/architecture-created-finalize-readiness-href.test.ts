@@ -18,5 +18,7 @@ describe("architecture-created-finalize-readiness-href", () => {
 
     expect(href).toContain("reviewTab=activity");
     expect(href).toContain("#architecture-assessment-progress");
+    expect(href).toContain("fromGeneration=1");
+    expect(href).toContain("intent=create-architecture");
   });
 });

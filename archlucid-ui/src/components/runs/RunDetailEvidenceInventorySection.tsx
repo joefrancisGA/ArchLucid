@@ -141,7 +141,12 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
                 <EnterpriseTableHeaderCell scope="col">Source</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell scope="col">Kind</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell scope="col">Ingested</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell scope="col">Cited by</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col">
+                  <span>Cited by</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Cited by counts findings in this review that reference this evidence item.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>

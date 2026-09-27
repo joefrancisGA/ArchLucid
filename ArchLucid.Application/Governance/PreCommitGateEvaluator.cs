@@ -49,10 +49,13 @@ public static class PreCommitGateEvaluator
         ArgumentNullException.ThrowIfNull(findings);
         ArgumentException.ThrowIfNullOrWhiteSpace(policyPackIdLabel);
 
-        if (!blockCommitOnCritical && !blockCommitMinimumSeverity.HasValue)
+        int? minimumSeverity =
+            PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal(blockCommitMinimumSeverity);
+
+        if (!blockCommitOnCritical && !minimumSeverity.HasValue)
             return PreCommitGateResult.Allowed();
 
-        int effectiveMinSeverity = blockCommitMinimumSeverity ?? (int)FindingSeverity.Critical;
+        int effectiveMinSeverity = minimumSeverity ?? (int)FindingSeverity.Critical;
         FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
 
         List<string> blockingIds = latestDispositionsByFindingId is null

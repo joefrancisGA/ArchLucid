@@ -128,11 +128,11 @@ public static class RunExplanationConfidenceCalloutBuilder
             }
             else if (citationsEl.ValueKind == JsonValueKind.Array)
             {
-                citationCount = citationsEl.GetArrayLength();
+                citationCount = CountFlattenedCitations(citationsEl);
             }
             else if (citationsEl.ValueKind == JsonValueKind.Object)
             {
-                citationCount = 1;
+                citationCount = CountCitationObject(citationsEl);
             }
             else if (citationsEl.ValueKind == JsonValueKind.Number
                      && RunExplanationAggregateJsonReader.TryReadWholeNumber(citationsEl, out int wholeNumberCount))
@@ -171,5 +171,63 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
+    }
+
+    private static int CountFlattenedCitations(JsonElement citationsArray)
+    {
+        int count = 0;
+
+        foreach (JsonElement item in citationsArray.EnumerateArray())
+            count += CountFlattenedCitationEntry(item);
+
+        return count;
+    }
+
+    private static int CountFlattenedCitationEntry(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.Array)
+        {
+            int count = 0;
+
+            foreach (JsonElement inner in item.EnumerateArray())
+                count += CountFlattenedCitationEntry(inner);
+
+            return count;
+        }
+
+        if (item.ValueKind == JsonValueKind.Object)
+            return CountCitationObject(item);
+
+        if (item.ValueKind == JsonValueKind.String)
+            return string.IsNullOrWhiteSpace(item.GetString()) ? 0 : 1;
+
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return item.ValueKind == JsonValueKind.True ? 1 : 0;
+
+        if (item.ValueKind == JsonValueKind.Number
+            && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out _))
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    private static int CountCitationObject(JsonElement item)
+    {
+        if (item.ValueKind != JsonValueKind.Object)
+            return 0;
+
+        foreach (string propertyName in new[] { "id", "text" })
+        {
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement property)
+                && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(property, out string? value)
+                && !string.IsNullOrWhiteSpace(value))
+            {
+                return 1;
+            }
+        }
+
+        return 0;
     }
 }

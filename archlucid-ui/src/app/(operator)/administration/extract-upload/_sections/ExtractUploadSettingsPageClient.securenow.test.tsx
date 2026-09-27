@@ -79,5 +79,7 @@ describe("ExtractUploadSettingsPageClient (SecureNow)", () => {
     expect(pageText).toContain("Run-SecureNowAzureExtractor.ps1");
     expect(pageText).toContain("Get-SecureNowAzurePackage.ps1");
     expect(pageText).toContain("securenow-azure-package.zip");
+    expect(pageText).toContain("securenow azure validate-zip --path <your-package.zip>");
+    expect(pageText).not.toContain("archlucid azure validate-zip --path <your-package.zip>");
   });
 });

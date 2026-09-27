@@ -13,7 +13,7 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 public sealed class AzureInventorySnapshotGraphResolver(
     IAzureInventorySnapshotRepository snapshotRepository) : IAzureInventorySnapshotGraphResolver
 {
-    private const double EffectiveControlEdgeWeight = 0.5d;
+    private const double EffectiveControlEdgeWeight = 1.0d;
 
     private readonly IAzureInventorySnapshotRepository _snapshotRepository =
         snapshotRepository ?? throw new ArgumentNullException(nameof(snapshotRepository));

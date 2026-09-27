@@ -222,15 +222,30 @@ function PriorityTable(props: {
       <EnterpriseTable ariaLabel="Remediation priority queue">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                1 is the first finding in this queue.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Score</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                 Sort key for this queue. Not a percentage.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Control</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Control</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The control this finding cites.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Pattern</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                A named finding pattern. The key stays with the finding.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
@@ -299,14 +314,24 @@ function RankedPathsTable(props: {
                 1 is the first path to inspect.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Kind</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                What kind of path this row describes.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Band</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                 Evidence strength for the whole path.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Score</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Sort key for this path list. Not a percentage.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
@@ -384,6 +409,9 @@ function RemediationSimulatorOutput(props: {
         <CopyIdButton value={copyPayload} aria-label="Copy score breakdown" />
         <span className={OPERATOR_TYPOGRAPHY.helper}>Copy citable breakdown</span>
       </div>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        Copies this explanation. It does not create a sealed review record.
+      </p>
     </div>
   );
 }
@@ -538,6 +566,18 @@ export function RemediationFactoryClient() {
       syncSelection({ pathId: null });
     }
   }, [rankedPaths, rankedPathsQuery.isSuccess, selectedPathId, syncSelection]);
+
+  useEffect(() => {
+    if (!rankedPathsQuery.isSuccess || selectedPathId === null) {
+      return;
+    }
+
+    const stillVisible = visibleRankedPaths.some((row) => row.pathId === selectedPathId);
+
+    if (!stillVisible) {
+      syncSelection({ pathId: null });
+    }
+  }, [rankedPathsQuery.isSuccess, selectedPathId, syncSelection, visibleRankedPaths]);
 
   async function runSimulator(findingId: string) {
     setSimulatorError(null);

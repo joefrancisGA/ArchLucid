@@ -848,6 +848,9 @@ export function InfrastructureAskClient() {
                 <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Topic: {formatInfraEvidenceAskTopicKindLabel(turn.response.topicKind)}
                 </p>
+                <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Topic identifies the kind of inventory question answered.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
 
               {turn.response.viewPlan != null ? (
@@ -870,6 +873,9 @@ export function InfrastructureAskClient() {
                   >
                     Apply this view
                   </Button>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Applying this view changes the page filters only. It does not change Azure.
+                  </p>
                   {!isDiagramViewPlanValid(turn.response.viewPlan) ? (
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
                       This view plan cannot be applied until required fields are present.
@@ -902,7 +908,11 @@ export function InfrastructureAskClient() {
                   })}
                 </ul>
               </div>
-            ) : null}
+            ) : (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                No inventory evidence was linked to this answer.
+              </p>
+            )}
           </section>
         ))}
       </div>

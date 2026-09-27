@@ -82,6 +82,9 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
                 thumbprints = await FetchJwksThumbprintsAsync(jwksUriParsed, cancellationToken).ConfigureAwait(false);
             }
 
+            bool issuerUsable = !string.IsNullOrWhiteSpace(issuer)
+                && IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuer, out _);
+
             return new IdentityProviderDiscoverResponse
             {
                 Protocol = protocol,
@@ -89,10 +92,12 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
                 JwksUri = jwksUri,
                 SigningCertificateThumbprints = thumbprints,
                 AvailableClaimNames = DefaultOidcClaimNames,
-                DiscoverySucceeded = !string.IsNullOrWhiteSpace(issuer),
-                DiagnosticSummary = string.IsNullOrWhiteSpace(issuer)
-                    ? "OpenID configuration fetched but issuer was missing."
-                    : "OpenID configuration fetched successfully."
+                DiscoverySucceeded = issuerUsable,
+                DiagnosticSummary = issuerUsable
+                    ? "OpenID configuration fetched successfully."
+                    : string.IsNullOrWhiteSpace(issuer)
+                        ? "OpenID configuration fetched but issuer was missing."
+                        : "OpenID configuration fetched but issuer was missing or not a valid HTTP(S) URL."
             };
         }
         catch (OperationCanceledException)
@@ -129,14 +134,20 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
             SamlMetadataDiscoveryResult parsed = SamlMetadataDiscoveryParser.Parse(xml);
 
+            string issuerUri = parsed.IssuerUri?.Trim() ?? string.Empty;
+
+            bool issuerUsable = IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _);
+
             return new IdentityProviderDiscoverResponse
             {
                 Protocol = protocol,
-                IssuerUri = parsed.IssuerUri,
+                IssuerUri = string.IsNullOrWhiteSpace(issuerUri) ? parsed.IssuerUri : issuerUri,
                 SigningCertificateThumbprints = parsed.SigningCertificateThumbprints,
                 AvailableClaimNames = parsed.AvailableClaimNames,
-                DiscoverySucceeded = true,
-                DiagnosticSummary = "SAML metadata fetched and parsed successfully."
+                DiscoverySucceeded = issuerUsable,
+                DiagnosticSummary = issuerUsable
+                    ? "SAML metadata fetched and parsed successfully."
+                    : "SAML metadata was parsed but entityID was missing or not a valid HTTP(S) URL."
             };
         }
         catch (OperationCanceledException)

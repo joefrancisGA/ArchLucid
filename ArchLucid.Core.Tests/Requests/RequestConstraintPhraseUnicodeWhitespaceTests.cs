@@ -33,6 +33,54 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
         RequestConstraintClassifier.RequiresAiCapability(request).Should().BeTrue();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_en_space_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2002identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_returns_true_when_ideographic_space_separates_private_endpoint_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Traffic via private\u3000endpoint only"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_line_separator_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2028identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_false_when_negation_uses_unicode_space_before_not()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Encryption\u00A0is not required for dev"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_zero_width_space_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u200Bidentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_false_when_contraction_uses_curly_apostrophe_in_negation()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Encryption isn\u2019t required for dev"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
     private static ArchitectureRequest CreateRequest(
         List<string>? constraints = null,
         List<string>? capabilities = null)

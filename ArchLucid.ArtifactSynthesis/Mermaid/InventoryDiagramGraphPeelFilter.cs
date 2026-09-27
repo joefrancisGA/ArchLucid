@@ -17,6 +17,9 @@ internal static class InventoryDiagramGraphPeelFilter
             return graph;
         }
 
+        IReadOnlyList<GraphEdge> projectedEdges =
+            DiagramHiddenSubnetVnetPlacementProjector.Project(graph, excludedArmResourceTypes);
+
         List<GraphNode> keptNodes = graph.Nodes
             .Where(node =>
             {
@@ -37,6 +40,7 @@ internal static class InventoryDiagramGraphPeelFilter
 
         List<GraphEdge> keptEdges = graph.Edges
             .Where(edge => keptNodeIds.Contains(edge.FromNodeId) && keptNodeIds.Contains(edge.ToNodeId))
+            .Concat(projectedEdges)
             .ToList();
 
         return new GraphSnapshot

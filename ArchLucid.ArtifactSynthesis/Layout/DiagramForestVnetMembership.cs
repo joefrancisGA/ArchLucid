@@ -99,7 +99,8 @@ public static class DiagramForestVnetMembership
             || string.Equals(source, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(source, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(source, GraphEdgeInferenceSources.InventoryAppServiceSubnet, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(source, GraphEdgeInferenceSources.InventoryLayoutVmVnet, StringComparison.OrdinalIgnoreCase);
+            || string.Equals(source, GraphEdgeInferenceSources.InventoryLayoutVmVnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(source, GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsAllowedResourceGroup(DiagramNode vnet, DiagramNode candidate, bool sameResourceGroupOnly)

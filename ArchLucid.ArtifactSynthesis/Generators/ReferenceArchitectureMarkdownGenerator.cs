@@ -31,16 +31,20 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine($"- Manifest Hash: {manifest.ManifestHash}");
         sb.AppendLine();
 
+        sb.AppendLine("## Sponsor Summary");
+        if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+            sb.AppendLine("No summary was recorded for this manifest.");
+        else
+            sb.AppendLine(manifest.Metadata.Summary);
+
+        sb.AppendLine();
+
         sb.AppendLine("## Requirements");
         foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-
-            sb.AppendLine(
-                $"- Covered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
+            sb.AppendLine(FormatRequirementLine("Covered", item));
 
         foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-
-            sb.AppendLine(
-                $"- Uncovered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
+            sb.AppendLine(FormatRequirementLine("Uncovered", item));
 
         if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
 
@@ -204,5 +208,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             Content = content,
             ContentHash = ArtifactHashing.ComputeHash(content)
         });
+    }
+
+    private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)
+    {
+        string line =
+            $"- {prefix}: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+
+        if (string.IsNullOrWhiteSpace(item.RequirementText))
+            return line;
+
+        return $"{line} — {item.RequirementText}";
     }
 }

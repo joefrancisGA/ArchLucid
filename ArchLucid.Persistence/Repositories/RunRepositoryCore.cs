@@ -12,6 +12,12 @@ internal static partial class RunRepositoryCore
 {
     public const int MaxPurgeBatchSize = 10_000;
 
+    /// <summary>
+    ///     Trims only the space character (U+0020) from both ends, matching SQL Server <c>LTRIM</c>/<c>RTRIM</c>
+    ///     on <c>ProjectId</c> and <c>ArchitectureRequestId</c> before <c>STRING_SPLIT</c>.
+    /// </summary>
+    private static string TrimSqlEdgeSpaces(string value) => value.Trim(' ');
+
     public static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
     {
         if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
@@ -37,7 +43,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            architectureRequestId.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            TrimSqlEdgeSpaces(architectureRequestId).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
@@ -50,7 +56,8 @@ internal static partial class RunRepositoryCore
     }
 
     /// <summary>
-    ///     Normalizes workspace system names for collision checks: trim edges, collapse internal whitespace, uppercase.
+    ///     Normalizes workspace system names for collision checks: trim edges, collapse space runs, uppercase.
+    ///     Matches SQL <c>STRING_SPLIT(..., N' ')</c> normalization on <c>ProjectId</c>.
     /// </summary>
     public static string NormalizeWorkspaceSystemName(string systemName)
     {
@@ -58,12 +65,13 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            systemName.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            TrimSqlEdgeSpaces(systemName).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
     /// <summary>
-    ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse internal whitespace, uppercase.
+    ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse space runs, uppercase.
+    ///     Matches SQL <c>STRING_SPLIT(..., N' ')</c> normalization on <c>ProjectId</c>.
     /// </summary>
     public static string NormalizeAuthorityProjectSlug(string authorityProjectSlug)
     {
@@ -71,7 +79,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            authorityProjectSlug.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            TrimSqlEdgeSpaces(authorityProjectSlug).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 

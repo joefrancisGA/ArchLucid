@@ -26,6 +26,22 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_arm_id_from_json_reference_on_source_id_property()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app"}
+                """,
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_without_source_returns_null()
     {
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())

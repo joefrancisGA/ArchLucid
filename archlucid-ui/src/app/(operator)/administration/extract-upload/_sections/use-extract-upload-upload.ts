@@ -26,11 +26,9 @@ export function useExtractUploadUpload(input: UseExtractUploadUploadInput = {}) 
     correlationId: string | null;
   } | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
-  const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
 
   async function onUpload(file: File): Promise<ExtractUploadUploadSuccess | null> {
     setBusy(true);
-    setUploadSuccessMessage(null);
 
     try {
       const formData = new FormData();
@@ -75,7 +73,6 @@ export function useExtractUploadUpload(input: UseExtractUploadUploadInput = {}) 
       }
 
       if (acceptedPackageId !== null) {
-        setUploadSuccessMessage(acceptedPackageId);
         const success = { packageId: acceptedPackageId };
         input.onUploadAccepted?.(success);
         void getOperatorQueryClient().invalidateQueries({
@@ -94,14 +91,12 @@ export function useExtractUploadUpload(input: UseExtractUploadUploadInput = {}) 
   function clearUploadState(): void {
     setUploadError(null);
     setPackageId(null);
-    setUploadSuccessMessage(null);
   }
 
   return {
     busy,
     uploadError,
     packageId,
-    uploadSuccessMessage,
     onUpload,
     clearUploadState,
     setUploadError,

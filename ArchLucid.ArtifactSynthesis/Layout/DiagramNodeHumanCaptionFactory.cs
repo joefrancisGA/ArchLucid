@@ -28,9 +28,19 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · Orphaned: {node.ConnectionStateMessage.Trim()}";
         }
+        else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
+        {
+            combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
+                ? $"{combined} · Used"
+                : $"{combined} · Used: {node.ConnectionStateMessage.Trim()}";
+        }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
             combined = $"{combined} · Unconnected";
+        }
+        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
+        {
+            combined = $"{combined} · Unknown";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)

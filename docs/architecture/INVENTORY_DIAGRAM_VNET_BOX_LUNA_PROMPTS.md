@@ -1,5 +1,5 @@
 > **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw each Azure virtual network as a bounding box inside the resource group that owns it. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/vnet-box-01-cited-membership.md`](../../.cursor/prompts/vnet-box-01-cited-membership.md), [`.cursor/prompts/vnet-box-02-pack-inside-resource-group.md`](../../.cursor/prompts/vnet-box-02-pack-inside-resource-group.md), [`.cursor/prompts/vnet-box-03-cross-group-and-edges.md`](../../.cursor/prompts/vnet-box-03-cross-group-and-edges.md), [`.cursor/prompts/vnet-box-04-png-cluster-parity.md`](../../.cursor/prompts/vnet-box-04-png-cluster-parity.md), [`.cursor/prompts/vnet-box-05-mode-ratchet.md`](../../.cursor/prompts/vnet-box-05-mode-ratchet.md), [`.cursor/prompts/vnet-box-06-frame-caption-icons.md`](../../.cursor/prompts/vnet-box-06-frame-caption-icons.md)
+> **Paste-ready files:** [`.cursor/prompts/vnet-box-01-cited-membership.md`](../../.cursor/prompts/vnet-box-01-cited-membership.md), [`.cursor/prompts/vnet-box-02-pack-inside-resource-group.md`](../../.cursor/prompts/vnet-box-02-pack-inside-resource-group.md), [`.cursor/prompts/vnet-box-03-cross-group-and-edges.md`](../../.cursor/prompts/vnet-box-03-cross-group-and-edges.md), [`.cursor/prompts/vnet-box-04-png-cluster-parity.md`](../../.cursor/prompts/vnet-box-04-png-cluster-parity.md), [`.cursor/prompts/vnet-box-05-mode-ratchet.md`](../../.cursor/prompts/vnet-box-05-mode-ratchet.md), [`.cursor/prompts/vnet-box-06-frame-caption-icons.md`](../../.cursor/prompts/vnet-box-06-frame-caption-icons.md), [`.cursor/prompts/vnet-box-07-hidden-subnet-placement.md`](../../.cursor/prompts/vnet-box-07-hidden-subnet-placement.md)
 
 # Inventory diagram VNet boxes — Luna prompts
 
@@ -7,7 +7,7 @@
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
-Resource-group frames already pack and paint. A VNet is still a card. `DiagramForestNestedFrameResolver` draws a rectangle after layout from edge labels `in` and `likely · in`. That misses VM-to-subnet hops, treats same-group collocation as containment, and can cover cards that are not in the VNet. Export PNG puts every VNet and subnet in one cluster labeled "VNet / subnet".
+Resource-group frames already pack and paint. VN-01 through VN-06 build the VNet box from cited placement while subnet cards are on the canvas. VN-07 is the follow-on: peel rank 20 removes subnet nodes and their edges, the VNet stays a card, and the box must still form from the hidden subnet join.
 
 | ID | Prompt | Intent |
 |----|--------|--------|
@@ -17,8 +17,9 @@ Resource-group frames already pack and paint. A VNet is still a card. `DiagramFo
 | **VN-04** | [vnet-box-04-png-cluster-parity.md](../../.cursor/prompts/vnet-box-04-png-cluster-parity.md) | One Graphviz cluster per VNet, labeled with the VNet name, members inside. |
 | **VN-05** | [vnet-box-05-mode-ratchet.md](../../.cursor/prompts/vnet-box-05-mode-ratchet.md) | Identity, Data, Data flow, and neighborhood keep the mode rules. Tests only, plus a fix when a test fails. |
 | **VN-06** | [vnet-box-06-frame-caption-icons.md](../../.cursor/prompts/vnet-box-06-frame-caption-icons.md) | Bold frame captions, a leading icon sized to the text, and no VNet card once the box exists. |
+| **VN-07** | [vnet-box-07-hidden-subnet-placement.md](../../.cursor/prompts/vnet-box-07-hidden-subnet-placement.md) | A hidden or peeled subnet still places same-group resources inside the parent VNet box. No subnet card. |
 
-Run **VN-01**, then **VN-02**, then **VN-03**. **VN-04** after **VN-02**. **VN-05** after **VN-04**. **VN-06** last, after the box and the PNG cluster exist.
+Run **VN-01**, then **VN-02**, then **VN-03**. **VN-04** after **VN-02**. **VN-05** after **VN-04**. **VN-06** after the box and the PNG cluster exist. **VN-07** after **VN-01** and **VN-02** are in the tree. It does not redraw subnet cards.
 
 ## Do not pull into these sessions
 

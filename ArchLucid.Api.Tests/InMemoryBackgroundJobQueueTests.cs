@@ -335,6 +335,49 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+        string? jobIdRef = null;
+
+        logger
+            .Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("pending capacity exhausted", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(() =>
+            {
+                if (queueRef is not null && jobIdRef is not null)
+                    _ = queueRef.MarkCanceledAsync(jobIdRef);
+            });
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("retry capacity failure")));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        jobIdRef = await queueRef.EnqueueAsync(Work("retry-capacity"), maxRetries: 2);
+
+        await Task.Delay(150, CancellationToken.None);
+
+        for (int i = 0; i < InMemoryBackgroundJobQueueLimits.MaxPendingJobs; i++)
+            _ = await queueRef.EnqueueAsync(Work($"fill-{i}"));
+
+        await WaitForAnyTerminalStateAsync(queueRef, jobIdRef, TimeSpan.FromSeconds(15));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobIdRef);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over capacity-exhausted failure assignment");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();

@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+
 import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
 
 function okJsonFetchResponse(body: unknown): Response {
@@ -1933,6 +1936,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-run-scope-banner")).not.toBeInTheDocument();
 
     resolveSourceContext?.();
 
@@ -1974,6 +1978,168 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.queryByTestId("architecture-intelligence-inbound-context")).not.toBeInTheDocument();
+  });
+
+  it("does not show next-review footer when product context load failure panel is visible", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return new Response("Unable to load product context", { status: 503 });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toBeInTheDocument();
+  });
+
+  it("shows intake form when product context load failure panel is visible", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return new Response("Unable to load product context", { status: 503 });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-load-fixture-button")).toBeInTheDocument();
+  });
+
+  it("does not show reasoning results when product context load failure panel is visible", async () => {
+    const runId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    let sourceContextShouldFail = false;
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return runId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          if (sourceContextShouldFail) {
+            return new Response("Unable to load product context", { status: 503 });
+          }
+
+          return okJsonFetchResponse({
+            runId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated architecture.",
+              },
+            ],
+          });
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse({
+            runId,
+            model: { elements: [] },
+            specialistReviews: [
+              {
+                findings: [
+                  {
+                    findingId: "finding-1",
+                    title: "Reasoning finding",
+                    severity: "High",
+                    conclusion: "Should hide when load fails",
+                  },
+                ],
+              },
+            ],
+            recommendations: [],
+            mustNotFailViolations: [],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    renderWithOperatorQuery(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("Hydrated architecture.");
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
+    });
+
+    sourceContextShouldFail = true;
+    await getOperatorQueryClient().invalidateQueries({
+      queryKey: ["operator", "architecture-intelligence", "source-context"],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+    expect(screen.queryByText("Reasoning finding")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
   });
 
   it("hydrates intake after successful product context retry", async () => {

@@ -36,14 +36,22 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
+            else if (probe.ForeignRunIdVisible)
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Fail;
+            }
             else if (probe.RunListPayloadScannable == false
                      || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
+            else if (ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Fail;
+            }
             else
             {
-                verdict = EvaluateExcludeRunIdProbeVerdict(probe.ObservedStatusCode ?? 0, probe.ForeignRunIdVisible);
+                verdict = EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
             }
         }
         else if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
@@ -52,7 +60,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         }
         else
         {
-            verdict = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(probe.ObservedStatusCode ?? 0);
+            verdict = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(ResolveObservedStatusCode(probe));
         }
 
         return new TenantIsolationNegativeTestProbeResult
@@ -76,6 +84,48 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         return observedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase)
             || observedOutcome.Contains("run list unavailable", StringComparison.OrdinalIgnoreCase)
             || observedOutcome.Contains("skipped server error", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ObservedOutcomeIndicatesForeignRunIdPresent(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("foreign runId present", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static int ResolveObservedStatusCode(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (probe.ObservedStatusCode is int statusCode)
+            return statusCode;
+
+        return TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int parsed)
+            ? parsed
+            : 0;
+    }
+
+    private static bool TryParseHttpStatusFromObservedOutcome(string? observedOutcome, out int statusCode)
+    {
+        statusCode = 0;
+
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        int httpIndex = observedOutcome.IndexOf("HTTP", StringComparison.OrdinalIgnoreCase);
+
+        if (httpIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> tail = observedOutcome.AsSpan(httpIndex + 4).TrimStart();
+        int digitLength = 0;
+
+        while (digitLength < tail.Length && char.IsAsciiDigit(tail[digitLength]))
+            digitLength++;
+
+        if (digitLength == 0)
+            return false;
+
+        return int.TryParse(tail[..digitLength], out statusCode);
     }
 
     private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)

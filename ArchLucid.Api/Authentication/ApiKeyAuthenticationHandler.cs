@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authentication;
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
@@ -147,17 +148,10 @@ public class ApiKeyAuthenticationHandler(
             if (string.IsNullOrWhiteSpace(value))
                 continue;
 
-            return NormalizeKeyMaterial(value);
+            return ApiKeyMaterialNormalizer.Normalize(value);
         }
 
         return string.Empty;
-    }
-
-    private static string NormalizeKeyMaterial(string value)
-    {
-        string trimmed = value.Trim();
-
-        return trimmed.TrimStart('\uFEFF');
     }
 
     /// <summary>
@@ -210,7 +204,7 @@ public class ApiKeyAuthenticationHandler(
 
                 if (!segment.IsEmpty)
                 {
-                    string expected = NormalizeKeyMaterial(segment.ToString());
+                    string expected = ApiKeyMaterialNormalizer.Normalize(segment.ToString());
 
                     if (expected.Length > 0 && ConstantTimeKeyEquals(provided, expected))
                         return true;

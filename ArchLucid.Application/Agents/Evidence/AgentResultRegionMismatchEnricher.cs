@@ -32,13 +32,13 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
             if (proposal is null)
                 continue;
 
-            foreach (ManifestService service in proposal.AddedServices)
+            foreach (ManifestService service in proposal.AddedServices ?? [])
             {
                 string region = string.IsNullOrWhiteSpace(service.AzureArmRegion) ? defaultRegion : service.AzureArmRegion.Trim();
                 TryAppendRegionWarning(proposal, region, ResolveRegionValidationPlatformHint(service.RuntimePlatform));
             }
 
-            foreach (ManifestDatastore datastore in proposal.AddedDatastores)
+            foreach (ManifestDatastore datastore in proposal.AddedDatastores ?? [])
             {
                 string region = string.IsNullOrWhiteSpace(datastore.AzureArmRegion) ? defaultRegion : datastore.AzureArmRegion.Trim();
                 TryAppendRegionWarning(proposal, region, ResolveRegionValidationPlatformHint(datastore.RuntimePlatform));
@@ -73,6 +73,8 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         if (warning is null)
             return;
+
+        proposal.Warnings ??= [];
 
         if (proposal.Warnings.Contains(warning, StringComparer.Ordinal))
             return;

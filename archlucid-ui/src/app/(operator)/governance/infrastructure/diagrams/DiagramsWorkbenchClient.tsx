@@ -176,7 +176,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY,
@@ -297,24 +296,24 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
       ? {
           boxes: "Boxes are resources on a declared path.",
           connectors: "Connectors are declared pipeline wiring.",
-          evidence: "Evidence kind: configuration, not observed traffic.",
+          evidence: "Configuration, not observed traffic.",
         }
       : mode === "dataArchitecture"
         ? {
             boxes: "Boxes are data stores.",
             connectors: "Connectors are declared repository relationships.",
-            evidence: "Evidence kind: configuration from inventory.",
+            evidence: "Configuration from inventory.",
           }
         : mode === "data"
           ? {
               boxes: "Boxes are data resources in the infrastructure forest.",
               connectors: "Connectors are the infrastructure relationships already drawn.",
-              evidence: "Evidence kind: configuration from inventory.",
+              evidence: "Configuration from inventory.",
             }
           : {
               boxes: "Boxes are Azure resources in this view.",
               connectors: "Connectors are relationships already present in inventory.",
-              evidence: "Evidence kind: configuration from inventory.",
+              evidence: "Configuration from inventory.",
             };
 
   return (
@@ -324,6 +323,7 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
         <li><span className="font-medium">What the boxes are:</span> {content.boxes}</li>
         <li><span className="font-medium">What the connectors are:</span> {content.connectors}</li>
         <li><span className="font-medium">Evidence kind:</span> {content.evidence}</li>
+        <li><span className="font-medium">Relationship provenance:</span> Observed means inventory evidence; derived means an inferred connection. Neither claims observed traffic.</li>
       </ul>
     </section>
   );
@@ -1910,6 +1910,9 @@ export function DiagramsWorkbenchClient() {
             </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Scope controls which inventory resources are drawn; it does not change the inventory.
+              </p>
               <select
                 id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}
@@ -2088,10 +2091,7 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
-          <p className={cn("m-0 font-bold", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Private endpoints, backup/recovery resources, and cross-group applies/likely links are hidden from the canvas by default.
-          </p>
+          <p className={cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-bold")}>Display options</p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
@@ -2132,6 +2132,22 @@ export function DiagramsWorkbenchClient() {
                 onCheckedChange={handleShowAvdAssetsToggle}
               />
               <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
+            </label>
+          ) : null}
+          {diagramWalkthrough != null ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={includeNeverShow}
+                data-testid="infra-diagrams-include-never-show"
+                aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+                disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
+                onCheckedChange={(checked) => {
+                  handleIncludeNeverShowChange(checked === true);
+                }}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+              </span>
             </label>
           ) : null}
         </div>
@@ -2393,14 +2409,6 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-2">
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="infra-diagrams-png-export-disclaimer"
-            >
-              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER}
-            </p>
-          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
@@ -2505,6 +2513,9 @@ export function DiagramsWorkbenchClient() {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               {INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE}
             </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+              The browser preview is too large; the server export uses the same diagram source.
+            </p>
             <div className="mt-3">
               <Button type="button" variant="outline" size="sm" disabled={exportsDisabled} onClick={() => void runPngExport()}>
                 Download server PNG
@@ -2571,25 +2582,6 @@ export function DiagramsWorkbenchClient() {
               >
                 {diagramWalkthrough}
               </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeNeverShow ? "secondary" : "outline"}
-                  aria-pressed={includeNeverShow}
-                  aria-busy={loadingRender}
-                  data-testid="infra-diagrams-include-never-show"
-                  disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
-                  onClick={() => {
-                    handleIncludeNeverShowChange(!includeNeverShow);
-                  }}
-                >
-                  {loadingRender ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : null}
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
-                </Button>
-              </div>
               {!includeNeverShow && alwaysExcludedCollapseEntries.length > 0 ? (
                 <div
                   className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"

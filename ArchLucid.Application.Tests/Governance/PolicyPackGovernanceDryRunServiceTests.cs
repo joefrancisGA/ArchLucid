@@ -500,6 +500,80 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_blocks_when_evidence_linkage_supplemental_findings_are_enforcing_like_live_gate()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-linkage-enforce",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-unlinked-critical",
+                        FindingType = "SecurityGap",
+                        Category = "Security",
+                        EngineType = "SecurityGapFindingEngine",
+                        Severity = FindingSeverity.Critical,
+                        Title = "Missing encryption",
+                        Rationale = "Datastore lacks encryption at rest.",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            linkageOptions: Options.Create(new FindingEvidenceLinkageFindingEngineOptions
+            {
+                Enabled = true,
+                WarnOnly = false,
+            }));
+
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
+            """{"metadata":{"governance.blockCommitMinimumSeverity":"2"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+            runId,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateResult.Blocked.Should().BeTrue(
+            "dry-run must treat enforcing evidence-linkage supplemental findings like the live pre-commit gate");
+        result.GateResult.BlockingFindingIds.Should().Contain(id => id.StartsWith("evidence-linkage-", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task EvaluateAsync_allows_when_remediated_critical_finding_matches_live_gate()
     {
         Guid runGuid = Guid.NewGuid();

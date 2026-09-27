@@ -33,10 +33,25 @@ export function RemediationFactoryPriorityTable(props: {
       <EnterpriseTable ariaLabel="Remediation priority queue" role="grid">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Rank</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Rank</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                1 is the first finding in this queue.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Control</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Control</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The control this finding cites.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Pattern</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                A named finding pattern. The key stays with the finding.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>

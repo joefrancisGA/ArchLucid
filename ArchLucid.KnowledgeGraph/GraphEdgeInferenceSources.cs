@@ -147,6 +147,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryLayoutVmVnet = "inventory-layout-vm-vnet";
 
+    public const string InventoryHiddenSubnetVnetPlacement = "inventory-hidden-subnet-vnet-placement";
+
     /// <summary>
     ///     Same-resource-group collocation (Logic App ↔ API connection, single VNet placement)
     ///     when a cited ARM association row is missing from the snapshot.

@@ -114,6 +114,10 @@ export function RunDetailManifestSummarySection(
             <dd className={cn("m-0", definitionValueClass)}>
               {manifestStatusForDisplay(manifestSummary.status)}
             </dd>
+            <dt className={definitionLabelClass}>Seal scope</dt>
+            <dd className={cn("m-0", definitionValueClass)}>
+              The seal describes this finalized review package; it does not seal later workspace decisions.
+            </dd>
             <dt className={definitionLabelClass}>{evaluationStandardsLabel}</dt>
             <dd className={cn("m-0", definitionValueClass)}>
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
@@ -131,6 +135,9 @@ export function RunDetailManifestSummarySection(
                         {(manifestSummary.effectiveGovernanceAtCommit.conflictCount ?? 0) > 0
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
                           : null}
+                      </p>
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        This is the policy basis recorded when the review was finalized.
                       </p>
                       {(manifestSummary.effectiveGovernanceAtCommit.packAssignments?.length ?? 0) > 0 ? (
                         <ul className="m-0 list-none space-y-0.5 p-0">
@@ -156,6 +163,9 @@ export function RunDetailManifestSummarySection(
                   className={cn("m-0 space-y-1", definitionValueClass)}
                   data-testid="run-detail-review-standards-at-commit"
                 >
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    These standards were recorded when the review was finalized.
+                  </p>
                   <p className="m-0">
                     Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "None"}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled

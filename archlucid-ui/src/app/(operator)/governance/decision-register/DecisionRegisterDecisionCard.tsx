@@ -84,10 +84,16 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Confidence</dt>
             <dd className="m-0 font-medium text-al-text-primary">{formatConfidence(decision)}</dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              Confidence describes the recorded decision’s support, not a probability that the decision is correct.
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Supporting findings</dt>
             <dd className="m-0 font-medium text-al-text-primary">{finiteIntegerCountDisplay(findingCount)}</dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              These are findings linked to the recorded decision.
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Evidence lineage</dt>
@@ -96,10 +102,16 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
                 {BUYER_VIEW_SIGNED_RECORD_CTA}
               </Link>
             </dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              Open the sealed review record that supports this decision.
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Approval status</dt>
             <dd className="m-0 font-medium text-al-text-primary">{DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED}</dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              This is the recorded governance state. Opening this card does not approve anything.
+            </dd>
           </div>
         </dl>
         {decision.rationale.trim().length > 0 ? (

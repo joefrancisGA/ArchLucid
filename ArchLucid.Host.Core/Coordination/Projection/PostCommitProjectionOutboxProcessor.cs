@@ -9,6 +9,7 @@ using ArchLucid.Application.Runs.Orchestration.Events;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
@@ -128,6 +129,8 @@ public sealed class PostCommitProjectionOutboxProcessor(
 
         using IDisposable ambient = AmbientScopeContext.Push(jobScope);
 
+        ManifestDocument? validatedGoldenManifest = null;
+
         if (entry.RunId is Guid runId)
         {
             IAuthorityQueryService authorityQueryService =
@@ -151,15 +154,15 @@ public sealed class PostCommitProjectionOutboxProcessor(
                 return;
             }
 
-            await PostCommitProjectionOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            validatedGoldenManifest = manifestCompareDetail.GoldenManifest;
+
+            PostCommitProjectionOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+                validatedGoldenManifest,
                 runId,
-                jobScope,
-                authorityQueryService,
-                manifestHashService,
-                cancellationToken).ConfigureAwait(false);
+                manifestHashService);
         }
 
-        bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, cancellationToken);
+        bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, validatedGoldenManifest, cancellationToken);
 
         await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
         ArchLucidInstrumentation.RecordPostCommitProjectionOutboxProcessedSuccess();
@@ -201,10 +204,11 @@ public sealed class PostCommitProjectionOutboxProcessor(
         IServiceScope scope,
         PostCommitProjectionOutboxEntry entry,
         ScopeContext jobScope,
+        ManifestDocument? validatedGoldenManifest,
         CancellationToken ct)
     {
         if (entry.WorkType == PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization)
-            return await ProcessProvenanceSnapshotMaterializationAsync(scope, entry, jobScope, ct);
+            return await ProcessProvenanceSnapshotMaterializationAsync(scope, entry, jobScope, validatedGoldenManifest, ct);
 
         if (entry.WorkType == PostCommitProjectionWorkTypes.ReviewCompletedEvent)
         {
@@ -248,6 +252,7 @@ public sealed class PostCommitProjectionOutboxProcessor(
         IServiceScope scope,
         PostCommitProjectionOutboxEntry entry,
         ScopeContext jobScope,
+        ManifestDocument? validatedGoldenManifest,
         CancellationToken ct)
     {
         if (entry.RunId is not Guid runId)
@@ -262,6 +267,13 @@ public sealed class PostCommitProjectionOutboxProcessor(
 
         if (detail is null)
             return true;
+
+        if (validatedGoldenManifest is not null
+            && detail.GoldenManifest is not null
+            && detail.GoldenManifest.ManifestId != validatedGoldenManifest.ManifestId)
+        {
+            return true;
+        }
 
         await provenanceGraphAccess.TryMaterializeSnapshotAsync(jobScope, detail, ct);
 

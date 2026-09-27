@@ -183,6 +183,10 @@ public sealed class InMemoryBackgroundJobQueue(
 
                     if (!await _pendingJobs.WaitAsync(0, stoppingToken))
                     {
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? capacityFailureCandidate) ||
+                            capacityFailureCandidate.State == BackgroundJobState.Canceled)
+                            continue;
+
                         logger.LogError(
                             "Background job {JobId} could not be re-queued; pending capacity exhausted.",
                             LogSanitizer.Sanitize(item.JobId));
@@ -202,6 +206,10 @@ public sealed class InMemoryBackgroundJobQueue(
                     else if (!_queue.Writer.TryWrite(item))
                     {
                         _pendingJobs.Release();
+
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? writerFailureCandidate) ||
+                            writerFailureCandidate.State == BackgroundJobState.Canceled)
+                            continue;
 
                         logger.LogError("Background job {JobId} could not be re-queued; writer rejected item.", LogSanitizer.Sanitize(item.JobId));
 

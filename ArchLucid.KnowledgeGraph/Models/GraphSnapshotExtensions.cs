@@ -28,16 +28,18 @@ public static class GraphSnapshotExtensions
         {
             ArgumentNullException.ThrowIfNull(snapshot);
 
+            string normalizedFromNodeId = NormalizeNodeId(fromNodeId);
+
             HashSet<string> targetIds = snapshot.Edges
                 .Where(x =>
-                    string.Equals(x.FromNodeId, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(NormalizeNodeId(x.FromNodeId), normalizedFromNodeId, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase) &&
                     x.Weight >= minWeightInclusive)
-                .Select(x => x.ToNodeId)
+                .Select(x => NormalizeNodeId(x.ToNodeId))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             return snapshot.Nodes
-                .Where(x => targetIds.Contains(x.NodeId))
+                .Where(x => targetIds.Contains(NormalizeNodeId(x.NodeId)))
                 .ToList();
         }
 
@@ -49,16 +51,20 @@ public static class GraphSnapshotExtensions
         {
             ArgumentNullException.ThrowIfNull(snapshot);
 
+            string normalizedToNodeId = NormalizeNodeId(toNodeId);
+
             HashSet<string> sourceIds = snapshot.Edges
                 .Where(x =>
-                    string.Equals(x.ToNodeId, toNodeId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(NormalizeNodeId(x.ToNodeId), normalizedToNodeId, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))
-                .Select(x => x.FromNodeId)
+                .Select(x => NormalizeNodeId(x.FromNodeId))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             return snapshot.Nodes
-                .Where(x => sourceIds.Contains(x.NodeId))
+                .Where(x => sourceIds.Contains(NormalizeNodeId(x.NodeId)))
                 .ToList();
         }
     }
+
+    private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 }

@@ -192,9 +192,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE =
   "Downloaded a browser-rendered PNG because server-side rasterization is unavailable in this environment. Branded server PNG requires Mermaid CLI on the API host." as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER =
-  "PNG export is an advisory inventory reconstruction — confirm snapshot and subscription scope before sealed-record citations." as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE =
   "Change subscription filter?" as const;
 
@@ -471,7 +468,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION = "Open clou
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE = "No diffs for this snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY =
-  "Drift diffs appear after a second snapshot is captured for the same subscription." as const;
+  "No changes were found for this comparison. Drift diffs appear after a second snapshot is captured for the same subscription." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE =
   "No later inventory captures to compare" as const;

@@ -1,6 +1,10 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
@@ -152,6 +156,56 @@ public sealed class GovernanceMutationCorrectionsControllerTests
     }
 
     [Fact]
+    public async Task RecordGovernanceMutationCorrection_returns_conflict_when_padded_run_id_has_sealed_manifest_hash_drift()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"  {runId:D}  ";
+        const string storedHash = "stored-manifest-hash";
+        const string computedHash = "recomputed-manifest-hash";
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = storedHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new(MockBehavior.Strict);
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(computedHash);
+
+        Mock<IGovernanceMutationCorrectionService> mutationCorrections = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            mutationCorrections.Object,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.RecordGovernanceMutationCorrection(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-1",
+                RunId = paddedRunId,
+                Rationale = ValidRationale,
+            },
+            CancellationToken.None);
+
+        ObjectResult conflict = result.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        conflict.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Type.Should().Be(ProblemTypes.Conflict);
+        mutationCorrections.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordGovernanceMutationCorrection_returns_bad_request_when_mutation_kind_is_unsupported_and_tenant_missing()
     {
         Mock<IGovernanceMutationCorrectionService> mutationCorrections = new(MockBehavior.Strict);
@@ -178,7 +232,9 @@ public sealed class GovernanceMutationCorrectionsControllerTests
 
     private static GovernanceController CreateController(
         IGovernanceMutationCorrectionService mutationCorrectionService,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("operator@test");
@@ -190,7 +246,9 @@ public sealed class GovernanceMutationCorrectionsControllerTests
             actorContext: actor.Object,
             scopeContextProvider: scope.Object,
             mutationCorrectionService: mutationCorrectionService,
-            tenantRepository: tenantRepository ?? TenantExistsRepository());
+            tenantRepository: tenantRepository ?? TenantExistsRepository(),
+            authorityQueryService: authorityQueryService,
+            manifestHashService: manifestHashService);
     }
 
     private static ITenantRepository TenantMissingRepository() =>

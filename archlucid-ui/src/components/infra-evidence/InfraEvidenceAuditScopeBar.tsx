@@ -73,6 +73,7 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
     auditScope,
     snapshotId,
     runId,
+    currentSearch,
   );
   const clearScopeHref = buildInfraEvidenceClearAuditScopeHref(
     cloudResourceId,
