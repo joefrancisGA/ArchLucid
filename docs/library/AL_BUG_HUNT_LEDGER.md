@@ -5061,6 +5061,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-09-27 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when `observedOutcome` contained live `foreign runId present` copy but `foreignRunIdVisible` was false and manifest `verdict` was `pass`; fixed `TenantIsolationNegativeTestOfflineRunner` to FAIL from observed leak copy (parity with live exclude probe); regression `RunOffline_FailsExcludeRunIdProbeWhenManifestObservedOutcomeClaimsForeignRunIdPresent`; 43 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — `observedOutcome` leak copy ignored when `foreignRunIdVisible` is false — **hit 2026-09-27 seed hunt:** honor `foreign runId present` observed outcome before manifest pass verdict; regression `RunOffline_FailsExcludeRunIdProbeWhenManifestObservedOutcomeClaimsForeignRunIdPresent`.
+
 2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when `observedOutcome` recorded live scan-incomplete / list-unavailable / server-error skip text but manifest `verdict` was still `pass`; fixed `TenantIsolationNegativeTestOfflineRunner` to derive SKIP from observed outcome strings (parity with live exclude probe copy); regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestObservedOutcomeIsScanIncomplete`; 42 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay false-passed exclude-run-id probes when captured list payloads were not scannable (HTTP 200 without `items` array) while live mode already SKIPped; fixed offline replay with optional manifest `runListPayloadScannable: false` → SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListPayloadUnscannable`; 41 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -5077,11 +5081,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 25
-- **bugs-found:** 13
+- **hunts:** 26
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — offline replay ignored scan-incomplete observed outcomes
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — offline replay ignored `foreign runId present` observed outcomes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
