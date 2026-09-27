@@ -48,11 +48,47 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
-    public void Resolve_skips_when_chosen_is_locked()
+    public void Resolve_inserts_cross_provider_candidate_when_chosen_is_locked()
     {
         TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
         chosen.IsLocked = true;
         TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_inserts_same_family_candidate_with_distinct_name_when_chosen_is_locked()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Azure SQL";
+        chosen.EvidenceRef = "inventory:sql";
+        chosen.IsLocked = true;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure App Service";
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_same_family_same_name_candidate_when_chosen_is_locked()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Azure SQL";
+        chosen.EvidenceRef = "inventory:sql";
+        chosen.IsLocked = true;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p1:db";
 
         TechnologyLedgerEntry? resolved =
             TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
