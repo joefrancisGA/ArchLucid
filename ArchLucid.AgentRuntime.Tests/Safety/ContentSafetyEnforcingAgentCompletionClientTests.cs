@@ -141,6 +141,66 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
     }
 
     [Fact]
+    public async Task StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync("blocked-system", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked system", "Hate", 6));
+
+        int innerInvocations = 0;
+        FakeAgentCompletionClient inner = new((_, _) =>
+        {
+            innerInvocations++;
+            return "{\"never\":true}";
+        });
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        Func<Task> act = async () =>
+        {
+            await foreach (string _ in sut.StreamJsonAsync(
+                               "blocked-system",
+                               "user",
+                               cancellationToken: CancellationToken.None))
+            {
+            }
+        };
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        innerInvocations.Should().Be(0, "blocked system prompt must not start streaming completion");
+    }
+
+    [Fact]
+    public async Task StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync("safe-system", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(true, null, null, null));
+        guard.Setup(g => g.CheckInputAsync("blocked-user", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked user", "Violence", 6));
+
+        int innerInvocations = 0;
+        FakeAgentCompletionClient inner = new((_, _) =>
+        {
+            innerInvocations++;
+            return "{\"never\":true}";
+        });
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        Func<Task> act = async () =>
+        {
+            await foreach (string _ in sut.StreamJsonAsync(
+                               "safe-system",
+                               "blocked-user",
+                               cancellationToken: CancellationToken.None))
+            {
+            }
+        };
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        innerInvocations.Should().Be(0, "blocked user prompt must not start streaming completion");
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_when_user_prompt_blocked_does_not_invoke_inner()
     {
         Mock<IContentSafetyGuard> guard = new();

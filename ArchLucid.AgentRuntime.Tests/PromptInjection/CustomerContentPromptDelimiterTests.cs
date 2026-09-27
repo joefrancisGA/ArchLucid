@@ -447,6 +447,28 @@ public sealed class CustomerContentPromptDelimiterTests
     }
 
     [Fact]
+    public void CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt()
+    {
+        const string nonStagedProbe = "xyzzy-non-staged-evidence-note-probe";
+
+        AgentEvidencePackage evidence = SampleEvidence();
+        evidence.Notes.Add(new EvidenceNote
+        {
+            NoteType = EvidenceNoteTypes.CriticTimeout,
+            Message = nonStagedProbe,
+        });
+
+        string prompt = AgentUserPromptComposer.BuildCriticUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            SampleRequest(),
+            evidence,
+            SampleTask(AgentType.Critic),
+            CloudProvider.Azure);
+
+        prompt.Should().NotContain(nonStagedProbe);
+    }
+
+    [Fact]
     public void CriticUserPrompt_staged_prior_summary_with_embedded_end_marker_stays_quarantined_without_resanitize()
     {
         AgentEvidencePackage evidence = SampleEvidence();

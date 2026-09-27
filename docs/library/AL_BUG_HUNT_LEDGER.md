@@ -8765,6 +8765,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved streaming completion guard short-circuit before inner `StreamJsonAsync` on blocked system/user prompts and non-staged `EvidenceNote` bodies omitted from critic user prompts; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream`, `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`, and `CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt`; scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — blocked input scans may still invoke inner streaming client — **cheap-disproof 2026-09-27 seed hunt:** throws before `AgentCompletionStreamingBridge.StreamJsonAsync`; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream` and `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` / critic compose — non-staged `EvidenceNote.Message` may reach LLM prompts — **cheap-disproof 2026-09-27 seed hunt:** `AgentUserPromptComposer.BuildCriticUserPrompt` filters `EvidenceNoteTypes.StagedPriorAgentsSummary` only; regression `CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt`
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved evidence catalog identifier/category/capability fields omitted from `AgentUserPromptBuilder` (unsanitized in `AgentEvidenceUntrustedInputSanitizer` but no LLM prompt reachability) and NBSP inline field-spoof via `SanitizeScalar` (no extra prompt lines); regressions `TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer` and `SanitizeScalar_keeps_no_break_space_on_one_line_within_outer_untrusted_wrapper`; 151 scoped agent-runtime-safety tests passed.
 
 - [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` — `PolicyId` / `PatternId` / `ServiceId` / `ServiceCatalog.Category` / `PatternEvidence.ApplicableCapabilities` are not wrapped — **cheap-disproof 2026-09-27 seed hunt:** `AgentUserPromptBuilder` echoes title/name/summary lists only; regression `TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer`
@@ -8812,7 +8817,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
