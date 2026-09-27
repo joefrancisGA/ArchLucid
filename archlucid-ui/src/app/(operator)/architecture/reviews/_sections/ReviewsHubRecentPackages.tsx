@@ -89,7 +89,12 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
     <EnterpriseTableHead>
       <EnterpriseTableHeadRow>
         <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Status</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The current workflow state recorded for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
           <span>Last updated</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -109,8 +114,18 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
             Evidence items recorded for this review.
           </span>
         </EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Approval</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The governance outcome recorded for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Action</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Open the review package or its architecture workspace.
+          </span>
+        </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );

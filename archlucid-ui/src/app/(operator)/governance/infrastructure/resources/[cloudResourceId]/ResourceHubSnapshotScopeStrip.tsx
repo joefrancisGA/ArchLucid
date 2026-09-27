@@ -56,6 +56,9 @@ export function ResourceHubSnapshotScopeStrip(props: ResourceHubSnapshotScopeStr
             {formatSnapshotShortId(snapshotId)}
             <CopyIdButton value={snapshotId} aria-label="Copy inventory snapshot id" />
           </span>
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            All evidence on this page is scoped to the selected snapshot.
+          </span>
         </>
       ) : null}
       {runId.length > 0 ? (

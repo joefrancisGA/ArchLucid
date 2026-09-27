@@ -74,7 +74,12 @@ export function RiskExceptionsTable({
               The person recorded for the exception.
             </span>
           </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Rationale</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Why coverage was requested for this finding.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Status</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -87,7 +92,12 @@ export function RiskExceptionsTable({
               After this time the exception no longer covers the finding.
             </span>
           </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Actions</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Renew or revoke the exception; these actions change the exception record, not Azure.
+            </span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>

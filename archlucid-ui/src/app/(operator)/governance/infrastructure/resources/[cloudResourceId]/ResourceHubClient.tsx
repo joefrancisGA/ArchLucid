@@ -985,24 +985,38 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 These values come from the selected snapshot. They are not a live Azure read.
               </p>
               {hub.currentConfiguration == null ? (
-                <EnterpriseCompactEmptyState
-                  title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
-                  description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
-                  testId="infra-resource-hub-config-empty"
-                />
+                <>
+                  <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                    No configuration was captured for this resource in the selected snapshot.
+                  </p>
+                  <EnterpriseCompactEmptyState
+                    title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
+                    description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
+                    testId="infra-resource-hub-config-empty"
+                  />
+                </>
               ) : (
                 <>
                   <dl className="grid gap-2 text-sm md:grid-cols-3">
                     <div>
                       <dt className="font-medium">Resource type</dt>
+                      <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        The Azure type recorded for this resource.
+                      </dd>
                       <dd>{hub.currentConfiguration.resourceType}</dd>
                     </div>
                     <div>
                       <dt className="font-medium">Resource group</dt>
+                      <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        The group recorded as containing this resource.
+                      </dd>
                       <dd>{hub.currentConfiguration.resourceGroup ?? "—"}</dd>
                     </div>
                     <div>
                       <dt className="font-medium">Region</dt>
+                      <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        The Azure region recorded for this resource.
+                      </dd>
                       <dd>{hub.currentConfiguration.region ?? "—"}</dd>
                     </div>
                   </dl>
@@ -1056,7 +1070,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTable>
                     </div>
                   ) : (
-                    <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>No tags captured.</p>
+                    <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                      No tags were captured for this resource in the selected snapshot.
+                    </p>
                   )}
                 </>
               )}
@@ -1091,7 +1107,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </EnterpriseTable>
                   </div>
                 ) : (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No RBAC assignments captured.</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    No RBAC assignment was captured for this resource in the selected snapshot.
+                  </p>
                 )}
                 {hub.networkRelationships.length > 0 ? (
                   <div className="mb-4">
@@ -1119,7 +1137,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </EnterpriseTable>
                   </div>
                 ) : (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No network relationships captured.</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    No network relationship was captured for this resource in the selected snapshot.
+                  </p>
                 )}
                 {hub.evidencePointers.length > 0 ? (
                   <div>
@@ -1145,7 +1165,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </EnterpriseTable>
                   </div>
                 ) : (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No evidence pointers linked.</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    No captured evidence pointer is linked to this resource.
+                  </p>
                 )}
               </section>
             ) : null}
@@ -1373,6 +1395,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </Link>
                   ) : null}
                 </div>
+                <p className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.helper)}>
+                  This list is limited to findings linked to this resource.
+                </p>
                 {stream.items.length === 0 ? (
                   <EnterpriseCompactEmptyState
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE}
@@ -1383,15 +1408,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <EnterpriseTable ariaLabel={`${stream.streamLabel} findings`}>
                     <EnterpriseTableHead>
                       <EnterpriseTableRow>
-                        <EnterpriseTableHeaderCell>Title</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Title</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            The finding name recorded for this resource.
+                          </span>
+                        </EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>
                           <span>Severity</span>
                           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                             How serious this finding is recorded as.
                           </span>
                         </EnterpriseTableHeaderCell>
-                        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Status</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            Where this finding is in its recorded review workflow.
+                          </span>
+                        </EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Actions</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            Open the finding or start the available remediation workflow.
+                          </span>
+                        </EnterpriseTableHeaderCell>
                       </EnterpriseTableRow>
                     </EnterpriseTableHead>
                     <EnterpriseTableBody>
@@ -1524,14 +1564,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <EnterpriseTable ariaLabel="Remediation instances">
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>
-                    <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Pattern</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        The remediation pattern associated with this instance.
+                      </span>
+                    </EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>
                       <span>Status</span>
                       <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                         The recorded state of this remediation instance. It does not change Azure.
                       </span>
                     </EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Actions</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        Open the remediation workbench or ask about this instance.
+                      </span>
+                    </EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
