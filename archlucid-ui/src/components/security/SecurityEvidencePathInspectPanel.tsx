@@ -121,8 +121,18 @@ function PathHopsTable(props: {
               The plain-language step in this path.
             </span>
           </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>From</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The starting node in this hop.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>To</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The destination node in this hop.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Edge</span>
             <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -130,7 +140,12 @@ function PathHopsTable(props: {
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Provenance</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Band</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Evidence strength for this hop.
+            </span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>

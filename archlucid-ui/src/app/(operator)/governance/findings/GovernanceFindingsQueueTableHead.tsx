@@ -179,7 +179,12 @@ export function GovernanceFindingsQueueTableHead(props: {
                 How serious this finding is recorded as.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Owner</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The person recorded as responsible for this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Age</span>
@@ -202,7 +207,12 @@ export function GovernanceFindingsQueueTableHead(props: {
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
           </>
         )}
-        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Actions</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Open this finding or its source review.
+          </span>
+        </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );
