@@ -139,7 +139,12 @@ function PathHopsTable(props: {
               The relationship this hop uses between the two nodes.
             </span>
           </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Provenance</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Provenance</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Where this hop’s evidence came from.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Band</span>
             <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -872,9 +877,24 @@ export function SecurityEvidencePathInspectPanel(props: {
               <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_ROUTING_TITLE}>
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>
-                    <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Provenance</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Role</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        The responsibility the path cites.
+                      </span>
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Owner</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        Who the path cites for that role.
+                      </span>
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Provenance</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        Where this routing citation came from.
+                      </span>
+                    </EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>

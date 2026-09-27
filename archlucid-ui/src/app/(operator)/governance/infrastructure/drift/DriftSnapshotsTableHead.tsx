@@ -121,7 +121,10 @@ export function DriftSnapshotsTableHead(props: DriftSnapshotsTableHeadProps): Re
           },
         })}
         <EnterpriseTableHeaderCell>
-          {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ACTIONS_COLUMN_LABEL}
+          <span>{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ACTIONS_COLUMN_LABEL}</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Select chooses this snapshot for the page. Delete removes the snapshot record. Neither action changes Azure.
+          </span>
         </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
       {hasActiveFilters ? (

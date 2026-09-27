@@ -62,8 +62,18 @@ export function RiskExceptionsTable({
     <EnterpriseTable ariaLabel="Risk exceptions">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Finding ID</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The finding this exception covers.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Owner</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The person recorded for the exception.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Status</span>

@@ -108,7 +108,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, undefined, {
+        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, "The Azure resource group that contains this resource.", {
           kind: "text",
           value: tableFilterState.resourceGroupFilter,
           placeholder: "rg-network",
@@ -120,7 +120,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceGroupFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, undefined, {
+        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, "The Azure type recorded for this resource.", {
           kind: "text",
           value: tableFilterState.resourceTypeFilter,
           placeholder: "Network/publicIPAddresses",
