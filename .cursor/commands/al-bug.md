@@ -365,13 +365,17 @@ If the only fix is an instance-list append and severity is low, **stop and repor
 | Tests | <test names> — N passed |
 | Commit | `<sha>` on `origin/bugsmash` |
 | Left unstaged | <paths or none> |
-| Bugs found (24h) | N |
-| Dry runs (24h) | N |
+| Bugs found (24h, total) | N |
+| Dry runs (24h, total) | N |
+| SecureNow — bugs found (24h) | N |
+| SecureNow — dry runs (24h) | N |
+| ArchLucid + shared — bugs found (24h) | N |
+| ArchLucid + shared — dry runs (24h) | N |
 ```
 
 **Kind** is the picker decision (`seedHunt` true → seed hunt; else thorough hunt). **Outcome** is what the run produced. A seed hunt that proves a new row is Kind `seed hunt` and Outcome `hit`. Never omit Kind. Never report a thorough hunt as `seed-only`.
 
-Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24h` table the script prints.
+Copy the **total** and **per-product-line** bugs found / dry runs from the `-Rolling24h` preview (`scripts/agent/al-bug-rolling-stats.ps1` classifies each hunt as **SecureNow** vs **ArchLucid + shared libraries** from zone paths, optional `-HuntPaths`, and ledger overrides). Pass `-HuntPaths` when the picked zone is broad (e.g. `ui-operator-routes`) so remediation/infra hits land in the SecureNow bucket. Optional `-ProductLine securenow|archlucid-shared` overrides inference.
 
 ---
 

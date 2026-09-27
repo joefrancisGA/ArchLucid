@@ -32,7 +32,7 @@ Default push target: **`bugsmash`**.
 2. **Find** — repro-first; failing test required before fixing
 3. **Fix** — minimal diff + permanent regression test
 4. **Ship** — `.\scripts\agent\al-bug-push-master.ps1` when main tree is dirty; else direct commit to `bugsmash`. Always update `docs/library/AL_BUG_HUNT_LEDGER.md`.
-5. **Stats** — `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h` (skip for `--status`). Ship `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger. Report **Bugs found (24h)** and **Dry runs (24h)** in the result table.
+5. **Stats** — `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h` (skip for `--status`). Add `-HuntPaths` (and rarely `-ProductLine`) when zone paths are ambiguous. Ship `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger. Report rolling **24h** bugs and dry runs **twice**: **SecureNow** and **ArchLucid + shared libraries** (plus totals), from the script preview.
 
 `--status` prints the picker preview and stops. Each run is either a **thorough defect hunt** or a **seed hunt** — announce the kind immediately after the picker, even when other `/al-bug` messages are queued. A dry hunt (hunt-ready hypotheses tested with failing-repro attempts, no failing repro) updates the ledger and stops — do not invent another zone. A **seed hunt** (`seedHunt: true`) must say **This /al-bug run is a seed hunt**, read the zone files, promote or retire candidates, and prove any newly hunt-ready row in the same run; otherwise stop as seed-only and keep Kind `seed hunt` in the result table.
 
