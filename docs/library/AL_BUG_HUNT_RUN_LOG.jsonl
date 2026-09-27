@@ -7173,3 +7173,4 @@
 {"at":"2026-09-27T15:54:36.4988552Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
 {"at":"2026-09-27T16:06:15.097212Z","zoneId":"notifications-pipeline","outcome":"hit"}
 {"at":"2026-09-27T16:12:15.9865056Z","zoneId":"run-execute-ownership","outcome":"dry"}
+{"at":"2026-09-27T16:20:01.6837018Z","zoneId":"quick-scan-distributed-concurrency","outcome":"seed-only"}
