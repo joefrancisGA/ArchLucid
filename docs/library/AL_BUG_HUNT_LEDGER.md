@@ -2859,6 +2859,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-27 seed hunt (seed-only): reseeded technology-ledger-merge after master merge; no new hunt-ready rows; cheap-disproved cloud-neutral chosen↔candidate same-name suppression, seeder cold-start promotion sequence with distinct topology refs, and cross-provider insert when technology names differ; attempted cross-provider same `TechnologyName` suppression — matches intentional provider-conflict exploration (`Resolve_inserts_assumed_on_provider_conflict`); 68 scoped TechnologyLedger tests passed.
+
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — authoritative `Chosen` should suppress agent candidates with matching `TechnologyName` across concrete provider families (Azure chosen vs GCP candidate) — **cheap-disproof 2026-09-27 seed hunt:** `SharesProviderFamilyGate` intentionally returns candidates on provider-family mismatch so operators can retain multi-cloud alternatives; same-name cross-cloud insert is consistent with `Resolve_inserts_assumed_on_provider_conflict`
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — authoritative `Chosen` with matching `TechnologyName` across concrete provider families may duplicate grounded technology labels — **reachability pending:** needs caller proof that same-name GCP agent rows after Azure evidence chosen are user-visible harm, not exploration
+
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved `SharesProviderFamilyGate` only treated cloud-neutral on the chosen side, so authoritative Azure/AWS `Chosen` rows failed to suppress agent candidates with `CloudProvider.None` but matching `TechnologyName`; extended gate to cloud-neutral candidates; regressions `Resolve_skips_when_authoritative_chosen_shares_technology_name_with_cloud_neutral_candidate` and `Resolve_keeps_cloud_neutral_candidate_when_authoritative_chosen_has_different_technology_name`; 65 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved cloud-neutral (`CloudProvider.None`) authoritative `Chosen` rows did not enter the same-family gate, so agent proposals with matching `TechnologyName` on a concrete provider duplicated grounded inventory; fixed via `SharesProviderFamilyGate`; regressions `Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name` and `Resolve_keeps_agent_candidate_when_cloud_neutral_chosen_has_different_technology_name`; 63 scoped TechnologyLedger tests passed.
@@ -2879,10 +2884,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-26 — cloud-neutral candidate bypassed authoritative name gate
 - **related-pd-tb:** none
 - **code-changed-since:** no
