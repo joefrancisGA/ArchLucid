@@ -151,12 +151,10 @@ public sealed class PostCommitProjectionOutboxProcessor(
                 return;
             }
 
-            await PostCommitProjectionOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            PostCommitProjectionOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+                manifestCompareDetail.GoldenManifest,
                 runId,
-                jobScope,
-                authorityQueryService,
-                manifestHashService,
-                cancellationToken).ConfigureAwait(false);
+                manifestHashService);
         }
 
         bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, cancellationToken);

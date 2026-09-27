@@ -124,12 +124,10 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
                 return;
             }
 
-            await CosmosGraphSnapshotOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            CosmosGraphSnapshotOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+                manifestCompareDetail.GoldenManifest,
                 entry.RunId,
-                scopeContext,
-                authorityQueryService,
-                manifestHashService,
-                cancellationToken).ConfigureAwait(false);
+                manifestHashService);
         }
 
         await cosmosWriter.SaveAsync(snapshot, cancellationToken);

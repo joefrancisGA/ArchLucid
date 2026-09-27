@@ -137,12 +137,10 @@ public sealed class RetrievalIndexingOutboxProcessor(
         IManifestHashService manifestHashService =
             scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 
-        await RetrievalIndexingOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+        RetrievalIndexingOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+            manifestCompareDetail.GoldenManifest,
             entry.RunId,
-            scopeContext,
-            query,
-            manifestHashService,
-            cancellationToken).ConfigureAwait(false);
+            manifestHashService);
 
         ManifestDocument manifest = detail.GoldenManifest;
         GraphSnapshot graphSnapshot = detail.GraphSnapshot;
