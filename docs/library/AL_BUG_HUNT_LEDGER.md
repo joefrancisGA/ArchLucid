@@ -3624,13 +3624,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 43
-- **bugs-found:** 22
+- **hunts:** 44
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `NormalizeArchitectureRequestId` collapsed tab separators while SQL `STRING_SPLIT` uses space-only delimiters
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — project slug / workspace system-name normalization collapsed tabs while SQL uses space-only `STRING_SPLIT`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after #6977; proved `NormalizeAuthorityProjectSlug` / `NormalizeWorkspaceSystemName` still split on all Unicode whitespace so InMemory list-by-project and workspace system-name collision checks matched tab-stored `ProjectId` values to space-normalized seeks while SQL `STRING_SPLIT(..., N' ')` does not; fixed space-only collapse (parity with `NormalizeArchitectureRequestId`); regressions `InMemory_list_by_project_does_not_match_tab_separated_stored_project_slug_when_seek_uses_spaces`, `InMemory_exists_active_run_with_system_name_does_not_match_tab_separated_stored_project_id`, and `Project_slug_sql_normalization_uses_space_only_string_split`; 133 scoped zone tests passed.
+
+- [x] (proven) `RunRepositoryCore.NormalizeAuthorityProjectSlug` / `NormalizeWorkspaceSystemName` — tab separators in stored `ProjectId` match space-normalized seeks in InMemory but not SQL — **hit 2026-09-27 seed hunt:** align InMemory normalization with space-only `STRING_SPLIT` collapse on `ProjectId`; regressions `InMemory_list_by_project_does_not_match_tab_separated_stored_project_slug_when_seek_uses_spaces` and `InMemory_exists_active_run_with_system_name_does_not_match_tab_separated_stored_project_id`.
 
 2026-09-26 seed hunt #6977 (seed→hit): reseeded architecture-request scope seeks after #6976; proved `RunRepositoryCore.NormalizeArchitectureRequestId` split on all Unicode whitespace so InMemory active-run / existence / representative seeks matched tab-stored ids to space-normalized callers while SQL `STRING_SPLIT(..., N' ')` does not; fixed space-only collapse to mirror SQL; regressions `InMemory_count_active_runs_matches_tab_collapsed_to_space_in_stored_architecture_request_id`, `Architecture_request_sql_normalization_uses_space_only_string_split`, and `InMemory_representative_run_id_excludes_quality_rejected_dead_letter_with_retained_manifest`; 130 scoped zone tests passed (1 SQL integration skipped).
 
