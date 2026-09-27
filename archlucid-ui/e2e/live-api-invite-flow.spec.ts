@@ -5,7 +5,12 @@
 import { expect, test } from "@playwright/test";
 
 import { submitAdminInviteFromUsersUi, gotoLiveAdminUsersInvitePage } from "./helpers/live-invite-form-submit";
-import { stubEmptyArchitectureDraftListRoute, createScimAdminToken, provisionScimDirectoryUser } from "./helpers/live-private-beta-access";
+import {
+  createScimAdminToken,
+  primePrivateBetaBrowserSessionIfJwtMode,
+  provisionScimDirectoryUser,
+  stubEmptyArchitectureDraftListRoute,
+} from "./helpers/live-private-beta-access";
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase } from "./helpers/live-api-client";
@@ -34,6 +39,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
 
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
     await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
@@ -57,6 +63,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     const inviteEmail = `e2e-dup-ui-${Date.now()}@example.com`;
 
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
     await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
@@ -76,6 +83,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     await provisionScimDirectoryUser(request, directoryEmail, scimToken.plaintextToken);
 
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
     await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, directoryEmail, "Reader");
 
