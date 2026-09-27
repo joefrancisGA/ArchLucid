@@ -58,12 +58,14 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
   const renderHeader = (
     column: DriftTableSortKey,
     label: string,
+    helperText: string | undefined,
     filter?: DriftChangesTableHeaderFilterConfig,
   ): React.JSX.Element => (
     <DriftChangesTableHeaderCell
       key={column}
       column={column}
       label={label}
+      helperText={helperText}
       sortBy={tableFilterState.sortBy}
       sortDir={tableFilterState.sortDir}
       sortDirection={sortDirectionForColumn(tableFilterState.sortBy, column, tableFilterState.sortDir)}
@@ -94,7 +96,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         </tr>
       ) : null}
       <EnterpriseTableHeadRow>
-        {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, {
+        {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, "The inventory resource compared between snapshots.", {
           kind: "text",
           value: tableFilterState.resourceFilter,
           placeholder: "gateway",
@@ -106,7 +108,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, {
+        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, undefined, {
           kind: "text",
           value: tableFilterState.resourceGroupFilter,
           placeholder: "rg-network",
@@ -118,7 +120,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceGroupFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, {
+        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, undefined, {
           kind: "text",
           value: tableFilterState.resourceTypeFilter,
           placeholder: "Network/publicIPAddresses",
@@ -132,7 +134,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         })}
         {showDiffColumns ? (
           <>
-            {renderHeader("change", "Change", {
+            {renderHeader("change", "Change", undefined, {
               kind: "select",
               value: tableFilterState.changeTypeFilter,
               options: INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
@@ -144,7 +146,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
                 onTableFiltersChange({ changeTypeFilter: "", ...resetPagePatch });
               },
             })}
-            {renderHeader("property", "Property", {
+            {renderHeader("property", "Property", "The property that differed between the snapshots.", {
               kind: "text",
               value: tableFilterState.propertyFilter,
               placeholder: "sku",
@@ -156,7 +158,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
                 onTableFiltersChange({ propertyFilter: "", ...resetPagePatch });
               },
             })}
-            {renderHeader("risk", "Risk", {
+            {renderHeader("risk", "Risk", undefined, {
               kind: "select",
               value: tableFilterState.riskFilter,
               options: INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,
