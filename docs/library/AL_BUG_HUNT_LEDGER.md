@@ -3624,13 +3624,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 44
-- **bugs-found:** 23
+- **hunts:** 45
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — project slug / workspace system-name normalization collapsed tabs while SQL uses space-only `STRING_SPLIT`
+- **last-bug:** 2026-09-27 — InMemory slug normalization Unicode-trimmed tab-padded `ProjectId` while SQL `LTRIM`/`RTRIM` keep tabs
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after tab/space `STRING_SPLIT` parity; proved `NormalizeAuthorityProjectSlug` / `NormalizeWorkspaceSystemName` / `NormalizeArchitectureRequestId` used `string.Trim()` so InMemory workspace collision and list-by-project paths matched tab-padded stored `ProjectId` to space-normalized seeks while SQL edge trim is space-only before `STRING_SPLIT`; fixed with `TrimSqlEdgeSpaces` (parity with `LTRIM`/`RTRIM`); regressions `NormalizeWorkspaceSystemName_preserves_tab_padding_that_sql_ltrim_rtrim_keeps` and `InMemory_exists_active_run_with_system_name_does_not_match_trailing_tab_in_stored_project_id`; 123 scoped workspace + architecture-request tests passed.
+
+- [x] (proven) `RunRepositoryCore.NormalizeAuthorityProjectSlug` / `NormalizeWorkspaceSystemName` / `NormalizeArchitectureRequestId` — Unicode edge trim strips tab-padded stored slugs in InMemory but SQL `LTRIM`/`RTRIM` keep tabs — **hit 2026-09-27 seed hunt:** space-only edge trim before space-only `STRING_SPLIT` collapse; regressions `NormalizeWorkspaceSystemName_preserves_tab_padding_that_sql_ltrim_rtrim_keeps` and `InMemory_exists_active_run_with_system_name_does_not_match_trailing_tab_in_stored_project_id`.
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after #6977; proved `NormalizeAuthorityProjectSlug` / `NormalizeWorkspaceSystemName` still split on all Unicode whitespace so InMemory list-by-project and workspace system-name collision checks matched tab-stored `ProjectId` values to space-normalized seeks while SQL `STRING_SPLIT(..., N' ')` does not; fixed space-only collapse (parity with `NormalizeArchitectureRequestId`); regressions `InMemory_list_by_project_does_not_match_tab_separated_stored_project_slug_when_seek_uses_spaces`, `InMemory_exists_active_run_with_system_name_does_not_match_tab_separated_stored_project_id`, and `Project_slug_sql_normalization_uses_space_only_string_split`; 133 scoped zone tests passed.
 
