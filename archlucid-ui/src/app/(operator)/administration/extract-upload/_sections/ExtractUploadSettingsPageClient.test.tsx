@@ -43,7 +43,6 @@ vi.mock("@/lib/query/operator-query-client", () => ({
 
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import {
-  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
@@ -128,11 +127,8 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-evidence-trail-link")).not.toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-constraints")).not.toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-evidence-trail-link")).toHaveAttribute(
-      "href",
-      EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
-    );
 
     await waitFor(() => {
       expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(

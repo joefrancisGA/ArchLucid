@@ -43,12 +43,13 @@ import {
   EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY,
   EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
+  EXTRACT_UPLOAD_CANCEL_REPLACE_LABEL,
   EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL,
   EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE,
   EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
-  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
-  EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
+  EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION,
+  EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE,
   extractUploadNonAzureScriptSourceHint,
   EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
@@ -63,6 +64,7 @@ import {
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
   EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
+  EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
@@ -149,10 +151,21 @@ function ExtractUploadSettingsPageClientInner() {
     folderZip,
     demo,
     showAcceptedDropZone,
+    beginReplaceInventory,
+    cancelReplaceInventory,
+    replaceInventoryMode,
   } = viewModel;
 
   useEffect(() => {
     function onFocusUpload() {
+      const replace = document.querySelector<HTMLElement>('[data-testid="extract-upload-accepted-replace"]');
+
+      if (replace !== null) {
+        replace.click();
+
+        return;
+      }
+
       document.querySelector<HTMLElement>('[data-testid="extract-upload-drop-zone-surface"]')?.focus();
     }
 
@@ -169,10 +182,7 @@ function ExtractUploadSettingsPageClientInner() {
     };
   }, []);
 
-  const validateCommand =
-    productLine === "security"
-      ? validateCommandForPlatform(selectedPlatform).replace(/^archlucid\b/, "securenow")
-      : validateCommandForPlatform(selectedPlatform);
+  const validateCommand = validateCommandForPlatform(selectedPlatform);
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
@@ -220,7 +230,38 @@ function ExtractUploadSettingsPageClientInner() {
 
           <ExtractUploadSettingsEvidenceOrientationStrip />
 
-          {lastAcceptedPackage !== null ? <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} /> : null}
+          {lastAcceptedPackage !== null && !replaceInventoryMode ? (
+            <ExtractUploadAcceptedPackagePanel
+              record={lastAcceptedPackage}
+              onReplaceInventory={beginReplaceInventory}
+            />
+          ) : null}
+
+          {replaceInventoryMode && lastAcceptedPackage !== null ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.warn, "space-y-3 px-4 py-3")}
+              data-testid="extract-upload-replace-continuity"
+            >
+              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                {EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION}
+              </p>
+              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                Current package: <span className="font-mono">{lastAcceptedPackage.packageId}</span>
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="extract-upload-cancel-replace"
+                onClick={cancelReplaceInventory}
+              >
+                {EXTRACT_UPLOAD_CANCEL_REPLACE_LABEL}
+              </Button>
+            </div>
+          ) : null}
 
           <IntegrationConnectChecklist
             title="Upload checklist"
@@ -351,6 +392,15 @@ function ExtractUploadSettingsPageClientInner() {
                   ) : null}
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {upload.uploadSuccessMessage !== null ? (
+                    <div
+                      role="status"
+                      className={cn(DESIGN_TOKENS.callout.success, "px-3 py-2", OPERATOR_TYPOGRAPHY.body)}
+                      data-testid="extract-upload-success-live"
+                    >
+                      {EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE}
+                    </div>
+                  ) : null}
                   {upload.uploadError !== null ? (
                     <div role="alert" data-testid="extract-upload-error-live">
                       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -378,6 +428,15 @@ function ExtractUploadSettingsPageClientInner() {
                             ) : null}
                           </p>
                         </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          data-testid="extract-upload-accepted-replace"
+                          onClick={beginReplaceInventory}
+                        >
+                          Replace inventory
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -435,16 +494,6 @@ function ExtractUploadSettingsPageClientInner() {
                   </p>
                 </div>
               </details>
-
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                <Link
-                  href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
-                  className={OPERATOR_LINK.inline}
-                  data-testid="extract-upload-evidence-trail-link"
-                >
-                  {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
-                </Link>
-              </p>
 
               <section
                 className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
