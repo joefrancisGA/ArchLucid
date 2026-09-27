@@ -57,23 +57,26 @@ public sealed class QuickScanDistributedConcurrencyService(
         QuickScanSafetyOptions safety = _safetyOptions.CurrentValue;
         QuickScanSafetyEffectiveFeatureState effective = safety.ResolveEffectiveFeatureState();
 
-        if (!effective.Enabled || !effective.AnonymousExecutionEnabled
-            || !operational.AnonymousExecutionAllowed)
+        QuickScanDistributedConcurrencyAdmissionResult? emergencyReject =
+            TryCreateEmergencyDisabledReject(effective, operational);
+
+        if (emergencyReject is not null)
         {
-            return QuickScanDistributedConcurrencyAdmissionResult.Reject(
-                QuickScanConcurrencyRejectionReason.EmergencyDisabled);
+            return emergencyReject;
         }
 
-        TimeSpan queueWaitTimeout = TimeSpan.FromSeconds(safety.Concurrency.QueueWaitTimeoutSeconds);
         Guid leaseId = Guid.NewGuid();
         Guid queueEntryId = Guid.NewGuid();
 
         QuickScanConcurrencyAdmitResult admitResult;
-
-        DateTimeOffset admitUtcNow = _timeProvider.GetUtcNow();
+        TimeSpan queueWaitTimeout;
+        DateTimeOffset admitUtcNow;
 
         try
         {
+            queueWaitTimeout = TimeSpan.FromSeconds(safety.Concurrency.QueueWaitTimeoutSeconds);
+            admitUtcNow = _timeProvider.GetUtcNow();
+
             QuickScanConcurrencyAdmitRequest admitRequest = new()
             {
                 LeaseId = leaseId,
@@ -88,6 +91,15 @@ public sealed class QuickScanDistributedConcurrencyService(
             };
 
             admitResult = await _store.TryAdmitAsync(admitRequest, cancellationToken).ConfigureAwait(false);
+
+            emergencyReject = await TryCreateEmergencyDisabledRejectAfterAdmitAsync(
+                admitResult,
+                cancellationToken).ConfigureAwait(false);
+
+            if (emergencyReject is not null)
+            {
+                return emergencyReject;
+            }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -227,5 +239,49 @@ public sealed class QuickScanDistributedConcurrencyService(
                 _logger.LogError(retryEx, "Quick Scan distributed concurrency abandon retry failed.");
             }
         }
+    }
+
+    private static QuickScanDistributedConcurrencyAdmissionResult? TryCreateEmergencyDisabledReject(
+        QuickScanSafetyEffectiveFeatureState effective,
+        QuickScanSafetyOperationalSnapshot operational)
+    {
+        if (!effective.Enabled || !effective.AnonymousExecutionEnabled
+            || !operational.AnonymousExecutionAllowed)
+        {
+            return QuickScanDistributedConcurrencyAdmissionResult.Reject(
+                QuickScanConcurrencyRejectionReason.EmergencyDisabled);
+        }
+
+        return null;
+    }
+
+    private async Task<QuickScanDistributedConcurrencyAdmissionResult?> TryCreateEmergencyDisabledRejectAfterAdmitAsync(
+        QuickScanConcurrencyAdmitResult admitResult,
+        CancellationToken cancellationToken)
+    {
+        QuickScanSafetyOperationalSnapshot operational =
+            await _operationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+        QuickScanSafetyOptions safety = _safetyOptions.CurrentValue;
+        QuickScanSafetyEffectiveFeatureState effective = safety.ResolveEffectiveFeatureState();
+
+        QuickScanDistributedConcurrencyAdmissionResult? emergencyReject =
+            TryCreateEmergencyDisabledReject(effective, operational);
+
+        if (emergencyReject is null)
+        {
+            return null;
+        }
+
+        if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.DirectLease && admitResult.LeaseId.HasValue)
+        {
+            await _store.ReleaseLeaseAsync(admitResult.LeaseId.Value, CancellationToken.None).ConfigureAwait(false);
+        }
+        else if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.Queued && admitResult.QueueEntryId.HasValue)
+        {
+            await AbandonQueueEntryForCleanupAsync(admitResult.QueueEntryId.Value).ConfigureAwait(false);
+        }
+
+        return emergencyReject;
     }
 }
