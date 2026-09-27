@@ -7157,3 +7157,4 @@
 {"at":"2026-09-27T01:37:10.1266444Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-09-27T01:43:21.4042443Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-09-27T01:48:35.6272537Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
+{"at":"2026-09-27T01:53:01.1834423Z","zoneId":"architecture-recommendation","outcome":"seed-only"}
