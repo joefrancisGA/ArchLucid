@@ -21111,13 +21111,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 28
-- **bugs-found:** 25
+- **hunts:** 29
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — inventory observed-fact overlay merge duplicated nodes when overlay `NodeId` differed from base only by surrounding whitespace
+- **last-bug:** 2026-09-27 — `GraphSnapshotExtensions` neighbor traversal missed nodes when edge endpoints differed from `NodeId` only by surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded knowledge-graph-provenance; proved `GraphSnapshotExtensions.GetOutgoingTargets` / `GetIncomingSources` indexed raw edge endpoint ids while matching `GraphNode.NodeId` without trim so padded endpoints dropped decisioning/RAG neighbor expansion (parity gap vs `ProvenanceBuilder.NormalizeId`); fixed with `NormalizeNodeId` trim on edge filters and node membership; regressions `GetOutgoingTargets_resolves_target_when_edge_to_node_id_has_surrounding_whitespace` and `GetIncomingSources_resolves_source_when_edge_from_node_id_has_surrounding_whitespace`; 2 extension + 354 KnowledgeGraph + 47 Provenance scoped tests passed (3 pre-existing KnowledgeGraph failures).
+
+- [x] (proven) `GraphSnapshotExtensions` — neighbor traversal empty when edge `FromNodeId`/`ToNodeId` differed from canonical `NodeId` only by surrounding whitespace — **hit 2026-09-27 seed hunt (seed→hit):** `NormalizeNodeId` trim; regressions above.
 
 2026-09-27 seed hunt (seed→hit): reseeded knowledge-graph-provenance; proved `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` did not trim inventory `NodeId` on dedup so padded overlay ids bypassed `existingNodeIds` (parity gap vs `ProvenanceBuilder.NormalizeId`); fixed with `NormalizeNodeId` trim on node and edge-key dedup; regression `Merge_boundOverlay_skips_inventory_node_when_node_id_differs_only_by_surrounding_whitespace`; 9 overlay + 352 KnowledgeGraph + 47 Provenance scoped tests passed (3 pre-existing `GraphSnapshotSchemaStability` / `GraphSnapshotCommittedReuseResolver` failures).
 
