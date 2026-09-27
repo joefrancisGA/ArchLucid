@@ -2871,6 +2871,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-27 seed hunt #27 (seed→hit): reseeded technology-ledger-merge after locked-chosen fix; proved locked gate treated cold-start `AgentProposed` `Chosen` rows like authoritative inventory, so a locked first topology service blocked a second service sharing `TechnologyName` but a distinct `EvidenceRef`; fixed by requiring `IsAuthoritativeChosenSource` for locked same-name suppression; regression `Resolve_keeps_second_compute_candidate_when_locked_cold_start_chosen_shares_display_name`; 71 scoped TechnologyLedger tests passed.
+
 2026-09-27 seed hunt #26 (seed→hit): reseeded technology-ledger-merge; proved `Resolve` returned null for every agent candidate when a role's `Chosen` row was `IsLocked`, so topology could not add cross-provider alternatives or same-family services with distinct `TechnologyName` values (only same-family same-name collisions should freeze); fixed locked gate to require matching provider-family gate and technology name; regressions `Resolve_inserts_cross_provider_candidate_when_chosen_is_locked`, `Resolve_inserts_same_family_candidate_with_distinct_name_when_chosen_is_locked`, and `Resolve_skips_same_family_same_name_candidate_when_chosen_is_locked`; 70 scoped TechnologyLedger tests passed.
 
 2026-09-27 seed hunt (seed-only): reseeded technology-ledger-merge after master merge; no new hunt-ready rows; cheap-disproved cloud-neutral chosen↔candidate same-name suppression, seeder cold-start promotion sequence with distinct topology refs, and cross-provider insert when technology names differ; attempted cross-provider same `TechnologyName` suppression — matches intentional provider-conflict exploration (`Resolve_inserts_assumed_on_provider_conflict`); 68 scoped TechnologyLedger tests passed.
@@ -2898,11 +2900,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 26
-- **bugs-found:** 15
+- **hunts:** 27
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — locked chosen froze all agent candidates for the role
+- **last-bug:** 2026-09-27 — locked cold-start chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
