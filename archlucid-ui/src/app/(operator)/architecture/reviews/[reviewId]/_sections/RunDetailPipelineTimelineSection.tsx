@@ -147,9 +147,7 @@ export function RunDetailPipelineTimelineSection(
   const { runId, pipelineTimelineFailure, pipelineTimelineForUi } = props;
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunPipelineTimelineOpenFromSearch(
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("runPipelineTimelineOpen"),
-    ),
+    parseRunPipelineTimelineOpenFromSearch(null),
   );
   const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
   const summaryLine = buildAuditTrailSummaryLine(

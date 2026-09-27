@@ -24,11 +24,7 @@ export function RunDetailAdvancedAnalysisSection(
   const { runId, buyerPolishedArtifactTable } = props;
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunAdvancedAnalysisOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runAdvancedAnalysisOpen"),
-    ),
+    parseRunAdvancedAnalysisOpenFromSearch(null),
   );
 
   const syncOpenToUrl = useCallback(

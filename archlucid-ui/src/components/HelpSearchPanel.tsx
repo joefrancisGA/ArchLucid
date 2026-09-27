@@ -77,27 +77,15 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   const [query, setQueryState] = useState(() =>
-    parseHelpDocSearchQueryFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("helpSearchQ"),
-    ),
+    parseHelpDocSearchQueryFromSearch(null),
   );
   const [highlightedRowId, setHighlightedRowId] = useState("");
   const [article, setArticle] = useState<HelpSearchPanelArticleState>({ status: "idle" });
   const [conceptsDialogOpen, setConceptsDialogOpenState] = useState(() =>
-    parseHelpDocSearchConceptsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("helpConceptsOpen"),
-    ),
+    parseHelpDocSearchConceptsOpenFromSearch(null),
   );
   const [feedbackDialogOpen, setFeedbackDialogOpenState] = useState(() =>
-    parseHelpDocSearchFeedbackOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("helpFeedbackOpen"),
-    ),
+    parseHelpDocSearchFeedbackOpenFromSearch(null),
   );
   const queryRef = useRef(query);
   queryRef.current = query;

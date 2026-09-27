@@ -155,11 +155,7 @@ export function RunExplanationSection({
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const pathname = usePathname() ?? "/";
   const [provenanceOpen, setProvenanceOpenState] = useState(() =>
-    parseRunExplanationProvenanceOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runExplanationProvenanceOpen"),
-    ),
+    parseRunExplanationProvenanceOpenFromSearch(null),
   );
   const provenanceOpenRef = useRef(provenanceOpen);
   provenanceOpenRef.current = provenanceOpen;

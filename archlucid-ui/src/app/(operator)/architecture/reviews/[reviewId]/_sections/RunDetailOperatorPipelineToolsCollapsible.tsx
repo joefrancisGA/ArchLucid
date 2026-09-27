@@ -32,11 +32,7 @@ export function RunDetailOperatorPipelineToolsCollapsible(
   const { runId } = props;
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunRefineWithAiOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runRefineWithAiOpen"),
-    ),
+    parseRunRefineWithAiOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

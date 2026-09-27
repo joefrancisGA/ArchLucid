@@ -65,11 +65,7 @@ export function RecurrenceSchedulePostCommitCard({
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(
     () =>
-      parseRecurrenceSchedulePostCommitOpenFromSearch(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get("recurrenceSchedulePostCommitOpen"),
-      ) || hasStickinessPrompt,
+      parseRecurrenceSchedulePostCommitOpenFromSearch(null) || hasStickinessPrompt,
   );
   const openRef = useRef(open);
   openRef.current = open;

@@ -30,11 +30,7 @@ export type ChangesSinceLastReviewBannerProps = {
 export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBannerProps): ReactElement {
   const pathname = usePathname() ?? "/";
   const [bannerOpen, setBannerOpenState] = useState(() =>
-    parseChangesSinceLastReviewOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("changesSinceLastReviewOpen"),
-    ),
+    parseChangesSinceLastReviewOpenFromSearch(null),
   );
   const compareHref = comparePageHrefAdaptive(props.priorRunId, props.currentRunId);
   const compareLinkLabel = isBuyerPolishedOperatorShellEnv()

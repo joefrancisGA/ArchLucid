@@ -101,20 +101,12 @@ export function RunDetailOutcomeCards({
 }: RunDetailOutcomeCardsProps) {
   const pathname = usePathname() ?? "/";
   const [monitoredRiskOpen, setMonitoredRiskOpenState] = useState(() =>
-    parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
-    ),
+    parseRunDetailOutcomeMonitoredRiskOpenFromSearch(null),
   );
   const monitoredRiskOpenRef = useRef(monitoredRiskOpen);
   monitoredRiskOpenRef.current = monitoredRiskOpen;
   const [decisionKeyOpen, setDecisionKeyOpenState] = useState(() =>
-    parseRunDetailOutcomeDecisionKeyOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
-    ),
+    parseRunDetailOutcomeDecisionKeyOpenFromSearch(null),
   );
   const decisionKeyOpenRef = useRef(decisionKeyOpen);
   decisionKeyOpenRef.current = decisionKeyOpen;

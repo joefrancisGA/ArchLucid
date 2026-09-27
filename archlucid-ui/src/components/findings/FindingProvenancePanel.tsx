@@ -69,11 +69,7 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
   const pathname = usePathname() ?? "/";
   const { runId, findingId } = props;
   const [expanded, setExpandedState] = useState(() =>
-    parseFindingProvenanceOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingProvenanceOpen"),
-    ),
+    parseFindingProvenanceOpenFromSearch(null),
   );
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;

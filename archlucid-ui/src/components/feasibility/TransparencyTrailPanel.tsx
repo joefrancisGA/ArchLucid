@@ -40,11 +40,7 @@ function ShouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skip
 export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [internalDetailsOpen, setInternalDetailsOpenState] = useState(() =>
-    parseTransparencyTrailOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
-    ),
+    parseTransparencyTrailOpenFromSearch(null),
   );
   const syncInternalDetailsOpenToUrl = useCallback(
     (open: boolean) => {

@@ -83,11 +83,7 @@ export function RunInspectorExploreActions({
 }: RunInspectorExploreActionsProps) {
   const pathname = usePathname() ?? "/";
   const [runInspectorRelatedActionsOpen, setRunInspectorRelatedActionsOpenState] = useState(() =>
-    parseRunInspectorRelatedActionsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM),
-    ),
+    parseRunInspectorRelatedActionsOpenFromSearch(null),
   );
   const runInspectorRelatedActionsOpenRef = useRef(runInspectorRelatedActionsOpen);
   runInspectorRelatedActionsOpenRef.current = runInspectorRelatedActionsOpen;
@@ -134,11 +130,7 @@ export function RunInspectorExploreActions({
     };
   }, []);
   const [runInspectorOpenArtifactOpen, setRunInspectorOpenArtifactOpenState] = useState(() =>
-    parseRunInspectorOpenArtifactOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM),
-    ),
+    parseRunInspectorOpenArtifactOpenFromSearch(null),
   );
   const runInspectorOpenArtifactOpenRef = useRef(runInspectorOpenArtifactOpen);
   runInspectorOpenArtifactOpenRef.current = runInspectorOpenArtifactOpen;

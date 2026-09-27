@@ -25,11 +25,7 @@ export type FindingDerivationLineProps = {
 export function FindingDerivationLine(props: FindingDerivationLineProps): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [findingDerivationEvidenceOpen, setFindingDerivationEvidenceOpenState] = useState(() =>
-    parseFindingDerivationEvidenceOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(FINDING_DERIVATION_EVIDENCE_OPEN_PARAM),
-    ),
+    parseFindingDerivationEvidenceOpenFromSearch(null),
   );
   const findingDerivationEvidenceOpenRef = useRef(findingDerivationEvidenceOpen);
   findingDerivationEvidenceOpenRef.current = findingDerivationEvidenceOpen;

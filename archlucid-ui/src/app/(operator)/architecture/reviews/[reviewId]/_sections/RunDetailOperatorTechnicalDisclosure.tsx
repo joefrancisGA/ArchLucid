@@ -21,11 +21,7 @@ export function RunDetailOperatorTechnicalDisclosure(
 ): ReactElement {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunTechnicalDetailsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runTechnicalDetailsOpen"),
-    ),
+    parseRunTechnicalDetailsOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

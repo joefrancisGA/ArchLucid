@@ -87,11 +87,7 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
   } = props;
   const pathname = usePathname() ?? "/";
   const [scopeSwitcherTechnicalDetailsOpen, setScopeSwitcherTechnicalDetailsOpenState] = useState(() =>
-    parseScopeSwitcherTechnicalDetailsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("scopeSwitcherTechnicalDetailsOpen"),
-    ),
+    parseScopeSwitcherTechnicalDetailsOpenFromSearch(null),
   );
   const syncScopeSwitcherTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {

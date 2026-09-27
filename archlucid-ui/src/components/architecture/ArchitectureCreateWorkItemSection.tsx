@@ -33,11 +33,7 @@ export function ArchitectureCreateWorkItemSection(
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [architectureCreateWorkItemOpen, setArchitectureCreateWorkItemOpenState] = useState(() =>
-    parseArchitectureCreateWorkItemOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(ARCHITECTURE_CREATE_WORK_ITEM_OPEN_PARAM),
-    ),
+    parseArchitectureCreateWorkItemOpenFromSearch(null),
   );
   const architectureCreateWorkItemOpenRef = useRef(architectureCreateWorkItemOpen);
   architectureCreateWorkItemOpenRef.current = architectureCreateWorkItemOpen;
