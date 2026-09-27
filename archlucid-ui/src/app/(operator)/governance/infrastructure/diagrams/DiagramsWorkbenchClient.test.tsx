@@ -306,6 +306,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+    expect(screen.getByText("Subscription")).toBeInTheDocument();
     const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
 
     expect(subscriptionPicker).toHaveValue("");
