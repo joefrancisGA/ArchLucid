@@ -218,7 +218,7 @@ public sealed class AgentRuntimePackageCoverageBatch10Tests
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
         string text = sb.ToString();
-        text.Should().Contain("RunId: run-1");
+        text.Should().Contain("<untrusted_input>run-1</untrusted_input>");
         text.Should().Contain("Architecture Request");
         text.Should().Contain("Evidence Package");
         text.Should().Contain("Policies:");

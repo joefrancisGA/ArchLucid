@@ -18,7 +18,7 @@ public static class AgentUserPromptBuilder
     {
         sb.AppendLine($"RunId: {AgentRunHeaderPromptSanitizer.SanitizeHeaderIdentifier(runId)}");
         sb.AppendLine($"TaskId: {AgentRunHeaderPromptSanitizer.SanitizeHeaderIdentifier(taskId)}");
-        sb.AppendLine($"AgentType: {agentTypeLabel}");
+        sb.AppendLine($"AgentType: {AgentRunHeaderPromptSanitizer.SanitizeHostListEntry(agentTypeLabel)}");
         sb.AppendLine();
     }
 
