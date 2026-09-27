@@ -24323,7 +24323,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
-2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved `RunDetailGovernanceDecisionSection` pre-commit vs post-commit `includeCreateIntent` parity; extended `RunDetailGovernanceDecisionSection.test.tsx`; 34 targeted review-detail band vitest tests passed.
+2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved `RunDetailGovernanceDecisionSection` pre-commit vs post-commit `includeCreateIntent` parity; extended `RunDetailGovernanceDecisionSection.test.tsx`; 33 targeted review-detail band vitest tests passed.
 
 - [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit blocking-findings / activity tab hrefs may drop create-home chrome — **cheap-disproof 2026-09-27 seed hunt:** `manifestId` null branch already passes `includeCreateIntent: true`; post-commit branch omits intent by design; regressions in `RunDetailGovernanceDecisionSection.test.tsx`
 
