@@ -18718,11 +18718,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 25
-- **bugs-found:** 20
+- **hunts:** 26
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — nested-array citation wrappers inflated citation count for sponsor disposition
+- **last-bug:** 2026-09-27 — numeric citation array entries skipped sponsor citation count
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18770,6 +18770,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — nested-array `citations` entries counted wrapper arrays instead of citation objects (`[[]]` yielded PASS disposition) — **hit 2026-09-27 thorough hunt:** flatten nested citation arrays before counting (parity with `CollectStringListEntries`); regressions `FromAggregateJson_flattens_nested_array_citations_for_disposition`, `FromAggregateJson_treats_nested_empty_citation_wrappers_as_zero_for_disposition`.
 
 2026-09-27 thorough hunt (hit): proved nested citation wrapper disposition gap; 70 scoped Explanation unit tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded core-explanation-json; proved numeric `citations` array tokens (`[42,"dec-1"]`) counted only string entries so `ResolveDisposition` returned WARN despite two citations (parity gap vs `StructuredExplanationParser` numeric `evidenceRefs`); fixed `CountFlattenedCitationEntry` to count number/boolean tokens; regression `FromAggregateJson_counts_numeric_citation_array_entries_for_disposition`; 75 Core Explanation + 3 Application RunExplanation tests passed.
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountFlattenedCitationEntry` — numeric citation array entries ignored — **hit 2026-09-27 seed hunt:** `JsonValueKind.Number` fell through to zero count while structured normalize maps numeric evidence refs; fixed by treating finite numeric/boolean tokens as single citations; regression `FromAggregateJson_counts_numeric_citation_array_entries_for_disposition`.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
