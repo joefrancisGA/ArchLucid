@@ -132,7 +132,7 @@ public static class RunExplanationConfidenceCalloutBuilder
             }
             else if (citationsEl.ValueKind == JsonValueKind.Object)
             {
-                citationCount = 1;
+                citationCount = CountCitationObject(citationsEl);
             }
             else if (citationsEl.ValueKind == JsonValueKind.Number
                      && RunExplanationAggregateJsonReader.TryReadWholeNumber(citationsEl, out int wholeNumberCount))
@@ -196,7 +196,7 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         if (item.ValueKind == JsonValueKind.Object)
-            return 1;
+            return CountCitationObject(item);
 
         if (item.ValueKind == JsonValueKind.String)
             return string.IsNullOrWhiteSpace(item.GetString()) ? 0 : 1;
@@ -208,6 +208,24 @@ public static class RunExplanationConfidenceCalloutBuilder
             && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out _))
         {
             return 1;
+        }
+
+        return 0;
+    }
+
+    private static int CountCitationObject(JsonElement item)
+    {
+        if (item.ValueKind != JsonValueKind.Object)
+            return 0;
+
+        foreach (string propertyName in new[] { "id", "text" })
+        {
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement property)
+                && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(property, out string? value)
+                && !string.IsNullOrWhiteSpace(value))
+            {
+                return 1;
+            }
         }
 
         return 0;
