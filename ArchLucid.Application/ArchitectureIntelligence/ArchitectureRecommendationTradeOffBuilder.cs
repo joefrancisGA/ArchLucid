@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -115,9 +117,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         string secondToken = secondDimension.ToString();
 
         bool prefersFirst = declaredPriorities.Any(
-            priority => priority.Contains(firstToken, StringComparison.OrdinalIgnoreCase));
+            priority => DeclaredPriorityPrefersDimension(priority, firstToken));
         bool prefersSecond = declaredPriorities.Any(
-            priority => priority.Contains(secondToken, StringComparison.OrdinalIgnoreCase));
+            priority => DeclaredPriorityPrefersDimension(priority, secondToken));
 
         if (prefersFirst && !prefersSecond)
         {
@@ -131,6 +133,47 @@ internal static class ArchitectureRecommendationTradeOffBuilder
 
         return $"Balance {firstDimension} and {secondDimension} with explicit human approval.";
     }
+
+    private static bool DeclaredPriorityPrefersDimension(string priority, string dimensionToken)
+    {
+        if (string.IsNullOrWhiteSpace(priority) || string.IsNullOrWhiteSpace(dimensionToken))
+            return false;
+
+        if (IsNegatedDimensionMention(priority, dimensionToken))
+            return false;
+
+        return CreateDimensionWordPattern(dimensionToken).IsMatch(priority);
+    }
+
+    private static bool IsNegatedDimensionMention(string priority, string dimensionToken)
+    {
+        if (dimensionToken.Equals("Security", StringComparison.OrdinalIgnoreCase)
+            && NonSecurityNegationPattern().IsMatch(priority))
+        {
+            return true;
+        }
+
+        if (dimensionToken.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
+            && UnreliabilityNegationPattern().IsMatch(priority))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static Regex CreateDimensionWordPattern(string dimensionToken)
+    {
+        return new Regex(
+            $"(?:^|[^A-Za-z]){Regex.Escape(dimensionToken)}(?:$|[^A-Za-z])",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    private static Regex NonSecurityNegationPattern() =>
+        new(@"\bnon[-\s]?security\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static Regex UnreliabilityNegationPattern() =>
+        new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
     {
