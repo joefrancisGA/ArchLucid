@@ -296,24 +296,24 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
       ? {
           boxes: "Boxes are resources on a declared path.",
           connectors: "Connectors are declared pipeline wiring.",
-          evidence: "Evidence kind: configuration, not observed traffic.",
+          evidence: "configuration, not observed traffic.",
         }
       : mode === "dataArchitecture"
         ? {
             boxes: "Boxes are data stores.",
             connectors: "Connectors are declared repository relationships.",
-            evidence: "Evidence kind: configuration from inventory.",
+            evidence: "configuration from inventory.",
           }
         : mode === "data"
           ? {
               boxes: "Boxes are data resources in the infrastructure forest.",
               connectors: "Connectors are the infrastructure relationships already drawn.",
-              evidence: "Evidence kind: configuration from inventory.",
+              evidence: "configuration from inventory.",
             }
           : {
               boxes: "Boxes are Azure resources in this view.",
               connectors: "Connectors are relationships already present in inventory.",
-              evidence: "Evidence kind: configuration from inventory.",
+              evidence: "configuration from inventory.",
             };
 
   return (
