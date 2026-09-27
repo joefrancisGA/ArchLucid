@@ -7167,3 +7167,4 @@
 {"at":"2026-09-27T02:43:46.3235767Z","zoneId":"cloud-extractors","outcome":"hit"}
 {"at":"2026-09-27T02:52:00.7791448Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-09-27T03:00:05.0891192Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
+{"at":"2026-09-27T03:07:42.5203787Z","zoneId":"architecture-recommendation","outcome":"hit"}
