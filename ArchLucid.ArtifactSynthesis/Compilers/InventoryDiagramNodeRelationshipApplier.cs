@@ -423,10 +423,15 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
             string? vnetArmId = DiagramAstVnetTopologyResolver.TryResolveVnetIdFromSubnetArmId(subnetArmId);
 
-            return !string.IsNullOrWhiteSpace(vnetArmId)
-                && subnetOwnerArmIds.TryGetValue(vnetArmId, out ownerArmIds)
-                ? ownerArmIds.ToList()
-                : [];
+            if (!string.IsNullOrWhiteSpace(vnetArmId)
+                && subnetOwnerArmIds.TryGetValue(vnetArmId, out ownerArmIds))
+            {
+                return ownerArmIds.ToList();
+            }
+
+            // A visible subnet is still a valid endpoint when no workload
+            // placement edge was collected for it.
+            return [subnetArmId];
         }
 
         if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.NicKind, StringComparison.OrdinalIgnoreCase)
