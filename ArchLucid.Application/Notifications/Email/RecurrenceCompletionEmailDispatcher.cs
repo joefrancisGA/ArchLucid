@@ -50,6 +50,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
+        ArgumentNullException.ThrowIfNull(toMailboxes);
         ArgumentNullException.ThrowIfNull(scheduleName);
 
         if (string.IsNullOrWhiteSpace(scheduleName))

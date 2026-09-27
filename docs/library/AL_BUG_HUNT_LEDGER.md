@@ -21181,13 +21181,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 49
-- **bugs-found:** 37
+- **hunts:** 50
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — finding remediation assignment email threw NullReferenceException on null assignee mailbox
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — recurrence completion email threw NullReferenceException on null toMailboxes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-27 seed hunt #50 (seed→hit): reseeded notifications-pipeline; proved `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` iterated `toMailboxes` without null guard (parity gap vs weekly/exec digest dispatchers); fixed with `ArgumentNullException.ThrowIfNull(toMailboxes)`; regression `TryDispatchAsync_throws_when_to_mailboxes_is_null`; 138 scoped Application notifications/digest tests passed.
+
+- [x] (proven) `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` — null `toMailboxes` throws `NullReferenceException` on `foreach` — **hit 2026-09-27 seed hunt #50:** `ArgumentNullException.ThrowIfNull(toMailboxes)` before normalization; regression `TryDispatchAsync_throws_when_to_mailboxes_is_null`.
 
 2026-09-26 seed hunt #6979 (seed→hit): reseeded notifications-pipeline after #6978; proved `FindingRemediationAssignmentEmailDispatcher.TryDispatchAsync` called `assigneeMailbox.Trim()` before null guard and surfaced `NullReferenceException` instead of `ArgumentNullException` for direct dispatch callers; fixed with `ThrowIfNull`; regression `TryDispatchAsync_throws_when_assignee_mailbox_is_null`; added `ExecDigestEmailDispatcher_throws_for_whitespace_only_unsubscribe_url` shape regression; 136 scoped Application notifications/digest tests passed; 11 DigestSubscriptionsController unit tests passed (2 Api SQL integration auth tests skipped on VM).
 
