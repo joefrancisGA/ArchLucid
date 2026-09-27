@@ -51,11 +51,11 @@ public sealed class QuickScanDistributedConcurrencyService(
         string requestKey,
         CancellationToken cancellationToken = default)
     {
-        QuickScanSafetyOptions safety = _safetyOptions.CurrentValue;
-        QuickScanSafetyEffectiveFeatureState effective = safety.ResolveEffectiveFeatureState();
-
         QuickScanSafetyOperationalSnapshot operational =
             await _operationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+        QuickScanSafetyOptions safety = _safetyOptions.CurrentValue;
+        QuickScanSafetyEffectiveFeatureState effective = safety.ResolveEffectiveFeatureState();
 
         if (!effective.Enabled || !effective.AnonymousExecutionEnabled
             || !operational.AnonymousExecutionAllowed)

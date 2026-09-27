@@ -1284,6 +1284,65 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_rejects_when_safety_disabled_during_operational_snapshot_lookup()
+    {
+        TaskCompletionSource releaseOperationalLookup = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 0,
+                QueueWaitTimeoutSeconds = 30,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                await releaseOperationalLookup.Task;
+
+                return new QuickScanSafetyOperationalSnapshot
+                {
+                    Mode = QuickScanSafetyOperationalMode.Normal,
+                    AnonymousExecutionAllowed = true,
+                    SampleResultAvailable = true,
+                    PublicMessage = string.Empty,
+                    StoreHealthy = true,
+                };
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            new InMemoryQuickScanDistributedConcurrencyStore(),
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("disabled-during-operational", CancellationToken.None);
+
+        options.Enabled = false;
+        releaseOperationalLookup.SetResult();
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.EmergencyDisabled);
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_throws_operation_canceled_when_operational_snapshot_lookup_is_cancelled()
     {
         using CancellationTokenSource cancellation = new();
