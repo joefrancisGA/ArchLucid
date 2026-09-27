@@ -8853,6 +8853,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt #32 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` returning blocked completion JSON (throws after output scan) and non-staged `EvidenceNote` TB-949 marker reachability after execute-time sanitize (Critic compose omits non-staged notes); seeded `(candidate)` `AgentUserPromptBuilder.AppendRunHeader` — `TaskId`/`RunId` lines outside TB-949 quarantine may spoof task objective when ids carry embedded newlines (reachability: zone `paths` omit `Prompts/`; needs caller proof of customer-controlled task ids); regressions `CompleteJsonAsync_when_output_blocked_throws_without_returning_inner_json`, `StreamJsonAsync_when_output_blocked_still_invokes_inner_before_throw`, and `SanitizeAsync_non_staged_evidence_note_tb949_markers_do_not_reach_critic_user_prompt`; 155 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — blocked output scan may still return inner completion JSON — **cheap-disproof 2026-09-27 seed hunt #32:** throws after `CheckOutputAsync`; regression `CompleteJsonAsync_when_output_blocked_throws_without_returning_inner_json`
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` — non-staged `EvidenceNote.Message` with embedded TB-949 markers may reach Critic LLM prompts after `SanitizeScalar` — **cheap-disproof 2026-09-27 seed hunt #32:** `BuildCriticUserPrompt` filters to staged summary notes only; regression `SanitizeAsync_non_staged_evidence_note_tb949_markers_do_not_reach_critic_user_prompt`
+- [ ] (candidate) `AgentUserPromptBuilder.AppendRunHeader` — `TaskId`/`RunId` header lines outside customer-content quarantine may spoof `Task Objective:` when values embed newlines — **seeded 2026-09-27 seed hunt #32:** out of zone `paths` (`Prompts/`); needs reachability proof for operator-supplied task ids
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved streaming completion guard short-circuit before inner `StreamJsonAsync` on blocked system/user prompts and non-staged `EvidenceNote` bodies omitted from critic user prompts; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream`, `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`, and `CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt`; 152 scoped agent-runtime-safety tests passed.
 
 - [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — blocked input scans may still invoke inner streaming client — **cheap-disproof 2026-09-27 seed hunt:** throws before `AgentCompletionStreamingBridge.StreamJsonAsync`; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream` and `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`
@@ -8905,7 +8911,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
