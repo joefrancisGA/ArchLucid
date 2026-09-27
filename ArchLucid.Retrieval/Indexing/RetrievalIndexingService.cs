@@ -87,12 +87,6 @@ public sealed class RetrievalIndexingService(
             if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
                 && !string.Equals(prior.ChunkingFingerprint, fingerprint, StringComparison.OrdinalIgnoreCase))
             {
-                await _vectorIndex.RemoveChunksForDocumentAsync(
-                    doc.DocumentId,
-                    doc.TenantId,
-                    doc.WorkspaceId,
-                    doc.ProjectId,
-                    ct).ConfigureAwait(false);
                 ArchLucidInstrumentation.RecordRetrievalIndexChunkingFingerprintInvalidated();
             }
 
@@ -116,16 +110,6 @@ public sealed class RetrievalIndexingService(
                 continue;
             }
 
-            if (_indexCatalog.TryGet(doc.DocumentId, out _))
-            {
-                await _vectorIndex.RemoveChunksForDocumentAsync(
-                    doc.DocumentId,
-                    doc.TenantId,
-                    doc.WorkspaceId,
-                    doc.ProjectId,
-                    ct).ConfigureAwait(false);
-            }
-
             work.Add((doc, split, fingerprint));
         }
 
@@ -142,6 +126,16 @@ public sealed class RetrievalIndexingService(
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
             ct.ThrowIfCancellationRequested();
+
+            if (_indexCatalog.TryGet(doc.DocumentId, out _))
+            {
+                await _vectorIndex.RemoveChunksForDocumentAsync(
+                    doc.DocumentId,
+                    doc.TenantId,
+                    doc.WorkspaceId,
+                    doc.ProjectId,
+                    ct).ConfigureAwait(false);
+            }
 
             List<float[]> embeddings = [];
 
