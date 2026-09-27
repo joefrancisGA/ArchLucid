@@ -1936,6 +1936,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-run-scope-banner")).not.toBeInTheDocument();
 
     resolveSourceContext?.();
 
@@ -2012,6 +2013,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toBeInTheDocument();
   });
 
   it("does not show reasoning results when product context load failure panel is visible", async () => {
@@ -2101,6 +2103,7 @@ describe("ArchitectureIntelligencePageClient", () => {
 
     expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
     expect(screen.queryByText("Reasoning finding")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
   });
 
   it("hydrates intake after successful product context retry", async () => {
