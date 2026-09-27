@@ -8999,11 +8999,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 27
-- **bugs-found:** 23
+- **hunts:** 24
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — agent over-count left FindingsBySeverity on agent Info while snapshot drove other delta fields
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — agent over-count left decision-delta on agent Info while deltas JSON used snapshot Critical/Warning
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 2026-09-26 seed hunt (hit): proved agent-over-count with `preferSnapshotMaterialFindings` still left `FindingsBySeverity` on agent Info buckets while governed coverage, narrative, and top finding used snapshot Critical/Warning; fixed by applying `snapshotSeverityBuckets` when material prefers snapshot but count gate kept agent totals; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
@@ -9084,9 +9084,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 - [x] (proven) `PilotSponsorMaterialFindingsResolver` equal-count severity tie — decision-delta / semantic-support used agent findings while deltas JSON used snapshot severity after #1417 computer fix — **hit 2026-09-26 seed hunt (seed→hit):** prefer `SponsorNarrativeFindings` when equal counts and snapshot max severity rank is higher; regression `Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding` (`SponsorDecisionDeltaNoveltyResolverTests`).
-- [ ] (candidate) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations
-- [ ] (candidate) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run
-- [ ] (candidate) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths
+- [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` + `preferSnapshotMaterialFindings` (ledger row at zone header); regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
+- [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run — **cheap-disproof 2026-09-26 thorough hunt:** Wave-40 `RunExportSealedManifestHashGuard` on bundle entry; nested PDF builders enforce sealed receipt.
+- [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** `ExcludeOperatorMutedFindings` before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
+- [x] (proven) `PilotSponsorMaterialFindingsResolver` / `SponsorDecisionDeltaNoveltyResolver` — agent over-count (`agentFindings.Count > SponsorNarrativeFindings.Count`) kept agent Info noise in decision-delta markdown while `PilotRunDeltaComputer` used snapshot Critical/Warning buckets after governed-coverage preference — **hit 2026-09-27 thorough hunt:** prefer snapshot narrative when agent over-counts but snapshot max severity rank is higher; regression `Resolve_when_agent_over_counts_but_snapshot_has_higher_severity_prefers_snapshot_narrative`.
+
+2026-09-27 thorough hunt (hit): closed stale reseed candidates; proved decision-delta resolver agent-over-count vs snapshot severity split; 71 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta/SponsorEvidencePack tests passed.
 
 ---
 
