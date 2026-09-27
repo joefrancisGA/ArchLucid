@@ -14,7 +14,8 @@ public static class DiagramForestNestedFrameSvgEmitter
 
     public static XElement EmitLayer(
         XNamespace svgNamespace,
-        IReadOnlyList<DiagramForestNestedFrameBounds> frames)
+        IReadOnlyList<DiagramForestNestedFrameBounds> frames,
+        bool vnetPrimary = false)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(frames);
@@ -35,8 +36,8 @@ public static class DiagramForestNestedFrameSvgEmitter
                     new XAttribute("width", Format(frame.Width)),
                     new XAttribute("height", Format(frame.Height)),
                     new XAttribute("fill", "none"),
-                    new XAttribute("stroke", ResolveStroke(frame.Kind)),
-                    new XAttribute("stroke-width", ResolveStrokeWidth(frame.Kind)),
+                    new XAttribute("stroke", ResolveStroke(frame.Kind, vnetPrimary)),
+                    new XAttribute("stroke-width", ResolveStrokeWidth(frame.Kind, vnetPrimary)),
                     new XAttribute("rx", frame.Kind == "subscription" ? "12" : frame.Kind == "vnet" ? "7" : "5"),
                     new XAttribute("pointer-events", "none")),
                 EmitCaption(svgNamespace, frame)));
@@ -98,22 +99,22 @@ public static class DiagramForestNestedFrameSvgEmitter
         return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
 
-    private static string ResolveStroke(string kind)
+    private static string ResolveStroke(string kind, bool vnetPrimary)
     {
         return kind switch
         {
             "subscription" => "#475569",
-            "vnet" => "#94a3b8",
+            "vnet" => vnetPrimary ? "#334155" : "#94a3b8",
             _ => "#cbd5e1",
         };
     }
 
-    private static string ResolveStrokeWidth(string kind)
+    private static string ResolveStrokeWidth(string kind, bool vnetPrimary)
     {
         return kind switch
         {
             "subscription" => "2.5",
-            "vnet" => "1.5",
+            "vnet" => vnetPrimary ? "2.5" : "1.5",
             _ => "1",
         };
     }

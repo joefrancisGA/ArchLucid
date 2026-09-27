@@ -14,7 +14,8 @@ internal static class DiagramHiddenSubnetVnetPlacementProjector
 {
     public static IReadOnlyList<GraphEdge> Project(
         GraphSnapshot graph,
-        IReadOnlySet<string> excludedArmResourceTypes)
+        IReadOnlySet<string> excludedArmResourceTypes,
+        bool allowCrossResourceGroupVnetPlacement = false)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(excludedArmResourceTypes);
@@ -83,10 +84,11 @@ internal static class DiagramHiddenSubnetVnetPlacementProjector
             }
 
             if (IsExcluded(placedNode, excludedArmResourceTypes)
-                || !string.Equals(
-                    DiagramAstGraphNodeClassifier.ReadResourceGroup(placedNode),
-                    DiagramAstGraphNodeClassifier.ReadResourceGroup(vnet),
-                    StringComparison.OrdinalIgnoreCase)
+                || (!allowCrossResourceGroupVnetPlacement
+                    && !string.Equals(
+                        DiagramAstGraphNodeClassifier.ReadResourceGroup(placedNode),
+                        DiagramAstGraphNodeClassifier.ReadResourceGroup(vnet),
+                        StringComparison.OrdinalIgnoreCase))
                 || IsCollocation(placementEdge))
             {
                 continue;

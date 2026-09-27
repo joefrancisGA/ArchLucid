@@ -13,7 +13,8 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
 
     public static XElement EmitLayer(
         XNamespace svgNamespace,
-        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frames)
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> frames,
+        bool vnetPrimary = false)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(frames);
@@ -22,7 +23,7 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
 
         foreach (DiagramResourceGroupPacker.ResourceGroupFrameBounds frame in frames)
         {
-            layer.Add(EmitFrame(svgNamespace, frame));
+            layer.Add(EmitFrame(svgNamespace, frame, vnetPrimary));
         }
 
         return layer;
@@ -30,7 +31,8 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
 
     private static XElement EmitFrame(
         XNamespace svgNamespace,
-        DiagramResourceGroupPacker.ResourceGroupFrameBounds frame)
+        DiagramResourceGroupPacker.ResourceGroupFrameBounds frame,
+        bool vnetPrimary)
     {
         string escapedName = Escape(frame.GroupName);
         double fontSize = DiagramForestResourceGroupFrameStyle.LabelFontSize;
@@ -60,8 +62,8 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
                 new XAttribute("width", Format(frame.Width)),
                 new XAttribute("height", Format(frame.Height)),
                 new XAttribute("fill", DiagramForestResourceGroupFrameStyle.Fill),
-                new XAttribute("stroke", DiagramForestResourceGroupFrameStyle.Stroke),
-                new XAttribute("stroke-width", Format(DiagramForestResourceGroupFrameStyle.StrokeWidth)),
+                new XAttribute("stroke", vnetPrimary ? "#cbd5e1" : DiagramForestResourceGroupFrameStyle.Stroke),
+                new XAttribute("stroke-width", Format(vnetPrimary ? 1.0d : DiagramForestResourceGroupFrameStyle.StrokeWidth)),
                 new XAttribute("rx", Format(DiagramForestResourceGroupFrameStyle.CornerRadius)),
                 new XAttribute("pointer-events", "none")),
             new XElement(
