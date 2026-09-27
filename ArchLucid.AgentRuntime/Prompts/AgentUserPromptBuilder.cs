@@ -160,14 +160,14 @@ public static class AgentUserPromptBuilder
         sb.AppendLine("Allowed Tools:");
         foreach (string tool in task.AllowedTools)
 
-            sb.AppendLine($"- {AzureResourceTagPromptSanitizer.SanitizeScalar(tool)}");
+            sb.AppendLine($"- {AgentRunHeaderPromptSanitizer.SanitizeHostListEntry(tool)}");
 
         sb.AppendLine();
 
         sb.AppendLine("Allowed Sources:");
         foreach (string source in task.AllowedSources)
 
-            sb.AppendLine($"- {AzureResourceTagPromptSanitizer.SanitizeScalar(source)}");
+            sb.AppendLine($"- {AgentRunHeaderPromptSanitizer.SanitizeHostListEntry(source)}");
 
         sb.AppendLine();
     }

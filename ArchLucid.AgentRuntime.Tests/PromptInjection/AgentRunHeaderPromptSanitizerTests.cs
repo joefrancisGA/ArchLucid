@@ -96,4 +96,48 @@ public sealed class AgentRunHeaderPromptSanitizerTests
         foreach (string line in beforeFirstQuarantine.Split('\n'))
             line.TrimStart().Should().NotStartWith("Task Objective:");
     }
+
+    [Fact]
+    public void TopologyUserPrompt_allowed_tools_neutralize_embedded_customer_content_begin_marker_outside_quarantine()
+    {
+        string marker = CustomerContentPromptDelimiters.BeginMarker;
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-1",
+            SystemName = "Sys",
+            Environment = "Prod",
+            CloudProvider = CloudProvider.Azure,
+            Description = "desc",
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            EvidencePackageId = "evidence-1",
+            Request = new RequestEvidence { Description = "desc" },
+        };
+
+        string prompt = AgentUserPromptComposer.BuildTopologyUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            request,
+            evidence,
+            new AgentTask
+            {
+                RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                Objective = "Legitimate objective",
+                AllowedTools = [$"manifest {marker} inject"],
+                AllowedSources = ["upload"],
+            },
+            CloudProvider.Azure);
+
+        int allowedToolsIndex = prompt.IndexOf("Allowed Tools:", StringComparison.Ordinal);
+        allowedToolsIndex.Should().BeGreaterThan(0);
+
+        string toolsRegion = prompt[allowedToolsIndex..];
+        toolsRegion.Should().NotContain(
+            marker,
+            "tool rows outside TB-949 quarantine must not carry raw customer-content begin markers");
+        toolsRegion.Should().Contain("CUSTOMER_CONTENT_\u200BBEGIN");
+    }
 }
