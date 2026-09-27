@@ -16313,13 +16313,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 19
-- **bugs-found:** 13
+- **hunts:** 20
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — SQL topology / persistence `*ConnectionStringTemplate` paths leaked in config summary
+- **last-bug:** 2026-09-27 — JSON effective values with snake_case `api_key` leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded `ConfigurationSensitiveConfigValueScanner`; proved snake_case JSON property `api_key` bypassed `IsSensitiveConfigPropertyName` because underscore broke contiguous `ApiKey` matching while catalog JSON blobs (e.g. `ArchLucid:FallbackLlm:Endpoints` operator overrides) remain reachable via admin config summary; fixed by tokenizing underscore-separated JSON property names before segment matching; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key`; 1041 scoped Configuration tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded `ArchLucidPersistenceOptions` / `SqlTopologyOptions`; proved `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` path segments bypassed redaction because embedded-`ConnectionString` skip treated trailing `Template` suffix as non-credential; fixed via `ConnectionStringTemplate` compound suffix on `IsCompoundConnectionStringCredentialSegment`; regression `Resolve_redacts_connection_string_template_config_paths`; 1040 scoped Configuration tests passed.
 
@@ -16359,6 +16361,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON credential property names (`api_key`, `client_secret`) bypass PascalCase property-name scanner — **invalid 2026-09-26 thorough hunt:** no catalog or host options path stores credential JSON with snake_case keys; `FallbackLlm:Endpoints` and `PerAgentTypeFloors` bind PascalCase property names via .NET configuration
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `JiraWebhookSecret` and `ServiceNowWebhookSecret` segments bypass redaction because embedded-`Secret` skip treats trailing `WebhookSecret` as non-credential — **hit 2026-09-27 seed hunt:** `Integrations:ItsmInbound:JiraWebhookSecret` and `ServiceNowWebhookSecret` leaked deployment-wide inbound webhook secrets in operator config summary; fixed with `WebhookSecret` compound suffix rule; regression `Resolve_redacts_inbound_itsm_webhook_secret_config_paths`
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` segments bypass redaction because embedded-`ConnectionString` skip treats trailing `Template` as non-credential — **hit 2026-09-27 seed hunt:** `ArchLucid:Persistence:ReadOnlyConnectionStringTemplate` and `ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate` leaked SQL connection templates (including passwords) in operator config summary; fixed with `ConnectionStringTemplate` compound suffix rule; regression `Resolve_redacts_connection_string_template_config_paths`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON property `api_key` bypasses credential property scan — **hit 2026-09-27 seed hunt:** non-sensitive catalog JSON effective values (e.g. `ArchLucid:FallbackLlm:Endpoints` overrides) returned raw secrets when property names used `api_key`; fixed by underscore-tokenizing JSON property names in `IsSensitiveConfigPropertyName`; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
