@@ -16313,13 +16313,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 21
-- **bugs-found:** 15
+- **hunts:** 22
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — JSON effective values with kebab-case `api-key` leaked in config summary
+- **last-bug:** 2026-09-27 — JSON effective values with dotted `api.key` / `credentials.api_key` leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after kebab-case fix; proved dotted JSON property names (`api.key`, `credentials.api_key`) bypassed delimiter tokenization; fixed by dot-delimiter splits and recursive `IsSensitiveConfigPropertyName` on split tokens; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`; 1044 scoped Configuration tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after snake_case fix; proved kebab-case `api-key` bypassed `IsSensitiveConfigPropertyName` for the same admin JSON effective-value path class; fixed by hyphen-delimiter tokenization alongside underscore splits; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`; 1042 scoped Configuration tests passed.
 
@@ -16364,6 +16366,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `JiraWebhookSecret` and `ServiceNowWebhookSecret` segments bypass redaction because embedded-`Secret` skip treats trailing `WebhookSecret` as non-credential — **hit 2026-09-27 seed hunt:** `Integrations:ItsmInbound:JiraWebhookSecret` and `ServiceNowWebhookSecret` leaked deployment-wide inbound webhook secrets in operator config summary; fixed with `WebhookSecret` compound suffix rule; regression `Resolve_redacts_inbound_itsm_webhook_secret_config_paths`
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` segments bypass redaction because embedded-`ConnectionString` skip treats trailing `Template` as non-credential — **hit 2026-09-27 seed hunt:** `ArchLucid:Persistence:ReadOnlyConnectionStringTemplate` and `ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate` leaked SQL connection templates (including passwords) in operator config summary; fixed with `ConnectionStringTemplate` compound suffix rule; regression `Resolve_redacts_connection_string_template_config_paths`
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON property `api_key` bypasses credential property scan — **hit 2026-09-27 seed hunt:** non-sensitive catalog JSON effective values (e.g. `ArchLucid:FallbackLlm:Endpoints` overrides) returned raw secrets when property names used `api_key`; fixed by underscore-tokenizing JSON property names in `IsSensitiveConfigPropertyName`; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — kebab-case JSON property `api-key` bypasses credential property scan — **hit 2026-09-27 seed hunt:** same JSON effective-value path class as snake_case `api_key`; hyphen delimiter left `key` token non-sensitive until split; fixed by hyphen tokenization in `IsSensitiveConfigPropertyName`; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — dotted JSON property names (`api.key`, `credentials.api_key`) bypass credential property scan — **hit 2026-09-27 seed hunt:** dot-delimited keys and mixed dotted snake_case tokens skipped `ApiKey` matching; fixed with dot splits and recursive delimiter tokenization on JSON property name parts; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.

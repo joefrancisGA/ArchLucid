@@ -35,12 +35,13 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             return true;
 
         if (!propertyName.Contains('_', StringComparison.Ordinal)
-            && !propertyName.Contains('-', StringComparison.Ordinal))
+            && !propertyName.Contains('-', StringComparison.Ordinal)
+            && !propertyName.Contains('.', StringComparison.Ordinal))
             return false;
 
-        foreach (string part in propertyName.Split(['_', '-'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        foreach (string part in propertyName.Split(['_', '-', '.'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            if (IsSensitiveConfigSegment(part))
+            if (IsSensitiveConfigPropertyName(part))
                 return true;
         }
 
