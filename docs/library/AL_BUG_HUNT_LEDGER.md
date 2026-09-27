@@ -21779,15 +21779,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 280
-- **bugs-found:** 507
+- **hunts:** 281
+- **bugs-found:** 508
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — insights sealed-manifest guard null run-summary crash
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — governance sealed-manifest guard skipped padded run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 - [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` / `GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync` — insights-scope sealed-manifest preflight called `ListRunSummariesKeysetAsync` then `items.FirstOrDefault` without a null guard so default Moq/`Mock.Of` run-detail doubles surfaced HTTP 500 `ArgumentNullException` instead of returning dashboard/trend payloads — **hit 2026-09-26 seed hunt (seed→hit):** skip guard when summaries are null or empty; wire `GovernanceControllerTestFactory` to `SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns`; regression `EnsureLatestCommittedRunSealedOrThrowAsync_skips_guard_when_run_summaries_are_null`.
+
+- [x] (proven) `GovernanceController.EnsureSealedManifestReadAllowedAsync` / `RecordGovernanceMutationCorrection` — padded `runId` skipped sealed-manifest hash guard because `Guid.TryParse` ran on untrimmed text after #21957 trimmed scoped-run preflight only — **hit 2026-09-27 seed hunt (seed→hit):** trim before parse on run-scoped sealed-manifest guard; regression `RecordGovernanceMutationCorrection_returns_conflict_when_padded_run_id_has_sealed_manifest_hash_drift`.
+
+2026-09-27 seed hunt (seed→hit): reseeded api-governance-tenancy-controllers after insights null-summary fix; proved padded run id bypassed run-scoped sealed-manifest guard on mutation-correction POST; 136 scoped Api unit tests passed (17 SQL integration unavailable on Linux VM).
 
 2026-09-26 seed hunt (seed→hit): reseeded api-governance-tenancy-controllers after insights sealed-manifest guard churn; proved null run-summary page crash on dashboard/trend reads; 136 scoped Api unit tests passed (17 SQL integration skipped).
 
