@@ -1378,7 +1378,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-walkthrough")).toHaveTextContent("2 connected components");
-    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).not.toBeChecked();
     expect(screen.getByTestId("infra-diagrams-always-excluded-panel")).toHaveTextContent("dnszones");
 
     await openDiagramOutlineNodes();
@@ -1429,7 +1429,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     await screen.findByTestId("infra-diagrams-walkthrough");
-    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).toBeChecked();
     expect(screen.queryByTestId("infra-diagrams-always-excluded-panel")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
       "11111111-1111-1111-1111-111111111111",

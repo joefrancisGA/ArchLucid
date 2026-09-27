@@ -2134,6 +2134,22 @@ export function DiagramsWorkbenchClient() {
               <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
             </label>
           ) : null}
+          {diagramWalkthrough != null ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={includeNeverShow}
+                data-testid="infra-diagrams-include-never-show"
+                aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+                disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
+                onCheckedChange={(checked) => {
+                  handleIncludeNeverShowChange(checked === true);
+                }}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+              </span>
+            </label>
+          ) : null}
         </div>
       </section>
 
@@ -2566,25 +2582,6 @@ export function DiagramsWorkbenchClient() {
               >
                 {diagramWalkthrough}
               </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeNeverShow ? "secondary" : "outline"}
-                  aria-pressed={includeNeverShow}
-                  aria-busy={loadingRender}
-                  data-testid="infra-diagrams-include-never-show"
-                  disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
-                  onClick={() => {
-                    handleIncludeNeverShowChange(!includeNeverShow);
-                  }}
-                >
-                  {loadingRender ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : null}
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
-                </Button>
-              </div>
               {!includeNeverShow && alwaysExcludedCollapseEntries.length > 0 ? (
                 <div
                   className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
