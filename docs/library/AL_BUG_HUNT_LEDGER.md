@@ -24806,17 +24806,19 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-09-27 seed hunt #24 (seed→hit): reseeded ui-infra-resource-hub; proved `sanitizeResourceHubQueryForTab` kept `infraResourceHubTechnicalKey=terraformAddress` when leaving the terraform tab, so tab-bar navigation carried a terraform-only disclosure key (and local open state) onto other hub tabs while `workQueue`/`runId` stayed intact; fixed by stripping terraform-only technical keys outside the terraform tab; regressions `clears terraform technical disclosure key when switching away from terraform tab`, `threads explorer workQueue when using G then E keyboard shortcut to return to explorer`, and `drops terraform-only technical disclosure key when leaving terraform tab`; 49 scoped ResourceHubClient tests passed.
+
 - **id:** ui-infra-resource-hub
 - **status:** open
 - **impact:** medium
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 23
-- **bugs-found:** 15
+- **hunts:** 24
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
+- **last-bug:** 2026-09-27 — tab switch retained terraform-only technical disclosure URL key
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

@@ -12,6 +12,7 @@ import {
 } from "./resource-hub-test-mock-hub";
 
 const replace = vi.fn();
+const push = vi.fn();
 let searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
 
 const fetchCachedInfraEvidenceResourceHub = vi.fn(async () => buildResourceHubTestMockHub());
@@ -24,7 +25,7 @@ const createRemediationInstance = vi.fn(async () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace, push: vi.fn() }),
+  useRouter: () => ({ replace, push }),
   usePathname: () => `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
   useSearchParams: () => searchParams,
 }));
@@ -626,6 +627,33 @@ describe("ResourceHubClient", () => {
     expect(replace).toHaveBeenCalledWith(
       expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
     );
+  });
+
+  it("clears terraform technical disclosure key when switching away from terraform tab", async () => {
+    searchParams = new URLSearchParams(
+      `tab=terraform&infraResourceHubTechnicalKey=terraformAddress&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-overview"));
+
+    expect(replace).toHaveBeenCalledWith(expect.not.stringContaining("infraResourceHubTechnicalKey=terraformAddress"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("threads explorer workQueue when using G then E keyboard shortcut to return to explorer", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    push.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "g" });
+    fireEvent.keyDown(window, { key: "e" });
+
+    expect(push).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
   });
 
   it("preserves explorer workQueue on overview view all drift hub tab link", async () => {
