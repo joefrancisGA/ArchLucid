@@ -44,11 +44,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
   const pathname = usePathname() ?? "/";
   const [identifiersOpen, setIdentifiersOpenState] = useState(() =>
-    parseRunDetailProvenanceIdentifiersOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
-    ),
+    parseRunDetailProvenanceIdentifiersOpenFromSearch(null),
   );
   const identifiersOpenRef = useRef(identifiersOpen);
   identifiersOpenRef.current = identifiersOpen;

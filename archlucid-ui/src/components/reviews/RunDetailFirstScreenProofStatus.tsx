@@ -23,11 +23,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
   const { summary } = props;
   const pathname = usePathname() ?? "/";
   const [proofDetailsOpen, setProofDetailsOpenState] = useState(() =>
-    parseRunDetailFirstScreenProofOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
-    ),
+    parseRunDetailFirstScreenProofOpenFromSearch(null),
   );
   const proofDetailsOpenRef = useRef(proofDetailsOpen);
   proofDetailsOpenRef.current = proofDetailsOpen;

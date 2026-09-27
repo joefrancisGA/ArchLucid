@@ -72,11 +72,7 @@ export function RunsListClient(props: RunsListClientProps) {
   const { isWorkingMode } = useWorkspaceMode();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const [runsListFilterOpen, setRunsListFilterOpenState] = useState(() =>
-    parseRunsListFilterOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runsListFilterOpen"),
-    ),
+    parseRunsListFilterOpenFromSearch(null),
   );
   const runsListFilterOpenRef = useRef(runsListFilterOpen);
   runsListFilterOpenRef.current = runsListFilterOpen;

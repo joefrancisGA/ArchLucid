@@ -19,12 +19,12 @@ import { liveApiBase } from "./helpers/live-api-client";
 async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
   await primePrivateBetaBrowserSessionIfJwtMode(page);
   await injectDefaultTenantOperatorScope(page);
-  await page.goto("/administration/users", { waitUntil: "load" });
+  await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
 
   const errorShell = page.getByText(/Something went wrong/i);
   if ((await errorShell.count()) > 0) {
     await primePrivateBetaBrowserSessionIfJwtMode(page);
-    await page.reload({ waitUntil: "load" });
+    await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
   }
 
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });

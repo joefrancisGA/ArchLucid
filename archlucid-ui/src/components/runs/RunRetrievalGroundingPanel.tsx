@@ -93,11 +93,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
   const { payload, failure } = props;
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunRetrievalGroundingOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runRetrievalGroundingOpen"),
-    ),
+    parseRunRetrievalGroundingOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

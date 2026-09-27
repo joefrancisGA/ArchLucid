@@ -92,19 +92,11 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
   const pathname = usePathname() ?? "/";
   const readFilterPanelOpenFromUrl = (): boolean | null =>
     parseFindingsFilterPanelOpenFromSearch(
-      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
-        "findingsFilterPanelOpen",
-      ),
+      new URLSearchParams(window.location.search).get("findingsFilterPanelOpen"),
     );
-  const [filterPanelOpen, setFilterPanelOpenState] = useState(() => {
-    const fromUrl = readFilterPanelOpenFromUrl();
-
-    if (fromUrl !== null) {
-      return fromUrl;
-    }
-
-    return props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD;
-  });
+  const [filterPanelOpen, setFilterPanelOpenState] = useState(
+    () => props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD,
+  );
   const filterPanelOpenRef = useRef(filterPanelOpen);
   filterPanelOpenRef.current = filterPanelOpen;
 

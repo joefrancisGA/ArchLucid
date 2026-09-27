@@ -85,9 +85,7 @@ export function GenerateAdrFromRunModal({
   const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
   const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
   const [open, setOpenState] = useState(() =>
-    parseReviewGenerateAdrOpenFromSearch(
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("adrOpen"),
-    ),
+    parseReviewGenerateAdrOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

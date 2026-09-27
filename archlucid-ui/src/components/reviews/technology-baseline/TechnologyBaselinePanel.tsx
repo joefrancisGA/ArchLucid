@@ -61,18 +61,10 @@ export function TechnologyBaselinePanel({
 }: TechnologyBaselinePanelProps): React.JSX.Element {
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
   const [urlTechEntryId, setUrlTechEntryId] = useState(() =>
-    parseTechnologyBaselineEntryIdFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("techEntryId"),
-    ),
+    parseTechnologyBaselineEntryIdFromSearch(null),
   );
   const [openEvidenceRefEntryId, setOpenEvidenceRefEntryIdState] = useState(() =>
-    parseTechnologyBaselineEvidenceRefEntryIdFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("technologyBaselineEvidenceRefEntryId"),
-    ),
+    parseTechnologyBaselineEvidenceRefEntryIdFromSearch(null),
   );
   const openEvidenceRefEntryIdRef = useRef(openEvidenceRefEntryId);
   openEvidenceRefEntryIdRef.current = openEvidenceRefEntryId;

@@ -27,11 +27,7 @@ export function OperatorRelatedSurfacesDisclosure(
   const pathname = usePathname() ?? "/";
   const title = props.title ?? OPERATOR_RELATED_SURFACES_DISCLOSURE_TITLE;
   const [open, setOpenState] = useState(() =>
-    parseRelatedSurfacesOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("relatedSurfacesOpen"),
-    ),
+    parseRelatedSurfacesOpenFromSearch(null),
   );
 
   const syncOpenToUrl = useCallback(

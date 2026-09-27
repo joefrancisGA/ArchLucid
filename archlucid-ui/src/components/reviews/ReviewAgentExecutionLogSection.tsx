@@ -53,11 +53,7 @@ export function ReviewAgentExecutionLogSection({
 }: ReviewAgentExecutionLogSectionProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunAgentExecutionLogOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runAgentExecutionLogOpen"),
-    ),
+    parseRunAgentExecutionLogOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

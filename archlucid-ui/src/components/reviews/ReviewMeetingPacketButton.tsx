@@ -107,11 +107,7 @@ export function buildReviewMeetingPacketSteps(
 export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps): ReactElement {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [open, setOpenState] = useState(() =>
-    parseReviewMeetingPacketOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("meetingPacketOpen"),
-    ),
+    parseReviewMeetingPacketOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

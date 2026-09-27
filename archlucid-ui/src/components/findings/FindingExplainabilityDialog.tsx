@@ -66,11 +66,7 @@ export function FindingExplainabilityDialog({
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
   const [technicalAuditOpen, setTechnicalAuditOpenState] = useState(() =>
-    parseFindingExplainabilityTechnicalOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingExplainabilityTechnicalOpen"),
-    ),
+    parseFindingExplainabilityTechnicalOpenFromSearch(null),
   );
   const technicalAuditOpenRef = useRef(technicalAuditOpen);
   technicalAuditOpenRef.current = technicalAuditOpen;

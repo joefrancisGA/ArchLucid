@@ -62,11 +62,7 @@ export function RunDetailLastFailureCard(props: {
   const runId = props.runId?.trim() ?? "";
   const reRunInFlight = useReviewPipelineReRunInFlight(runId);
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
-    parseRunLastFailureTechOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runLastFailureTechOpen"),
-    ),
+    parseRunLastFailureTechOpenFromSearch(null),
   );
   const technicalDetailsOpenRef = useRef(technicalDetailsOpen);
   technicalDetailsOpenRef.current = technicalDetailsOpen;

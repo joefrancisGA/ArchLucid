@@ -34,11 +34,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
   const { run, manifestId } = props;
   const pathname = usePathname() ?? "/";
   const [auditIdentifiersOpen, setAuditIdentifiersOpenState] = useState(() =>
-    parseRunAuditIdentifiersOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runAuditIdentifiersOpen"),
-    ),
+    parseRunAuditIdentifiersOpenFromSearch(null),
   );
   const auditIdentifiersOpenRef = useRef(auditIdentifiersOpen);
   auditIdentifiersOpenRef.current = auditIdentifiersOpen;

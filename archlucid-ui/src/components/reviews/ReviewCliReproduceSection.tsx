@@ -26,11 +26,7 @@ export function ReviewCliReproduceSection({
 }: ReviewCliReproduceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseReviewCliReproduceOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("reviewCliReproduceOpen"),
-    ),
+    parseReviewCliReproduceOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;
