@@ -553,6 +553,47 @@ public sealed class CustomerContentPromptDelimiterTests
             "Unicode line separator must not break staged summary into a spoof Description field line");
     }
 
+    [Fact]
+    public void CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_end_marker()
+    {
+        string marker = CustomerContentPromptDelimiters.EndMarker;
+        AgentEvidencePackage evidence = SampleEvidence();
+        evidence.Notes.Add(new EvidenceNote
+        {
+            NoteType = EvidenceNoteTypes.StagedPriorAgentsSummary,
+            Message = $"Prior batch summary line with {marker} bypass attempt",
+        });
+
+        string prompt = AgentUserPromptComposer.BuildCriticUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            SampleRequest(),
+            evidence,
+            SampleTask(AgentType.Critic),
+            CloudProvider.Azure);
+
+        prompt.Should().NotContain(
+            $"{marker} bypass",
+            "compose must neutralize TB-949 markers embedded in staged summary notes");
+    }
+
+    [Fact]
+    public void TruncatePreservingSectionBounds_appends_end_when_only_case_variant_end_literal_is_inside_body()
+    {
+        string begin = CustomerContentPromptDelimiters.BeginMarker;
+        string endLower = CustomerContentPromptDelimiters.EndMarker.ToLowerInvariant();
+        string body = new string('x', 80);
+        string text =
+            $"{CustomerContentPromptDelimiters.FramingInstruction}\n{begin}\n{body}\n{endLower}\n";
+
+        int beginIndex = text.IndexOf(begin, StringComparison.Ordinal);
+        int cutLength = beginIndex + 40;
+        string truncated = CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(text, cutLength);
+
+        truncated.Should().Contain(CustomerContentPromptDelimiters.EndMarker);
+        truncated.LastIndexOf(CustomerContentPromptDelimiters.EndMarker, StringComparison.Ordinal)
+            .Should().BeGreaterThan(truncated.LastIndexOf(begin, StringComparison.Ordinal));
+    }
+
     private static string BuildPrompt(string builderName)
     {
         ArchitectureRequest request = SampleRequest();
