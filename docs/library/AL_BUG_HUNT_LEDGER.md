@@ -24323,6 +24323,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved `RunDetailGovernanceDecisionSection` pre-commit vs post-commit `includeCreateIntent` parity; extended `RunDetailGovernanceDecisionSection.test.tsx`; 34 targeted review-detail band vitest tests passed.
+
+- [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit blocking-findings / activity tab hrefs may drop create-home chrome — **cheap-disproof 2026-09-27 seed hunt:** `manifestId` null branch already passes `includeCreateIntent: true`; post-commit branch omits intent by design; regressions in `RunDetailGovernanceDecisionSection.test.tsx`
+
 2026-09-27 thorough hunt (hit): proved `ArchitectureCreatedClarificationsPanel` zero-gap workspace tab links omitted `includeCreateIntent` (parity with `RunDetailCreateHomeActivityPanel`); fixed diagram/findings/activity hrefs; cheap-disproved `resolveReviewWorkspaceLifecycle` early-manifest + in-flight tracker — TB-2175 committed stage stays `finalized` while pipeline chrome uses `showProgressTracker`; regression `returns finalized when manifest is present even if the progress tracker is still on (TB-2175)`; 32 targeted review-detail band vitest tests passed plus clarifications/lifecycle specs.
 
 - [x] (proven) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omitted `includeCreateIntent` — **hit 2026-09-27 thorough hunt:** zero-gap success CTAs dropped create-home chrome; fixed with `includeCreateIntent: true`; regression `preserves create-home intent on zero-gap workspace tab links (TB-1836)`
@@ -24334,7 +24338,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27

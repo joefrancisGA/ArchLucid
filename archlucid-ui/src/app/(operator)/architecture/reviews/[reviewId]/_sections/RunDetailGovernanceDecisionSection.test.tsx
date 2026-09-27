@@ -52,6 +52,11 @@ describe("RunDetailGovernanceDecisionSection", () => {
     const blockingLink = screen.getByRole("link", { name: "2" });
 
     expect(blockingLink.getAttribute("href") ?? "").toContain("reviewTab=findings");
+    expect(blockingLink.getAttribute("href") ?? "").toContain("fromGeneration=1");
+    expect(blockingLink.getAttribute("href") ?? "").toContain("intent=create-architecture");
+
+    expect(secondary.getAttribute("href") ?? "").toContain("fromGeneration=1");
+    expect(secondary.getAttribute("href") ?? "").toContain("intent=create-architecture");
 
     expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull();
     expect(screen.getByTestId("run-detail-governance-help-cites")).toBeInTheDocument();
@@ -121,5 +126,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     const blockingLink = screen.getByRole("link", { name: "2" });
 
     expect(blockingLink.getAttribute("href") ?? "").toContain("reviewTab=findings");
+    expect(blockingLink.getAttribute("href") ?? "").not.toContain("fromGeneration=1");
+    expect(blockingLink.getAttribute("href") ?? "").not.toContain("intent=create-architecture");
   });
 });
