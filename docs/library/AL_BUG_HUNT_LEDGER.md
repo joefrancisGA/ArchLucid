@@ -2803,13 +2803,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 19
-- **bugs-found:** 15
+- **hunts:** 20
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — embedded combining marks in `EvidenceBundleId` passed `IsValidForProcessing` and broke post-gate bundle lookup (parity gap vs embedded zero-width rejection)
+- **last-bug:** 2026-09-27 — embedded combining marks in document/declaration names survived `MaterializeDocumentList` / `MaterializeInfrastructureDeclarationList` (parity gap vs evidence bundle id gate)
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload; proved `HasSubstantiveDocument` / `HasSubstantiveInfrastructureDeclaration` used `HasSubstantiveText` on `name` only so `diagram\u0300` and `main\u0300` survived materialization though path/batch keys treat names as identifiers (parity gap vs `HasUsableEvidenceBundleId`); fixed with shared `HasUsableIdentifierText` on document and declaration names; regressions `Deserialize_filters_document_when_name_contains_embedded_combining_mark` and `Deserialize_filters_infrastructure_declaration_when_name_contains_embedded_combining_mark`; 26 scoped payload JSON tests passed.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.MaterializeDocumentList` / `MaterializeInfrastructureDeclarationList` — embedded combining marks in declaration/document `name` survived materialization — **hit 2026-09-27 seed hunt (seed→hit):** `HasUsableIdentifierText` on names; regressions above.
 
 2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload; proved `HasSubstantiveText` skipped combining marks when scanning so `bundle-1\u0300` passed `IsValidForProcessing` but `EvidenceBundleId.Trim()` left the mark and bundle lookup failed (parity gap vs embedded U+200B rejection); fixed with `HasUsableEvidenceBundleId` rejecting any combining mark in the id; regression `IsValidForProcessing_rejects_embedded_combining_mark_in_evidence_bundle_id`; 24 scoped payload JSON tests passed.
 

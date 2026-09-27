@@ -300,6 +300,60 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_document_when_name_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diagram\u0300", "contentType": "text/plain", "content": "diagram source" },
+                  { "name": "keep", "contentType": "text/plain", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_infrastructure_declaration_when_name_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "main\u0300", "format": "json", "content": "{\"resources\":[]}" },
+                  { "name": "keep", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_empty_document_objects()
     {
         Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");

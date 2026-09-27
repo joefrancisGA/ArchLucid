@@ -43,7 +43,9 @@ public sealed class AuthorityPipelineWorkPayload
                && Enum.IsDefined(WorkKind);
     }
 
-    private static bool HasUsableEvidenceBundleId(string? value)
+    private static bool HasUsableEvidenceBundleId(string? value) => HasUsableIdentifierText(value);
+
+    private static bool HasUsableIdentifierText(string? value)
     {
         if (!HasSubstantiveText(value))
             return false;
@@ -137,7 +139,7 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasSubstantiveText(document.Name) && HasSubstantiveText(document.Content);
+        HasUsableIdentifierText(document.Name) && HasSubstantiveText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -152,6 +154,6 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasSubstantiveText(declaration.Name) && HasSubstantiveText(declaration.Content);
+        return HasUsableIdentifierText(declaration.Name) && HasSubstantiveText(declaration.Content);
     }
 }
