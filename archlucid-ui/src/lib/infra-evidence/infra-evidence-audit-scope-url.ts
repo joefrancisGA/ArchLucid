@@ -29,11 +29,12 @@ export function buildInfraEvidenceAuditScopeBarAuditTabHref(
   auditScope: InfraEvidenceWorkbenchAuditScope,
   snapshotId?: string | null,
   runId?: string | null,
+  currentSearch = "",
 ): string {
   const trimmedSnapshotId = snapshotId?.trim() ?? "";
   const trimmedRunId = runId?.trim() ?? "";
 
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, currentSearch, {
     tab: "audit",
     snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
     runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
