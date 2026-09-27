@@ -21320,13 +21320,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 51
-- **bugs-found:** 39
+- **hunts:** 52
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — weekly sponsor summary email logo URL used padded OperatorBaseUrl
+- **last-bug:** 2026-09-27 — exec digest and sibling dispatchers used padded OperatorBaseUrl for logo URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt #52 (seed→hit): reseeded notifications-pipeline after #51 summary logo fix; proved `ExecDigestEmailDispatcher`, `RecurrenceCompletionEmailDispatcher`, `FindingRemediationAssignmentEmailDispatcher`, and `TrialLifecycleEmailDispatcher` still passed padded `OperatorBaseUrl` into branding/operator links (`TrimEnd('/')` only); fixed with `Trim().TrimEnd('/')` parity and `EmailBrandingUrls.TryBuildLogoImageUrl` leading-whitespace trim; regressions `ExecDigestEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url` and `TryBuildLogoImageUrl_trims_leading_and_trailing_whitespace_on_base`; 141 scoped Application notifications/digest tests passed.
+
+- [x] (proven) `ExecDigestEmailDispatcher` / `EmailBrandingUrls` — padded `OperatorBaseUrl` broke digest logo image URLs — **hit 2026-09-27 seed hunt #52:** sibling dispatchers + shared branding helper now trim padded bases; regressions above.
 
 2026-09-27 seed hunt #51 (seed→hit): reseeded notifications-pipeline; promoted weekly-digest candidate `WeeklySponsorSummaryEmailDispatcher` padded `OperatorBaseUrl` logo gap (parity with report fix #2026-09-27); fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before `EmailBrandingUrls.TryBuildLogoImageUrl`; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`; 139 scoped Application notifications/digest tests passed.
 
