@@ -524,6 +524,58 @@ public sealed class CustomerContentPromptDelimiterTests
     }
 
     [Fact]
+    public async Task TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer()
+    {
+        const string policyIdProbe = "policy-xyzzy-inject-id";
+        const string patternIdProbe = "pattern-xyzzy-inject-id";
+        const string serviceIdProbe = "service-xyzzy-inject-id";
+        const string categoryProbe = "category-xyzzy-inject-spoof";
+        const string capabilityProbe = "capability-xyzzy-inject-spoof";
+
+        ArchitectureRequest request = SampleRequest();
+        AgentEvidencePackage evidence = SampleEvidence();
+        evidence.Policies.Add(new PolicyEvidence
+        {
+            PolicyId = policyIdProbe,
+            Title = "Network isolation",
+            Summary = "Require private endpoints",
+        });
+        evidence.Patterns.Add(new PatternEvidence
+        {
+            PatternId = patternIdProbe,
+            Name = "Event-driven",
+            Summary = "Async messaging",
+            ApplicableCapabilities = [capabilityProbe],
+        });
+        evidence.ServiceCatalog.Add(new ServiceCatalogEvidence
+        {
+            ServiceId = serviceIdProbe,
+            ServiceName = "Azure Service Bus",
+            Category = categoryProbe,
+            Summary = "Managed messaging",
+        });
+
+        AgentEvidenceUntrustedInputSanitizer sanitizer = new();
+        await sanitizer.SanitizeAsync(evidence, request, CancellationToken.None);
+
+        string prompt = AgentUserPromptComposer.BuildTopologyUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            request,
+            evidence,
+            SampleTask(),
+            CloudProvider.Azure);
+
+        prompt.Should().Contain("Network isolation");
+        prompt.Should().Contain("Event-driven");
+        prompt.Should().Contain("Azure Service Bus");
+        prompt.Should().NotContain(policyIdProbe);
+        prompt.Should().NotContain(patternIdProbe);
+        prompt.Should().NotContain(serviceIdProbe);
+        prompt.Should().NotContain(categoryProbe);
+        prompt.Should().NotContain(capabilityProbe);
+    }
+
+    [Fact]
     public void CostUserPrompt_does_not_echo_evidence_package_cloud_provider_free_text_string()
     {
         ArchitectureRequest request = SampleRequest();

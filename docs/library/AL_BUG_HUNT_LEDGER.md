@@ -8765,6 +8765,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved evidence catalog identifier/category/capability fields omitted from `AgentUserPromptBuilder` (unsanitized in `AgentEvidenceUntrustedInputSanitizer` but no LLM prompt reachability) and NBSP inline field-spoof via `SanitizeScalar` (no extra prompt lines); regressions `TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer` and `SanitizeScalar_keeps_no_break_space_on_one_line_within_outer_untrusted_wrapper`; scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` — `PolicyId` / `PatternId` / `ServiceId` / `ServiceCatalog.Category` / `PatternEvidence.ApplicableCapabilities` are not wrapped — **cheap-disproof 2026-09-27 seed hunt:** `AgentUserPromptBuilder` echoes title/name/summary lists only; regression `TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer`
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizeScalar` — NBSP (`\u00A0`) may embed `Description:` inline without collapsing — **cheap-disproof 2026-09-27 seed hunt:** NBSP does not create structural newlines; host labels remain on separate lines inside TB-949 quarantine; regression `SanitizeScalar_keeps_no_break_space_on_one_line_within_outer_untrusted_wrapper`
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved staged-summary embedded `CUSTOMER_CONTENT_BEGIN` parity (compose-layer `EscapeEmbeddedMarkers`); regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_begin_marker`; 148 scoped agent-runtime-safety tests passed.
 
 - [x] (valid-no-repro) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged note body with embedded `CUSTOMER_CONTENT_BEGIN` may open a nested TB-949 section — **cheap-disproof 2026-09-27 seed hunt:** compose runs `SanitizePersistedCustomerProse` then `EscapeEmbeddedMarkers` (parity with END-marker regression); regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_begin_marker`
@@ -8807,7 +8812,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
