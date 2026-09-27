@@ -109,7 +109,49 @@ public sealed class ManifestChunkSummarizerTests
 
         IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
 
-        result.Should().BeSameAs(hits);
+        ManifestChunkSummarizer.EstimateTotalTokens(result).Should().BeLessThanOrEqualTo(10);
+        summaryClient.Verify(
+            c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            new RetrievalHit
+            {
+                ChunkId = "policy-high",
+                DocumentId = "doc-policy",
+                CorpusKind = nameof(CorpusKind.PolicyPack),
+                SourceType = "PolicyPackRule",
+                SourceId = "rule-high",
+                Title = "rule-high",
+                Text = heavyText,
+                Score = 0.95,
+            },
+            new RetrievalHit
+            {
+                ChunkId = "policy-low",
+                DocumentId = "doc-policy",
+                CorpusKind = nameof(CorpusKind.PolicyPack),
+                SourceType = "PolicyPackRule",
+                SourceId = "rule-low",
+                Title = "rule-low",
+                Text = heavyText,
+                Score = 0.10,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        ManifestChunkSummarizer.EstimateTotalTokens(result).Should().BeLessThanOrEqualTo(150);
+        result.Should().HaveCountLessThan(2);
         summaryClient.Verify(
             c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);

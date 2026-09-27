@@ -11332,6 +11332,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-09-27 seed hunt #36 (seed→hit): reseeded retrieval; proved `ManifestChunkSummarizer.MaybeSummarizeAsync` returned policy-pack-only hit lists above `SafeTokenLimit` because the no-manifest-candidate path skipped `TrimHitsToSafeTokenLimit`; fixed by trimming before return; regressions `MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget` and updated non-manifest budget test; seeded `(candidate)` `AdminRagHealthQuery.GetRagHealth` reports catalog document count as `ChunkCount`; 349 scoped retrieval/indexing tests passed.
+
 2026-09-27 thorough hunt #35 (hit): proved `ManifestChunkSummarizer.MaybeSummarizeAsync` returned manifest hits above `SafeTokenLimit` when `IManifestChunkSummaryCompletionClient` returned verbose summaries (prefix loop assumed summarized text removed full token weight); fixed with `TrimHitsToSafeTokenLimit` dropping lowest-score hits until within budget; regression `MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose`; 348 scoped retrieval/indexing tests passed.
 
 2026-09-27 seed hunt #34 (seed→hit): reseeded retrieval; proved `RetrievalIndexingService.IndexDocumentsAsync` left orphan `{documentId}-chunk-N` vectors when content shrank under an unchanged chunking fingerprint (upsert replaced overlapping ordinals only); fixed by removing prior document chunks before upsert when catalog already held the document; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks`; seeded `(candidate)` `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose summary client can return manifest context still above `SafeTokenLimit` when no further candidates remain; 347 scoped retrieval/indexing tests passed.
@@ -11344,11 +11346,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 34
-- **bugs-found:** 16
+- **hunts:** 36
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — reindex with fewer chunks left stale higher-ordinal vectors
+- **last-bug:** 2026-09-27 — manifest summarizer skipped SafeTokenLimit trim for non-manifest-only hit lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11398,7 +11400,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines — **cheap-disproof 2026-09-12 thorough hunt #1961:** shipped compliance-rules templates place the category delimiter colon before descriptions; no bundled rule line puts `:` inside control names or URLs ahead of the header/body split.
 - [x] (proven) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` — **hit 2026-09-12 thorough hunt #1961:** `BuildNodeIndex` used `StringComparer.Ordinal` so `node-a`/`NODE-B` edges were ignored and community summarization fragmented; fixed with `OrdinalIgnoreCase`; regression `DetectCommunities_matches_edges_to_nodes_case_insensitively`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to fewer chunks under the same chunking fingerprint left higher-ordinal vectors searchable — **hit 2026-09-27 seed hunt #34:** remove prior document chunks before upsert when catalog already tracks the document; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks`.
-- [ ] (candidate) `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose `IManifestChunkSummaryCompletionClient` output can leave summarized manifest hits above `SafeTokenLimit` when the prefix-selection loop exhausts candidates without a final budget clamp (reachability: `RetrievalQueryService.SearchAsync` when manifest summarization enabled).
+- [x] (proven) `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose `IManifestChunkSummaryCompletionClient` output left summarized manifest hits above `SafeTokenLimit` when the prefix-selection loop exhausted candidates — **hit 2026-09-27 thorough hunt #35:** `TrimHitsToSafeTokenLimit` drops lowest-score hits until within budget; regression `MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose`.
+- [x] (proven) `ManifestChunkSummarizer.MaybeSummarizeAsync` — policy-pack-only (non-manifest) hit lists above `SafeTokenLimit` returned unchanged when no manifest summarization candidates existed — **hit 2026-09-27 seed hunt #36:** apply `TrimHitsToSafeTokenLimit` on the no-candidate path; regressions `MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget` and non-manifest budget enforcement in `MaybeSummarizeAsync_does_not_summarize_non_manifest_corpus_hits`.
+- [ ] (candidate) `AdminRagHealthQuery.GetRagHealth` — `ChunkCount` reflects indexed document count from `IRetrievalDocumentIndexCatalog`, not vector chunk cardinality (reachability: admin RAG health endpoint; misleading ops signal only).
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 

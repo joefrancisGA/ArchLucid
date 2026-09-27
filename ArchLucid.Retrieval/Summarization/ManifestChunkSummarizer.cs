@@ -44,7 +44,11 @@ public sealed class ManifestChunkSummarizer(
             .ToList();
 
         if (remainingCandidates.Count == 0)
-            return hits;
+        {
+            TrimHitsToSafeTokenLimit(mutableHits, options.SafeTokenLimit);
+
+            return mutableHits;
+        }
 
         int maxConcurrent = Math.Clamp(options.MaxConcurrentSummaries, 1, 32);
 
