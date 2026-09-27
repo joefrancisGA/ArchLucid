@@ -9125,13 +9125,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 24
-- **bugs-found:** 19
+- **hunts:** 26
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — agent over-count left decision-delta on agent Info while deltas JSON used snapshot Critical/Warning
+- **last-bug:** 2026-09-27 — snapshot governed-count preference dropped agent Critical severity buckets and top finding
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded application-pilots after advisory-inflation fix; proved `preferSnapshotMaterialFindings` from stronger snapshot governed coverage still replaced agent `FindingsBySeverity` and `TopFindingId` when agent held a higher-severity governed Critical not yet in snapshot; fixed by requiring equal governed counts for under-count snapshot preference and skipping snapshot severity/top override when agent max severity outranks snapshot; regressions `ComputeAsync_WhenAgentHasHigherSeverityGovernedFinding_KeepsAgentBucketsDespiteSnapshotGovernedCount` plus prior advisory-inflation test; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
+
+- [x] (proven) `PilotRunDeltaComputer` — snapshot governed-count preference masked agent Critical — **hit 2026-09-27 seed hunt:** governed `>=` path and material snapshot override dropped agent severity/top when snapshot had more governed warnings; tightened equal-governed gate and `agentMaxSeverityOutranksSnapshot` guard; regression above.
+
+2026-09-27 seed hunt (seed→hit): reseeded application-pilots; proved agent over-count with equal `GovernedCount` still used agent `FindingsBySeverity` (advisory inflation) and `PilotSponsorMaterialFindingsResolver` kept agent Info rows in decision-delta markdown while persisted snapshot held only governed warnings; fixed `ShouldPreferSnapshotFindings` when snapshot governed coverage matches or exceeds agent on under-counted snapshot totals and resolver tie on equal max severity when agent over-counts narrative; regression `ComputeAsync_WhenAgentOverCountsAdvisoryWithEqualGovernedCoverage_UsesSnapshotSeverityBuckets`; 55 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
+
+- [x] (proven) `PilotRunDeltaComputer.ShouldPreferSnapshotFindings` / `PilotSponsorMaterialFindingsResolver` — agent advisory inflation with equal governed coverage — **hit 2026-09-27 seed hunt:** prefer persisted snapshot severity buckets and narrative when agent over-counts with matching governed coverage; regression above.
+
 2026-09-26 seed hunt (hit): proved agent-over-count with `preferSnapshotMaterialFindings` still left `FindingsBySeverity` on agent Info buckets while governed coverage, narrative, and top finding used snapshot Critical/Warning; fixed by applying `snapshotSeverityBuckets` when material prefers snapshot but count gate kept agent totals; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
 - [x] (proven) `PilotRunDeltaComputer.FindingsBySeverity` — agent over-count kept agent severity buckets while snapshot drove governed/narrative/top — **hit 2026-09-26 seed hunt:** align severity buckets with `preferSnapshotMaterialFindings`; regression extended on `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 2026-09-26 seed hunt (hit): proved agent-over-count with stronger snapshot material still selected agent Info as `TopFindingId` while governed coverage and sponsor narrative used snapshot Critical; fixed by applying snapshot top-finding selection when `preferSnapshotMaterialFindings`; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
