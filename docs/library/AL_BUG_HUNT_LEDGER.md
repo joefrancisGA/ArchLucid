@@ -24087,11 +24087,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 24
-- **bugs-found:** 16
+- **hunts:** 25
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — safety kill-switch disabled during operational snapshot still admitted
+- **last-bug:** 2026-09-27 — kill-switch during slow TryAdmit still granted lease
+
+2026-09-27 seed hunt #25 (seed→hit): reseeded post-operational admit window; proved kill-switch or operational anonymous block applied during slow `TryAdmitAsync` still committed a direct lease or queue row because gates ran only before the store call; fixed with post-admit operational/safety re-check and lease or queue rollback; regressions `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_admit`, `WaitForAdmissionAsync_rejects_when_operational_blocks_anonymous_during_slow_try_admit`; 39 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — safety or operational kill-switch during slow `TryAdmitAsync` still admits — **hit 2026-09-27 seed hunt #25:** post-admit snapshot re-check releases direct leases and abandons queue rows; regressions `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_admit`, `WaitForAdmissionAsync_rejects_when_operational_blocks_anonymous_during_slow_try_admit`.
 
 2026-09-27 seed hunt #24 (seed→hit): reseeded pre-admit safety snapshot ordering; proved `WaitForAdmissionAsync` captured `ResolveEffectiveFeatureState()` before `GetSnapshotAsync` so `Enabled=false` (or `EmergencyDisabled`) applied during a slow operational lookup was ignored and admit still ran; fixed by re-reading `IOptionsMonitor` safety after operational snapshot; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_operational_snapshot_lookup`; 37 scoped QuickScanDistributedConcurrency tests passed.
 
