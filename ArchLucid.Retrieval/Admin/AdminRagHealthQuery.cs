@@ -29,7 +29,7 @@ public sealed class AdminRagHealthQuery(
             .Select(summary => new AdminRagCorpusHealthItem
             {
                 CorpusKind = summary.CorpusKind,
-                ChunkCount = summary.DocumentCount,
+                ChunkCount = summary.ChunkCount,
                 LastIndexedUtc = summary.LastIndexedUtc,
                 EmbeddingDimension = embeddingDimension,
                 IsStale = summary.LastIndexedUtc is null || summary.LastIndexedUtc < staleBefore,

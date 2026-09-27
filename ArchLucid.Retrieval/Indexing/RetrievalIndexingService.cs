@@ -110,7 +110,7 @@ public sealed class RetrievalIndexingService(
                         ct).ConfigureAwait(false);
                 }
 
-                _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+                _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: 0);
                 ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
 
                 continue;
@@ -138,7 +138,6 @@ public sealed class RetrievalIndexingService(
 
 
         List<RetrievalChunk> chunks = [];
-        List<(RetrievalDocument Doc, string Fingerprint)> pendingCatalogRecords = [];
 
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
@@ -193,16 +192,14 @@ public sealed class RetrievalIndexingService(
                 ChunkingFingerprint = fingerprint,
                 LastIndexedUtc = indexedUtc.UtcDateTime,
             }));
-
-            pendingCatalogRecords.Add((doc, fingerprint));
         }
 
         if (chunks.Count > 0)
             await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
 
-        foreach ((RetrievalDocument doc, string fingerprint) in pendingCatalogRecords)
+        foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
-            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: split.Count);
             ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
         }
     }

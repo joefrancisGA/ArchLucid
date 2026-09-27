@@ -7,7 +7,11 @@ public interface IRetrievalDocumentIndexCatalog
 {
     bool TryGet(string documentId, out RetrievalDocumentIndexState state);
 
-    void RecordIndexed(RetrievalDocument document, string chunkingFingerprint, DateTimeOffset indexedUtc);
+    void RecordIndexed(
+        RetrievalDocument document,
+        string chunkingFingerprint,
+        DateTimeOffset indexedUtc,
+        int indexedChunkCount);
 
     void Remove(string documentId);
 
