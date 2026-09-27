@@ -21624,6 +21624,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
+2026-09-27 seed hunt #44 (seed→hit): reseeded host-composition; proved `TryResolveRedisHealthProbeConnectionString` preferred unused `ProjectionCache:RedisConnectionString` over LLM/hot-path Redis when graph projection cache was in-process memory, so optional `redis` readiness and value-report poll-state fallback probed the wrong host; fixed by delegating to `TryResolveGraphProjectionDistributedRedisConnectionString` when distributed and dropping orphan projection strings from the generic fallback; regressions `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory` and `TryResolve_projection_string_wins_over_llm_and_hot_path_when_graph_cache_is_distributed`; 403 scoped host-composition tests passed.
+
 2026-09-27 seed hunt #43 (seed→hit): reseeded host-composition after hunt #42; proved `RedisGraphProjectionHealthCheck` probed projection-specific Redis and only explicit `Backend=Distributed`, so shared hot-path `IDistributedCache` and Auto scale-out promotion misreported readiness; added `TryResolveGraphProjectionDistributedRedisConnectionString` and `GraphProjectionCacheRedisHealthCheck` in composition; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`; 402 scoped host-composition tests passed.
 
 2026-09-27 seed hunt #42 (seed→hit): reseeded host-composition; proved when hot-path Redis registered shared `IDistributedCache` first, `ResolveGraphProjectionRedisConnectionString` still preferred `LlmCompletionCache:RedisConnectionString` for graph projection pub/sub and `RedisHealthProbeConnectionResolver` still preferred projection-specific Redis for readiness probes; fixed via `ResolveAlreadyRegisteredDistributedCacheRedisConnectionString` and health-probe inference mirroring hot-path/LLM registration order; regressions `ResolveGraphProjectionRedisConnectionString_when_hot_path_registered_cache_uses_hot_path_redis_not_llm` and `TryResolve_prefers_hot_path_redis_over_projection_when_hot_path_registers_shared_distributed_cache`; 400 scoped host-composition tests passed.
@@ -24408,6 +24410,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-09-27 seed hunt #22 (seed→hit): reseeded run-execute-ownership after dry hunt #21; proved selective execute could still `AcquireAsync` when the live schedule cleared after the last pre-acquire `EnsureSelectiveForcedTasksStillResolvableAsync` but before `AcquireAsync`; fixed with a fourth forced-task validation immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_immediately_before_acquire`; 50 scoped ownership/orchestrator tests passed.
+
 2026-09-27 thorough hunt #21 (dry): cheap-disproved live schedule agent-type swap between pre-acquire force validations; pre-acquire `EnsureSelectiveForcedTasksStillResolvableAsync` blocks acquire via `InvalidOperationException`; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_swaps_forced_agent_types_after_force_validation`; 44 scoped ownership/orchestrator tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded pre-acquire vanish gap; proved selective execute acquired ownership when run row vanished after pre-acquire force validation but before `AcquireAsync`; fixed with a third `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_after_force_validation`; 21 scoped ownership/orchestrator tests passed.
@@ -24428,11 +24432,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 21
-- **bugs-found:** 14
-- **consecutive-dry-hunts:** 1
+- **hunts:** 22
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-26 — selective execute acquired lease when run vanished after force validation
+- **last-bug:** 2026-09-27 — selective execute acquired lease when schedule cleared immediately before acquire
+- **code-changed-since:** yes
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -24460,6 +24465,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ExecuteSelectiveRunAsync` — live schedule could clear after first pre-acquire force validation but before `AcquireAsync` — **hit 2026-09-26 seed hunt:** repeat `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_force_validation`
 - [x] (proven) `ExecuteSelectiveRunAsync` — run row could vanish after pre-acquire force validation but before `AcquireAsync`, pinning SQL ownership until owned-core reload — **hit 2026-09-26 seed hunt:** third `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_after_force_validation`
 - [x] (valid-no-repro) `ExecuteSelectiveRunAsync` — live schedule could swap forced agent types (non-empty schedule) after pre-acquire force validation but before `AcquireAsync` — **cheap-disproof 2026-09-27 thorough hunt #21:** second `EnsureSelectiveForcedTasksStillResolvableAsync` re-reads live tasks; `ResolveLiveForcedTasksOrThrow` throws `InvalidOperationException` when selection no longer matches; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_swaps_forced_agent_types_after_force_validation`.
+- [x] (proven) `ExecuteSelectiveRunAsync` — live schedule could clear after the final pre-acquire force validation but before `AcquireAsync` — **hit 2026-09-27 seed hunt #22:** fourth `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_immediately_before_acquire`.
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
