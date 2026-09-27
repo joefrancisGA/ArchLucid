@@ -55,6 +55,22 @@ public sealed class DurableBackgroundJobQueue(
         }
         catch (Exception ex)
         {
+            BackgroundJobRow? current = await repository.GetAsync(jobId, cancellationToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                throw;
+            }
+
+            current = await repository.GetAsync(jobId, cancellationToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                throw;
+            }
+
             await repository.MarkFailedTerminalAsync(
                 jobId,
                 $"Queue notification failed: {ex.Message}",

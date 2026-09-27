@@ -289,6 +289,83 @@ public sealed class HostCorePackageCoverageBatch15Tests
             Times.Once);
     }
 
+    [Fact]
+    public async Task DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        repository
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+        notifySender
+            .Setup(n => n.SendJobIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BackgroundJobRow
+            {
+                JobId = "ignored",
+                State = nameof(BackgroundJobState.Canceled),
+            });
+        DurableBackgroundJobQueue queue = CreateQueue(repository, notifySender, maxPendingJobs: 5);
+
+        Func<Task> act = async () => await queue.EnqueueAsync(CreateWorkUnit("canceled-notify-fail"), cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*queue unavailable*");
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        repository
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+        notifySender
+            .Setup(n => n.SendJobIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+        int getAsyncCalls = 0;
+        BackgroundJobRow pendingRow = new()
+        {
+            JobId = "job-reread",
+            State = nameof(BackgroundJobState.Pending),
+        };
+        BackgroundJobRow canceledRow = new()
+        {
+            JobId = "job-reread",
+            State = nameof(BackgroundJobState.Canceled),
+        };
+        repository
+            .Setup(r => r.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                getAsyncCalls++;
+
+                return getAsyncCalls == 1 ? pendingRow : canceledRow;
+            });
+        DurableBackgroundJobQueue queue = CreateQueue(repository, notifySender, maxPendingJobs: 5);
+
+        Func<Task> act = async () => await queue.EnqueueAsync(CreateWorkUnit("reread-notify-fail"), cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*queue unavailable*");
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        getAsyncCalls.Should().BeGreaterThan(1, "enqueue notify-failure handling should re-read cancel state before MarkFailedTerminal");
+    }
+
     [Theory]
     [InlineData(-3, 0)]
     [InlineData(99, 10)]
