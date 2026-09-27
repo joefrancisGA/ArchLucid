@@ -2509,6 +2509,9 @@ export function DiagramsWorkbenchClient() {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               {INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE}
             </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+              The browser preview is too large; the server export uses the same diagram source.
+            </p>
             <div className="mt-3">
               <Button type="button" variant="outline" size="sm" disabled={exportsDisabled} onClick={() => void runPngExport()}>
                 Download server PNG

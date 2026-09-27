@@ -85,7 +85,12 @@ export function GovernanceFindingsQueueTableHead(props: {
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Status</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Status shows where this finding is in the review workflow.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Recommended action</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -134,8 +139,18 @@ export function GovernanceFindingsQueueTableHead(props: {
                 onAssignedToMeSort?.(sortKey);
               }}
             />
-            <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Disposition</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Disposition is the recorded decision for this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Status</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Status shows where this finding is in the review workflow.
+              </span>
+            </EnterpriseTableHeaderCell>
           </>
         ) : (
           <>

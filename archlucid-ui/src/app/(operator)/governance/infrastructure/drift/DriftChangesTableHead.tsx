@@ -87,6 +87,9 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Rows are grouped by resource so related property changes can be reviewed together.
             </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Risk is the impact classification assigned to this change.
+            </span>
           </th>
         </tr>
       ) : null}

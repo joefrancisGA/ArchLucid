@@ -908,7 +908,11 @@ export function InfrastructureAskClient() {
                   })}
                 </ul>
               </div>
-            ) : null}
+            ) : (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                No inventory evidence was linked to this answer.
+              </p>
+            )}
           </section>
         ))}
       </div>
