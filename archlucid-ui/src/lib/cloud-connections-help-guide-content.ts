@@ -4,6 +4,7 @@ import {
   isSecureNowProductLine,
 } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { extractorUploadConstraints } from "@/lib/usability/extractor-upload-constraints";
 
 export const CLOUD_CONNECTIONS_HELP_PATH = "/help/cloud-connections" as const;
 
@@ -50,6 +51,15 @@ export const CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO =
 export const CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING = "Related topics" as const;
 
 export const CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE = "Choose your cloud platform" as const;
+
+export const CLOUD_CONNECTIONS_HELP_UPLOAD_REQUIREMENTS_ID = "upload-requirements" as const;
+export const CLOUD_CONNECTIONS_HELP_UPLOAD_REQUIREMENTS_TITLE = "Inventory ZIP upload requirements" as const;
+export const CLOUD_CONNECTIONS_HELP_UPLOAD_REQUIREMENTS_INTRO =
+  "Use these requirements when preparing a cloud inventory package for upload." as const;
+
+export function cloudConnectionsHelpUploadRequirements(productLineId: ProductLineId = "architecture") {
+  return extractorUploadConstraints("azure", undefined, productLineId);
+}
 
 export const CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT = {
   title: "Scheduled agent",

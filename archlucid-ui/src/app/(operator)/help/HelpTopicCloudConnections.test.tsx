@@ -14,6 +14,8 @@ import {
   CLOUD_CONNECTIONS_HELP_SCHEDULED_AGENT,
   CLOUD_CONNECTIONS_HELP_TIER_1,
   CLOUD_CONNECTIONS_HELP_TIER_2,
+  CLOUD_CONNECTIONS_HELP_UPLOAD_REQUIREMENTS_TITLE,
+  cloudConnectionsHelpUploadRequirements,
 } from "@/lib/cloud-connections-help-guide-content";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -118,6 +120,12 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_2.useWhen, { exact: false })).toHaveTextContent(
       "on the primary federated path",
     );
+    const uploadRequirements = screen.getByTestId("help-cloud-connections-upload-requirements");
+    expect(within(uploadRequirements).getByRole("heading", { name: CLOUD_CONNECTIONS_HELP_UPLOAD_REQUIREMENTS_TITLE })).toBeInTheDocument();
+    for (const requirement of cloudConnectionsHelpUploadRequirements()) {
+      expect(within(uploadRequirements).getByText(requirement.label)).toBeInTheDocument();
+      expect(within(uploadRequirements).getByText(requirement.detail)).toBeInTheDocument();
+    }
     expect(screen.queryByRole("link", { name: "CLI usage" })).toBeNull();
     expect(screen.getByTestId("help-cloud-connections-provider-scope-table")).toHaveAttribute(
       "aria-label",
@@ -155,7 +163,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     }
   });
 
-  it("renders a sticky TOC with four on-page sections", () => {
+  it("renders a sticky TOC with five on-page sections", () => {
     renderCloudConnectionsGuide(
       "# Cloud connections\n\nOptional connectors for read-only evidence.\n\n## Related topics\n\n- [Security and trust](/help/security-trust)\n",
     );
@@ -163,6 +171,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: "Choose your cloud platform" })).not.toHaveLength(0);
+    expect(screen.getAllByRole("link", { name: CLOUD_CONNECTIONS_HELP_UPLOAD_REQUIREMENTS_TITLE })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: "Where to go next" })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: "Related topics" })).not.toHaveLength(0);
   });
