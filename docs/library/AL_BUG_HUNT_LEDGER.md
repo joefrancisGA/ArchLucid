@@ -9281,13 +9281,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 36
-- **bugs-found:** 28
+- **hunts:** 37
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — TopologyDatastoreLabelHeuristic non-storage label false positive on storage substring
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — public-exposure / segmentation heuristics still substring-matched storage in non-storage labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded decisioning after TopologyDatastore storage-token fixes; proved `TopologyAntiPatternFindingEngine.LooksPubliclyExposed` still used bare `.Contains("storage")`/`blob` so `public-non-storage-*` labels false-emitted public-exposure findings, and `SegmentationSemanticsPathAnalyzer.IsDatastoreNode` still bare-matched `storage` inside `non-storage` labels; fixed with shared `ContainsAffirmativeStorageKeyword` / new `ContainsAffirmativeBlobKeyword`; regressions `AnalyzeAsync_WhenLabelIsPublicNonStorage_DoesNotEmitPublicExposureFinding` and `IsSensitiveTarget_does_not_treat_non_storage_label_as_datastore`; 14 scoped SegmentationSemantics + TopologyAntiPattern + TopologyDatastore tests passed.
+
+- [x] (proven) `TopologyAntiPatternFindingEngine` / `SegmentationSemanticsPathAnalyzer` — `non-storage` labels still matched bare `storage` substring — **hit 2026-09-27 seed hunt:** affirmative delimiter-split storage/blob keywords with `non` negation (parity with `TopologyDatastoreLabelHeuristic`); regressions `AnalyzeAsync_WhenLabelIsPublicNonStorage_DoesNotEmitPublicExposureFinding` and `IsSensitiveTarget_does_not_treat_non_storage_label_as_datastore`.
 
 2026-09-26 seed hunt (hit): reseeded decisioning; proved `SegmentationSemanticsPathAnalyzer.IsDatastoreNode` bare `.Contains("sql")` matched `nosql` labels and treated DocumentDB NoSQL nodes as segmentation-sensitive datastores; fixed with `DecisioningTextTokenMatcher.ContainsStandaloneToken` for `sql` (parity with `TopologyDatastoreLabelHeuristic` / `IdentityRegulatedDatastoreClassifier`); regressions `IsSensitiveTarget_does_not_treat_nosql_label_as_datastore` and `IsSensitiveTarget_still_treats_sql_server_as_datastore`; 14 scoped SegmentationSemantics + IdentityRegulatedDatastore tests passed.
 
