@@ -116,6 +116,79 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
     }
 
     [Fact]
+    public void Resolve_when_agent_over_counts_but_snapshot_has_higher_severity_prefers_snapshot_narrative()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+        detail.Results.Add(
+            new AgentResult
+            {
+                TaskId = "t-agent-noise",
+                RunId = "r1",
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "agent-info-1",
+                        Severity = FindingSeverity.Info,
+                        Category = "General",
+                        Message = "agent noise one",
+                    },
+                    new ArchitectureFinding
+                    {
+                        FindingId = "agent-info-2",
+                        Severity = FindingSeverity.Info,
+                        Category = "General",
+                        Message = "agent noise two",
+                    },
+                    new ArchitectureFinding
+                    {
+                        FindingId = "agent-info-3",
+                        Severity = FindingSeverity.Info,
+                        Category = "General",
+                        Message = "agent noise three",
+                    },
+                ],
+            });
+
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "snapshot-critical",
+                    Severity = FindingSeverity.Critical,
+                    Category = "Security",
+                    Message = "Rotate storage account keys from snapshot",
+                    EvidenceRefs = ["trace:trace-1"],
+                },
+                new ArchitectureFinding
+                {
+                    FindingId = "snapshot-warning",
+                    Severity = FindingSeverity.Warning,
+                    Category = "Cost",
+                    Message = "Right-size underused compute from snapshot",
+                },
+            ],
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Critical", 1),
+                new KeyValuePair<string, int>("Warning", 1),
+            ],
+        };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Contain("Critical");
+        result.DecisionDeltaSummary.Should().Contain("Rotate storage account keys from snapshot");
+        result.DecisionDeltaSummary.Should().NotContain("agent noise");
+    }
+
+    [Fact]
     public void Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);

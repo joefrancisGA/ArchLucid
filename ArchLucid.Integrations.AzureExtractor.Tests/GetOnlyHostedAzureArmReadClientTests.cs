@@ -655,6 +655,61 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionResourcesByTypeAsync_rejects_next_link_for_different_type_listing_path()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string crossListingNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/resources?api-version=2021-04-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1",
+                                     "name": "pe1",
+                                     "type": "Microsoft.Network/privateEndpoints",
+                                     "location": "eastus"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_LISTING_LINK"
+                               }
+                               """.Replace("CROSS_LISTING_LINK", crossListingNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: type-scoped subscription listing did not stop on cross-listing nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionResourcesByTypeAsync(
+                "token-abc",
+                subscriptionId,
+                "Microsoft.Network/privateEndpoints",
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";

@@ -180,4 +180,62 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+        int getAsyncCalls = 0;
+
+        repository
+            .Setup(r => r.ResetStaleRunningJobsOlderThanAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { "job-reread" });
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-reread", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+
+        BackgroundJobRow pendingRow = new()
+        {
+            JobId = "job-reread",
+            State = nameof(BackgroundJobState.Pending),
+        };
+
+        BackgroundJobRow canceledRow = new()
+        {
+            JobId = "job-reread",
+            State = nameof(BackgroundJobState.Canceled),
+        };
+
+        repository
+            .Setup(r => r.GetAsync("job-reread", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                getAsyncCalls++;
+
+                return getAsyncCalls == 1 ? pendingRow : canceledRow;
+            });
+
+        ServiceCollection services = new();
+        services.AddSingleton(repository.Object);
+        services.AddSingleton(notifySender.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        await BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new BackgroundJobsOptions { ProcessorVisibilityMinutes = 15 }),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        getAsyncCalls.Should().BeGreaterThan(1, "notify-failure handling should re-read cancel state before MarkFailedTerminal");
+    }
 }

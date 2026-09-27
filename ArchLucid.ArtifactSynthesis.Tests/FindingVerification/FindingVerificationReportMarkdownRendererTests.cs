@@ -54,4 +54,40 @@ public sealed class FindingVerificationReportMarkdownRendererTests
         markdown.Should().Contain("finding-a");
         markdown.Should().Contain("RV-003 matched");
     }
+
+    [Fact]
+    public void Render_strips_control_chars_from_finding_table_cells()
+    {
+        const string titleWithControlChar = "Public\u0001 storage";
+
+        FindingVerificationReportDocumentModel model = new()
+        {
+            ReportId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            RunId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            SourceManifestHash = "sha256-sealed",
+            ReportHash = "sha256-report",
+            CreatedUtc = new DateTime(2026, 9, 8, 12, 0, 0, DateTimeKind.Utc),
+            Summary = new FindingVerificationReportConfirmedRateSummary
+            {
+                TotalResults = 1,
+                MaterializedCount = 1,
+            },
+            Findings =
+            [
+                new FindingVerificationReportFindingRow
+                {
+                    FindingId = "finding-a",
+                    Title = titleWithControlChar,
+                    Severity = "Critical",
+                    Status = "Materialized",
+                    TraceText = "RV-003 matched",
+                },
+            ],
+        };
+
+        string markdown = FindingVerificationReportMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain("Public storage");
+        markdown.Should().NotContain("\u0001");
+    }
 }

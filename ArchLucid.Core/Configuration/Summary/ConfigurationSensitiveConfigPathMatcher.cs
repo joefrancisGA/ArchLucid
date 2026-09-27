@@ -29,8 +29,24 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         return configPath.EndsWith(":Key", StringComparison.OrdinalIgnoreCase);
     }
 
-    internal static bool IsSensitiveConfigPropertyName(string propertyName) =>
-        IsSensitiveConfigSegment(propertyName);
+    internal static bool IsSensitiveConfigPropertyName(string propertyName)
+    {
+        if (IsSensitiveConfigSegment(propertyName))
+            return true;
+
+        if (!propertyName.Contains('_', StringComparison.Ordinal)
+            && !propertyName.Contains('-', StringComparison.Ordinal)
+            && !propertyName.Contains('.', StringComparison.Ordinal))
+            return false;
+
+        foreach (string part in propertyName.Split(['_', '-', '.'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (IsSensitiveConfigPropertyName(part))
+                return true;
+        }
+
+        return false;
+    }
 
     private static bool IsSensitiveConfigSegment(string segment)
     {
@@ -905,6 +921,7 @@ internal static class ConfigurationSensitiveConfigPathMatcher
 
     private static bool IsCompoundSecretCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.EndsWith("SigningSecret", StringComparison.OrdinalIgnoreCase)
+        || segment.EndsWith("WebhookSecret", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("SecretKey", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("SharedSecret", StringComparison.OrdinalIgnoreCase)
         || (segment.Length > "ClientSecret".Length
@@ -926,8 +943,10 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         && segment.EndsWith("ApiKey", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsCompoundConnectionStringCredentialSegment(ReadOnlySpan<char> segment) =>
-        segment.Length > "ConnectionString".Length
-        && segment.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase);
+        (segment.Length > "ConnectionStringTemplate".Length
+         && segment.EndsWith("ConnectionStringTemplate", StringComparison.OrdinalIgnoreCase))
+        || (segment.Length > "ConnectionString".Length
+            && segment.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsEmbeddedSensitiveFragment(ReadOnlySpan<char> segment, int fragmentIndex)
     {

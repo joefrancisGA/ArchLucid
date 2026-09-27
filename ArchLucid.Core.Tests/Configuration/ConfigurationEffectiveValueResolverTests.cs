@@ -177,6 +177,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("Integrations:ItsmInbound:JiraWebhookSecret")]
+    [InlineData("Integrations:ItsmInbound:ServiceNowWebhookSecret")]
+    public void Resolve_redacts_inbound_itsm_webhook_secret_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "inbound-webhook-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Fact]
     public void Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties()
     {
@@ -187,6 +204,70 @@ public sealed class ConfigurationEffectiveValueResolverTests
                 """
                 [{"Endpoint":"https://eastus.api.cognitive.microsoft.com","ApiKey":"fallback-secret","DeploymentName":"gpt-4o"}]
                 """,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"api_key":"fallback-secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"api-key":"fallback-secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"api.key":"fallback-secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"credentials.api_key":"fallback-secret"}""",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
@@ -291,6 +372,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
         {
             [configPath] = "Endpoint=sb://example/;SharedAccessKey=secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("ArchLucid:Persistence:ReadOnlyConnectionStringTemplate")]
+    [InlineData("ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate")]
+    public void Resolve_redacts_connection_string_template_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Server=tcp:secret.database.windows.net;Password=super-secret;",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();

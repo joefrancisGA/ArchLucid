@@ -345,8 +345,34 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("- Covered: Encrypt data at rest (Met; mandatory: yes)");
-        artifact.Content.Should().Contain("- Uncovered: Disaster recovery region (Gap; mandatory: no)");
+        artifact.Content.Should().Contain("- Covered: Encrypt data at rest (Met; mandatory: yes) — Data must be encrypted");
+        artifact.Content.Should().Contain(
+            "- Uncovered: Disaster recovery region (Gap; mandatory: no) — Secondary region required");
+    }
+
+    [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_sponsor_summary_matching_docx_export()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "sponsor-hash",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Orders Platform",
+                Summary = "Executive sponsor approved the hub-spoke design.",
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("## Sponsor Summary");
+        artifact.Content.Should().Contain("Executive sponsor approved the hub-spoke design.");
     }
 
     [Fact]

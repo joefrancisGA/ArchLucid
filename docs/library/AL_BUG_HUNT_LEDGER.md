@@ -2106,6 +2106,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` keys such as `svc-  api` were outer-trimmed only so relationships using normalized `svc-api` missed alias-only rename mappings and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** index normalized synthetic alias keys when merging declared aliases; regression `MapRelationships_resolves_synthetic_alias_key_when_declared_alias_has_internal_whitespace_after_prefix`; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
 
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` values such as `svc-  1` were outer-trimmed only so resolved node ids stayed whitespace-padded and graph merge dropped dangling edges — **hit 2026-09-27 seed hunt (seed→hit):** #3908g trimmed surrounding whitespace on alias values but not internal whitespace after svc-/ds- prefix; fixed by `NormalizeAliasTargetNodeId` before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_value_has_internal_whitespace_after_synthetic_prefix`; 306 scoped edge-mapper/graph-merge tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-value normalization gap; 306 scoped edge-mapper/graph-merge tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-key normalization gap; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved merge-gate synthetic endpoint normalization parity gap; 306 scoped edge-mapper/graph-merge/endpoint-index tests passed.
@@ -2122,11 +2126,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 72
-- **bugs-found:** 60
+- **hunts:** 74
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — declared endpoint alias keys with internal whitespace after svc-/ds- prefix did not normalize for relationship lookup
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — declared alias values with mixed-case ARM ids stored literal resource id instead of graph node id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2799,13 +2803,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 16
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — format-only string list entries survived payload materialization
+- **hunts:** 18
+- **bugs-found:** 14
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — combining-mark-only evidence bundle ids and string lists passed substantive-text gate
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+- [x] (proven) `AuthorityPipelineWorkPayload.IsValidForProcessing` / `AuthorityPipelineWorkProcessor.ResolveHandler` — numeric `workKind` values outside `AuthorityPipelineWorkKind` deserialized via STJ and passed the worker gate — **hit 2026-09-27 seed hunt (seed→hit):** `IsValidForProcessing` now requires `Enum.IsDefined(WorkKind)` so invalid payloads discard instead of throwing `No authority pipeline work handler registered`; regressions `IsValidForProcessing_rejects_undefined_work_kind_values` and `Deserialize_rejects_undefined_work_kind_numeric_values`.
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveText` — combining marks (for example U+0300) are not whitespace or format characters but were treated as substantive text, so combining-mark-only `EvidenceBundleId` and string-list entries passed `IsValidForProcessing` / `MaterializeStringList` and retried instead of invalid-payload discard — **hit 2026-09-27 seed hunt (seed→hit):** skip NonSpacingMark / SpacingCombiningMark / EnclosingMark when scanning for substantive characters; regressions `IsValidForProcessing_rejects_combining_mark_only_evidence_bundle_id` and `Deserialize_filters_combining_mark_only_string_list_entries`.
+
+2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload; proved combining-mark-only strings bypassed substantive-text gate; 23 scoped payload JSON tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload after WorkKind dry hunt; proved undefined numeric workKind bypassed invalid-payload discard; 21 scoped payload JSON tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded authority-pipeline-payload; ledger catch-up for `documents: [{}]` materialization (shipped 3cef768); proved `MaterializeStringList` kept zero-width-only and embedded-format entries that `InlineRequirementsPayloadNormalizer` does not treat as whitespace; fixed with `HasSubstantiveText` filter; regression `Deserialize_filters_format_only_string_list_entries`; 18 scoped payload JSON tests passed.
 
@@ -4702,17 +4713,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: weekly-digest-email
 
+2026-09-27 seed hunt (seed→hit): reseeded weekly-digest-email; proved `WeeklySponsorReportEmailDispatcher` passed padded `EmailNotificationOptions.OperatorBaseUrl` into `EmailBrandingUrls.TryBuildLogoImageUrl` without `.Trim()`, producing broken logo URLs; fixed with `Trim().TrimEnd('/')` parity to `CommitSponsorEmailNotifier`; seeded sibling summary dispatcher operator-base trim candidate; 2 WeeklyExecutiveSummaryJob + 21 report dispatcher tests passed.
+
 - **id:** weekly-digest-email
 - **status:** open
 - **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 15
-- **bugs-found:** 9
+- **hunts:** 16
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — whitespace-only `summaryMarkdown` sent weekly sponsor report with empty body
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — padded OperatorBaseUrl broke weekly sponsor report logo image URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4767,6 +4780,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded weekly-digest-email after master merge; proved `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` accepted whitespace-only `summaryMarkdown` after `weekLabel`/`runDetailUrl`/`runIdHex` guards; fixed with required summary validation and trim; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`; repaired job test DI for `IRunRepository`; 2 scoped `WeeklyExecutiveSummaryJobTests` passed.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `summaryMarkdown` sent weekly mail with empty report body — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`.
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt:** `EmailBrandingUrls.TryBuildLogoImageUrl` only trims trailing slashes; fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorReportEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
+- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
@@ -4860,19 +4875,42 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `no-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `Low-Cost` remains a valid Cost preference; generalized negated dimension detection via `no-` / `non-` prefixes for all trade-off dimension tokens; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost` and `BuildRecommendations_prefers_cost_first_when_priority_mentions_low_cost_design`; 27 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `no-cost` declared priorities falsely prefer Cost — **hit 2026-09-27 seed hunt:** `no-` negation must mirror `non-` handling without blocking legitimate `Low-Cost` mentions; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
+
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved bounded dimension-word matching still treated hyphenated `Non-Cost` / `Non-Reliability` declared priorities as Cost/Reliability trade-off preferences; extended negation patterns for `non-cost` and `non-reliability` (parity with `non-security`); regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_cost` and `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability`; 25 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `Non-Cost` / `Non-Reliability` priorities still prefer Cost/Reliability dimensions — **hit 2026-09-27 seed hunt:** hyphenated negation phrases must not count as dimension preference after word-boundary matching; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
+
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `BuildPreferredResolution` used substring `Contains` on enum dimension tokens so declared priorities like `Non-Security compliance scope` and `Costa Rica deployment region` falsely preferred Security/Cost in trade-off resolution; fixed with bounded dimension-word matching and negated `non-security` / `unreliability` mentions; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_security`, `BuildRecommendations_does_not_treat_costa_rica_priority_as_cost_first`, and `BuildRecommendations_prefers_security_first_when_priority_explicitly_names_security`; 23 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — declared priority substring falsely prefers Security/Cost dimensions — **hit 2026-09-27 seed hunt:** `Non-Security` and `Costa Rica` priorities must not resolve Security/Cost trade-offs as first-position wins; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
+
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `ArchitectureRecommendationTradeOffBuilder.IsActionableForTradeOff` counted `Indeterminate` and `Fail`+`Insufficient` cost rows while `ProvenancePresentationMapper` routed them to evidence-first recommendations, attaching Security/Cost trade-offs with operating-cost copy anyway; fixed by excluding `Unverified` presentation bucket from trade-off dimension gating (parity with NotApplicable fix); regressions `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_indeterminate` and `BuildRecommendations_skips_security_cost_trade_off_when_cost_fail_is_evidence_only`; 20 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsActionableForTradeOff` — `Indeterminate` or `Fail`+insufficient-evidence findings still trigger Security/Cost trade-offs while recommendations use evidence-first copy — **hit 2026-09-27 seed hunt:** trade-off gating now requires `ProvenancePresentationMapper.MapFinding` ≠ `Unverified`; regressions `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_indeterminate` and `BuildRecommendations_skips_security_cost_trade_off_when_cost_fail_is_evidence_only`
+
+2026-09-27 seed hunt (seed-only): reseeded architecture-recommendation; cheap-disproved `IsActionableFinding` Pass/NotApplicable emission and Pass competing-dimension trade-off attachment gaps; confirmed padded `High` severity effort gating via existing `ArchitectureRecommendationSeverityLabel` trim path; regressions `BuildRecommendations_omits_pass_and_not_applicable_findings_from_recommendations`, `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_pass`, and `BuildRecommendations_trims_padded_high_severity_for_effort_band_without_human_approval`; 17 scoped Alternatives/ProposedChange tests passed.
+
+- [x] (valid-no-repro) `ArchitectureRecommendationEngine.IsActionableFinding` — Pass/NotApplicable findings might still emit recommendations — **cheap-disproof 2026-09-27 seed hunt:** only `Fail` and `Indeterminate` pass the engine filter; regression `BuildRecommendations_omits_pass_and_not_applicable_findings_from_recommendations`
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — Pass conclusion on competing dimension might still trigger Security/Cost trade-offs — **cheap-disproof 2026-09-27 seed hunt:** `IsActionableForTradeOff` mirrors engine gating; Pass Cost with Fail Security yields no trade-off; regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_pass`
+
 - **id:** architecture-recommendation
 - **status:** open
 - **impact:** medium
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 12
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-09 — padded Critical severity skipped human approval and High effort band
+- **hunts:** 18
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — no-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded architecture-recommendation; proved `ArchitectureRecommendationTradeOffBuilder` treated `ReviewConclusion.NotApplicable` like actionable findings (`!= Pass`) so Security/Cost trade-offs attached when only Security had a recommendation; aligned trade-off gating with engine Fail/Indeterminate filter; regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable`; 14 scoped Alternatives/ProposedChange tests and 35 total ArchitectureRecommendation tests passed.
 
 2026-09-12 seed hunt #2081 (seed-only): reseeded architecture-recommendation; 13 scoped tests passed; no new hunt-ready rows
 
@@ -4892,6 +4930,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureRecommendationAlternatives.BuildEvidenceFirstAlternatives` — unverified/indeterminate findings emit alt[1] that restates the primary collect-evidence `ProposedChange` — **hit 2026-09-08 seed hunt #1377:** PrivacyCompliance and Integration indeterminate findings (and other Unverified-bucket rows) got primary "Collect additional evidence before changing the design for: {title}" while alt[1] repeated "Collect additional evidence before changing the design"; fixed by replacing alt[1] with discovery-spike path distinct from primary; regressions in `ArchitectureRecommendationAlternativesEvidenceFirstDistinctnessTests`
 
 - [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationEffortEstimate` — severity label match uses raw string equality without trimming — **hit 2026-09-09 seed hunt #1419:** `" Critical "` skipped `RequiresHumanApproval` and downgraded effort/risk bands to Medium/Low; fixed via `ArchitectureRecommendationSeverityLabel`; regression in `ArchitectureRecommendationSeverityLabelTests`
+- [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationTradeOffBuilder` — `NotApplicable` specialist findings counted for competing-dimension trade-offs while `IsActionableFinding` excluded them from recommendations — **hit 2026-09-26 seed hunt:** Security/Cost trade-off attached when Cost was `NotApplicable` only; fixed via `IsActionableForTradeOff` (Fail/Indeterminate); regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable`
 
 - [x] (valid-no-repro) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance and Integration Fail findings fall through to default defer/evidence alternatives despite dimension-specific `ProposedChange` branches — **valid-no-repro 2026-09-09 thorough hunt #1477:** Fail + Sufficient PrivacyCompliance/Integration findings get dimension-specific primary copy ("Record compliance obligations…", "Document external interfaces…") while default alternatives are defer/exception and collect-evidence paths that do not paraphrase primary; intentional gap until dedicated templates are needed
 - [x] (valid-no-repro) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — Operations and AiSpecificRisk dimensions only receive generic fallback copy and default alternatives — **valid-no-repro 2026-09-09 thorough hunt #1477:** no specialist title gates in source; generic `Implement a concrete design change…` primary and default defer/evidence alternatives are intentional for dimensions without dedicated rules
@@ -5444,6 +5483,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved failed initial `listAlertRoutingSubscriptions` still rendered `WEBHOOKS_NOT_CONFIGURED_NEXT_STEP`, not-configured `StatusTag`, and subscriptions empty state while the page alert showed the load error; fixed by gating not-configured copy and compact empty state on `hasLoadedSuccessfully`; extended regression `shows refresh control when subscription list fails to load`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
+
+- [x] (proven) `WebhooksSettingsClient` — failed subscription list load still shows not-configured guidance and empty-state copy — **hit 2026-09-27 seed hunt:** configuration next-step and subscriptions empty state ignored `hasLoadedSuccessfully`; regression assertions in `shows refresh control when subscription list fails to load`
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved subscriptions section subtitle and create enable-step checklist still derived stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false); fixed by gating count copy on `hasLoadedSuccessfully` and enable-step satisfaction on verified inventory; regression `hides stale subscription count subtitle when manual refresh fails`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
@@ -6019,6 +6062,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
+2026-09-27 seed hunt (seed→hit): proved UTF-8 BOM-only `Authentication:ApiKey:AdminKey` still showed configured in admin snapshot and Append rotate while `ApiKeyAuthenticationHandler` rejected all keys; shared `ApiKeyMaterialNormalizer` (trim + BOM strip); `ApiKeyMaterialMasker` skips BOM-only comma segments; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`; 48 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
+
 2026-09-26 seed hunt (seed→hit): reseeded api-key-auth; proved `Authentication:ApiKey:*` values pasted with a UTF-8 BOM prefix failed `MatchesAnyCommaSeparatedKey` while operators still saw configured slots; fixed by stripping BOM during key-material normalization in `ApiKeyAuthenticationHandler`; regression `When_admin_key_config_has_utf8_bom_prefix_still_authenticates`; 45 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
 - **id:** api-key-auth
@@ -6027,11 +6072,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 52
-- **bugs-found:** 10
+- **hunts:** 53
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — UTF-8 BOM in configured API key material broke authentication
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — UTF-8 BOM-only API key slot showed configured in admin settings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6067,6 +6112,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
 
 2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
 
@@ -6191,6 +6238,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2007 (seed-only): reseeded api-key-auth after `-Refresh`; 44 scoped ApiKey auth/settings unit tests passed; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
 
 2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.
 
@@ -8400,16 +8449,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 25
-- **bugs-found:** 24
+- **hunts:** 22
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — retry queue send and watchdog notify-failure paths skipped cancel re-read
-- **hunts:** 21
-- **bugs-found:** 19
-- **last-bug:** 2026-09-26 — invalid WorkUnitJson cancel race before terminal failure assignment
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — watchdog notify-failure path lacked second cancel re-read before terminal assignment
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-12 seed hunt #2118 (seed-only): reseeded host-core-jobs; no new hunt-ready rows.
 
@@ -8464,6 +8510,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry scheduling branch — single `GetAsync` cancel re-read before `MarkPendingRetryAsync` let cancel land after the read and overwrite `Canceled` with `Pending` (parity gap vs #1352 first-read fix and terminal second-read fixes) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before pending-retry assignment; regression `ProcessOneMessageAsync_does_not_mark_pending_retry_when_cancel_visible_before_pending_retry_assignment`.
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry notification branch — single `GetAsync` cancel re-read before `SendMessageAsync` let cancel land after the read and re-notify a canceled job (parity gap vs #1354 post-backoff re-read) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before queue send assignment; regression `ProcessOneMessageAsync_does_not_send_retry_notification_when_cancel_visible_before_send_after_pre_send_read`.
 - [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler called `MarkFailedTerminalAsync` without `GetAsync` cancel re-read when user canceled a reclaimed `Pending` job before notify failed — **hit 2026-09-26 seed hunt (seed→hit):** skip terminal failure when row is `Canceled`; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling`.
+- [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / terminal second-read fixes) — **hit 2026-09-27 seed hunt (seed→hit):** second `GetAsync` before notify-failure terminal assignment; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `MarkFailedTerminalAsync` on notify failure without any `GetAsync` cancel check may overwrite `Canceled` when user cancels a just-inserted `Pending` row while `SendJobIdAsync` is in flight (parity gap vs watchdog/processor second-read pattern).
+
+2026-09-27 seed hunt (seed→hit): reseeded host-core-jobs; proved watchdog notify-failure second cancel re-read gap; seeded durable enqueue notify-failure cancel candidate; 72 Host.Core + 24 processor scoped tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-core-jobs; proved pre-send retry notification and watchdog notify-failure cancel gaps; 24 processor + 6 watchdog scoped tests passed.
 
@@ -8715,6 +8765,48 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved streaming completion guard short-circuit before inner `StreamJsonAsync` on blocked system/user prompts and non-staged `EvidenceNote` bodies omitted from critic user prompts; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream`, `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`, and `CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt`; 152 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — blocked input scans may still invoke inner streaming client — **cheap-disproof 2026-09-27 seed hunt:** throws before `AgentCompletionStreamingBridge.StreamJsonAsync`; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream` and `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` / critic compose — non-staged `EvidenceNote.Message` may reach LLM prompts — **cheap-disproof 2026-09-27 seed hunt:** `AgentUserPromptComposer.BuildCriticUserPrompt` filters `EvidenceNoteTypes.StagedPriorAgentsSummary` only; regression `CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt`
+
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved evidence catalog identifier/category/capability fields omitted from `AgentUserPromptBuilder` (unsanitized in `AgentEvidenceUntrustedInputSanitizer` but no LLM prompt reachability) and NBSP inline field-spoof via `SanitizeScalar` (no extra prompt lines); regressions `TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer` and `SanitizeScalar_keeps_no_break_space_on_one_line_within_outer_untrusted_wrapper`; 151 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` — `PolicyId` / `PatternId` / `ServiceId` / `ServiceCatalog.Category` / `PatternEvidence.ApplicableCapabilities` are not wrapped — **cheap-disproof 2026-09-27 seed hunt:** `AgentUserPromptBuilder` echoes title/name/summary lists only; regression `TopologyUserPrompt_omits_catalog_identifier_fields_not_wrapped_by_untrusted_input_sanitizer`
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizeScalar` — NBSP (`\u00A0`) may embed `Description:` inline without collapsing — **cheap-disproof 2026-09-27 seed hunt:** NBSP does not create structural newlines; host labels remain on separate lines inside TB-949 quarantine; regression `SanitizeScalar_keeps_no_break_space_on_one_line_within_outer_untrusted_wrapper`
+
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved staged-summary embedded `CUSTOMER_CONTENT_BEGIN` parity (compose-layer `EscapeEmbeddedMarkers`); regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_begin_marker`; 148 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged note body with embedded `CUSTOMER_CONTENT_BEGIN` may open a nested TB-949 section — **cheap-disproof 2026-09-27 seed hunt:** compose runs `SanitizePersistedCustomerProse` then `EscapeEmbeddedMarkers` (parity with END-marker regression); regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_begin_marker`
+
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproved TB-949 marker handling inside `SanitizePersistedCustomerProse` alone (compose-layer `EscapeEmbeddedMarkers` contract) and disabled `EvaluateCompletionPromptAndResponse` output-scan bypass; regressions `SanitizePersistedCustomerProse_leaves_tb949_markers_for_compose_layer_escape` and `StreamJsonAsync_when_evaluation_disabled_skips_output_scan_and_yields_chunks`; 147 scoped PromptInjection/sanitizer tests passed plus content-safety client regression.
+
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse` — persisted prose may carry raw `CUSTOMER_CONTENT_END` into LLM prompts — **cheap-disproof 2026-09-27 seed hunt:** method intentionally collapses line breaks and untrusted tags only; TB-949 neutralization remains at compose (`EscapeEmbeddedMarkers` / `RedactAndEscape`); regression `SanitizePersistedCustomerProse_leaves_tb949_markers_for_compose_layer_escape`
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — streaming may bypass output content-safety when configuration disables evaluation — **cheap-disproof 2026-09-27 seed hunt:** intentional `EvaluateCompletionPromptAndResponse=false` path skips `CheckOutputAsync`; regression `StreamJsonAsync_when_evaluation_disabled_skips_output_scan_and_yields_chunks`
+
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproved `AzureResourceTagPromptSanitizer.SanitizeTagMap` tag-key delimiter spoof (no production agent-prompt key reachability) and `AgentEvidencePackage.CloudProvider` free-text sanitizer parity (token resolution only; not echoed in topology/cost user prompts); regressions `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` and `CostUserPrompt_does_not_echo_evidence_package_cloud_provider_free_text_string`; 146 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — tag map keys with embedded `</untrusted_input>` are trim-only while values are wrapped — **cheap-disproof 2026-09-27 seed hunt:** no production caller formats tag keys into agent LLM prompts; regression `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability`
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` omits `AgentEvidencePackage.CloudProvider` free-text string — **cheap-disproof 2026-09-27 seed hunt:** `CostRetailGroundingBuilder.ResolveGroundingProvider` parses cloud tokens only; topology/cost user prompts render `request.CloudProvider` enum, not the evidence free-text field; regression `CostUserPrompt_does_not_echo_evidence_package_cloud_provider_free_text_string`
+
+2026-09-27 seed hunt (seed-only): cheap-disproved `StagedPriorAgentsSummaryBuilder` ledger row line-separator spoof via Critic compose hygiene; regression `CriticUserPrompt_staged_summary_from_builder_neutralizes_ledger_line_separator_spoof`; 144 scoped agent-runtime-safety tests passed.
+
+2026-09-27 seed hunt (seed-only): cheap-disproved staged-summary TB-949 marker parity and case-variant end literal truncation branches; reseeded `StagedPriorAgentsSummaryBuilder` ledger snapshot hygiene candidate (out of zone `paths` but same class as ledger-append hit); 143 scoped agent-runtime-safety tests passed.
+
+2026-09-27 seed hunt (seed→hit): proved `TechnologyLedgerUserPromptInjection.AppendLedgerContext` appended persisted ledger rows with only `PromptFieldRedactor`, leaving Unicode line-separator field spoofing and raw `CUSTOMER_CONTENT_END` literals in technology names; fixed via `SanitizePersistedCustomerProse` on ledger entry text fields plus `EscapeEmbeddedMarkers` on the formatted block; regressions `AppendLedgerContext_collapses_unicode_line_separator_in_technology_name` and `AppendLedgerContext_neutralizes_embedded_customer_content_end_marker_in_technology_name`; 141 scoped agent-runtime-safety tests passed.
+
+2026-09-27 seed hunt (seed-only): cheap-disproved retail `PromptBlock` quarantine and truncation case-variant marker candidates; reseeded `TechnologyLedgerUserPromptInjection` ledger-append hygiene candidate; 139 scoped agent-runtime-safety tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded agent-runtime-safety after persisted-objective sanitize; proved staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize bypassed `SanitizePersistedCustomerProse`, leaving Unicode line separators that spoofed architecture field lines inside the staged quarantine; fixed at `AgentUserPromptComposer.AppendStagedPriorAgentsSummary`; seeded cost retail `PromptBlock` quarantine and truncation case-variant marker candidates; 138 scoped agent-runtime-safety tests passed.
+
+- [x] (proven) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged notes appended after `AgentEvidenceUntrustedInputSanitizer` bypassed `SanitizePersistedCustomerProse`, leaving `\u2028`/`\n` field-spoof lines inside the staged TB-949 section — **hit 2026-09-27 seed hunt (seed→hit):** compose now runs `SanitizePersistedCustomerProse` before `EscapeEmbeddedMarkers`; regression `CriticUserPrompt_staged_prior_summary_collapses_unicode_line_separator_field_spoofing`
+- [x] (valid-no-repro) `AgentUserPromptComposer.BuildCostUserPrompt` — retail grounding `PromptBlock` appended outside `CustomerContentPromptDelimiters` quarantine — **cheap-disproof 2026-09-27 seed hunt:** `CostRetailGroundingBuilder` emits host catalog rows only; request marker literals do not surface in the grounding block; regression `CostUserPrompt_retail_grounding_block_omits_unescaped_customer_markers_from_request`
+- [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — case-variant embedded `customer_content_end` literals may leave nested sections unclosed under char budget — **cheap-disproof 2026-09-27 seed hunt:** customer prose is `EscapeEmbeddedMarkers`-neutralized before compose; truncation runs on composed prompts with literal section delimiters (#1308/#1340 regressions)
+- [x] (proven) `TechnologyLedgerUserPromptInjection.AppendLedgerContext` — ledger block appended after TB-949 sections with `PromptFieldRedactor` only (no marker escape / line-separator collapse) — **hit 2026-09-27 seed hunt (seed→hit):** persisted `TechnologyName` could inject `\u2028Description:` spoof lines and raw `CUSTOMER_CONTENT_END` after compose; fixed in `SanitizeEntriesForPrompt` + `EscapeEmbeddedMarkers`; regressions `AppendLedgerContext_collapses_unicode_line_separator_in_technology_name`, `AppendLedgerContext_neutralizes_embedded_customer_content_end_marker_in_technology_name`
+- [x] (valid-no-repro) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged note body with embedded `CUSTOMER_CONTENT_END` breaks TB-949 bounds — **cheap-disproof 2026-09-27 seed hunt:** compose runs `SanitizePersistedCustomerProse` then `EscapeEmbeddedMarkers`; regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_end_marker`
+- [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — case-variant `customer_content_end` inside quarantine body leaves section unclosed under char budget — **cheap-disproof 2026-09-27 seed hunt:** `LastIndexOf` uses canonical `EndMarker` only; truncation appends closing marker when budget allows; regression `TruncatePreservingSectionBounds_appends_end_when_only_case_variant_end_literal_is_inside_body`
+- [x] (valid-no-repro) `StagedPriorAgentsSummaryBuilder.BuildLedgerSection` — technology ledger snapshot rows formatted with `PromptFieldRedactor` only before staged Critic note is composed — **cheap-disproof 2026-09-27 seed hunt:** `AppendStagedPriorAgentsSummary` collapses line-separator spoofing and neutralizes TB-949 markers before the Critic LLM call; regression `CriticUserPrompt_staged_summary_from_builder_neutralizes_ledger_line_separator_spoof` (note body may still carry raw literals for grounding-index substring use only)
+
 2026-09-26 thorough hunt (dry): cheap-disproved cost/compliance persisted-objective `RequiredCapabilities`/`Constraints` parity and stale-objective `CUSTOMER_CONTENT_END` candidates — `SanitizePersistedCustomerProse` plus `RedactAndEscape` at task render already collapse line separators and neutralize TB-949 markers for all starter-task objectives; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize`, `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`, and `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`; 137 scoped agent-runtime-safety tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded agent-runtime-safety; proved persisted starter-task objectives built before execute-time sanitize still carried raw Unicode line separators into the Task Objective quarantine while architecture fields were collapsed; fixed via `SanitizePersistedCustomerProse` at prompt render; seeded stale-objective `CUSTOMER_CONTENT_END` marker and cost/compliance objective parity candidates; 134 scoped agent-runtime-safety tests passed.
@@ -8725,13 +8817,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 20
-- **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — persisted starter-task objective carried Unicode line separators into Task Objective quarantine after execute-time sanitize
+- **hunts:** 31
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — technology ledger append bypassed persisted-prose sanitizer and TB-949 marker escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
 2026-09-12 seed hunt #2136 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows.
 
@@ -8786,6 +8880,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) Persisted cost/compliance starter-task objectives — same stale-embedding gap for `RequiredCapabilities` / `Constraints` list joins — **cheap-disproof 2026-09-26 thorough hunt (dry):** `RunStarterTaskFactory` freezes joined capabilities/constraints into `task.Objective` before execute-time sanitize, but `AppendTaskObjectiveToolsAndSources` now runs `SanitizePersistedCustomerProse` plus `RedactAndEscape` at render; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize` and `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`
 - [x] (valid-no-repro) Persisted task objective — embedded `CUSTOMER_CONTENT_END` survives when objective built before sanitize — **cheap-disproof 2026-09-26 thorough hunt (dry):** `RedactAndEscape` applies `EscapeEmbeddedMarkers` after `SanitizePersistedCustomerProse`; regression `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — evaluation disabled may skip input/output guard scans — **cheap-disproof 2026-09-27 seed hunt:** intentional `EvaluateCompletionPromptAndResponse=false` bypass mirrors streaming path; regression `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json`
+- [x] (valid-no-repro) `TechnologyLedgerUserPromptInjection.AppendLedgerContext` — `EvidenceRef` Unicode line separators may spoof ledger field layout — **cheap-disproof 2026-09-27 seed hunt:** `SanitizeEntriesForPrompt` runs `SanitizePersistedCustomerProse` on `EvidenceRef`; regression `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`
 
 ---
 
@@ -8941,11 +9037,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 27
-- **bugs-found:** 23
+- **hunts:** 24
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — agent over-count left FindingsBySeverity on agent Info while snapshot drove other delta fields
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — agent over-count left decision-delta on agent Info while deltas JSON used snapshot Critical/Warning
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 2026-09-26 seed hunt (hit): proved agent-over-count with `preferSnapshotMaterialFindings` still left `FindingsBySeverity` on agent Info buckets while governed coverage, narrative, and top finding used snapshot Critical/Warning; fixed by applying `snapshotSeverityBuckets` when material prefers snapshot but count gate kept agent totals; extended regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
@@ -9026,9 +9122,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1746 (seed→hit): reseeded application-pilots; restored ROI freshness ZIP regression blocked by simulator career-artifact gate; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 - [x] (proven) `PilotSponsorMaterialFindingsResolver` equal-count severity tie — decision-delta / semantic-support used agent findings while deltas JSON used snapshot severity after #1417 computer fix — **hit 2026-09-26 seed hunt (seed→hit):** prefer `SponsorNarrativeFindings` when equal counts and snapshot max severity rank is higher; regression `Resolve_when_equal_count_agent_and_snapshot_prefers_higher_severity_snapshot_finding` (`SponsorDecisionDeltaNoveltyResolverTests`).
-- [ ] (candidate) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations
-- [ ] (candidate) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run
-- [ ] (candidate) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths
+- [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count (`snapshotTotal < agentTotal`) keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` + `preferSnapshotMaterialFindings` (ledger row at zone header); regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
+- [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate on same committed run — **cheap-disproof 2026-09-26 thorough hunt:** Wave-40 `RunExportSealedManifestHashGuard` on bundle entry; nested PDF builders enforce sealed receipt.
+- [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** `ExcludeOperatorMutedFindings` before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
+- [x] (proven) `PilotSponsorMaterialFindingsResolver` / `SponsorDecisionDeltaNoveltyResolver` — agent over-count (`agentFindings.Count > SponsorNarrativeFindings.Count`) kept agent Info noise in decision-delta markdown while `PilotRunDeltaComputer` used snapshot Critical/Warning buckets after governed-coverage preference — **hit 2026-09-27 thorough hunt:** prefer snapshot narrative when agent over-counts but snapshot max severity rank is higher; regression `Resolve_when_agent_over_counts_but_snapshot_has_higher_severity_prefers_snapshot_narrative`.
+
+2026-09-27 thorough hunt (hit): closed stale reseed candidates; proved decision-delta resolver agent-over-count vs snapshot severity split; 71 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta/SponsorEvidencePack tests passed.
 
 ---
 
@@ -11236,11 +11335,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 448
-- **bugs-found:** 3500
+- **hunts:** 449
+- **bugs-found:** 3501
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `GraphSnapshotKnowledgeModelMerger` duplicate context edges when endpoint casing differed
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes when node id casing differed among context-only nodes
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -15178,6 +15277,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-26 seed hunt (seed→hit): reseeded archlucid-core; proved context-edge casing dedup gap in κ→Γ merge; 4 `GraphSnapshotKnowledgeModelMergerTests` passed.
 
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context-only node ids differing only by case both merged — **hit 2026-09-27 seed hunt (seed→hit):** #1290/#2026-09-26 fixed model-vs-context node dedup but context-only duplicates (`SHARED` + `shared`) both appended because only `modelNodeIds` was consulted; fixed by tracking `mergedNodeIds` when accepting context nodes; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_prior_context_node`.
+
+2026-09-27 seed hunt (seed→hit): reseeded archlucid-core after context-edge casing fix; proved context-only node-id casing dedup gap in κ→Γ merge; 5 `GraphSnapshotKnowledgeModelMergerTests` passed.
+
 2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
 
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
@@ -15974,11 +16077,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 30
-- **bugs-found:** 21
+- **hunts:** 31
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — Workflow action target parser normalized raw JSON reference blobs as ARM ids
+- **last-bug:** 2026-09-26 — Restore point collection source parser mishandled JSON reference on source.id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16209,6 +16312,11 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-09-26 seed hunt #29 (seed→hit): reseeded core-azure-extractor after access-connector JSON reference hit; proved public IP reference parser ignored JSON reference property values; seeded workflow action target JSON reference normalization candidate; 1395 scoped `AzureExtractor` tests passed.
 
+- [x] (proven) `AzureInventoryRestorePointCollectionSourceParser` — flattened `source.id` property values serialized as package JSON reference blobs (`{"id":"..."}`) were normalized wholesale because the parser only called `ArmResourceIdNormalizer.Normalize` on the raw string — **hit 2026-09-26 seed hunt #31:** NR-03 restore point collection parent resolution dropped protected VM/VMSS sources when `source.id` carried JSON `GetRawText()`; fixed with `TryResolveArmReferenceValue` parity to access connector / network connection parsers; regression `Parse_reads_arm_id_from_json_reference_on_source_id_property`.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser.NormalizeArmId` — explicit flattened `nextHopArmId` suffix values storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` (reachability: hydrator writes path-shaped next-hop ids from `Parse`; package-only flattened keys unproven in production graph nodes)
+
+2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
+
 ---
 ## Zone: core-configuration-summary
 
@@ -16219,13 +16327,23 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 17
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `Integrations:ItsmOutbound:Jira:OAuthClientSecret` / `ApiToken` compound segments leaked integration credentials
+- **hunts:** 22
+- **bugs-found:** 16
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — JSON effective values with dotted `api.key` / `credentials.api_key` leaked in config summary
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after kebab-case fix; proved dotted JSON property names (`api.key`, `credentials.api_key`) bypassed delimiter tokenization; fixed by dot-delimiter splits and recursive `IsSensitiveConfigPropertyName` on split tokens; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`; 1044 scoped Configuration tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after snake_case fix; proved kebab-case `api-key` bypassed `IsSensitiveConfigPropertyName` for the same admin JSON effective-value path class; fixed by hyphen-delimiter tokenization alongside underscore splits; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`; 1042 scoped Configuration tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded `ConfigurationSensitiveConfigValueScanner`; proved snake_case JSON property `api_key` bypassed `IsSensitiveConfigPropertyName` because underscore broke contiguous `ApiKey` matching while catalog JSON blobs (e.g. `ArchLucid:FallbackLlm:Endpoints` operator overrides) remain reachable via admin config summary; fixed by tokenizing underscore-separated JSON property names before segment matching; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key`; 1041 scoped Configuration tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded `ArchLucidPersistenceOptions` / `SqlTopologyOptions`; proved `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` path segments bypassed redaction because embedded-`ConnectionString` skip treated trailing `Template` suffix as non-credential; fixed via `ConnectionStringTemplate` compound suffix on `IsCompoundConnectionStringCredentialSegment`; regression `Resolve_redacts_connection_string_template_config_paths`; 1040 scoped Configuration tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded core-configuration-summary from `IntegrationsItsmInboundOptions`; proved `JiraWebhookSecret` and `ServiceNowWebhookSecret` path segments leaked because embedded-`Secret` skip treated trailing `WebhookSecret` as non-credential; fixed via `WebhookSecret` compound suffix on `IsCompoundSecretCredentialSegment`; regression `Resolve_redacts_inbound_itsm_webhook_secret_config_paths`; 1038 scoped Configuration tests passed.
 
 2026-09-26 thorough hunt (dry): cheap-disproved snake_case JSON credential property candidate — no `ConfigurationKeyCatalog` or host options path stores JSON credential blobs with `api_key` / `client_secret` keys (.NET binding and catalog JSON blobs use PascalCase); 1036 scoped Configuration tests passed.
 
@@ -16259,6 +16377,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEffectiveValueResolver` — `ArchLucid:FallbackLlm:Endpoints` JSON effective values expose embedded `ApiKey` properties when path segment is not sensitive — **hit 2026-09-26 thorough hunt:** admin config summary returned raw fallback endpoint JSON; fixed by scanning JSON property names with `ConfigurationSensitiveConfigValueScanner`; regressions `Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties` and `Resolve_preserves_non_credential_json_effective_values`
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `OAuthClientSecret` and `ApiToken` integration paths bypass embedded-`Secret`/`Token` fragment matching — **hit 2026-09-26 seed hunt:** `Integrations:ItsmOutbound:Jira:OAuthClientSecret`, `Integrations:ItsmOutbound:Jira:ApiToken`, `Integrations:ConfluencePublishing:OAuthClientSecret`, and `Integrations:ConfluencePublishing:ApiToken` leaked raw Atlassian/Jira credentials in operator config summary; fixed with `ClientSecret` and `ApiToken` compound suffix rules; regression `Resolve_redacts_integrations_oauth_and_api_token_config_paths`
 - [x] (invalid) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON credential property names (`api_key`, `client_secret`) bypass PascalCase property-name scanner — **invalid 2026-09-26 thorough hunt:** no catalog or host options path stores credential JSON with snake_case keys; `FallbackLlm:Endpoints` and `PerAgentTypeFloors` bind PascalCase property names via .NET configuration
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `JiraWebhookSecret` and `ServiceNowWebhookSecret` segments bypass redaction because embedded-`Secret` skip treats trailing `WebhookSecret` as non-credential — **hit 2026-09-27 seed hunt:** `Integrations:ItsmInbound:JiraWebhookSecret` and `ServiceNowWebhookSecret` leaked deployment-wide inbound webhook secrets in operator config summary; fixed with `WebhookSecret` compound suffix rule; regression `Resolve_redacts_inbound_itsm_webhook_secret_config_paths`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` segments bypass redaction because embedded-`ConnectionString` skip treats trailing `Template` as non-credential — **hit 2026-09-27 seed hunt:** `ArchLucid:Persistence:ReadOnlyConnectionStringTemplate` and `ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate` leaked SQL connection templates (including passwords) in operator config summary; fixed with `ConnectionStringTemplate` compound suffix rule; regression `Resolve_redacts_connection_string_template_config_paths`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON property `api_key` bypasses credential property scan — **hit 2026-09-27 seed hunt:** non-sensitive catalog JSON effective values (e.g. `ArchLucid:FallbackLlm:Endpoints` overrides) returned raw secrets when property names used `api_key`; fixed by underscore-tokenizing JSON property names in `IsSensitiveConfigPropertyName`; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — kebab-case JSON property `api-key` bypasses credential property scan — **hit 2026-09-27 seed hunt:** same JSON effective-value path class as snake_case `api_key`; hyphen delimiter left `key` token non-sensitive until split; fixed by hyphen tokenization in `IsSensitiveConfigPropertyName`; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — dotted JSON property names (`api.key`, `credentials.api_key`) bypass credential property scan — **hit 2026-09-27 seed hunt:** dot-delimited keys and mixed dotted snake_case tokens skipped `ApiKey` matching; fixed with dot splits and recursive delimiter tokenization on JSON property name parts; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
@@ -18525,11 +18648,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 24
-- **bugs-found:** 19
+- **hunts:** 25
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — nested-array reasoning paragraphs rejected structured normalize
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — nested-array citation wrappers inflated citation count for sponsor disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18574,7 +18697,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — `faithfulnessSupportRatio` nested only under `explanation` ignored — **2026-09-26 thorough hunt:** `RunExplanationSummary` OpenAPI places `faithfulnessSupportRatio` at aggregate root; `pilot proof-packet` passes raw `GET /v1/explain/runs/{runId}/aggregate` JSON (not nested-only shapes).
 - [x] (proven) `StructuredExplanationParser.TryReadStringList` — nested-array `evidenceRefs` entries silently dropped — **hit 2026-09-26 thorough hunt:** LLM double-wrapped list items (`[["dec-1"]]`) skipped non-string array tokens; fixed with `CollectStringListEntries` flattening; regression `TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries`.
 - [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — nested-array `reasoning` paragraphs reject normalize — **hit 2026-09-26 seed hunt (seed→hit):** double-wrapped paragraph arrays left empty reasoning so `TryNormalizeStructuredJson` returned false; fixed with `CollectReasoningParts` flattening; regression `TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs`.
-- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — nested-array `citations` entries may count wrapper arrays instead of citation objects (reachability: aggregate API emits flat `CitationReference[]`; hand-edited JSON only)
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — nested-array `citations` entries counted wrapper arrays instead of citation objects (`[[]]` yielded PASS disposition) — **hit 2026-09-27 thorough hunt:** flatten nested citation arrays before counting (parity with `CollectStringListEntries`); regressions `FromAggregateJson_flattens_nested_array_citations_for_disposition`, `FromAggregateJson_treats_nested_empty_citation_wrappers_as_zero_for_disposition`.
+
+2026-09-27 thorough hunt (hit): proved nested citation wrapper disposition gap; 70 scoped Explanation unit tests passed.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
@@ -21213,11 +21338,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 17
-- **bugs-found:** 32
+- **hunts:** 18
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — inventory.json omitted ControlId for security/compliance rows
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — reference-architecture markdown/DOCX requirement-text and sponsor-summary parity; finding-verification markdown sanitizer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21276,9 +21401,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-26 seed hunt (seed→hit): reseeded artifact-synthesis; proved inventory.json omitted `ControlId` for security/compliance rows while compliance-matrix.json and DOCX expose control IDs; seeded requirement-text markdown/DOCX parity, reference-architecture sponsor summary, and finding-verification markdown sanitizer candidates; 5 InventoryArtifactGenerator + 577 scoped ArtifactSynthesis tests passed (8 pre-existing unrelated Mermaid peel-budget failures).
 
 - [x] (proven) `InventoryArtifactGenerator.GenerateAsync` — `inventory.json` security/compliance rows omitted `ControlId` present in `compliance-matrix.json` and DOCX export — **hit 2026-09-26 seed hunt (seed→hit):** added `InventoryItem.ControlId` and mapped from `SecurityPostureItem`/`CompliancePostureItem`; regression `GenerateAsync_serializes_control_id_for_security_and_compliance_items_matching_compliance_matrix_export`.
-- [ ] (candidate) `ReferenceArchitectureMarkdownGenerator` / `DocxExportService` — omit `RequirementText` while `inventory.json` stores it in `Notes`
-- [ ] (candidate) `ReferenceArchitectureMarkdownGenerator` — omits `Metadata.Summary` sponsor section present in narrative markdown and DOCX
-- [ ] (candidate) `FindingVerificationReportMarkdownRenderer` — finding table cells bypass `LlmArtifactFreeTextSanitizer` (DOCX fixed in #1534)
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `DocxExportService` — omit `RequirementText` while `inventory.json` stores it in `Notes` — **hit 2026-09-27 thorough hunt:** markdown requirement bullets append requirement text; DOCX coverage table adds Notes column; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag` (updated) and DocxExportService golden suite
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` — omits `Metadata.Summary` sponsor section present in narrative markdown and DOCX — **hit 2026-09-27 thorough hunt:** added `## Sponsor Summary` with DOCX-aligned empty placeholder; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_sponsor_summary_matching_docx_export`
+- [x] (proven) `FindingVerificationReportMarkdownRenderer` — finding table cells bypass `LlmArtifactFreeTextSanitizer` (DOCX fixed in #1534) — **hit 2026-09-27 thorough hunt:** `EscapeCell` now sanitizes before pipe/newline escaping; regression `Render_strips_control_chars_from_finding_table_cells`
+
+2026-09-27 thorough hunt (hit): proved three seeded candidates — requirement-text export parity (markdown + DOCX Notes column), reference-architecture sponsor summary, and finding-verification markdown table sanitization; 3 targeted + 15 DocxExportService + 579 scoped ArtifactSynthesis tests passed (10 pre-existing unrelated Mermaid peel-budget / data-flow label failures).
 
 2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 
@@ -21306,13 +21433,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 38
-- **bugs-found:** 22
+- **hunts:** 40
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — graph projection cache factory ignored explicit Backend=Distributed when CacheProvider=Memory
+- **last-bug:** 2026-09-26 — graph projection Redis pub/sub used projection Redis while IDistributedCache reused LLM Redis
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-26 seed hunt #40 (seed→hit): reseeded host-composition; proved `RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` wired graph projection invalidation pub/sub to `ProjectionCache:RedisConnectionString` while reusing an existing `IDistributedCache` from distributed LLM completion cache on a different Redis; aligned pub/sub connection resolution with shared distributed cache; regressions `ResolveGraphProjectionRedisConnectionString_when_cache_already_registered_ignores_projection_specific_redis` and `ResolveGraphProjectionRedisConnectionString_when_registering_new_cache_prefers_projection_specific_redis`; 389 scoped host-composition tests passed.
+
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` — graph projection invalidation pub/sub connected to projection-specific Redis while `IDistributedCache` entries stayed on LLM/hot-path Redis when both were already registered — **hit 2026-09-26 seed hunt #40:** invalidation missed distributed projection keys; fixed `ResolveGraphProjectionRedisConnectionString` to reuse LLM/hot-path Redis when `IDistributedCache` already exists; regressions in `ArchLucidDistributedCacheRegistrarRedisAlignmentTests`
+- [x] (valid-no-repro) `ContextIngestionCompositionRegistrar` + `ArchLucidDistributedCacheRegistrar` — `TryAddSingleton` Null `IGraphProjectionCacheInvalidationBroadcaster` prevents Redis broadcaster when registration order inverts — **cheap-disproof 2026-09-26 seed hunt #39:** `AddPlatformCapability` → `AddArchLucidStorage` (Redis pub/sub) always runs before `AddAuthorityCapability` → `PipelineCompositionModule`; `AddSingleton<RedisGraphProjectionCacheInvalidationBroadcaster>` remains the effective `GetRequiredService` implementation; graph-projection registration regressions in `ServiceCollectionExtensionsRegistrationTests`.
+- [x] (valid-no-repro) `ProjectionCache:Backend=Memory` with `CacheProvider=Auto` on multi-replica hosts still promotes distributed projection cache — **cheap-disproof 2026-09-26 seed hunt #39:** operator scale-out contract in `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md` requires `Backend=Distributed`; Auto + `ExpectedApiReplicaCount` promotion is intentional; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`.
+- [x] (valid-no-repro) `RegisterTenancyMetering` registers `ApiRequestUsageEventBatchFlushHostedService` on Api/Worker/Combined without leader election — **cheap-disproof 2026-09-26 seed hunt #39:** flushes are per-process `ApiRequestUsageEventBuffer` batches, not cross-replica shared queues; regression `AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`.
+
+2026-09-26 seed hunt #39 (seed-only): reseeded host-composition after graph projection cache parity hits; cheap-disproof closed broadcaster registration order, explicit Memory backend vs Auto promotion, and metering flush leader-election candidates; 387 scoped host-composition tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-composition; proved `ContextIngestionCompositionRegistrar` `IGraphSnapshotProjectionCache` factory used only `GraphProjectionCacheProviderResolver.ResolveEffectiveBackend` while `ArchLucidDistributedCacheRegistrar` already treated explicit `ProjectionCache:Backend=Distributed` as distributed — hosts wired Redis pub/sub but resolved `GraphSnapshotProjectionMemoryCache` when `CacheProvider=Memory`; aligned factory with combined `Backend` + effective-backend check; regression `AddArchLucidApplicationServices_uses_distributed_graph_projection_cache_when_backend_distributed_even_if_cache_provider_memory`; 385/387 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
@@ -21453,13 +21589,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 58
-- **bugs-found:** 28
+- **hunts:** 59
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — private DNS vnet link and VNet peering pagination followed cross-parent nextLink
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — type-scoped ARM list followed generic subscription resources nextLink
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors type-scoped subscription lists; proved `ListSubscriptionResourcesByTypeAsync` followed cross-listing `nextLink` to generic `/resources` within the same subscription (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on descriptor path; regression `ListSubscriptionResourcesByTypeAsync_rejects_next_link_for_different_type_listing_path`; seeded subscription-scoped role-assignment nextLink path guard as `(candidate)`; 95 Azure + 28 AWS/GCP scoped extractor tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors network type-list paths; proved `ListPrivateDnsZoneVirtualNetworkLinksAsync` and `ListVirtualNetworkPeeringsAsync` followed cross-zone/cross-vnet `nextLink` without scope guards; fixed with `EnsureTargetsArmRelativeListingPath`; regressions `ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id` and `ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id`; 2 scoped GetOnlyHostedAzureArmReadClient tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListBuiltInPolicyDefinitionDocumentsAsync` followed `nextLink` to subscription-scoped policy definitions without a built-in collection guard; fixed with `EnsureTargetsBuiltInPolicyDefinitionsListing`; regression `ListBuiltInPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`; 1 scoped GetOnlyHostedAzureArmReadClient test passed.
@@ -21755,15 +21893,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 280
-- **bugs-found:** 507
+- **hunts:** 281
+- **bugs-found:** 508
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — insights sealed-manifest guard null run-summary crash
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — governance sealed-manifest guard skipped padded run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 - [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` / `GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync` — insights-scope sealed-manifest preflight called `ListRunSummariesKeysetAsync` then `items.FirstOrDefault` without a null guard so default Moq/`Mock.Of` run-detail doubles surfaced HTTP 500 `ArgumentNullException` instead of returning dashboard/trend payloads — **hit 2026-09-26 seed hunt (seed→hit):** skip guard when summaries are null or empty; wire `GovernanceControllerTestFactory` to `SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns`; regression `EnsureLatestCommittedRunSealedOrThrowAsync_skips_guard_when_run_summaries_are_null`.
+
+- [x] (proven) `GovernanceController.EnsureSealedManifestReadAllowedAsync` / `RecordGovernanceMutationCorrection` — padded `runId` skipped sealed-manifest hash guard because `Guid.TryParse` ran on untrimmed text after #21957 trimmed scoped-run preflight only — **hit 2026-09-27 seed hunt (seed→hit):** trim before parse on run-scoped sealed-manifest guard; regression `RecordGovernanceMutationCorrection_returns_conflict_when_padded_run_id_has_sealed_manifest_hash_drift`.
+
+2026-09-27 seed hunt (seed→hit): reseeded api-governance-tenancy-controllers after insights null-summary fix; proved padded run id bypassed run-scoped sealed-manifest guard on mutation-correction POST; 136 scoped Api unit tests passed (17 SQL integration unavailable on Linux VM).
 
 2026-09-26 seed hunt (seed→hit): reseeded api-governance-tenancy-controllers after insights sealed-manifest guard churn; proved null run-summary page crash on dashboard/trend reads; 136 scoped Api unit tests passed (17 SQL integration skipped).
 
@@ -23254,19 +23396,22 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: application-agents
 
+2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
+
 - **id:** application-agents
 - **status:** open
 - **impact:** medium
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 18
-- **bugs-found:** 18
+- **hunts:** 21
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — IaC stub enrichment dropped ProposedEvidenceJson envelope field
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — dual-model consensus merge threw when topology proposal RequiredControls was null
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `FindingIacStubGenerator` enrichment upsert dropped `ProposedEvidenceJson` (`[JsonIgnore]` envelope column) via clone/serialize and full enrichment merge replace; fixed clone carry-forward, enrichment JSON envelope fields, and `AgentResultEnrichmentMerger` base-column preservation; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`; 88 scoped Application.Tests.Agents tests passed.
 - **hunts:** 17
 - **bugs-found:** 17
@@ -23305,7 +23450,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — service intersection could drop endpoints while relationship intersection kept cross-endpoint edges (consensus enricher runs after structural post-process without re-filtering) — **hit 2026-09-26 thorough hunt:** prune merged relationships to declared intersected endpoint keys; regression `Merge_prunes_relationships_when_intersected_services_no_longer_declares_both_endpoints`
 - [x] (proven) `FindingIacStubGenerator` — post-commit stub generation gated on evidence/mute only, so enrichment-merge rows with emission-withheld findings in `Findings` still invoked LLM — **hit 2026-09-26 thorough hunt:** skip findings failing `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs`
 - [x] (proven) `FindingIacStubGenerator` / `AgentResultEnrichmentMerger` — IaC stub enrichment clone/serialize omitted `[JsonIgnore]` `ProposedEvidenceJson`, and full enriched JSON replace dropped the base-table envelope on read — **hit 2026-09-26 seed hunt:** carry envelope fields through clone + enrichment JSON write; preserve base envelope columns on merge; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`
-- [ ] (candidate) `AgentResultRegionMismatchEnricher` — null `AddedServices`/`AddedDatastores` throws when invoked without `AgentProposalStructuralPostProcessorEnricher` (production composite order prevents)
+- [x] (valid-no-repro) `AgentResultRegionMismatchEnricher` — null `AddedServices`/`AddedDatastores` throws when invoked without `AgentProposalStructuralPostProcessorEnricher` — **cheap-disproof 2026-09-26 thorough hunt:** `AgentEnrichersCompositionModule` registers structural post-process before region mismatch; `AgentProposalStructuralPostProcessor` normalizes null service/datastore lists; enricher now null-coalesces collections defensively
+- [x] (proven) `AgentResultRegionMismatchEnricher.TryAppendRegionWarning` — null `Warnings` on deserialized `AgentTopologyProposal` throws before appending region mismatch text — **hit 2026-09-26 thorough hunt:** structural post-process does not initialize `Warnings`; JSON `"warnings": null` survives to region enricher; fixed with `proposal.Warnings ??= []`; regression `EnrichAsync_initializes_warnings_when_null_before_appending_region_mismatch`
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — null `primary.Warnings` throws when building merged proposal (`new List<string>(primary.Warnings)`) — **hit 2026-09-26 seed hunt:** dual-model consensus runs after structural post-process without initializing warnings; fixed by null-coalescing warning copy; regression `Merge_when_primary_warnings_is_null_does_not_throw`
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — null `RequiredControls` on topology proposals throws in `IntersectControls` / disagreement math — **hit 2026-09-27 seed hunt:** structural post-process leaves `RequiredControls` null for topology agents while dual-model consensus still intersects controls; fixed via null-coalescing; regression `Merge_when_required_controls_is_null_does_not_throw`
+
+2026-09-26 thorough hunt (hit): cheap-disproved null AddedServices without structural post-processor; proved null Warnings NRE on region mismatch append; 90 scoped Application.Tests.Agents tests passed.
 
 2026-09-25 seed hunt #31 (seed→hit): reseeded application-agents after muted IaC stub hit; proved curated evidence proposals for emission-withheld findings; 85 scoped Application.Tests.Agents tests passed.
 
@@ -23346,11 +23496,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 28
-- **bugs-found:** 23
+- **hunts:** 29
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — execute-baseline drift ignored not-assessed quality dimension snapshots
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — persisted assignment undefined severity ordinal bypassed live pre-commit gate
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23416,6 +23566,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
 
+2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
+
+- [x] (proven) `PreCommitGateEvaluator` / `PreCommitGovernanceGate` — undefined `BlockCommitMinimumSeverity` ordinal on persisted assignment bypassed live gate — **hit 2026-09-27 seed hunt:** invalid ordinals set `effectiveMinSeverity` above any finding so Critical policy violations did not block despite `blockCommitOnCritical`; regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`.
+
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — evidence-linkage supplemental findings with `WarnOnly=false` may still differ from live gate warn-only policy routing (reachability: both call `PreCommitSupplementalFindingsAppender`; prove cross-surface block parity on next hunt).
+
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
 2026-09-10 seed hunt (hit): extended lineage sealed-manifest guard to top findings projection.
@@ -23439,11 +23595,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 30
-- **bugs-found:** 20
+- **hunts:** 31
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `ListTenantIdsPendingTrialArchitecturePreseedAsync` omitted enqueued tenants with legacy lowercase `active` `TrialStatus`, stalling welcome pre-seed after bootstrap
+- **last-bug:** 2026-09-26 — `TrialLimitGate` reported 0 days remaining for Expired/ReadOnly lifecycle writes while trial-status API showed days until next phase
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23499,6 +23655,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate` / `ListTrialLifecycleAutomationTenantIdsAsync` — Ordinal `Converted` exclusion leaves lowercase `converted` rows in lifecycle scheduler polls — **cheap-disproof 2026-09-26 seed hunt:** `TrialLifecycleTransitionEngine` + `TrialLifecyclePolicy` no-op on `EqualsStatus` Converted; no errant transitions or purge side effects; perf-only noise.
 - [x] (valid-no-repro) `TryIncrementActiveTrialRunAsync` — legacy lowercase `active` rows could bypass run caps like seat claims pre-#seat-hit — **cheap-disproof 2026-09-26 seed hunt:** seat-cap fix already applied `EqualsStatus` + CI-trim SQL to run increment path; regression `TryIncrementActiveTrialRun_enforces_cap_for_lowercase_active_trial_status`.
 
+- [x] (proven) `TrialLimitGate.GuardWriteAsync` / `GuardDeleteAsync` — post-active lifecycle rejections reported `DaysRemaining` from `TrialExpiresUtc` instead of the next lifecycle boundary used by `GET /v1/tenant/trial-status` — **hit 2026-09-26 seed hunt #31:** `Expired`/`ReadOnly`/`ExportOnly` write/delete blocks surfaced `0` days while `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay` showed time until read-only/export/purge; fixed by threading `TrialLifecycleSchedulerOptions` into the gate and reusing policy display math; regression `GuardWriteAsync_expired_reports_days_until_read_only_phase`.
+
+2026-09-26 seed hunt #31 (seed→hit): reseeded application-tenancy-lifecycle; proved lifecycle write-freeze `DaysRemaining` disagreed with trial-status API; 127 scoped tenancy tests passed.
+
 2026-09-26 seed hunt (seed-only): reseeded application-tenancy-lifecycle after preseed poll hit; cheap-disproof closed lifecycle automation poll noise and confirmed run-increment casing parity; added run-cap regression; 126 scoped tenancy tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved architecture preseed worker skipped enqueued tenants with lowercase persisted `active` trial status; 125 scoped tenancy tests passed.
@@ -23551,15 +23711,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 17
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — sealed-manifest hash mismatch retried recoverable outbox processors
-- **hunts:** 13
-- **bugs-found:** 12
+- **hunts:** 14
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-26 — cosmos/post-commit outbox sealed-hash guard blocked skip-as-processed on purged runs
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — retrieval indexing outbox dead-lettered when manifest-compare detail missing after retrieval detail load
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23595,6 +23751,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor` replicates graph to Cosmos after sealed-hash guard passes on `entry.RunId` even when loaded `snapshot.RunId` disagrees — sealed hash validated the outbox run while Cosmos received another run's graph — **hit 2026-09-26 thorough hunt:** `AuthorityPipelineStagePersistence.SaveGraphAsync` enqueues `snapshot.RunId` in the same transaction as the SQL insert (no in-place graph replacement); fail-closed skip when SQL and outbox `RunId` differ; regression `ProcessPendingBatchAsync_marks_processed_when_sql_graph_run_id_disagrees_with_outbox_entry`
 - [x] (proven) `RecoverableOutboxFailureHandler` schedules backoff for `ConflictException` from wave-33/34 sealed-manifest hash guards — permanent hash/receipt conflicts retry until max attempts instead of immediate dead-letter like run-export packaging conflicts — **hit 2026-09-26 seed hunt:** dead-letter `ConflictException` in shared failure handler; regression `ProcessPendingBatchAsync_dead_letters_immediately_when_sealed_manifest_hash_mismatches`
 - [x] (invalid) `CosmosGraphSnapshotOutboxProcessor` skips sealed-hash guard when outbox `RunId` is `Guid.Empty` but loaded SQL graph has a non-empty `RunId` — **cheap-disproof 2026-09-26 thorough hunt:** same enqueue invariant as #1373 (`AuthorityPipelineStagePersistence.SaveGraphAsync` lines 93–112 pass `snapshot.RunId` in the same transaction as SQL graph insert); corrupt empty outbox `RunId` with non-empty SQL graph is not a reachable production path without manual DB tampering
+- [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` ran sealed-manifest hash guard without manifest-compare skip-as-processed parity — when `GetRunDetailForRetrievalIndexingAsync` returned complete detail but `GetRunDetailForManifestCompareAsync` returned null (run purge race after load), guard threw `ConflictException` and dead-lettered instead of skip-as-processed like run-export/post-commit/cosmos — **hit 2026-09-27 seed hunt (seed→hit):** manifest-compare missing skip before sealed-hash guard; regression `ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_after_retrieval_detail_loaded`.
+
+2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox manifest-compare skip parity gap; 27 scoped coordination processor tests passed.
 
 2026-09-26 thorough hunt (dry): cheap-disproof closed empty outbox RunId sealed-hash bypass candidate (#1373 sibling); no other hunt-ready rows; 26 scoped coordination processor tests passed.
 
@@ -23634,11 +23793,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 20
-- **bugs-found:** 23
+- **hunts:** 21
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — remediation factory stale deep-link + remediation lib proxy scope
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — remediation factory path view filter hid selected ranked path without clearing pathId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23677,6 +23836,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RemediationPatternsClient` — `selectedPatternId` and version-history detail survived registry filter changes that hid the selected row from `filteredPatterns` (operational-errors / diagram-reconcile filter/detail desync pattern) — **hit 2026-09-25 seed hunt (seed→hit):** clear selection and `patternId` URL when row drops out of filtered registry; regression `clears_selected_pattern_when_registry_filter_hides_the_selected_row`
 - [x] (proven) `RemediationFactoryClient` — stale `findingId` / `pathId` URL params persist when id is missing from loaded ranked findings/paths (Slack `slackDisableId` stale deep-link pattern) — **hit 2026-09-26 thorough hunt:** after ranked findings/paths hydration, unknown ids clear from URL via `syncSelection`; regression `clears stale findingId from the URL when the finding is missing from loaded rows` and `clears stale pathId from the URL when the path is missing from loaded rows` (`RemediationFactoryClient.test.tsx`).
 - [x] (proven) `remediation-pattern-api.ts` / `remediation-factory-api.ts` — `proxyJson`/`proxyGet` omit `mergeRegistrationScopeForProxy` on list/detail/submit/approve and factory ranked/metrics calls consumed by operator remediation routes — **hit 2026-09-26 thorough hunt:** wrapped lib fetch helpers with `mergeRegistrationScopeForProxy`; regression `remediation-factory-api.test.ts`, `remediation-pattern-api.test.ts`.
+
+- [x] (proven) `RemediationFactoryClient` — `pathView` ranked-path filter hid the selected row from `visibleRankedPaths` while `pathId` URL param and inspect panel stayed on the prior path (diagram-reconcile / remediation-patterns filter/detail desync pattern) — **hit 2026-09-27 seed hunt (seed→hit):** clear `pathId` when the selected path drops out of the active ranked-path view; regression `clears pathId from the URL when the ranked path view filter hides the selected row`; 4 `RemediationFactoryClient` tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-operator-routes after remediation-factory hits; proved ranked-path view filter/detail desync on remediation factory.
 
 2026-09-12 seed hunt #1849 (hit): reseeded operator routes; proved executive next-action inputs query cache omitted operator scope; 1 scoped hook test passed.
 
@@ -24160,17 +24323,32 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved create-home intent on pre-commit governance primary finalize href (`buildArchitectureActivityFinalizeReadinessHref`), activity orientation clarifications tab, and findings in-progress clarifications CTA (via `QuickDecisionSummaryEmptyState`); extended `RunDetailGovernanceDecisionSection.test.tsx`, `RunDetailCreateHomeActivityPanel.test.tsx`, and `architecture-created-finalize-readiness-href.test.ts`; 12 targeted vitest tests passed.
+
+- [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit primary finalize CTA may drop create-home query chrome — **cheap-disproof 2026-09-27 seed hunt:** `buildArchitectureActivityFinalizeReadinessHref` uses `buildCreateHomeReviewTabHref`; regression asserts `fromGeneration=1` + `intent=create-architecture` on primary CTA
+- [x] (valid-no-repro) `RunDetailCreateHomeActivityPanel` — Open clarifications orientation link may omit create intent — **cheap-disproof 2026-09-27 seed hunt:** href already passes `includeCreateIntent: true`; regression on clarifications link
+- [ ] (candidate) `RunDetailRunExplanationCollapsible` / `RunDetailFindingsWorkspace` — `headlineFindingCount` may disagree with tab badge when explanation deferred on create-home — tab badge uses `resolveRunDetailFindingsTabBadgeCount` fallback; findings workspace passes raw `findingCountDisplay` into card view empty headline path; needs reachability proof on buyer-polished vs operator create-home surfaces before hunt-ready
+
+2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved `RunDetailGovernanceDecisionSection` pre-commit vs post-commit `includeCreateIntent` parity; extended `RunDetailGovernanceDecisionSection.test.tsx`; 33 targeted review-detail band vitest tests passed.
+
+- [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit blocking-findings / activity tab hrefs may drop create-home chrome — **cheap-disproof 2026-09-27 seed hunt:** `manifestId` null branch already passes `includeCreateIntent: true`; post-commit branch omits intent by design; regressions in `RunDetailGovernanceDecisionSection.test.tsx`
+
+2026-09-27 thorough hunt (hit): proved `ArchitectureCreatedClarificationsPanel` zero-gap workspace tab links omitted `includeCreateIntent` (parity with `RunDetailCreateHomeActivityPanel`); fixed diagram/findings/activity hrefs; cheap-disproved `resolveReviewWorkspaceLifecycle` early-manifest + in-flight tracker — TB-2175 committed stage stays `finalized` while pipeline chrome uses `showProgressTracker`; regression `returns finalized when manifest is present even if the progress tracker is still on (TB-2175)`; 32 targeted review-detail band vitest tests passed plus clarifications/lifecycle specs.
+
+- [x] (proven) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omitted `includeCreateIntent` — **hit 2026-09-27 thorough hunt:** zero-gap success CTAs dropped create-home chrome; fixed with `includeCreateIntent: true`; regression `preserves create-home intent on zero-gap workspace tab links (TB-1836)`
+- [x] (valid-no-repro) `resolveReviewWorkspaceLifecycle` — returns `finalized` whenever `manifestId` is set even if `showProgressTracker` and `runCompleted` indicate analysis still in flight — **cheap-disproof 2026-09-27 thorough hunt:** mirrors `resolveReviewDetailTabLifecycleStage` committed stage (TB-2175); in-flight UX uses progress tracker / `resolveReviewPackagePipelineInFlight`, not coarse lifecycle; regression `returns finalized when manifest is present even if the progress tracker is still on (TB-2175)`
+
 - **id:** ui-review-detail-workspace
 - **status:** open
 - **impact:** high
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 15
-- **bugs-found:** 13
+- **hunts:** 18
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — create-home activity orientation tab links dropped create intent
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — create-home clarifications zero-gap tab links dropped create intent
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24202,8 +24380,6 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `resolveRunDetailTabbedWorkspace` / `ReviewPackageWhatIfControl` — `pipelineInFlight={showProgressTracker && !manifestId}` while Activity still mounted tracker when `showProgressTracker && manifestId` — **hit 2026-09-26 thorough hunt:** fixed via `resolveReviewPackagePipelineInFlight(showProgressTracker)` (`stays in flight when progress tracker is on even if goldenManifestId is already on the run`)
 - [x] (proven) `RunDetailPageViewCreateHome` / `RunDetailReviewPackageStampViewport` — duplicate `RunDetailOverviewTransparencyTrail` on pre-manifest create-home column — **hit 2026-09-26 thorough hunt:** removed redundant create-home trail; stamp viewport owns pre-finalize trail (`does not duplicate the transparency trail above the create-home stamp viewport`)
 - [x] (proven) `RunDetailCreateHomeActivityPanel` — orientation `buildReviewWorkspaceTabHref` links omitted create-home intent — **hit 2026-09-26 seed hunt:** Open overview / Review findings / Open clarifications dropped `fromGeneration` + create intent; fixed with `includeCreateIntent: true` on all orientation tab hrefs
-- [ ] (candidate) `resolveReviewWorkspaceLifecycle` — returns `finalized` whenever `manifestId` is set even if `showProgressTracker` and `runCompleted` indicate analysis still in flight (early `goldenManifestId` on run)
-- [ ] (candidate) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omit `includeCreateIntent` while governance pre-commit path already opts in
 
 2026-09-25 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready hypotheses — deferred-explanation finding-count parity remains covered via `resolveRunDetailDeferredSurfaceFindingCount` / `resolveRunDetailOutcomeCardsFindingCountDisplay` on tab badges, outcome cards, policy callout, inspect checklist, and review-package summary; `RunExplanationSection` falls back to `summary.findingCount` inside deferred explanation load; 34 scoped RunDetail/reviewId unit tests passed.
 
@@ -24324,11 +24500,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 15
-- **bugs-found:** 15
+- **hunts:** 17
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — groupBy stayed on after groupBy= cleared from URL (restored storage true)
+- **last-bug:** 2026-09-26 — desk-continuity architecture scope survived explicit clear when URL never had architectureId=
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24374,6 +24550,14 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useGovernanceFindingsFilter` / `GovernanceFindingsQueueClient.clearAllFilters` — `groupByResource` stayed enabled after App Router cleared `groupBy=` without `popstate` because the URL-sync effect always reapplied `readGroupByResourcePreference()` — **hit 2026-09-26 seed hunt (seed→hit):** mirror register-filter `had*InUrlRef` for groupBy; reset to off and persist false when a prior URL had `groupBy=` and the param clears; `clearAllFilters` / `showAllFilteredFindings` call `applyGroupByResource(false)`; regressions in `use-governance-findings-filter.url-sync.test.ts`; 11 scoped filter URL-sync, clear-all, and saved-view unit tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-governance-findings-queue; proved stale groupBy after URL navigation cleared `groupBy=`; 11 scoped governance-findings filter URL-sync and clear-all unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter` — `scopedArchitectureId` reverted to desk-continuity cache after App Router cleared `architectureId=` without `popstate` — **hit 2026-09-26 seed hunt #16:** URL-sync effect fell back to `readCachedLastOpenArchitectureId()` when the param disappeared; desk-continuity auto-inject effect re-applied cache on the next pass; fixed with `hadArchitectureIdInUrlRef` + `suppressDeskContinuityArchitectureRef` mirroring register/groupBy URL sync; regression `clears architecture scope when architectureId= is removed from the URL without a popstate event`.
+
+2026-09-26 seed hunt #16 (seed→hit): reseeded ui-governance-findings-queue after groupBy URL sync hit; proved stale architecture scope after URL navigation cleared `architectureId=`; 16 scoped governance-findings filter URL-sync and clear/pick-review unit tests passed.
+
+- [x] (proven) `useGovernanceFindingsFilter.setScopedArchitectureId` — clearing architecture scope in the queue UI re-applied desk-continuity cache when scope lived only in state (no `architectureId=` in URL) — **hit 2026-09-26 seed hunt #17:** `#16` suppressed cache only after URL param clear; explicit `setScopedArchitectureId(null)` left `suppressDeskContinuityArchitectureRef` false so the URL-sync effect re-read `readCachedLastOpenArchitectureId()`; fixed by setting suppress + clearing `hadArchitectureIdInUrlRef` on explicit scope updates; regression `clears desk-continuity architecture when setScopedArchitectureId(null) without architectureId in URL`.
+
+2026-09-26 seed hunt #17 (seed→hit): reseeded ui-governance-findings-queue after architecture URL-clear hit; proved desk cache survived explicit architecture scope clear without URL param; 14 scoped filter URL-sync, clear-all, and pick-review unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 

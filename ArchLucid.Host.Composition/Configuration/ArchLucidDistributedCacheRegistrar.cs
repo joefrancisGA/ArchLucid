@@ -70,11 +70,13 @@ internal static class ArchLucidDistributedCacheRegistrar
 
         string? kgRedis = kg.RedisConnectionString?.Trim();
 
-        string redis = !string.IsNullOrEmpty(kgRedis)
-            ? kgRedis
-            : !string.IsNullOrWhiteSpace(llm.RedisConnectionString)
-                ? llm.RedisConnectionString!.Trim()
-                : hotPath.RedisConnectionString.Trim();
+        bool distributedCacheAlreadyRegistered = services.Any(static d => d.ServiceType == typeof(IDistributedCache));
+
+        string redis = ResolveGraphProjectionRedisConnectionString(
+            kgRedis,
+            llm,
+            hotPath,
+            distributedCacheAlreadyRegistered);
 
         if (string.IsNullOrEmpty(redis))
 
@@ -82,10 +84,35 @@ internal static class ArchLucidDistributedCacheRegistrar
                 "ArchLucid:KnowledgeGraph:ProjectionCache:Backend is Distributed but no IDistributedCache is registered and no Redis connection string is available (configure ProjectionCache:RedisConnectionString, LlmCompletionCache:RedisConnectionString, or HotPathCache:RedisConnectionString).");
 
 
-        if (!services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+        if (!distributedCacheAlreadyRegistered)
             services.AddStackExchangeRedisCache(o => o.Configuration = redis);
 
         RegisterGraphProjectionRedisPubSub(services, redis);
+    }
+
+    internal static string ResolveGraphProjectionRedisConnectionString(
+        string? kgRedis,
+        LlmCompletionResponseCacheOptions llm,
+        HotPathCacheOptions hotPath,
+        bool distributedCacheAlreadyRegistered)
+    {
+        if (distributedCacheAlreadyRegistered)
+            return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
+
+        if (!string.IsNullOrEmpty(kgRedis))
+            return kgRedis;
+
+        return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
+    }
+
+    private static string ResolveLlmOrHotPathRedisConnectionString(
+        LlmCompletionResponseCacheOptions llm,
+        HotPathCacheOptions hotPath)
+    {
+        if (!string.IsNullOrWhiteSpace(llm.RedisConnectionString))
+            return llm.RedisConnectionString.Trim();
+
+        return hotPath.RedisConnectionString.Trim();
     }
 
     public static void RegisterHostLeaderLeaseInfrastructure(IServiceCollection services)

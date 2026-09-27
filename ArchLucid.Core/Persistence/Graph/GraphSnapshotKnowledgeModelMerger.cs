@@ -17,12 +17,14 @@ public static class GraphSnapshotKnowledgeModelMerger
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
+        HashSet<string> mergedNodeIds = new(modelNodeIds, StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode contextNode in contextGraph.Nodes)
         {
-            if (modelNodeIds.Contains(contextNode.NodeId))
+            if (mergedNodeIds.Contains(contextNode.NodeId))
                 continue;
 
+            mergedNodeIds.Add(contextNode.NodeId);
             mergedNodes.Add(contextNode);
         }
 

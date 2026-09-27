@@ -39,7 +39,8 @@ public sealed class AuthorityPipelineWorkPayload
     public bool IsValidForProcessing()
     {
         return ContextIngestionRequest is not null
-               && HasSubstantiveText(EvidenceBundleId);
+               && HasSubstantiveText(EvidenceBundleId)
+               && Enum.IsDefined(WorkKind);
     }
 
     /// <summary>
@@ -63,6 +64,11 @@ public sealed class AuthorityPipelineWorkPayload
 
             if (category is UnicodeCategory.Format or UnicodeCategory.Control)
                 return false;
+
+            if (category is UnicodeCategory.NonSpacingMark
+                or UnicodeCategory.SpacingCombiningMark
+                or UnicodeCategory.EnclosingMark)
+                continue;
 
             hasSubstantive = true;
         }

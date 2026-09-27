@@ -1,6 +1,8 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Core.Audit;
@@ -45,6 +47,8 @@ internal static class GovernanceControllerTestFactory
         IPolicyPackGeneratorService? policyPackGeneratorService = null,
         ITenantRepository? tenantRepository = null,
         IGovernanceMutationCorrectionService? mutationCorrectionService = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null,
         HttpContext? httpContext = null)
     {
         IScopeContextProvider scope = scopeContextProvider ?? Mock.Of<IScopeContextProvider>();
@@ -97,8 +101,8 @@ internal static class GovernanceControllerTestFactory
             mutationCorrection,
             actorContext ?? Mock.Of<IActorContext>(),
             scope,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            authorityQueryService ?? Mock.Of<IAuthorityQueryService>(),
+            manifestHashService ?? Mock.Of<IManifestHashService>(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
 
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
