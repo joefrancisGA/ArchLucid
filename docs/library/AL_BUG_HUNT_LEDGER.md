@@ -8473,13 +8473,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 24
-- **bugs-found:** 21
+- **hunts:** 25
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — durable enqueue notify-failure path overwrote Canceled without cancel re-read before MarkFailedTerminalAsync
+- **last-bug:** 2026-09-27 — in-memory retry capacity-exhausted terminal path lacked second cancel re-read before Failed assignment
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-09-27 thorough hunt (hit): proved `InMemoryBackgroundJobQueue` retry capacity-exhausted and writer-rejected branches logged before the second `_info` cancel re-read (parity gap vs terminal-failure and durable capacity terminal paths); second re-read before `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`; 85 scoped host-core-jobs + in-memory queue tests passed.
 
 2026-09-12 seed hunt #2118 (seed-only): reseeded host-core-jobs; no new hunt-ready rows.
 
@@ -8536,7 +8538,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler called `MarkFailedTerminalAsync` without `GetAsync` cancel re-read when user canceled a reclaimed `Pending` job before notify failed — **hit 2026-09-26 seed hunt (seed→hit):** skip terminal failure when row is `Canceled`; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling`.
 - [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / terminal second-read fixes) — **hit 2026-09-27 seed hunt (seed→hit):** second `GetAsync` before notify-failure terminal assignment; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
 - [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — `MarkFailedTerminalAsync` on notify failure without any `GetAsync` cancel check overwrote `Canceled` when user canceled a just-inserted `Pending` row while `SendJobIdAsync` was in flight (parity gap vs watchdog/processor second-read pattern) — **hit 2026-09-27 thorough hunt:** second `GetAsync` before notify-failure terminal assignment (parity with watchdog); regressions `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling` and `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
-- [ ] (candidate) `InMemoryBackgroundJobQueue` retry capacity-exhausted and queue-writer-rejected failure branches assign `Failed` after a single `_info` cancel re-read (parity gap vs terminal-failure second-read and durable processor capacity terminal path) — **seeded 2026-09-27 seed hunt:** locus confirmed in `ExecuteAsync` catch; no failing repro at `MaxPendingJobs` scale this pass.
+- [x] (proven) `InMemoryBackgroundJobQueue` retry capacity-exhausted and queue-writer-rejected failure branches assigned `Failed` after a single `_info` cancel re-read when cancel landed between the read and assignment (parity gap vs terminal-failure second-read and durable processor capacity terminal path) — **hit 2026-09-27 thorough hunt:** pre-log and post-log `_info` re-reads before capacity/writer terminal `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
 
 2026-09-27 seed hunt (seed-only): reseeded host-core-jobs after durable enqueue fix; scoped processor/watchdog/enqueue cancel parity; seeded in-memory retry capacity/writer terminal single-read candidate; 74 scoped host-core-jobs tests passed.
 
