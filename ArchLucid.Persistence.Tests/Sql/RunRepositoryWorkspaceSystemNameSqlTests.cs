@@ -1768,6 +1768,46 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void NormalizeWorkspaceSystemName_preserves_tab_padding_that_sql_ltrim_rtrim_keeps()
+    {
+        RunRepositoryCore.NormalizeWorkspaceSystemName("billing\t").Should().Be("BILLING\t");
+    }
+
+    [Fact]
+    public async Task InMemory_exists_active_run_with_system_name_does_not_match_trailing_tab_in_stored_project_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing\t",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "billing",
+            excludeRunId: null,
+            CancellationToken.None);
+
+        exists.Should().BeFalse(
+            "SQL LTRIM/RTRIM trims spaces only; InMemory must not Unicode-trim tab-padded stored ProjectId to match space-normalized seeks.");
+    }
+
+    [Fact]
     public void SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id()
     {
         RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().Contain("r.RunId <> @ExcludeRunId");
@@ -2093,6 +2133,87 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     public void NormalizeAuthorityProjectSlug_collapses_internal_whitespace()
     {
         RunRepositoryCore.NormalizeAuthorityProjectSlug("  claims   api  ").Should().Be("CLAIMS API");
+        RunRepositoryCore.NormalizeAuthorityProjectSlug("claims\tapi").Should().Be("CLAIMS\tAPI");
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_project_does_not_match_tab_separated_stored_project_slug_when_seek_uses_spaces()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "claims\tapi",
+                Description = "tab-separated slug",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            "claims api",
+            10,
+            CancellationToken.None);
+
+        listed.Should().BeEmpty(
+            "SQL STRING_SPLIT collapses on space only; InMemory must not treat tab-separated stored slugs as matching space-normalized seeks.");
+    }
+
+    [Fact]
+    public async Task InMemory_exists_active_run_with_system_name_does_not_match_tab_separated_stored_project_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing\tapi",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "billing api",
+            excludeRunId: null,
+            CancellationToken.None);
+
+        exists.Should().BeFalse(
+            "workspace system-name collision checks must mirror space-only STRING_SPLIT normalization on ProjectId.");
+    }
+
+    [Fact]
+    public void Project_slug_sql_normalization_uses_space_only_string_split()
+    {
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should()
+            .Contain("STRING_SPLIT(LTRIM(RTRIM(ProjectId)), N' ')")
+            .And.NotContain("CHAR(9)");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should()
+            .Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId)), N' ')")
+            .And.NotContain("CHAR(9)");
     }
 
     [Fact]

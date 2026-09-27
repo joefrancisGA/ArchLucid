@@ -127,6 +127,23 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void IsValidForProcessing_rejects_embedded_combining_mark_in_evidence_bundle_id()
+    {
+        AuthorityPipelineWorkPayload payload = new()
+        {
+            ContextIngestionRequest = new ContextIngestionRequest
+            {
+                RunId = Guid.NewGuid(),
+                ProjectId = "default",
+            },
+            EvidenceBundleId = "bundle-1\u0300",
+        };
+
+        payload.IsValidForProcessing().Should().BeFalse(
+            "embedded combining marks survive Trim() and break evidence bundle lookup after the worker gate");
+    }
+
+    [SkippableFact]
     public void Deserialize_materializes_null_list_properties()
     {
         Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -233,6 +250,33 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_reference_string_lists_when_entry_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "policyReferences": ["pci\u0300", "keep-policy"],
+                "topologyHints": ["net/subnet\u0300", "keep/hint"],
+                "securityBaselineHints": ["cis\u0300", "cis-baseline"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.PolicyReferences.Should().Equal("keep-policy");
+        back.ContextIngestionRequest.TopologyHints.Should().Equal("keep/hint");
+        back.ContextIngestionRequest.SecurityBaselineHints.Should().Equal("cis-baseline");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_combining_mark_only_string_list_entries()
     {
         Guid runId = Guid.Parse("88888888-8888-8888-8888-888888888888");
@@ -279,6 +323,60 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back!.ContextIngestionRequest.InlineRequirements.Should().Equal("keep-me");
         back.ContextIngestionRequest.TopologyHints.Should().BeEmpty();
         back.ContextIngestionRequest.Constraints.Should().Equal("visible");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_document_when_name_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diagram\u0300", "contentType": "text/plain", "content": "diagram source" },
+                  { "name": "keep", "contentType": "text/plain", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_infrastructure_declaration_when_name_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "main\u0300", "format": "json", "content": "{\"resources\":[]}" },
+                  { "name": "keep", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
         back.IsValidForProcessing().Should().BeTrue();
     }
 

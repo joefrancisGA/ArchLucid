@@ -142,12 +142,10 @@ public sealed class RunExportBlobPushOutboxProcessor(
             return;
         }
 
-        await RunExportBlobPushSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+        RunExportBlobPushSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+            manifestCompareDetail.GoldenManifest,
             entry.RunId,
-            scopeContext,
-            authorityQueryService,
-            manifestHashService,
-            cancellationToken).ConfigureAwait(false);
+            manifestHashService);
 
         string? sasRejection =
             await AllowedRunExportBlobDestinationUrlPolicy

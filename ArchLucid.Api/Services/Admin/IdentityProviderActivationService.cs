@@ -64,6 +64,8 @@ public sealed class IdentityProviderActivationService(
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
 
         IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveMappingEntries(request.ClaimMapping);
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveCustomGroupClaimRegexWhenProvided(request.ClaimMapping);
 
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveClaimMapping(mapping);

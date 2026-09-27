@@ -110,7 +110,9 @@ public sealed partial class PreFinalizeChecklistService
                 : $"{linkageGapCount} high-severity finding{(linkageGapCount == 1 ? "" : "s")} lack evidence linkage anchors.",
             Status = linkageGapCount == 0
                 ? PreFinalizeChecklistItemStatus.Clear
-                : PreFinalizeChecklistItemStatus.Advisory,
+                : options.WarnOnly
+                    ? PreFinalizeChecklistItemStatus.Advisory
+                    : PreFinalizeChecklistItemStatus.Blocking,
             Count = linkageGapCount,
         };
     }

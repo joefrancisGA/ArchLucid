@@ -93,7 +93,15 @@ internal static class PreCommitSupplementalFindingsAppender
         foreach (Finding linkageFinding in linkageFindings)
         {
             if (linkageOptions.WarnOnly)
+            {
                 linkageFinding.Severity = FindingSeverity.Warning;
+                linkageFinding.EnforcementTier = FindingEnforcementTier.Advisory;
+            }
+            else
+            {
+                linkageFinding.Severity = FindingSeverity.Error;
+                linkageFinding.EnforcementTier = FindingEnforcementTier.PolicyViolation;
+            }
 
             findings.Add(linkageFinding);
         }

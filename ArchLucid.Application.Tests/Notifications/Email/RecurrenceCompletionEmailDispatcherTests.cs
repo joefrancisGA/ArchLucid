@@ -202,6 +202,31 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
     }
 
     [Fact]
+    public async Task TryDispatchAsync_throws_when_to_mailboxes_is_null()
+    {
+        RecurrenceCompletionEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<RecurrenceCompletionEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("31313131-3131-3131-3131-313131313131"),
+            Guid.Parse("32323232-3232-3232-3232-323232323232"),
+            Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            scheduleName: "Weekly scan",
+            newFindingCount: 1,
+            resolvedFindingCount: 0,
+            Guid.Parse("34343434-3434-3434-3434-343434343434"),
+            toMailboxes: null!,
+            architectureId: null,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("toMailboxes");
+    }
+
+    [Fact]
     public async Task TryDispatchAsync_returns_false_when_all_mailboxes_blank()
     {
         InMemorySentEmailLedger ledger = new();

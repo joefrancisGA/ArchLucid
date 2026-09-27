@@ -39,8 +39,28 @@ public sealed class AuthorityPipelineWorkPayload
     public bool IsValidForProcessing()
     {
         return ContextIngestionRequest is not null
-               && HasSubstantiveText(EvidenceBundleId)
+               && HasUsableEvidenceBundleId(EvidenceBundleId)
                && Enum.IsDefined(WorkKind);
+    }
+
+    private static bool HasUsableEvidenceBundleId(string? value) => HasUsableIdentifierText(value);
+
+    private static bool HasUsableIdentifierText(string? value)
+    {
+        if (!HasSubstantiveText(value))
+            return false;
+
+        foreach (char character in value!)
+        {
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.NonSpacingMark
+                or UnicodeCategory.SpacingCombiningMark
+                or UnicodeCategory.EnclosingMark)
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -89,9 +109,9 @@ public sealed class AuthorityPipelineWorkPayload
 
         request.InlineRequirements = MaterializeStringList(request.InlineRequirements);
         request.Documents = MaterializeDocumentList(request.Documents);
-        request.PolicyReferences = MaterializeStringList(request.PolicyReferences);
-        request.TopologyHints = MaterializeStringList(request.TopologyHints);
-        request.SecurityBaselineHints = MaterializeStringList(request.SecurityBaselineHints);
+        request.PolicyReferences = MaterializeReferenceStringList(request.PolicyReferences);
+        request.TopologyHints = MaterializeReferenceStringList(request.TopologyHints);
+        request.SecurityBaselineHints = MaterializeReferenceStringList(request.SecurityBaselineHints);
         request.InfrastructureDeclarations = MaterializeInfrastructureDeclarationList(request.InfrastructureDeclarations);
         request.RequiredCapabilities = MaterializeStringList(request.RequiredCapabilities);
         request.Constraints = MaterializeStringList(request.Constraints);
@@ -108,6 +128,16 @@ public sealed class AuthorityPipelineWorkPayload
             .ToList();
     }
 
+    private static List<string> MaterializeReferenceStringList(List<string>? values)
+    {
+        if (values is null)
+            return [];
+
+        return values
+            .Where(static value => value is not null && HasUsableIdentifierText(value))
+            .ToList();
+    }
+
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
     {
         if (values is null)
@@ -119,7 +149,7 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasSubstantiveText(document.Name) && HasSubstantiveText(document.Content);
+        HasUsableIdentifierText(document.Name) && HasSubstantiveText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -134,6 +164,6 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasSubstantiveText(declaration.Name) && HasSubstantiveText(declaration.Content);
+        return HasUsableIdentifierText(declaration.Name) && HasSubstantiveText(declaration.Content);
     }
 }

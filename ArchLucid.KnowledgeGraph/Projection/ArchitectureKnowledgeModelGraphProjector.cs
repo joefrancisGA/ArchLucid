@@ -133,7 +133,7 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
         };
     }
 
-    internal static string ToGraphNodeId(string elementId) => $"akm:{elementId}";
+    internal static string ToGraphNodeId(string elementId) => $"akm:{elementId.Trim()}";
 
     private static string MapNodeType(ArchitectureElementKind kind)
     {

@@ -1706,6 +1706,93 @@ public sealed class PreCommitGovernanceGateTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_blocks_on_evidence_linkage_gaps_when_linkage_engine_is_enforcing()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-linkage-enforce",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-unlinked-critical",
+                        FindingType = "SecurityGap",
+                        Category = "Security",
+                        EngineType = "SecurityGapFindingEngine",
+                        Severity = FindingSeverity.Critical,
+                        Title = "Missing encryption",
+                        Rationale = "Datastore lacks encryption at rest.",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = policyPackId,
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = false,
+                BlockCommitMinimumSeverity = (int)FindingSeverity.Error,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments,
+            linkageOptions: Options.Create(new FindingEvidenceLinkageFindingEngineOptions
+            {
+                Enabled = true,
+                WarnOnly = false,
+            }));
+
+        PreCommitGateResult result = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        result.Blocked.Should().BeTrue();
+        result.BlockingFindingIds.Should().Contain(id => id.StartsWith("evidence-linkage-", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task SimulateSyntheticFindingsAsync_throws_when_run_is_not_in_current_scope()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

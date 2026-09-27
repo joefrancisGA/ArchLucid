@@ -2,6 +2,9 @@ using System.Diagnostics;
 
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Manifest;
@@ -417,5 +420,78 @@ public sealed class PostCommitProjectionOutboxProcessorTests
             m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
             Times.Once);
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_benign_skips_provenance_materialization_when_run_detail_and_manifest_compare_golden_manifests_disagree()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        ManifestDocument compareManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId);
+        ManifestDocument runDetailManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(
+            runId,
+            manifestHash: "stale-run-detail-manifest-hash");
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId, CreatedUtc = TimeProvider.System.UtcNowDateTime() },
+            GoldenManifest = runDetailManifest,
+            GraphSnapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid(), RunId = runId, Findings = [] },
+            AuthorityTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload()),
+        };
+
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PostCommitProjectionOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(authorityQuery, runId, compareManifest);
+
+        Mock<IProvenanceGraphAccessService> provenanceGraphAccess = new();
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => provenanceGraphAccess.Object);
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        provenanceGraphAccess.Verify(
+            p => p.TryMaterializeSnapshotAsync(It.IsAny<ScopeContext>(), It.IsAny<RunDetailDto>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

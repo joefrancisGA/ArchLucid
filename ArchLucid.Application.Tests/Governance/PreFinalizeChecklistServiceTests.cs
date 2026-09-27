@@ -668,6 +668,71 @@ public sealed class PreFinalizeChecklistServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_marks_evidence_linkage_blocking_when_linkage_engine_is_enforcing()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        Finding criticalFinding = new()
+        {
+            FindingId = "f-unlinked-critical",
+            FindingType = "SecurityGap",
+            Category = "Security",
+            EngineType = "SecurityGapFindingEngine",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Datastore lacks encryption at rest.",
+            EnforcementTier = FindingEnforcementTier.PolicyViolation,
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-checklist-linkage-enforce",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository snapshots = new();
+        await snapshots.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runKey,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [criticalFinding],
+            },
+            CancellationToken.None);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs,
+            findingsSnapshotRepository: snapshots,
+            linkageEngine: new FindingEvidenceLinkageFindingEngine(),
+            linkageOptions: Options.Create(new FindingEvidenceLinkageFindingEngineOptions
+            {
+                Enabled = true,
+                WarnOnly = false,
+            }));
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        PreFinalizeChecklistItem linkageItem = result.Items.Should().ContainSingle(item =>
+            item.ItemId == "evidence-linkage-gaps").Subject;
+        linkageItem.Status.Should().Be(PreFinalizeChecklistItemStatus.Blocking);
+        linkageItem.Count.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
     public async Task BuildAsync_marks_error_findings_when_technology_consistency_supplemental_would_block_gate()
     {
         Guid runKey = Guid.NewGuid();
@@ -939,6 +1004,7 @@ public sealed class PreFinalizeChecklistServiceTests
         IFindingsSnapshotRepository? findingsSnapshotRepository = null,
         ITechnologyLedgerRepository? ledger = null,
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
+        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null,
         IPreCommitGovernanceGate? gate = null,
         IOptions<PreCommitGovernanceGateOptions>? gateOptions = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
@@ -987,7 +1053,7 @@ public sealed class PreFinalizeChecklistServiceTests
             new TechnologyConsistencyFindingEngine(),
             Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             linkageEngine ?? linkageMock.Object,
-            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
+            linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
             gate ?? gateMock.Object,
             gateOptions ?? Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             new PreFinalizeExecuteBaselineDriftEvaluator(
