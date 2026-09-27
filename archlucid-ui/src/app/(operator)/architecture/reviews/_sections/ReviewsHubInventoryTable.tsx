@@ -39,8 +39,18 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className={REVIEW_TITLE_COLUMN_CLASS}>Review</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Architecture</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className={STATUS_COLUMN_CLASS}>Status</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className={STATUS_COLUMN_CLASS}>
+          <span>Status</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Where the review is in the workflow.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Approval</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The recorded governance outcome.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
