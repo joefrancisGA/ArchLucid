@@ -24762,11 +24762,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 18
-- **bugs-found:** 14
+- **hunts:** 19
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — audit scope bar change-control link dropped explorer workQueue
+- **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
