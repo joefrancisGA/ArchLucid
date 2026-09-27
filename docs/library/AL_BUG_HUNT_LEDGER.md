@@ -11332,6 +11332,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-09-27 seed hunt #34 (seed→hit): reseeded retrieval; proved `RetrievalIndexingService.IndexDocumentsAsync` left orphan `{documentId}-chunk-N` vectors when content shrank under an unchanged chunking fingerprint (upsert replaced overlapping ordinals only); fixed by removing prior document chunks before upsert when catalog already held the document; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks`; seeded `(candidate)` `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose summary client can return manifest context still above `SafeTokenLimit` when no further candidates remain; 347 scoped retrieval/indexing tests passed.
+
 - **id:** retrieval
 
 2026-09-13 seed hunt #2391 (seed-only): reseeded retrieval; no new hunt-ready rows.
@@ -11340,11 +11342,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 33
-- **bugs-found:** 15
+- **hunts:** 34
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-12 — Louvain community detection dropped edges when endpoint casing differed from node ids
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — reindex with fewer chunks left stale higher-ordinal vectors
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11393,6 +11395,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to zero chunks (`split.Count == 0`) skipped delete/catalog update, leaving prior vectors searchable and stale catalog `ContentHash` — **hit 2026-09-09 seed hunt #1408:** remove prior vectors and `RecordIndexed` when chunker returns empty; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_stale_vectors_and_updates_catalog`.
 - [x] (invalid) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines — **cheap-disproof 2026-09-12 thorough hunt #1961:** shipped compliance-rules templates place the category delimiter colon before descriptions; no bundled rule line puts `:` inside control names or URLs ahead of the header/body split.
 - [x] (proven) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` — **hit 2026-09-12 thorough hunt #1961:** `BuildNodeIndex` used `StringComparer.Ordinal` so `node-a`/`NODE-B` edges were ignored and community summarization fragmented; fixed with `OrdinalIgnoreCase`; regression `DetectCommunities_matches_edges_to_nodes_case_insensitively`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to fewer chunks under the same chunking fingerprint left higher-ordinal vectors searchable — **hit 2026-09-27 seed hunt #34:** remove prior document chunks before upsert when catalog already tracks the document; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks`.
+- [ ] (candidate) `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose `IManifestChunkSummaryCompletionClient` output can leave summarized manifest hits above `SafeTokenLimit` when the prefix-selection loop exhausts candidates without a final budget clamp (reachability: `RetrievalQueryService.SearchAsync` when manifest summarization enabled).
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 

@@ -116,6 +116,16 @@ public sealed class RetrievalIndexingService(
                 continue;
             }
 
+            if (_indexCatalog.TryGet(doc.DocumentId, out _))
+            {
+                await _vectorIndex.RemoveChunksForDocumentAsync(
+                    doc.DocumentId,
+                    doc.TenantId,
+                    doc.WorkspaceId,
+                    doc.ProjectId,
+                    ct).ConfigureAwait(false);
+            }
+
             work.Add((doc, split, fingerprint));
         }
 
