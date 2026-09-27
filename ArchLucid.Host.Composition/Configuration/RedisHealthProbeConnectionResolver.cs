@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Configuration;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Core.Configuration;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.Persistence.Coordination.Caching;
+
+using KgProjectionCacheOptions = ArchLucid.KnowledgeGraph.Configuration.KnowledgeGraphProjectionCacheOptions;
 
 namespace ArchLucid.Host.Composition.Configuration;
 
@@ -12,13 +15,63 @@ namespace ArchLucid.Host.Composition.Configuration;
 /// </summary>
 internal static class RedisHealthProbeConnectionResolver
 {
+    /// <summary>
+    ///     Resolves the Redis endpoint backing distributed graph projection cache entries and invalidation, matching
+    ///     <see cref="ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded" />.
+    /// </summary>
+    public static string? TryResolveGraphProjectionDistributedRedisConnectionString(IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        KgProjectionCacheOptions projection =
+            configuration.GetSection(KgProjectionCacheOptions.SectionName)
+                .Get<KgProjectionCacheOptions>() ?? new KgProjectionCacheOptions();
+
+        if (!projection.Enabled)
+            return null;
+
+        HotPathCacheOptions hotPath =
+            configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
+            new HotPathCacheOptions();
+
+        LlmCompletionResponseCacheOptions llm =
+            configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName)
+                .Get<LlmCompletionResponseCacheOptions>() ?? new LlmCompletionResponseCacheOptions();
+
+        bool redisConfigured = !string.IsNullOrWhiteSpace(projection.RedisConnectionString)
+            || !string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+            || !string.IsNullOrWhiteSpace(hotPath.RedisConnectionString);
+
+        GraphProjectionCacheBackend effectiveBackend = GraphProjectionCacheProviderResolver.ResolveEffectiveBackend(
+            projection,
+            hotPath.ExpectedApiReplicaCount,
+            redisConfigured);
+
+        bool distributedProjectionCache = projection.Backend == GraphProjectionCacheBackend.Distributed
+            || effectiveBackend == GraphProjectionCacheBackend.Distributed;
+
+        if (!distributedProjectionCache)
+            return null;
+
+        bool distributedCacheAlreadyRegistered =
+            InferDistributedCacheRegisteredBeforeKnowledgeGraphProjection(hotPath, llm);
+
+        string redis = ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString(
+            projection.RedisConnectionString,
+            llm,
+            hotPath,
+            distributedCacheAlreadyRegistered);
+
+        return string.IsNullOrEmpty(redis) ? null : redis;
+    }
+
     public static string? TryResolveRedisHealthProbeConnectionString(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        KnowledgeGraphProjectionCacheOptions projection =
-            configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName)
-                .Get<KnowledgeGraphProjectionCacheOptions>() ?? new KnowledgeGraphProjectionCacheOptions();
+        KgProjectionCacheOptions projection =
+            configuration.GetSection(KgProjectionCacheOptions.SectionName)
+                .Get<KgProjectionCacheOptions>() ?? new KgProjectionCacheOptions();
 
         HotPathCacheOptions hotPath =
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??

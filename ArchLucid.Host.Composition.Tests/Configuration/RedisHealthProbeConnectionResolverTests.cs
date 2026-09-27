@@ -64,6 +64,43 @@ public sealed class RedisHealthProbeConnectionResolverTests
     }
 
     [Fact]
+    public void TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache()
+    {
+        RedisHealthProbeConnectionResolver.TryResolveGraphProjectionDistributedRedisConnectionString(
+                new ConfigurationBuilder()
+                    .AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:Enabled"] = "true",
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:Backend"] = "Distributed",
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:RedisConnectionString"] = "projection",
+                        [$"{HotPathCacheOptions.SectionName}:Enabled"] = "true",
+                        [$"{HotPathCacheOptions.SectionName}:Provider"] = "Redis",
+                        [$"{HotPathCacheOptions.SectionName}:RedisConnectionString"] = "hot",
+                        [$"{LlmCompletionResponseCacheOptions.SectionName}:RedisConnectionString"] = "llm",
+                    })
+                    .Build())
+            .Should()
+            .Be("hot");
+    }
+
+    [Fact]
+    public void TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica()
+    {
+        RedisHealthProbeConnectionResolver.TryResolveGraphProjectionDistributedRedisConnectionString(
+                new ConfigurationBuilder()
+                    .AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:Enabled"] = "true",
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:CacheProvider"] = "Auto",
+                        [$"{HotPathCacheOptions.SectionName}:ExpectedApiReplicaCount"] = "2",
+                        [$"{HotPathCacheOptions.SectionName}:RedisConnectionString"] = "hot",
+                    })
+                    .Build())
+            .Should()
+            .Be("hot");
+    }
+
+    [Fact]
     public void TryResolve_prefers_hot_path_redis_over_projection_when_hot_path_registers_shared_distributed_cache()
     {
         RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(
