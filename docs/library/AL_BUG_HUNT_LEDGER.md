@@ -5797,13 +5797,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 27
-- **bugs-found:** 16
+- **hunts:** 28
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — whitespace-only mapping IdpValue silently dropped by ToDocument so activate succeeded with empty explicit mappings
+- **last-bug:** 2026-09-27 — whitespace-only CustomGroupClaimRegex nulled by ToDocument so activate skipped substantive regex validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): proved whitespace-only `CustomGroupClaimRegex` was nulled by `ToDocument` so `EnsureSubstantiveClaimMapping` never rejected it while operators believed a custom group regex was configured; `EnsureSubstantiveCustomGroupClaimRegexWhenProvided` before `ToDocument` on activate and test-login; regressions `ActivateAsync_rejects_whitespace_only_custom_group_claim_regex` and `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`; 56 scoped activation/controller/test-login tests passed.
+
+- [x] (proven) `IdentityProviderActivationService` / `SsoWizardTestLoginService` — whitespace-only `CustomGroupClaimRegex` was dropped by `ToDocument` so post-document substantive checks skipped custom-regex validation — **hit 2026-09-27 seed hunt (seed→hit):** `EnsureSubstantiveCustomGroupClaimRegexWhenProvided` on request before `ToDocument`; regressions above.
 
 2026-09-27 seed hunt (seed→hit): reseeded identity-provider-config; proved whitespace-only `IdpValue` in mapping entries was filtered by `ToDocument` so activation persisted with zero explicit mappings; `EnsureSubstantiveMappingEntries` before `ToDocument`; regressions `ActivateAsync_rejects_whitespace_only_idp_value_in_mapping` and `Execute_returns_failure_when_mapping_entry_has_whitespace_only_idp_value`; 54 scoped activation/controller/test-login tests passed.
 

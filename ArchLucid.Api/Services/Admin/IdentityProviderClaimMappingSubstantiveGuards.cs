@@ -29,6 +29,15 @@ internal static class IdentityProviderClaimMappingSubstantiveGuards
         }
     }
 
+    internal static void EnsureSubstantiveCustomGroupClaimRegexWhenProvided(IdentityClaimRoleMappingRequest request)
+    {
+        if (request.CustomGroupClaimRegex is null)
+            return;
+
+        if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(request.CustomGroupClaimRegex))
+            throw new ArgumentException("CustomGroupClaimRegex is not valid.");
+    }
+
     internal static void EnsureSubstantiveClaimMapping(IdentityClaimRoleMappingDocument mapping)
     {
         if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.RoleClaimName))

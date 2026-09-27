@@ -65,6 +65,7 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
         {
             IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
             IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveMappingEntries(request.ClaimMapping);
+            IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveCustomGroupClaimRegexWhenProvided(request.ClaimMapping);
 
             mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
 
