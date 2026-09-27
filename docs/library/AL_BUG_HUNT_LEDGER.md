@@ -2803,15 +2803,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 17
-- **bugs-found:** 13
+- **hunts:** 18
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — undefined numeric `workKind` passed worker gate and failed handler resolution
+- **last-bug:** 2026-09-27 — combining-mark-only evidence bundle ids and string lists passed substantive-text gate
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 - [x] (proven) `AuthorityPipelineWorkPayload.IsValidForProcessing` / `AuthorityPipelineWorkProcessor.ResolveHandler` — numeric `workKind` values outside `AuthorityPipelineWorkKind` deserialized via STJ and passed the worker gate — **hit 2026-09-27 seed hunt (seed→hit):** `IsValidForProcessing` now requires `Enum.IsDefined(WorkKind)` so invalid payloads discard instead of throwing `No authority pipeline work handler registered`; regressions `IsValidForProcessing_rejects_undefined_work_kind_values` and `Deserialize_rejects_undefined_work_kind_numeric_values`.
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveText` — combining marks (for example U+0300) are not whitespace or format characters but were treated as substantive text, so combining-mark-only `EvidenceBundleId` and string-list entries passed `IsValidForProcessing` / `MaterializeStringList` and retried instead of invalid-payload discard — **hit 2026-09-27 seed hunt (seed→hit):** skip NonSpacingMark / SpacingCombiningMark / EnclosingMark when scanning for substantive characters; regressions `IsValidForProcessing_rejects_combining_mark_only_evidence_bundle_id` and `Deserialize_filters_combining_mark_only_string_list_entries`.
+
+2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload; proved combining-mark-only strings bypassed substantive-text gate; 23 scoped payload JSON tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload after WorkKind dry hunt; proved undefined numeric workKind bypassed invalid-payload discard; 21 scoped payload JSON tests passed.
 
