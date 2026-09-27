@@ -8722,6 +8722,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed→hit): reseeded agent-runtime-safety after persisted-objective sanitize; proved staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize bypassed `SanitizePersistedCustomerProse`, leaving Unicode line separators that spoofed architecture field lines inside the staged quarantine; fixed at `AgentUserPromptComposer.AppendStagedPriorAgentsSummary`; seeded cost retail `PromptBlock` quarantine and truncation case-variant marker candidates; 138 scoped agent-runtime-safety tests passed.
+
+- [x] (proven) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged notes appended after `AgentEvidenceUntrustedInputSanitizer` bypassed `SanitizePersistedCustomerProse`, leaving `\u2028`/`\n` field-spoof lines inside the staged TB-949 section — **hit 2026-09-27 seed hunt (seed→hit):** compose now runs `SanitizePersistedCustomerProse` before `EscapeEmbeddedMarkers`; regression `CriticUserPrompt_staged_prior_summary_collapses_unicode_line_separator_field_spoofing`
+- [ ] (candidate) `AgentUserPromptComposer.BuildCostUserPrompt` — retail grounding `PromptBlock` appended outside `CustomerContentPromptDelimiters` quarantine
+- [ ] (candidate) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — case-variant embedded `customer_content_end` literals may leave nested sections unclosed under char budget
+
 2026-09-26 thorough hunt (dry): cheap-disproved cost/compliance persisted-objective `RequiredCapabilities`/`Constraints` parity and stale-objective `CUSTOMER_CONTENT_END` candidates — `SanitizePersistedCustomerProse` plus `RedactAndEscape` at task render already collapse line separators and neutralize TB-949 markers for all starter-task objectives; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize`, `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`, and `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`; 137 scoped agent-runtime-safety tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded agent-runtime-safety; proved persisted starter-task objectives built before execute-time sanitize still carried raw Unicode line separators into the Task Objective quarantine while architecture fields were collapsed; fixed via `SanitizePersistedCustomerProse` at prompt render; seeded stale-objective `CUSTOMER_CONTENT_END` marker and cost/compliance objective parity candidates; 134 scoped agent-runtime-safety tests passed.
@@ -8732,11 +8738,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 20
-- **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — persisted starter-task objective carried Unicode line separators into Task Objective quarantine after execute-time sanitize
+- **hunts:** 21
+- **bugs-found:** 14
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — staged Critic summary notes bypassed persisted-prose line-separator collapse at compose
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
