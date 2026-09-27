@@ -8807,13 +8807,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — technology ledger append bypassed persisted-prose sanitizer and TB-949 marker escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
 2026-09-12 seed hunt #2136 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows.
 
@@ -8868,6 +8870,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) Persisted cost/compliance starter-task objectives — same stale-embedding gap for `RequiredCapabilities` / `Constraints` list joins — **cheap-disproof 2026-09-26 thorough hunt (dry):** `RunStarterTaskFactory` freezes joined capabilities/constraints into `task.Objective` before execute-time sanitize, but `AppendTaskObjectiveToolsAndSources` now runs `SanitizePersistedCustomerProse` plus `RedactAndEscape` at render; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize` and `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`
 - [x] (valid-no-repro) Persisted task objective — embedded `CUSTOMER_CONTENT_END` survives when objective built before sanitize — **cheap-disproof 2026-09-26 thorough hunt (dry):** `RedactAndEscape` applies `EscapeEmbeddedMarkers` after `SanitizePersistedCustomerProse`; regression `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — evaluation disabled may skip input/output guard scans — **cheap-disproof 2026-09-27 seed hunt:** intentional `EvaluateCompletionPromptAndResponse=false` bypass mirrors streaming path; regression `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json`
+- [x] (valid-no-repro) `TechnologyLedgerUserPromptInjection.AppendLedgerContext` — `EvidenceRef` Unicode line separators may spoof ledger field layout — **cheap-disproof 2026-09-27 seed hunt:** `SanitizeEntriesForPrompt` runs `SanitizePersistedCustomerProse` on `EvidenceRef`; regression `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`
 
 ---
 
