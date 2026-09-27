@@ -16450,11 +16450,16 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 15
-- **bugs-found:** 14
+- **hunts:** 16
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — en/ideographic unicode space separators broke phrase matching
+- **last-bug:** 2026-09-27 — line/paragraph separators broke multi-word phrase matching
+
+2026-09-27 seed hunt #16 (seed→hit): reseeded unicode normalization after #15 `SpaceSeparator` sweep; proved U+2028/U+2029 line and paragraph separators still split phrases like `managed identity`; extended normalization to `LineSeparator` and `ParagraphSeparator`; regression `HasManagedIdentityConstraint_returns_true_when_line_separator_splits_phrase`; cheap-disproof closed suffix negation with NBSP before `is not` (`HasEncryptionConstraint_returns_false_when_negation_uses_unicode_space_before_not`); 866 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — line/paragraph separators (U+2028/U+2029) broke `ContainsAffirmativePhrase` — **hit 2026-09-27 seed hunt #16:** normalize `LineSeparator` and `ParagraphSeparator` to ASCII space; regression `HasManagedIdentityConstraint_returns_true_when_line_separator_splits_phrase`.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — NBSP between constraint head and `is not` bypasses negation — **cheap-disproof 2026-09-27 seed hunt #16:** `#15` space normalization runs before suffix scan; regression `HasEncryptionConstraint_returns_false_when_negation_uses_unicode_space_before_not`.
 
 2026-09-27 seed hunt #15 (seed→hit): reseeded phrase unicode whitespace after NBSP fix; proved `NormalizeConstraintMatchingText` only replaced a fixed space/apostrophe list so en space (U+2002) and ideographic space (U+3000) still split multi-word phrases; fixed by normalizing any `SpaceSeparator` except tab/CR/LF; regressions `HasManagedIdentityConstraint_returns_true_when_en_space_separates_words`, `HasPrivateNetworkingConstraint_returns_true_when_ideographic_space_separates_private_endpoint_phrase`; 864 scoped RequestConstraint tests passed.
 
