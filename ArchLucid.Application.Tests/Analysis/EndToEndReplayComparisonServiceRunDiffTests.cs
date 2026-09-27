@@ -593,6 +593,71 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
       && note.Contains("manifest remained stable", StringComparison.OrdinalIgnoreCase));
   }
 
+  [Fact]
+  public async Task BuildAsync_when_agent_presence_differs_without_list_deltas_adds_material_agent_interpretation_note()
+  {
+    GoldenManifest leftManifest = new() { RunId = "left-run", SystemName = "Sys" };
+    GoldenManifest rightManifest = new() { RunId = "right-run", SystemName = "Sys" };
+    AgentResultDiffResult agentDiff = new()
+    {
+      AgentDeltas =
+      [
+        new AgentResultDelta
+        {
+          AgentType = AgentType.Critic,
+          LeftExists = false,
+          RightExists = true,
+        }
+      ]
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(
+        "left-run",
+        DateTime.UtcNow,
+        leftManifest,
+        []));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(
+        "right-run",
+        DateTime.UtcNow,
+        rightManifest,
+        [new AgentResult { RunId = "right-run", TaskId = "t1", AgentType = AgentType.Critic }]));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    Mock<IAgentResultDiffService> agentDiffService = new();
+    agentDiffService
+      .Setup(s => s.Compare("left-run", It.IsAny<IReadOnlyList<AgentResult>>(), "right-run", It.IsAny<IReadOnlyList<AgentResult>>()))
+      .Returns(agentDiff);
+
+    Mock<IManifestDiffService> manifestDiffService = new();
+    manifestDiffService
+      .Setup(s => s.Compare(leftManifest, rightManifest))
+      .Returns(new ManifestDiffResult());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      manifestDiffService,
+      null,
+      agentDiffService);
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync("left-run", "right-run");
+
+    report.InterpretationNotes.Should().Contain(note =>
+      note.Contains("Agent outputs changed", StringComparison.OrdinalIgnoreCase)
+      && note.Contains("manifest remained stable", StringComparison.OrdinalIgnoreCase));
+    report.InterpretationNotes.Should().NotContain(note =>
+      note.Contains("Neither agent outputs nor manifest changed materially", StringComparison.OrdinalIgnoreCase));
+  }
+
   private static EndToEndReplayComparisonService CreateSut(
     Mock<IRunDetailQueryService> runDetailQuery,
     Mock<IRunExportRecordRepository> exportRecords,

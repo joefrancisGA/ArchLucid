@@ -8993,13 +8993,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 25
-- **bugs-found:** 32
+- **hunts:** 26
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-11 — replay cost estimator ignored confidence-only agent deltas
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — replay comparison treated agent presence-only deltas as non-material
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-27 seed hunt #26 (seed→hit): reseeded application-analysis; proved `AgentResultDeltaMateriality.HasMaterialChanges` ignored `LeftExists`/`RightExists` flips without list/confidence deltas, so `ReplayComparisonInterpretationDiffSlice` synergy notes claimed "Neither agent outputs nor manifest changed materially" when an agent type appeared on only one run; fixed presence check in shared materiality helper; regression `BuildAsync_when_agent_presence_differs_without_list_deltas_adds_material_agent_interpretation_note`; 19 picker-filter tests + 10 `EndToEndReplayComparisonServiceRunDiffTests` passed.
+
+- [x] (proven) `ReplayComparisonInterpretationDiffSlice` / `AgentResultDeltaMateriality` — agent presence-only deltas treated as non-material in synergy interpretation notes — **hit 2026-09-27 seed hunt #26:** `HasMaterialChanges` omitted `LeftExists` vs `RightExists`; fixed in `AgentResultDeltaMateriality.cs`; regression in `EndToEndReplayComparisonServiceRunDiffTests`.
 
 2026-09-12 seed hunt #2259 (seed-only): reseeded application-analysis with `-Hint application analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
