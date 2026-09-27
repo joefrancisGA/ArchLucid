@@ -202,6 +202,28 @@ public sealed class ManifestChunkSummarizerTests
     }
 
     [Fact]
+    public async Task MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string source, CancellationToken _) => new string('s', source.Length));
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("high", score: 0.95, text: heavyText),
+            CreateManifestHit("low", score: 0.10, text: heavyText),
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        ManifestChunkSummarizer.EstimateTotalTokens(result).Should().BeLessThanOrEqualTo(150);
+    }
+
+    [Fact]
     public void SelectSummarizationPrefix_stops_once_overage_is_covered()
     {
         string heavyText = new('x', 400);

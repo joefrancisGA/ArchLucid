@@ -11332,6 +11332,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-09-27 thorough hunt #35 (hit): proved `ManifestChunkSummarizer.MaybeSummarizeAsync` returned manifest hits above `SafeTokenLimit` when `IManifestChunkSummaryCompletionClient` returned verbose summaries (prefix loop assumed summarized text removed full token weight); fixed with `TrimHitsToSafeTokenLimit` dropping lowest-score hits until within budget; regression `MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose`; 348 scoped retrieval/indexing tests passed.
+
 2026-09-27 seed hunt #34 (seed→hit): reseeded retrieval; proved `RetrievalIndexingService.IndexDocumentsAsync` left orphan `{documentId}-chunk-N` vectors when content shrank under an unchanged chunking fingerprint (upsert replaced overlapping ordinals only); fixed by removing prior document chunks before upsert when catalog already held the document; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks`; seeded `(candidate)` `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose summary client can return manifest context still above `SafeTokenLimit` when no further candidates remain; 347 scoped retrieval/indexing tests passed.
 
 - **id:** retrieval
