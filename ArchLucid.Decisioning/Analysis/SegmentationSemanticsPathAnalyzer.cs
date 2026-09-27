@@ -153,7 +153,7 @@ public static class SegmentationSemanticsPathAnalyzer
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(combined)
-            || combined.Contains("database", StringComparison.Ordinal)
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDatabaseKeyword(combined)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("redis", StringComparison.Ordinal)
             || combined.Contains("postgres", StringComparison.Ordinal)

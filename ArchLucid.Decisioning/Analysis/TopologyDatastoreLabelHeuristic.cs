@@ -50,7 +50,7 @@ internal static class TopologyDatastoreLabelHeuristic
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeStorageKeyword(combined)
-            || combined.Contains("database", StringComparison.Ordinal)
+            || ContainsAffirmativeDatabaseKeyword(combined)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("redis", StringComparison.Ordinal)
             || combined.Contains("postgres", StringComparison.Ordinal)
@@ -87,12 +87,34 @@ internal static class TopologyDatastoreLabelHeuristic
         }
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
-            || combined.Contains("database", StringComparison.Ordinal)
+            || ContainsAffirmativeDatabaseKeyword(combined)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("redis", StringComparison.Ordinal)
             || combined.Contains("postgres", StringComparison.Ordinal)
             || combined.Contains("mysql", StringComparison.Ordinal)
             || ContainsAffirmativeStorageKeyword(combined);
+    }
+
+    internal static bool ContainsAffirmativeDatabaseKeyword(string text)
+    {
+        string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
+
+        for (int index = 0; index < parts.Length; index++)
+        {
+            if (!parts[index].Equals("database", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (index > 0 && parts[index - 1].Equals("non", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     internal static bool ContainsAffirmativeStorageKeyword(string text)
