@@ -23574,11 +23574,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 30
-- **bugs-found:** 25
+- **hunts:** 31
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — `FindingEvidenceLinkage:WarnOnly=false` still emitted Advisory Warning linkage gaps so pre-commit gate and dry-run never blocked
+- **last-bug:** 2026-09-27 — pre-finalize checklist kept evidence-linkage gaps Advisory when linkage engine was enforcing (parity gap vs pre-commit gate after #1418 tech-consistency fix)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23647,6 +23647,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
 
 - [x] (proven) `PreCommitGateEvaluator` / `PreCommitGovernanceGate` — undefined `BlockCommitMinimumSeverity` ordinal on persisted assignment bypassed live gate — **hit 2026-09-27 seed hunt:** invalid ordinals set `effectiveMinSeverity` above any finding so Critical policy violations did not block despite `blockCommitOnCritical`; regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`.
+
+2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreFinalizeChecklistService.BuildEvidenceLinkageItem` always marked linkage gaps `Advisory` even when `FindingEvidenceLinkage:WarnOnly=false` while pre-commit gate blocked (parity gap vs #1418 technology-consistency checklist fix); fixed by honoring `WarnOnly` for Blocking vs Advisory status; regression `BuildAsync_marks_evidence_linkage_blocking_when_linkage_engine_is_enforcing`; scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
+
+- [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — enforcing linkage gaps surfaced as Advisory checklist item while gate blocked — **hit 2026-09-27 seed hunt (seed→hit):** `WarnOnly` drives Blocking status; regression above.
 
 2026-09-27 thorough hunt (hit): proved `PreCommitSupplementalFindingsAppender` left evidence-linkage gaps at Advisory Warning even when `FindingEvidenceLinkageFindingEngineOptions.WarnOnly` was false, so neither live `PreCommitGovernanceGate` nor `PolicyPackGovernanceDryRunService` blocked on linkage gaps despite enforcing config; fixed by promoting enforcing linkage findings to `PolicyViolation` + `Error`; regressions `EvaluateAsync_blocks_on_evidence_linkage_gaps_when_linkage_engine_is_enforcing` and `EvaluateAsync_blocks_when_evidence_linkage_supplemental_findings_are_enforcing_like_live_gate`; scoped PolicyPack/Governance Application tests passed.
 
