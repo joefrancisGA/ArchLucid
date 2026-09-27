@@ -153,6 +153,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             });
         }
 
+        AddDropGateRows(ast, graph, includedNodeIds, includedEdges, nodeIdMap);
+
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
         if (mode == DiagramMode.Executive)
@@ -325,6 +327,67 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             ArmResourceGroup = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             IsExecutiveOverflow = isOverflow,
         };
+    }
+
+    private static void AddDropGateRows(
+        DiagramAst ast,
+        GraphSnapshot graph,
+        IReadOnlySet<string> includedNodeIds,
+        IReadOnlyList<GraphEdge> includedEdges,
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+    {
+        HashSet<string> includedEdgeIds = includedEdges
+            .Select(edge => edge.EdgeId)
+            .ToHashSet(StringComparer.Ordinal);
+        Dictionary<string, GraphNode> graphNodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (includedEdgeIds.Contains(edge.EdgeId)
+                || !graphToDiagramNodeId.TryGetValue(edge.FromNodeId, out string? fromNodeId)
+                || !graphToDiagramNodeId.TryGetValue(edge.ToNodeId, out string? toNodeId))
+            {
+                continue;
+            }
+
+            string reason = edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight
+                ? "below-minimum-weight"
+                : !includedNodeIds.Contains(edge.FromNodeId) || !includedNodeIds.Contains(edge.ToNodeId)
+                    ? ResolveHiddenEndpointDropReason(edge, graphNodesById)
+                    : "mode-filter";
+
+            ast.DropGateRows.Add(new DiagramDropGateRow
+            {
+                FromNodeId = fromNodeId,
+                ToNodeId = toNodeId,
+                Reason = reason,
+            });
+        }
+    }
+
+    private static string ResolveHiddenEndpointDropReason(
+        GraphEdge edge,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById)
+    {
+        if ((graphNodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode)
+                && DiagramAstGraphNodeClassifier.ReadArmType(fromNode).Contains("/subnets", StringComparison.OrdinalIgnoreCase))
+            || (graphNodesById.TryGetValue(edge.ToNodeId, out GraphNode? toNode)
+                && DiagramAstGraphNodeClassifier.ReadArmType(toNode).Contains("/subnets", StringComparison.OrdinalIgnoreCase)))
+        {
+            return "endpoint-peeled-or-hidden";
+        }
+
+        if (string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return "collocation";
+        }
+
+        return "mode-filter";
     }
 
     private static string BuildTitle(DiagramMode mode, DiagramAstCompileOptions options)

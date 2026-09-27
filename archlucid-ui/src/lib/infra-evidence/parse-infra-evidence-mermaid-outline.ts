@@ -8,7 +8,7 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly label: string;
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
-  readonly connectionState: "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | null;
+  readonly connectionState?: "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | null;
   readonly seedNodeId?: string | null;
   /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
   readonly outlineOnlyOnCanvas?: boolean;
@@ -37,6 +37,11 @@ export type InfraEvidenceMermaidOutlineEdge = {
 export type InfraEvidenceMermaidOutline = {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly edges: readonly InfraEvidenceMermaidOutlineEdge[];
+  readonly dropGateRows?: readonly {
+    readonly reason: string;
+    readonly from: string;
+    readonly to: string;
+  }[];
 };
 
 const NODE_WITH_LABEL =
@@ -157,6 +162,7 @@ const OUTLINE_METADATA_TOKEN =
 
 const EDGE_OUTLINE_METADATA_TOKEN =
   /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+const DROP_GATE_ROW = /^%%\s+al-ledger-drop\s+(\S+)\s+(\S+)\s+(\S+)$/u;
 
 type OutlineNodeMetadata = {
   readonly resourceType: string | null;
@@ -598,6 +604,7 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
+  const dropGateRows: InfraEvidenceMermaidOutline["dropGateRows"][number][] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
   let pendingEdgeMetadata: OutlineEdgeMetadata = emptyOutlineEdgeMetadata();
@@ -628,6 +635,17 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     // Own-line comments: mermaid.js only strips %% at line start. Inventory metadata
     // is emitted that way so the diagram parses; attach tokens to the next node.
     if (line.startsWith("%%")) {
+      const dropGateMatch = DROP_GATE_ROW.exec(line);
+
+      if (dropGateMatch != null) {
+        dropGateRows.push({
+          reason: dropGateMatch[1],
+          from: dropGateMatch[2],
+          to: dropGateMatch[3],
+        });
+        continue;
+      }
+
       pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
       pendingEdgeMetadata = mergeOutlineEdgeMetadata(parseOutlineEdgeMetadata(line), pendingEdgeMetadata);
       continue;
@@ -727,5 +745,6 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   return {
     nodes: [...nodeMap.values()],
     edges,
+    dropGateRows,
   };
 }

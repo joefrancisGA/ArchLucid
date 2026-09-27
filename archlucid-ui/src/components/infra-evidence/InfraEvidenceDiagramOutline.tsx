@@ -622,6 +622,24 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             ) : null}
           </div>
         ) : null}
+        {outline.dropGateRows != null && outline.dropGateRows.length > 0 ? (
+          <section
+            data-testid="infra-diagrams-outline-drop-gates"
+            aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+          >
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              Dropped relationships ({outline.dropGateRows.length})
+            </h3>
+            <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {outline.dropGateRows.map((row, index) => (
+                <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
+                  {row.reason}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
+                  {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </div>
   );
