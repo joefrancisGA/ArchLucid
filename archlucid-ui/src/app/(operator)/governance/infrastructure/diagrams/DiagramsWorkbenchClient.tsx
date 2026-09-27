@@ -2089,9 +2089,6 @@ export function DiagramsWorkbenchClient() {
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
           <p className={cn("m-0 font-bold", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Private endpoints, backup/recovery resources, and cross-group applies/likely links are hidden from the canvas by default.
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
