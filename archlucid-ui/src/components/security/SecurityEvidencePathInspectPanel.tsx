@@ -836,6 +836,9 @@ export function SecurityEvidencePathInspectPanel(props: {
           {pathQuery.data.routing.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-routing">
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ROUTING_TITLE}</h3>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                These rows name who the path cites. They are not new assignments.
+              </p>
               <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_ROUTING_TITLE}>
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>

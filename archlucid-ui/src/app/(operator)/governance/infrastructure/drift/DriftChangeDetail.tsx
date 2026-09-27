@@ -133,10 +133,16 @@ export function DriftChangeDetail(props: {
           <dl className="mt-3 grid gap-2 text-sm">
             <div>
               <dt className="font-medium">Old value</dt>
+              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Previous is the baseline snapshot value.
+              </dd>
               <dd className="font-mono text-xs">{primaryChange.oldValue ?? "—"}</dd>
             </div>
             <div>
               <dt className="font-medium">New value</dt>
+              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                New is the later snapshot value.
+              </dd>
               <dd className="font-mono text-xs">{primaryChange.newValue ?? "—"}</dd>
             </div>
             <div>
@@ -153,6 +159,9 @@ export function DriftChangeDetail(props: {
             </div>
             <div>
               <dt className="font-medium">{GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL}</dt>
+              <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Who the inventory attributes this change to. Not an ArchLucid assignment.
+              </dd>
               <dd className="text-xs" data-testid="infra-drift-change-changed-by">
                 {changedByLabel ?? (
                   <span className="text-al-text-secondary">{GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE}</span>

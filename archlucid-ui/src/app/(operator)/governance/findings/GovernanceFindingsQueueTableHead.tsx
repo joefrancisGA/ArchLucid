@@ -70,7 +70,12 @@ export function GovernanceFindingsQueueTableHead(props: {
         ) : null}
         {buyerPolishedShell ? (
           <>
-            <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Severity</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                How serious this finding is recorded as.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Confidence</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -84,7 +89,12 @@ export function GovernanceFindingsQueueTableHead(props: {
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Review</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The review that recorded this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Status</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -112,6 +122,7 @@ export function GovernanceFindingsQueueTableHead(props: {
             />
             <GovernanceFindingsQueueSortHeaderCell
               label="Source review"
+              helperText="The review that recorded this finding."
               sortKey="sourceReview"
               activeSortKey={assignedToMeSortKey}
               sortAsc={assignedToMeSortAsc}
@@ -121,6 +132,7 @@ export function GovernanceFindingsQueueTableHead(props: {
             />
             <GovernanceFindingsQueueSortHeaderCell
               label="Severity"
+              helperText="How serious this finding is recorded as."
               sortKey="severity"
               activeSortKey={assignedToMeSortKey}
               sortAsc={assignedToMeSortAsc}
@@ -155,8 +167,18 @@ export function GovernanceFindingsQueueTableHead(props: {
         ) : (
           <>
             <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS}>Risk</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Source review</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>Severity</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Source review</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The review that recorded this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
+              <span>Severity</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                How serious this finding is recorded as.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>

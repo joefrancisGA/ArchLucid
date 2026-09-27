@@ -299,7 +299,12 @@ function RankedPathsTable(props: {
                 1 is the first path to inspect.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Kind</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                What kind of path this row describes.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Band</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -384,6 +389,9 @@ function RemediationSimulatorOutput(props: {
         <CopyIdButton value={copyPayload} aria-label="Copy score breakdown" />
         <span className={OPERATOR_TYPOGRAPHY.helper}>Copy citable breakdown</span>
       </div>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        Copies this explanation. It does not create a sealed review record.
+      </p>
     </div>
   );
 }

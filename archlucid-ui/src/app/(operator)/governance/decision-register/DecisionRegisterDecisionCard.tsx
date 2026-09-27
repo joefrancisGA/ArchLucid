@@ -109,6 +109,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Approval status</dt>
             <dd className="m-0 font-medium text-al-text-primary">{DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED}</dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              This is the recorded governance state. Opening this card does not approve anything.
+            </dd>
           </div>
         </dl>
         {decision.rationale.trim().length > 0 ? (
