@@ -42,11 +42,7 @@ export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflo
   const { panel } = props;
   const pathname = usePathname() ?? "/";
   const [operatorFirstSessionCoachingOpen, setOperatorFirstSessionCoachingOpenState] = useState(() =>
-    parseOperatorFirstSessionCoachingOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(OPERATOR_FIRST_SESSION_COACHING_OPEN_PARAM),
-    ),
+    parseOperatorFirstSessionCoachingOpenFromSearch(null),
   );
   const operatorFirstSessionCoachingOpenRef = useRef(operatorFirstSessionCoachingOpen);
   operatorFirstSessionCoachingOpenRef.current = operatorFirstSessionCoachingOpen;

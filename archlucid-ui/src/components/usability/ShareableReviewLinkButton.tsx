@@ -34,9 +34,7 @@ type ShareableReviewLinkButtonProps = {
 export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps) {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [open, setOpenState] = useState(() =>
-    parseReviewShareLinkOpenFromSearch(
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("shareLinkOpen"),
-    ),
+    parseReviewShareLinkOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

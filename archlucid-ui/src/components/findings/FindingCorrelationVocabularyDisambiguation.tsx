@@ -26,11 +26,7 @@ export function FindingCorrelationVocabularyDisambiguation(
 ): ReactElement {
   const pathname = usePathname() ?? "/";
   const [vocabularyOpen, setVocabularyOpenState] = useState(() =>
-    parseFindingCorrelationVocabularyOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingCorrelationVocabularyOpen"),
-    ),
+    parseFindingCorrelationVocabularyOpenFromSearch(null),
   );
   const vocabularyOpenRef = useRef(vocabularyOpen);
   vocabularyOpenRef.current = vocabularyOpen;

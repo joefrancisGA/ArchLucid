@@ -27,11 +27,7 @@ export function FindingInspectJsonPayload({ value }: { value: unknown }) {
     );
   const expandPath = readExpandPathFromUrl();
   const [open, setOpenState] = useState(() =>
-    parseFindingInspectTypedPayloadOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingInspectTypedPayloadOpen"),
-    ),
+    parseFindingInspectTypedPayloadOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

@@ -65,11 +65,7 @@ export function QuickDecisionSummaryWorkspaceView({
   const pathname = usePathname() ?? "/";
   const [showAllFindings, setShowAllFindings] = useState(false);
   const [policyPackImpactOpen, setPolicyPackImpactOpenState] = useState(() =>
-    parseQuickDecisionPolicyPackImpactOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("quickDecisionPolicyPackImpactOpen"),
-    ),
+    parseQuickDecisionPolicyPackImpactOpenFromSearch(null),
   );
   const policyPackImpactOpenRef = useRef(policyPackImpactOpen);
   policyPackImpactOpenRef.current = policyPackImpactOpen;

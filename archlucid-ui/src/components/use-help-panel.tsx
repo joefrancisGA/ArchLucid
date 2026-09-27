@@ -49,18 +49,10 @@ export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: Help
   const openRef = useRef(open);
   openRef.current = open;
   const [query, setQueryState] = useState(() =>
-    parseHelpPanelQueryFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("helpQ"),
-    ),
+    parseHelpPanelQueryFromSearch(null),
   );
   const [tab, setTabState] = useState<HelpTabId>(() => {
-    const fromUrl = parseHelpPanelTabFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("helpTab"),
-    );
+    const fromUrl = parseHelpPanelTabFromSearch(null);
 
     return fromUrl ?? initialTab;
   });

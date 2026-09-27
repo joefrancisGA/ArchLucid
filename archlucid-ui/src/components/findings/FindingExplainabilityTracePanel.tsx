@@ -48,11 +48,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
   const sampleReview = isShowcaseStaticDemoRunId(props.runId.trim());
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseFindingExplainabilityOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingExplainabilityOpen"),
-    ),
+    parseFindingExplainabilityOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

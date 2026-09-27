@@ -53,11 +53,7 @@ function formatDuration(durationMs: number | null | undefined): string {
 export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensicsPanelProps) {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunToolInvocationForensicsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runToolInvocationForensicsOpen"),
-    ),
+    parseRunToolInvocationForensicsOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

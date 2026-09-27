@@ -146,8 +146,8 @@ function readCommandPaletteQueryFromWindow(): string {
 export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const [open, setOpenState] = useState(() => readCommandPaletteOpenFromWindow());
-  const [paletteQuery, setPaletteQueryState] = useState(() => readCommandPaletteQueryFromWindow());
+  const [open, setOpenState] = useState(false);
+  const [paletteQuery, setPaletteQueryState] = useState("");
   const openRef = useRef(open);
   openRef.current = open;
   const paletteQueryRef = useRef(paletteQuery);

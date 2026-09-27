@@ -52,7 +52,8 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     careerArtifactHonesty,
   } = props;
   const pathname = usePathname() ?? "/";
-  const [sponsorBriefingOpen, setSponsorBriefingOpenState] = useState(() => readSponsorBriefingOpenFromWindowLocation());
+  // Stable SSR/client first paint — URL sync runs in useEffect (avoids hydration mismatch).
+  const [sponsorBriefingOpen, setSponsorBriefingOpenState] = useState(true);
   const sponsorBriefingOpenRef = useRef(sponsorBriefingOpen);
   sponsorBriefingOpenRef.current = sponsorBriefingOpen;
 

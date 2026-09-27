@@ -70,11 +70,7 @@ export function FindingsItsmExportToolbar({
 }: FindingsItsmExportToolbarProps) {
   const pathname = usePathname() ?? "/";
   const [preFinalizeExportOpen, setPreFinalizeExportOpenState] = useState(() =>
-    parseFindingsItsmPreFinalizeExportOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM),
-    ),
+    parseFindingsItsmPreFinalizeExportOpenFromSearch(null),
   );
   const preFinalizeExportOpenRef = useRef(preFinalizeExportOpen);
   preFinalizeExportOpenRef.current = preFinalizeExportOpen;
