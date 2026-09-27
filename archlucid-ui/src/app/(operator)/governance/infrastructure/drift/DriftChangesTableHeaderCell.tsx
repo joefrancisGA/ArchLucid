@@ -41,6 +41,7 @@ export type DriftChangesTableHeaderFilterConfig =
 export type DriftChangesTableHeaderCellProps = {
   readonly column: string;
   readonly label: string;
+  readonly helperText?: string;
   readonly sortBy: string;
   readonly sortDir: DriftTableSortDir;
   readonly sortDirection: "ascending" | "descending" | "none";
@@ -203,6 +204,9 @@ export function DriftChangesTableHeaderCell(props: DriftChangesTableHeaderCellPr
           </Popover>
         ) : null}
       </div>
+      {props.helperText != null ? (
+        <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>{props.helperText}</span>
+      ) : null}
     </EnterpriseTableHeaderCell>
   );
 }

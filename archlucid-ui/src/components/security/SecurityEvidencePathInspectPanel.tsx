@@ -109,11 +109,26 @@ function PathHopsTable(props: {
     <EnterpriseTable ariaLabel={SECURENOW_PATH_INSPECT_HOPS_TITLE}>
       <EnterpriseTableHead>
         <EnterpriseTableRow>
-          <EnterpriseTableHeaderCell>#</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Hop</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>#</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The hop order in this path.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Hop</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The plain-language step in this path.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Edge</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Edge</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The relationship this hop uses between the two nodes.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Provenance</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
         </EnterpriseTableRow>

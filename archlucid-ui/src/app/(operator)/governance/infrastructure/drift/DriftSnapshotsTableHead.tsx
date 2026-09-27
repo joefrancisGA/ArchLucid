@@ -51,12 +51,14 @@ export function DriftSnapshotsTableHead(props: DriftSnapshotsTableHeadProps): Re
   const renderHeader = (
     column: DriftSnapshotsTableSortKey,
     label: string,
+    helperText: string,
     filter?: DriftChangesTableHeaderFilterConfig,
   ): React.JSX.Element => (
     <DriftChangesTableHeaderCell
       key={column}
       column={column}
       label={label}
+      helperText={helperText}
       sortBy={tableFilterState.sortBy}
       sortDir={tableFilterState.sortDir}
       sortDirection={sortDirectionForColumn(tableFilterState.sortBy, column, tableFilterState.sortDir)}
@@ -70,7 +72,7 @@ export function DriftSnapshotsTableHead(props: DriftSnapshotsTableHeadProps): Re
   return (
     <EnterpriseTableHead>
       <EnterpriseTableHeadRow>
-        {renderHeader("subscription", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SUBSCRIPTION_COLUMN_LABEL, {
+        {renderHeader("subscription", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SUBSCRIPTION_COLUMN_LABEL, "The Azure subscription captured by this snapshot.", {
           kind: "text",
           value: tableFilterState.subscriptionFilter,
           placeholder: "Production",
@@ -82,7 +84,7 @@ export function DriftSnapshotsTableHead(props: DriftSnapshotsTableHeadProps): Re
             onTableFiltersChange({ subscriptionFilter: "" });
           },
         })}
-        {renderHeader("captured", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_CAPTURED_COLUMN_LABEL, {
+        {renderHeader("captured", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_CAPTURED_COLUMN_LABEL, "When this snapshot was taken.", {
           kind: "text",
           value: tableFilterState.capturedFilter,
           placeholder: "9/10/2026",
@@ -94,7 +96,7 @@ export function DriftSnapshotsTableHead(props: DriftSnapshotsTableHeadProps): Re
             onTableFiltersChange({ capturedFilter: "" });
           },
         })}
-        {renderHeader("resources", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RESOURCES_COLUMN_LABEL, {
+        {renderHeader("resources", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RESOURCES_COLUMN_LABEL, "How many resources this snapshot recorded.", {
           kind: "text",
           value: tableFilterState.resourcesFilter,
           placeholder: "889",
@@ -106,7 +108,7 @@ export function DriftSnapshotsTableHead(props: DriftSnapshotsTableHeadProps): Re
             onTableFiltersChange({ resourcesFilter: "" });
           },
         })}
-        {renderHeader("relationships", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RELATIONSHIPS_COLUMN_LABEL, {
+        {renderHeader("relationships", GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_RELATIONSHIPS_COLUMN_LABEL, "How many relationships this snapshot recorded.", {
           kind: "text",
           value: tableFilterState.relationshipsFilter,
           placeholder: "972",
