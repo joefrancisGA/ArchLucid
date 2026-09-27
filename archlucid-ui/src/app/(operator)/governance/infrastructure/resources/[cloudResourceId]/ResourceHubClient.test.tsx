@@ -234,6 +234,31 @@ describe("ResourceHubClient", () => {
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("tab=drift"));
   });
 
+  it("preserves explorer workQueue when switching hub tabs via keyboard shortcut", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "6", altKey: true });
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-remediation"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("tab=remediation"));
+  });
+
+  it("threads explorer workQueue on back-to-explorer link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const backLink = await screen.findByTestId("infra-resource-hub-explorer-work-queue-back-link");
+
+    expect(backLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+  });
+
   it("shows tab count badges for findings and drift", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 

@@ -24806,13 +24806,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-27 seed hunt #23 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `setActiveTab` / `switchActiveAuditControl` vs `auditScopeChipHref` explorer `workQueue` gap (tab bar, inline audit picker, and keyboard shortcuts retain `workQueue` via `searchParams` + `sanitizeResourceHubQueryForTab` without an explicit patch); added regressions `preserves explorer workQueue when switching hub tabs via keyboard shortcut` and `threads explorer workQueue on back-to-explorer link`; 42 scoped ResourceHubClient tests passed.
+
+- [x] (valid-no-repro) `setActiveTab` / `switchActiveAuditControl` — explorer `workQueue` dropped on tab bar or audit control picker navigation while audit scope chip explicitly patches queue — **cheap-disproof 2026-09-27 seed hunt #23:** navigation rebuilds from `searchParams.toString()`; `sanitizeResourceHubQueryForTab` does not strip `workQueue`; regressions for keyboard shortcut and explorer back link.
 
 2026-09-27 seed hunt #22 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed overview cross-workbench drift/remediation/diagram/terraform exits vs in-hub `buildHubScopedTabHref` explorer `workQueue` parity (external workbench URL builders omit `workQueue` by design; queue context stays on hub URL and explorer back link); added regressions `preserves explorer workQueue when switching hub tabs without snapshot in URL` and `preserves explorer workQueue on overview view all drift hub tab link`; 40 scoped ResourceHubClient tests passed.
 
