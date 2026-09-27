@@ -1,4 +1,3 @@
-{"at":"2026-08-28T17:15:55.7846194Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-08-28T17:27:06.3537744Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-08-28T20:36:16.5116629Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-08-29T02:42:20.6001984Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -7185,3 +7184,4 @@
 {"at":"2026-09-27T17:06:38.3828435Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-27T17:10:34.3151353Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-09-27T17:15:07.2807818Z","zoneId":"host-core-jobs","outcome":"seed-only"}
+{"at":"2026-09-27T17:23:36.8665276Z","zoneId":"identity-provider-config","outcome":"hit"}
