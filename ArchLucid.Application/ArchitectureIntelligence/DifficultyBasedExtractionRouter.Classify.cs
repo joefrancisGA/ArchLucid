@@ -131,9 +131,9 @@ public sealed partial class DifficultyBasedExtractionRouter
                 continue;
             }
 
-            bool startOk = index == 0 || IsValidMarkerBoundary(text[index - 1]);
+            bool startOk = index == 0 || IsValidMarkerStartBoundary(text[index - 1]);
             int end = index + needle.Length;
-            bool endOk = end >= text.Length || IsValidMarkerBoundary(text[end]);
+            bool endOk = end >= text.Length || IsValidMarkerEndBoundary(text[end]);
 
             if (startOk && endOk)
             {
@@ -144,8 +144,15 @@ public sealed partial class DifficultyBasedExtractionRouter
         return -1;
     }
 
-    private static bool IsValidMarkerBoundary(char adjacent) =>
-        !char.IsLetterOrDigit(adjacent) && adjacent != '-' && adjacent != '_';
+    private static bool IsValidMarkerStartBoundary(char previous) =>
+        !char.IsLetterOrDigit(previous)
+        && previous != '-'
+        && previous != '_'
+        && previous != '.'
+        && previous != '/';
+
+    private static bool IsValidMarkerEndBoundary(char next) =>
+        !char.IsLetterOrDigit(next) && next != '-' && next != '_';
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {

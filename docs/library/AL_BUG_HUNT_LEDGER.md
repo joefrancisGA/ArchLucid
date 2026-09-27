@@ -4981,6 +4981,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-27 seed hunt #26 (seed→hit): reseeded extraction-router; proved `owner` matched as a bounded token after a DNS dot (`api.owner.prod`) while `unowned` appeared elsewhere, falsely emitting Unowned component; fixed with `IsValidMarkerStartBoundary` rejecting `.` and `/` segment joins (end boundary unchanged so `the owner.` still matches); regression `Extract_does_not_emit_ownership_gap_for_dns_owner_label_with_unowned`; 51 scoped DifficultyBasedExtractionRouter tests passed.
+
 2026-09-27 seed hunt #25 (seed→hit): reseeded extraction-router; proved `IsValidMarkerBoundary` still allowed underscore as a token start boundary, so `owner` inside `co_owner` with `unowned` falsely emitted Unowned component (same class as #24 hyphen gap); fixed by rejecting `_` adjacent matches; regression `Extract_does_not_emit_ownership_gap_for_co_owner_underscore_substring_with_unowned`; 50 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-27 seed hunt #24 (seed→hit): reseeded extraction-router; proved `FindBoundedMarkerIndex` treated hyphen as a token start boundary, so `owner` inside `co-owner` paired with `unowned` falsely emitted `OperationalOwnership` / Unowned component; fixed `IsValidMarkerBoundary` to reject hyphen-adjacent matches; regression `Extract_does_not_emit_ownership_gap_for_co_owner_substring_with_unowned`; 49 scoped DifficultyBasedExtractionRouter tests passed.
@@ -5001,11 +5003,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 25
-- **bugs-found:** 17
+- **hunts:** 26
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — underscore-boundary false positive for `owner` in `co_owner`
+- **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
