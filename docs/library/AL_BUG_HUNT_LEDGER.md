@@ -2126,11 +2126,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 73
-- **bugs-found:** 61
+- **hunts:** 74
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — declared endpoint alias values with internal whitespace after svc-/ds- prefix stored padded resolved node ids and dropped edges
+- **last-bug:** 2026-09-27 — declared alias values with mixed-case ARM ids stored literal resource id instead of graph node id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
