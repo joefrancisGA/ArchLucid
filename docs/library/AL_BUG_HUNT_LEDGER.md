@@ -21741,13 +21741,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 60
-- **bugs-found:** 30
+- **hunts:** 61
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — subscription role-assignment list followed roleEligibilitySchedules nextLink within same subscription
+- **last-bug:** 2026-09-27 — subscription role-eligibility list followed roleAssignments nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
+
+- [x] (proven) `ListSubscriptionRoleEligibilitySchedulesAsync` — cross-listing `nextLink` within subscription — **hit 2026-09-27 seed hunt:** mirrored role-assignment guard; regression above.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved promoted candidate `ListSubscriptionRoleAssignmentsAsync` followed same-subscription `nextLink` to `roleEligibilitySchedules` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-assignments listing path; regression `ListSubscriptionRoleAssignmentsAsync_rejects_next_link_for_different_role_listing_path`; seeded subscription role-eligibility listing path guard as `(candidate)`; 96 Azure + 51 AWS/GCP scoped extractor tests passed.
 

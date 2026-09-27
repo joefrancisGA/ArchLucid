@@ -234,9 +234,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string roleEligibilityListingPath =
+            $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/roleEligibilitySchedules";
+
         List<HostedAzureArmRoleAssignmentRecord> schedules = [];
         string? nextLink =
-            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()";
+            $"https://management.azure.com/{roleEligibilityListingPath}?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -303,9 +307,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        subscriptionId);
+                        roleEligibilityListingPath);
                     nextLink = candidateNextLink;
                 }
             }
