@@ -69,9 +69,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         string costOrRisk)
     {
         bool hasFirstFinding = findings.Any(
-            finding => finding.Dimension == firstDimension && finding.Conclusion != ReviewConclusion.Pass);
+            finding => finding.Dimension == firstDimension && IsActionableForTradeOff(finding));
         bool hasSecondFinding = findings.Any(
-            finding => finding.Dimension == secondDimension && finding.Conclusion != ReviewConclusion.Pass);
+            finding => finding.Dimension == secondDimension && IsActionableForTradeOff(finding));
 
         if (!hasFirstFinding || !hasSecondFinding)
         {
@@ -131,6 +131,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
 
         return $"Balance {firstDimension} and {secondDimension} with explicit human approval.";
     }
+
+    private static bool IsActionableForTradeOff(SpecialistReviewFinding finding) =>
+        finding.Conclusion is ReviewConclusion.Fail or ReviewConclusion.Indeterminate;
 
     private static ArchitectureRecommendation? FindRecommendationForDimension(
         IReadOnlyList<ArchitectureRecommendation> recommendations,

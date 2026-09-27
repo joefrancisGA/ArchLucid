@@ -4866,13 +4866,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 12
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
-- **last-bug:** 2026-09-09 — padded Critical severity skipped human approval and High effort band
+- **hunts:** 13
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-26
+- **last-bug:** 2026-09-26 — NotApplicable findings triggered security/cost trade-offs without cost recommendations
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-09-26 seed hunt (seed→hit): reseeded architecture-recommendation; proved `ArchitectureRecommendationTradeOffBuilder` treated `ReviewConclusion.NotApplicable` like actionable findings (`!= Pass`) so Security/Cost trade-offs attached when only Security had a recommendation; aligned trade-off gating with engine Fail/Indeterminate filter; regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable`; 14 scoped Alternatives/ProposedChange tests and 35 total ArchitectureRecommendation tests passed.
 
 2026-09-12 seed hunt #2081 (seed-only): reseeded architecture-recommendation; 13 scoped tests passed; no new hunt-ready rows
 
@@ -4892,6 +4894,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureRecommendationAlternatives.BuildEvidenceFirstAlternatives` — unverified/indeterminate findings emit alt[1] that restates the primary collect-evidence `ProposedChange` — **hit 2026-09-08 seed hunt #1377:** PrivacyCompliance and Integration indeterminate findings (and other Unverified-bucket rows) got primary "Collect additional evidence before changing the design for: {title}" while alt[1] repeated "Collect additional evidence before changing the design"; fixed by replacing alt[1] with discovery-spike path distinct from primary; regressions in `ArchitectureRecommendationAlternativesEvidenceFirstDistinctnessTests`
 
 - [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationEffortEstimate` — severity label match uses raw string equality without trimming — **hit 2026-09-09 seed hunt #1419:** `" Critical "` skipped `RequiresHumanApproval` and downgraded effort/risk bands to Medium/Low; fixed via `ArchitectureRecommendationSeverityLabel`; regression in `ArchitectureRecommendationSeverityLabelTests`
+- [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationTradeOffBuilder` — `NotApplicable` specialist findings counted for competing-dimension trade-offs while `IsActionableFinding` excluded them from recommendations — **hit 2026-09-26 seed hunt:** Security/Cost trade-off attached when Cost was `NotApplicable` only; fixed via `IsActionableForTradeOff` (Fail/Indeterminate); regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable`
 
 - [x] (valid-no-repro) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance and Integration Fail findings fall through to default defer/evidence alternatives despite dimension-specific `ProposedChange` branches — **valid-no-repro 2026-09-09 thorough hunt #1477:** Fail + Sufficient PrivacyCompliance/Integration findings get dimension-specific primary copy ("Record compliance obligations…", "Document external interfaces…") while default alternatives are defer/exception and collect-evidence paths that do not paraphrase primary; intentional gap until dedicated templates are needed
 - [x] (valid-no-repro) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — Operations and AiSpecificRisk dimensions only receive generic fallback copy and default alternatives — **valid-no-repro 2026-09-09 thorough hunt #1477:** no specialist title gates in source; generic `Implement a concrete design change…` primary and default defer/evidence alternatives are intentional for dimensions without dedicated rules

@@ -119,4 +119,38 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         recommendations[0].Effort.ImplementationEstimateAvailable.Should().BeFalse();
         recommendations[0].Effort.BasisNotes.Should().Contain("implementation estimate unavailable");
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costNotApplicable = new()
+        {
+            FindingId = "f-cost-na",
+            Dimension = QualityDimension.Cost,
+            Title = "Cost review not in scope for this package",
+            Rationale = "Out of scope",
+            Conclusion = ReviewConclusion.NotApplicable,
+            Severity = "Low",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costNotApplicable],
+            ["Security", "Cost"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].TradeOffs.Should().BeEmpty();
+    }
 }
