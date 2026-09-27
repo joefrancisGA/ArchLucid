@@ -142,6 +142,30 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_prior_context_node()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "SHARED", NodeType = "context", Label = "upper" },
+                new GraphNode { NodeId = "shared", NodeType = "context", Label = "lower" },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes = [],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId.Equals("SHARED", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void HasAny_is_true_only_for_projectable_element_kinds()
     {
         ArchitectureKnowledgeModel empty = new() { ModelId = "m", Elements = [] };

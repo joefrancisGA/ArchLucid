@@ -11239,11 +11239,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 448
-- **bugs-found:** 3500
+- **hunts:** 449
+- **bugs-found:** 3501
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `GraphSnapshotKnowledgeModelMerger` duplicate context edges when endpoint casing differed
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes when node id casing differed among context-only nodes
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -15180,6 +15180,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context-edge dedup consulted only model-edge keys so two context edges differing only by endpoint casing both merged — **hit 2026-09-26 seed hunt (seed→hit):** #1290 fixed case-insensitive model keys but did not record accepted context edges in the dedup set; fixed by adding context edge keys when merged; regression `Merge_deduplicates_context_edges_when_endpoints_differ_only_by_case_from_prior_context_edge`.
 
 2026-09-26 seed hunt (seed→hit): reseeded archlucid-core; proved context-edge casing dedup gap in κ→Γ merge; 4 `GraphSnapshotKnowledgeModelMergerTests` passed.
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context-only node ids differing only by case both merged — **hit 2026-09-27 seed hunt (seed→hit):** #1290/#2026-09-26 fixed model-vs-context node dedup but context-only duplicates (`SHARED` + `shared`) both appended because only `modelNodeIds` was consulted; fixed by tracking `mergedNodeIds` when accepting context nodes; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_prior_context_node`.
+
+2026-09-27 seed hunt (seed→hit): reseeded archlucid-core after context-edge casing fix; proved context-only node-id casing dedup gap in κ→Γ merge; 5 `GraphSnapshotKnowledgeModelMergerTests` passed.
 
 2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
 
