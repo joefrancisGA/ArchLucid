@@ -152,7 +152,7 @@ public static class SegmentationSemanticsPathAnalyzer
         string combined = $"{node.Label} {node.SourceId}".ToLowerInvariant();
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
-            || combined.Contains("storage", StringComparison.Ordinal)
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(combined)
             || combined.Contains("database", StringComparison.Ordinal)
             || combined.Contains("cosmos", StringComparison.Ordinal)
             || combined.Contains("redis", StringComparison.Ordinal)

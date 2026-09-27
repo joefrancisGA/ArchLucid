@@ -21,6 +21,16 @@ public sealed class SegmentationSemanticsPathAnalyzerTests
     }
 
     [Fact]
+    public void IsSensitiveTarget_does_not_treat_non_storage_label_as_datastore()
+    {
+        GraphNode node = CreateTopologyNode("non-storage-telemetry-api", sourceId: "/providers/Microsoft.Web/sites/non-storage-telemetry");
+
+        SegmentationSemanticsPathAnalyzer.IsSensitiveTarget(node)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void IsSensitiveTarget_still_treats_sql_server_as_datastore()
     {
         GraphNode node = CreateTopologyNode("sql-pay-prod", sourceId: "/providers/Microsoft.Sql/servers/sql-pay-prod");

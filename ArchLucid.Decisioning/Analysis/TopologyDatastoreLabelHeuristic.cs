@@ -95,13 +95,35 @@ internal static class TopologyDatastoreLabelHeuristic
             || ContainsAffirmativeStorageKeyword(combined);
     }
 
-    private static bool ContainsAffirmativeStorageKeyword(string text)
+    internal static bool ContainsAffirmativeStorageKeyword(string text)
     {
         string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
 
         for (int index = 0; index < parts.Length; index++)
         {
             if (!parts[index].Equals("storage", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (index > 0 && parts[index - 1].Equals("non", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static bool ContainsAffirmativeBlobKeyword(string text)
+    {
+        string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
+
+        for (int index = 0; index < parts.Length; index++)
+        {
+            if (!parts[index].Equals("blob", StringComparison.Ordinal))
             {
                 continue;
             }
