@@ -23574,11 +23574,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 29
-- **bugs-found:** 24
+- **hunts:** 30
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — persisted assignment undefined severity ordinal bypassed live pre-commit gate
+- **last-bug:** 2026-09-27 — `FindingEvidenceLinkage:WarnOnly=false` still emitted Advisory Warning linkage gaps so pre-commit gate and dry-run never blocked
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23648,7 +23648,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `PreCommitGateEvaluator` / `PreCommitGovernanceGate` — undefined `BlockCommitMinimumSeverity` ordinal on persisted assignment bypassed live gate — **hit 2026-09-27 seed hunt:** invalid ordinals set `effectiveMinSeverity` above any finding so Critical policy violations did not block despite `blockCommitOnCritical`; regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`.
 
-- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — evidence-linkage supplemental findings with `WarnOnly=false` may still differ from live gate warn-only policy routing (reachability: both call `PreCommitSupplementalFindingsAppender`; prove cross-surface block parity on next hunt).
+2026-09-27 thorough hunt (hit): proved `PreCommitSupplementalFindingsAppender` left evidence-linkage gaps at Advisory Warning even when `FindingEvidenceLinkageFindingEngineOptions.WarnOnly` was false, so neither live `PreCommitGovernanceGate` nor `PolicyPackGovernanceDryRunService` blocked on linkage gaps despite enforcing config; fixed by promoting enforcing linkage findings to `PolicyViolation` + `Error`; regressions `EvaluateAsync_blocks_on_evidence_linkage_gaps_when_linkage_engine_is_enforcing` and `EvaluateAsync_blocks_when_evidence_linkage_supplemental_findings_are_enforcing_like_live_gate`; scoped PolicyPack/Governance Application tests passed.
+
+- [x] (proven) `PreCommitSupplementalFindingsAppender` / `FindingEvidenceLinkageFindingEngineOptions.WarnOnly` — enforcing linkage config still emitted non-blocking Advisory linkage findings — **hit 2026-09-27 thorough hunt:** enforcing mode sets `PolicyViolation` + `Error`; regressions above.
+
+- [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — evidence-linkage supplemental findings with `WarnOnly=false` differed from live gate — **superseded 2026-09-27 thorough hunt:** shared appender bug; dry-run and live gate now block together when linkage is enforcing.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
