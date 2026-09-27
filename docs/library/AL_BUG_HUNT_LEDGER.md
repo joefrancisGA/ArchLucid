@@ -21111,21 +21111,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 26
-- **bugs-found:** 23
+- **hunts:** 27
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — `InfluencedByGraphNode` omitted when graph `NodeId` had surrounding whitespace but finding `RelatedNodeIds` did not
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — κ→Γ projector dropped RELATES edges when `RelatedElementIds` had surrounding whitespace around canonical `ElementId`
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded knowledge-graph-provenance; proved `ArchitectureKnowledgeModelGraphProjector.ToGraphNodeId` did not trim `ElementId`/`RelatedElementIds` so padded related ids failed `canonicalNodeIdsByKey` lookup (parity gap vs `ProvenanceBuilder.NormalizeId`); fixed with `elementId.Trim()` in `ToGraphNodeId`; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_surrounding_whitespace`; 6 projector + 47 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureKnowledgeModelGraphProjector` — RELATES edge omitted when `RelatedElementIds` entry differed from canonical `ElementId` only by surrounding whitespace — **hit 2026-09-27 seed hunt (seed→hit):** trim in `ToGraphNodeId`; regression above.
+
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` indexed raw graph `NodeId` values while `RelatedNodeIds` were trimmed, skipping `InfluencedByGraphNode` when only whitespace differed; fixed by normalizing graph node ids for `graphNodeIds`, node keys, and `ReferenceId`; regression `Build_links_graph_influence_when_graph_node_id_differs_only_by_surrounding_whitespace`; 47 Provenance scoped tests passed.
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` treated `AppliedRuleIds` with surrounding whitespace as distinct rule keys; fixed with `NormalizeId` trim on rule/decision/finding id keys and edge loops; regression `Build_deduplicates_triggered_by_rule_when_applied_rule_ids_differ_only_by_whitespace`; 46 Provenance scoped tests passed.
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ArchitectureKnowledgeModelGraphProjector` node dedup skipped case-variant elements but edge loop still emitted duplicate parallel RELATES edges; fixed with case-insensitive edge-key dedup; regression `Project_deduplicates_relates_edges_when_elements_list_case_variant_element_ids`; 5 projector + 45 Provenance scoped tests passed.
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` counted duplicate artifact bundle rows so revision differed from semantically identical input (parity gap vs `ProvenanceBuilder` artifact dedup); fixed with `GroupBy(ArtifactId)`; regression `Compute_ignores_duplicate_artifact_rows_with_same_artifact_id`; 45 Provenance scoped tests passed.
 2026-09-26 seed hunt (hit): reseeded knowledge-graph-provenance; proved `ProvenanceBuilder` emitted duplicate `ContributedToArtifact` edges when `Artifacts` repeated the same `ArtifactId`; fixed with `GroupBy(ArtifactId)` before decision→artifact linking; 44 Provenance + 348 KnowledgeGraph scoped tests passed (3 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
-- **hunts:** 21
-- **bugs-found:** 18
-- **last-bug:** 2026-09-11 — duplicate parallel edges after AS-018 diagram canonical bind remap
+
 2026-09-26 seed hunt (seed-only): reseeded knowledge-graph-provenance; scoped 347 KnowledgeGraph + 43 Provenance tests passed (3 pre-existing KnowledgeGraph.Tests failures: stale `GraphSnapshotCommittedReuseResolver` overload + `GraphEdge` contract surface drift); cheap-disproved inventory overlay builder ordinal `edgeKeys` for `RelationshipType` casing (inventory persists canonical `GraphEdgeTypes` constants); no new hunt-ready rows.
 
 2026-09-13 seed hunt #2270 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge graph`; no new hunt-ready rows.
