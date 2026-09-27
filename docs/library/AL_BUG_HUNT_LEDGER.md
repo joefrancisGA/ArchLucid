@@ -4875,6 +4875,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `no-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `Low-Cost` remains a valid Cost preference; generalized negated dimension detection via `no-` / `non-` prefixes for all trade-off dimension tokens; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost` and `BuildRecommendations_prefers_cost_first_when_priority_mentions_low_cost_design`; 27 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `no-cost` declared priorities falsely prefer Cost — **hit 2026-09-27 seed hunt:** `no-` negation must mirror `non-` handling without blocking legitimate `Low-Cost` mentions; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
+
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved bounded dimension-word matching still treated hyphenated `Non-Cost` / `Non-Reliability` declared priorities as Cost/Reliability trade-off preferences; extended negation patterns for `non-cost` and `non-reliability` (parity with `non-security`); regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_cost` and `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability`; 25 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `Non-Cost` / `Non-Reliability` priorities still prefer Cost/Reliability dimensions — **hit 2026-09-27 seed hunt:** hyphenated negation phrases must not count as dimension preference after word-boundary matching; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
@@ -4898,11 +4902,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 17
-- **bugs-found:** 14
+- **hunts:** 18
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — Non-Cost / Non-Reliability priorities falsely steered trade-offs
+- **last-bug:** 2026-09-27 — no-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
