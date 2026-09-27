@@ -52,7 +52,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
   const selectedPlatform: CloudInventoryPlatform = "azure";
-  const [replaceInventoryMode, setReplaceInventoryMode] = useState(false);
   const [sessionAcceptedPackage, setSessionAcceptedPackage] = useState<ExtractUploadAcceptedPackageRecord | null>(
     null,
   );
@@ -77,7 +76,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
       };
       writeExtractUploadAcceptedPackageRecord(record);
       setSessionAcceptedPackage(record);
-      setReplaceInventoryMode(false);
     },
     [associateRunId, currentPrincipal.meClaims, currentPrincipal.name],
   );
@@ -146,25 +144,25 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const lastAcceptedPackage =
     sessionAcceptedPackage ?? baselineQuery.data?.lastAcceptedPackage ?? null;
   const packageAccepted = upload.packageId !== null;
-  const showAcceptedDropZone = packageAccepted && !replaceInventoryMode;
+  const showAcceptedDropZone = packageAccepted;
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const extractUploadSteps = useMemo(
     () =>
       resolveExtractUploadPackageSteps({
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
-        replacingInventory: replaceInventoryMode,
+        replacingInventory: false,
       }),
-    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
+    [hasBaselineArtifacts, packageAccepted],
   );
   const extractUploadEmphasizedStepId = useMemo(
     () =>
       resolveExtractUploadPackageEmphasizedStepId({
         packageAccepted,
         inventoryParsed: hasBaselineArtifacts === true,
-        replacingInventory: replaceInventoryMode,
+        replacingInventory: false,
       }),
-    [hasBaselineArtifacts, packageAccepted, replaceInventoryMode],
+    [hasBaselineArtifacts, packageAccepted],
   );
 
   const syncAdvancedCommandOpenToUrl = useCallback(
@@ -191,18 +189,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     );
   }, [extractUploadAdvancedCommandOpenParam]);
 
-  const beginReplaceInventory = useCallback(() => {
-    upload.clearUploadState();
-    folderZip.clearSelectionState();
-    setReplaceInventoryMode(true);
-  }, [folderZip, upload]);
-
-  const cancelReplaceInventory = useCallback(() => {
-    upload.clearUploadState();
-    folderZip.clearSelectionState();
-    setReplaceInventoryMode(false);
-  }, [folderZip, upload]);
-
   return {
     productLine,
     extractorScriptDownloadUrl,
@@ -226,9 +212,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     folderZip,
     demo,
     showAcceptedDropZone,
-    beginReplaceInventory,
-    cancelReplaceInventory,
-    replaceInventoryMode,
   };
 }
 
