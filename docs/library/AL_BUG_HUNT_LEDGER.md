@@ -4810,7 +4810,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `summaryMarkdown` sent weekly mail with empty report body — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`.
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt:** `EmailBrandingUrls.TryBuildLogoImageUrl` only trims trailing slashes; fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorReportEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
-- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27 — **hit 2026-09-27 seed hunt #51 (notifications-pipeline):** `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
@@ -21320,13 +21320,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 50
-- **bugs-found:** 38
+- **hunts:** 51
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — recurrence completion email threw NullReferenceException on null toMailboxes
+- **last-bug:** 2026-09-27 — weekly sponsor summary email logo URL used padded OperatorBaseUrl
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
+
+2026-09-27 seed hunt #51 (seed→hit): reseeded notifications-pipeline; promoted weekly-digest candidate `WeeklySponsorSummaryEmailDispatcher` padded `OperatorBaseUrl` logo gap (parity with report fix #2026-09-27); fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before `EmailBrandingUrls.TryBuildLogoImageUrl`; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`; 139 scoped Application notifications/digest tests passed.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt #51:** parity gap vs `WeeklySponsorReportEmailDispatcher`; fixed `OperatorBaseUrl.Trim().TrimEnd('/')`; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`.
 
 2026-09-27 seed hunt #50 (seed→hit): reseeded notifications-pipeline; proved `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` iterated `toMailboxes` without null guard (parity gap vs weekly/exec digest dispatchers); fixed with `ArgumentNullException.ThrowIfNull(toMailboxes)`; regression `TryDispatchAsync_throws_when_to_mailboxes_is_null`; 138 scoped Application notifications/digest tests passed.
 
