@@ -1138,10 +1138,15 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
 
         QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
 
-        admission.Allowed.Should().BeTrue(
-            "promote loop polls store capacity only; budget-stage operational re-check and orchestrator dispose handle downstream kill-switch");
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(
+            QuickScanConcurrencyRejectionReason.EmergencyDisabled,
+            "post-promote kill-switch re-check must roll back a lease granted while safety was disabled");
 
-        await admission.DisposeAsync();
+        QuickScanConcurrencyAdmitResult capacityProbe = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "capacity-probe", maxConcurrent: 1, maxQueued: 0));
+
+        capacityProbe.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
     }
 
     [Fact]
@@ -1277,10 +1282,13 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
 
         QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
 
-        admission.Allowed.Should().BeTrue(
-            "promote loop polls store capacity only; budget-stage operational re-check and orchestrator dispose handle downstream kill-switch");
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.EmergencyDisabled);
 
-        await admission.DisposeAsync();
+        QuickScanConcurrencyAdmitResult capacityProbe = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "capacity-probe", maxConcurrent: 1, maxQueued: 0));
+
+        capacityProbe.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
     }
 
     [Fact]
@@ -1456,6 +1464,80 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
 
         admission.Allowed.Should().BeFalse();
         admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.EmergencyDisabled);
+    }
+
+    [Fact]
+    public async Task WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        Guid activeLeaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(activeLeaseId, Guid.NewGuid(), "active", maxConcurrent: 1, maxQueued: 2));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        TaskCompletionSource promoteReached = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource releasePromote = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        GatedPromoteStore store = new(inner, promoteReached, releasePromote);
+
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 2,
+                QueueWaitTimeoutSeconds = 30,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("disabled-during-promote", CancellationToken.None);
+
+        await Task.Delay(50);
+        await inner.ReleaseLeaseAsync(activeLeaseId);
+
+        await promoteReached.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        options.Enabled = false;
+        releasePromote.SetResult();
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = await waitTask;
+
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.EmergencyDisabled);
+
+        QuickScanConcurrencyAdmitResult capacityProbe = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "capacity-probe", maxConcurrent: 1, maxQueued: 0));
+
+        capacityProbe.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.DirectLease,
+            "promote lease must be released when kill-switch applies during slow TryPromoteAsync");
     }
 
     [Fact]

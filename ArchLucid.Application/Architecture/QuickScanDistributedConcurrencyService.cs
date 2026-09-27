@@ -190,6 +190,16 @@ public sealed class QuickScanDistributedConcurrencyService(
 
                 if (promoteResult.Promoted)
                 {
+                    emergencyReject = await TryCreateEmergencyDisabledRejectAfterPromoteAsync(
+                        promoteResult,
+                        waitingQueueEntryId,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (emergencyReject is not null)
+                    {
+                        return emergencyReject;
+                    }
+
                     _telemetry.RecordConcurrencyLeaseAcquired(telemetryContext, queued: true);
 
                     return QuickScanDistributedConcurrencyAdmissionResult.Permit(
@@ -281,6 +291,35 @@ public sealed class QuickScanDistributedConcurrencyService(
         {
             await AbandonQueueEntryForCleanupAsync(admitResult.QueueEntryId.Value).ConfigureAwait(false);
         }
+
+        return emergencyReject;
+    }
+
+    private async Task<QuickScanDistributedConcurrencyAdmissionResult?> TryCreateEmergencyDisabledRejectAfterPromoteAsync(
+        QuickScanConcurrencyPromoteResult promoteResult,
+        Guid waitingQueueEntryId,
+        CancellationToken cancellationToken)
+    {
+        QuickScanSafetyOperationalSnapshot operational =
+            await _operationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+        QuickScanSafetyOptions safety = _safetyOptions.CurrentValue;
+        QuickScanSafetyEffectiveFeatureState effective = safety.ResolveEffectiveFeatureState();
+
+        QuickScanDistributedConcurrencyAdmissionResult? emergencyReject =
+            TryCreateEmergencyDisabledReject(effective, operational);
+
+        if (emergencyReject is null)
+        {
+            return null;
+        }
+
+        if (promoteResult.LeaseId.HasValue)
+        {
+            await _store.ReleaseLeaseAsync(promoteResult.LeaseId.Value, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        await AbandonQueueEntryForCleanupAsync(waitingQueueEntryId).ConfigureAwait(false);
 
         return emergencyReject;
     }
