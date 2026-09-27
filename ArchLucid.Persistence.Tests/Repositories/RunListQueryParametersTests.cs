@@ -120,6 +120,22 @@ public sealed class RunListQueryParametersTests
             .Be(nameof(ArchitectureRunStatus.Committed));
 
     [Fact]
+    public void ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require()
+    {
+        object parameters = RunListQueryParameters.ForActiveRunCountByArchitectureRequest(Scope(), "\treq-1");
+
+        Read<string>(parameters, "NormalizedArchitectureRequestId").Should().Be("REQ-1");
+    }
+
+    [Fact]
+    public void ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require()
+    {
+        object parameters = RunListQueryParameters.ForActiveRunWithSystemNameInWorkspace(Scope(), "\tbilling");
+
+        Read<string>(parameters, "NormalizedSystemName").Should().Be("BILLING");
+    }
+
+    [Fact]
     public void ForActiveRunCountByArchitectureRequest_excludes_the_three_terminal_statuses()
     {
         object parameters = RunListQueryParameters.ForActiveRunCountByArchitectureRequest(Scope(), "  req-1  ");

@@ -259,7 +259,8 @@ internal static class RunListQueryParameters
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(architectureRequestId),
+            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(
+                RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId)),
             CommittedStatus = nameof(ArchitectureRunStatus.Committed),
             FailedStatus = nameof(ArchitectureRunStatus.Failed),
             QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
@@ -275,7 +276,8 @@ internal static class RunListQueryParameters
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(architectureRequestId),
+            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(
+                RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId)),
             FailedStatus = nameof(ArchitectureRunStatus.Failed),
             QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
@@ -293,7 +295,8 @@ internal static class RunListQueryParameters
         {
             scope.TenantId,
             scope.WorkspaceId,
-            NormalizedSystemName = RunRepositoryCore.NormalizeWorkspaceSystemName(systemName),
+            NormalizedSystemName = RunRepositoryCore.NormalizeWorkspaceSystemName(
+                RunRepositoryCore.RequireSystemName(systemName)),
             ExcludeRunId = excludeRunId,
             FailedStatus = nameof(ArchitectureRunStatus.Failed),
             QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
