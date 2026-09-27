@@ -822,6 +822,37 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_rejects_whitespace_only_idp_value_in_mapping()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("3c3c3c3c-3c3c-3c3c-3c3c-3c3c3c3c3c3c"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "   ",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*IdpValue*");
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_invisible_unicode_only_idp_value_in_mapping()
     {
         IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());

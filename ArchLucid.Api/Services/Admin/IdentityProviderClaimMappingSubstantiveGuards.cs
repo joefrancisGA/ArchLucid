@@ -17,6 +17,18 @@ internal static class IdentityProviderClaimMappingSubstantiveGuards
         }
     }
 
+    internal static void EnsureSubstantiveMappingEntries(IdentityClaimRoleMappingRequest request)
+    {
+        foreach (IdentityClaimRoleMappingEntryRequest entry in request.Mappings)
+        {
+            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(entry.IdpValue))
+                throw new ArgumentException("Mapping entry is missing IdpValue.");
+
+            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(entry.ArchLucidRole))
+                throw new ArgumentException("Mapping entry is missing ArchLucidRole.");
+        }
+    }
+
     internal static void EnsureSubstantiveClaimMapping(IdentityClaimRoleMappingDocument mapping)
     {
         if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(mapping.RoleClaimName))
