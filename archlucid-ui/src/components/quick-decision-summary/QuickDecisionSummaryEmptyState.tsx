@@ -92,9 +92,7 @@ export function QuickDecisionSummaryEmptyState({
       );
     }
 
-    if (props.analysisStagesComplete === false) {
-      return renderAnalysisInProgressEmpty(props);
-    }
+    return renderAnalysisInProgressEmpty(props);
   }
 
   if (props.analysisStagesComplete === false) {

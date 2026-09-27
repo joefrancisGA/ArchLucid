@@ -24338,6 +24338,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-09-27 seed hunt #20 (seed→hit): reseeded ui-review-detail-workspace; proved `QuickDecisionSummaryEmptyState` treated omitted `analysisStagesComplete` as neither in-progress nor finalize-eligible on create-home (`packageCommitted === false`), falling through to buyer-polished finalized headline copy; default create-home pre-commit to in-progress empty unless `analysisStagesComplete === true`; regression `create-home treats missing analysisStagesComplete as in-progress for empty state (TB-1853)`; 23 `QuickDecisionSummary` create-home/buyer-polished tests + 34 review-detail band vitest tests passed.
+
+- [x] (proven) `QuickDecisionSummaryEmptyState` — omitted `analysisStagesComplete` on create-home skipped in-progress gate — **hit 2026-09-27 seed hunt #20:** only explicit `true` selects finalize-eligible empty; otherwise in-progress; regression above.
+
 2026-09-27 seed hunt #19 (seed→hit): reseeded ui-review-detail-workspace; proved `QuickDecisionSummaryEmptyState` prioritized buyer-polished headline finding count over create-home analysis-in-progress empty when showcase spine counts populated `findingCountDisplay` while findings list was still empty; reordered empty-state branches so create-home in-progress wins; regression `create-home in-progress empty wins over buyer-polished headline finding count (TB-1853)`; 22 `QuickDecisionSummary` + 34 review-detail band vitest tests passed (1 pre-existing axe failure in full file).
 
 - [x] (proven) `QuickDecisionSummaryEmptyState` / `RunDetailRunExplanationCollapsible` — deferred `findingCountDisplay` headline could show finalized-review copy during create-home analysis in progress — **hit 2026-09-27 seed hunt #19:** buyer-polished headline branch ran before `packageCommitted`/`analysisStagesComplete` gates; fixed branch order; regression above.
@@ -24363,11 +24367,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 19
-- **bugs-found:** 15
+- **hunts:** 20
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — create-home findings empty state showed finalized headline during analysis in progress
+- **last-bug:** 2026-09-27 — create-home findings empty state ignored in-progress when analysisStagesComplete omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
