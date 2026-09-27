@@ -43,6 +43,35 @@ public sealed class IdentityProviderDiscoveryServiceTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_saml_invisible_only_entity_id_marks_discovery_failed()
+    {
+        const string metadataXml = """
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                              entityID="&#x200B;">
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+            </EntityDescriptor>
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(metadataXml, Encoding.UTF8, "application/xml")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "saml",
+                MetadataUrl = "https://idp.example/metadata/saml"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("entityID");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_saml_success_parses_entity_id()
     {
         const string metadataXml = """
@@ -91,6 +120,35 @@ public sealed class IdentityProviderDiscoveryServiceTests
 
         response.DiscoverySucceeded.Should().BeFalse();
         response.DiagnosticSummary.Should().Contain("timed out");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_oidc_invisible_only_issuer_marks_discovery_failed()
+    {
+        const string discoveryJson =
+            """
+            {
+              "issuer": "\u200B"
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(discoveryJson, Encoding.UTF8, "application/json")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("issuer");
     }
 
     [Fact]
