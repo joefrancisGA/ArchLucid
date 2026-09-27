@@ -24087,11 +24087,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-26 — queue-wait deadline skewed past store `QueueExpiresUtc` after slow `TryAdmit`
+
+2026-09-27 seed hunt #23 (seed-only): reseeded admit-refresh enqueue skew vs service deadline and promote limit-refresh UTC boundaries; cheap-disproof closed capacity freeing after `admitUtcNow + QueueWaitTimeout` but before refresh-stamped `QueueExpiresUtc` (intentional #6971 deadline anchor) and missing `TimeProvider` re-stamp on promote refresh (service re-reads each poll); regressions `WaitForAdmissionAsync_times_out_at_pre_admit_deadline_when_capacity_frees_after_deadline_but_before_store_queue_expiry`, `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`; 36 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — capacity frees after service `admitUtcNow + QueueWaitTimeout` but before admit-refresh-stamped store `QueueExpiresUtc` should still promote — **cheap-disproof 2026-09-27 seed hunt #23:** deadline stays at pre-admit `admitUtcNow` (#6971) so clients never wait past the enqueue budget captured at admit intent; regression `WaitForAdmissionAsync_times_out_at_pre_admit_deadline_when_capacity_frees_after_deadline_but_before_store_queue_expiry`.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryPromoteAsync` — must re-stamp `UtcNow` from `TimeProvider` like admit refresh or promote evaluates stale queue expiry — **cheap-disproof 2026-09-27 seed hunt #23:** promote loop supplies fresh `TimeProvider.GetUtcNow()` each poll (#1542); refresh re-reads limits only; regression `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`.
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
