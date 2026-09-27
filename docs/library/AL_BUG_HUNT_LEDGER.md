@@ -24186,6 +24186,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-09-27 thorough hunt #21 (dry): cheap-disproved live schedule agent-type swap between pre-acquire force validations; pre-acquire `EnsureSelectiveForcedTasksStillResolvableAsync` blocks acquire via `InvalidOperationException`; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_swaps_forced_agent_types_after_force_validation`; 44 scoped ownership/orchestrator tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded pre-acquire vanish gap; proved selective execute acquired ownership when run row vanished after pre-acquire force validation but before `AcquireAsync`; fixed with a third `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_after_force_validation`; 21 scoped ownership/orchestrator tests passed.
 
 2026-09-26 seed hunt (seed→hit): proved selective execute acquired ownership when live schedule cleared after the first pre-acquire force validation but before `AcquireAsync`; fixed with a second `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_force_validation`; 20 scoped ownership/orchestrator tests passed.
@@ -24204,10 +24206,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-26 — selective execute acquired lease when run vanished after force validation
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -24235,7 +24237,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ExecuteSelectiveRunAsync` — run could commit after `EnsureSelectiveForcedTasksStillResolvableAsync` but before `AcquireAsync`, briefly pinning SQL ownership — **hit 2026-09-26 seed hunt:** second `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_after_force_validation`
 - [x] (proven) `ExecuteSelectiveRunAsync` — live schedule could clear after first pre-acquire force validation but before `AcquireAsync` — **hit 2026-09-26 seed hunt:** repeat `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_force_validation`
 - [x] (proven) `ExecuteSelectiveRunAsync` — run row could vanish after pre-acquire force validation but before `AcquireAsync`, pinning SQL ownership until owned-core reload — **hit 2026-09-26 seed hunt:** third `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_after_force_validation`
-- [ ] (candidate) `ExecuteSelectiveRunAsync` — live schedule could swap forced agent types (non-empty schedule) after pre-acquire force validation but before `AcquireAsync` — second `EnsureSelectiveForcedTasksStillResolvableAsync` should reject; prove or cheap-disproof on next seed hunt
+- [x] (valid-no-repro) `ExecuteSelectiveRunAsync` — live schedule could swap forced agent types (non-empty schedule) after pre-acquire force validation but before `AcquireAsync` — **cheap-disproof 2026-09-27 thorough hunt #21:** second `EnsureSelectiveForcedTasksStillResolvableAsync` re-reads live tasks; `ResolveLiveForcedTasksOrThrow` throws `InvalidOperationException` when selection no longer matches; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_swaps_forced_agent_types_after_force_validation`.
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
