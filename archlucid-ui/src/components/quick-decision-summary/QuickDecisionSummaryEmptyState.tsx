@@ -80,6 +80,27 @@ export function QuickDecisionSummaryEmptyState({
   headlineFindingCount,
   headlineWarningCount,
 }: QuickDecisionSummaryEmptyStateProps): ReactElement {
+  if (props.packageCommitted === false) {
+    if (props.analysisStagesComplete === true) {
+      return (
+        <p
+          className="m-0 text-neutral-600 dark:text-neutral-400"
+          data-testid="quick-decision-create-home-finalize-empty"
+        >
+          {ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY}
+        </p>
+      );
+    }
+
+    if (props.analysisStagesComplete === false) {
+      return renderAnalysisInProgressEmpty(props);
+    }
+  }
+
+  if (props.analysisStagesComplete === false) {
+    return renderAnalysisInProgressEmpty(props);
+  }
+
   if (
     buyerPolishedShell &&
     typeof headlineFindingCount === "number" &&
@@ -103,27 +124,6 @@ export function QuickDecisionSummaryEmptyState({
         {warningPhrase}
       </p>
     );
-  }
-
-  if (props.packageCommitted === false) {
-    if (props.analysisStagesComplete === true) {
-      return (
-        <p
-          className="m-0 text-neutral-600 dark:text-neutral-400"
-          data-testid="quick-decision-create-home-finalize-empty"
-        >
-          {ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY}
-        </p>
-      );
-    }
-
-    if (props.analysisStagesComplete === false) {
-      return renderAnalysisInProgressEmpty(props);
-    }
-  }
-
-  if (props.analysisStagesComplete === false) {
-    return renderAnalysisInProgressEmpty(props);
   }
 
   return <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>;

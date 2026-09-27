@@ -146,6 +146,23 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getByText("No findings match the current filters.")).toBeInTheDocument();
   });
 
+  it("create-home in-progress empty wins over buyer-polished headline finding count (TB-1853)", () => {
+    render(
+      <QuickDecisionSummary
+        runId="run-1"
+        findings={[]}
+        buyerPolishedShell
+        headlineFindingCount={9}
+        headlineWarningCount={1}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-create-home-in-progress-empty")).toBeInTheDocument();
+    expect(screen.queryByText(/This finalized review records 9 findings/)).not.toBeInTheDocument();
+  });
+
   it("buyer-polished shell summarizes finalized posture when headline lists findings but quick rows are empty", () => {
     render(
       <QuickDecisionSummary

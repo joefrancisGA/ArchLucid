@@ -24338,11 +24338,15 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-09-27 seed hunt #19 (seed→hit): reseeded ui-review-detail-workspace; proved `QuickDecisionSummaryEmptyState` prioritized buyer-polished headline finding count over create-home analysis-in-progress empty when showcase spine counts populated `findingCountDisplay` while findings list was still empty; reordered empty-state branches so create-home in-progress wins; regression `create-home in-progress empty wins over buyer-polished headline finding count (TB-1853)`; 22 `QuickDecisionSummary` + 34 review-detail band vitest tests passed (1 pre-existing axe failure in full file).
+
+- [x] (proven) `QuickDecisionSummaryEmptyState` / `RunDetailRunExplanationCollapsible` — deferred `findingCountDisplay` headline could show finalized-review copy during create-home analysis in progress — **hit 2026-09-27 seed hunt #19:** buyer-polished headline branch ran before `packageCommitted`/`analysisStagesComplete` gates; fixed branch order; regression above.
+
 2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved create-home intent on pre-commit governance primary finalize href (`buildArchitectureActivityFinalizeReadinessHref`), activity orientation clarifications tab, and findings in-progress clarifications CTA (via `QuickDecisionSummaryEmptyState`); extended `RunDetailGovernanceDecisionSection.test.tsx`, `RunDetailCreateHomeActivityPanel.test.tsx`, and `architecture-created-finalize-readiness-href.test.ts`; 12 targeted vitest tests passed.
 
 - [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit primary finalize CTA may drop create-home query chrome — **cheap-disproof 2026-09-27 seed hunt:** `buildArchitectureActivityFinalizeReadinessHref` uses `buildCreateHomeReviewTabHref`; regression asserts `fromGeneration=1` + `intent=create-architecture` on primary CTA
 - [x] (valid-no-repro) `RunDetailCreateHomeActivityPanel` — Open clarifications orientation link may omit create intent — **cheap-disproof 2026-09-27 seed hunt:** href already passes `includeCreateIntent: true`; regression on clarifications link
-- [ ] (candidate) `RunDetailRunExplanationCollapsible` / `RunDetailFindingsWorkspace` — `headlineFindingCount` may disagree with tab badge when explanation deferred on create-home — tab badge uses `resolveRunDetailFindingsTabBadgeCount` fallback; findings workspace passes raw `findingCountDisplay` into card view empty headline path; needs reachability proof on buyer-polished vs operator create-home surfaces before hunt-ready
+- [x] (proven) `RunDetailRunExplanationCollapsible` / `RunDetailFindingsWorkspace` — `headlineFindingCount` vs tab badge on create-home — **hit 2026-09-27 seed hunt #19:** wrong empty copy when headline count set during in-progress create-home; see `QuickDecisionSummaryEmptyState` fix (tab badge already uses triage snapshot counts via `findingsTriageVisibleCount`).
 
 2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved `RunDetailGovernanceDecisionSection` pre-commit vs post-commit `includeCreateIntent` parity; extended `RunDetailGovernanceDecisionSection.test.tsx`; 33 targeted review-detail band vitest tests passed.
 
@@ -24359,11 +24363,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 18
-- **bugs-found:** 14
+- **hunts:** 19
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — create-home clarifications zero-gap tab links dropped create intent
+- **last-bug:** 2026-09-27 — create-home findings empty state showed finalized headline during analysis in progress
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
