@@ -927,8 +927,10 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         && segment.EndsWith("ApiKey", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsCompoundConnectionStringCredentialSegment(ReadOnlySpan<char> segment) =>
-        segment.Length > "ConnectionString".Length
-        && segment.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase);
+        (segment.Length > "ConnectionStringTemplate".Length
+         && segment.EndsWith("ConnectionStringTemplate", StringComparison.OrdinalIgnoreCase))
+        || (segment.Length > "ConnectionString".Length
+            && segment.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsEmbeddedSensitiveFragment(ReadOnlySpan<char> segment, int fragmentIndex)
     {

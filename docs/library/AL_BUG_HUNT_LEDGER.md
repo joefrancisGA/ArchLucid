@@ -16313,13 +16313,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 18
-- **bugs-found:** 12
+- **hunts:** 19
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — inbound ITSM `JiraWebhookSecret` / `ServiceNowWebhookSecret` leaked in config summary
+- **last-bug:** 2026-09-27 — SQL topology / persistence `*ConnectionStringTemplate` paths leaked in config summary
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded `ArchLucidPersistenceOptions` / `SqlTopologyOptions`; proved `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` path segments bypassed redaction because embedded-`ConnectionString` skip treated trailing `Template` suffix as non-credential; fixed via `ConnectionStringTemplate` compound suffix on `IsCompoundConnectionStringCredentialSegment`; regression `Resolve_redacts_connection_string_template_config_paths`; 1040 scoped Configuration tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded core-configuration-summary from `IntegrationsItsmInboundOptions`; proved `JiraWebhookSecret` and `ServiceNowWebhookSecret` path segments leaked because embedded-`Secret` skip treated trailing `WebhookSecret` as non-credential; fixed via `WebhookSecret` compound suffix on `IsCompoundSecretCredentialSegment`; regression `Resolve_redacts_inbound_itsm_webhook_secret_config_paths`; 1038 scoped Configuration tests passed.
 
@@ -16356,6 +16358,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound `OAuthClientSecret` and `ApiToken` integration paths bypass embedded-`Secret`/`Token` fragment matching — **hit 2026-09-26 seed hunt:** `Integrations:ItsmOutbound:Jira:OAuthClientSecret`, `Integrations:ItsmOutbound:Jira:ApiToken`, `Integrations:ConfluencePublishing:OAuthClientSecret`, and `Integrations:ConfluencePublishing:ApiToken` leaked raw Atlassian/Jira credentials in operator config summary; fixed with `ClientSecret` and `ApiToken` compound suffix rules; regression `Resolve_redacts_integrations_oauth_and_api_token_config_paths`
 - [x] (invalid) `ConfigurationSensitiveConfigValueScanner` — snake_case JSON credential property names (`api_key`, `client_secret`) bypass PascalCase property-name scanner — **invalid 2026-09-26 thorough hunt:** no catalog or host options path stores credential JSON with snake_case keys; `FallbackLlm:Endpoints` and `PerAgentTypeFloors` bind PascalCase property names via .NET configuration
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `JiraWebhookSecret` and `ServiceNowWebhookSecret` segments bypass redaction because embedded-`Secret` skip treats trailing `WebhookSecret` as non-credential — **hit 2026-09-27 seed hunt:** `Integrations:ItsmInbound:JiraWebhookSecret` and `ServiceNowWebhookSecret` leaked deployment-wide inbound webhook secrets in operator config summary; fixed with `WebhookSecret` compound suffix rule; regression `Resolve_redacts_inbound_itsm_webhook_secret_config_paths`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — `ReadOnlyConnectionStringTemplate` and `TenantCatalogConnectionStringTemplate` segments bypass redaction because embedded-`ConnectionString` skip treats trailing `Template` as non-credential — **hit 2026-09-27 seed hunt:** `ArchLucid:Persistence:ReadOnlyConnectionStringTemplate` and `ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate` leaked SQL connection templates (including passwords) in operator config summary; fixed with `ConnectionStringTemplate` compound suffix rule; regression `Resolve_redacts_connection_string_template_config_paths`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.

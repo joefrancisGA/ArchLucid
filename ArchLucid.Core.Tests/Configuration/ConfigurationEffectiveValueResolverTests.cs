@@ -317,6 +317,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("ArchLucid:Persistence:ReadOnlyConnectionStringTemplate")]
+    [InlineData("ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate")]
+    public void Resolve_redacts_connection_string_template_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Server=tcp:secret.database.windows.net;Password=super-secret;",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Fact]
     public void Resolve_preserves_access_token_lifetime_minutes_path()
     {
