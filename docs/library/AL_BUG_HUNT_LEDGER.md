@@ -8853,6 +8853,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt #55 (seed→hit): reseeded agent-runtime-safety; proved `AllowedTools` rows outside TB-949 quarantine wrapped with `SanitizeScalar` only, leaving raw `CUSTOMER_CONTENT_BEGIN` literals that break section-bound truncation; fixed via `AgentRunHeaderPromptSanitizer.SanitizeHostListEntry` (marker escape + untrusted wrap); regression `TopologyUserPrompt_allowed_tools_neutralize_embedded_customer_content_begin_marker_outside_quarantine`; 156 scoped agent-runtime-safety tests passed.
+
 2026-09-27 seed hunt #54 (seed→hit): reseeded agent-runtime-safety; proved run-header `TaskId`/`RunId` and `AllowedTools`/`AllowedSources` list lines rendered outside TB-949 quarantine without line-break collapse or untrusted wrapping; fixed via `AgentRunHeaderPromptSanitizer` and `SanitizeScalar` on tool/source rows; regressions `TopologyUserPrompt_run_header_task_id_newline_does_not_spoof_task_objective_before_quarantine` and `TopologyUserPrompt_allowed_tools_newline_does_not_spoof_task_objective_outside_quarantine`; 155 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt #32 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` returning blocked completion JSON (throws after output scan) and non-staged `EvidenceNote` TB-949 marker reachability after execute-time sanitize (Critic compose omits non-staged notes); seeded `(candidate)` `AgentUserPromptBuilder.AppendRunHeader` — `TaskId`/`RunId` lines outside TB-949 quarantine may spoof task objective when ids carry embedded newlines (reachability: zone `paths` omit `Prompts/`; needs caller proof of customer-controlled task ids); regressions `CompleteJsonAsync_when_output_blocked_throws_without_returning_inner_json`, `StreamJsonAsync_when_output_blocked_still_invokes_inner_before_throw`, and `SanitizeAsync_non_staged_evidence_note_tb949_markers_do_not_reach_critic_user_prompt`; 153 scoped agent-runtime-safety tests passed.
@@ -8913,11 +8915,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 33
-- **bugs-found:** 16
+- **hunts:** 34
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — run header and allowed tool/source lines outside TB-949 quarantine allowed newline field spoofing
+- **last-bug:** 2026-09-27 — allowed tool rows outside quarantine carried raw CUSTOMER_CONTENT_BEGIN inside untrusted wrap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
