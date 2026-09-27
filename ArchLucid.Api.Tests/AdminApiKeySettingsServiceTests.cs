@@ -316,6 +316,38 @@ public sealed class AdminApiKeySettingsServiceTests
         response.AppendConfigSuffix.Should().BeNull();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_zero_width_space_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u200B"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "zero-width-only config is not authenticatable key material after normalization");
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_is_zero_width_space_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u200B"
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
