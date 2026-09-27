@@ -16450,11 +16450,16 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 16
-- **bugs-found:** 15
+- **hunts:** 17
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — line/paragraph separators broke multi-word phrase matching
+- **last-bug:** 2026-09-27 — zero-width spaces split multi-word constraint phrases
+
+2026-09-27 seed hunt #17 (seed→hit): reseeded unicode normalization after line/paragraph separator fix; proved zero-width space/joiners (U+200B/U+200C/U+200D) still split phrases like `managed identity`; fixed by mapping format joiners to ASCII space; regression `HasManagedIdentityConstraint_returns_true_when_zero_width_space_splits_phrase`; cheap-disproof closed curly-apostrophe `isn't` negation (`HasEncryptionConstraint_returns_false_when_contraction_uses_curly_apostrophe_in_negation`); 868 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — zero-width joiners (U+200B/U+200C/U+200D) broke `ContainsAffirmativePhrase` — **hit 2026-09-27 seed hunt #17:** map ZWSP/ZWNJ/ZWJ to ASCII space; regression `HasManagedIdentityConstraint_returns_true_when_zero_width_space_splits_phrase`.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — curly apostrophe in `isn't` bypasses negation — **cheap-disproof 2026-09-27 seed hunt #17:** apostrophe normalization runs before suffix scan; regression `HasEncryptionConstraint_returns_false_when_contraction_uses_curly_apostrophe_in_negation`.
 
 2026-09-27 seed hunt #16 (seed→hit): reseeded unicode normalization after #15 `SpaceSeparator` sweep; proved U+2028/U+2029 line and paragraph separators still split phrases like `managed identity`; extended normalization to `LineSeparator` and `ParagraphSeparator`; regression `HasManagedIdentityConstraint_returns_true_when_line_separator_splits_phrase`; cheap-disproof closed suffix negation with NBSP before `is not` (`HasEncryptionConstraint_returns_false_when_negation_uses_unicode_space_before_not`); 866 scoped RequestConstraint tests passed.
 
