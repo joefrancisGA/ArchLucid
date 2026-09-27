@@ -11332,6 +11332,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-09-27 seed hunt #38 (seed→hit): reseeded retrieval; proved `IndexDocumentsAsync` removed prior vectors before `MaxChunksPerIndexOperation` validation so cap failures left documents unsearchable while unchanged-hash retries skipped re-embedding; fixed by deferring `RemoveChunksForDocumentAsync` until after the cap check; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`; 351 scoped retrieval/indexing tests passed.
+
+2026-09-27 thorough hunt #37 (hit): proved `AdminRagHealthQuery.GetRagHealth` mapped `ChunkCount` from catalog document rows; fixed by tracking `IndexedChunkCount` on `RecordIndexed` and aggregating `RetrievalCorpusFreshnessSummary.ChunkCount`; regressions `IndexDocumentsAsync_records_chunk_count_in_corpus_freshness_summary` and updated `AdminRagHealthQuery_marks_fresh_stale_and_null_last_indexed`; 350 scoped retrieval/indexing tests passed.
+
 2026-09-27 seed hunt #36 (seed→hit): reseeded retrieval; proved `ManifestChunkSummarizer.MaybeSummarizeAsync` returned policy-pack-only hit lists above `SafeTokenLimit` because the no-manifest-candidate path skipped `TrimHitsToSafeTokenLimit`; fixed by trimming before return; regressions `MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget` and updated non-manifest budget test; seeded `(candidate)` `AdminRagHealthQuery.GetRagHealth` reports catalog document count as `ChunkCount`; 349 scoped retrieval/indexing tests passed.
 
 2026-09-27 thorough hunt #35 (hit): proved `ManifestChunkSummarizer.MaybeSummarizeAsync` returned manifest hits above `SafeTokenLimit` when `IManifestChunkSummaryCompletionClient` returned verbose summaries (prefix loop assumed summarized text removed full token weight); fixed with `TrimHitsToSafeTokenLimit` dropping lowest-score hits until within budget; regression `MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose`; 348 scoped retrieval/indexing tests passed.
@@ -11346,11 +11350,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 36
-- **bugs-found:** 18
+- **hunts:** 38
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — manifest summarizer skipped SafeTokenLimit trim for non-manifest-only hit lists
+- **last-bug:** 2026-09-27 — chunk-cap failure deleted vectors before skip-unchanged could recover
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11402,7 +11406,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to fewer chunks under the same chunking fingerprint left higher-ordinal vectors searchable — **hit 2026-09-27 seed hunt #34:** remove prior document chunks before upsert when catalog already tracks the document; regression `IndexDocumentsAsync_when_content_shrinks_removes_stale_higher_ordinal_chunks`.
 - [x] (proven) `ManifestChunkSummarizer.MaybeSummarizeAsync` — verbose `IManifestChunkSummaryCompletionClient` output left summarized manifest hits above `SafeTokenLimit` when the prefix-selection loop exhausted candidates — **hit 2026-09-27 thorough hunt #35:** `TrimHitsToSafeTokenLimit` drops lowest-score hits until within budget; regression `MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose`.
 - [x] (proven) `ManifestChunkSummarizer.MaybeSummarizeAsync` — policy-pack-only (non-manifest) hit lists above `SafeTokenLimit` returned unchanged when no manifest summarization candidates existed — **hit 2026-09-27 seed hunt #36:** apply `TrimHitsToSafeTokenLimit` on the no-candidate path; regressions `MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget` and non-manifest budget enforcement in `MaybeSummarizeAsync_does_not_summarize_non_manifest_corpus_hits`.
-- [ ] (candidate) `AdminRagHealthQuery.GetRagHealth` — `ChunkCount` reflects indexed document count from `IRetrievalDocumentIndexCatalog`, not vector chunk cardinality (reachability: admin RAG health endpoint; misleading ops signal only).
+- [x] (proven) `AdminRagHealthQuery.GetRagHealth` — `ChunkCount` reflected indexed document count instead of vector chunk totals — **hit 2026-09-27 thorough hunt #37:** catalog records per-document `IndexedChunkCount`; corpus freshness exposes `ChunkCount` sum; admin health maps that field; regressions `IndexDocumentsAsync_records_chunk_count_in_corpus_freshness_summary` and `AdminRagHealthQuery_marks_fresh_stale_and_null_last_indexed`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — chunk-cap validation ran after `RemoveChunksForDocumentAsync`, so cap failures left documents without vectors while unchanged-hash retries skipped re-index — **hit 2026-09-27 seed hunt #38:** defer document chunk removal until after `MaxChunksPerIndexOperation` passes; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
