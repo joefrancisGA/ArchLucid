@@ -61,11 +61,7 @@ export function computeAccountSettingsMenuPanelStyle(trigger: HTMLElement): CSSP
 export function AccountSettingsMenu(): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseAccountSettingsMenuOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("accountMenuOpen"),
-    ),
+    parseAccountSettingsMenuOpenFromSearch(null),
   );
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const openRef = useRef(open);

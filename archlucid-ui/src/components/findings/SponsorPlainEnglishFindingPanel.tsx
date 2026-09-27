@@ -39,11 +39,7 @@ export function SponsorPlainEnglishFindingPanel(
   } = props;
   const pathname = usePathname() ?? "/";
   const [panelOpen, setPanelOpenState] = useState(() =>
-    parseFindingSponsorPlainEnglishOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingSponsorPlainEnglishOpen"),
-    ),
+    parseFindingSponsorPlainEnglishOpenFromSearch(null),
   );
   const panelOpenRef = useRef(panelOpen);
   panelOpenRef.current = panelOpen;

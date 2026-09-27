@@ -33,11 +33,7 @@ type FindingIacStubPanelProps = {
 export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseFindingIacStubOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingIacStubOpen"),
-    ),
+    parseFindingIacStubOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

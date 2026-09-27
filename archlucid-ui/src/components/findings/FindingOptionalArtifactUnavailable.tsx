@@ -38,11 +38,7 @@ export function FindingOptionalArtifactUnavailable(
   const pathname = usePathname() ?? "/";
   const [findingOptionalArtifactTechnicalDetailsOpen, setFindingOptionalArtifactTechnicalDetailsOpenState] =
     useState(() =>
-      parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get(FINDING_OPTIONAL_ARTIFACT_TECHNICAL_DETAILS_OPEN_PARAM),
-      ),
+      parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(null),
     );
   const findingOptionalArtifactTechnicalDetailsOpenRef = useRef(findingOptionalArtifactTechnicalDetailsOpen);
   findingOptionalArtifactTechnicalDetailsOpenRef.current = findingOptionalArtifactTechnicalDetailsOpen;

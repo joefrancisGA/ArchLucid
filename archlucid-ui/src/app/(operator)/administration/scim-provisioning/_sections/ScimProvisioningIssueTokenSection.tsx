@@ -135,11 +135,7 @@ export function ScimProvisioningIssueTokenSection(
   } = props;
   const pathname = usePathname() ?? "/administration/scim-provisioning";
   const [verifyTechnicalDetailsOpen, setVerifyTechnicalDetailsOpenState] = useState(() =>
-    parseScimVerifyTechnicalDetailsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("scimVerifyTechnicalDetailsOpen"),
-    ),
+    parseScimVerifyTechnicalDetailsOpenFromSearch(null),
   );
   const verifyTechnicalDetailsOpenRef = useRef(verifyTechnicalDetailsOpen);
   verifyTechnicalDetailsOpenRef.current = verifyTechnicalDetailsOpen;

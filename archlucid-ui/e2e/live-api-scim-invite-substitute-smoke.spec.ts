@@ -6,6 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
+import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
@@ -23,10 +24,12 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
     await primePrivateBetaBrowserPage(page, accessToken);
+    await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await injectDefaultTenantOperatorScope(page);
+      await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
@@ -42,10 +45,12 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
     await primePrivateBetaBrowserPage(page, accessToken);
+    await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await injectDefaultTenantOperatorScope(page);
+      await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
     await expect(page).toHaveURL(/\/administration\/scim-provisioning(?:[/?#]|$)/, { timeout: 30_000 });

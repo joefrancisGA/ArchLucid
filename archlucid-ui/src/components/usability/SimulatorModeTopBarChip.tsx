@@ -57,11 +57,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
   const healthQuery = useHealthReadySummaryQuery();
   const [devOverride, setDevOverride] = useState<DevAgentExecutionModeOverride | null>(null);
   const [confirmOpen, setConfirmOpenState] = useState(() =>
-    parseSimulatorModeConfirmOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("simulatorModeConfirmOpen"),
-    ),
+    parseSimulatorModeConfirmOpenFromSearch(null),
   );
   const confirmOpenRef = useRef(confirmOpen);
   confirmOpenRef.current = confirmOpen;

@@ -104,18 +104,10 @@ export function ArchitectureSponsorSharingPanel(
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const [dialogOpen, setDialogOpenState] = useState(
     () =>
-      parseArchitectureSponsorShareConfirmOpenFromSearch(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get("sponsorShareConfirm"),
-      ),
+      parseArchitectureSponsorShareConfirmOpenFromSearch(null),
   );
   const [readinessPanelOpen, setReadinessPanelOpenState] = useState(() =>
-    parseArchitectureSponsorSharingOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("architectureSponsorSharingOpen"),
-    ),
+    parseArchitectureSponsorSharingOpenFromSearch(null),
   );
   const dialogOpenRef = useRef(dialogOpen);
   dialogOpenRef.current = dialogOpen;

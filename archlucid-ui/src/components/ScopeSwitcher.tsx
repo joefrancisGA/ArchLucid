@@ -83,11 +83,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const pathname = usePathname() ?? "/";
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [open, setOpenState] = useState(() =>
-    parseScopeSwitcherOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("scopeOpen"),
-    ),
+    parseScopeSwitcherOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

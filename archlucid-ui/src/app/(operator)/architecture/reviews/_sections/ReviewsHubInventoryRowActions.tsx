@@ -35,11 +35,7 @@ export function ReviewsHubInventoryRowActions(
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [openOverflowRunId, setOpenOverflowRunIdState] = useState(() =>
-    parseReviewsHubRowOverflowRunIdFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM),
-    ),
+    parseReviewsHubRowOverflowRunIdFromSearch(null),
   );
   const openOverflowRunIdRef = useRef(openOverflowRunId);
   openOverflowRunIdRef.current = openOverflowRunId;

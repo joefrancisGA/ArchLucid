@@ -24,11 +24,7 @@ export function PipelineTimelineEventTechnicalDisclosure(
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(
     () =>
-      parsePipelineTimelineEventIdFromSearch(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get("pipelineTimelineEventId"),
-      ) === row.eventId,
+      parsePipelineTimelineEventIdFromSearch(null) === row.eventId,
   );
   const openRef = useRef(open);
   openRef.current = open;
