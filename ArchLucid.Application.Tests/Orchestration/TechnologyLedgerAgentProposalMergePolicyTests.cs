@@ -409,6 +409,25 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_keeps_second_compute_candidate_when_locked_cold_start_chosen_shares_display_name()
+    {
+        TechnologyLedgerEntry first = CreateCandidate(CloudProvider.Azure);
+        first.TechnologyName = "shared-display";
+        first.EvidenceRef = "agentTopologyProposal:p1:svc-a";
+        first = TechnologyLedgerColdStartChosenPromoter.Apply(first, []);
+        first.IsLocked = true;
+
+        TechnologyLedgerEntry second = CreateCandidate(CloudProvider.Azure);
+        second.TechnologyName = "shared-display";
+        second.EvidenceRef = "agentTopologyProposal:p1:svc-b";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(second, [first]);
+
+        resolved.Should().BeSameAs(second);
+    }
+
+    [Fact]
     public void Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref()
     {
         TechnologyLedgerEntry databaseAssumed = CreateCandidate(CloudProvider.Aws);
