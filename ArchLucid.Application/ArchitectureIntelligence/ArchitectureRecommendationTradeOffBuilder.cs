@@ -132,8 +132,13 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         return $"Balance {firstDimension} and {secondDimension} with explicit human approval.";
     }
 
-    private static bool IsActionableForTradeOff(SpecialistReviewFinding finding) =>
-        finding.Conclusion is ReviewConclusion.Fail or ReviewConclusion.Indeterminate;
+    private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
+    {
+        if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
+            return false;
+
+        return ProvenancePresentationMapper.MapFinding(finding) != ProvenancePresentationBucket.Unverified;
+    }
 
     private static ArchitectureRecommendation? FindRecommendationForDimension(
         IReadOnlyList<ArchitectureRecommendation> recommendations,

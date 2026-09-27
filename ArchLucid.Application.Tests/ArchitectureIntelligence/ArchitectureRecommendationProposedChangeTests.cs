@@ -255,4 +255,79 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         recommendations.Should().ContainSingle();
         recommendations[0].TradeOffs.Should().BeEmpty();
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_indeterminate()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costIndeterminate = new()
+        {
+            FindingId = "f-cost-ind",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend may exceed stated ceiling",
+            Rationale = "Insufficient cost evidence",
+            Conclusion = ReviewConclusion.Indeterminate,
+            EvidenceCondition = EvidenceCondition.Insufficient,
+            Severity = "Medium",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costIndeterminate],
+            ["Security", "Cost"]);
+
+        recommendations.Should().HaveCount(2);
+        recommendations.Should().OnlyContain(recommendation =>
+            recommendation.TradeOffs.Count == 0,
+            "evidence-only cost findings must not trigger competing-dimension trade-offs");
+        recommendations.Single(recommendation =>
+                recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Cost.ToString())
+            .ProposedChange.Should().Contain("Collect additional evidence");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_skips_security_cost_trade_off_when_cost_fail_is_evidence_only()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFailInsufficient = new()
+        {
+            FindingId = "f-cost-fail",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "No mapped drivers in package",
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Insufficient,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFailInsufficient],
+            ["Security", "Cost"]);
+
+        recommendations.Should().HaveCount(2);
+        recommendations.Should().OnlyContain(recommendation => recommendation.TradeOffs.Count == 0);
+    }
 }
