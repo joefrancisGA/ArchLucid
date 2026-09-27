@@ -8426,16 +8426,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 25
-- **bugs-found:** 24
+- **hunts:** 22
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — retry queue send and watchdog notify-failure paths skipped cancel re-read
-- **hunts:** 21
-- **bugs-found:** 19
-- **last-bug:** 2026-09-26 — invalid WorkUnitJson cancel race before terminal failure assignment
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — watchdog notify-failure path lacked second cancel re-read before terminal assignment
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-12 seed hunt #2118 (seed-only): reseeded host-core-jobs; no new hunt-ready rows.
 
@@ -8490,6 +8487,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry scheduling branch — single `GetAsync` cancel re-read before `MarkPendingRetryAsync` let cancel land after the read and overwrite `Canceled` with `Pending` (parity gap vs #1352 first-read fix and terminal second-read fixes) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before pending-retry assignment; regression `ProcessOneMessageAsync_does_not_mark_pending_retry_when_cancel_visible_before_pending_retry_assignment`.
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry notification branch — single `GetAsync` cancel re-read before `SendMessageAsync` let cancel land after the read and re-notify a canceled job (parity gap vs #1354 post-backoff re-read) — **hit 2026-09-26 seed hunt (seed→hit):** second `GetAsync` before queue send assignment; regression `ProcessOneMessageAsync_does_not_send_retry_notification_when_cancel_visible_before_send_after_pre_send_read`.
 - [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler called `MarkFailedTerminalAsync` without `GetAsync` cancel re-read when user canceled a reclaimed `Pending` job before notify failed — **hit 2026-09-26 seed hunt (seed→hit):** skip terminal failure when row is `Canceled`; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling`.
+- [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / terminal second-read fixes) — **hit 2026-09-27 seed hunt (seed→hit):** second `GetAsync` before notify-failure terminal assignment; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `MarkFailedTerminalAsync` on notify failure without any `GetAsync` cancel check may overwrite `Canceled` when user cancels a just-inserted `Pending` row while `SendJobIdAsync` is in flight (parity gap vs watchdog/processor second-read pattern).
+
+2026-09-27 seed hunt (seed→hit): reseeded host-core-jobs; proved watchdog notify-failure second cancel re-read gap; seeded durable enqueue notify-failure cancel candidate; 72 Host.Core + 24 processor scoped tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded host-core-jobs; proved pre-send retry notification and watchdog notify-failure cancel gaps; 24 processor + 6 watchdog scoped tests passed.
 
