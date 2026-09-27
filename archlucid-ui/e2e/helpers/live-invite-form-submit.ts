@@ -6,11 +6,7 @@ import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-acc
 
 const LIVE_ADMIN_USERS_TAB_PATH = "/administration/users?tab=users";
 
-/** JwtBearer admin users hub with default tenant scope and settled `/me` before assertions. */
-export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
-  await primePrivateBetaBrowserSessionIfJwtMode(page);
-  await injectDefaultTenantOperatorScope(page);
-
+async function gotoAdminUsersTabAndWaitForMe(page: Page): Promise<void> {
   const authMeSettled = page.waitForResponse(
     (response) =>
       response.url().includes("/api/proxy/api/auth/me") &&
@@ -21,12 +17,19 @@ export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
 
   await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded" });
   await authMeSettled.catch(() => undefined);
+}
+
+/** JwtBearer admin users hub with default tenant scope and settled `/me` before assertions. */
+export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
+  await primePrivateBetaBrowserSessionIfJwtMode(page);
+  await injectDefaultTenantOperatorScope(page);
+
+  await gotoAdminUsersTabAndWaitForMe(page);
 
   if ((await page.getByText(/Something went wrong/i).count()) > 0) {
     await primePrivateBetaBrowserSessionIfJwtMode(page);
     await injectDefaultTenantOperatorScope(page);
-    await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded" });
-    await authMeSettled.catch(() => undefined);
+    await gotoAdminUsersTabAndWaitForMe(page);
   }
 
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
