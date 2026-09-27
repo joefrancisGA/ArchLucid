@@ -8741,6 +8741,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproved TB-949 marker handling inside `SanitizePersistedCustomerProse` alone (compose-layer `EscapeEmbeddedMarkers` contract) and disabled `EvaluateCompletionPromptAndResponse` output-scan bypass; regressions `SanitizePersistedCustomerProse_leaves_tb949_markers_for_compose_layer_escape` and `StreamJsonAsync_when_evaluation_disabled_skips_output_scan_and_yields_chunks`; 147 scoped PromptInjection/sanitizer tests passed plus content-safety client regression.
+
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse` — persisted prose may carry raw `CUSTOMER_CONTENT_END` into LLM prompts — **cheap-disproof 2026-09-27 seed hunt:** method intentionally collapses line breaks and untrusted tags only; TB-949 neutralization remains at compose (`EscapeEmbeddedMarkers` / `RedactAndEscape`); regression `SanitizePersistedCustomerProse_leaves_tb949_markers_for_compose_layer_escape`
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — streaming may bypass output content-safety when configuration disables evaluation — **cheap-disproof 2026-09-27 seed hunt:** intentional `EvaluateCompletionPromptAndResponse=false` path skips `CheckOutputAsync`; regression `StreamJsonAsync_when_evaluation_disabled_skips_output_scan_and_yields_chunks`
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproved `AzureResourceTagPromptSanitizer.SanitizeTagMap` tag-key delimiter spoof (no production agent-prompt key reachability) and `AgentEvidencePackage.CloudProvider` free-text sanitizer parity (token resolution only; not echoed in topology/cost user prompts); regressions `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` and `CostUserPrompt_does_not_echo_evidence_package_cloud_provider_free_text_string`; 146 scoped agent-runtime-safety tests passed.
 
 - [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — tag map keys with embedded `</untrusted_input>` are trim-only while values are wrapped — **cheap-disproof 2026-09-27 seed hunt:** no production caller formats tag keys into agent LLM prompts; regression `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability`
@@ -8774,7 +8779,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
