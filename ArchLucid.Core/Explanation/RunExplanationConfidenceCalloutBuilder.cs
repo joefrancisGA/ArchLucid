@@ -128,7 +128,7 @@ public static class RunExplanationConfidenceCalloutBuilder
             }
             else if (citationsEl.ValueKind == JsonValueKind.Array)
             {
-                citationCount = citationsEl.GetArrayLength();
+                citationCount = CountFlattenedCitations(citationsEl);
             }
             else if (citationsEl.ValueKind == JsonValueKind.Object)
             {
@@ -171,5 +171,36 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
+    }
+
+    private static int CountFlattenedCitations(JsonElement citationsArray)
+    {
+        int count = 0;
+
+        foreach (JsonElement item in citationsArray.EnumerateArray())
+            count += CountFlattenedCitationEntry(item);
+
+        return count;
+    }
+
+    private static int CountFlattenedCitationEntry(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.Array)
+        {
+            int count = 0;
+
+            foreach (JsonElement inner in item.EnumerateArray())
+                count += CountFlattenedCitationEntry(inner);
+
+            return count;
+        }
+
+        if (item.ValueKind == JsonValueKind.Object)
+            return 1;
+
+        if (item.ValueKind == JsonValueKind.String)
+            return string.IsNullOrWhiteSpace(item.GetString()) ? 0 : 1;
+
+        return 0;
     }
 }

@@ -18598,11 +18598,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 24
-- **bugs-found:** 19
+- **hunts:** 25
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — nested-array reasoning paragraphs rejected structured normalize
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — nested-array citation wrappers inflated citation count for sponsor disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18647,7 +18647,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — `faithfulnessSupportRatio` nested only under `explanation` ignored — **2026-09-26 thorough hunt:** `RunExplanationSummary` OpenAPI places `faithfulnessSupportRatio` at aggregate root; `pilot proof-packet` passes raw `GET /v1/explain/runs/{runId}/aggregate` JSON (not nested-only shapes).
 - [x] (proven) `StructuredExplanationParser.TryReadStringList` — nested-array `evidenceRefs` entries silently dropped — **hit 2026-09-26 thorough hunt:** LLM double-wrapped list items (`[["dec-1"]]`) skipped non-string array tokens; fixed with `CollectStringListEntries` flattening; regression `TryNormalizeStructuredJson_flattens_nested_array_evidence_ref_entries`.
 - [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — nested-array `reasoning` paragraphs reject normalize — **hit 2026-09-26 seed hunt (seed→hit):** double-wrapped paragraph arrays left empty reasoning so `TryNormalizeStructuredJson` returned false; fixed with `CollectReasoningParts` flattening; regression `TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs`.
-- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — nested-array `citations` entries may count wrapper arrays instead of citation objects (reachability: aggregate API emits flat `CitationReference[]`; hand-edited JSON only)
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — nested-array `citations` entries counted wrapper arrays instead of citation objects (`[[]]` yielded PASS disposition) — **hit 2026-09-27 thorough hunt:** flatten nested citation arrays before counting (parity with `CollectStringListEntries`); regressions `FromAggregateJson_flattens_nested_array_citations_for_disposition`, `FromAggregateJson_treats_nested_empty_citation_wrappers_as_zero_for_disposition`.
+
+2026-09-27 thorough hunt (hit): proved nested citation wrapper disposition gap; 70 scoped Explanation unit tests passed.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
