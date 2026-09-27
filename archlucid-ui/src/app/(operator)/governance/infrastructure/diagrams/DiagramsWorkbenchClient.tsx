@@ -296,24 +296,24 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
       ? {
           boxes: "Boxes are resources on a declared path.",
           connectors: "Connectors are declared pipeline wiring.",
-          evidence: "configuration, not observed traffic.",
+          evidence: "Configuration, not observed traffic.",
         }
       : mode === "dataArchitecture"
         ? {
             boxes: "Boxes are data stores.",
             connectors: "Connectors are declared repository relationships.",
-            evidence: "configuration from inventory.",
+            evidence: "Configuration from inventory.",
           }
         : mode === "data"
           ? {
               boxes: "Boxes are data resources in the infrastructure forest.",
               connectors: "Connectors are the infrastructure relationships already drawn.",
-              evidence: "configuration from inventory.",
+              evidence: "Configuration from inventory.",
             }
           : {
               boxes: "Boxes are Azure resources in this view.",
               connectors: "Connectors are relationships already present in inventory.",
-              evidence: "configuration from inventory.",
+              evidence: "Configuration from inventory.",
             };
 
   return (
@@ -2091,7 +2091,7 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
-          <p className={cn("m-0 font-bold", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
+          <p className={cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-bold")}>Display options</p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
@@ -2132,6 +2132,22 @@ export function DiagramsWorkbenchClient() {
                 onCheckedChange={handleShowAvdAssetsToggle}
               />
               <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
+            </label>
+          ) : null}
+          {diagramWalkthrough != null ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={includeNeverShow}
+                data-testid="infra-diagrams-include-never-show"
+                aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+                disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
+                onCheckedChange={(checked) => {
+                  handleIncludeNeverShowChange(checked === true);
+                }}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+              </span>
             </label>
           ) : null}
         </div>
@@ -2566,25 +2582,6 @@ export function DiagramsWorkbenchClient() {
               >
                 {diagramWalkthrough}
               </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeNeverShow ? "secondary" : "outline"}
-                  aria-pressed={includeNeverShow}
-                  aria-busy={loadingRender}
-                  data-testid="infra-diagrams-include-never-show"
-                  disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
-                  onClick={() => {
-                    handleIncludeNeverShowChange(!includeNeverShow);
-                  }}
-                >
-                  {loadingRender ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : null}
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
-                </Button>
-              </div>
               {!includeNeverShow && alwaysExcludedCollapseEntries.length > 0 ? (
                 <div
                   className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
