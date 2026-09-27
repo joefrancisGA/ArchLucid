@@ -7147,4 +7147,5 @@
 {"at":"2026-09-27T00:26:33.0209452Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-09-27T00:30:40.8068141Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-09-27T00:36:32.5496513Z","zoneId":"artifact-synthesis","outcome":"hit"}
-{"at":"2026-09-27T00:41:05.7612120Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-09-27T00:41:05.761212Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-09-27T00:47:25.0363205Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
