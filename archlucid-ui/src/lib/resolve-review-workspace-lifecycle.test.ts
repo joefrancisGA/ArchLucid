@@ -33,4 +33,14 @@ describe("resolveReviewWorkspaceLifecycle (TB-2367)", () => {
       }),
     ).toBe("in-review");
   });
+
+  it("returns finalized when manifest is present even if the progress tracker is still on (TB-2175)", () => {
+    expect(
+      resolveReviewWorkspaceLifecycle({
+        manifestId: "manifest-early",
+        showProgressTracker: true,
+        runCompleted: false,
+      }),
+    ).toBe("finalized");
+  });
 });

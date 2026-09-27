@@ -155,6 +155,43 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     expect(screen.queryByText(/Unresolved clarifications reduce assessment confidence/i)).not.toBeInTheDocument();
   });
 
+  it("preserves create-home intent on zero-gap workspace tab links (TB-1836)", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      runId: "run-abc",
+      architectureName: "Claims intake platform",
+      architectureOverview:
+        "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+      businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
+      peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
+      ownerLabel: null,
+      lastUpdatedLabel: "Jul 31, 2026",
+      workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+      assessmentInProgress: false,
+      hasArtifacts: true,
+      correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-abc",
+      gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+      gapSourceCapturedAtUtc: null,
+    });
+
+    render(
+      <ArchitectureCreatedClarificationsPanel
+        model={model}
+        sourceText="## Sponsor report\nStable platform overview with enough detail for assessment."
+        userAssertions={null}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        dismissedClarificationGapIds={new Set()}
+        onDismissClarificationGap={vi.fn()}
+        onNavigateTab={vi.fn()}
+      />,
+    );
+
+    for (const linkName of ["Review diagram", "Review findings", "View assessment progress"]) {
+      const href = screen.getByRole("link", { name: linkName }).getAttribute("href");
+      expect(href).toContain("fromGeneration=1");
+      expect(href).toContain("intent=create-architecture");
+    }
+  });
+
   it("demotes Review diagram when Do this next owns the page primary", () => {
     const model = buildArchitectureCreatedHomeModel({
       runId: "run-abc",

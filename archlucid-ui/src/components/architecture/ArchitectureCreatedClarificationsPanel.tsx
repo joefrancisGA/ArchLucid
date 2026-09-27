@@ -62,9 +62,15 @@ export function ArchitectureCreatedClarificationsPanel(
 ): React.JSX.Element {
   const [parseAttempt, setParseAttempt] = useState(0);
   const continueClarifyingHref = buildArchitectureCorrectionHref(props.model.runId, props.correctionHref);
-  const diagramTabHref = buildReviewWorkspaceTabHref(props.model.runId, "architecture");
-  const findingsTabHref = buildReviewWorkspaceTabHref(props.model.runId, "findings");
-  const activityTabHref = buildReviewWorkspaceTabHref(props.model.runId, "activity");
+  const diagramTabHref = buildReviewWorkspaceTabHref(props.model.runId, "architecture", {
+    includeCreateIntent: true,
+  });
+  const findingsTabHref = buildReviewWorkspaceTabHref(props.model.runId, "findings", {
+    includeCreateIntent: true,
+  });
+  const activityTabHref = buildReviewWorkspaceTabHref(props.model.runId, "activity", {
+    includeCreateIntent: true,
+  });
 
   const parseResult = useMemo(
     () => {

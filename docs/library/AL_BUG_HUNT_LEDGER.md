@@ -24318,17 +24318,22 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-09-27 thorough hunt (hit): proved `ArchitectureCreatedClarificationsPanel` zero-gap workspace tab links omitted `includeCreateIntent` (parity with `RunDetailCreateHomeActivityPanel`); fixed diagram/findings/activity hrefs; cheap-disproved `resolveReviewWorkspaceLifecycle` early-manifest + in-flight tracker — TB-2175 committed stage stays `finalized` while pipeline chrome uses `showProgressTracker`; regression `returns finalized when manifest is present even if the progress tracker is still on (TB-2175)`; 32 targeted review-detail band vitest tests passed plus clarifications/lifecycle specs.
+
+- [x] (proven) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omitted `includeCreateIntent` — **hit 2026-09-27 thorough hunt:** zero-gap success CTAs dropped create-home chrome; fixed with `includeCreateIntent: true`; regression `preserves create-home intent on zero-gap workspace tab links (TB-1836)`
+- [x] (valid-no-repro) `resolveReviewWorkspaceLifecycle` — returns `finalized` whenever `manifestId` is set even if `showProgressTracker` and `runCompleted` indicate analysis still in flight — **cheap-disproof 2026-09-27 thorough hunt:** mirrors `resolveReviewDetailTabLifecycleStage` committed stage (TB-2175); in-flight UX uses progress tracker / `resolveReviewPackagePipelineInFlight`, not coarse lifecycle; regression `returns finalized when manifest is present even if the progress tracker is still on (TB-2175)`
+
 - **id:** ui-review-detail-workspace
 - **status:** open
 - **impact:** high
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 15
-- **bugs-found:** 13
+- **hunts:** 16
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — create-home activity orientation tab links dropped create intent
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — create-home clarifications zero-gap tab links dropped create intent
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24360,8 +24365,6 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `resolveRunDetailTabbedWorkspace` / `ReviewPackageWhatIfControl` — `pipelineInFlight={showProgressTracker && !manifestId}` while Activity still mounted tracker when `showProgressTracker && manifestId` — **hit 2026-09-26 thorough hunt:** fixed via `resolveReviewPackagePipelineInFlight(showProgressTracker)` (`stays in flight when progress tracker is on even if goldenManifestId is already on the run`)
 - [x] (proven) `RunDetailPageViewCreateHome` / `RunDetailReviewPackageStampViewport` — duplicate `RunDetailOverviewTransparencyTrail` on pre-manifest create-home column — **hit 2026-09-26 thorough hunt:** removed redundant create-home trail; stamp viewport owns pre-finalize trail (`does not duplicate the transparency trail above the create-home stamp viewport`)
 - [x] (proven) `RunDetailCreateHomeActivityPanel` — orientation `buildReviewWorkspaceTabHref` links omitted create-home intent — **hit 2026-09-26 seed hunt:** Open overview / Review findings / Open clarifications dropped `fromGeneration` + create intent; fixed with `includeCreateIntent: true` on all orientation tab hrefs
-- [ ] (candidate) `resolveReviewWorkspaceLifecycle` — returns `finalized` whenever `manifestId` is set even if `showProgressTracker` and `runCompleted` indicate analysis still in flight (early `goldenManifestId` on run)
-- [ ] (candidate) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omit `includeCreateIntent` while governance pre-commit path already opts in
 
 2026-09-25 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready hypotheses — deferred-explanation finding-count parity remains covered via `resolveRunDetailDeferredSurfaceFindingCount` / `resolveRunDetailOutcomeCardsFindingCountDisplay` on tab badges, outcome cards, policy callout, inspect checklist, and review-package summary; `RunExplanationSection` falls back to `summary.findingCount` inside deferred explanation load; 34 scoped RunDetail/reviewId unit tests passed.
 
