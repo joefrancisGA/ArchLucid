@@ -97,10 +97,26 @@ internal static class ArchLucidDistributedCacheRegistrar
         bool distributedCacheAlreadyRegistered)
     {
         if (distributedCacheAlreadyRegistered)
-            return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
+            return ResolveAlreadyRegisteredDistributedCacheRedisConnectionString(llm, hotPath);
 
         if (!string.IsNullOrEmpty(kgRedis))
             return kgRedis;
+
+        return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
+    }
+
+    private static string ResolveAlreadyRegisteredDistributedCacheRedisConnectionString(
+        LlmCompletionResponseCacheOptions llm,
+        HotPathCacheOptions hotPath)
+    {
+        if (hotPath.Enabled)
+        {
+            string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(hotPath);
+
+            if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(hotPath.RedisConnectionString))
+                return hotPath.RedisConnectionString.Trim();
+        }
 
         return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
     }

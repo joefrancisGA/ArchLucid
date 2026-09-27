@@ -64,6 +64,24 @@ public sealed class RedisHealthProbeConnectionResolverTests
     }
 
     [Fact]
+    public void TryResolve_prefers_hot_path_redis_over_projection_when_hot_path_registers_shared_distributed_cache()
+    {
+        RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(
+                new ConfigurationBuilder()
+                    .AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        [$"{HotPathCacheOptions.SectionName}:Enabled"] = "true",
+                        [$"{HotPathCacheOptions.SectionName}:Provider"] = "Redis",
+                        [$"{HotPathCacheOptions.SectionName}:RedisConnectionString"] = "hot",
+                        [$"{KnowledgeGraphProjectionCacheOptions.SectionName}:RedisConnectionString"] = "projection",
+                        [$"{LlmCompletionResponseCacheOptions.SectionName}:RedisConnectionString"] = "llm",
+                    })
+                    .Build())
+            .Should()
+            .Be("hot");
+    }
+
+    [Fact]
     public void TryResolve_returns_null_when_only_whitespace()
     {
         RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(

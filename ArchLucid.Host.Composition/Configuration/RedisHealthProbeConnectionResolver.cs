@@ -28,6 +28,17 @@ internal static class RedisHealthProbeConnectionResolver
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName)
                 .Get<LlmCompletionResponseCacheOptions>() ?? new LlmCompletionResponseCacheOptions();
 
+        if (InferDistributedCacheRegisteredBeforeKnowledgeGraphProjection(hotPath, llm))
+        {
+            string shared = ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString(
+                projection.RedisConnectionString,
+                llm,
+                hotPath,
+                distributedCacheAlreadyRegistered: true);
+
+            return string.IsNullOrEmpty(shared) ? null : shared;
+        }
+
         string? projectionRedis = projection.RedisConnectionString?.Trim();
 
         if (!string.IsNullOrEmpty(projectionRedis))
@@ -39,5 +50,28 @@ internal static class RedisHealthProbeConnectionResolver
         string hotPathRedis = hotPath.RedisConnectionString.Trim();
 
         return string.IsNullOrEmpty(hotPathRedis) ? null : hotPathRedis;
+    }
+
+    /// <summary>
+    ///     Mirrors <c>RegisterHotPathReadCaching</c> then <c>RegisterDistributedCacheForLlmCompletionIfNeeded</c> before
+    ///     knowledge-graph projection cache registration.
+    /// </summary>
+    private static bool InferDistributedCacheRegisteredBeforeKnowledgeGraphProjection(
+        HotPathCacheOptions hotPath,
+        LlmCompletionResponseCacheOptions llm)
+    {
+        if (hotPath.Enabled)
+        {
+            string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(hotPath);
+
+            if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(hotPath.RedisConnectionString))
+                return true;
+        }
+
+        return llm.Enabled
+            && string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase)
+            && (!string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+                || !string.IsNullOrWhiteSpace(hotPath.RedisConnectionString));
     }
 }
