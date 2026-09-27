@@ -8745,6 +8745,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved staged-summary embedded `CUSTOMER_CONTENT_BEGIN` parity (compose-layer `EscapeEmbeddedMarkers`); regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_begin_marker`; 148 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged note body with embedded `CUSTOMER_CONTENT_BEGIN` may open a nested TB-949 section — **cheap-disproof 2026-09-27 seed hunt:** compose runs `SanitizePersistedCustomerProse` then `EscapeEmbeddedMarkers` (parity with END-marker regression); regression `CriticUserPrompt_staged_prior_summary_neutralizes_embedded_customer_content_begin_marker`
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproved TB-949 marker handling inside `SanitizePersistedCustomerProse` alone (compose-layer `EscapeEmbeddedMarkers` contract) and disabled `EvaluateCompletionPromptAndResponse` output-scan bypass; regressions `SanitizePersistedCustomerProse_leaves_tb949_markers_for_compose_layer_escape` and `StreamJsonAsync_when_evaluation_disabled_skips_output_scan_and_yields_chunks`; 147 scoped PromptInjection/sanitizer tests passed plus content-safety client regression.
 
 - [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse` — persisted prose may carry raw `CUSTOMER_CONTENT_END` into LLM prompts — **cheap-disproof 2026-09-27 seed hunt:** method intentionally collapses line breaks and untrusted tags only; TB-949 neutralization remains at compose (`EscapeEmbeddedMarkers` / `RedactAndEscape`); regression `SanitizePersistedCustomerProse_leaves_tb949_markers_for_compose_layer_escape`
@@ -8783,7 +8787,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
