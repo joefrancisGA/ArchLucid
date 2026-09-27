@@ -234,7 +234,7 @@ export function WebhooksSettingsClient() {
               <EnterpriseCompactEmptyState {...WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT} />
             ) : webhookRows.length === 0 ? null : (
               <>
-                {continueLastSubscription !== null ? (
+                {continueLastSubscription !== null && hasLoadedSuccessfully ? (
                   <WebhooksContinueLastViewedRow
                     target={continueLastSubscription}
                     onOpen={openSubscription}

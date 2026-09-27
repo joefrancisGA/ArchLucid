@@ -5484,6 +5484,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after master merge; proved `WebhooksContinueLastViewedRow` still rendered from stale `webhookRows` when manual refresh failed (`hasLoadedSuccessfully` false) while configuration status already showed unavailable; fixed by gating continue-last on `hasLoadedSuccessfully`; regression `hides continue-last viewed row when manual refresh fails with stale rows`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
+
+- [x] (proven) `WebhooksSettingsClient` — continue-last row still shown from stale `webhookRows` after failed manual refresh — **hit 2026-09-27 seed hunt:** continue-last ignored `hasLoadedSuccessfully` while status and enable checklist already gated; regression `hides continue-last viewed row when manual refresh fails with stale rows`
+
 2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved failed initial `listAlertRoutingSubscriptions` still rendered `WEBHOOKS_NOT_CONFIGURED_NEXT_STEP`, not-configured `StatusTag`, and subscriptions empty state while the page alert showed the load error; fixed by gating not-configured copy and compact empty state on `hasLoadedSuccessfully`; extended regression `shows refresh control when subscription list fails to load`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
 - [x] (proven) `WebhooksSettingsClient` — failed subscription list load still shows not-configured guidance and empty-state copy — **hit 2026-09-27 seed hunt:** configuration next-step and subscriptions empty state ignored `hasLoadedSuccessfully`; regression assertions in `shows refresh control when subscription list fails to load`
@@ -5502,11 +5506,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 24
-- **bugs-found:** 19
+- **hunts:** 25
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — stale subscription count and enable checklist after failed refresh
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — continue-last row after failed subscription refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
