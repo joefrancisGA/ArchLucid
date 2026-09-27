@@ -5472,6 +5472,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved failed initial `listAlertRoutingSubscriptions` still rendered `WEBHOOKS_NOT_CONFIGURED_NEXT_STEP`, not-configured `StatusTag`, and subscriptions empty state while the page alert showed the load error; fixed by gating not-configured copy and compact empty state on `hasLoadedSuccessfully`; extended regression `shows refresh control when subscription list fails to load`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
+
+- [x] (proven) `WebhooksSettingsClient` — failed subscription list load still shows not-configured guidance and empty-state copy — **hit 2026-09-27 seed hunt:** configuration next-step and subscriptions empty state ignored `hasLoadedSuccessfully`; regression assertions in `shows refresh control when subscription list fails to load`
+
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved subscriptions section subtitle and create enable-step checklist still derived stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false); fixed by gating count copy on `hasLoadedSuccessfully` and enable-step satisfaction on verified inventory; regression `hides stale subscription count subtitle when manual refresh fails`; 52 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved configuration `StatusTag` still showed active subscription copy from stale `webhookRows` after manual refresh failed (`hasLoadedSuccessfully` false) while the page alert showed the load error; fixed by gating configuration status on `hasLoadedSuccessfully`; regression `shows unavailable configuration status when manual refresh fails with stale rows`; 50 scoped webhooks folder tests passed (1 pre-existing sources-strip failure unrelated).

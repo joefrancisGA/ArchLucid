@@ -156,7 +156,7 @@ export function WebhooksSettingsClient() {
           label={webhooksConfigurationStatusLabel(webhookRows.length, activeSubscriptionCount)}
         />
       )}
-      {!loading && webhookRows.length === 0 ? (
+      {!loading && hasLoadedSuccessfully && webhookRows.length === 0 ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="webhooks-not-configured-next-step"
@@ -230,9 +230,9 @@ export function WebhooksSettingsClient() {
               >
                 Loading subscriptions…
               </p>
-            ) : webhookRows.length === 0 ? (
+            ) : webhookRows.length === 0 && hasLoadedSuccessfully ? (
               <EnterpriseCompactEmptyState {...WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT} />
-            ) : (
+            ) : webhookRows.length === 0 ? null : (
               <>
                 {continueLastSubscription !== null ? (
                   <WebhooksContinueLastViewedRow

@@ -586,6 +586,10 @@ describe("WebhooksIntegrationPage", () => {
     });
 
     expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL })).toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-not-configured-next-step")).toBeNull();
+    expect(screen.queryByTestId("webhooks-empty-state")).toBeNull();
+    expect(screen.queryByLabelText("Status: Not configured")).toBeNull();
+    expect(screen.getByLabelText("Status: Could not verify subscriptions")).toBeInTheDocument();
   });
 
   it("blocks create when manual refresh fails after subscriptions loaded", async () => {
