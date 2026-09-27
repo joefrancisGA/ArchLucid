@@ -3624,13 +3624,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 45
-- **bugs-found:** 24
+- **hunts:** 46
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — InMemory slug normalization Unicode-trimmed tab-padded `ProjectId` while SQL `LTRIM`/`RTRIM` keep tabs
+- **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after LTRIM/RTRIM edge parity; proved `RunListQueryParameters` bound `@NormalizedArchitectureRequestId` / `@NormalizedSystemName` via `Normalize*` alone while InMemory paths use `RequireArchitectureRequestId` / `RequireSystemName` (Unicode trim) first, so tab-prefixed seeks missed active-run / existence / workspace collision SQL matches that InMemory counted; fixed parameter builders to require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`; 158 scoped zone tests passed (1 SQL integration skipped).
+
+- [x] (proven) `RunListQueryParameters.ForActiveRunCountByArchitectureRequest` / `ForArchitectureRequestScopeExists` / `ForActiveRunWithSystemNameInWorkspace` — tab-prefixed seeks normalize without `Require*` while InMemory scope paths Unicode-trim first — **hit 2026-09-27 seed hunt:** align SQL bind values with require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`.
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after tab/space `STRING_SPLIT` parity; proved `NormalizeAuthorityProjectSlug` / `NormalizeWorkspaceSystemName` / `NormalizeArchitectureRequestId` used `string.Trim()` so InMemory workspace collision and list-by-project paths matched tab-padded stored `ProjectId` to space-normalized seeks while SQL edge trim is space-only before `STRING_SPLIT`; fixed with `TrimSqlEdgeSpaces` (parity with `LTRIM`/`RTRIM`); regressions `NormalizeWorkspaceSystemName_preserves_tab_padding_that_sql_ltrim_rtrim_keeps` and `InMemory_exists_active_run_with_system_name_does_not_match_trailing_tab_in_stored_project_id`; 123 scoped workspace + architecture-request tests passed.
 
