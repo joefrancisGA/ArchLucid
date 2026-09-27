@@ -8736,6 +8736,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproved `AzureResourceTagPromptSanitizer.SanitizeTagMap` tag-key delimiter spoof (no production agent-prompt key reachability) and `AgentEvidencePackage.CloudProvider` free-text sanitizer parity (token resolution only; not echoed in topology/cost user prompts); regressions `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` and `CostUserPrompt_does_not_echo_evidence_package_cloud_provider_free_text_string`; 146 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — tag map keys with embedded `</untrusted_input>` are trim-only while values are wrapped — **cheap-disproof 2026-09-27 seed hunt:** no production caller formats tag keys into agent LLM prompts; regression `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability`
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` omits `AgentEvidencePackage.CloudProvider` free-text string — **cheap-disproof 2026-09-27 seed hunt:** `CostRetailGroundingBuilder.ResolveGroundingProvider` parses cloud tokens only; topology/cost user prompts render `request.CloudProvider` enum, not the evidence free-text field; regression `CostUserPrompt_does_not_echo_evidence_package_cloud_provider_free_text_string`
+
 2026-09-27 seed hunt (seed-only): cheap-disproved `StagedPriorAgentsSummaryBuilder` ledger row line-separator spoof via Critic compose hygiene; regression `CriticUserPrompt_staged_summary_from_builder_neutralizes_ledger_line_separator_spoof`; 144 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt (seed-only): cheap-disproved staged-summary TB-949 marker parity and case-variant end literal truncation branches; reseeded `StagedPriorAgentsSummaryBuilder` ledger snapshot hygiene candidate (out of zone `paths` but same class as ledger-append hit); 143 scoped agent-runtime-safety tests passed.
@@ -8764,7 +8769,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
