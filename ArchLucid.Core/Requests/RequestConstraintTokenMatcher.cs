@@ -453,7 +453,11 @@ internal static class RequestConstraintTokenMatcher
                     return false;
                 }
 
-                if (char.GetUnicodeCategory(character) == System.Globalization.UnicodeCategory.SpaceSeparator)
+                System.Globalization.UnicodeCategory category = char.GetUnicodeCategory(character);
+
+                if (category is System.Globalization.UnicodeCategory.SpaceSeparator
+                    or System.Globalization.UnicodeCategory.LineSeparator
+                    or System.Globalization.UnicodeCategory.ParagraphSeparator)
                 {
                     replacement = ' ';
 

@@ -49,6 +49,22 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
         RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeTrue();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_line_separator_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2028identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_false_when_negation_uses_unicode_space_before_not()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Encryption\u00A0is not required for dev"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
     private static ArchitectureRequest CreateRequest(
         List<string>? constraints = null,
         List<string>? capabilities = null)
