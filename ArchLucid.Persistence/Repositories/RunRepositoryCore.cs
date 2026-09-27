@@ -50,7 +50,8 @@ internal static partial class RunRepositoryCore
     }
 
     /// <summary>
-    ///     Normalizes workspace system names for collision checks: trim edges, collapse internal whitespace, uppercase.
+    ///     Normalizes workspace system names for collision checks: trim edges, collapse space runs, uppercase.
+    ///     Matches SQL <c>STRING_SPLIT(..., N' ')</c> normalization on <c>ProjectId</c>.
     /// </summary>
     public static string NormalizeWorkspaceSystemName(string systemName)
     {
@@ -58,12 +59,13 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            systemName.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            systemName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
     /// <summary>
-    ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse internal whitespace, uppercase.
+    ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse space runs, uppercase.
+    ///     Matches SQL <c>STRING_SPLIT(..., N' ')</c> normalization on <c>ProjectId</c>.
     /// </summary>
     public static string NormalizeAuthorityProjectSlug(string authorityProjectSlug)
     {
@@ -71,7 +73,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            authorityProjectSlug.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            authorityProjectSlug.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
