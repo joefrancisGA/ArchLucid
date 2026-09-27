@@ -5797,13 +5797,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 29
-- **bugs-found:** 17
+- **hunts:** 30
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — whitespace-only CustomGroupClaimRegex nulled by ToDocument so activate skipped substantive regex validation
+- **last-bug:** 2026-09-27 — OIDC/SAML discovery reported success for invisible-only issuer entity IDs that activation rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): proved OIDC discovery set `DiscoverySucceeded` from `IsNullOrWhiteSpace(issuer)` so invisible-only issuers (U+200B) succeeded while `IdentityProviderUriValidator` rejects them on activate; SAML entityID parity; shared HTTP(S)+substantive issuer check on discovery responses; regressions `DiscoverAsync_oidc_invisible_only_issuer_marks_discovery_failed` and `DiscoverAsync_saml_invisible_only_entity_id_marks_discovery_failed`; 47 scoped discovery+activation tests passed.
+
+- [x] (proven) `IdentityProviderDiscoveryService` / `IdentityProviderConfigurationController.DiscoverAsync` — OIDC and SAML discovery marked `DiscoverySucceeded` for issuer/entityID values that pass `IsNullOrWhiteSpace` but fail substantive HTTP(S) validation used on activate — **hit 2026-09-27 seed hunt (seed→hit):** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` gates `DiscoverySucceeded`; regressions above.
 
 2026-09-27 seed hunt (seed-only): reseeded identity-provider-config after custom-regex hit; reviewed `IdentityProviderActivationService` pre/post `ToDocument` substantive guards and controller activate/test-login surfaces; cheap-disproof closed warn-only empty-mapping activation candidate; 40 scoped `IdentityProviderActivationServiceTests` passed; no new hunt-ready rows.
 
