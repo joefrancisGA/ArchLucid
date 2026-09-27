@@ -169,7 +169,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
 
         XDocument svg = Render(ast);
         XElement frame = svg.Descendants().First(element => element.Attribute("class")?.Value == "vnet-frame");
-        frame.Descendants("rect").First().Attribute("stroke-width")?.Value.Should().Be("2.5");
+        frame.Elements().First(element => element.Name.LocalName == "rect").Attribute("stroke-width")?.Value.Should().Be("2.5");
     }
 
     [Fact]
