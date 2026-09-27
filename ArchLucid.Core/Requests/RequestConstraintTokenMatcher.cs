@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Core.Text;
 
 namespace ArchLucid.Core.Requests;
@@ -397,26 +399,70 @@ internal static class RequestConstraintTokenMatcher
         if (!ContainsConstraintNormalizationCharacters(haystack))
             return haystack;
 
-        return haystack
-            .Replace('\u00A0', ' ')
-            .Replace('\u2007', ' ')
-            .Replace('\u2009', ' ')
-            .Replace('\u202F', ' ')
-            .Replace('\u205F', ' ')
-            .Replace('\u2019', '\'')
-            .Replace('\u2018', '\'')
-            .Replace('\u2032', '\'');
+        StringBuilder builder = new(haystack.Length);
+
+        foreach (char character in haystack)
+        {
+            if (TryGetConstraintNormalizationReplacement(character, out char replacement))
+            {
+                builder.Append(replacement);
+            }
+            else
+            {
+                builder.Append(character);
+            }
+        }
+
+        return builder.ToString();
     }
 
     private static bool ContainsConstraintNormalizationCharacters(string haystack)
     {
         foreach (char character in haystack)
         {
-            if (character is '\u00A0' or '\u2007' or '\u2009' or '\u202F' or '\u205F'
-                or '\u2019' or '\u2018' or '\u2032')
+            if (TryGetConstraintNormalizationReplacement(character, out _))
                 return true;
         }
 
         return false;
+    }
+
+    private static bool TryGetConstraintNormalizationReplacement(char character, out char replacement)
+    {
+        switch (character)
+        {
+            case '\u00A0':
+            case '\u2007':
+            case '\u2009':
+            case '\u202F':
+            case '\u205F':
+                replacement = ' ';
+
+                return true;
+            case '\u2019':
+            case '\u2018':
+            case '\u2032':
+                replacement = '\'';
+
+                return true;
+            default:
+                if (character is '\t' or '\n' or '\r')
+                {
+                    replacement = default;
+
+                    return false;
+                }
+
+                if (char.GetUnicodeCategory(character) == System.Globalization.UnicodeCategory.SpaceSeparator)
+                {
+                    replacement = ' ';
+
+                    return true;
+                }
+
+                replacement = default;
+
+                return false;
+        }
     }
 }

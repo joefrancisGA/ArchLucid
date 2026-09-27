@@ -33,6 +33,22 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
         RequestConstraintClassifier.RequiresAiCapability(request).Should().BeTrue();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_en_space_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2002identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_returns_true_when_ideographic_space_separates_private_endpoint_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Traffic via private\u3000endpoint only"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeTrue();
+    }
+
     private static ArchitectureRequest CreateRequest(
         List<string>? constraints = null,
         List<string>? capabilities = null)
