@@ -24762,13 +24762,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 17
-- **bugs-found:** 13
+- **hunts:** 18
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — hub scoped tab cross-links dropped explorer workQueue
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — audit scope bar change-control link dropped explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-infra-resource-hub; proved `buildInfraEvidenceAuditScopeBarAuditTabHref` rebuilt audit-tab URLs from an empty search string so `InfraEvidenceAuditScopeBar` “Change control” dropped explorer `workQueue` while chip and tab-bar links preserved it; fixed by threading `currentSearch` into the helper; regression `preserves explorer workQueue on audit scope bar change-control link`; 28 scoped ResourceHubClient tests passed.
+
+- [x] (proven) `buildInfraEvidenceAuditScopeBarAuditTabHref` / `InfraEvidenceAuditScopeBar` — change-control link drops explorer `workQueue` — **hit 2026-09-27 seed hunt:** audit tab href builder ignored `currentSearch`; fixed in `infra-evidence-audit-scope-url.ts` + scope bar wiring; regression in `ResourceHubClient.test.tsx`.
 
 2026-09-26 seed hunt (hit): reseeded ui-infra-resource-hub; proved overview `Open audit lineage` (`buildHubAuditLineageTabHref` / `buildHubScopedTabHref`) rebuilt hub URLs via `buildResourceHubWorkbenchHref` with empty search and dropped `workQueue` while tab-bar navigation preserved it; fixed by threading explorer `workQueue` into scoped tab href builders; regression `preserves explorer workQueue on overview audit lineage cross-link`; 27 scoped ResourceHubClient unit tests passed.
 

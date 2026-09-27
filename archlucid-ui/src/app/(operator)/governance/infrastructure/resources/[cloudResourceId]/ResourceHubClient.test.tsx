@@ -392,6 +392,16 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves explorer workQueue on audit scope bar change-control link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const changeControlLink = await screen.findByTestId("infra-resource-hub-audit-scope-bar-change-control");
+    expect(changeControlLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+  });
+
   it("preserves explorer workQueue on audit scope chip href", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&workQueue=open-findings&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
