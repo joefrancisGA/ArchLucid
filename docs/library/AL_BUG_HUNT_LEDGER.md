@@ -8760,7 +8760,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -23316,19 +23316,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: application-agents
 
+2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
+
 - **id:** application-agents
 - **status:** open
 - **impact:** medium
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 20
-- **bugs-found:** 20
+- **hunts:** 21
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — dual-model consensus merge threw when topology proposal Warnings was null
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — dual-model consensus merge threw when topology proposal RequiredControls was null
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `FindingIacStubGenerator` enrichment upsert dropped `ProposedEvidenceJson` (`[JsonIgnore]` envelope column) via clone/serialize and full enrichment merge replace; fixed clone carry-forward, enrichment JSON envelope fields, and `AgentResultEnrichmentMerger` base-column preservation; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`; 88 scoped Application.Tests.Agents tests passed.
 - **hunts:** 17
@@ -23371,6 +23373,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `AgentResultRegionMismatchEnricher` — null `AddedServices`/`AddedDatastores` throws when invoked without `AgentProposalStructuralPostProcessorEnricher` — **cheap-disproof 2026-09-26 thorough hunt:** `AgentEnrichersCompositionModule` registers structural post-process before region mismatch; `AgentProposalStructuralPostProcessor` normalizes null service/datastore lists; enricher now null-coalesces collections defensively
 - [x] (proven) `AgentResultRegionMismatchEnricher.TryAppendRegionWarning` — null `Warnings` on deserialized `AgentTopologyProposal` throws before appending region mismatch text — **hit 2026-09-26 thorough hunt:** structural post-process does not initialize `Warnings`; JSON `"warnings": null` survives to region enricher; fixed with `proposal.Warnings ??= []`; regression `EnrichAsync_initializes_warnings_when_null_before_appending_region_mismatch`
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — null `primary.Warnings` throws when building merged proposal (`new List<string>(primary.Warnings)`) — **hit 2026-09-26 seed hunt:** dual-model consensus runs after structural post-process without initializing warnings; fixed by null-coalescing warning copy; regression `Merge_when_primary_warnings_is_null_does_not_throw`
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — null `RequiredControls` on topology proposals throws in `IntersectControls` / disagreement math — **hit 2026-09-27 seed hunt:** structural post-process leaves `RequiredControls` null for topology agents while dual-model consensus still intersects controls; fixed via null-coalescing; regression `Merge_when_required_controls_is_null_does_not_throw`
 
 2026-09-26 thorough hunt (hit): cheap-disproved null AddedServices without structural post-processor; proved null Warnings NRE on region mismatch append; 90 scoped Application.Tests.Agents tests passed.
 
