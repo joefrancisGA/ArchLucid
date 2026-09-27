@@ -21232,11 +21232,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 17
-- **bugs-found:** 32
+- **hunts:** 18
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — inventory.json omitted ControlId for security/compliance rows
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — reference-architecture markdown/DOCX requirement-text and sponsor-summary parity; finding-verification markdown sanitizer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21295,9 +21295,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-26 seed hunt (seed→hit): reseeded artifact-synthesis; proved inventory.json omitted `ControlId` for security/compliance rows while compliance-matrix.json and DOCX expose control IDs; seeded requirement-text markdown/DOCX parity, reference-architecture sponsor summary, and finding-verification markdown sanitizer candidates; 5 InventoryArtifactGenerator + 577 scoped ArtifactSynthesis tests passed (8 pre-existing unrelated Mermaid peel-budget failures).
 
 - [x] (proven) `InventoryArtifactGenerator.GenerateAsync` — `inventory.json` security/compliance rows omitted `ControlId` present in `compliance-matrix.json` and DOCX export — **hit 2026-09-26 seed hunt (seed→hit):** added `InventoryItem.ControlId` and mapped from `SecurityPostureItem`/`CompliancePostureItem`; regression `GenerateAsync_serializes_control_id_for_security_and_compliance_items_matching_compliance_matrix_export`.
-- [ ] (candidate) `ReferenceArchitectureMarkdownGenerator` / `DocxExportService` — omit `RequirementText` while `inventory.json` stores it in `Notes`
-- [ ] (candidate) `ReferenceArchitectureMarkdownGenerator` — omits `Metadata.Summary` sponsor section present in narrative markdown and DOCX
-- [ ] (candidate) `FindingVerificationReportMarkdownRenderer` — finding table cells bypass `LlmArtifactFreeTextSanitizer` (DOCX fixed in #1534)
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `DocxExportService` — omit `RequirementText` while `inventory.json` stores it in `Notes` — **hit 2026-09-27 thorough hunt:** markdown requirement bullets append requirement text; DOCX coverage table adds Notes column; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag` (updated) and DocxExportService golden suite
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` — omits `Metadata.Summary` sponsor section present in narrative markdown and DOCX — **hit 2026-09-27 thorough hunt:** added `## Sponsor Summary` with DOCX-aligned empty placeholder; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_sponsor_summary_matching_docx_export`
+- [x] (proven) `FindingVerificationReportMarkdownRenderer` — finding table cells bypass `LlmArtifactFreeTextSanitizer` (DOCX fixed in #1534) — **hit 2026-09-27 thorough hunt:** `EscapeCell` now sanitizes before pipe/newline escaping; regression `Render_strips_control_chars_from_finding_table_cells`
+
+2026-09-27 thorough hunt (hit): proved three seeded candidates — requirement-text export parity (markdown + DOCX Notes column), reference-architecture sponsor summary, and finding-verification markdown table sanitization; 3 targeted + 15 DocxExportService + 579 scoped ArtifactSynthesis tests passed (10 pre-existing unrelated Mermaid peel-budget / data-flow label failures).
 
 2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 
