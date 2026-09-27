@@ -113,6 +113,34 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
     }
 
     [Fact]
+    public async Task CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked input", "Hate", 6));
+        guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked output", "Hate", 6));
+
+        FakeAgentCompletionClient inner = new((_, _) => "{\"bypasses_guard\":true}");
+        ContentSafetyEnforcingAgentCompletionClient sut = new(
+            inner,
+            guard.Object,
+            new FixedValueOptionsMonitor<ContentSafetyOptions>(
+                new ContentSafetyOptions { EvaluateCompletionPromptAndResponse = false }),
+            NullLogger<ContentSafetyEnforcingAgentCompletionClient>.Instance);
+
+        string json = await sut.CompleteJsonAsync("sys", "user", cancellationToken: CancellationToken.None);
+
+        json.Should().Contain("bypasses_guard");
+        guard.Verify(
+            g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        guard.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_when_user_prompt_blocked_does_not_invoke_inner()
     {
         Mock<IContentSafetyGuard> guard = new();
