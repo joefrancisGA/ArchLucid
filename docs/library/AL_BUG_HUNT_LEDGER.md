@@ -8853,6 +8853,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt #56 (seed→hit): reseeded agent-runtime-safety; proved `AppendRunHeader` `AgentType` label rendered outside TB-949 quarantine without line-break collapse or untrusted wrap (same class as TaskId/#54); fixed via `SanitizeHostListEntry`; added parity regressions for source-row END markers and run-header TB-949 literals; 159 scoped agent-runtime-safety tests passed.
+
 2026-09-27 seed hunt #55 (seed→hit): reseeded agent-runtime-safety; proved `AllowedTools` rows outside TB-949 quarantine wrapped with `SanitizeScalar` only, leaving raw `CUSTOMER_CONTENT_BEGIN` literals that break section-bound truncation; fixed via `AgentRunHeaderPromptSanitizer.SanitizeHostListEntry` (marker escape + untrusted wrap); regression `TopologyUserPrompt_allowed_tools_neutralize_embedded_customer_content_begin_marker_outside_quarantine`; 156 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt #54 (seed→hit): reseeded agent-runtime-safety; proved run-header `TaskId`/`RunId` and `AllowedTools`/`AllowedSources` list lines rendered outside TB-949 quarantine without line-break collapse or untrusted wrapping; fixed via `AgentRunHeaderPromptSanitizer` and `SanitizeScalar` on tool/source rows; regressions `TopologyUserPrompt_run_header_task_id_newline_does_not_spoof_task_objective_before_quarantine` and `TopologyUserPrompt_allowed_tools_newline_does_not_spoof_task_objective_outside_quarantine`; 155 scoped agent-runtime-safety tests passed.
@@ -8915,11 +8917,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 34
-- **bugs-found:** 17
+- **hunts:** 35
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — allowed tool rows outside quarantine carried raw CUSTOMER_CONTENT_BEGIN inside untrusted wrap
+- **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
