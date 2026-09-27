@@ -5644,11 +5644,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 25
-- **bugs-found:** 20
+- **hunts:** 26
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — reasoning results visible during product-context load failure
+- **last-bug:** 2026-09-27 — next-review footer visible during product-context load failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5764,6 +5764,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-27 seed hunt (seed→hit): reseeded ui-architecture-intelligence; proved cached source-context refetch failure left prior reasoning/golden panels mounted while `ArchitectureIntelligenceProductContextLoadFailure` was visible (`showReasoningWorkspace` existed in the hook but was unused in `ArchitectureIntelligencePageClient`); fixed by gating reasoning, golden, and inline error blocks on `showReasoningWorkspace`; regression `does not show reasoning results when product context load failure panel is visible`; 47 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
 
 - [x] (proven) Product-context refetch failure shows prior reasoning results above load-failure panel — **hit 2026-09-27 seed hunt:** `runState` was not cleared when React Query invalidated source-context after a successful pass; `PageClient` ignored `showReasoningWorkspace`; fixed by wiring the existing hook flag to reasoning/golden/error mounts; regression `does not show reasoning results when product context load failure panel is visible`.
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-architecture-intelligence after showReasoningWorkspace fix; proved deep-linked product context HTTP failure still mounted `ArchitectureIntelligenceNextReviewFooterClient` while `ArchitectureIntelligenceProductContextLoadFailure` was visible (footer only gated on `!loadingInboundContext`); fixed with `!productContextLoadFailed` guard matching run-model callout; regression `does not show next-review footer when product context load failure panel is visible`; 48 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
+
+- [x] (proven) Deep-linked product context load failure shows next-review footer under retry panel — **hit 2026-09-27 seed hunt:** footer rendered whenever `activeRunId` was set and inbound load was not in skeleton state, including `productContextStatus === "error"`; fixed with `!productContextLoadFailed` on footer mount; regression `does not show next-review footer when product context load failure panel is visible`.
 
 ---
 
