@@ -53,9 +53,14 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
         </p>
       </div>
       {rulesResolution.rows.length === 0 ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="policy-pack-rules-empty">
-          {emptyMessage ?? "No published rules are available for this pack yet."}
-        </p>
+        <>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="policy-pack-rules-empty">
+            {emptyMessage ?? "No published rules are available for this pack yet."}
+          </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            This does not mean that no policy applies.
+          </p>
+        </>
       ) : (
         <EnterpriseTable ariaLabel={ariaLabel} data-testid={props.tableTestId ?? "policy-pack-rules-table"}>
           <EnterpriseTableHead>

@@ -163,6 +163,9 @@ export function RunDetailManifestSummarySection(
                   className={cn("m-0 space-y-1", definitionValueClass)}
                   data-testid="run-detail-review-standards-at-commit"
                 >
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    These standards were recorded when the review was finalized.
+                  </p>
                   <p className="m-0">
                     Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "None"}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled

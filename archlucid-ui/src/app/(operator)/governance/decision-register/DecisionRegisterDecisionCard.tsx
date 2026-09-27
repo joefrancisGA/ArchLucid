@@ -102,6 +102,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
                 {BUYER_VIEW_SIGNED_RECORD_CTA}
               </Link>
             </dd>
+            <dd className="m-0 text-al-text-secondary text-xs">
+              Open the sealed review record that supports this decision.
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Approval status</dt>
