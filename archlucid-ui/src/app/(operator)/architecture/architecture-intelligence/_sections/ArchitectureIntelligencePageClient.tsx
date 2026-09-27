@@ -51,6 +51,7 @@ export function ArchitectureIntelligencePageClient() {
     loadingAction,
     retryProductContextLoad,
     showIntakeForm,
+    showReasoningWorkspace,
     inboundContextLine,
     activeRunId,
     onSelectReview,
@@ -269,7 +270,7 @@ export function ArchitectureIntelligencePageClient() {
         </div>
       ) : null}
 
-      {error !== null && !productContextLoadFailed ? (
+      {showReasoningWorkspace && error !== null && !productContextLoadFailed ? (
         <p
           role="alert"
           data-testid="architecture-intelligence-error"
@@ -282,7 +283,7 @@ export function ArchitectureIntelligencePageClient() {
         </p>
       ) : null}
 
-      {runState?.kind === "reasoning" ? (
+      {showReasoningWorkspace && runState?.kind === "reasoning" ? (
         <ArchitectureIntelligenceReasoningResults
           result={runState.result}
           findings={findings}
@@ -294,7 +295,9 @@ export function ArchitectureIntelligencePageClient() {
         />
       ) : null}
 
-      {runState?.kind === "golden" ? <ArchitectureIntelligenceGoldenResults result={runState.result} /> : null}
+      {showReasoningWorkspace && runState?.kind === "golden" ? (
+        <ArchitectureIntelligenceGoldenResults result={runState.result} />
+      ) : null}
 
       {(activeRunId?.trim() ?? "").length > 0 && !loadingInboundContext ? (
         <ArchitectureIntelligenceNextReviewFooterClient runId={activeRunId?.trim() ?? ""} />
