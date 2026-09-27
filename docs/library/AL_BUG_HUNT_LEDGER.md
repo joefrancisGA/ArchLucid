@@ -24814,7 +24814,7 @@ ABQ-09 churn hotspot.
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
-2026-09-27 seed hunt #23 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `setActiveTab` / `switchActiveAuditControl` vs `auditScopeChipHref` explorer `workQueue` gap (tab bar, inline audit picker, and keyboard shortcuts retain `workQueue` via `searchParams` + `sanitizeResourceHubQueryForTab` without an explicit patch); added regressions `preserves explorer workQueue when switching hub tabs via keyboard shortcut` and `threads explorer workQueue on back-to-explorer link`; 42 scoped ResourceHubClient tests passed.
+2026-09-27 seed hunt #23 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `setActiveTab` / `switchActiveAuditControl` vs `auditScopeChipHref` explorer `workQueue` gap (tab bar, inline audit picker, and keyboard shortcuts retain `workQueue` via `searchParams` + `sanitizeResourceHubQueryForTab` without an explicit patch); added regressions `preserves explorer workQueue when switching hub tabs via keyboard shortcut` and `threads explorer workQueue on back-to-explorer link`; 47 scoped ResourceHubClient tests passed.
 
 - [x] (valid-no-repro) `setActiveTab` / `switchActiveAuditControl` — explorer `workQueue` dropped on tab bar or audit control picker navigation while audit scope chip explicitly patches queue — **cheap-disproof 2026-09-27 seed hunt #23:** navigation rebuilds from `searchParams.toString()`; `sanitizeResourceHubQueryForTab` does not strip `workQueue`; regressions for keyboard shortcut and explorer back link.
 
