@@ -784,6 +784,57 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_declared_alias_when_alias_value_is_mixed_case_arm_resource_id()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["resourceId"] = canonicalArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["billing-api"] = mixedCaseArmId,
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "billing-api",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_endpoints_when_declared_alias_value_has_internal_whitespace_after_synthetic_prefix()
     {
         List<GraphNode> nodes =

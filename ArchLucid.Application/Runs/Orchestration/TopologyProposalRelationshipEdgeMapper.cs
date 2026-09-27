@@ -83,6 +83,9 @@ public static class TopologyProposalRelationshipEdgeMapper
             string trimmedKey = alias.Key.Trim();
             string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
 
+            if (TryResolveNodeId(resolvedNodeId, endpointKeyToNodeId, out string canonicalNodeId))
+                resolvedNodeId = canonicalNodeId;
+
             endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
 
             string? normalizedSyntheticKey =
