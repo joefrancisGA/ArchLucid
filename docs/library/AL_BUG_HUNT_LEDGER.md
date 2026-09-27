@@ -5061,6 +5061,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-09-27 seed hunt (seed→hit): reseeded cli-tenant-isolation after `foreignRunIdVisible` replay fix; proved offline manifest replay SKIPped exclude-run-id and deny-status probes when `observedStatusCode` was omitted but live `observedOutcome` copy still began with `HTTP 200` / `HTTP 404`; fixed `ResolveObservedStatusCode` to parse status from outcome text before re-derivation; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs200Absent`; 45 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — missing `observedStatusCode` with `HTTP ###` outcome copy SKIPped as status `0` — **hit 2026-09-27 seed hunt:** parse HTTP status prefix from `observedOutcome` when code omitted; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs200Absent`.
+
 2026-09-27 seed hunt (seed→hit): reseeded cli-tenant-isolation after observed-outcome leak copy fix; proved offline manifest replay SKIPped exclude-run-id probes when `foreignRunIdVisible` was true but `observedStatusCode` was omitted so `EvaluateExcludeRunIdProbeVerdict` treated status `0` as non-success; fixed replay to FAIL on `foreignRunIdVisible` before status re-derivation; regression `RunOffline_FailsExcludeRunIdProbeWhenManifestMarksForeignRunIdVisibleWithoutStatusCode`; 44 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — `foreignRunIdVisible` true with missing `observedStatusCode` SKIPped as status `0` — **hit 2026-09-27 seed hunt:** honor leak boolean before status re-derivation; regression `RunOffline_FailsExcludeRunIdProbeWhenManifestMarksForeignRunIdVisibleWithoutStatusCode`.
@@ -5085,11 +5089,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 27
-- **bugs-found:** 15
+- **hunts:** 28
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — offline replay SKIPped leaks when `foreignRunIdVisible` was true without status code
+- **last-bug:** 2026-09-27 — offline replay ignored HTTP status in `observedOutcome` when `observedStatusCode` omitted
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
