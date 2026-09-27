@@ -366,4 +366,96 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_retrieval_and_manifest_compare_golden_manifests_disagree()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        ManifestDocument retrievalManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(
+            runId,
+            manifestHash: "stale-retrieval-manifest-hash");
+        ManifestDocument compareManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId);
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                ScopeProjectId = projectId,
+                ProjectId = "retrieval-manifest-mismatch",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            GoldenManifest = retrievalManifest,
+            GraphSnapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid(), RunId = runId, Findings = [] },
+            AuthorityTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload()),
+        };
+
+        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalIndexingOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> query = new();
+        query
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(query, runId, compareManifest);
+
+        Mock<IRetrievalRunCompletionIndexer> indexer = new();
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => query.Object);
+        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
+        services.AddScoped(_ => indexer.Object);
+        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RetrievalIndexingOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        indexer.Verify(
+            i => i.IndexAuthorityRunAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<SynthesizedArtifact>>(),
+                It.IsAny<DecisionProvenanceGraph>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

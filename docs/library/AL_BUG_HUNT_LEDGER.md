@@ -23744,11 +23744,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 15
-- **bugs-found:** 14
+- **hunts:** 16
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — coordination outbox processors re-queried manifest-compare during sealed-hash guard and could dead-letter on purge race after skip check
+- **last-bug:** 2026-09-27 — retrieval indexing outbox validated sealed hash on manifest-compare golden manifest but indexed retrieval-load golden manifest when the two disagreed
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23786,6 +23786,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `CosmosGraphSnapshotOutboxProcessor` skips sealed-hash guard when outbox `RunId` is `Guid.Empty` but loaded SQL graph has a non-empty `RunId` — **cheap-disproof 2026-09-26 thorough hunt:** same enqueue invariant as #1373 (`AuthorityPipelineStagePersistence.SaveGraphAsync` lines 93–112 pass `snapshot.RunId` in the same transaction as SQL graph insert); corrupt empty outbox `RunId` with non-empty SQL graph is not a reachable production path without manual DB tampering
 - [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` ran sealed-manifest hash guard without manifest-compare skip-as-processed parity — when `GetRunDetailForRetrievalIndexingAsync` returned complete detail but `GetRunDetailForManifestCompareAsync` returned null (run purge race after load), guard threw `ConflictException` and dead-lettered instead of skip-as-processed like run-export/post-commit/cosmos — **hit 2026-09-27 seed hunt (seed→hit):** manifest-compare missing skip before sealed-hash guard; regression `ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_after_retrieval_detail_loaded`.
 - [x] (proven) Coordination outbox processors (`RunExportBlobPush`, `RetrievalIndexing`, `PostCommitProjection`, `CosmosGraphSnapshot`) called `EnsureRunSealedManifestHashOrThrowAsync`, which re-fetched manifest-compare after the processor's skip-as-processed null check — a purge between the two reads threw `ConflictException` and dead-lettered despite a successful first load — **hit 2026-09-27 seed hunt (seed→hit):** validate sealed hash on the already-loaded golden manifest via `EnsureGoldenManifestSealedHashOrThrow`; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_manifest_compare_succeeds_once_without_guard_requery`.
+- [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` sealed-hash guard validated `manifestCompareDetail.GoldenManifest` but indexing used `detail.GoldenManifest` from the earlier retrieval load — when the two loads disagreed (run `GoldenManifestId` race between queries), search received an unvalidated golden manifest — **hit 2026-09-27 seed hunt (seed→hit):** skip-as-processed when manifest ids disagree; index only the manifest-compare golden manifest after hash check; regression `ProcessPendingBatchAsync_marks_processed_when_retrieval_and_manifest_compare_golden_manifests_disagree`.
+
+2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox could index a different golden manifest than the sealed-hash guard validated; 29 scoped coordination processor tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved coordination outbox sealed-hash guard double manifest-compare fetch could dead-letter on purge race; 28 scoped coordination processor tests passed.
 

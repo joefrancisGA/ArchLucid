@@ -137,12 +137,26 @@ public sealed class RetrievalIndexingOutboxProcessor(
         IManifestHashService manifestHashService =
             scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 
+        ManifestDocument compareManifest = manifestCompareDetail.GoldenManifest;
+
+        if (detail.GoldenManifest.ManifestId != compareManifest.ManifestId)
+        {
+            Logger.LogWarning(
+                "Skipping retrieval indexing for run {RunId}: retrieval golden manifest {RetrievalManifestId} does not match manifest-compare golden manifest {CompareManifestId}.",
+                entry.RunId,
+                detail.GoldenManifest.ManifestId,
+                compareManifest.ManifestId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+            return;
+        }
+
         RetrievalIndexingOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
-            manifestCompareDetail.GoldenManifest,
+            compareManifest,
             entry.RunId,
             manifestHashService);
 
-        ManifestDocument manifest = detail.GoldenManifest;
+        ManifestDocument manifest = compareManifest;
         GraphSnapshot graphSnapshot = detail.GraphSnapshot;
         FindingsSnapshot findings = detail.FindingsSnapshot;
         IReadOnlyList<SynthesizedArtifact> provenanceArtifacts = detail.ArtifactBundle?.Artifacts ?? [];
