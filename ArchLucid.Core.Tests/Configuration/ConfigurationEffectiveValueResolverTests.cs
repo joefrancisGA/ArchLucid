@@ -177,6 +177,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("Integrations:ItsmInbound:JiraWebhookSecret")]
+    [InlineData("Integrations:ItsmInbound:ServiceNowWebhookSecret")]
+    public void Resolve_redacts_inbound_itsm_webhook_secret_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "inbound-webhook-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Fact]
     public void Resolve_redacts_fallback_llm_endpoints_json_when_array_contains_api_key_properties()
     {
