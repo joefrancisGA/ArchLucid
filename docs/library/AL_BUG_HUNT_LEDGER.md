@@ -21442,13 +21442,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-26 — graph projection Redis pub/sub used projection Redis while IDistributedCache reused LLM Redis
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-27 seed hunt #41 (seed-only): reseeded host-composition; cheap-disproof closed value-report poll state opening a separate Redis when `IDistributedCache` is already registered (`ValueReportJobPollStateCacheRegistrarTests`) and Api vs Worker retrieval-indexing hosted-service split (`AddArchLucidApplicationServices_Api_role_registers_retrieval_indexing_processor_without_outbox_hosted_service`); seeded `(candidate)` pre-registered `IConnectionMultiplexer` on a different endpoint than graph projection pub/sub redis (no production registrar besides tests); scoped host-composition tests passed.
+
+- [ ] (candidate) `ArchLucidDistributedCacheRegistrar.RegisterGraphProjectionRedisPubSub` — pre-registered `IConnectionMultiplexer` on Redis A while projection pub/sub resolves Redis B — needs a non-test composition path that registers multiplexer before graph projection wiring (only `ArchLucidDistributedCacheRegistrar` registers multiplexer in product code today).
+- [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — health-probe Redis used for poll state while hot-path/graph projection use a different shared `IDistributedCache` — **cheap-disproof 2026-09-27 seed hunt #41:** factory prefers `GetService<IDistributedCache>()` over `RedisHealthProbeConnectionResolver`; regression `Register_wraps_existing_IDistributedCache_instead_of_opening_separate_redis`.
+- [x] (valid-no-repro) `OutboxProcessorsCompositionRegistrar.RegisterRetrievalIndexingOutbox` — Api role omits `RetrievalIndexingOutboxHostedService` so indexing stalls — **cheap-disproof 2026-09-27 seed hunt #41:** split-host contract; Api registers `IRetrievalIndexingOutboxProcessor` for enqueue paths; worker/combined register hosted poller; regressions `AddArchLucidApplicationServices_Api_role_registers_retrieval_indexing_processor_without_outbox_hosted_service` and Worker counterpart.
 
 2026-09-26 seed hunt #40 (seed→hit): reseeded host-composition; proved `RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` wired graph projection invalidation pub/sub to `ProjectionCache:RedisConnectionString` while reusing an existing `IDistributedCache` from distributed LLM completion cache on a different Redis; aligned pub/sub connection resolution with shared distributed cache; regressions `ResolveGraphProjectionRedisConnectionString_when_cache_already_registered_ignores_projection_specific_redis` and `ResolveGraphProjectionRedisConnectionString_when_registering_new_cache_prefers_projection_specific_redis`; 389 scoped host-composition tests passed.
 

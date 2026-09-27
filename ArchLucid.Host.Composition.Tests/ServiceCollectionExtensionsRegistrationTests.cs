@@ -15,6 +15,7 @@ using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -632,6 +633,41 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         count.Should().Be(1,
             "product-line accessor must not register duplicate singleton descriptors");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_retrieval_indexing_processor_without_outbox_hosted_service()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        services.Any(static d => d.ServiceType == typeof(IRetrievalIndexingOutboxProcessor))
+            .Should()
+            .BeTrue("Api replicas enqueue retrieval indexing work and must resolve the outbox processor");
+
+        services.Any(static d =>
+                d.ServiceType == typeof(IHostedService)
+                && d.ImplementationType == typeof(RetrievalIndexingOutboxHostedService))
+            .Should()
+            .BeFalse(
+                "retrieval indexing outbox polling is worker/combined infrastructure, not Api role");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Worker_role_registers_retrieval_indexing_outbox_hosted_service()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Worker);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        services.Any(static d =>
+                d.ServiceType == typeof(IHostedService)
+                && d.ImplementationType == typeof(RetrievalIndexingOutboxHostedService))
+            .Should()
+            .BeTrue();
     }
 
     [Fact]
