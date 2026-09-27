@@ -4875,6 +4875,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved bounded dimension-word matching still treated hyphenated `Non-Cost` / `Non-Reliability` declared priorities as Cost/Reliability trade-off preferences; extended negation patterns for `non-cost` and `non-reliability` (parity with `non-security`); regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_cost` and `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability`; 25 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `Non-Cost` / `Non-Reliability` priorities still prefer Cost/Reliability dimensions — **hit 2026-09-27 seed hunt:** hyphenated negation phrases must not count as dimension preference after word-boundary matching; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
+
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `BuildPreferredResolution` used substring `Contains` on enum dimension tokens so declared priorities like `Non-Security compliance scope` and `Costa Rica deployment region` falsely preferred Security/Cost in trade-off resolution; fixed with bounded dimension-word matching and negated `non-security` / `unreliability` mentions; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_security`, `BuildRecommendations_does_not_treat_costa_rica_priority_as_cost_first`, and `BuildRecommendations_prefers_security_first_when_priority_explicitly_names_security`; 23 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — declared priority substring falsely prefers Security/Cost dimensions — **hit 2026-09-27 seed hunt:** `Non-Security` and `Costa Rica` priorities must not resolve Security/Cost trade-offs as first-position wins; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
@@ -4894,11 +4898,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 16
-- **bugs-found:** 13
+- **hunts:** 17
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — trade-off resolution substring false positives on declared priorities
+- **last-bug:** 2026-09-27 — Non-Cost / Non-Reliability priorities falsely steered trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
