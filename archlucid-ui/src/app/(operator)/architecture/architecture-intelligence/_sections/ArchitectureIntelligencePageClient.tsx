@@ -299,7 +299,7 @@ export function ArchitectureIntelligencePageClient() {
         <ArchitectureIntelligenceGoldenResults result={runState.result} />
       ) : null}
 
-      {(activeRunId?.trim() ?? "").length > 0 && !loadingInboundContext ? (
+      {(activeRunId?.trim() ?? "").length > 0 && !loadingInboundContext && !productContextLoadFailed ? (
         <ArchitectureIntelligenceNextReviewFooterClient runId={activeRunId?.trim() ?? ""} />
       ) : null}
     </>

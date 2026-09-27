@@ -1979,6 +1979,41 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByTestId("architecture-intelligence-inbound-context")).not.toBeInTheDocument();
   });
 
+  it("does not show next-review footer when product context load failure panel is visible", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return new Response("Unable to load product context", { status: 503 });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+  });
+
   it("does not show reasoning results when product context load failure panel is visible", async () => {
     const runId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
     let sourceContextShouldFail = false;
