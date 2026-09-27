@@ -154,10 +154,10 @@ public static class SegmentationSemanticsPathAnalyzer
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(combined)
             || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDatabaseKeyword(combined)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal);
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "redis")
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "mysql");
     }
 
     private static bool IsJumpBoxNode(GraphNode node)

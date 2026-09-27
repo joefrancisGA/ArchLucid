@@ -28,10 +28,10 @@ internal static class TopologyDatastoreLabelHeuristic
             || DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeStorageKeyword(combined)
             || ContainsAffirmativeSecretKeyword(combined)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal);
+            || ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || ContainsAffirmativeDelimiterToken(combined, "mysql")
+            || ContainsAffirmativeDelimiterToken(combined, "redis");
     }
 
     public static bool IsSkuRpoDatastoreTopologyNode(GraphNode node)
@@ -51,10 +51,10 @@ internal static class TopologyDatastoreLabelHeuristic
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeStorageKeyword(combined)
             || ContainsAffirmativeDatabaseKeyword(combined)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
+            || ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || ContainsAffirmativeDelimiterToken(combined, "redis")
+            || ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || ContainsAffirmativeDelimiterToken(combined, "mysql")
             || IndicatesDatastoreCluster(combined);
     }
 
@@ -88,64 +88,29 @@ internal static class TopologyDatastoreLabelHeuristic
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeDatabaseKeyword(combined)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
+            || ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || ContainsAffirmativeDelimiterToken(combined, "redis")
+            || ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || ContainsAffirmativeDelimiterToken(combined, "mysql")
             || ContainsAffirmativeStorageKeyword(combined);
     }
 
-    internal static bool ContainsAffirmativeDatabaseKeyword(string text)
+    internal static bool ContainsAffirmativeDatabaseKeyword(string text) =>
+        ContainsAffirmativeDelimiterToken(text, "database");
+
+    internal static bool ContainsAffirmativeStorageKeyword(string text) =>
+        ContainsAffirmativeDelimiterToken(text, "storage");
+
+    internal static bool ContainsAffirmativeBlobKeyword(string text) =>
+        ContainsAffirmativeDelimiterToken(text, "blob");
+
+    internal static bool ContainsAffirmativeDelimiterToken(string text, string token)
     {
         string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
 
         for (int index = 0; index < parts.Length; index++)
         {
-            if (!parts[index].Equals("database", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (index > 0 && parts[index - 1].Equals("non", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    internal static bool ContainsAffirmativeStorageKeyword(string text)
-    {
-        string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
-
-        for (int index = 0; index < parts.Length; index++)
-        {
-            if (!parts[index].Equals("storage", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (index > 0 && parts[index - 1].Equals("non", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    internal static bool ContainsAffirmativeBlobKeyword(string text)
-    {
-        string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
-
-        for (int index = 0; index < parts.Length; index++)
-        {
-            if (!parts[index].Equals("blob", StringComparison.Ordinal))
+            if (!parts[index].Equals(token, StringComparison.Ordinal))
             {
                 continue;
             }
