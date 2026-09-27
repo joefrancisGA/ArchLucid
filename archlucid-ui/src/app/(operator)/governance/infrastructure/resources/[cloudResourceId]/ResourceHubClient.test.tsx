@@ -590,6 +590,44 @@ describe("ResourceHubClient", () => {
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
   });
 
+  it("preserves explorer workQueue when switching hub tabs without snapshot in URL", async () => {
+    searchParams = new URLSearchParams("tab=overview&workQueue=open-findings&runId=run-1");
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-findings"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+  });
+
+  it("preserves explorer workQueue on overview view all drift hub tab link", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    const manyChanges = Array.from({ length: 6 }, (_, index) => ({
+      ...baseChange,
+      changeId: `change-${index + 1}`,
+      diffId: `diff-${index + 1}`,
+    }));
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ recentChanges: manyChanges }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=recent-drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-overview-view-all-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=recent-drift"),
+    );
+    expect(screen.getByTestId("infra-resource-hub-overview-view-all-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("tab=drift"),
+    );
+  });
+
   it("omits terraform mapping from overview when address is absent", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),

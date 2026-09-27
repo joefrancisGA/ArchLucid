@@ -24802,13 +24802,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt #22 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed overview cross-workbench drift/remediation/diagram/terraform exits vs in-hub `buildHubScopedTabHref` explorer `workQueue` parity (external workbench URL builders omit `workQueue` by design; queue context stays on hub URL and explorer back link); added regressions `preserves explorer workQueue when switching hub tabs without snapshot in URL` and `preserves explorer workQueue on overview view all drift hub tab link`; 40 scoped ResourceHubClient tests passed.
+
+- [x] (valid-no-repro) Overview cross-workbench exits (`buildDriftWorkbenchHref`, `buildRemediationWorkbenchHref`, diagram/terraform workbench helpers) — explorer `workQueue` omitted while in-hub tab links preserve queue — **cheap-disproof 2026-09-27 seed hunt #22:** drift/remediation/terraform routes do not define `workQueue`; hub navigation (`buildHubScopedTabHref`, tab bar, audit chip) threads queue via `resourceHubFilterHrefFromSearch`; explorer back link uses `resourceExplorerFilterHrefFromSearch`.
 
 2026-09-27 seed hunt #21 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `ResourceHubBreadcrumb` explorer `workQueue` gap (TB-2090 — breadcrumb prop ignored by `OperatorPageHeader`); added parity regressions for remediation/audit/diagram Ask links, inline audit control picker, and technical disclosure URL sync preserving `workQueue`; 38 scoped ResourceHubClient tests passed.
 
