@@ -445,6 +445,12 @@ internal static class RequestConstraintTokenMatcher
                 replacement = '\'';
 
                 return true;
+            case '\u200B':
+            case '\u200C':
+            case '\u200D':
+                replacement = ' ';
+
+                return true;
             default:
                 if (character is '\t' or '\n' or '\r')
                 {
