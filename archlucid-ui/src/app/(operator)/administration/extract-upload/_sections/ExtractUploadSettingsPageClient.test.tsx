@@ -128,6 +128,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-constraints")).not.toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-evidence-trail-link")).toHaveAttribute(
       "href",
       EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
