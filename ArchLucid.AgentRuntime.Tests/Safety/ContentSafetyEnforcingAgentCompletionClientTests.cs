@@ -201,6 +201,55 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
     }
 
     [Fact]
+    public async Task CompleteJsonAsync_when_output_blocked_throws_without_returning_inner_json()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(true, null, null, null));
+        guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked output", "Hate", 6));
+
+        FakeAgentCompletionClient inner = new((_, _) => "{\"must_not_return\":true}");
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        Func<Task> act = async () =>
+            await sut.CompleteJsonAsync("sys", "user", cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        guard.Verify(
+            g => g.CheckOutputAsync("{\"must_not_return\":true}", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task StreamJsonAsync_when_output_blocked_still_invokes_inner_before_throw()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(true, null, null, null));
+        guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked output", "Hate", 6));
+
+        int innerInvocations = 0;
+        FakeAgentCompletionClient inner = new((_, _) =>
+        {
+            innerInvocations++;
+            return "{\"blocked\":true}";
+        });
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        Func<Task> act = async () =>
+        {
+            await foreach (string _ in sut.StreamJsonAsync("sys", "user", cancellationToken: CancellationToken.None))
+            {
+            }
+        };
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        innerInvocations.Should().BeGreaterThan(0, "output scan runs after the inner stream completes");
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_when_user_prompt_blocked_does_not_invoke_inner()
     {
         Mock<IContentSafetyGuard> guard = new();

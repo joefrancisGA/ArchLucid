@@ -67,7 +67,9 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
-        string? baseUrl = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
+        string? baseUrl = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
+            ? null
+            : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
         TrialDispatchPlan? plan = TryBuildPlan(envelope, tenant, productName, baseUrl, utcNow);
 
         if (plan is null)

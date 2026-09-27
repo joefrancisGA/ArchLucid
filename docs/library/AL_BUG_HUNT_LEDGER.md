@@ -4810,7 +4810,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `summaryMarkdown` sent weekly mail with empty report body — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`.
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt:** `EmailBrandingUrls.TryBuildLogoImageUrl` only trims trailing slashes; fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorReportEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
-- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27 — **hit 2026-09-27 seed hunt #51 (notifications-pipeline):** `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
@@ -8853,6 +8853,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt #32 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` returning blocked completion JSON (throws after output scan) and non-staged `EvidenceNote` TB-949 marker reachability after execute-time sanitize (Critic compose omits non-staged notes); seeded `(candidate)` `AgentUserPromptBuilder.AppendRunHeader` — `TaskId`/`RunId` lines outside TB-949 quarantine may spoof task objective when ids carry embedded newlines (reachability: zone `paths` omit `Prompts/`; needs caller proof of customer-controlled task ids); regressions `CompleteJsonAsync_when_output_blocked_throws_without_returning_inner_json`, `StreamJsonAsync_when_output_blocked_still_invokes_inner_before_throw`, and `SanitizeAsync_non_staged_evidence_note_tb949_markers_do_not_reach_critic_user_prompt`; 153 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — blocked output scan may still return inner completion JSON — **cheap-disproof 2026-09-27 seed hunt #32:** throws after `CheckOutputAsync`; regression `CompleteJsonAsync_when_output_blocked_throws_without_returning_inner_json`
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` — non-staged `EvidenceNote.Message` with embedded TB-949 markers may reach Critic LLM prompts after `SanitizeScalar` — **cheap-disproof 2026-09-27 seed hunt #32:** `BuildCriticUserPrompt` filters to staged summary notes only; regression `SanitizeAsync_non_staged_evidence_note_tb949_markers_do_not_reach_critic_user_prompt`
+- [ ] (candidate) `AgentUserPromptBuilder.AppendRunHeader` — `TaskId`/`RunId` header lines outside customer-content quarantine may spoof `Task Objective:` when values embed newlines — **seeded 2026-09-27 seed hunt #32:** out of zone `paths` (`Prompts/`); needs reachability proof for operator-supplied task ids
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved streaming completion guard short-circuit before inner `StreamJsonAsync` on blocked system/user prompts and non-staged `EvidenceNote` bodies omitted from critic user prompts; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream`, `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`, and `CriticUserPrompt_omits_non_staged_evidence_note_messages_from_user_prompt`; 152 scoped agent-runtime-safety tests passed.
 
 - [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — blocked input scans may still invoke inner streaming client — **cheap-disproof 2026-09-27 seed hunt:** throws before `AgentCompletionStreamingBridge.StreamJsonAsync`; regressions `StreamJsonAsync_when_system_prompt_blocked_does_not_invoke_inner_stream` and `StreamJsonAsync_when_user_prompt_blocked_does_not_invoke_inner_stream`
@@ -8905,7 +8911,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -21314,13 +21320,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 50
-- **bugs-found:** 38
+- **hunts:** 52
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — recurrence completion email threw NullReferenceException on null toMailboxes
+- **last-bug:** 2026-09-27 — exec digest and sibling dispatchers used padded OperatorBaseUrl for logo URLs
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
+
+2026-09-27 seed hunt #52 (seed→hit): reseeded notifications-pipeline after #51 summary logo fix; proved `ExecDigestEmailDispatcher`, `RecurrenceCompletionEmailDispatcher`, `FindingRemediationAssignmentEmailDispatcher`, and `TrialLifecycleEmailDispatcher` still passed padded `OperatorBaseUrl` into branding/operator links (`TrimEnd('/')` only); fixed with `Trim().TrimEnd('/')` parity and `EmailBrandingUrls.TryBuildLogoImageUrl` leading-whitespace trim; regressions `ExecDigestEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url` and `TryBuildLogoImageUrl_trims_leading_and_trailing_whitespace_on_base`; 141 scoped Application notifications/digest tests passed.
+
+- [x] (proven) `ExecDigestEmailDispatcher` / `EmailBrandingUrls` — padded `OperatorBaseUrl` broke digest logo image URLs — **hit 2026-09-27 seed hunt #52:** sibling dispatchers + shared branding helper now trim padded bases; regressions above.
+
+2026-09-27 seed hunt #51 (seed→hit): reseeded notifications-pipeline; promoted weekly-digest candidate `WeeklySponsorSummaryEmailDispatcher` padded `OperatorBaseUrl` logo gap (parity with report fix #2026-09-27); fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before `EmailBrandingUrls.TryBuildLogoImageUrl`; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`; 139 scoped Application notifications/digest tests passed.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt #51:** parity gap vs `WeeklySponsorReportEmailDispatcher`; fixed `OperatorBaseUrl.Trim().TrimEnd('/')`; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`.
 
 2026-09-27 seed hunt #50 (seed→hit): reseeded notifications-pipeline; proved `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` iterated `toMailboxes` without null guard (parity gap vs weekly/exec digest dispatchers); fixed with `ArgumentNullException.ThrowIfNull(toMailboxes)`; regression `TryDispatchAsync_throws_when_to_mailboxes_is_null`; 138 scoped Application notifications/digest tests passed.
 
@@ -24780,13 +24794,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt #21 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `ResourceHubBreadcrumb` explorer `workQueue` gap (TB-2090 — breadcrumb prop ignored by `OperatorPageHeader`); added parity regressions for remediation/audit/diagram Ask links, inline audit control picker, and technical disclosure URL sync preserving `workQueue`; 38 scoped ResourceHubClient tests passed.
+
+- [x] (invalid) `ResourceHubBreadcrumb` — explorer `workQueue` dropped on breadcrumb resources link while back link preserves queue — **invalid 2026-09-27 seed hunt #21:** breadcrumbs removed system-wide (TB-2090); component not rendered; back link already threads `explorerBackHref`.
 
 2026-09-27 seed hunt (seed-only): reseeded ui-infra-resource-hub after Ask `workQueue` ship; cheap-disproof closed remaining explorer `workQueue` parity on findings Ask, audit-scope clear, and stale audit banner navigation (all preserve `workQueue` via threaded Ask helpers or `currentSearch`); added regressions `preserves explorer workQueue on findings Infrastructure Ask links`, `preserves explorer workQueue when clearing active audit scope`, and `preserves explorer workQueue on stale audit scope banner links`; 33 scoped ResourceHubClient tests passed.
 
