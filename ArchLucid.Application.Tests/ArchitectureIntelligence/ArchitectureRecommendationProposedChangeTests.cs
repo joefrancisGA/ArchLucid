@@ -122,6 +122,108 @@ public sealed class ArchitectureRecommendationProposedChangeTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void BuildRecommendations_omits_pass_and_not_applicable_findings_from_recommendations()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding passSecurity = new()
+        {
+            FindingId = "f-pass",
+            Dimension = QualityDimension.Security,
+            Title = "Controls satisfied for public API",
+            Rationale = "Reviewed",
+            Conclusion = ReviewConclusion.Pass,
+            Severity = "Low",
+        };
+
+        SpecialistReviewFinding failCost = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding notApplicableReliability = new()
+        {
+            FindingId = "f-rel-na",
+            Dimension = QualityDimension.Reliability,
+            Title = "Recovery review not in scope",
+            Rationale = "Out of scope",
+            Conclusion = ReviewConclusion.NotApplicable,
+            Severity = "Low",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [passSecurity, failCost, notApplicableReliability],
+            ["Security", "Cost", "Reliability"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].AffectedRequirementOrQualityAttribute.Should().Be(QualityDimension.Cost.ToString());
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_pass()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costPass = new()
+        {
+            FindingId = "f-cost-pass",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend within stated ceiling",
+            Rationale = "Within budget",
+            Conclusion = ReviewConclusion.Pass,
+            Severity = "Low",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costPass],
+            ["Security", "Cost"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].TradeOffs.Should().BeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_trims_padded_high_severity_for_effort_band_without_human_approval()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-high-padded",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = " High ",
+        };
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [finding],
+            ["Cost"]).Single();
+
+        recommendation.RequiresHumanApproval.Should().BeFalse();
+        recommendation.Effort.Band.Should().Be("High");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable()
     {
         ArchitectureRecommendationEngine sut = new();
