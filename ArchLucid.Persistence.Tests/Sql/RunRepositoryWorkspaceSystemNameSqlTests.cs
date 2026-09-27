@@ -1768,6 +1768,46 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void NormalizeWorkspaceSystemName_preserves_tab_padding_that_sql_ltrim_rtrim_keeps()
+    {
+        RunRepositoryCore.NormalizeWorkspaceSystemName("billing\t").Should().Be("BILLING\t");
+    }
+
+    [Fact]
+    public async Task InMemory_exists_active_run_with_system_name_does_not_match_trailing_tab_in_stored_project_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing\t",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "billing",
+            excludeRunId: null,
+            CancellationToken.None);
+
+        exists.Should().BeFalse(
+            "SQL LTRIM/RTRIM trims spaces only; InMemory must not Unicode-trim tab-padded stored ProjectId to match space-normalized seeks.");
+    }
+
+    [Fact]
     public void SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id()
     {
         RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().Contain("r.RunId <> @ExcludeRunId");

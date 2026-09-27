@@ -12,6 +12,12 @@ internal static partial class RunRepositoryCore
 {
     public const int MaxPurgeBatchSize = 10_000;
 
+    /// <summary>
+    ///     Trims only the space character (U+0020) from both ends, matching SQL Server <c>LTRIM</c>/<c>RTRIM</c>
+    ///     on <c>ProjectId</c> and <c>ArchitectureRequestId</c> before <c>STRING_SPLIT</c>.
+    /// </summary>
+    private static string TrimSqlEdgeSpaces(string value) => value.Trim(' ');
+
     public static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
     {
         if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
@@ -37,7 +43,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            architectureRequestId.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            TrimSqlEdgeSpaces(architectureRequestId).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
@@ -59,7 +65,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            systemName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            TrimSqlEdgeSpaces(systemName).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
@@ -73,7 +79,7 @@ internal static partial class RunRepositoryCore
 
         return string.Join(
             ' ',
-            authorityProjectSlug.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            TrimSqlEdgeSpaces(authorityProjectSlug).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToUpperInvariant();
     }
 
