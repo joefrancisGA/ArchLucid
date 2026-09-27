@@ -5644,7 +5644,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -5768,6 +5768,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-27 seed hunt (seed→hit): reseeded ui-architecture-intelligence after showReasoningWorkspace fix; proved deep-linked product context HTTP failure still mounted `ArchitectureIntelligenceNextReviewFooterClient` while `ArchitectureIntelligenceProductContextLoadFailure` was visible (footer only gated on `!loadingInboundContext`); fixed with `!productContextLoadFailed` guard matching run-model callout; regression `does not show next-review footer when product context load failure panel is visible`; 48 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
 
 - [x] (proven) Deep-linked product context load failure shows next-review footer under retry panel — **hit 2026-09-27 seed hunt:** footer rendered whenever `activeRunId` was set and inbound load was not in skeleton state, including `productContextStatus === "error"`; fixed with `!productContextLoadFailed` on footer mount; regression `does not show next-review footer when product context load failure panel is visible`.
+
+2026-09-27 seed hunt (seed-only): reseeded ui-architecture-intelligence after footer/showReasoningWorkspace fixes; cheap-disproof closed golden-results carryover on source-context refetch failure (covered by `showReasoningWorkspace`), intake form flash before skeleton (intake hidden whenever `loadingInboundContext`), and run-scope banner during skeleton load; tightened regressions for run-scope during loading, run-scope retained during load-failure (intentional scope chrome), and footer hidden after refetch failure following reasoning; no new hunt-ready defect proven; 48 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
+
+- [x] (valid-no-repro) Source-context refetch failure leaves golden-test panel mounted above load-failure retry — **cheap-disproof 2026-09-27 seed hunt:** `showReasoningWorkspace` gates golden mounts the same as reasoning; parity regression path `does not show reasoning results when product context load failure panel is visible`.
+- [x] (valid-no-repro) Deep-linked product context load should hide run-scope banner under retry panel — **cheap-disproof 2026-09-27 seed hunt:** run-scope stays visible during `productContextStatus === "error"` so operators still see which review failed; footer/run-model callout remain suppressed.
 
 ---
 
