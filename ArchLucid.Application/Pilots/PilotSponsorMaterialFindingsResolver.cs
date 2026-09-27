@@ -23,6 +23,8 @@ public static class PilotSponsorMaterialFindingsResolver
             && (agentFindings.Count == 0
                 || agentFindings.Count < deltas.SponsorNarrativeFindings.Count
                 || (agentFindings.Count == deltas.SponsorNarrativeFindings.Count
+                    && ResolveMaxSeverityRank(deltas.SponsorNarrativeFindings) > ResolveMaxSeverityRank(agentFindings))
+                || (agentFindings.Count > deltas.SponsorNarrativeFindings.Count
                     && ResolveMaxSeverityRank(deltas.SponsorNarrativeFindings) > ResolveMaxSeverityRank(agentFindings))))
         {
             return deltas.SponsorNarrativeFindings;
