@@ -145,7 +145,7 @@ public sealed partial class DifficultyBasedExtractionRouter
     }
 
     private static bool IsValidMarkerBoundary(char adjacent) =>
-        !char.IsLetterOrDigit(adjacent) && adjacent != '-';
+        !char.IsLetterOrDigit(adjacent) && adjacent != '-' && adjacent != '_';
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {
