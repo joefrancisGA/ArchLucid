@@ -21111,13 +21111,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 27
-- **bugs-found:** 24
+- **hunts:** 28
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — κ→Γ projector dropped RELATES edges when `RelatedElementIds` had surrounding whitespace around canonical `ElementId`
+- **last-bug:** 2026-09-27 — inventory observed-fact overlay merge duplicated nodes when overlay `NodeId` differed from base only by surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded knowledge-graph-provenance; proved `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` did not trim inventory `NodeId` on dedup so padded overlay ids bypassed `existingNodeIds` (parity gap vs `ProvenanceBuilder.NormalizeId`); fixed with `NormalizeNodeId` trim on node and edge-key dedup; regression `Merge_boundOverlay_skips_inventory_node_when_node_id_differs_only_by_surrounding_whitespace`; 9 overlay + 352 KnowledgeGraph + 47 Provenance scoped tests passed (3 pre-existing `GraphSnapshotSchemaStability` / `GraphSnapshotCommittedReuseResolver` failures).
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger` — duplicate inventory node merged when `NodeId` differed from base graph only by surrounding whitespace — **hit 2026-09-27 seed hunt (seed→hit):** `NormalizeNodeId` trim; regression above.
 
 2026-09-27 seed hunt (seed→hit): reseeded knowledge-graph-provenance; proved `ArchitectureKnowledgeModelGraphProjector.ToGraphNodeId` did not trim `ElementId`/`RelatedElementIds` so padded related ids failed `canonicalNodeIdsByKey` lookup (parity gap vs `ProvenanceBuilder.NormalizeId`); fixed with `elementId.Trim()` in `ToGraphNodeId`; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_surrounding_whitespace`; 6 projector + 47 Provenance scoped tests passed.
 

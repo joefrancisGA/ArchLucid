@@ -21,37 +21,37 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         }
 
         HashSet<string> existingNodeIds = baseGraph.Nodes
-            .Select(static node => node.NodeId)
+            .Select(static node => NormalizeNodeId(node.NodeId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphNode> mergedNodes = [.. baseGraph.Nodes];
 
         foreach (GraphNode inventoryNode in inventoryOverlay.Nodes)
         {
-            if (existingNodeIds.Contains(inventoryNode.NodeId))
+            if (existingNodeIds.Contains(NormalizeNodeId(inventoryNode.NodeId)))
             {
                 continue;
             }
 
             mergedNodes.Add(inventoryNode);
-            existingNodeIds.Add(inventoryNode.NodeId);
+            existingNodeIds.Add(NormalizeNodeId(inventoryNode.NodeId));
         }
 
         HashSet<string> edgeKeys = baseGraph.Edges
-            .Select(static edge => $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}")
+            .Select(static edge => BuildEdgeKey(edge))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphEdge> mergedEdges = [.. baseGraph.Edges];
 
         foreach (GraphEdge inventoryEdge in inventoryOverlay.Edges)
         {
-            if (!existingNodeIds.Contains(inventoryEdge.FromNodeId)
-                || !existingNodeIds.Contains(inventoryEdge.ToNodeId))
+            if (!existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.FromNodeId))
+                || !existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.ToNodeId)))
             {
                 continue;
             }
 
-            string edgeKey = $"{inventoryEdge.FromNodeId}|{inventoryEdge.ToNodeId}|{inventoryEdge.EdgeType}";
+            string edgeKey = BuildEdgeKey(inventoryEdge);
 
             if (!edgeKeys.Add(edgeKey))
             {
@@ -77,4 +77,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             Warnings = warnings,
         };
     }
+
+    private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+
+    private static string BuildEdgeKey(GraphEdge edge) =>
+        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{edge.EdgeType}";
 }
