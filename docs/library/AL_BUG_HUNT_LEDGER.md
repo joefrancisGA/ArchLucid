@@ -23645,15 +23645,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 17
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — sealed-manifest hash mismatch retried recoverable outbox processors
-- **hunts:** 13
-- **bugs-found:** 12
+- **hunts:** 14
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-26 — cosmos/post-commit outbox sealed-hash guard blocked skip-as-processed on purged runs
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — retrieval indexing outbox dead-lettered when manifest-compare detail missing after retrieval detail load
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -23689,6 +23685,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor` replicates graph to Cosmos after sealed-hash guard passes on `entry.RunId` even when loaded `snapshot.RunId` disagrees — sealed hash validated the outbox run while Cosmos received another run's graph — **hit 2026-09-26 thorough hunt:** `AuthorityPipelineStagePersistence.SaveGraphAsync` enqueues `snapshot.RunId` in the same transaction as the SQL insert (no in-place graph replacement); fail-closed skip when SQL and outbox `RunId` differ; regression `ProcessPendingBatchAsync_marks_processed_when_sql_graph_run_id_disagrees_with_outbox_entry`
 - [x] (proven) `RecoverableOutboxFailureHandler` schedules backoff for `ConflictException` from wave-33/34 sealed-manifest hash guards — permanent hash/receipt conflicts retry until max attempts instead of immediate dead-letter like run-export packaging conflicts — **hit 2026-09-26 seed hunt:** dead-letter `ConflictException` in shared failure handler; regression `ProcessPendingBatchAsync_dead_letters_immediately_when_sealed_manifest_hash_mismatches`
 - [x] (invalid) `CosmosGraphSnapshotOutboxProcessor` skips sealed-hash guard when outbox `RunId` is `Guid.Empty` but loaded SQL graph has a non-empty `RunId` — **cheap-disproof 2026-09-26 thorough hunt:** same enqueue invariant as #1373 (`AuthorityPipelineStagePersistence.SaveGraphAsync` lines 93–112 pass `snapshot.RunId` in the same transaction as SQL graph insert); corrupt empty outbox `RunId` with non-empty SQL graph is not a reachable production path without manual DB tampering
+- [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` ran sealed-manifest hash guard without manifest-compare skip-as-processed parity — when `GetRunDetailForRetrievalIndexingAsync` returned complete detail but `GetRunDetailForManifestCompareAsync` returned null (run purge race after load), guard threw `ConflictException` and dead-lettered instead of skip-as-processed like run-export/post-commit/cosmos — **hit 2026-09-27 seed hunt (seed→hit):** manifest-compare missing skip before sealed-hash guard; regression `ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_after_retrieval_detail_loaded`.
+
+2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox manifest-compare skip parity gap; 27 scoped coordination processor tests passed.
 
 2026-09-26 thorough hunt (dry): cheap-disproof closed empty outbox RunId sealed-hash bypass candidate (#1373 sibling); no other hunt-ready rows; 26 scoped coordination processor tests passed.
 
