@@ -320,6 +320,39 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name_with_cloud_neutral_candidate()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.None);
+        chosen.TechnologyName = "PostgreSQL";
+        chosen.EvidenceRef = "inventory:postgresql";
+        chosen.Source = TechnologyLedgerSource.Evidence;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.None);
+        candidate.TechnologyName = "PostgreSQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_inserts_assumed_on_provider_conflict_when_technology_name_differs()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Azure SQL";
+        chosen.EvidenceRef = "inventory:sql";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.TechnologyName = "Amazon RDS";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
     public void Resolve_keeps_second_compute_candidate_after_cold_start_chosen_shares_display_name()
     {
         TechnologyLedgerEntry first = CreateCandidate(CloudProvider.Azure);
@@ -433,6 +466,61 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
 
         existing.Should().HaveCount(2);
         existing.Select(entry => entry.TechnologyName).Should().AllBe("shared-display");
+    }
+
+    [Fact]
+    public void Seeder_sequence_keeps_distinct_topology_services_after_cold_start_promotion()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            ProposalId = "p1",
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-a",
+                    ServiceName = "shared-display",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceId = "svc-b",
+                    ServiceName = "shared-display",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        IReadOnlyList<TechnologyLedgerEntry> mapped =
+            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
+
+        List<TechnologyLedgerEntry> existing = [];
+
+        foreach (TechnologyLedgerEntry candidate in mapped.Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime))
+        {
+            TechnologyLedgerEntry? resolved =
+                TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing);
+
+            resolved.Should().NotBeNull();
+            TechnologyLedgerEntry promoted =
+                TechnologyLedgerColdStartChosenPromoter.Apply(resolved!, existing);
+
+            existing.Add(promoted);
+        }
+
+        existing.Should().HaveCount(2);
+        existing.Should().ContainSingle(entry => entry.Status == TechnologyLedgerStatus.Chosen);
+        existing.Should().ContainSingle(entry => entry.Status == TechnologyLedgerStatus.Assumed);
     }
 
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
