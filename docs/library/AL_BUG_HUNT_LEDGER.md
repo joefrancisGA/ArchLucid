@@ -16313,13 +16313,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 20
-- **bugs-found:** 14
+- **hunts:** 21
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — JSON effective values with snake_case `api_key` leaked in config summary
+- **last-bug:** 2026-09-27 — JSON effective values with kebab-case `api-key` leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after snake_case fix; proved kebab-case `api-key` bypassed `IsSensitiveConfigPropertyName` for the same admin JSON effective-value path class; fixed by hyphen-delimiter tokenization alongside underscore splits; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`; 1042 scoped Configuration tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded `ConfigurationSensitiveConfigValueScanner`; proved snake_case JSON property `api_key` bypassed `IsSensitiveConfigPropertyName` because underscore broke contiguous `ApiKey` matching while catalog JSON blobs (e.g. `ArchLucid:FallbackLlm:Endpoints` operator overrides) remain reachable via admin config summary; fixed by tokenizing underscore-separated JSON property names before segment matching; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_api_key`; 1041 scoped Configuration tests passed.
 
