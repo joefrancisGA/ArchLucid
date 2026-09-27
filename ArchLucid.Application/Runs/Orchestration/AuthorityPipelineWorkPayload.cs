@@ -39,8 +39,26 @@ public sealed class AuthorityPipelineWorkPayload
     public bool IsValidForProcessing()
     {
         return ContextIngestionRequest is not null
-               && HasSubstantiveText(EvidenceBundleId)
+               && HasUsableEvidenceBundleId(EvidenceBundleId)
                && Enum.IsDefined(WorkKind);
+    }
+
+    private static bool HasUsableEvidenceBundleId(string? value)
+    {
+        if (!HasSubstantiveText(value))
+            return false;
+
+        foreach (char character in value!)
+        {
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.NonSpacingMark
+                or UnicodeCategory.SpacingCombiningMark
+                or UnicodeCategory.EnclosingMark)
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>

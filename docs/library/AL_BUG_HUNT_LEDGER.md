@@ -2803,13 +2803,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 18
-- **bugs-found:** 14
+- **hunts:** 19
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — combining-mark-only evidence bundle ids and string lists passed substantive-text gate
+- **last-bug:** 2026-09-27 — embedded combining marks in `EvidenceBundleId` passed `IsValidForProcessing` and broke post-gate bundle lookup (parity gap vs embedded zero-width rejection)
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload; proved `HasSubstantiveText` skipped combining marks when scanning so `bundle-1\u0300` passed `IsValidForProcessing` but `EvidenceBundleId.Trim()` left the mark and bundle lookup failed (parity gap vs embedded U+200B rejection); fixed with `HasUsableEvidenceBundleId` rejecting any combining mark in the id; regression `IsValidForProcessing_rejects_embedded_combining_mark_in_evidence_bundle_id`; 24 scoped payload JSON tests passed.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.IsValidForProcessing` — embedded combining marks in `EvidenceBundleId` passed substantive-text gate — **hit 2026-09-27 seed hunt (seed→hit):** `HasUsableEvidenceBundleId`; regression above.
 
 - [x] (proven) `AuthorityPipelineWorkPayload.IsValidForProcessing` / `AuthorityPipelineWorkProcessor.ResolveHandler` — numeric `workKind` values outside `AuthorityPipelineWorkKind` deserialized via STJ and passed the worker gate — **hit 2026-09-27 seed hunt (seed→hit):** `IsValidForProcessing` now requires `Enum.IsDefined(WorkKind)` so invalid payloads discard instead of throwing `No authority pipeline work handler registered`; regressions `IsValidForProcessing_rejects_undefined_work_kind_values` and `Deserialize_rejects_undefined_work_kind_numeric_values`.
 - [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveText` — combining marks (for example U+0300) are not whitespace or format characters but were treated as substantive text, so combining-mark-only `EvidenceBundleId` and string-list entries passed `IsValidForProcessing` / `MaterializeStringList` and retried instead of invalid-payload discard — **hit 2026-09-27 seed hunt (seed→hit):** skip NonSpacingMark / SpacingCombiningMark / EnclosingMark when scanning for substantive characters; regressions `IsValidForProcessing_rejects_combining_mark_only_evidence_bundle_id` and `Deserialize_filters_combining_mark_only_string_list_entries`.

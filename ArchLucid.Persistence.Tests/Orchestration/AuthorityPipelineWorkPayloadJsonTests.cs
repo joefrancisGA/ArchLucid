@@ -127,6 +127,23 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void IsValidForProcessing_rejects_embedded_combining_mark_in_evidence_bundle_id()
+    {
+        AuthorityPipelineWorkPayload payload = new()
+        {
+            ContextIngestionRequest = new ContextIngestionRequest
+            {
+                RunId = Guid.NewGuid(),
+                ProjectId = "default",
+            },
+            EvidenceBundleId = "bundle-1\u0300",
+        };
+
+        payload.IsValidForProcessing().Should().BeFalse(
+            "embedded combining marks survive Trim() and break evidence bundle lookup after the worker gate");
+    }
+
+    [SkippableFact]
     public void Deserialize_materializes_null_list_properties()
     {
         Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");
