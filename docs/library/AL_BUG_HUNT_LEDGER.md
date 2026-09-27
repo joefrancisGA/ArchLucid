@@ -4875,6 +4875,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `BuildPreferredResolution` used substring `Contains` on enum dimension tokens so declared priorities like `Non-Security compliance scope` and `Costa Rica deployment region` falsely preferred Security/Cost in trade-off resolution; fixed with bounded dimension-word matching and negated `non-security` / `unreliability` mentions; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_non_security`, `BuildRecommendations_does_not_treat_costa_rica_priority_as_cost_first`, and `BuildRecommendations_prefers_security_first_when_priority_explicitly_names_security`; 23 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — declared priority substring falsely prefers Security/Cost dimensions — **hit 2026-09-27 seed hunt:** `Non-Security` and `Costa Rica` priorities must not resolve Security/Cost trade-offs as first-position wins; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
+
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `ArchitectureRecommendationTradeOffBuilder.IsActionableForTradeOff` counted `Indeterminate` and `Fail`+`Insufficient` cost rows while `ProvenancePresentationMapper` routed them to evidence-first recommendations, attaching Security/Cost trade-offs with operating-cost copy anyway; fixed by excluding `Unverified` presentation bucket from trade-off dimension gating (parity with NotApplicable fix); regressions `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_indeterminate` and `BuildRecommendations_skips_security_cost_trade_off_when_cost_fail_is_evidence_only`; 20 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsActionableForTradeOff` — `Indeterminate` or `Fail`+insufficient-evidence findings still trigger Security/Cost trade-offs while recommendations use evidence-first copy — **hit 2026-09-27 seed hunt:** trade-off gating now requires `ProvenancePresentationMapper.MapFinding` ≠ `Unverified`; regressions `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_indeterminate` and `BuildRecommendations_skips_security_cost_trade_off_when_cost_fail_is_evidence_only`
@@ -4890,11 +4894,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 15
-- **bugs-found:** 12
+- **hunts:** 16
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — evidence-only cost findings still triggered security/cost trade-offs
+- **last-bug:** 2026-09-27 — trade-off resolution substring false positives on declared priorities
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
