@@ -4706,17 +4706,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: weekly-digest-email
 
+2026-09-27 seed hunt (seed→hit): reseeded weekly-digest-email; proved `WeeklySponsorReportEmailDispatcher` passed padded `EmailNotificationOptions.OperatorBaseUrl` into `EmailBrandingUrls.TryBuildLogoImageUrl` without `.Trim()`, producing broken logo URLs; fixed with `Trim().TrimEnd('/')` parity to `CommitSponsorEmailNotifier`; seeded sibling summary dispatcher operator-base trim candidate; 2 WeeklyExecutiveSummaryJob + 21 report dispatcher tests passed.
+
 - **id:** weekly-digest-email
 - **status:** open
 - **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 15
-- **bugs-found:** 9
+- **hunts:** 16
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — whitespace-only `summaryMarkdown` sent weekly sponsor report with empty body
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — padded OperatorBaseUrl broke weekly sponsor report logo image URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4771,6 +4773,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded weekly-digest-email after master merge; proved `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` accepted whitespace-only `summaryMarkdown` after `weekLabel`/`runDetailUrl`/`runIdHex` guards; fixed with required summary validation and trim; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`; repaired job test DI for `IRunRepository`; 2 scoped `WeeklyExecutiveSummaryJobTests` passed.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `summaryMarkdown` sent weekly mail with empty report body — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`.
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt:** `EmailBrandingUrls.TryBuildLogoImageUrl` only trims trailing slashes; fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorReportEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
+- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 

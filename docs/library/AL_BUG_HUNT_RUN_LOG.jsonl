@@ -7149,3 +7149,4 @@
 {"at":"2026-09-27T00:36:32.5496513Z","zoneId":"artifact-synthesis","outcome":"hit"}
 {"at":"2026-09-27T00:41:05.761212Z","zoneId":"agent-runtime-safety","outcome":"hit"}
 {"at":"2026-09-27T00:47:25.0363205Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
+{"at":"2026-09-27T00:53:39.8736787Z","zoneId":"weekly-digest-email","outcome":"hit"}
