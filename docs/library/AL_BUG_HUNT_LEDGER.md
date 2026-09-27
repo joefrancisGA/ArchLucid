@@ -16450,11 +16450,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 14
-- **bugs-found:** 13
+- **hunts:** 15
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — unicode whitespace broke multi-word constraint phrase matching
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — en/ideographic unicode space separators broke phrase matching
+
+2026-09-27 seed hunt #15 (seed→hit): reseeded phrase unicode whitespace after NBSP fix; proved `NormalizeConstraintMatchingText` only replaced a fixed space/apostrophe list so en space (U+2002) and ideographic space (U+3000) still split multi-word phrases; fixed by normalizing any `SpaceSeparator` except tab/CR/LF; regressions `HasManagedIdentityConstraint_returns_true_when_en_space_separates_words`, `HasPrivateNetworkingConstraint_returns_true_when_ideographic_space_separates_private_endpoint_phrase`; 864 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — en/ideographic and other `SpaceSeparator` characters not in the fixed replace list broke `ContainsAffirmativePhrase` — **hit 2026-09-27 seed hunt #15:** normalize all unicode space separators (except tab/CR/LF) to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`.
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
