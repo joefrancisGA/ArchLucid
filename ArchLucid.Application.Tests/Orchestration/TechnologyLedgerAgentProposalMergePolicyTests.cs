@@ -97,6 +97,25 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "shared-display";
+        chosen.EvidenceRef = null;
+        chosen.IsLocked = true;
+        chosen.Source = TechnologyLedgerSource.User;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "shared-display";
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-b";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
+    [Fact]
     public void Resolve_skips_duplicate_assumed_when_no_chosen_exists()
     {
         TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);

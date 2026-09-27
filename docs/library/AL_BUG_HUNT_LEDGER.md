@@ -2871,6 +2871,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-09-27 seed hunt #28 (seed→hit): reseeded technology-ledger-merge; proved locked authoritative `Chosen` rows without substantive `EvidenceRef` still suppressed agent candidates sharing `TechnologyName` but distinct topology `EvidenceRef` (unlocked path already required grounding ref); fixed locked gate to require `HasSubstantiveEvidenceRef` on chosen; regression `Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref`; 72 scoped TechnologyLedger tests passed.
+
 2026-09-27 seed hunt #27 (seed→hit): reseeded technology-ledger-merge after locked-chosen fix; proved locked gate treated cold-start `AgentProposed` `Chosen` rows like authoritative inventory, so a locked first topology service blocked a second service sharing `TechnologyName` but a distinct `EvidenceRef`; fixed by requiring `IsAuthoritativeChosenSource` for locked same-name suppression; regression `Resolve_keeps_second_compute_candidate_when_locked_cold_start_chosen_shares_display_name`; 71 scoped TechnologyLedger tests passed.
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded technology-ledger-merge; proved `Resolve` returned null for every agent candidate when a role's `Chosen` row was `IsLocked`, so topology could not add cross-provider alternatives or same-family services with distinct `TechnologyName` values (only same-family same-name collisions should freeze); fixed locked gate to require matching provider-family gate and technology name; regressions `Resolve_inserts_cross_provider_candidate_when_chosen_is_locked`, `Resolve_inserts_same_family_candidate_with_distinct_name_when_chosen_is_locked`, and `Resolve_skips_same_family_same_name_candidate_when_chosen_is_locked`; 70 scoped TechnologyLedger tests passed.
@@ -2900,13 +2902,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 27
-- **bugs-found:** 16
+- **hunts:** 28
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — locked cold-start chosen blocked distinct topology refs sharing display name
+- **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed duplicate-display-name topology batch `(candidate)` — `TechnologyLedgerTopologyProposalMapper` keys `EvidenceRef` by `ServiceId` slug so distinct ids stay distinct; regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`; no new hunt-ready rows; 59 scoped TechnologyLedger tests passed.
 
@@ -2925,6 +2927,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `CloudProvider.None` authoritative `Chosen` rows skipped same-family gate — **hit 2026-09-26 seed hunt (seed→hit):** `chosen.ProviderFamily == candidate.ProviderFamily` excluded cloud-neutral inventory, so matching `TechnologyName` agent rows on Azure/AWS duplicated grounded evidence; fixed via `SharesProviderFamilyGate`; regressions `Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name` and `Resolve_keeps_agent_candidate_when_cloud_neutral_chosen_has_different_technology_name`.
 - [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy` — inventory `Chosen` with `CloudProvider.None` suppresses all provider-specific agent proposals via same-family gate — **cheap-disproof 2026-09-26 seed hunt:** over-broad reading; `None` vs concrete provider still returns candidates on provider-conflict path when technology names differ; same-name suppression now handled explicitly via `SharesProviderFamilyGate` (#cloud-neutral hit).
 - [x] (proven) `SharesProviderFamilyGate` — cloud-neutral **candidate** `ProviderFamily` bypassed authoritative name suppression — **hit 2026-09-26 seed hunt (seed→hit):** prior fix aligned cloud-neutral chosen rows only; agent/`None` candidates with matching `TechnologyName` still inserted against grounded Azure/AWS chosen rows; fixed by treating `candidateFamily == CloudProvider.None` as gate-aligned; regressions `Resolve_skips_when_authoritative_chosen_shares_technology_name_with_cloud_neutral_candidate` and `Resolve_keeps_cloud_neutral_candidate_when_authoritative_chosen_has_different_technology_name`.
+- [x] (proven) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — locked authoritative `Chosen` without substantive `EvidenceRef` suppressed distinct topology refs sharing `TechnologyName` — **hit 2026-09-27 seed hunt #28:** locked branch omitted the grounding-ref guard used by the unlocked authoritative path; fixed via `HasSubstantiveEvidenceRef` on chosen; regression `Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref`.
 
 2026-09-25 seed hunt (seed-only): reseeded technology-ledger-merge; no new hunt-ready hypotheses — evidence-ref, case/whitespace name dedupe, and chosen-family distinct-ref paths remain covered; repaired stale `Resolve_skips_duplicate_same_family_when_chosen_exists` fixture (candidate always carried topology `EvidenceRef` after `CreateCandidate` helper); 56 scoped TechnologyLedger tests passed.
 

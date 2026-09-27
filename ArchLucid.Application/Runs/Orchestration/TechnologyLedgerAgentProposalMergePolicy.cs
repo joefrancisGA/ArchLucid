@@ -23,6 +23,7 @@ public static class TechnologyLedgerAgentProposalMergePolicy
 
         if (chosen.IsLocked
             && IsAuthoritativeChosenSource(chosen.Source)
+            && HasSubstantiveEvidenceRef(chosen.EvidenceRef)
             && SharesProviderFamilyGate(chosen.ProviderFamily, candidate.ProviderFamily)
             && TechnologyNamesMatch(chosen.TechnologyName, candidate.TechnologyName))
         {
