@@ -21741,13 +21741,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 59
-- **bugs-found:** 29
+- **hunts:** 60
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — type-scoped ARM list followed generic subscription resources nextLink
+- **last-bug:** 2026-09-27 — subscription role-assignment list followed roleEligibilitySchedules nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved promoted candidate `ListSubscriptionRoleAssignmentsAsync` followed same-subscription `nextLink` to `roleEligibilitySchedules` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-assignments listing path; regression `ListSubscriptionRoleAssignmentsAsync_rejects_next_link_for_different_role_listing_path`; seeded subscription role-eligibility listing path guard as `(candidate)`; 96 Azure + 51 AWS/GCP scoped extractor tests passed.
+
+- [x] (proven) `ListSubscriptionRoleAssignmentsAsync` — cross-listing `nextLink` within subscription — **hit 2026-09-27 seed hunt:** `EnsureTargetsSubscription` allowed `roleEligibilitySchedules` pagination; fixed with listing-path guard; regression above.
+
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors type-scoped subscription lists; proved `ListSubscriptionResourcesByTypeAsync` followed cross-listing `nextLink` to generic `/resources` within the same subscription (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on descriptor path; regression `ListSubscriptionResourcesByTypeAsync_rejects_next_link_for_different_type_listing_path`; seeded subscription-scoped role-assignment nextLink path guard as `(candidate)`; 95 Azure + 28 AWS/GCP scoped extractor tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded cloud-extractors network type-list paths; proved `ListPrivateDnsZoneVirtualNetworkLinksAsync` and `ListVirtualNetworkPeeringsAsync` followed cross-zone/cross-vnet `nextLink` without scope guards; fixed with `EnsureTargetsArmRelativeListingPath`; regressions `ListPrivateDnsZoneVirtualNetworkLinksAsync_rejects_next_link_for_different_zone_resource_id` and `ListVirtualNetworkPeeringsAsync_rejects_next_link_for_different_virtual_network_resource_id`; 2 scoped GetOnlyHostedAzureArmReadClient tests passed.
