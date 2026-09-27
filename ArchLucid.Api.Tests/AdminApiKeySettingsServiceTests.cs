@@ -281,6 +281,41 @@ public sealed class AdminApiKeySettingsServiceTests
         response.AppendConfigSuffix.Should().BeNull();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\uFEFF"
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Admin.IsConfigured.Should().BeFalse(
+            "BOM-only config is not authenticatable key material after normalization");
+        snapshot.Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\uFEFF"
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
