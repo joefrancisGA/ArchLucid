@@ -4981,6 +4981,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-09-27 seed hunt #24 (seed→hit): reseeded extraction-router; proved `FindBoundedMarkerIndex` treated hyphen as a token start boundary, so `owner` inside `co-owner` paired with `unowned` falsely emitted `OperationalOwnership` / Unowned component; fixed `IsValidMarkerBoundary` to reject hyphen-adjacent matches; regression `Extract_does_not_emit_ownership_gap_for_co_owner_substring_with_unowned`; 49 scoped DifficultyBasedExtractionRouter tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved human-review regulatory markers and `Extract` heuristics used raw `Contains`, so `phi` inside `Delphi`, `public api` inside `republic api`, and `RTO` inside `CARTOON` misrouted classification/extraction; fixed with `ContainsHumanReviewMarker` (bounded + simple plural) and bounded phrase/token checks in `Extract`; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`; 48 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded extraction-router; proved lifecycle phrase markers (`current state`, etc.) and bare `contradict` used substring `Contains`, so `recurrent state`/`contradictory` falsely classified `AmbiguousExtraction` and emitted transition/contradiction elements; fixed with `FindBoundedMarkerIndex` for phrases and `ContainsContradictMarker` word-form regex; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`; 44 scoped DifficultyBasedExtractionRouter tests passed.
@@ -4997,11 +4999,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 23
-- **bugs-found:** 15
+- **hunts:** 24
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — regulatory and Extract heuristic substring false positives
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — hyphen-boundary false positive for `owner` token in `co-owner`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

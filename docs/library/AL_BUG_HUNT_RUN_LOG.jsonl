@@ -7230,3 +7230,4 @@
 {"at":"2026-09-27T21:42:40.7034747Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only"}
 {"at":"2026-09-27T21:47:55.3074974Z","zoneId":"application-analysis","outcome":"hit"}
 {"at":"2026-09-27T21:50:29.7396405Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only"}
+{"at":"2026-09-27T21:57:14.8643908Z","zoneId":"extraction-router","outcome":"hit"}
