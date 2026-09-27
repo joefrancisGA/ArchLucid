@@ -997,6 +997,9 @@ export function DiagramReconcileWorkbenchClient() {
         message={selectionAnnouncement}
         testId="infra-diagram-reconcile-selection-announcer"
       />
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-honesty-line">
+        This compares the saved diagram with inventory evidence. It does not change either one.
+      </p>
 
       {loadError != null ? (
         <EnterpriseCompactEmptyState

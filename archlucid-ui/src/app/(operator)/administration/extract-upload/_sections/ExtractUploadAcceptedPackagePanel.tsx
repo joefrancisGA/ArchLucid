@@ -15,7 +15,6 @@ import {
 } from "@/lib/extract-upload-accepted-package-record";
 import {
   EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE,
-  EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
   EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_DETAIL,
@@ -27,13 +26,12 @@ import { showSuccess } from "@/lib/toast";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
   readonly record: ExtractUploadAcceptedPackageRecord;
-  readonly onReplaceInventory: () => void;
 };
 
 export function ExtractUploadAcceptedPackagePanel(
   props: ExtractUploadAcceptedPackagePanelProps,
 ): React.JSX.Element {
-  const { record, onReplaceInventory } = props;
+  const { record } = props;
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
   const truncatedId = truncateExtractUploadPackageId(record.packageId);
@@ -139,15 +137,6 @@ export function ExtractUploadAcceptedPackagePanel(
             </div>
           </dl>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid="extract-upload-accepted-replace"
-          onClick={onReplaceInventory}
-        >
-          {EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL}
-        </Button>
       </div>
       <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Continue</p>

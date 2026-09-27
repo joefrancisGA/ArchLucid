@@ -1408,6 +1408,9 @@ export function DriftWorkbenchClient() {
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY}
             </p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshot-roles">
+              Current is what the later snapshot contains. Baseline is what it is compared with.
+            </p>
           </div>
 
           <DriftSnapshotsTable
@@ -1691,6 +1694,11 @@ export function DriftWorkbenchClient() {
 
         {selectedSnapshotId.length > 0 ? (
         <>
+        {isViewingSnapshotInventory ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-inventory-view-scope">
+            This view shows the selected snapshot’s inventory, not changes between snapshots.
+          </p>
+        ) : null}
         <EnterpriseTable
           ariaLabel={
             isViewingSnapshotInventory

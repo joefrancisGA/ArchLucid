@@ -4,7 +4,7 @@ export const EXTRACT_UPLOAD_PAGE_SHORTCUTS: readonly PageShortcutEntry[] = [
   {
     id: "focus",
     label: "Focus upload (Ctrl+U)",
-    description: "Focus the inventory upload surface or open Replace inventory on Extract & upload",
+    description: "Focus the inventory upload surface on Extract & upload",
   },
   {
     id: "copy",

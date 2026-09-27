@@ -324,6 +324,7 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
         <li><span className="font-medium">What the boxes are:</span> {content.boxes}</li>
         <li><span className="font-medium">What the connectors are:</span> {content.connectors}</li>
         <li><span className="font-medium">Evidence kind:</span> {content.evidence}</li>
+        <li><span className="font-medium">Relationship provenance:</span> Observed means inventory evidence; derived means an inferred connection. Neither claims observed traffic.</li>
       </ul>
     </section>
   );
@@ -1910,6 +1911,9 @@ export function DiagramsWorkbenchClient() {
             </div>
             <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Scope controls which inventory resources are drawn; it does not change the inventory.
+              </p>
               <select
                 id="infra-diagrams-mode-picker"
                 className={cn("w-full", cnField)}
@@ -2504,6 +2508,9 @@ export function DiagramsWorkbenchClient() {
           <div className={cn("rounded-md border p-4", DESIGN_TOKENS.callout.warn)}>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               {INFRA_EVIDENCE_MERMAID_TOO_LARGE_FOR_BROWSER_MESSAGE}
+            </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+              The browser preview is too large; the server export uses the same diagram source.
             </p>
             <div className="mt-3">
               <Button type="button" variant="outline" size="sm" disabled={exportsDisabled} onClick={() => void runPngExport()}>

@@ -471,7 +471,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION = "Open clou
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE = "No diffs for this snapshot" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY =
-  "Drift diffs appear after a second snapshot is captured for the same subscription." as const;
+  "No changes were found for this comparison. Drift diffs appear after a second snapshot is captured for the same subscription." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE =
   "No later inventory captures to compare" as const;

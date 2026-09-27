@@ -78,6 +78,21 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
 
   return (
     <EnterpriseTableHead>
+      {showDiffColumns ? (
+        <tr>
+          <th colSpan={columnCount} className="px-3 py-2 text-left">
+            <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Change categories describe what differed between the selected snapshots: Added, Removed, Changed, and Unchanged.
+            </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Rows are grouped by resource so related property changes can be reviewed together.
+            </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Risk is the impact classification assigned to this change.
+            </span>
+          </th>
+        </tr>
+      ) : null}
       <EnterpriseTableHeadRow>
         {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, {
           kind: "text",

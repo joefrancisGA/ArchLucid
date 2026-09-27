@@ -314,6 +314,9 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
           <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Applies to: <span className="font-medium text-al-text-primary">{RESPONSIBLE_AI_POLICY_PACK_APPLIES_TO}</span>
           </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Enabled in workspace describes this workspace. Active globally describes the broader policy scope.
+          </p>
         </CardContent>
       </Card>
 
@@ -348,6 +351,9 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
           Applicability
         </h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_APPLICABILITY}</p>
+        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          This describes when the pack applies; the enabled state above shows whether it is active in this workspace.
+        </p>
       </section>
 
       <section className="space-y-2" aria-labelledby="policy-pack-governance-heading">
