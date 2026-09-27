@@ -18718,11 +18718,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 26
-- **bugs-found:** 21
+- **hunts:** 27
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — numeric citation array entries skipped sponsor citation count
+- **last-bug:** 2026-09-27 — empty object citations counted as present for disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18774,6 +18774,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-27 seed hunt (seed→hit): reseeded core-explanation-json; proved numeric `citations` array tokens (`[42,"dec-1"]`) counted only string entries so `ResolveDisposition` returned WARN despite two citations (parity gap vs `StructuredExplanationParser` numeric `evidenceRefs`); fixed `CountFlattenedCitationEntry` to count number/boolean tokens; regression `FromAggregateJson_counts_numeric_citation_array_entries_for_disposition`; 75 Core Explanation + 3 Application RunExplanation tests passed.
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountFlattenedCitationEntry` — numeric citation array entries ignored — **hit 2026-09-27 seed hunt:** `JsonValueKind.Number` fell through to zero count while structured normalize maps numeric evidence refs; fixed by treating finite numeric/boolean tokens as single citations; regression `FromAggregateJson_counts_numeric_citation_array_entries_for_disposition`.
+
+2026-09-27 seed hunt (seed→hit): reseeded core-explanation-json after numeric citation fix; proved empty `{}` citation objects and scalar object citations counted as one citation for sponsor disposition while structured `evidenceRefs` drops object entries without `id`/`text`; fixed with `CountCitationObject` parity on array and scalar object shapes; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`; 76 Core Explanation + 3 Application RunExplanation tests passed.
+
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountFlattenedCitationEntry` — empty object citation tokens counted as present — **hit 2026-09-27 seed hunt:** any `JsonValueKind.Object` returned count 1 without reading `id`/`text`; fixed `CountCitationObject` for array entries and scalar `citations` object; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
