@@ -122,20 +122,15 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     }
 
     [Fact]
-    public void Compile_nsg_attached_to_subnet_emits_attachment_with_rule_fields()
+    public void Compile_nsg_attached_to_subnet_removes_policy_card_without_self_loop()
     {
         GraphSnapshot graph = BuildNsgGraph(includeAssociation: true);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
-        ast.Edges.Should().ContainSingle(edge =>
-            !edge.IsLayoutOnly
-            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryNsgPolicyAttachment
-            && edge.Label.Contains("TCP", StringComparison.Ordinal)
-            && edge.Label.Contains("443", StringComparison.Ordinal)
-            && edge.Label.Contains("Inbound", StringComparison.Ordinal)
-            && edge.Label.Contains("Allow", StringComparison.Ordinal));
+        ast.Edges.Should().NotContain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryNsgPolicyAttachment);
     }
 
     [Fact]

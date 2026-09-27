@@ -100,7 +100,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
 
         DiagramNode connection = ast.Nodes.Should().ContainSingle(node =>
             node.ArmResourceType == "Microsoft.Network/connections").Subject;
-        connection.ConnectionState.Should().BeNull();
+        connection.ConnectionState.Should().Be(InventoryDiagramConnectionState.Unknown);
         connection.ConnectionStateMessage.Should().BeNull();
     }
 
@@ -113,7 +113,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
 
         DiagramNode connection = ast.Nodes.Should().ContainSingle(node =>
             node.ArmResourceType == "Microsoft.Network/connections").Subject;
-        connection.ConnectionState.Should().BeNull();
+        connection.ConnectionState.Should().Be(InventoryDiagramConnectionState.Unknown);
         connection.ConnectionStateMessage.Should().BeNull();
     }
 

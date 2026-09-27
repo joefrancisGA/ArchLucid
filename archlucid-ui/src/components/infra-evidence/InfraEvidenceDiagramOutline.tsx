@@ -347,14 +347,39 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     () => outline.nodes.filter((node) => !connectedNodeIds.has(node.id)),
     [connectedNodeIds, outline.nodes],
   );
-  const connectedNodeRows = useMemo(
-    () => sortInfraEvidenceDiagramOutlineNodes(allConnectedNodes, nodeSortKey, nodeSortDir),
-    [allConnectedNodes, nodeSortDir, nodeSortKey],
-  );
-  const unconnectedNodeRows = useMemo(
-    () => sortInfraEvidenceDiagramOutlineNodes(allUnconnectedNodes, nodeSortKey, nodeSortDir),
-    [allUnconnectedNodes, nodeSortDir, nodeSortKey],
-  );
+  const stateRows = useMemo(() => {
+    const stateByNodeId = new Map<string, InfraEvidenceMermaidOutlineNode["connectionState"]>();
+
+    for (const node of outline.nodes) {
+      stateByNodeId.set(node.id, node.connectionState);
+    }
+
+    for (const node of allConnectedNodes) {
+      if (stateByNodeId.get(node.id) == null) {
+        stateByNodeId.set(node.id, "Connected");
+      }
+    }
+
+    for (const node of allUnconnectedNodes) {
+      if (stateByNodeId.get(node.id) == null) {
+        stateByNodeId.set(node.id, "Unknown");
+      }
+    }
+
+    const rows = new Map<string, readonly InfraEvidenceMermaidOutlineNode[]>();
+    for (const state of ["Connected", "Used", "Orphaned", "Unconnected", "Unknown"] as const) {
+      rows.set(
+        state,
+        sortInfraEvidenceDiagramOutlineNodes(
+          outline.nodes.filter((node) => stateByNodeId.get(node.id) === state),
+          nodeSortKey,
+          nodeSortDir,
+        ),
+      );
+    }
+
+    return rows;
+  }, [allConnectedNodes, allUnconnectedNodes, nodeSortDir, nodeSortKey, outline.nodes]);
   const edgeRows = useMemo(
     () => sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir),
     [edgeSortDir, edgeSortKey, outline.edges, outline.nodes],
@@ -425,26 +450,19 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 </p>
               ) : null}
               <div className="flex flex-col gap-4">
-                <InfraEvidenceDiagramOutlineNodeTable
-                  nodes={connectedNodeRows}
-                  sectionLabel="Connected nodes"
-                  sectionTestId="infra-diagrams-connected-nodes-list"
-                  nodeSortKey={nodeSortKey}
-                  nodeSortDir={nodeSortDir}
-                  onSort={handleNodeSort}
-                  showNeighborhoodActions={showNeighborhoodActions}
-                  onFocusNeighborhood={onFocusNeighborhood}
-                />
-                <InfraEvidenceDiagramOutlineNodeTable
-                  nodes={unconnectedNodeRows}
-                  sectionLabel="Unconnected nodes"
-                  sectionTestId="infra-diagrams-unconnected-nodes-list"
-                  nodeSortKey={nodeSortKey}
-                  nodeSortDir={nodeSortDir}
-                  onSort={handleNodeSort}
-                  showNeighborhoodActions={showNeighborhoodActions}
-                  onFocusNeighborhood={onFocusNeighborhood}
-                />
+                {(["Connected", "Used", "Orphaned", "Unconnected", "Unknown"] as const).map((state) => (
+                  <InfraEvidenceDiagramOutlineNodeTable
+                    key={state}
+                    nodes={stateRows.get(state) ?? []}
+                    sectionLabel={`${state} nodes`}
+                    sectionTestId={`infra-diagrams-${state.toLowerCase()}-nodes-list`}
+                    nodeSortKey={nodeSortKey}
+                    nodeSortDir={nodeSortDir}
+                    onSort={handleNodeSort}
+                    showNeighborhoodActions={showNeighborhoodActions}
+                    onFocusNeighborhood={onFocusNeighborhood}
+                  />
+                ))}
               </div>
               {outline.nodes.length === 0 ? (
                 <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

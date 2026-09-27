@@ -8,6 +8,7 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly label: string;
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
+  readonly connectionState: "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | null;
   readonly seedNodeId?: string | null;
   /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
   readonly outlineOnlyOnCanvas?: boolean;
@@ -152,7 +153,7 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
 const OUTLINE_METADATA_TOKEN =
-  /(?:^|\s)(al-type|al-rg|al-seed|al-outline-only)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
 
 const EDGE_OUTLINE_METADATA_TOKEN =
   /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
@@ -160,6 +161,7 @@ const EDGE_OUTLINE_METADATA_TOKEN =
 type OutlineNodeMetadata = {
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
+  readonly connectionState: InfraEvidenceMermaidOutlineNode["connectionState"];
   readonly seedNodeId: string | null;
   readonly outlineOnlyOnCanvas: boolean;
 };
@@ -194,6 +196,7 @@ function unquoteMetadataValue(raw: string): string {
 function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let resourceType: string | null = null;
   let resourceGroup: string | null = null;
+  let connectionState: InfraEvidenceMermaidOutlineNode["connectionState"] = null;
   let seedNodeId: string | null = null;
   let outlineOnlyOnCanvas = false;
 
@@ -217,16 +220,27 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
       seedNodeId = value;
     }
 
+    if (
+      key === "al-state"
+      && (value === "Connected"
+        || value === "Used"
+        || value === "Orphaned"
+        || value === "Unconnected"
+        || value === "Unknown")
+    ) {
+      connectionState = value;
+    }
+
     if (key === "al-outline-only" && (value === "true" || value === "1")) {
       outlineOnlyOnCanvas = true;
     }
   }
 
-  return { resourceType, resourceGroup, seedNodeId, outlineOnlyOnCanvas };
+  return { resourceType, resourceGroup, connectionState, seedNodeId, outlineOnlyOnCanvas };
 }
 
 function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
-  return { resourceType: null, resourceGroup: null, seedNodeId: null, outlineOnlyOnCanvas: false };
+  return { resourceType: null, resourceGroup: null, connectionState: null, seedNodeId: null, outlineOnlyOnCanvas: false };
 }
 
 function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
@@ -382,6 +396,7 @@ function mergeOutlineNodeMetadata(
   return {
     resourceType: preferred.resourceType ?? fallback.resourceType,
     resourceGroup: preferred.resourceGroup ?? fallback.resourceGroup,
+    connectionState: preferred.connectionState ?? fallback.connectionState,
     seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
     outlineOnlyOnCanvas: preferred.outlineOnlyOnCanvas || fallback.outlineOnlyOnCanvas,
   };
@@ -399,6 +414,7 @@ function withPrecedingMetadata(
     ...node,
     resourceType: node.resourceType ?? preceding.resourceType,
     resourceGroup: node.resourceGroup ?? preceding.resourceGroup,
+    connectionState: node.connectionState ?? preceding.connectionState,
     seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
     outlineOnlyOnCanvas: node.outlineOnlyOnCanvas === true || preceding.outlineOnlyOnCanvas,
   };
@@ -442,6 +458,7 @@ function readNodeToken(
     label,
     resourceType: metadata.resourceType,
     resourceGroup: metadata.resourceGroup ?? subgraphResourceGroup,
+    connectionState: metadata.connectionState,
     seedNodeId: metadata.seedNodeId,
     outlineOnlyOnCanvas: metadata.outlineOnlyOnCanvas ? true : undefined,
   };
@@ -468,6 +485,12 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, seedNodeId: node.seedNodeId });
+    }
+
+    if (existing.connectionState == null && node.connectionState != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, connectionState: node.connectionState });
     }
 
     if (existing.outlineOnlyOnCanvas !== true && node.outlineOnlyOnCanvas === true) {

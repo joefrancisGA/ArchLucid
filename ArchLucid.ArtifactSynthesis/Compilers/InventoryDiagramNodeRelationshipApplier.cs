@@ -247,6 +247,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         IReadOnlyList<AzureInventoryNsgAssociation> associations = AzureInventoryNsgAssociationParser.Parse(properties);
         IReadOnlyList<AzureInventoryNsgSecurityRule> rules = AzureInventoryNsgSecurityRuleParser.Parse(properties);
         Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(graph);
+        Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
         InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(graphNode);
         int emittedEdgeCount = 0;
 
@@ -257,28 +258,27 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 continue;
             }
 
-            string? endpointArmId = ResolveNsgAssociationEndpointArmId(association, nicOwnerArmIdByNicArmId);
+            IReadOnlyList<string> endpointArmIds = ResolveNsgAssociationEndpointArmIds(
+                association,
+                nicOwnerArmIdByNicArmId,
+                subnetOwnerArmIds);
 
-            if (string.IsNullOrWhiteSpace(endpointArmId)
-                || !armIdToDiagramNodeId.TryGetValue(endpointArmId, out string? endpointDiagramNodeId))
+            if (endpointArmIds.Count == 0)
             {
                 continue;
             }
 
-            if (emitPolicyEdges)
+            foreach (string endpointArmId in endpointArmIds)
             {
-                string edgeLabel = BuildNsgAttachmentLabel(rules);
-                ast.Edges.Add(new DiagramEdge
+                if (!armIdToDiagramNodeId.TryGetValue(endpointArmId, out string? endpointDiagramNodeId))
                 {
-                    FromNodeId = endpointDiagramNodeId,
-                    ToNodeId = endpointDiagramNodeId,
-                    Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, edgeLabel),
-                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-                    InferenceSource = GraphEdgeInferenceSources.InventoryNsgPolicyAttachment,
-                });
-            }
+                    continue;
+                }
 
-            emittedEdgeCount++;
+                // The rule payload remains on the graph for the effective-rule reducer.
+                // A self-loop obscures that policy is attached to this visible owner.
+                emittedEdgeCount++;
+            }
         }
 
         if (emittedEdgeCount == 0)
@@ -408,13 +408,30 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return $"NSG {protocol} {port} {direction} {access}";
     }
 
-    private static string? ResolveNsgAssociationEndpointArmId(
+    private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(
         AzureInventoryNsgAssociation association,
-        IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId)
+        IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId,
+        IReadOnlyDictionary<string, HashSet<string>> subnetOwnerArmIds)
     {
         if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.SubnetKind, StringComparison.OrdinalIgnoreCase))
         {
-            return association.TargetArmId;
+            string subnetArmId = ArmResourceIdNormalizer.Normalize(association.TargetArmId);
+            if (subnetOwnerArmIds.TryGetValue(subnetArmId, out HashSet<string>? ownerArmIds))
+            {
+                return ownerArmIds.ToList();
+            }
+
+            string? vnetArmId = DiagramAstVnetTopologyResolver.TryResolveVnetIdFromSubnetArmId(subnetArmId);
+
+            if (!string.IsNullOrWhiteSpace(vnetArmId)
+                && subnetOwnerArmIds.TryGetValue(vnetArmId, out ownerArmIds))
+            {
+                return ownerArmIds.ToList();
+            }
+
+            // A visible subnet is still a valid endpoint when no workload
+            // placement edge was collected for it.
+            return [subnetArmId];
         }
 
         if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.NicKind, StringComparison.OrdinalIgnoreCase)
@@ -423,10 +440,121 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 ArmResourceIdNormalizer.Normalize(association.TargetArmId),
                 out string? ownerArmId))
         {
-            return ownerArmId;
+            return [ownerArmId];
         }
 
-        return null;
+        return [];
+    }
+
+    private static Dictionary<string, HashSet<string>> BuildSubnetOwnerArmIdMap(
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId)
+    {
+        Dictionary<string, HashSet<string>> ownersBySubnetArmId =
+            new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, GraphNode> nodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? source)
+                || !nodesById.TryGetValue(edge.ToNodeId, out GraphNode? subnet))
+            {
+                continue;
+            }
+
+            string subnetArmId = ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(subnet));
+            string sourceArmId = ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(source));
+
+            if (string.IsNullOrWhiteSpace(subnetArmId) || string.IsNullOrWhiteSpace(sourceArmId))
+            {
+                continue;
+            }
+
+            if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (DiagramAstGraphNodeClassifier.ReadArmType(source)
+                    .Contains("/networkInterfaces", StringComparison.OrdinalIgnoreCase)
+                && nicOwnerArmIdByNicArmId.TryGetValue(sourceArmId, out string? ownerArmId))
+            {
+                sourceArmId = ownerArmId;
+            }
+
+            if (!ownersBySubnetArmId.TryGetValue(subnetArmId, out HashSet<string>? owners))
+            {
+                owners = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                ownersBySubnetArmId[subnetArmId] = owners;
+            }
+
+            owners.Add(sourceArmId);
+        }
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement,
+                    StringComparison.OrdinalIgnoreCase)
+                || !nodesById.TryGetValue(edge.FromNodeId, out GraphNode? owner)
+                || !nodesById.TryGetValue(edge.ToNodeId, out GraphNode? vnet))
+            {
+                continue;
+            }
+
+            string ownerArmId = ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(owner));
+            string vnetArmId = ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(vnet));
+
+            if (string.IsNullOrWhiteSpace(ownerArmId) || string.IsNullOrWhiteSpace(vnetArmId))
+            {
+                continue;
+            }
+
+            if (!ownersBySubnetArmId.TryGetValue(vnetArmId, out HashSet<string>? vnetOwners))
+            {
+                vnetOwners = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                ownersBySubnetArmId[vnetArmId] = vnetOwners;
+            }
+
+            vnetOwners.Add(ownerArmId);
+
+            foreach (GraphNode subnet in graph.Nodes.Where(node =>
+                         DiagramAstGraphNodeClassifier.ReadArmType(node)
+                             .Contains("/subnets", StringComparison.OrdinalIgnoreCase)
+                         && string.Equals(
+                             DiagramAstVnetTopologyResolver.TryResolveVnetIdFromSubnetArmId(
+                                 DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                             vnetArmId,
+                             StringComparison.OrdinalIgnoreCase)))
+            {
+                string subnetArmId = ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(subnet));
+
+                if (!ownersBySubnetArmId.TryGetValue(subnetArmId, out HashSet<string>? owners))
+                {
+                    owners = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    ownersBySubnetArmId[subnetArmId] = owners;
+                }
+
+                owners.Add(ownerArmId);
+            ownersBySubnetArmId.GetValueOrDefault(vnetArmId)?.Add(ownerArmId);
+            if (!ownersBySubnetArmId.ContainsKey(vnetArmId))
+            {
+                ownersBySubnetArmId[vnetArmId] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ownerArmId };
+            }
+            }
+        }
+
+        return ownersBySubnetArmId;
     }
 
     private static Dictionary<string, string> BuildNicOwnerArmIdMap(GraphSnapshot graph)
