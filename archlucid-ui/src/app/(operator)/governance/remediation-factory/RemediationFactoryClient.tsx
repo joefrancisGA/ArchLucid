@@ -526,6 +526,18 @@ export function RemediationFactoryClient() {
     }
   }, [rankedPaths, rankedPathsQuery.isSuccess, selectedPathId, syncSelection]);
 
+  useEffect(() => {
+    if (!rankedPathsQuery.isSuccess || selectedPathId === null) {
+      return;
+    }
+
+    const stillVisible = visibleRankedPaths.some((row) => row.pathId === selectedPathId);
+
+    if (!stillVisible) {
+      syncSelection({ pathId: null });
+    }
+  }, [rankedPathsQuery.isSuccess, selectedPathId, syncSelection, visibleRankedPaths]);
+
   async function runSimulator(findingId: string) {
     setSimulatorError(null);
 

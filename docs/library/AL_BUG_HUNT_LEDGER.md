@@ -23675,11 +23675,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 20
-- **bugs-found:** 23
+- **hunts:** 21
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — remediation factory stale deep-link + remediation lib proxy scope
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — remediation factory path view filter hid selected ranked path without clearing pathId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23718,6 +23718,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RemediationPatternsClient` — `selectedPatternId` and version-history detail survived registry filter changes that hid the selected row from `filteredPatterns` (operational-errors / diagram-reconcile filter/detail desync pattern) — **hit 2026-09-25 seed hunt (seed→hit):** clear selection and `patternId` URL when row drops out of filtered registry; regression `clears_selected_pattern_when_registry_filter_hides_the_selected_row`
 - [x] (proven) `RemediationFactoryClient` — stale `findingId` / `pathId` URL params persist when id is missing from loaded ranked findings/paths (Slack `slackDisableId` stale deep-link pattern) — **hit 2026-09-26 thorough hunt:** after ranked findings/paths hydration, unknown ids clear from URL via `syncSelection`; regression `clears stale findingId from the URL when the finding is missing from loaded rows` and `clears stale pathId from the URL when the path is missing from loaded rows` (`RemediationFactoryClient.test.tsx`).
 - [x] (proven) `remediation-pattern-api.ts` / `remediation-factory-api.ts` — `proxyJson`/`proxyGet` omit `mergeRegistrationScopeForProxy` on list/detail/submit/approve and factory ranked/metrics calls consumed by operator remediation routes — **hit 2026-09-26 thorough hunt:** wrapped lib fetch helpers with `mergeRegistrationScopeForProxy`; regression `remediation-factory-api.test.ts`, `remediation-pattern-api.test.ts`.
+
+- [x] (proven) `RemediationFactoryClient` — `pathView` ranked-path filter hid the selected row from `visibleRankedPaths` while `pathId` URL param and inspect panel stayed on the prior path (diagram-reconcile / remediation-patterns filter/detail desync pattern) — **hit 2026-09-27 seed hunt (seed→hit):** clear `pathId` when the selected path drops out of the active ranked-path view; regression `clears pathId from the URL when the ranked path view filter hides the selected row`; 4 `RemediationFactoryClient` tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-operator-routes after remediation-factory hits; proved ranked-path view filter/detail desync on remediation factory.
 
 2026-09-12 seed hunt #1849 (hit): reseeded operator routes; proved executive next-action inputs query cache omitted operator scope; 1 scoped hook test passed.
 
