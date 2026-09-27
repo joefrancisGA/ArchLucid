@@ -109,9 +109,9 @@ public sealed class AuthorityPipelineWorkPayload
 
         request.InlineRequirements = MaterializeStringList(request.InlineRequirements);
         request.Documents = MaterializeDocumentList(request.Documents);
-        request.PolicyReferences = MaterializeStringList(request.PolicyReferences);
-        request.TopologyHints = MaterializeStringList(request.TopologyHints);
-        request.SecurityBaselineHints = MaterializeStringList(request.SecurityBaselineHints);
+        request.PolicyReferences = MaterializeReferenceStringList(request.PolicyReferences);
+        request.TopologyHints = MaterializeReferenceStringList(request.TopologyHints);
+        request.SecurityBaselineHints = MaterializeReferenceStringList(request.SecurityBaselineHints);
         request.InfrastructureDeclarations = MaterializeInfrastructureDeclarationList(request.InfrastructureDeclarations);
         request.RequiredCapabilities = MaterializeStringList(request.RequiredCapabilities);
         request.Constraints = MaterializeStringList(request.Constraints);
@@ -125,6 +125,16 @@ public sealed class AuthorityPipelineWorkPayload
 
         return values
             .Where(static value => value is not null && HasSubstantiveText(value))
+            .ToList();
+    }
+
+    private static List<string> MaterializeReferenceStringList(List<string>? values)
+    {
+        if (values is null)
+            return [];
+
+        return values
+            .Where(static value => value is not null && HasUsableIdentifierText(value))
             .ToList();
     }
 

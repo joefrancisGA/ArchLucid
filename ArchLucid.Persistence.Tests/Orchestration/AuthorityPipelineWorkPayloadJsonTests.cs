@@ -250,6 +250,33 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_reference_string_lists_when_entry_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "policyReferences": ["pci\u0300", "keep-policy"],
+                "topologyHints": ["net/subnet\u0300", "keep/hint"],
+                "securityBaselineHints": ["cis\u0300", "cis-baseline"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.PolicyReferences.Should().Equal("keep-policy");
+        back.ContextIngestionRequest.TopologyHints.Should().Equal("keep/hint");
+        back.ContextIngestionRequest.SecurityBaselineHints.Should().Equal("cis-baseline");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_combining_mark_only_string_list_entries()
     {
         Guid runId = Guid.Parse("88888888-8888-8888-8888-888888888888");
