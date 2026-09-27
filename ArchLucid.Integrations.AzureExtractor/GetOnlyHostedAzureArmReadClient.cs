@@ -127,9 +127,31 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string roleAssignmentsListingPath =
+            $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/roleAssignments";
+
+        return await ListSubscriptionRoleAssignmentsAtListingPathAsync(
+            accessToken,
+            trimmedSubscriptionId,
+            roleAssignmentsListingPath,
+            $"https://management.azure.com/{roleAssignmentsListingPath}?api-version={RoleAssignmentsApiVersion}",
+            "role assignment",
+            MapRoleAssignment,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleAssignmentsAtListingPathAsync(
+        string accessToken,
+        string subscriptionId,
+        string listingRelativePath,
+        string initialUrl,
+        string listingKind,
+        Func<JsonElement, HostedAzureArmRoleAssignmentRecord?> mapItem,
+        CancellationToken cancellationToken)
+    {
         List<HostedAzureArmRoleAssignmentRecord> assignments = [];
-        string? nextLink =
-            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/roleAssignments?api-version={RoleAssignmentsApiVersion}";
+        string? nextLink = initialUrl;
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -138,7 +160,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             if (!visitedLinks.Add(nextLink))
             {
                 throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM role assignment listing due to repeating nextLink.");
+                    $"Hosted Azure extractor stopped ARM {listingKind} listing due to repeating nextLink.");
             }
 
             requestCount++;
@@ -146,7 +168,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             if (requestCount > MaxPaginationRequests)
             {
                 throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM role assignment listing after {MaxPaginationRequests} pages.");
+                    $"Hosted Azure extractor stopped ARM {listingKind} listing after {MaxPaginationRequests} pages.");
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -167,7 +189,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             {
                 foreach (JsonElement item in valueElement.EnumerateArray())
                 {
-                    HostedAzureArmRoleAssignmentRecord? mapped = MapRoleAssignment(item);
+                    HostedAzureArmRoleAssignmentRecord? mapped = mapItem(item);
 
                     if (mapped is not null)
                     {
@@ -185,9 +207,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        subscriptionId);
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }
@@ -212,9 +234,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string roleEligibilityListingPath =
+            $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/roleEligibilitySchedules";
+
         List<HostedAzureArmRoleAssignmentRecord> schedules = [];
         string? nextLink =
-            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()";
+            $"https://management.azure.com/{roleEligibilityListingPath}?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -281,9 +307,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        subscriptionId);
+                        roleEligibilityListingPath);
                     nextLink = candidateNextLink;
                 }
             }
