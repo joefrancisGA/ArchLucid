@@ -2106,6 +2106,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` keys such as `svc-  api` were outer-trimmed only so relationships using normalized `svc-api` missed alias-only rename mappings and graph merge dropped edges — **hit 2026-09-26 seed hunt (seed→hit):** index normalized synthetic alias keys when merging declared aliases; regression `MapRelationships_resolves_synthetic_alias_key_when_declared_alias_has_internal_whitespace_after_prefix`; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
 
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` values such as `svc-  1` were outer-trimmed only so resolved node ids stayed whitespace-padded and graph merge dropped dangling edges — **hit 2026-09-27 seed hunt (seed→hit):** #3908g trimmed surrounding whitespace on alias values but not internal whitespace after svc-/ds- prefix; fixed by `NormalizeAliasTargetNodeId` before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_value_has_internal_whitespace_after_synthetic_prefix`; 306 scoped edge-mapper/graph-merge tests passed.
+
+2026-09-27 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-value normalization gap; 306 scoped edge-mapper/graph-merge tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-key normalization gap; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved merge-gate synthetic endpoint normalization parity gap; 306 scoped edge-mapper/graph-merge/endpoint-index tests passed.
@@ -2122,11 +2126,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 72
-- **bugs-found:** 60
+- **hunts:** 73
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — declared endpoint alias keys with internal whitespace after svc-/ds- prefix did not normalize for relationship lookup
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — declared endpoint alias values with internal whitespace after svc-/ds- prefix stored padded resolved node ids and dropped edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

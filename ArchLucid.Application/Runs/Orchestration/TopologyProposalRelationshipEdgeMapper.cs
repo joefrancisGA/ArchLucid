@@ -81,18 +81,26 @@ public static class TopologyProposalRelationshipEdgeMapper
                 continue;
 
             string trimmedKey = alias.Key.Trim();
-            string trimmedValue = alias.Value.Trim();
+            string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
 
-            endpointKeyToNodeId.TryAdd(trimmedKey, trimmedValue);
+            endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
 
             string? normalizedSyntheticKey =
                 TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
 
             if (normalizedSyntheticKey is not null)
-                endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, trimmedValue);
+                endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, resolvedNodeId);
         }
 
         return endpointKeyToNodeId;
+    }
+
+    private static string NormalizeAliasTargetNodeId(string aliasTargetNodeId)
+    {
+        string trimmed = aliasTargetNodeId.Trim();
+
+        return TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
+               ?? trimmed;
     }
 
     private static string MapRelationshipType(RelationshipType relationshipType) =>
