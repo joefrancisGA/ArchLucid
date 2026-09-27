@@ -4872,16 +4872,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-27 seed hunt (seed-only): reseeded architecture-recommendation; cheap-disproved `IsActionableFinding` Pass/NotApplicable emission and Pass competing-dimension trade-off attachment gaps; confirmed padded `High` severity effort gating via existing `ArchitectureRecommendationSeverityLabel` trim path; regressions `BuildRecommendations_omits_pass_and_not_applicable_findings_from_recommendations`, `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_pass`, and `BuildRecommendations_trims_padded_high_severity_for_effort_band_without_human_approval`; 17 scoped Alternatives/ProposedChange tests passed.
+
+- [x] (valid-no-repro) `ArchitectureRecommendationEngine.IsActionableFinding` — Pass/NotApplicable findings might still emit recommendations — **cheap-disproof 2026-09-27 seed hunt:** only `Fail` and `Indeterminate` pass the engine filter; regression `BuildRecommendations_omits_pass_and_not_applicable_findings_from_recommendations`
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — Pass conclusion on competing dimension might still trigger Security/Cost trade-offs — **cheap-disproof 2026-09-27 seed hunt:** `IsActionableForTradeOff` mirrors engine gating; Pass Cost with Fail Security yields no trade-off; regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_pass`
+
 - **id:** architecture-recommendation
 - **status:** open
 - **impact:** medium
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-26 — NotApplicable findings triggered security/cost trade-offs without cost recommendations
 - **related-pd-tb:** none
 - **code-changed-since:** no
