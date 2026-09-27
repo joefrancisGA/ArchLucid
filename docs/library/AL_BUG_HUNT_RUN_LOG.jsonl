@@ -7184,3 +7184,4 @@
 {"at":"2026-09-27T17:03:23.5772851Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-27T17:06:38.3828435Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-27T17:10:34.3151353Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-09-27T17:15:07.2807818Z","zoneId":"host-core-jobs","outcome":"seed-only"}
