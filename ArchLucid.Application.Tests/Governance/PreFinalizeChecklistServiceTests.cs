@@ -729,7 +729,7 @@ public sealed class PreFinalizeChecklistServiceTests
         PreFinalizeChecklistItem linkageItem = result.Items.Should().ContainSingle(item =>
             item.ItemId == "evidence-linkage-gaps").Subject;
         linkageItem.Status.Should().Be(PreFinalizeChecklistItemStatus.Blocking);
-        linkageItem.Count.Should().BeGreaterThan(0);
+        linkageItem.Count.Should().Be(1, "supplemental linkage findings must not inflate checklist gap count");
     }
 
     [Fact]

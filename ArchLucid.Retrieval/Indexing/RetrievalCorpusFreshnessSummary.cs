@@ -20,4 +20,10 @@ public sealed class RetrievalCorpusFreshnessSummary
         get;
         init;
     }
+
+    public int ChunkCount
+    {
+        get;
+        init;
+    }
 }

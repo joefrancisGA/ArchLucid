@@ -8,6 +8,7 @@ import {
   RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
 
 describe("infra-evidence-hub-tab-query", () => {
   it("drops item-scoped params when switching hub tabs", () => {
@@ -27,5 +28,20 @@ describe("infra-evidence-hub-tab-query", () => {
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_INSTANCE_ID_PARAM)).toBeNull();
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM)).toBeNull();
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_RUN_ID_PARAM)).toBe("run-1");
+  });
+
+  it("drops terraform-only technical disclosure key when leaving terraform tab", () => {
+    const currentSearch = new URLSearchParams({
+      tab: "terraform",
+      [INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM]: "terraformAddress",
+      workQueue: "open-findings",
+      runId: "run-1",
+    }).toString();
+
+    const overviewSearch = sanitizeResourceHubQueryForTab(currentSearch, "overview");
+
+    expect(new URLSearchParams(overviewSearch).get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM)).toBeNull();
+    expect(new URLSearchParams(overviewSearch).get("workQueue")).toBe("open-findings");
+    expect(new URLSearchParams(overviewSearch).get(RESOURCE_HUB_RUN_ID_PARAM)).toBe("run-1");
   });
 });

@@ -12,6 +12,7 @@ import {
 } from "./resource-hub-test-mock-hub";
 
 const replace = vi.fn();
+const push = vi.fn();
 let searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
 
 const fetchCachedInfraEvidenceResourceHub = vi.fn(async () => buildResourceHubTestMockHub());
@@ -24,7 +25,7 @@ const createRemediationInstance = vi.fn(async () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace, push: vi.fn() }),
+  useRouter: () => ({ replace, push }),
   usePathname: () => `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
   useSearchParams: () => searchParams,
 }));
@@ -232,6 +233,31 @@ describe("ResourceHubClient", () => {
 
     fireEvent.keyDown(window, { key: "2", altKey: true });
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("tab=drift"));
+  });
+
+  it("preserves explorer workQueue when switching hub tabs via keyboard shortcut", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "6", altKey: true });
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-remediation"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("tab=remediation"));
+  });
+
+  it("threads explorer workQueue on back-to-explorer link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const backLink = await screen.findByTestId("infra-resource-hub-explorer-work-queue-back-link");
+
+    expect(backLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
   });
 
   it("shows tab count badges for findings and drift", async () => {
@@ -588,6 +614,71 @@ describe("ResourceHubClient", () => {
 
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
+  it("preserves explorer workQueue when switching hub tabs without snapshot in URL", async () => {
+    searchParams = new URLSearchParams("tab=overview&workQueue=open-findings&runId=run-1");
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-findings"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+  });
+
+  it("clears terraform technical disclosure key when switching away from terraform tab", async () => {
+    searchParams = new URLSearchParams(
+      `tab=terraform&infraResourceHubTechnicalKey=terraformAddress&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-overview"));
+
+    expect(replace).toHaveBeenCalledWith(expect.not.stringContaining("infraResourceHubTechnicalKey=terraformAddress"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("threads explorer workQueue when using G then E keyboard shortcut to return to explorer", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    push.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "g" });
+    fireEvent.keyDown(window, { key: "e" });
+
+    expect(push).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("preserves explorer workQueue on overview view all drift hub tab link", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    const manyChanges = Array.from({ length: 6 }, (_, index) => ({
+      ...baseChange,
+      changeId: `change-${index + 1}`,
+      diffId: `diff-${index + 1}`,
+    }));
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ recentChanges: manyChanges }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=recent-drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-overview-view-all-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=recent-drift"),
+    );
+    expect(screen.getByTestId("infra-resource-hub-overview-view-all-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("tab=drift"),
+    );
   });
 
   it("omits terraform mapping from overview when address is absent", async () => {
