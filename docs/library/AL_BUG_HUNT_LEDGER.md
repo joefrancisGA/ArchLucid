@@ -24087,11 +24087,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 25
-- **bugs-found:** 17
+- **hunts:** 26
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — kill-switch during slow TryAdmit still granted lease
+- **last-bug:** 2026-09-27 — kill-switch during slow TryPromote still returned permit
+
+2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — kill-switch during slow `TryPromoteAsync` still grants queued permit — **hit 2026-09-27 seed hunt #26:** post-promote snapshot re-check releases promoted lease; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`.
 
 2026-09-27 seed hunt #25 (seed→hit): reseeded post-operational admit window; proved kill-switch or operational anonymous block applied during slow `TryAdmitAsync` still committed a direct lease or queue row because gates ran only before the store call; fixed with post-admit operational/safety re-check and lease or queue rollback; regressions `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_admit`, `WaitForAdmissionAsync_rejects_when_operational_blocks_anonymous_during_slow_try_admit`; 39 scoped QuickScanDistributedConcurrency tests passed.
 
