@@ -30,6 +30,26 @@ public sealed class TopologyDatastoreLabelHeuristicTests
     }
 
     [Fact]
+    public void IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_postgres_label()
+    {
+        GraphNode node = CreateTopologyNode("non-postgres-cache-api", sourceId: "/providers/Microsoft.Web/sites/non-postgres-cache");
+
+        TopologyDatastoreLabelHeuristic.IsRegulatedDatastoreTopologyNode(node)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_database_label()
+    {
+        GraphNode node = CreateTopologyNode("non-database-cache-api", sourceId: "/providers/Microsoft.Web/sites/non-database-cache");
+
+        TopologyDatastoreLabelHeuristic.IsRegulatedDatastoreTopologyNode(node)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_storage_label()
     {
         GraphNode node = CreateTopologyNode("non-storage-telemetry-api", sourceId: "/providers/Microsoft.Web/sites/non-storage-telemetry");
@@ -37,6 +57,16 @@ public sealed class TopologyDatastoreLabelHeuristicTests
         TopologyDatastoreLabelHeuristic.IsRegulatedDatastoreTopologyNode(node)
             .Should()
             .BeFalse();
+    }
+
+    [Fact]
+    public void IsRegulatedDatastoreTopologyNode_still_matches_postgres_label()
+    {
+        GraphNode node = CreateTopologyNode("payments-postgres-flex", sourceId: "/providers/Microsoft.DBforPostgreSQL/flexibleServers/payments");
+
+        TopologyDatastoreLabelHeuristic.IsRegulatedDatastoreTopologyNode(node)
+            .Should()
+            .BeTrue();
     }
 
     [Fact]

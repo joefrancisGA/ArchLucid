@@ -152,12 +152,12 @@ public static class SegmentationSemanticsPathAnalyzer
         string combined = $"{node.Label} {node.SourceId}".ToLowerInvariant();
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
-            || combined.Contains("storage", StringComparison.Ordinal)
-            || combined.Contains("database", StringComparison.Ordinal)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal);
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(combined)
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDatabaseKeyword(combined)
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "redis")
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || TopologyDatastoreLabelHeuristic.ContainsAffirmativeDelimiterToken(combined, "mysql");
     }
 
     private static bool IsJumpBoxNode(GraphNode node)

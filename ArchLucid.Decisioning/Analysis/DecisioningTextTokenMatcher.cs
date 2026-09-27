@@ -127,6 +127,29 @@ internal static class DecisioningTextTokenMatcher
         return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+';
     }
 
+    internal static bool ContainsAffirmativePrivateKeyword(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        string normalized = text.ToLowerInvariant();
+
+        if (!ContainsStandaloneToken(normalized, "private"))
+        {
+            return false;
+        }
+
+        if (normalized.Contains("non-private", StringComparison.Ordinal)
+            || normalized.Contains("non private", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool IsNegatedNonPrefix(string haystack, int tokenIndex)
     {
         if (tokenIndex >= 4
