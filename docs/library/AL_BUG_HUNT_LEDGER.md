@@ -5797,13 +5797,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — whitespace-only CustomGroupClaimRegex nulled by ToDocument so activate skipped substantive regex validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed-only): reseeded identity-provider-config after custom-regex hit; reviewed `IdentityProviderActivationService` pre/post `ToDocument` substantive guards and controller activate/test-login surfaces; cheap-disproof closed warn-only empty-mapping activation candidate; 40 scoped `IdentityProviderActivationServiceTests` passed; no new hunt-ready rows.
 
 2026-09-27 seed hunt (seed→hit): proved whitespace-only `CustomGroupClaimRegex` was nulled by `ToDocument` so `EnsureSubstantiveClaimMapping` never rejected it while operators believed a custom group regex was configured; `EnsureSubstantiveCustomGroupClaimRegexWhenProvided` before `ToDocument` on activate and test-login; regressions `ActivateAsync_rejects_whitespace_only_custom_group_claim_regex` and `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`; 56 scoped activation/controller/test-login tests passed.
 
@@ -5859,6 +5861,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — claim mapping with zero explicit `Mappings` and no `CustomGroupClaimRegex` persists while sandbox test-login cannot resolve roles — **cheap-disproof 2026-09-27 seed hunt:** `IdentityClaimRoleMappingValidator.Evaluate` warn-only by design; operators use test-login before commit; not a `ToDocument`/substantive-guard defect
 - [x] (invalid) Activation writes IdP settings onto a tenant the admin does not own — `ActivateAsync` uses `scope.TenantId` from `ScopeContextProvider`; no tenant override in request body
 - [x] (invalid) Disable still leaves the previous client secret usable — no deactivate/disable endpoint; wizard only exposes `activate` which sets `IsActive = true`
 - [x] (invalid) Config GET returns another tenant's client id — `GetConfigurationAsync` loads by `scope.TenantId` only
