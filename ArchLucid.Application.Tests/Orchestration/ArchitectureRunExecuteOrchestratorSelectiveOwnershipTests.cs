@@ -480,6 +480,53 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
     }
 
     [Fact]
+    public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_immediately_before_acquire()
+    {
+        Guid runGuid = Guid.Parse("30303030-3030-3030-3030-303030303030");
+        string runId = runGuid.ToString("N");
+        int loadCount = 0;
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-selective-ownership",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            Mock.Of<IAgentExecutor>(),
+            Mock.Of<IAgentResultRepository>(),
+            ownership.Object,
+            header,
+            () =>
+            {
+                loadCount++;
+
+                if (loadCount >= 5)
+                    header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            });
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*committed*");
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_after_force_validation()
     {
         Guid runGuid = Guid.Parse("10101010-1010-1010-1010-101010101010");
@@ -637,6 +684,118 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
             s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
             Times.Never,
             "vanished run must be detected immediately before ownership acquire, not only on owned-core reload after acquire");
+    }
+
+    [Fact]
+    public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire()
+    {
+        Guid runGuid = Guid.Parse("40404040-4040-4040-4040-404040404040");
+        string runId = runGuid.ToString("N");
+        int runLoadCount = 0;
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-selective-ownership",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                runLoadCount++;
+
+                return runLoadCount <= 4 ? header : null;
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo
+            .Setup(r => r.GetByIdAsync("req-selective-ownership", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRequest
+            {
+                RequestId = "req-selective-ownership",
+                Description = new string('x', 12),
+                SystemName = "SelectiveOwnership",
+            });
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentTask { RunId = runId, AgentType = AgentType.Cost, TaskId = "cost-task-ownership" },
+            ]);
+
+        Mock<IRequestContentSafetyPrecheck> safety = new();
+        safety
+            .Setup(s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("selective-ownership-test");
+
+        ArchitectureRunExecuteOrchestrator sut = ArchitectureRunExecuteOrchestratorTestFactory.Create(
+            runRepo.Object,
+            scopeProvider.Object,
+            requestRepo.Object,
+            taskRepo.Object,
+            Mock.Of<IAgentExecutor>(),
+            new ArchitectureRunExecuteOrchestratorCreateArgs
+            {
+                AgentEvaluationService = Mock.Of<IAgentEvaluationService>(),
+                AgentResultRepository = Mock.Of<IAgentResultRepository>(),
+                AgentEvaluationRepository = Mock.Of<IAgentEvaluationRepository>(),
+                AgentEvidencePackageRepository = Mock.Of<IAgentEvidencePackageRepository>(),
+                EvidenceBuilder = new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
+                ActorContext = actor.Object,
+                BaselineMutationAuditService = Mock.Of<IBaselineMutationAuditService>(),
+                PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                    scopeContextProvider: scopeProvider.Object,
+                    runRepository: runRepo.Object),
+                UnitOfWorkFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                OutputTraceEvaluationHook = Mock.Of<IAgentOutputTraceEvaluationHook>(),
+                AgentResultPostExecutionEnricher = new NoOpAgentResultPostExecutionEnricher(),
+                EvidencePackageInjectionMitigator = new NoOpEvidencePackageInjectionMitigator(),
+                AgentEvidenceUntrustedInputSanitizer = new NoOpAgentEvidenceUntrustedInputSanitizer(),
+                RequestContentSafetyPrecheck = safety.Object,
+                AgentExecutionOptions = Options.Create(new AgentExecutionOptions()),
+                EffectiveAgentExecutionModeAccessor = new FixedEffectiveAgentExecutionModeAccessor(),
+                AgentOutputQualityGateOptions = Options.Create(new AgentOutputQualityGateOptions()),
+                RunStateTransitionService = new RunStateTransitionService(),
+                RunEngineProvenanceCaptureService = Mock.Of<IRunEngineProvenanceCaptureService>(),
+                ExecuteTimeGovernanceScopeCaptureService = Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
+                TopologyProposalSeeder = ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+                DemoExpensiveActionGate = ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
+                RunScopedLlmBudgetReservationService = ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+                OperationCancellationRegistry = new OperationCancellationRegistry(),
+                RunCancellationMarker = new OperationRunCancellationMarker(runRepo.Object),
+                RunExecuteOwnershipLeaseService = ownership.Object,
+                RunStageOutcomesRepository = Mock.Of<IRunStageOutcomesRepository>(),
+                AgentExecutionReadinessGuard = new PermissiveAgentExecutionReadinessGuard(),
+                Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance
+            });
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private sealed class RecordingRenewalScope : IAsyncDisposable
