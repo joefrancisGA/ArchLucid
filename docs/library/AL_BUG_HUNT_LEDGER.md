@@ -23446,11 +23446,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 28
-- **bugs-found:** 23
+- **hunts:** 29
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — execute-baseline drift ignored not-assessed quality dimension snapshots
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — persisted assignment undefined severity ordinal bypassed live pre-commit gate
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -23515,6 +23515,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
+
+2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
+
+- [x] (proven) `PreCommitGateEvaluator` / `PreCommitGovernanceGate` — undefined `BlockCommitMinimumSeverity` ordinal on persisted assignment bypassed live gate — **hit 2026-09-27 seed hunt:** invalid ordinals set `effectiveMinSeverity` above any finding so Critical policy violations did not block despite `blockCommitOnCritical`; regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`.
+
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — evidence-linkage supplemental findings with `WarnOnly=false` may still differ from live gate warn-only policy routing (reachability: both call `PreCommitSupplementalFindingsAppender`; prove cross-surface block parity on next hunt).
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
