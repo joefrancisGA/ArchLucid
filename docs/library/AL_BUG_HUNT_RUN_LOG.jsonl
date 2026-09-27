@@ -7219,3 +7219,4 @@
 {"at":"2026-09-27T20:46:27.8117706Z","zoneId":"application-pilots","outcome":"hit"}
 {"at":"2026-09-27T20:50:36.7914753Z","zoneId":"cloud-extractors","outcome":"hit"}
 {"at":"2026-09-27T20:53:36.3684692Z","zoneId":"cloud-extractors","outcome":"hit"}
+{"at":"2026-09-27T20:57:51.1489689Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only"}
