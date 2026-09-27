@@ -115,6 +115,97 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
     }
 
     [Fact]
+    public async Task ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire()
+    {
+        Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string runId = runGuid.ToString("N");
+        int loadCount = 0;
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-ownership",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = CreateEnabledOwnershipMock(runGuid);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                loadCount++;
+
+                return loadCount <= 1 ? header : null;
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo
+            .Setup(r => r.GetByIdAsync("req-ownership", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRequest
+            {
+                RequestId = "req-ownership",
+                Description = new string('x', 12),
+                SystemName = "Ownership",
+            });
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = "topology-task-ownership" },
+            ]);
+
+        Mock<IRequestContentSafetyPrecheck> safety = new();
+        safety
+            .Setup(s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("ownership-test");
+
+        ArchitectureRunExecuteOrchestrator sut = ArchitectureRunExecuteOrchestratorTestFactory.Create(
+            runRepo.Object,
+            scopeProvider.Object,
+            requestRepo.Object,
+            taskRepo.Object,
+            Mock.Of<IAgentExecutor>(),
+            new ArchitectureRunExecuteOrchestratorCreateArgs
+            {
+                AgentEvaluationService = Mock.Of<IAgentEvaluationService>(),
+                AgentResultRepository = Mock.Of<IAgentResultRepository>(),
+                ActorContext = actor.Object,
+                BaselineMutationAuditService = Mock.Of<IBaselineMutationAuditService>(),
+                PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                    scopeContextProvider: scopeProvider.Object,
+                    runRepository: runRepo.Object),
+                RequestContentSafetyPrecheck = safety.Object,
+                AgentExecutionOptions = Options.Create(new AgentExecutionOptions()),
+                RunExecuteOwnershipLeaseService = ownership.Object,
+                Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
+            });
+
+        Func<Task> act = () => sut.ExecuteRunAsync(runId);
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ExecuteRunAsync_does_not_acquire_ownership_when_run_has_no_scheduled_tasks()
     {
         Guid runGuid = Guid.Parse("88888888-8888-8888-8888-888888888888");
