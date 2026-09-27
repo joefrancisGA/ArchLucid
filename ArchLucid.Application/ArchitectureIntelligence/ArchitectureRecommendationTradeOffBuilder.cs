@@ -147,26 +147,24 @@ internal static class ArchitectureRecommendationTradeOffBuilder
 
     private static bool IsNegatedDimensionMention(string priority, string dimensionToken)
     {
-        if (dimensionToken.Equals("Security", StringComparison.OrdinalIgnoreCase)
-            && NonSecurityNegationPattern().IsMatch(priority))
-        {
-            return true;
-        }
+        if (string.IsNullOrWhiteSpace(dimensionToken))
+            return false;
 
         if (dimensionToken.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
-            && (UnreliabilityNegationPattern().IsMatch(priority)
-                || NonReliabilityNegationPattern().IsMatch(priority)))
+            && UnreliabilityNegationPattern().IsMatch(priority))
         {
             return true;
         }
 
-        if (dimensionToken.Equals("Cost", StringComparison.OrdinalIgnoreCase)
-            && NonCostNegationPattern().IsMatch(priority))
-        {
-            return true;
-        }
+        return CreateNegatedDimensionPattern("non", dimensionToken).IsMatch(priority)
+            || CreateNegatedDimensionPattern("no", dimensionToken).IsMatch(priority);
+    }
 
-        return false;
+    private static Regex CreateNegatedDimensionPattern(string negationPrefix, string dimensionToken)
+    {
+        return new Regex(
+            $@"\b{negationPrefix}[-\s]?{Regex.Escape(dimensionToken)}\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 
     private static Regex CreateDimensionWordPattern(string dimensionToken)
@@ -176,17 +174,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 
-    private static Regex NonSecurityNegationPattern() =>
-        new(@"\bnon[-\s]?security\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
     private static Regex UnreliabilityNegationPattern() =>
         new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static Regex NonCostNegationPattern() =>
-        new(@"\bnon[-\s]?cost\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    private static Regex NonReliabilityNegationPattern() =>
-        new(@"\bnon[-\s]?reliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
     {
