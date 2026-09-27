@@ -24780,13 +24780,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — Infrastructure Ask links from resource hub omitted explorer workQueue
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt #21 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `ResourceHubBreadcrumb` explorer `workQueue` gap (TB-2090 — breadcrumb prop ignored by `OperatorPageHeader`); added parity regressions for remediation/audit/diagram Ask links, inline audit control picker, and technical disclosure URL sync preserving `workQueue`; 38 scoped ResourceHubClient tests passed.
+
+- [x] (invalid) `ResourceHubBreadcrumb` — explorer `workQueue` dropped on breadcrumb resources link while back link preserves queue — **invalid 2026-09-27 seed hunt #21:** breadcrumbs removed system-wide (TB-2090); component not rendered; back link already threads `explorerBackHref`.
 
 2026-09-27 seed hunt (seed-only): reseeded ui-infra-resource-hub after Ask `workQueue` ship; cheap-disproof closed remaining explorer `workQueue` parity on findings Ask, audit-scope clear, and stale audit banner navigation (all preserve `workQueue` via threaded Ask helpers or `currentSearch`); added regressions `preserves explorer workQueue on findings Infrastructure Ask links`, `preserves explorer workQueue when clearing active audit scope`, and `preserves explorer workQueue on stale audit scope banner links`; 33 scoped ResourceHubClient tests passed.
 

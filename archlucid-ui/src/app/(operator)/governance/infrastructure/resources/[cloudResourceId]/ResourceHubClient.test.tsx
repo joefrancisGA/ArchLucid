@@ -82,6 +82,21 @@ describe("buildInfraResourceHubTechnicalDisclosureScopedHref", () => {
     expect(href).toContain("runId=run-1");
     expect(href).toContain("infraResourceHubTechnicalKey=cloudResourceId");
   });
+
+  it("preserves explorer workQueue when syncing buyer-polished technical disclosure", () => {
+    const href = buildInfraResourceHubTechnicalDisclosureScopedHref(
+      RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+      "tab=overview&workQueue=open-findings&runId=run-1",
+      "cloudResourceId",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
+      {
+        snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID,
+        runId: "run-1",
+      },
+    );
+
+    expect(href).toContain("workQueue=open-findings");
+  });
 });
 
 describe("ResourceHubClient", () => {
@@ -486,6 +501,80 @@ describe("ResourceHubClient", () => {
       "href",
       expect.stringContaining("workQueue=open-findings"),
     );
+  });
+
+  it("preserves explorer workQueue on remediation Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=remediation&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on audit Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=audit&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-ask")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on diagram Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=diagram&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue when switching audit control via inline picker", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlNumber: "AC-3",
+              controlTitle: "Access enforcement",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const picker = await screen.findByTestId("infra-resource-hub-audit-scope-bar-control-picker");
+    fireEvent.change(picker, { target: { value: "dddddddd-dddd-dddd-dddd-dddddddddddd" } });
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
   });
 
   it("preserves explorer workQueue when switching hub tabs from the tab bar", async () => {
