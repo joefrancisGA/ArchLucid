@@ -29,8 +29,22 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         return configPath.EndsWith(":Key", StringComparison.OrdinalIgnoreCase);
     }
 
-    internal static bool IsSensitiveConfigPropertyName(string propertyName) =>
-        IsSensitiveConfigSegment(propertyName);
+    internal static bool IsSensitiveConfigPropertyName(string propertyName)
+    {
+        if (IsSensitiveConfigSegment(propertyName))
+            return true;
+
+        if (!propertyName.Contains('_', StringComparison.Ordinal))
+            return false;
+
+        foreach (string part in propertyName.Split('_', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (IsSensitiveConfigSegment(part))
+                return true;
+        }
+
+        return false;
+    }
 
     private static bool IsSensitiveConfigSegment(string segment)
     {
