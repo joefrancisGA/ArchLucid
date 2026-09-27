@@ -86,7 +86,6 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
-import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
   switch (platform) {
@@ -125,7 +124,6 @@ function ExtractUploadSettingsPageClientInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname() ?? "/administration/extract-upload";
-  const { localize } = useLocalizedProductCopy();
   const viewModel = useExtractUploadPageClient({
     router,
     pathname,
@@ -187,7 +185,10 @@ function ExtractUploadSettingsPageClientInner() {
     };
   }, []);
 
-  const validateCommand = localize(validateCommandForPlatform(selectedPlatform));
+  const validateCommand =
+    productLine === "security"
+      ? validateCommandForPlatform(selectedPlatform).replace(/^archlucid\b/, "securenow")
+      : validateCommandForPlatform(selectedPlatform);
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
