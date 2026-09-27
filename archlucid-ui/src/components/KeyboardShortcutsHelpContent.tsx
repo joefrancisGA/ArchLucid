@@ -132,14 +132,14 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
   );
   const readUrlSection = (): KeyboardShortcutsSectionId | null =>
     parseKeyboardShortcutsSectionFromSearch(
-      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("shortcutsSection"),
+      new URLSearchParams(window.location.search).get("shortcutsSection"),
     );
-  const [moreOpen, setMoreOpenState] = useState(() => readUrlSection() === "more");
-  const [alertsOpen, setAlertsOpenState] = useState(() => readUrlSection() === "alerts");
-  const [findingsOpen, setFindingsOpenState] = useState(() => readUrlSection() === "findings");
-  const [reviewDetailOpen, setReviewDetailOpenState] = useState(() => readUrlSection() === "review");
-  const [helpOpen, setHelpOpenState] = useState(() => readUrlSection() === "help");
-  const sectionRef = useRef<KeyboardShortcutsSectionId | null>(readUrlSection());
+  const [moreOpen, setMoreOpenState] = useState(false);
+  const [alertsOpen, setAlertsOpenState] = useState(false);
+  const [findingsOpen, setFindingsOpenState] = useState(false);
+  const [reviewDetailOpen, setReviewDetailOpenState] = useState(false);
+  const [helpOpen, setHelpOpenState] = useState(false);
+  const sectionRef = useRef<KeyboardShortcutsSectionId | null>(null);
 
   const applySectionState = useCallback((section: KeyboardShortcutsSectionId | null) => {
     setMoreOpenState(section === "more");

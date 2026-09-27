@@ -4,33 +4,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-import {
-  createScimAdminToken,
-  primePrivateBetaBrowserSessionIfJwtMode,
-  provisionScimDirectoryUser,
-  stubEmptyArchitectureDraftListRoute,
-} from "./helpers/live-private-beta-access";
-import { submitAdminInviteFromUsersUi } from "./helpers/live-invite-form-submit";
-import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { submitAdminInviteFromUsersUi, gotoLiveAdminUsersInvitePage } from "./helpers/live-invite-form-submit";
+import { stubEmptyArchitectureDraftListRoute, createScimAdminToken, provisionScimDirectoryUser } from "./helpers/live-private-beta-access";
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase } from "./helpers/live-api-client";
-
-async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
-  await primePrivateBetaBrowserSessionIfJwtMode(page);
-  await injectDefaultTenantOperatorScope(page);
-  await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
-
-  const errorShell = page.getByText(/Something went wrong/i);
-  if ((await errorShell.count()) > 0) {
-    await primePrivateBetaBrowserSessionIfJwtMode(page);
-    await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
-  }
-
-  await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
-  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
-}
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
   test.describe.configure({ timeout: 180_000 });
@@ -56,7 +34,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
 
-    await gotoUsersInvitePage(page);
+    await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
     const pendingRow = page.locator("tr", { hasText: inviteEmail });
@@ -79,7 +57,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     const inviteEmail = `e2e-dup-ui-${Date.now()}@example.com`;
 
-    await gotoUsersInvitePage(page);
+    await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
     const pendingRow = page.locator("tr", { hasText: inviteEmail });
@@ -98,7 +76,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     await provisionScimDirectoryUser(request, directoryEmail, scimToken.plaintextToken);
 
-    await gotoUsersInvitePage(page);
+    await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, directoryEmail, "Reader");
 
     await expect(page.getByText(/Cannot invite this email|directory user already exists/i)).toBeVisible({
