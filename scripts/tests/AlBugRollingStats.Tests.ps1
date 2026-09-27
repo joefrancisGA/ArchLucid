@@ -71,6 +71,8 @@ Describe 'al-bug-rolling-stats.ps1' {
         $stats.bugsFound24h | Should -Be 1
         $stats.dryRuns24h | Should -Be 0
         $stats.hitRate24h | Should -Be 1
+        $stats.archlucidShared.bugsFound24h | Should -Be 1
+        $stats.securenow.bugsFound24h | Should -Be 0
     }
 
     It 'counts dry runs inside the 24h window and excludes older events' {
@@ -88,6 +90,26 @@ Describe 'al-bug-rolling-stats.ps1' {
         $stats.bugsFound24h | Should -Be 1
         $stats.dryRuns24h | Should -Be 1
         $stats.seedOnly24h | Should -Be 1
+        $stats.archlucidShared.dryRuns24h | Should -Be 1
+        $stats.archlucidShared.bugsFound24h | Should -Be 1
+    }
+
+    It 'records productLine and splits SecureNow vs ArchLucid shared in rolling stats' {
+        $log = Join-Path $TestDrive 'product-line.jsonl'
+        $now = '2026-08-19T18:00:00Z'
+
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'ui-infra-resource-hub' -HuntOutcome hit -AtUtc '2026-08-19T10:00:00Z' | Out-Null
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'topology-proposal-merge' -HuntOutcome dry -AtUtc '2026-08-19T11:00:00Z' | Out-Null
+
+        $line = Get-Content -LiteralPath $log -Encoding UTF8 | Select-Object -First 1
+        $parsed = $line | ConvertFrom-Json
+        $parsed.productLine | Should -Be 'securenow'
+
+        $output = Invoke-RollingStats -LogPath $log -Rolling24h -AtUtc $now
+        $stats = Get-StatsJsonFromOutput -Output $output
+
+        $stats.securenow.bugsFound24h | Should -Be 1
+        $stats.archlucidShared.dryRuns24h | Should -Be 1
     }
 
     It 'warns on implausible 24h hit rate' {
