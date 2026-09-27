@@ -9281,13 +9281,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 38
-- **bugs-found:** 30
+- **hunts:** 39
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — non-database labels and non-private Strengthen rationales false-triggered datastore and private-endpoint promotion
+- **last-bug:** 2026-09-27 — non-postgres/redis/mysql/cosmos labels still matched bare engine substring tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded decisioning after database/private keyword fixes; proved `TopologyDatastoreLabelHeuristic` / `SegmentationSemanticsPathAnalyzer` still bare-matched `postgres`, `mysql`, `redis`, and `cosmos` inside `non-postgres-*` style labels; consolidated delimiter-split affirmative matching in `ContainsAffirmativeDelimiterToken`; regressions `IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_postgres_label`, `IsSensitiveTarget_does_not_treat_non_postgres_label_as_datastore`, and `IsRegulatedDatastoreTopologyNode_still_matches_postgres_label`; 14 scoped SegmentationSemantics + TopologyDatastore tests passed.
+
+- [x] (proven) Topology datastore label heuristics — `non-postgres` / sibling `non-*` engine tokens — **hit 2026-09-27 seed hunt:** shared `ContainsAffirmativeDelimiterToken` for postgres/mysql/redis/cosmos (parity with storage/database/blob); regressions in `TopologyDatastoreLabelHeuristicTests` and `SegmentationSemanticsPathAnalyzerTests`.
+
+2026-09-27 seed hunt (seed→hit): reseeded decisioning after non-storage parity fixes; proved bare `.Contains("database")` still matched `non-database-*` labels and `SecurityControlsDecisionStrategy` / `ManifestGovernanceMerger` substring-matched `private` inside `non-private` text; fixed with `ContainsAffirmativeDatabaseKeyword` and `DecisioningTextTokenMatcher.ContainsAffirmativePrivateKeyword`; regressions in `TopologyDatastoreLabelHeuristicTests`, `SegmentationSemanticsPathAnalyzerTests`, and `DecisionEngineV2Tests`; 13 scoped tests passed.
+
+- [x] (proven) Decisioning datastore / security-control heuristics — `non-database` and negated `private` phrases — **hit 2026-09-27 seed hunt:** delimiter-split `database` token with `non` negation; affirmative private keyword helper for merge strategies.
 
 2026-09-27 seed hunt (seed→hit): reseeded decisioning after TopologyDatastore storage-token fixes; proved `TopologyAntiPatternFindingEngine.LooksPubliclyExposed` still used bare `.Contains("storage")`/`blob` so `public-non-storage-*` labels false-emitted public-exposure findings, and `SegmentationSemanticsPathAnalyzer.IsDatastoreNode` still bare-matched `storage` inside `non-storage` labels; fixed with shared `ContainsAffirmativeStorageKeyword` / new `ContainsAffirmativeBlobKeyword`; regressions `AnalyzeAsync_WhenLabelIsPublicNonStorage_DoesNotEmitPublicExposureFinding` and `IsSensitiveTarget_does_not_treat_non_storage_label_as_datastore`; 14 scoped SegmentationSemantics + TopologyAntiPattern + TopologyDatastore tests passed.
 
