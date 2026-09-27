@@ -1,9 +1,9 @@
-> **Scope:** Paste-ready GPT-5.6 Luna prompts. Recategorize intrinsic Azure nodes as relationships or parent properties, separate orphaned from unconnected, isolate Azure Virtual Desktop, and put every proven traffic hop on the data-flow diagram with NSG protocol and port annotations. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/node-relationship-01-connection-edges.md`](../../.cursor/prompts/node-relationship-01-connection-edges.md), [`.cursor/prompts/node-relationship-02-policy-edges.md`](../../.cursor/prompts/node-relationship-02-policy-edges.md), [`.cursor/prompts/node-relationship-03-parent-properties.md`](../../.cursor/prompts/node-relationship-03-parent-properties.md), [`.cursor/prompts/node-relationship-04-indirect-edges.md`](../../.cursor/prompts/node-relationship-04-indirect-edges.md), [`.cursor/prompts/node-relationship-05-orphaned-state.md`](../../.cursor/prompts/node-relationship-05-orphaned-state.md), [`.cursor/prompts/node-relationship-06-avd-isolation.md`](../../.cursor/prompts/node-relationship-06-avd-isolation.md), [`.cursor/prompts/node-relationship-07-dataflow-hops.md`](../../.cursor/prompts/node-relationship-07-dataflow-hops.md), [`.cursor/prompts/node-relationship-08-nsg-annotations.md`](../../.cursor/prompts/node-relationship-08-nsg-annotations.md)
+> **Scope:** Paste-ready GPT-5.6 Luna prompts. Recategorize intrinsic Azure nodes as relationships or parent properties, separate orphaned from unconnected, isolate Azure Virtual Desktop, and put every proven traffic hop on the data-flow diagram with NSG protocol and port annotations. NR-09 through NR-11 attach hidden NSGs to visible owners, surface imported effective controls as reachability, and label every visible resource Connected, Used, Orphaned, Unconnected, or Unknown. Internal engineering only.
+> **Paste-ready files:** [`.cursor/prompts/node-relationship-01-connection-edges.md`](../../.cursor/prompts/node-relationship-01-connection-edges.md), [`.cursor/prompts/node-relationship-02-policy-edges.md`](../../.cursor/prompts/node-relationship-02-policy-edges.md), [`.cursor/prompts/node-relationship-03-parent-properties.md`](../../.cursor/prompts/node-relationship-03-parent-properties.md), [`.cursor/prompts/node-relationship-04-indirect-edges.md`](../../.cursor/prompts/node-relationship-04-indirect-edges.md), [`.cursor/prompts/node-relationship-05-orphaned-state.md`](../../.cursor/prompts/node-relationship-05-orphaned-state.md), [`.cursor/prompts/node-relationship-06-avd-isolation.md`](../../.cursor/prompts/node-relationship-06-avd-isolation.md), [`.cursor/prompts/node-relationship-07-dataflow-hops.md`](../../.cursor/prompts/node-relationship-07-dataflow-hops.md), [`.cursor/prompts/node-relationship-08-nsg-annotations.md`](../../.cursor/prompts/node-relationship-08-nsg-annotations.md), [`.cursor/prompts/node-relationship-09-hidden-nsg-attachment.md`](../../.cursor/prompts/node-relationship-09-hidden-nsg-attachment.md), [`.cursor/prompts/node-relationship-10-effective-control-reachability.md`](../../.cursor/prompts/node-relationship-10-effective-control-reachability.md), [`.cursor/prompts/node-relationship-11-connection-ledger.md`](../../.cursor/prompts/node-relationship-11-connection-ledger.md)
 
 # Inventory diagram node relationships — Luna prompts
 
-**Created:** 2026-09-24 · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
+**Created:** 2026-09-24 · **Revised:** 2026-09-27 (NR-09–NR-11) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
@@ -19,8 +19,11 @@ Several Azure categories currently remain unconnected nodes. Some are relationsh
 | **NR-06** | [node-relationship-06-avd-isolation.md](../../.cursor/prompts/node-relationship-06-avd-isolation.md) | AVD resources appear only in the AVD diagram unless they have a proven non-AVD role. |
 | **NR-07** | [node-relationship-07-dataflow-hops.md](../../.cursor/prompts/node-relationship-07-dataflow-hops.md) | Every proven traversal hop appears on the data-flow diagram, in traversal order. |
 | **NR-08** | [node-relationship-08-nsg-annotations.md](../../.cursor/prompts/node-relationship-08-nsg-annotations.md) | Annotate data-flow connectors with effective NSG protocol, port, and blocked state. |
+| **NR-09** | [node-relationship-09-hidden-nsg-attachment.md](../../.cursor/prompts/node-relationship-09-hidden-nsg-attachment.md) | A peeled subnet or hidden NIC still removes the NSG card. The effective rule is on the visible owner's connector, including Full subscription. |
+| **NR-10** | [node-relationship-10-effective-control-reachability.md](../../.cursor/prompts/node-relationship-10-effective-control-reachability.md) | Imported effective NSG and route rows reach the diagram as owner reachability, not observed traffic. |
+| **NR-11** | [node-relationship-11-connection-ledger.md](../../.cursor/prompts/node-relationship-11-connection-ledger.md) | Every visible resource is Connected, Used, Orphaned, Unconnected, or Unknown. Each dropped import records why. |
 
-Run **NR-01**, then **NR-02**, then **NR-03**, then **NR-04**, then **NR-05**. **NR-06** follows **NR-04**. **NR-07** follows **NR-04**. **NR-08** follows **NR-02** and **NR-07**.
+Run **NR-01**, then **NR-02**, then **NR-03**, then **NR-04**, then **NR-05**. **NR-06** follows **NR-04**. **NR-07** follows **NR-04**. **NR-08** follows **NR-02** and **NR-07**. **NR-09** follows **NR-02** and **VN-07**. **NR-10** follows **NR-09**. **NR-11** follows **NR-05**, **NR-09**, and **NR-10**. Do not re-run NR-01 through NR-08 for that follow-on.
 
 ## Evidence labels
 
@@ -40,3 +43,5 @@ Configured, observed, and historical evidence must keep that label. It cannot pr
 - Showing AVD internals on the general inventory or data-flow diagram
 - GTM **M-90 / M-44 / M-91 / M-92**
 - Closed assurance **TB-135 / TB-136**
+- New Azure telemetry (NSG flow logs, firewall logs, load-balancer logs, metrics) from NR-09, NR-10, or NR-11
+- Calling Unknown an orphan
