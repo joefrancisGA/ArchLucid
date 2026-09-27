@@ -112,21 +112,9 @@ export const EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL = "Cloud inventory ZIP upload" 
 
 export const EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE = "Inventory upload" as const;
 
-export const EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE =
-  "Inventory package uploaded — open Reviews to attach it to a review." as const;
-
 export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as const;
 
 export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
-
-export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
-
-export const EXTRACT_UPLOAD_CANCEL_REPLACE_LABEL = "Cancel replace" as const;
-
-export const EXTRACT_UPLOAD_REPLACE_CONTINUITY_TITLE = "Replacing inventory on file" as const;
-
-export const EXTRACT_UPLOAD_REPLACE_CONTINUITY_DESCRIPTION =
-  "Upload a new package to replace the current inventory baseline. Cancel to keep the accepted package." as const;
 
 export const EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE = "Replace inventory with demo data?" as const;
 

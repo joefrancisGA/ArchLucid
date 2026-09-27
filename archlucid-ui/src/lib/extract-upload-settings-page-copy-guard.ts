@@ -14,7 +14,6 @@ import {
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
   EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
-  EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
 } from "@/lib/extract-upload-settings-page-copy";
 
 /** Primary extract-upload surfaces shown before a cloud provider is selected. */
@@ -34,7 +33,6 @@ export const EXTRACT_UPLOAD_CLOUD_NEUTRAL_COPY_SURFACES = {
   scriptDownloadLabel: EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
   dropZoneAriaLabel: EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
   uploadErrorToastTitle: EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
-  uploadSuccessToastMessage: EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
 } as const;
 
 /**

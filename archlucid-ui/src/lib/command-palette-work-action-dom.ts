@@ -75,18 +75,10 @@ export function isCommandPaletteRoomElicitationAvailable(): boolean {
   return queryVisibleReviewRoomEnterControl() !== null;
 }
 
-/** Extract & upload replace/focus control when accepted or drop zone is visible. */
+/** Extract & upload focus control when the drop zone is visible. */
 export function queryVisibleExtractUploadFocusControl(): HTMLElement | null {
   if (typeof document === "undefined") {
     return null;
-  }
-
-  const replace = document.querySelector<HTMLElement>(
-    '[data-testid="extract-upload-accepted-replace"]:not([disabled])',
-  );
-
-  if (replace !== null) {
-    return replace;
   }
 
   return document.querySelector<HTMLElement>('[data-testid="extract-upload-drop-zone-surface"]');

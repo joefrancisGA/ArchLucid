@@ -288,8 +288,7 @@ export const EXTRACT_UPLOAD_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: "ctrl+u",
     label: "Focus upload",
-    description:
-      "Focus the inventory upload surface or activate Replace inventory on Extract & upload",
+    description: "Focus the inventory upload surface on Extract & upload",
   },
   {
     key: "ctrl+shift+c",
