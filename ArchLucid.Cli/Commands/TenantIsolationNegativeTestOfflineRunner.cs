@@ -41,6 +41,10 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
+            else if (ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Fail;
+            }
             else
             {
                 verdict = EvaluateExcludeRunIdProbeVerdict(probe.ObservedStatusCode ?? 0, probe.ForeignRunIdVisible);
@@ -76,6 +80,14 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         return observedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase)
             || observedOutcome.Contains("run list unavailable", StringComparison.OrdinalIgnoreCase)
             || observedOutcome.Contains("skipped server error", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ObservedOutcomeIndicatesForeignRunIdPresent(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("foreign runId present", StringComparison.OrdinalIgnoreCase);
     }
 
     private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
