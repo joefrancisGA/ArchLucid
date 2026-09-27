@@ -24,7 +24,12 @@ public static class ApiKeyMaterialMasker
             ReadOnlySpan<char> piece = span[start..i].Trim();
 
             if (!piece.IsEmpty)
-                masked.Add(MaskSegment(piece.ToString()));
+            {
+                string normalized = ApiKeyMaterialNormalizer.Normalize(piece.ToString());
+
+                if (normalized.Length > 0)
+                    masked.Add(MaskSegment(normalized));
+            }
 
             start = i + 1;
         }

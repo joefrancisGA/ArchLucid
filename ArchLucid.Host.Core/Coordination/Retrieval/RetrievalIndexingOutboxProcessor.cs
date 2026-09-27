@@ -120,6 +120,20 @@ public sealed class RetrievalIndexingOutboxProcessor(
             return;
         }
 
+        RunDetailDto? manifestCompareDetail = await query
+            .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (manifestCompareDetail?.GoldenManifest is null)
+        {
+            Logger.LogWarning(
+                "Skipping retrieval indexing for run {RunId}: run detail no longer found.",
+                entry.RunId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+            return;
+        }
+
         IManifestHashService manifestHashService =
             scope.ServiceProvider.GetRequiredService<IManifestHashService>();
 

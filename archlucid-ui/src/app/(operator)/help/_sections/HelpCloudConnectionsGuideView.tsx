@@ -8,6 +8,7 @@ import { HelpCloudConnectionsClaimDisciplineCallout } from "@/app/(operator)/hel
 import { HelpCloudConnectionsFollowUpLinks } from "@/app/(operator)/help/_sections/HelpCloudConnectionsFollowUpLinks";
 import { HelpCloudConnectionsHeaderActions } from "@/app/(operator)/help/_sections/HelpCloudConnectionsHeaderActions";
 import { HelpCloudConnectionsProviderScopeSection } from "@/app/(operator)/help/_sections/HelpCloudConnectionsProviderScopeSection";
+import { HelpCloudConnectionsUploadRequirementsSection } from "@/app/(operator)/help/_sections/HelpCloudConnectionsUploadRequirementsSection";
 import { HelpCloudConnectionsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpCloudConnectionsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CloudConnectionsHelpClaimDisciplineStrip } from "@/components/help/CloudConnectionsHelpClaimDisciplineStrip";
@@ -58,6 +59,7 @@ import {
 const CLOUD_CONNECTIONS_HELP_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: CLOUD_CONNECTIONS_HELP_ORIENTATION_ID, title: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE, level: 2 },
   { id: "choose-your-cloud-platform", title: CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE, level: 2 },
+  { id: "upload-requirements", title: "Inventory ZIP upload requirements", level: 2 },
   { id: CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID, title: CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE, level: 2 },
   { id: "related-topics", title: CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING, level: 2 },
 ];
@@ -195,6 +197,7 @@ export function HelpCloudConnectionsGuideView(
             {buyerPolishedShell ? null : <HelpCloudConnectionsClaimDisciplineCallout />}
 
             <HelpCloudConnectionsProviderScopeSection />
+            <HelpCloudConnectionsUploadRequirementsSection />
 
             {buyerPolishedShell ? null : <CloudConnectionsWhereToGoNextPanel />}
 

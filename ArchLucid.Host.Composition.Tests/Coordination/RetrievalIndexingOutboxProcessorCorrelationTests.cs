@@ -274,4 +274,96 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_after_retrieval_detail_loaded()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        ManifestDocument manifest = new()
+        {
+            ManifestId = Guid.NewGuid(),
+            RunId = runId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            ManifestHash = "hash",
+            RuleSetId = "rules",
+            RuleSetVersion = "1",
+            RuleSetHash = "hash-rules",
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                ScopeProjectId = projectId,
+                ProjectId = "retrieval-parity",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            GoldenManifest = manifest,
+            GraphSnapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid(), RunId = runId, Findings = [] },
+            AuthorityTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload()),
+        };
+
+        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalIndexingOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> query = new();
+        query
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+        query
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => query.Object);
+        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
+        services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
+        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RetrievalIndexingOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

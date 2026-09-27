@@ -176,7 +176,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY,
@@ -297,24 +296,24 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
       ? {
           boxes: "Boxes are resources on a declared path.",
           connectors: "Connectors are declared pipeline wiring.",
-          evidence: "Evidence kind: configuration, not observed traffic.",
+          evidence: "configuration, not observed traffic.",
         }
       : mode === "dataArchitecture"
         ? {
             boxes: "Boxes are data stores.",
             connectors: "Connectors are declared repository relationships.",
-            evidence: "Evidence kind: configuration from inventory.",
+            evidence: "configuration from inventory.",
           }
         : mode === "data"
           ? {
               boxes: "Boxes are data resources in the infrastructure forest.",
               connectors: "Connectors are the infrastructure relationships already drawn.",
-              evidence: "Evidence kind: configuration from inventory.",
+              evidence: "configuration from inventory.",
             }
           : {
               boxes: "Boxes are Azure resources in this view.",
               connectors: "Connectors are relationships already present in inventory.",
-              evidence: "Evidence kind: configuration from inventory.",
+              evidence: "configuration from inventory.",
             };
 
   return (
@@ -2093,9 +2092,6 @@ export function DiagramsWorkbenchClient() {
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
           <p className={cn("m-0 font-bold", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Private endpoints, backup/recovery resources, and cross-group applies/likely links are hidden from the canvas by default.
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
@@ -2397,14 +2393,6 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-2">
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="infra-diagrams-png-export-disclaimer"
-            >
-              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_DISCLAIMER}
-            </p>
-          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"

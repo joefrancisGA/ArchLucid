@@ -1,5 +1,8 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Tenancy;
 
@@ -7,10 +10,16 @@ namespace ArchLucid.Application.Tenancy;
 ///     Server-side trial gate: loads <c>dbo.Tenants</c> trial columns and rejects mutating work when the tenant is on a
 ///     self-service trial that has expired, exhausted limits, or entered a post-active lifecycle phase.
 /// </summary>
-public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvider timeProvider)
+public sealed class TrialLimitGate(
+    ITenantRepository tenantRepository,
+    TimeProvider timeProvider,
+    IOptionsMonitor<TrialLifecycleSchedulerOptions> lifecycleOptions)
 {
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _lifecycleOptions =
+        lifecycleOptions ?? throw new ArgumentNullException(nameof(lifecycleOptions));
 
     /// <summary>
     ///     Throws <see cref = "TrialLimitExceededException"/> when the tenant must not accept mutating authority operations
@@ -39,7 +48,7 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 
         if (IsPostActiveLifecycleWriteFrozen(tenant.TrialStatus))
         {
-            int daysRemaining = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
+            int daysRemaining = ComputeLifecyclePhaseDaysRemaining(tenant, now);
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleWritesFrozen, daysRemaining);
         }
 
@@ -82,9 +91,19 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
             || TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly)
             || TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
-            int daysRemaining = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
+            int daysRemaining = ComputeLifecyclePhaseDaysRemaining(tenant, now);
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleDeletesFrozen, daysRemaining);
         }
+    }
+
+    private int ComputeLifecyclePhaseDaysRemaining(TenantRecord tenant, DateTimeOffset now)
+    {
+        int? displayDays = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
+            tenant,
+            now,
+            _lifecycleOptions.CurrentValue);
+
+        return displayDays ?? 0;
     }
 
     private static bool IsPostActiveLifecycleWriteFrozen(string trialStatus)

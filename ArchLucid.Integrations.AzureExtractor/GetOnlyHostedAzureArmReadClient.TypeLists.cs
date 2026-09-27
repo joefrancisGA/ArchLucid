@@ -26,8 +26,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
         List<HostedAzureArmResourceRecord> resources = [];
         string trimmedSubscriptionId = subscriptionId.Trim();
+        string listingRelativePath = BuildSubscriptionTypeListRelativePath(trimmedSubscriptionId, descriptor.RelativePath);
+        string descriptorQuerySuffix = ExtractDescriptorQuerySuffix(descriptor.RelativePath);
         string? nextLink =
-            $"https://management.azure.com/subscriptions/{trimmedSubscriptionId}/{descriptor.RelativePath}";
+            $"https://management.azure.com/{listingRelativePath}{descriptorQuerySuffix}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -94,7 +96,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, trimmedSubscriptionId);
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }
@@ -110,6 +114,25 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         }
 
         return resources;
+    }
+
+    private static string BuildSubscriptionTypeListRelativePath(string subscriptionId, string descriptorRelativePath)
+    {
+        string pathWithoutQuery = descriptorRelativePath;
+
+        int queryIndex = pathWithoutQuery.IndexOf('?', StringComparison.Ordinal);
+
+        if (queryIndex >= 0)
+            pathWithoutQuery = pathWithoutQuery[..queryIndex];
+
+        return $"subscriptions/{subscriptionId.Trim()}/{pathWithoutQuery.TrimStart('/')}";
+    }
+
+    private static string ExtractDescriptorQuerySuffix(string descriptorRelativePath)
+    {
+        int queryIndex = descriptorRelativePath.IndexOf('?', StringComparison.Ordinal);
+
+        return queryIndex >= 0 ? descriptorRelativePath[queryIndex..] : string.Empty;
     }
 
     public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListPrivateDnsZoneVirtualNetworkLinksAsync(

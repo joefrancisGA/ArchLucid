@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.FindingVerification.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 
 namespace ArchLucid.ArtifactSynthesis.FindingVerification;
 
@@ -75,6 +76,11 @@ public static class FindingVerificationReportMarkdownRenderer
         }
     }
 
-    private static string EscapeCell(string value) =>
-        value.Replace("|", "/", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
+    private static string EscapeCell(string value)
+    {
+        string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(value);
+        return sanitized
+            .Replace("|", "/", StringComparison.Ordinal)
+            .Replace("\n", " ", StringComparison.Ordinal);
+    }
 }

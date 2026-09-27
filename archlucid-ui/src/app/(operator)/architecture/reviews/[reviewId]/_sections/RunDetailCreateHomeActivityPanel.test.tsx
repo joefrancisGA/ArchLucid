@@ -38,6 +38,10 @@ describe("RunDetailCreateHomeActivityPanel", () => {
     expect(screen.getByRole("link", { name: "Review findings" }).getAttribute("href")).toContain(
       "fromGeneration=1",
     );
+    const clarificationsLink = screen.getByRole("link", { name: "Open clarifications" });
+    expect(clarificationsLink.getAttribute("href")).toContain("reviewTab=decisions-remediation");
+    expect(clarificationsLink.getAttribute("href")).toContain("fromGeneration=1");
+    expect(clarificationsLink.getAttribute("href")).toContain("intent=create-architecture");
   });
 
   it("demotes Open overview to outline when Do this next owns the page primary", () => {

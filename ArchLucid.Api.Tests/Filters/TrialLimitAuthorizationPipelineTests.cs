@@ -4,6 +4,7 @@ using System.Security.Claims;
 using ArchLucid.Api.Filters;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Authorization;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -179,7 +181,12 @@ public sealed class TrialLimitAuthorizationPipelineTests
         }
 
         services.AddSingleton<ITenantRepository>(tenants.Object);
-        services.AddSingleton(new TrialLimitGate(tenants.Object, FixedTime));
+        services.AddSingleton(
+            new TrialLimitGate(
+                tenants.Object,
+                FixedTime,
+                Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>(
+                    monitor => monitor.CurrentValue == new TrialLifecycleSchedulerOptions())));
         services.AddSingleton(scopes.Object);
 
         DefaultHttpContext http = new();

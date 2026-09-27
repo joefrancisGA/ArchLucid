@@ -84,6 +84,35 @@ public sealed class PreCommitGateEvaluatorTests
     }
 
     [Fact]
+    public void Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-blocking-critical",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Critical,
+                Title = "Policy breach",
+                Rationale = "Policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+        ];
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: true,
+            blockCommitMinimumSeverity: 99,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: null);
+
+        result.Blocked.Should().BeTrue();
+        result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-blocking-critical");
+    }
+
+    [Fact]
     public void Evaluate_ignores_remediated_findings_when_blocking_on_critical()
     {
         List<Finding> findings =

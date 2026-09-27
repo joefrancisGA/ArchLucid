@@ -19,7 +19,9 @@ public static class TopologyProposalConsensusMerger
                 intersectedServices,
                 intersectedDatastores,
                 IntersectRelationships(primary.AddedRelationships, secondary.AddedRelationships));
-        List<string> intersectedControls = IntersectControls(primary.RequiredControls, secondary.RequiredControls);
+        List<string> intersectedControls = IntersectControls(
+            primary.RequiredControls ?? [],
+            secondary.RequiredControls ?? []);
 
         int disagreementCount =
             (primary.AddedServices.Count - intersectedServices.Count)
@@ -28,8 +30,8 @@ public static class TopologyProposalConsensusMerger
             + (secondary.AddedDatastores.Count - intersectedDatastores.Count)
             + (primary.AddedRelationships.Count - intersectedRelationships.Count)
             + (secondary.AddedRelationships.Count - intersectedRelationships.Count)
-            + (primary.RequiredControls.Count - intersectedControls.Count)
-            + (secondary.RequiredControls.Count - intersectedControls.Count);
+            + ((primary.RequiredControls?.Count ?? 0) - intersectedControls.Count)
+            + ((secondary.RequiredControls?.Count ?? 0) - intersectedControls.Count);
 
         AgentTopologyProposal merged = new()
         {
@@ -39,7 +41,7 @@ public static class TopologyProposalConsensusMerger
             AddedDatastores = intersectedDatastores,
             AddedRelationships = intersectedRelationships,
             RequiredControls = intersectedControls,
-            Warnings = new List<string>(primary.Warnings),
+            Warnings = primary.Warnings is null ? [] : new List<string>(primary.Warnings),
         };
 
         if (disagreementCount > 0)
@@ -123,7 +125,7 @@ public static class TopologyProposalConsensusMerger
 
     private static List<string> IntersectControls(IReadOnlyList<string> primary, IReadOnlyList<string> secondary)
     {
-        HashSet<string> secondaryControls = new(secondary, StringComparer.OrdinalIgnoreCase);
+        HashSet<string> secondaryControls = new(secondary ?? [], StringComparer.OrdinalIgnoreCase);
         List<string> intersection = [];
 
         foreach (string control in primary)

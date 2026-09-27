@@ -127,7 +127,10 @@ public static class AgentUserPromptComposer
         foreach (EvidenceNote staged in stagedNotes)
         {
             if (!string.IsNullOrWhiteSpace(staged.Message))
-                sb.AppendLine(CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(staged.Message));
+            {
+                string prose = AzureResourceTagPromptSanitizer.SanitizePersistedCustomerProse(staged.Message);
+                sb.AppendLine(CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(prose));
+            }
 
             sb.AppendLine();
         }

@@ -128,6 +128,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-evidence-trail-link")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-constraints")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
