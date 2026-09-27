@@ -24087,11 +24087,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 23
-- **bugs-found:** 15
+- **hunts:** 24
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-26 — queue-wait deadline skewed past store `QueueExpiresUtc` after slow `TryAdmit`
+- **last-bug:** 2026-09-27 — safety kill-switch disabled during operational snapshot still admitted
+
+2026-09-27 seed hunt #24 (seed→hit): reseeded pre-admit safety snapshot ordering; proved `WaitForAdmissionAsync` captured `ResolveEffectiveFeatureState()` before `GetSnapshotAsync` so `Enabled=false` (or `EmergencyDisabled`) applied during a slow operational lookup was ignored and admit still ran; fixed by re-reading `IOptionsMonitor` safety after operational snapshot; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_operational_snapshot_lookup`; 37 scoped QuickScanDistributedConcurrency tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — safety feature state captured before operational snapshot allows admission after live kill-switch during lookup — **hit 2026-09-27 seed hunt #24:** effective flags now resolved after `GetSnapshotAsync`; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_operational_snapshot_lookup`.
 
 2026-09-27 seed hunt #23 (seed-only): reseeded admit-refresh enqueue skew vs service deadline and promote limit-refresh UTC boundaries; cheap-disproof closed capacity freeing after `admitUtcNow + QueueWaitTimeout` but before refresh-stamped `QueueExpiresUtc` (intentional #6971 deadline anchor) and missing `TimeProvider` re-stamp on promote refresh (service re-reads each poll); regressions `WaitForAdmissionAsync_times_out_at_pre_admit_deadline_when_capacity_frees_after_deadline_but_before_store_queue_expiry`, `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`; 36 scoped QuickScanDistributedConcurrency tests passed.
 
