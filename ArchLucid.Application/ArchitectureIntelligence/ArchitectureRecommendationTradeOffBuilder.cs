@@ -154,7 +154,14 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         }
 
         if (dimensionToken.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
-            && UnreliabilityNegationPattern().IsMatch(priority))
+            && (UnreliabilityNegationPattern().IsMatch(priority)
+                || NonReliabilityNegationPattern().IsMatch(priority)))
+        {
+            return true;
+        }
+
+        if (dimensionToken.Equals("Cost", StringComparison.OrdinalIgnoreCase)
+            && NonCostNegationPattern().IsMatch(priority))
         {
             return true;
         }
@@ -174,6 +181,12 @@ internal static class ArchitectureRecommendationTradeOffBuilder
 
     private static Regex UnreliabilityNegationPattern() =>
         new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static Regex NonCostNegationPattern() =>
+        new(@"\bnon[-\s]?cost\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static Regex NonReliabilityNegationPattern() =>
+        new(@"\bnon[-\s]?reliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
     {
