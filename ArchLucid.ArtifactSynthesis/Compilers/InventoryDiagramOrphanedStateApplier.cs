@@ -50,14 +50,73 @@ internal static class InventoryDiagramOrphanedStateApplier
                 graph,
                 hasCitedDiagramEdges);
 
-            if (result.State is null)
+            if (hasCitedDiagramEdges)
+            {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Connected;
+                diagramNode.ConnectionStateMessage = null;
+                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                continue;
+            }
+
+            if (result.State is not null)
+            {
+                diagramNode.ConnectionState = result.State;
+                diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
+                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                continue;
+            }
+
+            if (TryResolveUsedMessage(graph, graphNode.NodeId, out string? usedMessage))
+            {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Used;
+                diagramNode.ConnectionStateMessage = usedMessage;
+                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                continue;
+            }
+
+            diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
+            diagramNode.ConnectionStateMessage = null;
+            diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+        }
+    }
+
+    private static bool TryResolveUsedMessage(
+        GraphSnapshot graph,
+        string graphNodeId,
+        out string? message)
+    {
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!string.Equals(edge.FromNodeId, graphNodeId, StringComparison.Ordinal)
+                && !string.Equals(edge.ToNodeId, graphNodeId, StringComparison.Ordinal))
             {
                 continue;
             }
 
-            diagramNode.ConnectionState = result.State;
-            diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
-            diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+            if (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                message = "hidden subnet placement";
+                return true;
+            }
+
+            if (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryEffectiveNsg,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                message = "effective network control";
+                return true;
+            }
         }
+
+        message = null;
+        return false;
     }
 }
