@@ -5672,13 +5672,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 27
-- **bugs-found:** 21
+- **hunts:** 28
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — next-review footer visible during product-context load failure
+- **last-bug:** 2026-09-27 — product-context load failure hid intake despite paste/fixture recovery copy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-27 seed hunt (seed→hit): reseeded ui-architecture-intelligence after footer/reasoning gating fixes; proved `showIntakeForm` required `!productContextLoadFailed` so the failure panel told operators to paste a description or load the golden fixture while the textarea and fixture action stayed hidden; fixed by showing intake whenever inbound context is not loading; regression `shows intake form when product context load failure panel is visible`; 49 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
+
+- [x] (proven) Product-context load failure blocks intake recovery affordances — **hit 2026-09-27 seed hunt:** `showIntakeForm` gated on `!productContextLoadFailed`; fixed in `use-architecture-intelligence-product-context.ts`; regression `shows intake form when product context load failure panel is visible`.
 
 ### Hypotheses
 

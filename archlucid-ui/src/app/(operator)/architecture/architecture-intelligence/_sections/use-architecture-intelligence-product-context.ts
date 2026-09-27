@@ -365,7 +365,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
   const loadingInboundContext = inboundRunId.length > 0 && productContextStatus === "loading";
   const productContextLoadFailed = inboundRunId.length > 0 && productContextStatus === "error";
-  const showIntakeForm = !loadingInboundContext && !productContextLoadFailed;
+  const showIntakeForm = !loadingInboundContext;
 
   const productContextLoadFailure =
     productContextLoadFailed && sourceContextQuery.failure !== null
