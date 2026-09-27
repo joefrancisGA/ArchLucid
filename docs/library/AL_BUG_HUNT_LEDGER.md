@@ -2799,13 +2799,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 16
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-26 — format-only string list entries survived payload materialization
+- **hunts:** 17
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-27
+- **last-bug:** 2026-09-27 — undefined numeric `workKind` passed worker gate and failed handler resolution
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+- [x] (proven) `AuthorityPipelineWorkPayload.IsValidForProcessing` / `AuthorityPipelineWorkProcessor.ResolveHandler` — numeric `workKind` values outside `AuthorityPipelineWorkKind` deserialized via STJ and passed the worker gate — **hit 2026-09-27 seed hunt (seed→hit):** `IsValidForProcessing` now requires `Enum.IsDefined(WorkKind)` so invalid payloads discard instead of throwing `No authority pipeline work handler registered`; regressions `IsValidForProcessing_rejects_undefined_work_kind_values` and `Deserialize_rejects_undefined_work_kind_numeric_values`.
+
+2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload after WorkKind dry hunt; proved undefined numeric workKind bypassed invalid-payload discard; 21 scoped payload JSON tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded authority-pipeline-payload; ledger catch-up for `documents: [{}]` materialization (shipped 3cef768); proved `MaterializeStringList` kept zero-width-only and embedded-format entries that `InlineRequirementsPayloadNormalizer` does not treat as whitespace; fixed with `HasSubstantiveText` filter; regression `Deserialize_filters_format_only_string_list_entries`; 18 scoped payload JSON tests passed.
 
