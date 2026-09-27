@@ -119,7 +119,11 @@ export function ItsmOutboundQuickActions({
       ) : null}
 
       {!compact && correlations.length > 0 ? (
-        <ul className={cn("space-y-1", OPERATOR_TYPOGRAPHY.helper)}>
+        <div className="space-y-1">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            A linked ticket is a pointer. It does not close the finding.
+          </p>
+          <ul className={cn("space-y-1", OPERATOR_TYPOGRAPHY.helper)}>
           {correlations.map((c: ItsmFindingCorrelationListItem) => (
             <li key={`${c.provider}-${c.externalKey}`}>
               <span className="font-medium">{c.provider}</span> · <code>{c.externalKey}</code>
@@ -134,7 +138,8 @@ export function ItsmOutboundQuickActions({
               ) : null}
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       ) : null}
 
       {statusMessage ? <p className={cn("text-green-700 dark:text-green-400", OPERATOR_TYPOGRAPHY.helper)}>{statusMessage}</p> : null}

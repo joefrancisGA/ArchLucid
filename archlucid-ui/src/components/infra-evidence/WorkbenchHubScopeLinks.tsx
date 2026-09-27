@@ -99,6 +99,9 @@ export function WorkbenchHubScopeLinks(props: WorkbenchHubScopeLinksProps): Reac
           </Link>
         ))}
       </div>
+      <p className={cn("m-0 text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
+        These tabs are views of one resource. They do not change Azure.
+      </p>
       {siblingTabEntries.length > 0 ? (
         <nav aria-label="Related resource hub sections" data-testid="infra-workbench-hub-sibling-nav">
           <p className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
