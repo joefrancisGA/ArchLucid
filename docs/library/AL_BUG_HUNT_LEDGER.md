@@ -8732,6 +8732,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-27 seed hunt (seed→hit): proved `TechnologyLedgerUserPromptInjection.AppendLedgerContext` appended persisted ledger rows with only `PromptFieldRedactor`, leaving Unicode line-separator field spoofing and raw `CUSTOMER_CONTENT_END` literals in technology names; fixed via `SanitizePersistedCustomerProse` on ledger entry text fields plus `EscapeEmbeddedMarkers` on the formatted block; regressions `AppendLedgerContext_collapses_unicode_line_separator_in_technology_name` and `AppendLedgerContext_neutralizes_embedded_customer_content_end_marker_in_technology_name`; 141 scoped agent-runtime-safety tests passed.
+
 2026-09-27 seed hunt (seed-only): cheap-disproved retail `PromptBlock` quarantine and truncation case-variant marker candidates; reseeded `TechnologyLedgerUserPromptInjection` ledger-append hygiene candidate; 139 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded agent-runtime-safety after persisted-objective sanitize; proved staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize bypassed `SanitizePersistedCustomerProse`, leaving Unicode line separators that spoofed architecture field lines inside the staged quarantine; fixed at `AgentUserPromptComposer.AppendStagedPriorAgentsSummary`; seeded cost retail `PromptBlock` quarantine and truncation case-variant marker candidates; 138 scoped agent-runtime-safety tests passed.
@@ -8739,7 +8741,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged notes appended after `AgentEvidenceUntrustedInputSanitizer` bypassed `SanitizePersistedCustomerProse`, leaving `\u2028`/`\n` field-spoof lines inside the staged TB-949 section — **hit 2026-09-27 seed hunt (seed→hit):** compose now runs `SanitizePersistedCustomerProse` before `EscapeEmbeddedMarkers`; regression `CriticUserPrompt_staged_prior_summary_collapses_unicode_line_separator_field_spoofing`
 - [x] (valid-no-repro) `AgentUserPromptComposer.BuildCostUserPrompt` — retail grounding `PromptBlock` appended outside `CustomerContentPromptDelimiters` quarantine — **cheap-disproof 2026-09-27 seed hunt:** `CostRetailGroundingBuilder` emits host catalog rows only; request marker literals do not surface in the grounding block; regression `CostUserPrompt_retail_grounding_block_omits_unescaped_customer_markers_from_request`
 - [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — case-variant embedded `customer_content_end` literals may leave nested sections unclosed under char budget — **cheap-disproof 2026-09-27 seed hunt:** customer prose is `EscapeEmbeddedMarkers`-neutralized before compose; truncation runs on composed prompts with literal section delimiters (#1308/#1340 regressions)
-- [ ] (candidate) `TechnologyLedgerUserPromptInjection.AppendLedgerContext` — ledger block appended after TB-949 sections with `PromptFieldRedactor` only (no marker escape / line-separator collapse); reachability: `CostAgentHandler` / `TopologyAgentHandler` append ledger after compose
+- [x] (proven) `TechnologyLedgerUserPromptInjection.AppendLedgerContext` — ledger block appended after TB-949 sections with `PromptFieldRedactor` only (no marker escape / line-separator collapse) — **hit 2026-09-27 seed hunt (seed→hit):** persisted `TechnologyName` could inject `\u2028Description:` spoof lines and raw `CUSTOMER_CONTENT_END` after compose; fixed in `SanitizeEntriesForPrompt` + `EscapeEmbeddedMarkers`; regressions `AppendLedgerContext_collapses_unicode_line_separator_in_technology_name`, `AppendLedgerContext_neutralizes_embedded_customer_content_end_marker_in_technology_name`
 
 2026-09-26 thorough hunt (dry): cheap-disproved cost/compliance persisted-objective `RequiredCapabilities`/`Constraints` parity and stale-objective `CUSTOMER_CONTENT_END` candidates — `SanitizePersistedCustomerProse` plus `RedactAndEscape` at task render already collapse line separators and neutralize TB-949 markers for all starter-task objectives; regressions `CostUserPrompt_collapses_malicious_required_capabilities_in_persisted_objective_built_before_sanitize`, `ComplianceUserPrompt_collapses_malicious_constraints_in_persisted_objective_built_before_sanitize`, and `TopologyUserPrompt_neutralizes_embedded_end_marker_in_persisted_task_objective_built_before_sanitize`; 137 scoped agent-runtime-safety tests passed.
 
@@ -8751,11 +8753,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 22
-- **bugs-found:** 14
+- **hunts:** 23
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — staged Critic summary notes bypassed persisted-prose line-separator collapse at compose
+- **last-bug:** 2026-09-27 — technology ledger append bypassed persisted-prose sanitizer and TB-949 marker escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
