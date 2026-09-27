@@ -24323,6 +24323,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved create-home intent on pre-commit governance primary finalize href (`buildArchitectureActivityFinalizeReadinessHref`), activity orientation clarifications tab, and findings in-progress clarifications CTA (via `QuickDecisionSummaryEmptyState`); extended `RunDetailGovernanceDecisionSection.test.tsx`, `RunDetailCreateHomeActivityPanel.test.tsx`, and `architecture-created-finalize-readiness-href.test.ts`; 12 targeted vitest tests passed.
+
+- [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit primary finalize CTA may drop create-home query chrome — **cheap-disproof 2026-09-27 seed hunt:** `buildArchitectureActivityFinalizeReadinessHref` uses `buildCreateHomeReviewTabHref`; regression asserts `fromGeneration=1` + `intent=create-architecture` on primary CTA
+- [x] (valid-no-repro) `RunDetailCreateHomeActivityPanel` — Open clarifications orientation link may omit create intent — **cheap-disproof 2026-09-27 seed hunt:** href already passes `includeCreateIntent: true`; regression on clarifications link
+- [ ] (candidate) `RunDetailRunExplanationCollapsible` / `RunDetailFindingsWorkspace` — `headlineFindingCount` may disagree with tab badge when explanation deferred on create-home — tab badge uses `resolveRunDetailFindingsTabBadgeCount` fallback; findings workspace passes raw `findingCountDisplay` into card view empty headline path; needs reachability proof on buyer-polished vs operator create-home surfaces before hunt-ready
+
 2026-09-27 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready rows; cheap-disproved `RunDetailGovernanceDecisionSection` pre-commit vs post-commit `includeCreateIntent` parity; extended `RunDetailGovernanceDecisionSection.test.tsx`; 33 targeted review-detail band vitest tests passed.
 
 - [x] (valid-no-repro) `RunDetailGovernanceDecisionSection` — pre-commit blocking-findings / activity tab hrefs may drop create-home chrome — **cheap-disproof 2026-09-27 seed hunt:** `manifestId` null branch already passes `includeCreateIntent: true`; post-commit branch omits intent by design; regressions in `RunDetailGovernanceDecisionSection.test.tsx`
@@ -24338,7 +24344,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27

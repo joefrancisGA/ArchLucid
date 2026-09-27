@@ -41,6 +41,8 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(primary).toHaveAttribute("href", expect.stringContaining("reviewTab=activity"));
     expect(primary.getAttribute("href") ?? "").toContain("architecture-assessment-progress");
+    expect(primary.getAttribute("href") ?? "").toContain("fromGeneration=1");
+    expect(primary.getAttribute("href") ?? "").toContain("intent=create-architecture");
     expect(primary).toHaveTextContent("Review finalize readiness");
 
     const secondary = screen.getByTestId("run-detail-governance-secondary-cta");
