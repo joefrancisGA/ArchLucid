@@ -4915,6 +4915,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-28 seed hunt #66 (seed-only): reseeded architecture-recommendation; no new hunt-ready rows; cheap-disproof closed `not-reliability` / `no reliability` declared priorities falsely preferring Reliability in Security/Reliability trade-offs (#19 `not-cost` class), `not-cost` falsely preferring Cost in Reliability/Cost trade-offs, and PrivacyCompliance findings using intentional default defer/evidence alternatives; regressions `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_reliability`, `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_no_reliability`, `BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_not_cost`, and `Build_returns_privacy_compliance_default_paths`; 23 scoped Alternatives/ProposedChange tests passed.
+
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-reliability` declared priorities falsely prefer Reliability — **cheap-disproof 2026-09-28 seed hunt #66:** `not-` negation parity; regression `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_reliability`
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `no reliability` declared priorities falsely prefer Reliability — **cheap-disproof 2026-09-28 seed hunt #66:** `no ` negation parity; regression `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_no_reliability`
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost in Reliability/Cost trade-offs — **cheap-disproof 2026-09-28 seed hunt #66:** second trade-off pair; regression `BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_not_cost`
+- [x] (valid-no-repro) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance Fail findings might get dimension-specific alternatives — **cheap-disproof 2026-09-28 seed hunt #66:** intentional default paths; regression `Build_returns_privacy_compliance_default_paths`
+
 2026-09-28 seed hunt #19 (seed→hit): reseeded architecture-recommendation; proved `not-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `no-cost` / `non-cost` negation was already handled; extended `IsNegatedDimensionMention` with `not-` / `not ` prefix parity; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`; 28 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
@@ -4946,7 +4953,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-28
