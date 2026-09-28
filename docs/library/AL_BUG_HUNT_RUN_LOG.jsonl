@@ -7249,3 +7249,4 @@
 {"at":"2026-09-27T23:31:43.4095575Z","zoneId":"retrieval","outcome":"hit"}
 {"at":"2026-09-27T23:39:33.4015638Z","zoneId":"retrieval","outcome":"hit"}
 {"at":"2026-09-27T23:59:24.5157354Z","zoneId":"api-key-auth","outcome":"hit","paths":["@(ArchLucid.Core/Authentication/ApiKeyMaterialNormalizer.cs,ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs,ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs)"]}
+{"at":"2026-09-28T00:03:13.0052624Z","zoneId":"archlucid-core","outcome":"hit","paths":["@(ArchLucid.Core/Persistence/Graph/GraphSnapshotKnowledgeModelMerger.cs)"]}
