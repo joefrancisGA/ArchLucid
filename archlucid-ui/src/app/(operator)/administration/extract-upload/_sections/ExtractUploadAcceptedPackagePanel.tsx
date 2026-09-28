@@ -22,6 +22,8 @@ import {
 } from "@/lib/extract-upload-settings-page-copy";
 import { EXTRACT_UPLOAD_SETTINGS_SOURCES } from "@/lib/extract-upload-settings-evidence-copy";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
+import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
+import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { showSuccess } from "@/lib/toast";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
@@ -32,6 +34,7 @@ export function ExtractUploadAcceptedPackagePanel(
   props: ExtractUploadAcceptedPackagePanelProps,
 ): React.JSX.Element {
   const { record } = props;
+  const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
   const truncatedId = truncateExtractUploadPackageId(record.packageId);
@@ -54,7 +57,7 @@ export function ExtractUploadAcceptedPackagePanel(
     }
   }, [record.packageId]);
 
-  const acceptedAtLabel = new Date(record.acceptedAtUtc).toLocaleString();
+  const acceptedAtLabel = formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
 
   return (
     <section
