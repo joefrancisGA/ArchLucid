@@ -72,7 +72,9 @@ public static class GovernanceApprovalRequestsHttpMapper
         if (runIdValidation is not null)
             return runIdValidation;
 
-        if (!Guid.TryParse(runId!.Trim(), out Guid parsedRunId) || parsedRunId == Guid.Empty)
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(runId!);
+
+        if (!Guid.TryParse(normalizedRunId, out Guid parsedRunId) || parsedRunId == Guid.Empty)
             return new GovernanceHttpValidation("RunId is not valid.", ProblemTypes.ValidationFailed);
 
         return null;
