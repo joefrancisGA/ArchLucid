@@ -657,4 +657,59 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         aliases.Should().BeEmpty();
     }
+
+    [Fact]
+    public void AddDeclaredManifestDatastoreEndpointAliases_uses_synthetic_node_id_when_datastore_id_is_blank()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new() { DatastoreName = "sql", DatastoreId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestDatastoreEndpointAliases(aliases, datastore);
+
+        aliases["sql"].Should().Be("ds-sql");
+        aliases["ds-sql"].Should().Be("ds-sql");
+    }
+
+    [Fact]
+    public void AddManifestDatastoreEndpointAliases_leaves_dictionary_empty_when_no_graph_node_matches()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new() { DatastoreName = "missing", DatastoreId = "ds-missing" };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(aliases, datastore, []);
+
+        aliases.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_id_matches_graph_node_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-tf",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "azurerm_linux_web_app.app",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "azurerm_linux_web_app.app",
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = "app",
+            ServiceId = "azurerm_linux_web_app.app"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-tf");
+    }
 }
