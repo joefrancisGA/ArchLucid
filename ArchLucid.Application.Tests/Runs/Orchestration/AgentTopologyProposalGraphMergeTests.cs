@@ -6120,4 +6120,16 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.FromNodeId == "sql-1" &&
             e.ToNodeId == "ds-1");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_throws_when_graph_or_results_are_null()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        Action actGraph = () => AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(null!, []);
+        Action actResults = () => AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, null!);
+
+        actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
+        actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
+    }
 }
