@@ -1236,4 +1236,108 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         aliases[mixedCaseArmId].Should().Be(mixedCaseArmId);
         aliases[canonicalArmId].Should().Be(mixedCaseArmId);
     }
+
+    [Fact]
+    public void AddDeclaredManifestServiceEndpointAliases_registers_arm_id_resolution_aliases()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new() { ServiceName = "api", ServiceId = mixedCaseArmId };
+
+        TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestServiceEndpointAliases(aliases, service);
+
+        aliases[mixedCaseArmId].Should().Be(mixedCaseArmId);
+        aliases[canonicalArmId].Should().Be(mixedCaseArmId);
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_name_matches_graph_node_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = "api", ServiceId = "svc-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_name_matches_graph_node_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new() { DatastoreName = "sql", DatastoreId = "ds-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_multiple_known_relationships()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+            new ManifestService { ServiceName = "worker", ServiceId = "svc-worker" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = "svc-api",
+                TargetId = "ds-sql",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+            new ManifestRelationship
+            {
+                SourceId = "svc-worker",
+                TargetId = "ds-sql",
+                RelationshipType = RelationshipType.WritesTo,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().HaveCount(2);
+    }
 }

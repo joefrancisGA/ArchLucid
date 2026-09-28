@@ -6154,4 +6154,12 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         merged.Should().BeSameAs(graph);
     }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_results_list_is_empty()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, []).Should().BeFalse();
+    }
 }
