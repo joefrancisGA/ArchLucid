@@ -519,6 +519,41 @@ public sealed class CircuitBreakingContentSafetyGuardTests
             Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task When_single_inner_throw_with_failure_threshold_two_keeps_circuit_closed_for_next_call()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 2, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-throw-threshold-two", options);
+        Mock<IContentSafetyGuard> inner = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        int callCount = 0;
+        inner.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, CancellationToken>((_, _) =>
+            {
+                callCount++;
+
+                if (callCount == 1)
+                    throw new InvalidOperationException("simulated inner throw");
+
+                return Task.FromResult(allowed);
+            });
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult first = await sut.CheckInputAsync("a", CancellationToken.None);
+        first.IsAllowed.Should().BeFalse();
+        first.Category.Should().Be("SdkError");
+
+        ContentSafetyResult second = await sut.CheckInputAsync("b", CancellationToken.None);
+        second.IsAllowed.Should().BeTrue();
+        inner.Verify(
+            g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
     private static CircuitBreakerGate OpenGate()
     {
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
