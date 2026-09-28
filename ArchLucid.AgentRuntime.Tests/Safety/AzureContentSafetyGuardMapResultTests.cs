@@ -71,4 +71,19 @@ public sealed class AzureContentSafetyGuardMapResultTests
 
         mapped.IsAllowed.Should().BeTrue();
     }
+
+    [SkippableFact]
+    public void MapResult_allows_when_multiple_categories_stay_below_threshold()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [
+                ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, 2),
+                ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Violence, 3),
+            ]);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeTrue();
+    }
 }
