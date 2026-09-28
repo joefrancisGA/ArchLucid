@@ -306,6 +306,39 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_inner_throws_operation_canceled_on_CheckOutputAsync_and_token_cancelled_rethrows_without_opening_circuit()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-output-cancel", options);
+        Mock<IContentSafetyGuard> inner = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        inner.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, CancellationToken>((_, ct) =>
+            {
+                ct.ThrowIfCancellationRequested();
+
+                return Task.FromResult(allowed);
+            });
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        using CancellationTokenSource cts = new();
+        await cts.CancelAsync();
+
+        Func<Task> act = () => sut.CheckOutputAsync("{\"a\":1}", cts.Token);
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        ContentSafetyResult second = await sut.CheckOutputAsync("{\"b\":2}", CancellationToken.None);
+        second.IsAllowed.Should().BeTrue();
+        inner.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task When_inner_throws_on_CheckOutputAsync_and_fail_open_allows_without_scrub_before_circuit_threshold()
     {
         CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
