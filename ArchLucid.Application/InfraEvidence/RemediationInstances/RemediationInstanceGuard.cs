@@ -19,8 +19,9 @@ public static class RemediationInstanceGuard
             (RemediationInstanceStatus.PreflightPassed, RemediationInstanceStatus.Approved) => true,
             (RemediationInstanceStatus.Approved, RemediationInstanceStatus.WaveAssigned) => true,
             (RemediationInstanceStatus.WaveAssigned, RemediationInstanceStatus.Executed) => true,
-            (RemediationInstanceStatus.Executed, RemediationInstanceStatus.Verified) => true,
-            (RemediationInstanceStatus.Executed, RemediationInstanceStatus.VerificationFailed) => true,
+            (RemediationInstanceStatus.Executed, RemediationInstanceStatus.ChangeImplemented) => true,
+            (RemediationInstanceStatus.ChangeImplemented, RemediationInstanceStatus.Verified) => true,
+            (RemediationInstanceStatus.ChangeImplemented, RemediationInstanceStatus.VerificationFailed) => true,
             (RemediationInstanceStatus.Verified, RemediationInstanceStatus.Closed) => true,
             _ => false,
         };

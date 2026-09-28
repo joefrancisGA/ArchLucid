@@ -148,6 +148,7 @@ public sealed record RemediationInstanceMutation
     public required DateTime UpdatedUtc { get; init; }
     public DateTime? ApprovedUtc { get; init; }
     public DateTime? ExecutedUtc { get; init; }
+    public DateTime? ChangeImplementedUtc { get; init; }
     public DateTime? VerifiedUtc { get; init; }
     public DateTime? ClosedUtc { get; init; }
 
@@ -188,6 +189,7 @@ public sealed record RemediationInstanceMutation
             UpdatedUtc = UpdatedUtc,
             ApprovedUtc = ApprovedUtc,
             ExecutedUtc = ExecutedUtc,
+            ChangeImplementedUtc = ChangeImplementedUtc,
             VerifiedUtc = VerifiedUtc,
             ClosedUtc = ClosedUtc,
         };

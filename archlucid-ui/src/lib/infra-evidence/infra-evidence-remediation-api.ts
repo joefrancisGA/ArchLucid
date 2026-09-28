@@ -226,6 +226,17 @@ export async function executeRemediationInstance(
   return mapOperationResult(raw);
 }
 
+export async function attestChangeImplemented(
+  instanceId: string,
+): Promise<RemediationInstanceOperationResult> {
+  const raw = await proxyJsonPost<Record<string, unknown>>(
+    `${INSTANCES_PATH}/${instanceId}/attest-change-implemented`,
+    {},
+  );
+
+  return mapOperationResult(raw);
+}
+
 export async function verifyRemediationInstance(
   instanceId: string,
   verificationSnapshotId: string,

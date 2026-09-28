@@ -105,6 +105,135 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task AttestChangeImplemented_succeeds_from_executed_and_records_timestamp()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(instanceId, RemediationInstanceStatus.Executed));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult result = await sut.AttestChangeImplementedAsync(
+            CreateScope(),
+            instanceId,
+            "attestor");
+
+        result.Succeeded.Should().BeTrue();
+        result.Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
+        instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
+        instanceRepository.Instances.Single().ChangeImplementedUtc.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task AttestChangeImplemented_requires_actor_key()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(instanceId, RemediationInstanceStatus.Executed));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult result = await sut.AttestChangeImplementedAsync(
+            CreateScope(),
+            instanceId,
+            " ");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("ActorKey is required.");
+        instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.Executed);
+    }
+
+    [Fact]
+    public async Task Verify_from_executed_fails_before_loading_snapshots()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(
+            instanceId,
+            RemediationInstanceStatus.Executed,
+            executionSnapshotId: SnapshotA));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult result = await sut.VerifyAsync(
+            CreateScope(),
+            instanceId,
+            SnapshotB,
+            "verifier");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Only change-implemented instances may be verified.");
+    }
+
+    [Fact]
+    public void Guard_does_not_allow_executed_to_verify_or_fail()
+    {
+        RemediationInstanceGuard.CanTransition(
+            RemediationInstanceStatus.Executed,
+            RemediationInstanceStatus.Verified,
+            out _).Should().BeFalse();
+        RemediationInstanceGuard.CanTransition(
+            RemediationInstanceStatus.Executed,
+            RemediationInstanceStatus.VerificationFailed,
+            out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Verify_fails_when_verification_snapshot_is_not_later_than_attestation()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(
+            instanceId,
+            RemediationInstanceStatus.ChangeImplemented,
+            executionSnapshotId: SnapshotA,
+            changeImplementedUtc: new DateTime(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc),
+            cloudResourceId: CloudResourceId));
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(
+            RemediationPatternStatus.Approved,
+            RemediationAutomationLevel.Guided));
+
+        InMemorySnapshotRepository snapshotRepository = new();
+        snapshotRepository.Snapshots[SnapshotA] = CreateSnapshot(
+            SnapshotA,
+            Guid.NewGuid(),
+            present: true,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 0, 0, DateTimeKind.Utc));
+        snapshotRepository.Snapshots[SnapshotB] = CreateSnapshot(
+            SnapshotB,
+            Guid.NewGuid(),
+            present: true,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            patternRepository,
+            snapshotRepository: snapshotRepository);
+
+        RemediationInstanceOperationResult result = await sut.VerifyAsync(
+            CreateScope(),
+            instanceId,
+            SnapshotB,
+            "verifier");
+
+        result.Succeeded.Should().BeFalse();
+        result.Blockers.Should().ContainSingle(blocker =>
+            blocker.Contains("strictly later than the change implementation attestation"));
+    }
+
+    [Fact]
     public async Task Verify_with_later_snapshot_closes_workflow()
     {
         InMemoryRemediationInstanceRepository instanceRepository = new();
@@ -113,8 +242,9 @@ public sealed class RemediationInstanceServiceTests
 
         instanceRepository.Instances.Add(CreateInstance(
             instanceId,
-            RemediationInstanceStatus.Executed,
+            RemediationInstanceStatus.ChangeImplemented,
             executionSnapshotId: SnapshotA,
+            changeImplementedUtc: new DateTime(2026, 9, 27, 12, 0, 30, DateTimeKind.Utc),
             cloudResourceId: CloudResourceId));
 
         InMemoryRemediationPatternRepository patternRepository = new();
@@ -126,14 +256,27 @@ public sealed class RemediationInstanceServiceTests
                 ControlObjective = "Restrict inbound",
                 Execution = new RemediationPatternExecutionDefinition
                 {
-                    VerificationQueries = ["snapshot.resource.present"],
+                    VerificationQueries =
+                    [
+                        "snapshot.resource.present",
+                        "property:enablePublicNetworkAccess=false",
+                    ],
                 },
                 Rollback = new RemediationPatternRollbackDefinition { RunbookRef = "rb-1" },
             }));
 
         InMemorySnapshotRepository snapshotRepository = new();
-        snapshotRepository.Snapshots[SnapshotA] = CreateSnapshot(SnapshotA, resourceRowId, present: true);
-        snapshotRepository.Snapshots[SnapshotB] = CreateSnapshot(SnapshotB, resourceRowId, present: true);
+        snapshotRepository.Snapshots[SnapshotA] = CreateSnapshot(
+            SnapshotA,
+            resourceRowId,
+            present: true,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 0, 0, DateTimeKind.Utc));
+        snapshotRepository.Snapshots[SnapshotB] = CreateSnapshot(
+            SnapshotB,
+            resourceRowId,
+            present: true,
+            includeDisabledPublicAccess: true,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc));
 
         RemediationInstanceService sut = CreateSut(
             instanceRepository,
@@ -154,6 +297,48 @@ public sealed class RemediationInstanceServiceTests
 
         closeResult.Succeeded.Should().BeTrue();
         closeResult.Status.Should().Be(RemediationInstanceStatus.Closed);
+    }
+
+    [Fact]
+    public async Task Verify_fails_when_execution_snapshot_cannot_be_loaded()
+    {
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        Guid instanceId = Guid.NewGuid();
+        instanceRepository.Instances.Add(CreateInstance(
+            instanceId,
+            RemediationInstanceStatus.ChangeImplemented,
+            executionSnapshotId: SnapshotA,
+            changeImplementedUtc: new DateTime(2026, 9, 27, 12, 0, 30, DateTimeKind.Utc),
+            cloudResourceId: CloudResourceId));
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(
+            RemediationPatternStatus.Approved,
+            RemediationAutomationLevel.Guided));
+
+        InMemorySnapshotRepository snapshotRepository = new();
+        snapshotRepository.Snapshots[SnapshotB] = CreateSnapshot(
+            SnapshotB,
+            Guid.NewGuid(),
+            present: true,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc));
+
+        RemediationInstanceService sut = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            patternRepository,
+            snapshotRepository: snapshotRepository);
+
+        RemediationInstanceOperationResult result = await sut.VerifyAsync(
+            CreateScope(),
+            instanceId,
+            SnapshotB,
+            "verifier");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Execution inventory snapshot was not found.");
+        instanceRepository.Evidence.Should().BeEmpty();
+        instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
     }
 
     [Fact]
@@ -403,6 +588,7 @@ public sealed class RemediationInstanceServiceTests
         Guid instanceId,
         RemediationInstanceStatus status,
         Guid? executionSnapshotId = null,
+        DateTime? changeImplementedUtc = null,
         Guid? cloudResourceId = null,
         Guid? projectId = null) =>
         new()
@@ -420,6 +606,7 @@ public sealed class RemediationInstanceServiceTests
             Status = status,
             CloudResourceId = cloudResourceId,
             ExecutionSnapshotId = executionSnapshotId,
+            ChangeImplementedUtc = changeImplementedUtc,
             CreatedByActorKey = "creator",
             CreatedUtc = DateTime.UtcNow,
             UpdatedUtc = DateTime.UtcNow,
@@ -428,7 +615,9 @@ public sealed class RemediationInstanceServiceTests
     private static AzureInventorySnapshotDetailReadModel CreateSnapshot(
         Guid snapshotId,
         Guid resourceRowId,
-        bool present)
+        bool present,
+        bool includeDisabledPublicAccess = false,
+        DateTime? capturedUtc = null)
     {
         AzureInventoryResourceRecord resource = new()
         {
@@ -441,6 +630,17 @@ public sealed class RemediationInstanceServiceTests
             SubscriptionId = "sub",
         };
 
+        List<AzureInventoryResourcePropertyReadModel> properties = [];
+        if (present && includeDisabledPublicAccess)
+        {
+            properties.Add(new AzureInventoryResourcePropertyReadModel
+            {
+                ResourceRowId = resourceRowId,
+                PropertyKey = "enablePublicNetworkAccess",
+                PropertyValue = "false",
+            });
+        }
+
         return new AzureInventorySnapshotDetailReadModel
         {
             Header = new AzureInventorySnapshotRecord
@@ -451,10 +651,11 @@ public sealed class RemediationInstanceServiceTests
                 ProjectId = ProjectId,
                 PackageId = Guid.NewGuid(),
                 SubscriptionId = "sub",
+                CapturedUtc = capturedUtc,
                 CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
             },
             Resources = present ? [resource] : [],
-            Properties = [],
+            Properties = properties,
             Tags = [],
             Relationships = [],
             RoleAssignments = [],

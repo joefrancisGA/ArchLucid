@@ -12,4 +12,5 @@ public enum RemediationInstanceStatus
     Verified = 6,
     VerificationFailed = 7,
     Closed = 8,
+    ChangeImplemented = 9,
 }
