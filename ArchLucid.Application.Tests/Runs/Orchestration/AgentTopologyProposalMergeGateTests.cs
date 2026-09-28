@@ -5634,4 +5634,74 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.ProposalId.Should().Be("proposal-keep-42");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_preserves_required_controls_when_relationships_are_stripped()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-controls",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["encrypt-at-rest"],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-source",
+                        TargetId = "unknown-target",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.RequiredControls.Should().ContainSingle("encrypt-at-rest");
+        filtered[0].ProposedChanges!.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_preserves_result_metadata_when_sanitizing_proposal()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-meta",
+            TaskId = "task-9",
+            RunId = Guid.NewGuid().ToString("N"),
+            AgentType = AgentType.Compliance,
+            Confidence = 0.82,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ResultId.Should().Be("compliance-meta");
+        filtered[0].TaskId.Should().Be("task-9");
+        filtered[0].Confidence.Should().Be(0.82);
+        filtered[0].AgentType.Should().Be(AgentType.Compliance);
+    }
 }

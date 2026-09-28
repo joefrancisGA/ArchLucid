@@ -6596,4 +6596,42 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Nodes.Should().Contain(n => n.NodeId == "svc-api" && n.Label == "api");
         merged.Nodes.Should().Contain(n => n.NodeId == "ds-sql" && n.Label == "sql");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_topology_service_when_graph_has_only_requirement_nodes()
+    {
+        GraphSnapshot graph = Graph(
+            new GraphNode
+            {
+                NodeId = "req-1",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "api",
+                Properties = new()
+            });
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "billing-api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n =>
+            n.NodeType == GraphNodeTypes.TopologyResource && n.NodeId == "svc-billing-api");
+    }
 }
