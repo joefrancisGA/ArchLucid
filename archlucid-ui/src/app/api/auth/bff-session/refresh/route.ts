@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getOidcAuthority, getOidcClientId } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import { refreshAccessToken } from "@/lib/oidc/token-client";
 import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
 import {
@@ -14,14 +15,7 @@ import {
 } from "@/lib/proxy/bff-session-cookie";
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
-  const defaultExpiresInSec = 3600;
-  const numericExpiresIn = expiresIn === undefined ? defaultExpiresInSec : Number(expiresIn);
-  const expiresInSec =
-    Number.isFinite(numericExpiresIn) && numericExpiresIn > 0
-      ? Math.trunc(numericExpiresIn)
-      : defaultExpiresInSec;
-
-  return Date.now() + expiresInSec * 1000;
+  return Date.now() + resolveExpiresInSeconds(expiresIn) * 1000;
 }
 
 function shouldClearSessionOnRefreshFailure(error: unknown): boolean {

@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DELETE, POST } from "@/app/api/auth/bff-session/route";
+import * as bffSessionCookie from "@/lib/proxy/bff-session-cookie";
 
 const TEST_SECRET = "bff-session-route-test-secret";
 const ORIGIN = "http://localhost:3000";
@@ -55,6 +56,28 @@ describe("POST /api/auth/bff-session", () => {
 
     expect(response.status).toBe(403);
     expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)", async () => {
+    const before = Date.now();
+    const issueSpy = vi.spyOn(bffSessionCookie, "createBffSessionCookieValue");
+
+    const response = await POST(
+      buildPostRequest({
+        body: {
+          access_token: "access-token-1",
+          expires_in: 0,
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(issueSpy).toHaveBeenCalled();
+    const expiresAtMs = issueSpy.mock.calls[0]?.[0]?.expiresAtMs;
+    expect(expiresAtMs).toBeGreaterThanOrEqual(before);
+    expect(expiresAtMs).toBeLessThanOrEqual(before + 50);
+
+    issueSpy.mockRestore();
   });
 });
 
