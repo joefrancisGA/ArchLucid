@@ -1,6 +1,9 @@
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
@@ -56,5 +59,51 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().ContainSingle(relationship =>
             relationship.SourceId == "svc-  api" && relationship.TargetId == "ds-  sql");
+    }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_omits_ProposedChanges_source_id_from_known_endpoint_keys()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "ProposedChanges",
+            SourceType = nameof(AgentType.Topology),
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        knownEndpointKeys.Should().NotContain("ProposedChanges");
+        knownEndpointKeys.Should().Contain("worker");
+        knownEndpointKeys.Should().Contain("svc-worker");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_omits_ProposedChanges_source_id_from_resolution_aliases()
+    {
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "ProposedChanges",
+            SourceType = nameof(AgentType.Topology),
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId.Should().NotContainKey("ProposedChanges");
+        endpointKeyToNodeId["worker"].Should().Be("svc-worker");
+        endpointKeyToNodeId["svc-worker"].Should().Be("svc-worker");
     }
 }

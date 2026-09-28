@@ -2,6 +2,13 @@
 
 ## Zone: topology-proposal-merge
 
+2026-09-28 seed hunt #2914 (seed-only): reseeded topology-proposal-merge after 6 commits on zone paths; no new hunt-ready rows; cheap-disproof closed `AuthenticatesWith` / `WritesTo` edge-type mapping at `TopologyProposalRelationshipEdgeMapper` and `ProposedChanges` source-id sentinel exclusion in `TopologyProposalRelationshipEndpointIndex` (#2913 empty reseed); regressions `MapRelationships_maps_AuthenticatesWith_to_DependsOn_edge`, `MapRelationships_maps_WritesTo_to_ConnectsTo_edge`, `AddGraphNodeEndpointKeys_omits_ProposedChanges_source_id_from_known_endpoint_keys`, and `AddGraphNodeResolutionKeys_omits_ProposedChanges_source_id_from_resolution_aliases`; scoped topology-proposal-merge filter passed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper` — `AuthenticatesWith` proposals materialize as `ConnectsTo` edges — **cheap-disproof 2026-09-28 seed hunt #2914:** `MapRelationshipType` maps `AuthenticatesWith` to `GraphEdgeTypes.DependsOn`; regression `MapRelationships_maps_AuthenticatesWith_to_DependsOn_edge`
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper` — non-auth relationship types default to wrong edge type — **cheap-disproof 2026-09-28 seed hunt #2914:** `WritesTo` maps to `ConnectsTo` like `ReadsFrom`; regression `MapRelationships_maps_WritesTo_to_ConnectsTo_edge`
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex` — agent-proposed graph nodes index `ProposedChanges` as relationship endpoint key — **cheap-disproof 2026-09-28 seed hunt #2914:** `AddGraphNodeEndpointKeys` skips sentinel `SourceId`; regression `AddGraphNodeEndpointKeys_omits_ProposedChanges_source_id_from_known_endpoint_keys`
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex` — `ProposedChanges` source id resolves as alias target — **cheap-disproof 2026-09-28 seed hunt #2914:** `AddGraphNodeResolutionKeys` skips sentinel `SourceId`; regression `AddGraphNodeResolutionKeys_omits_ProposedChanges_source_id_from_resolution_aliases`
+
 2026-09-21 ABQ-51: synthetic Terraform source-id tokens are closed by catalog membership at azurerm v5.6.0 (commit daf16e27e2d45d2fb6b7d83644dc201363b05e62). New three-letter tokens are not hunt-ready.
 
 2026-09-14 seed hunt #2913 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
