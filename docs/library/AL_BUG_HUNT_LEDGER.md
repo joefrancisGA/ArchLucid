@@ -19787,6 +19787,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6982 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `timeout_read`, `write_only`, `import_id`, and `create_before_destroy` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_timeout_read_maps_tf_timeout_read_property`, `ParseAsync_snake_case_write_only_maps_tf_write_only_property`, `ParseAsync_snake_case_import_id_maps_tf_import_id_property`, and `ParseAsync_snake_case_create_before_destroy_maps_tf_create_before_destroy_property`; 780 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `timeout_read` might omit `tf.timeout_read` — **cheap-disproof 2026-09-28 seed hunt #6982:** regression `ParseAsync_snake_case_timeout_read_maps_tf_timeout_read_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `write_only` might omit `tf.write_only` — **cheap-disproof 2026-09-28 seed hunt #6982:** regression `ParseAsync_snake_case_write_only_maps_tf_write_only_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `import_id` might omit `tf.import_id` — **cheap-disproof 2026-09-28 seed hunt #6982:** regression `ParseAsync_snake_case_import_id_maps_tf_import_id_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `create_before_destroy` might omit `tf.create_before_destroy` — **cheap-disproof 2026-09-28 seed hunt #6982:** regression `ParseAsync_snake_case_create_before_destroy_maps_tf_create_before_destroy_property`
+
 2026-09-28 seed hunt #6977 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `timeout_delete`, `timeout_update`, `provider_config_key`, and `schema_version` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_timeout_delete_maps_tf_timeout_delete_property`, `ParseAsync_snake_case_timeout_update_maps_tf_timeout_update_property`, `ParseAsync_snake_case_provider_config_key_maps_tf_provider_config_key_property`, and `ParseAsync_snake_case_schema_version_maps_tf_schema_version_property`; 776 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `timeout_delete` might omit `tf.timeout_delete` — **cheap-disproof 2026-09-28 seed hunt #6977:** regression `ParseAsync_snake_case_timeout_delete_maps_tf_timeout_delete_property`
