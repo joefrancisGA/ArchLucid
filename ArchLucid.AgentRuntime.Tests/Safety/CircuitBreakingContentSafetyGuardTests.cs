@@ -177,6 +177,33 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_inner_returns_content_category_block_on_CheckOutputAsync_records_success_without_opening_circuit()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-output-category-block", options);
+        Mock<IContentSafetyGuard> inner = new();
+        ContentSafetyResult hateBlock = new(false, "blocked", "Hate", 6);
+        inner.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(hateBlock);
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult first = await sut.CheckOutputAsync("{\"a\":1}", CancellationToken.None);
+        first.IsAllowed.Should().BeFalse();
+        first.Category.Should().Be("Hate");
+
+        ContentSafetyResult second = await sut.CheckOutputAsync("{\"b\":2}", CancellationToken.None);
+        second.IsAllowed.Should().BeFalse();
+        second.Category.Should().Be("Hate");
+        inner.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task Consecutive_sdk_failures_on_CheckOutputAsync_open_circuit_then_fail_closed_when_configured()
     {
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
