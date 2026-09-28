@@ -11449,19 +11449,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-09-28 seed hunt #18 (seed→hit): reseeded ui-oidc; proved `POST /api/auth/bff-session` and refresh routes mapped `expires_in: 0` to a 3600s cookie TTL while `bff-session-sync` and client session hints honored zero after #1577/#1690; centralized `resolveExpiresInSeconds` under `archlucid-ui/src/lib/oidc/` and wired BFF routes to the same resolver; regressions `resolve-expires-in-seconds.test.ts`, `honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)`; 62 scoped ui-oidc + BFF session route tests passed.
+
+- [x] (proven) BFF session `POST` / refresh `resolveExpiresAtMs` — `expires_in: 0` from browser sync still issued a one-hour HttpOnly cookie — **hit 2026-09-28 seed hunt #18:** routes used `numericExpiresIn > 0` instead of shared `resolveExpiresInSeconds`; regression `honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)`.
+
 - **id:** ui-oidc
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 17
-- **bugs-found:** 22
+- **hunts:** 18
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-11
-- **last-bug:** 2026-09-11 — session hints kept fractional expires_in while BFF sync truncated to whole seconds
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — BFF session POST mapped zero expires_in to a one-hour cookie TTL
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
