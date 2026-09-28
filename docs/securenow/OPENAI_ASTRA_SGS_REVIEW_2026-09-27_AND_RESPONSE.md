@@ -309,4 +309,4 @@ The review is accurate on the source and correctly weighted. The one place it co
 4. Require at least one substantive postcondition; `snapshot.resource.present` alone is insufficient.
 5. Add an attested `ChangeImplemented` state that the UI shows separately from `Executed`.
 
-These are recorded here as owner advice. Backlog rows, if the owner elects to open them, belong in [`TECHNICAL_BACKLOG.md`](TECHNICAL_BACKLOG.md).
+These are recorded here as owner advice. Luna prompts for this list are **SN-VF-01** through **SN-VF-05** in [`../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md). Paste one file per session from [`.cursor/prompts/securenow-verification-00-index.md`](../../.cursor/prompts/securenow-verification-00-index.md). Tracking: [`TECHNICAL_BACKLOG.md`](TECHNICAL_BACKLOG.md) § SN-VF.
