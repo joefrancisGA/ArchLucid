@@ -19787,6 +19787,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6972 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `ignore_changes`, `replace_triggered_by`, `replace_on_changes`, and `timeout_create` Terraform show JSON resource attributes (camelCase-only regressions); regressions `ParseAsync_snake_case_ignore_changes_maps_tf_ignore_changes_property`, `ParseAsync_snake_case_replace_triggered_by_maps_tf_replace_triggered_by_property`, `ParseAsync_snake_case_replace_on_changes_maps_tf_replace_on_changes_property`, and `ParseAsync_snake_case_timeout_create_maps_tf_timeout_create_property`; 772 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `ignore_changes` might omit `tf.ignore_changes` — **cheap-disproof 2026-09-28 seed hunt #6972:** regression `ParseAsync_snake_case_ignore_changes_maps_tf_ignore_changes_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `replace_triggered_by` might omit `tf.replace_triggered_by` — **cheap-disproof 2026-09-28 seed hunt #6972:** regression `ParseAsync_snake_case_replace_triggered_by_maps_tf_replace_triggered_by_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `replace_on_changes` might omit `tf.replace_on_changes` — **cheap-disproof 2026-09-28 seed hunt #6972:** regression `ParseAsync_snake_case_replace_on_changes_maps_tf_replace_on_changes_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `timeout_create` might omit `tf.timeout_create` — **cheap-disproof 2026-09-28 seed hunt #6972:** regression `ParseAsync_snake_case_timeout_create_maps_tf_timeout_create_property`
+
 2026-09-28 seed hunt #6967 (seed→hit): reseeded context-ingestion; proved `AuditManualEvidenceSubmissionService` tests used tenant-only `ScopeContext` so `ProjectScopeKey.From` threw and manual submission returned failure; fixed test scope/assessment workspace+project alignment; refreshed ingestion golden `case-09` for `k8s.containername` projection; 768 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (proven) `AuditManualEvidenceSubmissionService.TrySubmitAsync` / `AuditHybridEvidenceQueryService` — tenant-only scope in `AuditManualEvidenceSubmissionServiceTests` — **hit 2026-09-28 seed hunt #6967:** `ProjectScopeKey.Create` requires workspace and project ids; regressions `TrySubmitAsync_human_actor_persists_hashed_submission` and `Hybrid_query_lists_automated_manual_and_architecture_sources`
