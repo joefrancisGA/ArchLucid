@@ -6144,4 +6144,14 @@ public sealed class AgentTopologyProposalGraphMergeTests
         actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
         actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_same_graph_when_results_list_is_empty()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, []);
+
+        merged.Should().BeSameAs(graph);
+    }
 }
