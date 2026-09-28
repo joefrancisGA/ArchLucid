@@ -27,7 +27,7 @@ public sealed class KubernetesJsonPodSecurityContextSeLinuxOptionsTypeSnakeCaseT
                           "template": {
                             "spec": {
                               "security_context": {
-                                "se_linux_options": {{ "type": "spc_t" }}
+                                "se_linux_options": { "type": "spc_t" }
                               },
                               "containers": [ { "name": "app", "image": "nginx" } ]
                             }
