@@ -1291,4 +1291,41 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         publish.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
         subscribe.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [Fact]
+    public void MapRelationships_emits_one_edge_per_relationship_row_without_deduplicating()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "svc-1",
+            TargetId = "ds-1",
+            RelationshipType = RelationshipType.ReadsFrom
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship, relationship]);
+
+        edges.Should().HaveCount(2);
+    }
 }

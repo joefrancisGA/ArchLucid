@@ -5396,4 +5396,16 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         filtered.Should().BeEmpty();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_throws_when_graph_or_results_are_null()
+    {
+        GraphSnapshot graph = Graph(ComputeNode());
+
+        Action actGraph = () => AgentTopologyProposalMergeGate.FilterValidatedProposals(null!, []);
+        Action actResults = () => AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, null!);
+
+        actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
+        actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
+    }
 }
