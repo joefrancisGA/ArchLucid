@@ -113,6 +113,7 @@ public sealed class AgentRunHeaderPromptSanitizerTests
 
         string beforeQuarantine = prompt[..framingIndex];
         beforeQuarantine.Should().NotContain("\u2028");
+
         foreach (string line in beforeQuarantine.Split('\n'))
             line.TrimStart().Should().NotStartWith("Task Objective:");
     }
@@ -198,6 +199,7 @@ public sealed class AgentRunHeaderPromptSanitizerTests
 
         string beforeQuarantine = prompt[..framingIndex];
         beforeQuarantine.Should().NotContain("\u2028");
+
         foreach (string line in beforeQuarantine.Split('\n'))
             line.TrimStart().Should().NotStartWith("Task Objective:");
     }
@@ -240,6 +242,7 @@ public sealed class AgentRunHeaderPromptSanitizerTests
 
         string beforeQuarantine = prompt[..framingIndex];
         beforeQuarantine.Should().NotContain("\u2028");
+
         foreach (string line in beforeQuarantine.Split('\n'))
             line.TrimStart().Should().NotStartWith("Task Objective:");
     }
