@@ -81,6 +81,23 @@ public sealed class ArchitectureRecommendationAlternativesTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void Build_reliability_title_without_recovery_returns_default_paths()
+    {
+        IReadOnlyList<RecommendationAlternative> alternatives =
+            ArchitectureRecommendationAlternatives.Build(CreateFinding(
+                QualityDimension.Reliability,
+                "Single-region deployment lacks documented failover"));
+
+        alternatives.Should().HaveCount(2);
+        alternatives[0].Path.Should().Contain("exception");
+        alternatives[1].Path.Should().Contain("additional evidence");
+        alternatives.Select(option => option.Path).Should().NotContain(path =>
+            path.Contains("warm standby", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("chaos", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void Build_returns_integration_default_paths()
     {
         IReadOnlyList<RecommendationAlternative> alternatives =
