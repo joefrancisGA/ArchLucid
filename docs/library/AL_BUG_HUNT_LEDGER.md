@@ -8880,6 +8880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-28 seed hunt #38 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproof closed `TaskId` / `AllowedTools` Unicode line-separator field spoof outside TB-949 quarantine (parity with #37 `runId`) and documented inclusive Azure Content Safety threshold boundary; regressions `TopologyUserPrompt_run_header_task_id_unicode_line_separator_does_not_spoof_before_quarantine`, `TopologyUserPrompt_allowed_tools_unicode_line_separator_does_not_spoof_task_objective_outside_quarantine`, and `MapResult_blocks_when_severity_equals_threshold`; 164 scoped agent-runtime-safety tests passed.
+
+- [x] (valid-no-repro) `AgentUserPromptBuilder.AppendRunHeader` — `TaskId` with embedded `\u2028` may spoof `Task Objective:` before quarantine — **cheap-disproof 2026-09-28 seed hunt #38:** `SanitizeHeaderIdentifier`; regression `TopologyUserPrompt_run_header_task_id_unicode_line_separator_does_not_spoof_before_quarantine`
+- [x] (valid-no-repro) `AppendTaskObjectiveToolsAndSources` — `AllowedTools` entries with embedded `\u2028` may spoof task framing outside quarantine — **cheap-disproof 2026-09-28 seed hunt #38:** `SanitizeHostListEntry`; regression `TopologyUserPrompt_allowed_tools_unicode_line_separator_does_not_spoof_task_objective_outside_quarantine`
+
 2026-09-28 seed hunt #37 (seed-only): reseeded agent-runtime-safety; cheap-disproof closed open `agentTypeLabel` TB-949 begin-marker candidate (`AgentRunHeaderPromptSanitizer.SanitizeHostListEntry`) and orchestration `runId` Unicode line-separator field spoof before quarantine; regressions `AppendRunHeader_agent_type_label_neutralizes_embedded_customer_content_begin_marker` and `TopologyUserPrompt_run_header_run_id_unicode_line_separator_does_not_spoof_before_quarantine`; 161 scoped agent-runtime-safety tests passed.
 
 2026-09-28 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproof closed custom `agentTypeLabel` TB-949 begin-marker reachability (`AgentRunHeaderPromptSanitizer` neutralizes markers; composer passes fixed agent labels today) and ledger `EvidenceRef` begin-marker appendix (`TechnologyLedgerUserPromptInjection` block-level `EscapeEmbeddedMarkers`); 159 scoped agent-runtime-safety tests passed.
@@ -8951,7 +8956,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-28
