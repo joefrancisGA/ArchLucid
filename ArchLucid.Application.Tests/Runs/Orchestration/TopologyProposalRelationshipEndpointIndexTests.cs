@@ -200,6 +200,24 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void AddManifestDatastoreEndpointKeys_registers_synthetic_key_from_datastore_name()
+    {
+        HashSet<string> endpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "orders",
+            DatastoreId = "   ",
+            DatastoreType = DatastoreType.Sql,
+            RuntimePlatform = RuntimePlatform.SqlServer
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("orders", endpointKeys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-orders", endpointKeys).Should().BeTrue();
+    }
+
+    [Fact]
     public void CollectKnownEndpointKeys_includes_manifest_names_ids_and_synthetic_aliases()
     {
         List<ManifestService> services =

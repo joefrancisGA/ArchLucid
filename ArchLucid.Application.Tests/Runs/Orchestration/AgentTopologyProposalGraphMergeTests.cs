@@ -6258,4 +6258,76 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Nodes.Should().Contain(n => n.NodeId == "svc-payments-api" && n.Label == "payments-api");
         merged.Nodes.Should().Contain(n => n.NodeId == "ds-orders-db" && n.Label == "orders-db");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_snapshot_envelope_fields_when_adding_nodes()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.GraphSnapshotId.Should().Be(graph.GraphSnapshotId);
+        merged.ContextSnapshotId.Should().Be(graph.ContextSnapshotId);
+        merged.RunId.Should().Be(graph.RunId);
+        merged.CreatedUtc.Should().Be(graph.CreatedUtc);
+        merged.Warnings.Should().Equal(graph.Warnings);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_does_not_materialize_nodes_for_cost_rename_overlay_on_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-overlay",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = ComputeNodeId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
 }
