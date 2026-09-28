@@ -1227,6 +1227,47 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_emits_parallel_edges_when_proposal_lists_identical_relationship_twice()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "svc-1",
+            TargetId = "ds-1",
+            RelationshipType = RelationshipType.ReadsFrom
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship, relationship]);
+
+        edges.Should().HaveCount(2);
+        edges.Should().OnlyContain(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_emits_self_loop_edge_when_source_and_target_resolve_to_same_node()
     {
         List<GraphNode> nodes =

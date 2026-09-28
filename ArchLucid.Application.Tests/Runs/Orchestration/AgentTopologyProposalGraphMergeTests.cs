@@ -6751,4 +6751,105 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         merged.Should().BeSameAs(graph);
     }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_cost_proposal_relationships_are_fully_stripped()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-stripped",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-service",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [cost]).Should().BeFalse();
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_inventoried_edges_when_cost_appends_parallel_agent_edge()
+    {
+        GraphSnapshot graph = GraphWithEdges(
+            [ComputeNode(), DataNode()],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "inventory-edge",
+                    FromNodeId = ComputeNodeId,
+                    ToNodeId = DataNodeId,
+                    EdgeType = GraphEdgeTypes.DependsOn,
+                    Label = RelationshipType.AuthenticatesWith.ToString()
+                }
+            ]);
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().Contain(e => e.EdgeId == "inventory-edge");
+        merged.Edges.Should().Contain(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_does_not_duplicate_edges_when_proposal_lists_identical_relationship_twice()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = ComputeLabel,
+            TargetId = DataLabel,
+            RelationshipType = RelationshipType.ReadsFrom
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships = [relationship, relationship]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
+    }
 }

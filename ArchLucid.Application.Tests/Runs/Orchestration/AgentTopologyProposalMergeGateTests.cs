@@ -5841,4 +5841,77 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
             r.SourceId == "worker" && r.TargetId == DataLabel);
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIncludesAgentProposedTopologyNode_AllowsComplianceRelationshipTargetingThatNode()
+    {
+        GraphNode agentProposedWorker = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode(), agentProposedWorker);
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-to-agent-node",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "worker",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "worker" && r.TargetId == DataLabel);
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_drops_cost_proposal_that_only_declares_relationships_without_endpoint_registration()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-rel-only",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
+    }
 }
