@@ -402,7 +402,8 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("- Covered: Encrypt data at rest (Met; mandatory: yes)");
+        artifact.Content.Should().Contain(
+            "- Covered: Encrypt data at rest (Met; mandatory: yes) — Data must be encrypted");
     }
 
     [Fact]

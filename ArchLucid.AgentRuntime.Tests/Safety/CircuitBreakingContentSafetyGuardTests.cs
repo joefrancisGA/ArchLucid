@@ -37,6 +37,25 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_circuit_open_CheckOutputAsync_fail_closed_without_calling_inner()
+    {
+        CircuitBreakerGate gate = OpenGate();
+        Mock<IContentSafetyGuard> inner = new();
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult result = await sut.CheckOutputAsync("completion", CancellationToken.None);
+
+        result.IsAllowed.Should().BeFalse();
+        result.Category.Should().Be("CircuitOpen");
+        inner.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task When_circuit_open_and_not_FailClosedOnSdkError_allows_with_scrub()
     {
         CircuitBreakerGate gate = OpenGate();
@@ -61,6 +80,31 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_circuit_open_and_not_FailClosedOnSdkError_CheckOutputAsync_allows_with_scrub()
+    {
+        CircuitBreakerGate gate = OpenGate();
+        Mock<IContentSafetyGuard> inner = new();
+        Mock<IPromptRedactor> redactor = new();
+        redactor.Setup(r => r.RedactAlways("{\"completion\":true}"))
+            .Returns(new PromptRedactionOutcome("scrubbed-json", new Dictionary<string, int>()));
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = false },
+            redactor.Object);
+
+        ContentSafetyResult result =
+            await sut.CheckOutputAsync("{\"completion\":true}", CancellationToken.None);
+
+        result.IsAllowed.Should().BeTrue();
+        inner.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        redactor.Verify(r => r.RedactAlways("{\"completion\":true}"), Times.Once);
+    }
+
+    [Fact]
     public async Task When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold()
     {
         CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
@@ -80,6 +124,56 @@ public sealed class CircuitBreakingContentSafetyGuardTests
 
         result.IsAllowed.Should().BeTrue();
         redactor.Verify(r => r.RedactAlways(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task When_inner_throws_on_CheckOutputAsync_and_fail_open_allows_without_scrub_before_circuit_threshold()
+    {
+        CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-output-throw", breakerOptions);
+        Mock<IContentSafetyGuard> inner = new();
+        inner.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated inner output throw"));
+
+        Mock<IPromptRedactor> redactor = new();
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = false },
+            redactor.Object);
+
+        ContentSafetyResult result =
+            await sut.CheckOutputAsync("{\"completion\":true}", CancellationToken.None);
+
+        result.IsAllowed.Should().BeTrue();
+        redactor.Verify(r => r.RedactAlways(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task When_inner_returns_content_category_block_records_success_without_opening_circuit()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-category-block", options);
+        Mock<IContentSafetyGuard> inner = new();
+        ContentSafetyResult hateBlock = new(false, "blocked", "Hate", 6);
+        inner.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(hateBlock);
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult first = await sut.CheckInputAsync("a", CancellationToken.None);
+        first.IsAllowed.Should().BeFalse();
+        first.Category.Should().Be("Hate");
+
+        ContentSafetyResult second = await sut.CheckInputAsync("b", CancellationToken.None);
+        second.IsAllowed.Should().BeFalse();
+        second.Category.Should().Be("Hate");
+        inner.Verify(
+            g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
     }
 
     [Fact]

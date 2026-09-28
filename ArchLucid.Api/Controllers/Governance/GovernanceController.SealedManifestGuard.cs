@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance;
@@ -20,7 +21,7 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(runId))
             return null;
 
-        string normalizedRunId = runId.Trim();
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(runId);
 
         if (!Guid.TryParse(normalizedRunId, out Guid runGuid))
             return null;

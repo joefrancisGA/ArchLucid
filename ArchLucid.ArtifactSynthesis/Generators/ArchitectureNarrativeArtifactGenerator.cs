@@ -34,14 +34,10 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         else
         {
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-
-                sb.AppendLine(
-                    $"- Covered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
+                sb.AppendLine(FormatRequirementLine("Covered", item));
 
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-
-                sb.AppendLine(
-                    $"- Uncovered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
+                sb.AppendLine(FormatRequirementLine("Uncovered", item));
         }
 
         sb.AppendLine();
@@ -216,5 +212,16 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             Content = content,
             ContentHash = ArtifactHashing.ComputeHash(content)
         });
+    }
+
+    private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)
+    {
+        string line =
+            $"- {prefix}: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+
+        if (string.IsNullOrWhiteSpace(item.RequirementText))
+            return line;
+
+        return $"{line} — {item.RequirementText}";
     }
 }

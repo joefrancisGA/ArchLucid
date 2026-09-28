@@ -22,7 +22,7 @@ public static class GovernanceRunScope
         if (string.IsNullOrWhiteSpace(runId))
             throw new ArgumentException("Run id is required.");
 
-        runId = runId.Trim();
+        runId = GovernanceRunIdNormalizer.Normalize(runId);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
             throw new ArgumentException($"Run id '{runId}' is not valid.");
@@ -56,7 +56,7 @@ public static class GovernanceRunScope
             };
         }
 
-        runId = runId.Trim();
+        runId = GovernanceRunIdNormalizer.Normalize(runId);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
