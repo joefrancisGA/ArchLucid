@@ -6,6 +6,7 @@
     "sourceId": "ingestion-case-09",
     "properties": {
       "k8s.apiVersion": "apps/v1",
+      "k8s.containername": "api",
       "k8s.kind": "deployment",
       "k8s.name": "api",
       "k8s.namespace": "prod",

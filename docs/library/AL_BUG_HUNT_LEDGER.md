@@ -19787,6 +19787,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6967 (seed→hit): reseeded context-ingestion; proved `AuditManualEvidenceSubmissionService` tests used tenant-only `ScopeContext` so `ProjectScopeKey.From` threw and manual submission returned failure; fixed test scope/assessment workspace+project alignment; refreshed ingestion golden `case-09` for `k8s.containername` projection; 768 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `AuditManualEvidenceSubmissionService.TrySubmitAsync` / `AuditHybridEvidenceQueryService` — tenant-only scope in `AuditManualEvidenceSubmissionServiceTests` — **hit 2026-09-28 seed hunt #6967:** `ProjectScopeKey.Create` requires workspace and project ids; regressions `TrySubmitAsync_human_actor_persists_hashed_submission` and `Hybrid_query_lists_automated_manual_and_architecture_sources`
+- [x] (proven) `IngestionGoldenCorpusRegressionTests` case-09 — golden missing `k8s.containername` after deployment container security projection — **hit 2026-09-28 seed hunt #6967:** updated `tests/golden-corpus/ingestion/case-09/expected-output.json`
+
 2026-09-28 seed hunt #6962 (seed→hit): reseeded context-ingestion; proved Kubernetes pod `security_context` snake_case regression fixtures used invalid JSON (`{{` object literals) so `kubernetes-json` parse returned zero objects; fixed fixtures and seccomp type canonical casing expectation; cheap-disproof closed camelCase `multiRegion` and `availabilityZones` Terraform show JSON projections; regressions `ParseAsync_snake_case_pod_security_context_seccomp_profile_type_projects_seccomp_profile_type_exposure` (fixture), `ParseAsync_camel_case_multi_region_maps_tf_multi_region_property`, and `ParseAsync_camel_case_availability_zones_maps_tf_availability_zones_property`; 232 scoped TerraformShowJson tests passed.
 
 - [x] (proven) `KubernetesJsonInfrastructureDeclarationParser` — snake_case pod `security_context` / `seccomp_profile` / `se_linux_options` regressions — **hit 2026-09-28 seed hunt #6962:** malformed `{{` JSON in three fixtures prevented parse; corrected object literals; seccomp type expects canonical lowercase `runtimedefault`
