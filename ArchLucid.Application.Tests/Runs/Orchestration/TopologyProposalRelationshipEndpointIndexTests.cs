@@ -200,6 +200,24 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void AddManifestServiceEndpointKeys_registers_synthetic_key_from_service_name()
+    {
+        HashSet<string> endpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        ManifestService service = new()
+        {
+            ServiceName = "payments-api",
+            ServiceId = "   ",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("payments-api", endpointKeys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-payments-api", endpointKeys).Should().BeTrue();
+    }
+
+    [Fact]
     public void AddManifestDatastoreEndpointKeys_registers_synthetic_key_from_datastore_name()
     {
         HashSet<string> endpointKeys = new(StringComparer.OrdinalIgnoreCase);

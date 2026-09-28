@@ -5475,4 +5475,35 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         filtered.Should().ContainSingle().Which.Should().BeSameAs(critic);
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_drops_topology_proposals_with_blank_service_name_and_id()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-blank-service",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "   ",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().BeEmpty();
+    }
 }

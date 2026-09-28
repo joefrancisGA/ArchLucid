@@ -6330,4 +6330,50 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Nodes.Should().HaveCount(2);
         merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_appends_edge_when_relationship_type_differs_from_existing_parallel_edge()
+    {
+        GraphSnapshot graph = GraphWithEdges(
+            [ComputeNode(), DataNode()],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "existing-connects",
+                    FromNodeId = ComputeNodeId,
+                    ToNodeId = DataNodeId,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = RelationshipType.ReadsFrom.ToString()
+                }
+            ]);
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-auth-edge",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.AuthenticatesWith
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().Contain(e =>
+            e.EdgeId == "existing-connects" && e.EdgeType == GraphEdgeTypes.ConnectsTo);
+        merged.Edges.Should().Contain(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.DependsOn);
+    }
 }
