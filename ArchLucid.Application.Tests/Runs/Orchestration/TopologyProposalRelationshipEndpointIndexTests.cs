@@ -1869,4 +1869,56 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         endpointKeys.Should().BeEmpty();
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_graph_node_is_agent_proposed_topology_resource()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-worker",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "worker",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = nameof(AgentType.Topology),
+                SourceId = "ProposedChanges",
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = "worker", ServiceId = "svc-worker" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-worker");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_graph_node_is_agent_proposed_topology_resource()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-ledger",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "ledger",
+                Category = GraphTopologyCategories.Data,
+                SourceType = nameof(AgentType.Topology),
+                SourceId = "ProposedChanges",
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new() { DatastoreName = "ledger", DatastoreId = "ds-ledger" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-ledger");
+    }
 }

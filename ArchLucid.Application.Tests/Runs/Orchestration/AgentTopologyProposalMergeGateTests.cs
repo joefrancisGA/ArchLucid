@@ -6103,4 +6103,37 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedDatastores.Should().ContainSingle(d => d.DatastoreName == "audit-sql");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_keeps_compliance_proposal_with_required_controls_and_undeclared_relationships()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-controls-and-rels",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["encrypt-at-rest"],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.RequiredControls.Should().ContainSingle("encrypt-at-rest");
+        filtered[0].ProposedChanges!.AddedRelationships.Should().BeEmpty();
+    }
 }
