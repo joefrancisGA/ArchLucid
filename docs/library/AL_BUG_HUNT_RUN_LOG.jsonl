@@ -7255,3 +7255,4 @@
 {"at":"2026-09-28T00:33:46.6039868Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-09-28T00:38:05.2412551Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-09-28T00:41:29.5088488Z","zoneId":"artifact-synthesis","outcome":"hit"}
+{"at":"2026-09-28T00:48:48.2027413Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}
