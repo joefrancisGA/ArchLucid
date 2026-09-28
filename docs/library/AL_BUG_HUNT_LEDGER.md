@@ -6160,6 +6160,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
+2026-09-28 seed hunt #55 (seed→hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded zero-width space (U+200B) still showed configured in admin snapshot while `MatchesAnyCommaSeparatedKey` compared against material that still contained the invisible character and rejected the visible key; extended `ApiKeyMaterialNormalizer` to remove invisible key-material characters anywhere in the segment (not only leading/trailing); regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`, `GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured`; 53 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
+
+- [x] (proven) `ApiKeyMaterialNormalizer` left embedded zero-width space in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-09-28 seed hunt #55:** normalization only trimmed invisible characters at segment edges; fixed by stripping the full invisible set throughout each segment; regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`.
+
 2026-09-27 seed hunt #54 (seed→hit): reseeded api-key-auth; proved zero-width space (U+200B) only `ReadOnlyKey` still showed configured in admin snapshot and Append rotate while auth rejected all keys; extended `ApiKeyMaterialNormalizer` to trim invisible key-material characters (BOM + ZWSP family); regressions `GetSnapshot_treats_zero_width_space_only_readonly_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_is_zero_width_space_only`, `When_readonly_key_config_is_only_zero_width_space_returns_invalid_key`; 51 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
 2026-09-27 seed hunt (seed→hit): proved UTF-8 BOM-only `Authentication:ApiKey:AdminKey` still showed configured in admin snapshot and Append rotate while `ApiKeyAuthenticationHandler` rejected all keys; shared `ApiKeyMaterialNormalizer` (trim + BOM strip); `ApiKeyMaterialMasker` skips BOM-only comma segments; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`; 48 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
@@ -6172,13 +6176,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 54
-- **bugs-found:** 12
+- **hunts:** 55
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — zero-width-only ReadOnly API key slot showed configured in admin settings
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — embedded zero-width space in configured API key material broke authentication
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2269 (seed-only): reseeded api-key-auth with `-Hint api-key`; no new hunt-ready rows.
 

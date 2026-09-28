@@ -348,6 +348,21 @@ public sealed class AdminApiKeySettingsServiceTests
         response.AppendConfigSuffix.Should().BeNull();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u200C"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "zero-width non-joiner-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();

@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Authentication;
 
-/// <summary>Normalizes API key material from configuration and inbound headers (trim + UTF-8 BOM strip).</summary>
+/// <summary>Normalizes API key material from configuration and inbound headers (trim + strip invisible Unicode).</summary>
 public static class ApiKeyMaterialNormalizer
 {
     private const string InvisibleKeyMaterialChars = "\uFEFF\u200B\u200C\u200D\u2060";
@@ -9,23 +9,28 @@ public static class ApiKeyMaterialNormalizer
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        string trimmed = TrimInvisibleKeyMaterial(value.Trim());
+        string trimmed = value.Trim();
 
-        return trimmed.Length == 0 ? string.Empty : trimmed;
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        return RemoveInvisibleKeyMaterialChars(trimmed);
     }
 
-    private static string TrimInvisibleKeyMaterial(string value)
+    private static string RemoveInvisibleKeyMaterialChars(string value)
     {
-        int start = 0;
-        int end = value.Length;
+        Span<char> buffer = value.Length <= 256 ? stackalloc char[value.Length] : new char[value.Length];
+        int writeIndex = 0;
 
-        while (start < end && IsInvisibleKeyMaterialChar(value[start]))
-            start++;
+        foreach (char character in value)
+        {
+            if (IsInvisibleKeyMaterialChar(character))
+                continue;
 
-        while (end > start && IsInvisibleKeyMaterialChar(value[end - 1]))
-            end--;
+            buffer[writeIndex++] = character;
+        }
 
-        return value[start..end];
+        return writeIndex == 0 ? string.Empty : new string(buffer[..writeIndex]);
     }
 
     private static bool IsInvisibleKeyMaterialChar(char character)
