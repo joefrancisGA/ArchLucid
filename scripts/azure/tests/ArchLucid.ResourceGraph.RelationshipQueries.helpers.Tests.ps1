@@ -14,7 +14,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
     It 'projects type on each ARG relationship query' {
         $specs = @(Get-ArchLucidArgNetworkAssociationQuerySpecs)
 
-        $specs.Count | Should -Be 3
+        $specs.Count | Should -Be 4
         foreach ($spec in $specs)
         {
             $spec.Query | Should -Match 'project id, type'
@@ -199,6 +199,144 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
             -IpConfigurationsJson '   '
 
         $rows.Count | Should -Be 0
+    }
+
+    It 'emits private-endpoint placement and target rows from object arrays' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $privateEndpointId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe01'
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/private'
+        $nicId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic01'
+        $targetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv01'
+
+        Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -PrivateEndpointResourceId $privateEndpointId `
+            -SubnetId $subnetId `
+            -NetworkInterfacesJson @([pscustomobject]@{ id = $nicId }) `
+            -PrivateLinkServiceConnectionsJson @(
+                [pscustomobject]@{
+                    properties = [pscustomobject]@{ privateLinkServiceId = $targetId }
+                }
+            ) `
+            -ManualPrivateLinkServiceConnectionsJson @()
+
+        @($rows | Where-Object { $_.associationType -eq 'peToSubnet' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'peToSubnet' })[0].toResourceId | Should -Be $subnetId
+        @($rows | Where-Object { $_.associationType -eq 'peToNic' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'peToNic' })[0].toResourceId | Should -Be $nicId
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' })[0].toResourceId | Should -Be $targetId
+    }
+
+    It 'emits private-endpoint target rows from JSON strings and manual connections' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $privateEndpointId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe02'
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/private'
+        $nicId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic02'
+        $targetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage01'
+
+        Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -PrivateEndpointResourceId $privateEndpointId `
+            -SubnetId $subnetId `
+            -NetworkInterfacesJson "[{`"id`":`"$nicId`"}]" `
+            -PrivateLinkServiceConnectionsJson '[]' `
+            -ManualPrivateLinkServiceConnectionsJson "[{`"properties`":{`"privateLinkServiceId`":`"$targetId`"}}]"
+
+        @($rows | Where-Object { $_.associationType -eq 'peToSubnet' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'peToNic' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' })[0].toResourceId | Should -Be $targetId
+    }
+
+    It 'emits no private-endpoint rows for empty placement inputs' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+
+        Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -PrivateEndpointResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/empty' `
+            -SubnetId '   ' `
+            -NetworkInterfacesJson $null `
+            -PrivateLinkServiceConnectionsJson '   ' `
+            -ManualPrivateLinkServiceConnectionsJson $null
+
+        $rows.Count | Should -Be 0
+    }
+
+    It 'collects private-endpoint target rows from two paged result sets' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $targetPageOne = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv-page1'
+        $targetPageTwo = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv-page2'
+        $script:pagedPrivateEndpointFetchCount = 0
+        $pages = @(
+            [pscustomobject]@{
+                data = @(
+                    [pscustomobject]@{
+                        id = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-page1'
+                        subnetId = ''
+                        networkInterfaces = @()
+                        privateLinkServiceConnections = @(
+                            [pscustomobject]@{
+                                properties = [pscustomobject]@{ privateLinkServiceId = $targetPageOne }
+                            }
+                        )
+                        manualPrivateLinkServiceConnections = @()
+                    }
+                )
+                '$skipToken' = 'token-page-2'
+            }
+            [pscustomobject]@{
+                data = @(
+                    [pscustomobject]@{
+                        id = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-page2'
+                        subnetId = ''
+                        networkInterfaces = @()
+                        privateLinkServiceConnections = @(
+                            [pscustomobject]@{
+                                properties = [pscustomobject]@{ privateLinkServiceId = $targetPageTwo }
+                            }
+                        )
+                        manualPrivateLinkServiceConnections = @()
+                    }
+                )
+                '$skipToken' = $null
+            }
+        )
+
+        Invoke-ArchLucidResourceGraphPagedAssociationQuery `
+            -QueryKind 'privateEndpoint' `
+            -FetchPage {
+                param([string] $PageSkipToken)
+
+                $page = $pages[$script:pagedPrivateEndpointFetchCount]
+                $script:pagedPrivateEndpointFetchCount++
+                return $page
+            } `
+            -ProcessRow {
+                param([PSObject] $Row)
+
+                Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -PrivateEndpointResourceId "$( $Row.id )".Trim() `
+                    -SubnetId "$( $Row.subnetId )".Trim() `
+                    -NetworkInterfacesJson $Row.networkInterfaces `
+                    -PrivateLinkServiceConnectionsJson $Row.privateLinkServiceConnections `
+                    -ManualPrivateLinkServiceConnectionsJson $Row.manualPrivateLinkServiceConnections
+            }
+
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' }).Count | Should -Be 2
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' } | ForEach-Object { $_.toResourceId }) |
+            Should -Contain $targetPageOne
+        @($rows | Where-Object { $_.associationType -eq 'privateEndpointTarget' } | ForEach-Object { $_.toResourceId }) |
+            Should -Contain $targetPageTwo
     }
 
     It 'collects nicToSubnet rows from two paged NIC result sets' {
