@@ -19787,6 +19787,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6957 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed camelCase `failoverRegions` projection, camelCase `callerModuleAddress` module prefixing, snake_case `resource_name` label alias, and camelCase `indexKey` for_each address suffix; regressions `ParseAsync_camel_case_failover_regions_maps_tf_failover_regions_property`, `ParseAsync_camel_case_caller_module_address_prefixes_resource_name`, `ParseAsync_snake_case_resource_name_alias_uses_explicit_label`, and `ParseAsync_camel_case_index_key_appends_for_each_suffix_to_name`; 230 scoped TerraformShowJson tests passed.
+
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — camelCase `failoverRegions` on managed resources might omit `tf.failover_regions` — **cheap-disproof 2026-09-28 seed hunt #6957:** `failoverRegions` alias parity with snake_case; regression `ParseAsync_camel_case_failover_regions_maps_tf_failover_regions_property`
+- [x] (valid-no-repro) `ResolveCallerModuleAddress` — camelCase `callerModuleAddress` might not prefix resource names — **cheap-disproof 2026-09-28 seed hunt #6957:** camelCase caller module key; regression `ParseAsync_camel_case_caller_module_address_prefixes_resource_name`
+- [x] (valid-no-repro) `TryResolveTerraformResourceLabel` — snake_case `resource_name` might not resolve labels when `name` is absent — **cheap-disproof 2026-09-28 seed hunt #6957:** `resource_name` alias parity with `resourceName`; regression `ParseAsync_snake_case_resource_name_alias_uses_explicit_label`
+- [x] (valid-no-repro) `MapTerraformResource` — camelCase `indexKey` might not append for_each suffix to canonical address — **cheap-disproof 2026-09-28 seed hunt #6957:** `indexKey` alias parity with `index_key`; regression `ParseAsync_camel_case_index_key_appends_for_each_suffix_to_name`
+
 2026-09-14 seed hunt #2914 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2909 (seed-only): reseeded context-ingestion with `-Hint context-ingestion`; no new hunt-ready rows.
