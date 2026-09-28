@@ -217,7 +217,9 @@ function ExtractUploadSettingsPageClientInner() {
 
           <ExtractUploadSettingsEvidenceOrientationStrip />
 
-          {lastAcceptedPackage !== null ? <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} /> : null}
+          {lastAcceptedPackage !== null ? (
+            <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} productLineId={productLine} />
+          ) : null}
 
           <IntegrationConnectChecklist
             title="Upload checklist"
