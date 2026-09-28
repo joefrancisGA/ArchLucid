@@ -6218,4 +6218,44 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeFalse();
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_assigns_synthetic_node_ids_when_manifest_ids_are_blank()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "payments-api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "orders-db",
+                        DatastoreId = "   ",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-payments-api" && n.Label == "payments-api");
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-orders-db" && n.Label == "orders-db");
+    }
 }

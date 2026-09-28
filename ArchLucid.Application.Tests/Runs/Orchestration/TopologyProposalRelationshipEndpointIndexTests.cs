@@ -1609,6 +1609,42 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void AddGraphNodeResolutionKeys_does_not_map_cross_category_synthetic_aliases_used_only_by_edge_mapper()
+    {
+        Dictionary<string, string> computeResolution = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode computeWithDatastoreTf = new()
+        {
+            NodeId = "svc-orders",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "orders",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "azurerm_mssql_database.orders",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(computeResolution, computeWithDatastoreTf);
+
+        computeResolution.Should().ContainKey("svc-orders");
+        computeResolution.Should().NotContainKey("ds-orders");
+
+        Dictionary<string, string> dataResolution = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode dataWithServiceTf = new()
+        {
+            NodeId = "ds-app",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "app",
+            Category = GraphTopologyCategories.Data,
+            SourceId = "azurerm_linux_web_app.app",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(dataResolution, dataWithServiceTf);
+
+        dataResolution.Should().ContainKey("ds-app");
+        dataResolution.Should().NotContainKey("svc-app");
+    }
+
+    [Fact]
     public void AddGraphNodeEndpointKeys_indexes_primary_and_cross_category_synthetic_keys_on_misclassified_nodes()
     {
         HashSet<string> computeKeys = new(StringComparer.OrdinalIgnoreCase);
