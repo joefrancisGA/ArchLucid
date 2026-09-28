@@ -1845,4 +1845,16 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-app", dataKeys).Should().BeTrue();
         TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-app", dataKeys).Should().BeTrue();
     }
+
+    [Fact]
+    public void AddManifestServiceEndpointKeys_does_not_register_keys_when_name_and_id_are_whitespace()
+    {
+        HashSet<string> endpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new() { ServiceName = "   ", ServiceId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
+
+        endpointKeys.Should().BeEmpty();
+    }
 }

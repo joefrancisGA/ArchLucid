@@ -6852,4 +6852,41 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == DataNodeId &&
             e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_non_topology_nodes_when_appending_agent_edges()
+    {
+        GraphNode requirement = new()
+        {
+            NodeId = "req-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "must-encrypt",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode(), requirement);
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == "req-1" && n.NodeType == GraphNodeTypes.Requirement);
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
 }

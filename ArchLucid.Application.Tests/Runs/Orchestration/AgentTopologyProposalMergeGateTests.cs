@@ -5914,4 +5914,120 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         filtered.Should().BeEmpty();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIncludesAgentProposedTopologyNode_AllowsCriticRelationshipTargetingThatNode()
+    {
+        GraphNode agentProposedWorker = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode(), agentProposedWorker);
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-to-agent-node",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "worker",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "worker" && r.TargetId == DataLabel);
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_drops_compliance_proposal_that_only_declares_relationships_without_endpoint_registration()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-rel-only",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphHasOnlyAgentProposedTopologyNode_AllowsTopologyToDeclareNewServices()
+    {
+        GraphNode agentProposedWorker = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(agentProposedWorker);
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-extension",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "billing-api",
+                        ServiceId = "svc-billing",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedServices.Should().ContainSingle(s => s.ServiceName == "billing-api");
+    }
 }
