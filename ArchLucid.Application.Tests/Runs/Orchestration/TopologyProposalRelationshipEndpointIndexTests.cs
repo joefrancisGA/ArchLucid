@@ -106,4 +106,44 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         endpointKeyToNodeId["worker"].Should().Be("svc-worker");
         endpointKeyToNodeId["svc-worker"].Should().Be("svc-worker");
     }
+
+    [Fact]
+    public void EndpointKeyIsKnown_returns_false_for_null_or_whitespace_endpoint()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase) { "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(null, knownEndpointKeys).Should().BeFalse();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("   ", knownEndpointKeys).Should().BeFalse();
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_drops_relationship_when_either_endpoint_is_unknown()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = "svc-api",
+                TargetId = "ds-missing",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().BeEmpty();
+    }
 }
