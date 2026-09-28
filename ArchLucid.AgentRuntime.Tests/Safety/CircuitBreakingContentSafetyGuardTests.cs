@@ -80,6 +80,31 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_circuit_open_and_not_FailClosedOnSdkError_CheckOutputAsync_allows_with_scrub()
+    {
+        CircuitBreakerGate gate = OpenGate();
+        Mock<IContentSafetyGuard> inner = new();
+        Mock<IPromptRedactor> redactor = new();
+        redactor.Setup(r => r.RedactAlways("{\"completion\":true}"))
+            .Returns(new PromptRedactionOutcome("scrubbed-json", new Dictionary<string, int>()));
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = false },
+            redactor.Object);
+
+        ContentSafetyResult result =
+            await sut.CheckOutputAsync("{\"completion\":true}", CancellationToken.None);
+
+        result.IsAllowed.Should().BeTrue();
+        inner.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        redactor.Verify(r => r.RedactAlways("{\"completion\":true}"), Times.Once);
+    }
+
+    [Fact]
     public async Task When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold()
     {
         CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
