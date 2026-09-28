@@ -1455,4 +1455,81 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().ContainSingle(r => r.TargetId == "ds-sql");
     }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_ds_synthetic_when_compute_node_has_terraform_datastore_source_id()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-orders",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "orders",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "azurerm_mssql_database.orders",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-orders", knownEndpointKeys).Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_svc_synthetic_when_data_node_has_terraform_service_source_id()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "ds-app",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "app",
+            Category = GraphTopologyCategories.Data,
+            SourceId = "azurerm_linux_web_app.app",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-app", knownEndpointKeys).Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_name_matches_arm_resource_id_on_node()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-srv";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { ["resourceId"] = canonicalArmId }
+            }
+        ];
+
+        ManifestDatastore datastore = new() { DatastoreName = mixedCaseArmId, DatastoreId = "ds-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void EndpointKeyIsKnown_returns_false_for_unrelated_literal_endpoint_key()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase) { "svc-api", "ds-sql" };
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("not-indexed", knownEndpointKeys).Should().BeFalse();
+    }
 }

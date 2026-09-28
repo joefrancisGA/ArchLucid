@@ -1414,4 +1414,42 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().BeEmpty();
     }
+
+    [Fact]
+    public void MapRelationships_resolves_source_via_ds_synthetic_fallback_on_compute_node_with_datastore_terraform_source()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-orders",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "orders",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = "azurerm_mssql_database.orders",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "ds-orders",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e => e.FromNodeId == "svc-orders" && e.ToNodeId == "ds-1");
+    }
 }
