@@ -5704,4 +5704,55 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].Confidence.Should().Be(0.82);
         filtered[0].AgentType.Should().Be(AgentType.Compliance);
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_allows_required_controls_only_compliance_proposal()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["encrypt-at-rest"]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.RequiredControls.Should().ContainSingle("encrypt-at-rest");
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_drops_result_when_sanitized_proposal_has_no_remaining_payload()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
+    }
 }

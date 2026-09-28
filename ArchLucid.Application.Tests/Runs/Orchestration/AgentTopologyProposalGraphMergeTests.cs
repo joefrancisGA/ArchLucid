@@ -6634,4 +6634,34 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Nodes.Should().Contain(n =>
             n.NodeType == GraphNodeTypes.TopologyResource && n.NodeId == "svc-billing-api");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_new_snapshot_when_edges_are_added_to_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Should().NotBeSameAs(graph);
+        merged.Edges.Should().HaveCount(1);
+        merged.Nodes.Should().HaveCount(2);
+    }
 }
