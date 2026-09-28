@@ -19787,6 +19787,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6992 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `allow_missing`, `sensitive_values` redaction, `each_key`, and `each_value` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_allow_missing_maps_tf_allow_missing_property`, `ParseAsync_snake_case_sensitive_values_redacts_top_level_sensitive_tf_values`, `ParseAsync_snake_case_each_key_appends_for_each_suffix_to_name`, and `ParseAsync_snake_case_each_value_appends_for_each_suffix_to_name`; 788 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `allow_missing` might omit `tf.allow_missing` — **cheap-disproof 2026-09-28 seed hunt #6992:** regression `ParseAsync_snake_case_allow_missing_maps_tf_allow_missing_property`
+- [x] (valid-no-repro) `RedactTopLevelSensitiveTfValues` — snake_case `sensitive_values` might skip redaction — **cheap-disproof 2026-09-28 seed hunt #6992:** regression `ParseAsync_snake_case_sensitive_values_redacts_top_level_sensitive_tf_values`
+- [x] (valid-no-repro) `MapTerraformResource` — snake_case `each_key` might not append for_each suffix — **cheap-disproof 2026-09-28 seed hunt #6992:** regression `ParseAsync_snake_case_each_key_appends_for_each_suffix_to_name`
+- [x] (valid-no-repro) `MapTerraformResource` — snake_case `each_value` might not append for_each suffix — **cheap-disproof 2026-09-28 seed hunt #6992:** regression `ParseAsync_snake_case_each_value_appends_for_each_suffix_to_name`
+
 2026-09-28 seed hunt #6987 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `prevent_destroy`, `deletion_protection`, `refresh_only`, and `generate_config` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_prevent_destroy_maps_tf_prevent_destroy_property`, `ParseAsync_snake_case_deletion_protection_maps_tf_deletion_protection_property`, `ParseAsync_snake_case_refresh_only_maps_tf_refresh_only_property`, and `ParseAsync_snake_case_generate_config_maps_tf_generate_config_property`; 784 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `prevent_destroy` might omit `tf.prevent_destroy` — **cheap-disproof 2026-09-28 seed hunt #6987:** regression `ParseAsync_snake_case_prevent_destroy_maps_tf_prevent_destroy_property`
