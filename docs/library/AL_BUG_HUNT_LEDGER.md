@@ -19787,6 +19787,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6987 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `prevent_destroy`, `deletion_protection`, `refresh_only`, and `generate_config` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_prevent_destroy_maps_tf_prevent_destroy_property`, `ParseAsync_snake_case_deletion_protection_maps_tf_deletion_protection_property`, `ParseAsync_snake_case_refresh_only_maps_tf_refresh_only_property`, and `ParseAsync_snake_case_generate_config_maps_tf_generate_config_property`; 784 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `prevent_destroy` might omit `tf.prevent_destroy` — **cheap-disproof 2026-09-28 seed hunt #6987:** regression `ParseAsync_snake_case_prevent_destroy_maps_tf_prevent_destroy_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `deletion_protection` might omit `tf.deletion_protection` — **cheap-disproof 2026-09-28 seed hunt #6987:** regression `ParseAsync_snake_case_deletion_protection_maps_tf_deletion_protection_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `refresh_only` might omit `tf.refresh_only` — **cheap-disproof 2026-09-28 seed hunt #6987:** regression `ParseAsync_snake_case_refresh_only_maps_tf_refresh_only_property`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `generate_config` might omit `tf.generate_config` — **cheap-disproof 2026-09-28 seed hunt #6987:** regression `ParseAsync_snake_case_generate_config_maps_tf_generate_config_property`
+
 2026-09-28 seed hunt #6982 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `timeout_read`, `write_only`, `import_id`, and `create_before_destroy` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_timeout_read_maps_tf_timeout_read_property`, `ParseAsync_snake_case_write_only_maps_tf_write_only_property`, `ParseAsync_snake_case_import_id_maps_tf_import_id_property`, and `ParseAsync_snake_case_create_before_destroy_maps_tf_create_before_destroy_property`; 780 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `timeout_read` might omit `tf.timeout_read` — **cheap-disproof 2026-09-28 seed hunt #6982:** regression `ParseAsync_snake_case_timeout_read_maps_tf_timeout_read_property`
