@@ -8880,6 +8880,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-09-28 seed hunt #37 (seed-only): reseeded agent-runtime-safety; cheap-disproof closed open `agentTypeLabel` TB-949 begin-marker candidate (`AgentRunHeaderPromptSanitizer.SanitizeHostListEntry`) and orchestration `runId` Unicode line-separator field spoof before quarantine; regressions `AppendRunHeader_agent_type_label_neutralizes_embedded_customer_content_begin_marker` and `TopologyUserPrompt_run_header_run_id_unicode_line_separator_does_not_spoof_before_quarantine`; 161 scoped agent-runtime-safety tests passed.
+
 2026-09-28 seed hunt (seed-only): reseeded agent-runtime-safety; cheap-disproof closed custom `agentTypeLabel` TB-949 begin-marker reachability (`AgentRunHeaderPromptSanitizer` neutralizes markers; composer passes fixed agent labels today) and ledger `EvidenceRef` begin-marker appendix (`TechnologyLedgerUserPromptInjection` block-level `EscapeEmbeddedMarkers`); 159 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt #56 (seed→hit): reseeded agent-runtime-safety; proved `AppendRunHeader` `AgentType` label rendered outside TB-949 quarantine without line-break collapse or untrusted wrap (same class as TaskId/#54); fixed via `SanitizeHostListEntry`; added parity regressions for source-row END markers and run-header TB-949 literals; 159 scoped agent-runtime-safety tests passed.
@@ -8928,7 +8930,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-27 seed hunt (seed→hit): reseeded agent-runtime-safety after persisted-objective sanitize; proved staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize bypassed `SanitizePersistedCustomerProse`, leaving Unicode line separators that spoofed architecture field lines inside the staged quarantine; fixed at `AgentUserPromptComposer.AppendStagedPriorAgentsSummary`; seeded cost retail `PromptBlock` quarantine and truncation case-variant marker candidates; 138 scoped agent-runtime-safety tests passed.
 
-- [ ] (candidate) `AgentUserPromptBuilder.AppendRunHeader` — caller-supplied `agentTypeLabel` with embedded `CUSTOMER_CONTENT_BEGIN` outside TB-949 quarantine — reachability: `AgentUserPromptComposer` passes fixed literals (`Topology`, `Cost`, …) today; `AgentRunHeaderPromptSanitizer.SanitizeHostListEntry` already neutralizes markers when exercised
+- [x] (valid-no-repro) `AgentUserPromptBuilder.AppendRunHeader` — caller-supplied `agentTypeLabel` with embedded `CUSTOMER_CONTENT_BEGIN` outside TB-949 quarantine — **cheap-disproof 2026-09-28 seed hunt #37:** `SanitizeHostListEntry` neutralizes markers; composer passes fixed literals today; regression `AppendRunHeader_agent_type_label_neutralizes_embedded_customer_content_begin_marker`
+- [x] (valid-no-repro) `AgentUserPromptComposer.BuildTopologyUserPrompt` — orchestration `runId` with embedded Unicode line separator may spoof `Task Objective:` before TB-949 quarantine — **cheap-disproof 2026-09-28 seed hunt #37:** `SanitizeHeaderIdentifier` collapses `\u2028` via `SanitizeScalar`; regression `TopologyUserPrompt_run_header_run_id_unicode_line_separator_does_not_spoof_before_quarantine`
 - [x] (valid-no-repro) `TechnologyLedgerUserPromptInjection.AppendLedgerContext` — `EvidenceRef` carrying raw `CUSTOMER_CONTENT_BEGIN` may open a fake section in the ledger appendix — **cheap-disproof 2026-09-28 seed hunt:** block-level `EscapeEmbeddedMarkers` after `TechnologyLedgerPromptFormatter` (parity with technology-name end-marker hit)
 - [x] (proven) `AgentUserPromptComposer.AppendStagedPriorAgentsSummary` — staged notes appended after `AgentEvidenceUntrustedInputSanitizer` bypassed `SanitizePersistedCustomerProse`, leaving `\u2028`/`\n` field-spoof lines inside the staged TB-949 section — **hit 2026-09-27 seed hunt (seed→hit):** compose now runs `SanitizePersistedCustomerProse` before `EscapeEmbeddedMarkers`; regression `CriticUserPrompt_staged_prior_summary_collapses_unicode_line_separator_field_spoofing`
 - [x] (valid-no-repro) `AgentUserPromptComposer.BuildCostUserPrompt` — retail grounding `PromptBlock` appended outside `CustomerContentPromptDelimiters` quarantine — **cheap-disproof 2026-09-27 seed hunt:** `CostRetailGroundingBuilder` emits host catalog rows only; request marker literals do not surface in the grounding block; regression `CostUserPrompt_retail_grounding_block_omits_unescaped_customer_markers_from_request`
@@ -8948,13 +8951,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-28
 - **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
