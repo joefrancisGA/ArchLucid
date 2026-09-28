@@ -1074,4 +1074,73 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         blankSource.Should().BeEmpty();
         blankTarget.Should().BeEmpty();
     }
+
+    [Fact]
+    public void MapRelationships_sets_edge_label_to_manifest_relationship_type_name()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "svc-1", TargetId = "ds-1", RelationshipType = RelationshipType.ReadsFrom }]);
+
+        edges.Should().ContainSingle(e => e.Label == nameof(RelationshipType.ReadsFrom));
+    }
+
+    [Fact]
+    public void MapRelationships_ignores_blank_endpoint_alias_entries()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["   "] = "svc-1",
+            ["api"] = "   ",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "api", TargetId = "sql", RelationshipType = RelationshipType.ReadsFrom }],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1");
+    }
 }

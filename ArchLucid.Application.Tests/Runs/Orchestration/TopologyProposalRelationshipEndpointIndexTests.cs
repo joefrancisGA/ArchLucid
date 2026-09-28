@@ -322,4 +322,67 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(duplicateName, claimed).Should().BeFalse();
     }
+
+    [Fact]
+    public void TryClaimService_returns_false_when_service_name_and_id_are_blank()
+    {
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService blank = new() { ServiceName = "   ", ServiceId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(blank, claimed).Should().BeFalse();
+        claimed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void IsRenameAliasService_returns_true_when_accepted_service_shares_id_but_differs_name()
+    {
+        List<ManifestService> accepted =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        ManifestService rename = new() { ServiceName = "billing-api", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(rename, accepted).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsRenameAliasService_returns_false_when_no_accepted_service_matches_id()
+    {
+        List<ManifestService> accepted =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        ManifestService unrelated = new() { ServiceName = "worker", ServiceId = "svc-worker" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(unrelated, accepted).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsRenameAliasService_treats_padded_service_ids_as_same_id()
+    {
+        List<ManifestService> accepted =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "  svc-api  " },
+        ];
+
+        ManifestService rename = new() { ServiceName = "billing-api", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(rename, accepted).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsRenameAliasDatastore_returns_true_when_accepted_datastore_shares_id_but_differs_name()
+    {
+        List<ManifestDatastore> accepted =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        ManifestDatastore rename = new() { DatastoreName = "orders-db", DatastoreId = "ds-sql" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(rename, accepted).Should().BeTrue();
+    }
 }
