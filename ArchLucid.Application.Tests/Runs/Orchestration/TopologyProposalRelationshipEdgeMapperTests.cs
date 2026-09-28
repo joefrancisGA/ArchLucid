@@ -1039,4 +1039,39 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().ContainSingle(e => e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
     }
+
+    [Fact]
+    public void MapRelationships_skips_relationship_when_source_or_target_endpoint_is_blank()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> blankSource = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "   ", TargetId = "ds-1", RelationshipType = RelationshipType.ReadsFrom }]);
+
+        IReadOnlyList<GraphEdge> blankTarget = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "svc-1", TargetId = "   ", RelationshipType = RelationshipType.ReadsFrom }]);
+
+        blankSource.Should().BeEmpty();
+        blankTarget.Should().BeEmpty();
+    }
 }

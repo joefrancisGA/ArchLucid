@@ -146,4 +146,79 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().BeEmpty();
     }
+
+    [Fact]
+    public void FilterKnownRelationships_returns_empty_when_relationships_are_null_or_empty()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(services, datastores, null)
+            .Should()
+            .BeEmpty();
+        TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(services, datastores, [])
+            .Should()
+            .BeEmpty();
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_drops_relationship_when_source_endpoint_is_unknown()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = "svc-missing",
+                TargetId = "ds-sql",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CollectKnownEndpointKeys_includes_manifest_names_ids_and_synthetic_aliases()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        HashSet<string> keys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(services, datastores);
+
+        keys.Should().Contain("api");
+        keys.Should().Contain("svc-api");
+        keys.Should().Contain("sql");
+        keys.Should().Contain("ds-sql");
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-api", keys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-sql", keys).Should().BeTrue();
+    }
 }
