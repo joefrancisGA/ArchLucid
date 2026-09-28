@@ -982,4 +982,82 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().ContainSingle();
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_matches_graph_node_source_id()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceId = "azurerm_mssql_database.orders",
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "orders",
+            DatastoreId = "azurerm_mssql_database.orders"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_matches_arm_resource_id_on_node()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-srv";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { ["resourceId"] = canonicalArmId }
+            }
+        ];
+
+        ManifestDatastore datastore = new() { DatastoreName = "sql", DatastoreId = mixedCaseArmId };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void TryClaimService_registers_arm_resource_id_variants_in_claimed_endpoint_keys()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService first = new() { ServiceName = "api", ServiceId = mixedCaseArmId };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(first, claimed).Should().BeTrue();
+        claimed.Should().Contain(canonicalArmId);
+
+        ManifestService duplicate = new() { ServiceName = "other", ServiceId = canonicalArmId };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(duplicate, claimed).Should().BeFalse();
+    }
 }

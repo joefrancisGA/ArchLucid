@@ -6132,4 +6132,16 @@ public sealed class AgentTopologyProposalGraphMergeTests
         actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
         actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
     }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_throws_when_graph_or_results_are_null()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        Action actGraph = () => AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(null!, []);
+        Action actResults = () => AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, null!);
+
+        actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
+        actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
+    }
 }
