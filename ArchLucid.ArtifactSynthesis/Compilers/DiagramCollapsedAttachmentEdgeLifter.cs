@@ -174,9 +174,9 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
 
                     GraphEdge sourceEdge = new()
                     {
-                        EdgeType = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
-                        Label = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
-                        InferenceSource = GraphEdgeInferenceSources.InventoryPeSubnet,
+                        EdgeType = GraphEdgeTypes.ConnectsTo,
+                        Label = "private endpoint",
+                        InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
                         ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                     };
 
@@ -186,7 +186,7 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                         visibleDiagramIds,
                         targetDiagramId,
                         placementDiagramId,
-                        "in",
+                        "private endpoint",
                         sourceEdge);
                 }
             }
