@@ -591,4 +591,70 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         filtered.Should().ContainSingle(relationship =>
             relationship.SourceId == sourceArm && relationship.TargetId == targetArm);
     }
+
+    [Fact]
+    public void IsRenameAliasDatastore_returns_false_when_candidate_name_or_id_is_blank()
+    {
+        List<ManifestDatastore> accepted =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        ManifestDatastore blankName = new() { DatastoreName = "   ", DatastoreId = "ds-sql" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(blankName, accepted).Should().BeFalse();
+
+        ManifestDatastore blankId = new() { DatastoreName = "orders-db", DatastoreId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(blankId, accepted).Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddDeclaredManifestServiceEndpointAliases_uses_synthetic_node_id_when_service_id_is_blank()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new() { ServiceName = "api", ServiceId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestServiceEndpointAliases(aliases, service);
+
+        aliases["api"].Should().Be("svc-api");
+        aliases["svc-api"].Should().Be("svc-api");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_arm_resource_id_resolution_alias()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = canonicalArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId[mixedCaseArmId].Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void AddManifestServiceEndpointAliases_leaves_dictionary_empty_when_no_graph_node_matches()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new() { ServiceName = "missing", ServiceId = "svc-missing" };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(aliases, service, []);
+
+        aliases.Should().BeEmpty();
+    }
 }

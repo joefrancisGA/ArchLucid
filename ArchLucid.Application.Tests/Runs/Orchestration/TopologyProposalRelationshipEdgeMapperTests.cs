@@ -1225,4 +1225,35 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
             e.Weight == 1d
             && e.EdgeId == $"agent-rel-svc-1-ds-1-{GraphEdgeTypes.ConnectsTo}");
     }
+
+    [Fact]
+    public void MapRelationships_resolves_endpoints_when_endpoint_aliases_argument_is_null()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "api", TargetId = "sql", RelationshipType = RelationshipType.ReadsFrom }],
+            endpointAliases: null);
+
+        edges.Should().ContainSingle(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+    }
 }
