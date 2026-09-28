@@ -38,6 +38,7 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
   it("shows the accepted time in the selected time zone", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
 
+    expect(screen.getByTestId("extract-upload-accepted-package-id-full")).toHaveTextContent(sampleRecord.packageId);
     expect(screen.getByTestId("extract-upload-accepted-at")).toHaveTextContent(
       "9/1/2026, 5:00 AM PDT",
     );

@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  truncateExtractUploadPackageId,
-  type ExtractUploadAcceptedPackageRecord,
-} from "@/lib/extract-upload-accepted-package-record";
+import type { ExtractUploadAcceptedPackageRecord } from "@/lib/extract-upload-accepted-package-record";
 import {
   EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
@@ -42,7 +39,6 @@ export function ExtractUploadAcceptedPackagePanel(
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
-  const truncatedId = truncateExtractUploadPackageId(record.packageId);
 
   const onCopyPackageId = useCallback(async () => {
     setCopyPackageIdError(null);
@@ -83,8 +79,11 @@ export function ExtractUploadAcceptedPackagePanel(
                 Upload id
               </dt>
               <dd className={cn("m-0 mt-0.5 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-mono" data-testid="extract-upload-accepted-package-id-truncated">
-                  {truncatedId}
+                <span
+                  className="break-all font-mono"
+                  data-testid="extract-upload-accepted-package-id-full"
+                >
+                  {record.packageId}
                 </span>
                 <Button
                   type="button"
@@ -107,17 +106,6 @@ export function ExtractUploadAcceptedPackagePanel(
                   className="mt-2"
                 />
               ) : null}
-              <details className="mt-1">
-                <summary className={cn("cursor-pointer text-al-link", OPERATOR_TYPOGRAPHY.helper)}>
-                  Show full upload id
-                </summary>
-                <p
-                  className={cn("m-0 mt-1 break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}
-                  data-testid="extract-upload-accepted-package-id-full"
-                >
-                  {record.packageId}
-                </p>
-              </details>
             </div>
             <div>
               <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
