@@ -6162,4 +6162,60 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, []).Should().BeFalse();
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_same_graph_when_merge_gate_filters_all_proposals()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-rejected",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Should().BeSameAs(graph);
+    }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_merge_gate_filters_all_proposals()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-rejected",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeFalse();
+    }
 }

@@ -5408,4 +5408,22 @@ public sealed class AgentTopologyProposalMergeGateTests
         actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
         actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_preserves_agent_results_without_proposed_changes()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-no-proposal",
+            AgentType = AgentType.Critic,
+            ProposedChanges = null
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle().Which.Should().BeSameAs(critic);
+    }
 }

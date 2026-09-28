@@ -1588,4 +1588,59 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("SVC-api", knownEndpointKeys).Should().BeTrue();
     }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_ds_synthetic_for_storage_category_node()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode node = new()
+        {
+            NodeId = "ds-blob",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "blob",
+            Category = GraphTopologyCategories.Storage,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-blob", knownEndpointKeys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-blob", knownEndpointKeys).Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_primary_and_cross_category_synthetic_keys_on_misclassified_nodes()
+    {
+        HashSet<string> computeKeys = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode computeWithDatastoreTf = new()
+        {
+            NodeId = "svc-orders",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "orders",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "azurerm_mssql_database.orders",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(computeKeys, computeWithDatastoreTf);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-orders", computeKeys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-orders", computeKeys).Should().BeTrue();
+
+        HashSet<string> dataKeys = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode dataWithServiceTf = new()
+        {
+            NodeId = "ds-app",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "app",
+            Category = GraphTopologyCategories.Data,
+            SourceId = "azurerm_linux_web_app.app",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(dataKeys, dataWithServiceTf);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-app", dataKeys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-app", dataKeys).Should().BeTrue();
+    }
 }
