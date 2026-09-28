@@ -5,6 +5,7 @@ using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
+using Xunit;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
 
@@ -1142,5 +1143,54 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void MapRelationships_throws_when_topology_nodes_or_relationships_are_null()
+    {
+        List<GraphNode> nodes = [];
+        List<ManifestRelationship> relationships = [];
+
+        Action actNodes = () => TopologyProposalRelationshipEdgeMapper.MapRelationships(null!, relationships);
+        Action actRelationships = () => TopologyProposalRelationshipEdgeMapper.MapRelationships(nodes, null!);
+
+        actNodes.Should().Throw<ArgumentNullException>().WithParameterName("topologyNodes");
+        actRelationships.Should().Throw<ArgumentNullException>().WithParameterName("relationships");
+    }
+
+    [Fact]
+    public void MapRelationships_does_not_override_graph_resolution_with_conflicting_endpoint_alias()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["api"] = "svc-wrong",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [new ManifestRelationship { SourceId = "api", TargetId = "sql", RelationshipType = RelationshipType.ReadsFrom }],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
     }
 }

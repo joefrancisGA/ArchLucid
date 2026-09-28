@@ -385,4 +385,56 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(rename, accepted).Should().BeTrue();
     }
+
+    [Fact]
+    public void IsRenameAliasService_returns_false_when_accepted_service_has_same_id_and_name()
+    {
+        List<ManifestService> accepted =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        ManifestService duplicate = new() { ServiceName = "api", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(duplicate, accepted).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryClaimDatastore_returns_false_when_datastore_name_and_id_are_blank()
+    {
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore blank = new() { DatastoreName = "   ", DatastoreId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(blank, claimed).Should().BeFalse();
+        claimed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddDeclaredManifestServiceEndpointAliases_registers_name_id_and_synthetic_keys()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new() { ServiceName = "billing-api", ServiceId = "svc-billing" };
+
+        TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestServiceEndpointAliases(aliases, service);
+
+        aliases["billing-api"].Should().Be("svc-billing");
+        aliases["svc-billing"].Should().Be("svc-billing");
+        aliases["svc-billing-api"].Should().Be("svc-billing");
+    }
+
+    [Fact]
+    public void AddDeclaredManifestDatastoreEndpointAliases_registers_name_id_and_synthetic_keys()
+    {
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new() { DatastoreName = "orders-db", DatastoreId = "ds-orders" };
+
+        TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestDatastoreEndpointAliases(aliases, datastore);
+
+        aliases["orders-db"].Should().Be("ds-orders");
+        aliases["ds-orders"].Should().Be("ds-orders");
+        aliases["ds-orders-db"].Should().Be("ds-orders");
+    }
 }
