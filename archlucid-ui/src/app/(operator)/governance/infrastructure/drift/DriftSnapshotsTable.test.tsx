@@ -63,6 +63,16 @@ describe("DriftSnapshotsTable", () => {
       "dateTime",
       "2026-09-01T12:00:00.000Z",
     );
+    expect(screen.getByTestId("infra-drift-snapshot-captured-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "9/1/2026, 8:00 AM EDT",
+    );
+    expect(screen.queryByText("The Azure subscription captured by this snapshot.")).not.toBeInTheDocument();
+    expect(screen.queryByText("When this snapshot was taken.")).not.toBeInTheDocument();
+    expect(screen.queryByText("How many resources this snapshot recorded.")).not.toBeInTheDocument();
+    expect(screen.queryByText("How many relationships this snapshot recorded.")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Select chooses this snapshot for the page. Delete removes the snapshot record. Neither action changes Azure."),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Dev")).toBeInTheDocument();
   });
 
