@@ -2803,13 +2803,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 21
-- **bugs-found:** 17
+- **hunts:** 22
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — embedded combining marks in policy/topology/security-baseline hint lists survived `MaterializeStringList` substantive-text-only filter
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — embedded combining marks in requiredCapabilities survived substantive-text-only materialization
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+- [x] (proven) `AuthorityPipelineWorkPayload.EnsureMutableCollections` / `MaterializeStringList` — `requiredCapabilities` entries with embedded combining marks (for example `messaging\u0300`) passed `HasSubstantiveText` but broke capability slug parity vs `MaterializeReferenceStringList` used for policy/topology/security-baseline hints — **hit 2026-09-28 seed hunt (seed→hit):** route `RequiredCapabilities` through `MaterializeReferenceStringList`; regression `Deserialize_filters_required_capabilities_when_entry_contains_embedded_combining_mark`.
+
+2026-09-28 seed hunt (seed→hit): reseeded authority-pipeline-payload after combining-mark reference-list fixes; proved requiredCapabilities slug list still used substantive-text-only filter; 28 scoped payload JSON tests passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded authority-pipeline-payload; proved `PolicyReferences` / `TopologyHints` / `SecurityBaselineHints` used `MaterializeStringList` (`HasSubstantiveText` only) so `pci\u0300`-style entries survived STJ and connector `Trim()` left combining marks in stable reference keys (parity gap vs `HasUsableIdentifierText` on document/declaration names); fixed with `MaterializeReferenceStringList`; regression `Deserialize_filters_reference_string_lists_when_entry_contains_embedded_combining_mark`; 27 scoped payload JSON tests passed.
 

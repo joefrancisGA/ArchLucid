@@ -113,7 +113,7 @@ public sealed class AuthorityPipelineWorkPayload
         request.TopologyHints = MaterializeReferenceStringList(request.TopologyHints);
         request.SecurityBaselineHints = MaterializeReferenceStringList(request.SecurityBaselineHints);
         request.InfrastructureDeclarations = MaterializeInfrastructureDeclarationList(request.InfrastructureDeclarations);
-        request.RequiredCapabilities = MaterializeStringList(request.RequiredCapabilities);
+        request.RequiredCapabilities = MaterializeReferenceStringList(request.RequiredCapabilities);
         request.Constraints = MaterializeStringList(request.Constraints);
         request.Assumptions = MaterializeStringList(request.Assumptions);
     }
