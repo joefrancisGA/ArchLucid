@@ -236,6 +236,38 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void CollectKnownEndpointKeys_returns_empty_set_when_manifest_lists_are_empty()
+    {
+        HashSet<string> keys =
+            TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys([], []);
+
+        keys.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_false_when_only_requirement_node_shares_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "req-1",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "api",
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = "api", ServiceId = "svc-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeFalse();
+
+        nodeId.Should().BeEmpty();
+    }
+
+    [Fact]
     public void CollectKnownEndpointKeys_includes_manifest_names_ids_and_synthetic_aliases()
     {
         List<ManifestService> services =

@@ -6664,4 +6664,62 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().HaveCount(1);
         merged.Nodes.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_tags_agent_proposal_edges_with_inference_source()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_inventoried_node_ids_when_appending_edges()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == ComputeNodeId && n.Label == ComputeLabel);
+        merged.Nodes.Should().Contain(n => n.NodeId == DataNodeId && n.Label == DataLabel);
+    }
 }

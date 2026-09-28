@@ -5755,4 +5755,47 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         filtered.Should().BeEmpty();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_preserves_warnings_when_invalid_relationships_are_stripped()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                Warnings = ["greenfield-warn"],
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "missing-target",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.Warnings.Should().ContainSingle("greenfield-warn");
+        filtered[0].ProposedChanges!.AddedRelationships.Should().BeEmpty();
+        filtered[0].ProposedChanges!.AddedServices.Should().ContainSingle(s => s.ServiceName == "api");
+    }
 }
