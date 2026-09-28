@@ -77,6 +77,7 @@ import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-in
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   approveRemediationInstance,
+  attestChangeImplemented,
   assignRemediationWave,
   closeRemediationInstance,
   createRemediationInstance,
@@ -94,6 +95,7 @@ import {
 import {
   canApproveRemediationInstance,
   canAssignRemediationWave,
+  canAttestChangeImplemented,
   canCloseRemediationInstance,
   canExecuteRemediationInstance,
   canRunRemediationPreflight,
@@ -104,6 +106,7 @@ import {
 import {
   REMEDIATION_EXECUTE_DISCLAIMER,
   REMEDIATION_WORKBENCH_COLUMNS,
+  remediationInstanceStatusLabel,
   type RemediationInstanceDetail,
   type RemediationInstanceSummary,
   type RemediationWorkbenchColumn,
@@ -688,8 +691,11 @@ export function RemediationWorkbenchClient() {
   const approveBlockedReason = remediationLifecycleActionBlockedReason("approve", lifecycleBlockedContext);
   const assignWaveBlockedReason = remediationLifecycleActionBlockedReason("assignWave", lifecycleBlockedContext);
   const executeBlockedReason = remediationLifecycleActionBlockedReason("execute", lifecycleBlockedContext);
+  const attestChangeImplementedBlockedReason = remediationLifecycleActionBlockedReason(
+    "attestChangeImplemented",
+    lifecycleBlockedContext,
+  );
   const verifyBlockedReason = remediationLifecycleActionBlockedReason("verify", lifecycleBlockedContext);
-  const closeBlockedReason = remediationLifecycleActionBlockedReason("close", lifecycleBlockedContext);
 
   const freshnessLabel = remediationWorkbenchFreshnessLabel({
     lastRefreshedAt,
@@ -1102,7 +1108,7 @@ export function RemediationWorkbenchClient() {
         </p>
       ) : (
         <section
-          className="grid gap-3 xl:grid-cols-6"
+          className="grid gap-3 xl:grid-cols-8"
           aria-label="Remediation instance lifecycle board"
           data-testid="infra-remediation-board"
           ref={boardNavRef}
@@ -1140,7 +1146,9 @@ export function RemediationWorkbenchClient() {
                       }
                     >
                       <div className="font-medium">{instance.patternKey}</div>
-                      <div className="text-xs text-al-text-secondary">{instance.status}</div>
+                      <div className="text-xs text-al-text-secondary">
+                        {remediationInstanceStatusLabel(instance.status)}
+                      </div>
                     </button>
                   </li>
                   );
@@ -1164,7 +1172,7 @@ export function RemediationWorkbenchClient() {
             <>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{detail.instance.patternKey}</h2>
-                <StatusTag kind="in-progress" label={detail.instance.status} />
+                <StatusTag kind="in-progress" label={remediationInstanceStatusLabel(detail.instance.status)} />
               </div>
 
               {detail.finding != null ? (
@@ -1326,6 +1334,26 @@ export function RemediationWorkbenchClient() {
                 >
                   {pendingAction === "execute" ? "Executing…" : "Execute (emit advisory)"}
                 </Button>
+                {selectedStatus != null && canAttestChangeImplemented(selectedStatus) ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    data-testid="infra-remediation-attest-change-implemented"
+                    disabled={actionBusy || transitionsBlocked}
+                    aria-describedby={
+                      attestChangeImplementedBlockedReason
+                        ? "infra-remediation-attest-change-implemented-blocked-reason"
+                        : undefined
+                    }
+                    onClick={() =>
+                      void runLifecycleAction("attestChangeImplemented", () =>
+                        attestChangeImplemented(detail.instance.instanceId),
+                      )
+                    }
+                  >
+                    {pendingAction === "attestChangeImplemented" ? "Attesting…" : "Attest change implemented"}
+                  </Button>
+                ) : null}
                 <Button
                   type="button"
                   size="sm"
@@ -1340,17 +1368,20 @@ export function RemediationWorkbenchClient() {
                 >
                   {pendingAction === "verify" ? "Verifying…" : "Verify"}
                 </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  data-testid="infra-remediation-close"
-                  disabled={actionBusy || selectedStatus == null || !canCloseRemediationInstance(selectedStatus)}
-                  aria-describedby={closeBlockedReason ? "infra-remediation-close-blocked-reason" : undefined}
-                  onClick={() => void runLifecycleAction("close", () => closeRemediationInstance(detail.instance.instanceId))}
-                >
-                  {pendingAction === "close" ? "Closing…" : "Close"}
-                </Button>
+                {selectedStatus != null && canCloseRemediationInstance(selectedStatus) ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    data-testid="infra-remediation-close"
+                    disabled={actionBusy}
+                    onClick={() =>
+                      void runLifecycleAction("close", () => closeRemediationInstance(detail.instance.instanceId))
+                    }
+                  >
+                    {pendingAction === "close" ? "Closing…" : "Close"}
+                  </Button>
+                ) : null}
               </div>
               {buyerPolishedShell ? (
                 <div className="space-y-1">
@@ -1374,15 +1405,21 @@ export function RemediationWorkbenchClient() {
                     reason={executeBlockedReason ? { kind: "policy", message: executeBlockedReason } : null}
                     testId="infra-remediation-execute-blocked-reason"
                   />
+                  {selectedStatus === "Executed" ? (
+                    <WhyDisabledCtaHint
+                      id="infra-remediation-attest-change-implemented-blocked-reason"
+                      reason={
+                        attestChangeImplementedBlockedReason
+                          ? { kind: "policy", message: attestChangeImplementedBlockedReason }
+                          : null
+                      }
+                      testId="infra-remediation-attest-change-implemented-blocked-reason"
+                    />
+                  ) : null}
                   <WhyDisabledCtaHint
                     id="infra-remediation-verify-blocked-reason"
                     reason={verifyBlockedReason ? { kind: "policy", message: verifyBlockedReason } : null}
                     testId="infra-remediation-verify-blocked-reason"
-                  />
-                  <WhyDisabledCtaHint
-                    id="infra-remediation-close-blocked-reason"
-                    reason={closeBlockedReason ? { kind: "policy", message: closeBlockedReason } : null}
-                    testId="infra-remediation-close-blocked-reason"
                   />
                 </div>
               ) : null}

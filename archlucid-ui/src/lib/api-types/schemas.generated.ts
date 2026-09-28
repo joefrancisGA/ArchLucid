@@ -8509,7 +8509,7 @@ export interface components {
             inventorySnapshotId?: string;
         };
         /** @enum {string} */
-        RemediationInstanceStatus: "Classified" | "PreflightPassed" | "PreflightBlocked" | "Approved" | "WaveAssigned" | "Executed" | "Verified" | "VerificationFailed" | "Closed";
+        RemediationInstanceStatus: "Classified" | "PreflightPassed" | "PreflightBlocked" | "Approved" | "WaveAssigned" | "Executed" | "Verified" | "VerificationFailed" | "Closed" | "ChangeImplemented";
         RemediationInstanceSummary: {
             automationLevel?: components["schemas"]["RemediationAutomationLevel"];
             /** Format: uuid */

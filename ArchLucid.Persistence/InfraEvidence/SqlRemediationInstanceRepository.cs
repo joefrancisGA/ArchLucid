@@ -20,14 +20,14 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                 PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc)
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
                                 @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
                                 @PathNarrativeJson, @AssessmentId,
                                 @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
                                 @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
-                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @VerifiedUtc, @ClosedUtc);
+                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @ChangeImplementedUtc, @VerifiedUtc, @ClosedUtc);
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -54,14 +54,14 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                 PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc)
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
                                 @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
                                 @PathNarrativeJson, @AssessmentId,
                                 @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
                                 @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
-                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @VerifiedUtc, @ClosedUtc);
+                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @ChangeImplementedUtc, @VerifiedUtc, @ClosedUtc);
                            """;
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(
@@ -88,6 +88,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                UpdatedUtc = @UpdatedUtc,
                                ApprovedUtc = @ApprovedUtc,
                                ExecutedUtc = @ExecutedUtc,
+                               ChangeImplementedUtc = @ChangeImplementedUtc,
                                VerifiedUtc = @VerifiedUtc,
                                ClosedUtc = @ClosedUtc
                            WHERE TenantId = @TenantId AND InstanceId = @InstanceId;
@@ -125,6 +126,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                UpdatedUtc = @UpdatedUtc,
                                ApprovedUtc = @ApprovedUtc,
                                ExecutedUtc = @ExecutedUtc,
+                               ChangeImplementedUtc = @ChangeImplementedUtc,
                                VerifiedUtc = @VerifiedUtc,
                                ClosedUtc = @ClosedUtc
                            WHERE TenantId = @TenantId
@@ -160,6 +162,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                     mutation.UpdatedUtc,
                     mutation.ApprovedUtc,
                     mutation.ExecutedUtc,
+                    mutation.ChangeImplementedUtc,
                     mutation.VerifiedUtc,
                     mutation.ClosedUtc,
                 },
@@ -180,7 +183,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                   PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                   VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                   CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId AND InstanceId = @InstanceId;
                            """;
@@ -207,7 +210,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                   PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                   VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                   CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -362,7 +365,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                   PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                   VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                   CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                            ORDER BY UpdatedUtc DESC;
@@ -386,7 +389,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                   PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                   VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                   CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -426,7 +429,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                       PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
                                       ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                       PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                      CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc
+                                      CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                                FROM dbo.RemediationInstances
                                WHERE TenantId = @TenantId
                                  AND CloudResourceId = @CloudResourceId
@@ -476,7 +479,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                       PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                       VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                       CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                      ExecutedUtc, VerifiedUtc, ClosedUtc
+                                      ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                                FROM dbo.RemediationInstances
                                WHERE TenantId = @TenantId
                                  AND WorkspaceId = @WorkspaceId
@@ -509,7 +512,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                   PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                   VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                   CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                              AND FindingId = @FindingId
@@ -538,7 +541,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
                                   PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
                                   VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
                                   CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
-                                  ExecutedUtc, VerifiedUtc, ClosedUtc
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
                            FROM dbo.RemediationInstances
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -586,6 +589,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             instance.UpdatedUtc,
             instance.ApprovedUtc,
             instance.ExecutedUtc,
+            instance.ChangeImplementedUtc,
             instance.VerifiedUtc,
             instance.ClosedUtc,
         };
@@ -621,6 +625,7 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             UpdatedUtc = row.UpdatedUtc,
             ApprovedUtc = row.ApprovedUtc,
             ExecutedUtc = row.ExecutedUtc,
+            ChangeImplementedUtc = row.ChangeImplementedUtc,
             VerifiedUtc = row.VerifiedUtc,
             ClosedUtc = row.ClosedUtc,
         };
@@ -803,6 +808,12 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         }
 
         public DateTime? ExecutedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTime? ChangeImplementedUtc
         {
             get;
             init;

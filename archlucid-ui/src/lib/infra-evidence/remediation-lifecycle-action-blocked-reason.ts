@@ -1,6 +1,7 @@
 import {
   canApproveRemediationInstance,
   canAssignRemediationWave,
+  canAttestChangeImplemented,
   canCloseRemediationInstance,
   canExecuteRemediationInstance,
   canRunRemediationPreflight,
@@ -15,6 +16,7 @@ export type RemediationLifecycleAction =
   | "approve"
   | "assignWave"
   | "execute"
+  | "attestChangeImplemented"
   | "verify"
   | "close";
 
@@ -110,6 +112,14 @@ export function remediationLifecycleActionBlockedReason(
       return canVerifyRemediationInstance(context.selectedStatus)
         ? null
         : "Verify is available only after advisory execute completes.";
+    case "attestChangeImplemented":
+      if (context.selectedStatus === null) {
+        return "Select a remediation instance before attesting.";
+      }
+
+      return canAttestChangeImplemented(context.selectedStatus)
+        ? null
+        : "Attest is available only after advisory output is generated.";
     case "close":
       if (context.selectedStatus === null) {
         return "Select a remediation instance before close.";
@@ -117,7 +127,7 @@ export function remediationLifecycleActionBlockedReason(
 
       return canCloseRemediationInstance(context.selectedStatus)
         ? null
-        : "Close is available only after verify completes or fails.";
+        : "Close is available only after verification passes.";
     default:
       return null;
   }

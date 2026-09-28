@@ -212,6 +212,29 @@ public sealed partial class RemediationInstancesController(
     }
 
     // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("{instanceId:guid}/attest-change-implemented")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Remediation change attestation delegates to RemediationInstanceService.")]
+    [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> AttestChangeImplemented(
+        Guid instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        RemediationInstanceOperationResult result = await instanceService.AttestChangeImplementedAsync(
+            scope,
+            instanceId,
+            actorContext.GetActorId(),
+            cancellationToken);
+
+        return MapOperationResult(result, instanceId);
+    }
+
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/verify")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation verification delegates to RemediationInstanceService.")]
