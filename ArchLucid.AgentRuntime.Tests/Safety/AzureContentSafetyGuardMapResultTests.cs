@@ -71,4 +71,36 @@ public sealed class AzureContentSafetyGuardMapResultTests
 
         mapped.IsAllowed.Should().BeTrue();
     }
+
+    [SkippableFact]
+    public void MapResult_allows_when_multiple_categories_stay_below_threshold()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [
+                ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, 2),
+                ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Violence, 3),
+            ]);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void MapResult_blocks_on_first_category_at_threshold_in_analysis_order()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [
+                ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, 6),
+                ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Violence, 6),
+            ]);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeFalse();
+        mapped.Category.Should().Be(TextCategory.Hate.ToString());
+        mapped.Severity.Should().Be(6);
+    }
 }
