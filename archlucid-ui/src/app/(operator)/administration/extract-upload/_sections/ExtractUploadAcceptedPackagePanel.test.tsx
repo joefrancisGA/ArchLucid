@@ -43,6 +43,19 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     );
   });
 
+  it("uses SecureNow follow-up destinations instead of architecture review links", () => {
+    render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} productLineId="security" />);
+
+    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/compliance/findings");
+    expect(screen.getByRole("link", { name: "Audit evidence" })).toHaveAttribute(
+      "href",
+      "/compliance/audit-evidence",
+    );
+    expect(screen.queryByRole("link", { name: "Start a review" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Architecture reviews" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-accepted-evidence-trail-link")).not.toBeInTheDocument();
+  });
+
   it("shows an inline error instead of a toast when package id copy fails", async () => {
     vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error("Clipboard blocked"));
 

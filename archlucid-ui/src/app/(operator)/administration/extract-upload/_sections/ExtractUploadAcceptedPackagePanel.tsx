@@ -20,20 +20,25 @@ import {
   EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_DETAIL,
   EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
-import { EXTRACT_UPLOAD_SETTINGS_SOURCES } from "@/lib/extract-upload-settings-evidence-copy";
+import { extractUploadSettingsSources } from "@/lib/extract-upload-settings-evidence-copy";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { showSuccess } from "@/lib/toast";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
   readonly record: ExtractUploadAcceptedPackageRecord;
+  readonly productLineId?: ProductLineId;
 };
 
 export function ExtractUploadAcceptedPackagePanel(
   props: ExtractUploadAcceptedPackagePanelProps,
 ): React.JSX.Element {
   const { record } = props;
+  const sources = extractUploadSettingsSources(props.productLineId);
+  const showEvidenceGraphLink = !isSecureNowProductLine(props.productLineId ?? "architecture");
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const [copied, setCopied] = useState(false);
   const [copyPackageIdError, setCopyPackageIdError] = useState<string | null>(null);
@@ -144,22 +149,24 @@ export function ExtractUploadAcceptedPackagePanel(
       <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Continue</p>
         <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
-          {EXTRACT_UPLOAD_SETTINGS_SOURCES.map((source) => (
+          {sources.map((source) => (
             <li key={source.href}>
               <Link href={source.href} className={OPERATOR_LINK.inline} data-testid={`extract-upload-continue-${source.label}`}>
                 {source.label}
               </Link>
             </li>
           ))}
-          <li>
-            <Link
-              href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
-              className={OPERATOR_LINK.inline}
-              data-testid="extract-upload-accepted-evidence-trail-link"
-            >
-              {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
-            </Link>
-          </li>
+          {showEvidenceGraphLink ? (
+            <li>
+              <Link
+                href={EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF}
+                className={OPERATOR_LINK.inline}
+                data-testid="extract-upload-accepted-evidence-trail-link"
+              >
+                {EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL}
+              </Link>
+            </li>
+          ) : null}
         </ul>
       </div>
     </section>
