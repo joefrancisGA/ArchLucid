@@ -1060,4 +1060,90 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         TopologyProposalRelationshipEndpointIndex.TryClaimService(duplicate, claimed).Should().BeFalse();
     }
+
+    [Fact]
+    public void TryClaimDatastore_registers_arm_resource_id_variants_in_claimed_endpoint_keys()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-srv";
+
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore first = new() { DatastoreName = "sql", DatastoreId = mixedCaseArmId };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(first, claimed).Should().BeTrue();
+        claimed.Should().Contain(canonicalArmId);
+
+        ManifestDatastore duplicate = new() { DatastoreName = "other", DatastoreId = canonicalArmId };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(duplicate, claimed).Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_non_sentinel_source_id_as_known_endpoint()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "azurerm_linux_web_app.app",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("azurerm_linux_web_app.app", knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_maps_source_id_to_node_id_when_not_proposed_changes_sentinel()
+    {
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            SourceId = "azurerm_linux_web_app.app",
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId["azurerm_linux_web_app.app"].Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_name_matches_synthetic_node_id()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-sql",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new() { DatastoreName = "sql", DatastoreId = "ds-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-sql");
+    }
 }

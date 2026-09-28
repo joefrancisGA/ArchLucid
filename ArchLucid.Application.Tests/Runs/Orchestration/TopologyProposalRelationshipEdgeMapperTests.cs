@@ -1404,4 +1404,14 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().ContainSingle(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
     }
+
+    [Fact]
+    public void MapRelationships_returns_empty_when_topology_nodes_list_is_empty()
+    {
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            [],
+            [new ManifestRelationship { SourceId = "svc-1", TargetId = "ds-1", RelationshipType = RelationshipType.ReadsFrom }]);
+
+        edges.Should().BeEmpty();
+    }
 }
