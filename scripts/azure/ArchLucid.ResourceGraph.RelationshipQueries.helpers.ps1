@@ -220,6 +220,67 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
     }
 }
 
+function Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $PrivateEndpointResourceId,
+        [string] $SubnetId,
+        [object] $NetworkInterfacesJson,
+        [object] $PrivateLinkServiceConnectionsJson,
+        [object] $ManualPrivateLinkServiceConnectionsJson
+    )
+
+    [string]$normalizedSubnetId = "$SubnetId".Trim()
+
+    if (-not [string]::IsNullOrWhiteSpace($normalizedSubnetId))
+    {
+        Add-ArchLucidNetworkAssociationRow `
+            -Rows $Rows `
+            -Seen $Seen `
+            -FromResourceId $PrivateEndpointResourceId `
+            -ToResourceId $normalizedSubnetId `
+            -AssociationType 'peToSubnet'
+    }
+
+    foreach ($networkInterface in @(ConvertFrom-ArchLucidArgJsonArray $NetworkInterfacesJson))
+    {
+        [object]$networkInterfaceRef = Get-ArchLucidArgNestedProperty $networkInterface 'id'
+        [string]$networkInterfaceId = "$networkInterfaceRef".Trim()
+
+        if (-not [string]::IsNullOrWhiteSpace($networkInterfaceId))
+        {
+            Add-ArchLucidNetworkAssociationRow `
+                -Rows $Rows `
+                -Seen $Seen `
+                -FromResourceId $PrivateEndpointResourceId `
+                -ToResourceId $networkInterfaceId `
+                -AssociationType 'peToNic'
+        }
+    }
+
+    foreach ($connection in @(
+        @(ConvertFrom-ArchLucidArgJsonArray $PrivateLinkServiceConnectionsJson)
+        @(ConvertFrom-ArchLucidArgJsonArray $ManualPrivateLinkServiceConnectionsJson)
+    ))
+    {
+        [object]$connectionProperties = Get-ArchLucidArgNestedProperty $connection 'properties'
+        [object]$privateLinkServiceRef = Get-ArchLucidArgNestedProperty $connectionProperties 'privateLinkServiceId'
+        [string]$targetResourceId = "$privateLinkServiceRef".Trim()
+
+        if (-not [string]::IsNullOrWhiteSpace($targetResourceId))
+        {
+            Add-ArchLucidNetworkAssociationRow `
+                -Rows $Rows `
+                -Seen $Seen `
+                -FromResourceId $PrivateEndpointResourceId `
+                -ToResourceId $targetResourceId `
+                -AssociationType 'privateEndpointTarget'
+        }
+    }
+}
+
 function Get-ArchLucidArgNetworkAssociationQuerySpecs
 {
     param(
@@ -246,6 +307,10 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
         [pscustomobject]@{
             Kind = 'virtualNetwork'
             Query = "Resources | where type =~ 'microsoft.network/virtualnetworks' $rgFilter | project id, type, subnets = properties.subnets, peerings = properties.virtualNetworkPeerings"
+        }
+        [pscustomobject]@{
+            Kind = 'privateEndpoint'
+            Query = "Resources | where type =~ 'microsoft.network/privateendpoints' $rgFilter | project id, type, subnetId = tostring(properties.subnet.id), networkInterfaces = properties.networkInterfaces, privateLinkServiceConnections = properties.privateLinkServiceConnections, manualPrivateLinkServiceConnections = properties.manualPrivateLinkServiceConnections"
         }
     )
 }
@@ -361,6 +426,16 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -VNetResourceId $resourceId `
                             -SubnetsJson $Row.subnets `
                             -PeeringsJson $Row.peerings
+                    }
+                    'privateEndpoint' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -PrivateEndpointResourceId $resourceId `
+                            -SubnetId "$( $Row.subnetId )".Trim() `
+                            -NetworkInterfacesJson $Row.networkInterfaces `
+                            -PrivateLinkServiceConnectionsJson $Row.privateLinkServiceConnections `
+                            -ManualPrivateLinkServiceConnectionsJson $Row.manualPrivateLinkServiceConnections
                     }
                 }
             }
