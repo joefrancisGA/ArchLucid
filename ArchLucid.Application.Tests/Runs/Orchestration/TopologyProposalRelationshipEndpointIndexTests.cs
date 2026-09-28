@@ -268,6 +268,29 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_false_when_only_requirement_node_shares_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "req-1",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "sql",
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new() { DatastoreName = "sql", DatastoreId = "ds-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeFalse();
+
+        nodeId.Should().BeEmpty();
+    }
+
+    [Fact]
     public void CollectKnownEndpointKeys_includes_manifest_names_ids_and_synthetic_aliases()
     {
         List<ManifestService> services =

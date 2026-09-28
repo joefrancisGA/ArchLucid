@@ -5798,4 +5798,47 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().BeEmpty();
         filtered[0].ProposedChanges!.AddedServices.Should().ContainSingle(s => s.ServiceName == "api");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIncludesAgentProposedTopologyNode_AllowsCostRelationshipTargetingThatNode()
+    {
+        GraphNode agentProposedWorker = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode(), agentProposedWorker);
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-to-agent-node",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "worker",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "worker" && r.TargetId == DataLabel);
+    }
 }
