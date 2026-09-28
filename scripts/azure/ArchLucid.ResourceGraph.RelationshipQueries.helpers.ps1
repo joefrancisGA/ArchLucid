@@ -1,20 +1,62 @@
 # IE-RF-02: typed ARG relationship projections for network-associations.json
 
-function ConvertFrom-ArchLucidArgJsonArray([string] $Json)
+function Get-ArchLucidArgNestedProperty([object] $Owner, [string] $PropertyName)
 {
-    if ([string]::IsNullOrWhiteSpace($Json))
+    if ($null -eq $Owner)
+    {
+        return $null
+    }
+
+    [System.Management.Automation.PSPropertyInfo]$prop = $Owner.psobject.Properties[$PropertyName]
+
+    if ($null -eq $prop)
+    {
+        return $null
+    }
+
+    return $prop.Value
+}
+
+function ConvertFrom-ArchLucidArgJsonArray([object] $Value)
+{
+    if ($null -eq $Value)
     {
         return @()
     }
 
-    try
+    if ($Value -is [string])
     {
-        return @((ConvertFrom-Json -InputObject $Json -ErrorAction Stop))
+        if ([string]::IsNullOrWhiteSpace($Value))
+        {
+            return @()
+        }
+
+        try
+        {
+            return @((ConvertFrom-Json -InputObject $Value -ErrorAction Stop))
+        }
+        catch
+        {
+            return @()
+        }
     }
-    catch
+
+    if ($Value -is [System.Collections.IEnumerable])
     {
-        return @()
+        [System.Collections.ArrayList]$items = [System.Collections.ArrayList]::new()
+
+        foreach ($item in $Value)
+        {
+            if ($null -ne $item)
+            {
+                [void]$items.Add($item)
+            }
+        }
+
+        return @($items.ToArray())
     }
+
+    return @($Value)
 }
 
 function Add-ArchLucidArgNetworkAssociationRowsFromVmRecord
@@ -26,7 +68,7 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVmRecord
         [object] $NetworkInterfacesJson
     )
 
-    foreach ($nic in @(ConvertFrom-ArchLucidArgJsonArray "$( $NetworkInterfacesJson )"))
+    foreach ($nic in @(ConvertFrom-ArchLucidArgJsonArray $NetworkInterfacesJson))
     {
         [string]$nicId = "$( $nic.id )".Trim()
 
@@ -51,9 +93,15 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
         [string] $NetworkSecurityGroupId = $null
     )
 
-    foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray "$( $IpConfigurationsJson )"))
+    foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray $IpConfigurationsJson))
     {
-        [string]$subnetId = "$( $ipConfig.properties.subnet.id )".Trim()
+        [string]$subnetId = ''
+        [object]$subnetRef = Get-ArchLucidArgNestedProperty $ipConfig.properties 'subnet'
+
+        if ($null -ne $subnetRef)
+        {
+            $subnetId = "$( $subnetRef.id )".Trim()
+        }
 
         if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
         {
@@ -65,7 +113,13 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
                 -AssociationType 'nicToSubnet'
         }
 
-        [string]$publicIpId = "$( $ipConfig.properties.publicIPAddress.id )".Trim()
+        [string]$publicIpId = ''
+        [object]$publicIpRef = Get-ArchLucidArgNestedProperty $ipConfig.properties 'publicIPAddress'
+
+        if ($null -ne $publicIpRef)
+        {
+            $publicIpId = "$( $publicIpRef.id )".Trim()
+        }
 
         if (-not ([string]::IsNullOrWhiteSpace($publicIpId)))
         {
@@ -99,7 +153,7 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
         [object] $PeeringsJson
     )
 
-    foreach ($subnet in @(ConvertFrom-ArchLucidArgJsonArray "$( $SubnetsJson )"))
+    foreach ($subnet in @(ConvertFrom-ArchLucidArgJsonArray $SubnetsJson))
     {
         [string]$subnetId = "$( $subnet.id )".Trim()
 
@@ -113,7 +167,13 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
             }
         }
 
-        [string]$nsgId = "$( $subnet.properties.networkSecurityGroup.id )".Trim()
+        [string]$nsgId = ''
+        [object]$nsgRef = Get-ArchLucidArgNestedProperty $subnet.properties 'networkSecurityGroup'
+
+        if ($null -ne $nsgRef)
+        {
+            $nsgId = "$( $nsgRef.id )".Trim()
+        }
 
         if (-not ([string]::IsNullOrWhiteSpace($subnetId)) -and -not ([string]::IsNullOrWhiteSpace($nsgId)))
         {
@@ -125,7 +185,13 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
                 -AssociationType 'subnetToNsg'
         }
 
-        [string]$routeTableId = "$( $subnet.properties.routeTable.id )".Trim()
+        [string]$routeTableId = ''
+        [object]$routeTableRef = Get-ArchLucidArgNestedProperty $subnet.properties 'routeTable'
+
+        if ($null -ne $routeTableRef)
+        {
+            $routeTableId = "$( $routeTableRef.id )".Trim()
+        }
 
         if (-not ([string]::IsNullOrWhiteSpace($subnetId)) -and -not ([string]::IsNullOrWhiteSpace($routeTableId)))
         {
@@ -138,7 +204,7 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
         }
     }
 
-    foreach ($peering in @(ConvertFrom-ArchLucidArgJsonArray "$( $PeeringsJson )"))
+    foreach ($peering in @(ConvertFrom-ArchLucidArgJsonArray $PeeringsJson))
     {
         [string]$remoteVnetId = "$( $peering.properties.remoteVirtualNetwork.id )".Trim()
 
@@ -184,6 +250,44 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
     )
 }
 
+function Invoke-ArchLucidResourceGraphPagedAssociationQuery
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $QueryKind,
+
+        [Parameter(Mandatory = $true)]
+        [scriptblock] $FetchPage,
+
+        [Parameter(Mandatory = $true)]
+        [scriptblock] $ProcessRow
+    )
+
+    [string]$skipToken = $null
+
+    do
+    {
+        try
+        {
+            [object]$page = & $FetchPage $skipToken
+
+            foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $page))
+            {
+                & $ProcessRow $row
+            }
+
+            $skipToken = Get-ArchLucidResourceGraphPageSkipToken $page
+        }
+        catch
+        {
+            [string]$message = if ($null -ne $_.Exception) { $_.Exception.Message } else { "$_" }
+            Write-Warning "ArchLucid Resource Graph $QueryKind query failed: $message"
+            break
+        }
+    }
+    while (-not ([string]::IsNullOrWhiteSpace($skipToken)))
+}
+
 function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 {
     param(
@@ -205,47 +309,61 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 
     foreach ($spec in @(Get-ArchLucidArgNetworkAssociationQuerySpecs -ResourceGroupScope $ResourceGroupScope))
     {
-        try
-        {
-            [object]$page = Search-AzGraph -Query $spec.Query -Subscription $SubscriptionId -First 1000
+        [string]$queryKind = "$( $spec.Kind )"
+        [string]$queryText = "$( $spec.Query )"
 
-            foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $page))
-            {
-                [string]$resourceId = "$( $row.id )".Trim()
+        Invoke-ArchLucidResourceGraphPagedAssociationQuery `
+            -QueryKind $queryKind `
+            -FetchPage {
+                param([string] $PageSkipToken)
 
-                if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+                [hashtable]$searchParams = @{
+                    Query = $queryText
+                    Subscription = $SubscriptionId
+                    First = 1000
+                }
 
-                switch ("$($spec.Kind)")
+                if (-not ([string]::IsNullOrWhiteSpace($PageSkipToken)))
+                {
+                    $searchParams['SkipToken'] = $PageSkipToken
+                }
+
+                Search-AzGraph @searchParams
+            } `
+            -ProcessRow {
+                param([PSObject] $Row)
+
+                [string]$resourceId = "$( $Row.id )".Trim()
+
+                if ([string]::IsNullOrWhiteSpace($resourceId)) { return }
+
+                switch ($queryKind)
                 {
                     'virtualMachine' {
                         Add-ArchLucidArgNetworkAssociationRowsFromVmRecord `
                             -Rows $rows `
                             -Seen $seen `
                             -VmResourceId $resourceId `
-                            -NetworkInterfacesJson $row.networkInterfaces
+                            -NetworkInterfacesJson $Row.networkInterfaces
                     }
                     'networkInterface' {
                         Add-ArchLucidArgNetworkAssociationRowsFromNicRecord `
                             -Rows $rows `
                             -Seen $seen `
                             -NicResourceId $resourceId `
-                            -IpConfigurationsJson $row.ipConfigurations `
-                            -NetworkSecurityGroupId "$( $row.networkSecurityGroupId )".Trim()
+                            -IpConfigurationsJson $Row.ipConfigurations `
+                            -NetworkSecurityGroupId "$( $Row.networkSecurityGroupId )".Trim()
                     }
                     'virtualNetwork' {
                         Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord `
                             -Rows $rows `
                             -Seen $seen `
                             -VNetResourceId $resourceId `
-                            -SubnetsJson $row.subnets `
-                            -PeeringsJson $row.peerings
+                            -SubnetsJson $Row.subnets `
+                            -PeeringsJson $Row.peerings
                     }
                 }
             }
-        }
-        catch
-        {
-        }
     }
 
     return @($rows.ToArray())
@@ -280,18 +398,33 @@ function Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph
     [System.Collections.ArrayList]$rows = [System.Collections.ArrayList]::new()
     [hashtable]$seen = @{}
 
-    try
-    {
-        [object]$page = Search-AzGraph -Query $query -Subscription $SubscriptionId -First 1000
+    Invoke-ArchLucidResourceGraphPagedAssociationQuery `
+        -QueryKind 'avdSessionHost' `
+        -FetchPage {
+            param([string] $PageSkipToken)
 
-        foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $page))
-        {
-            [string]$sessionHostResourceId = "$( $row.id )".Trim()
-            [string]$virtualMachineResourceId = "$( $row.vmResourceId )".Trim()
+            [hashtable]$searchParams = @{
+                Query = $query
+                Subscription = $SubscriptionId
+                First = 1000
+            }
+
+            if (-not ([string]::IsNullOrWhiteSpace($PageSkipToken)))
+            {
+                $searchParams['SkipToken'] = $PageSkipToken
+            }
+
+            Search-AzGraph @searchParams
+        } `
+        -ProcessRow {
+            param([PSObject] $Row)
+
+            [string]$sessionHostResourceId = "$( $Row.id )".Trim()
+            [string]$virtualMachineResourceId = "$( $Row.vmResourceId )".Trim()
 
             if ([string]::IsNullOrWhiteSpace($sessionHostResourceId) -or [string]::IsNullOrWhiteSpace($virtualMachineResourceId))
             {
-                continue
+                return
             }
 
             Add-ArchLucidNetworkAssociationRow `
@@ -301,10 +434,6 @@ function Get-ArchLucidAzureAvdSessionHostAssociationRowsViaResourceGraph
                 -ToResourceId $virtualMachineResourceId `
                 -AssociationType 'avdSessionHostToVm'
         }
-    }
-    catch
-    {
-    }
 
     return @($rows.ToArray())
 }

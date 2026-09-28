@@ -34,18 +34,10 @@ export function RunDetailPipelineStagesSection({
   otelTraceId}: RunDetailPipelineStagesSectionProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunPipelineStagesOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runPipelineStagesOpen"),
-    ),
+    parseRunPipelineStagesOpenFromSearch(null),
   );
   const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunPipelineStagesTechnicalOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runPipelineStagesTechnicalOpen"),
-    ),
+    parseRunPipelineStagesTechnicalOpenFromSearch(null),
   );
 
   const syncOpenToUrl = useCallback(

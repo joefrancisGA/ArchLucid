@@ -46,7 +46,10 @@ internal static class InventoryDiagramPeelBudgetApplier
             : DiagramPeelAlwaysDisposeResolver.Resolve(catalog, graph, mode);
         GraphSnapshot workingGraph = includeNeverShowArmTypes
             ? graph
-            : InventoryDiagramGraphPeelFilter.Filter(graph, alwaysDisposeTypes);
+            : InventoryDiagramGraphPeelFilter.Filter(
+                graph,
+                alwaysDisposeTypes,
+                allowCrossResourceGroupVnetPlacement: IsVnetPrimaryMode(mode));
         List<string> alwaysDisposedArmTypes = includeNeverShowArmTypes
             ? []
             : graph.Nodes
@@ -89,7 +92,10 @@ internal static class InventoryDiagramPeelBudgetApplier
             }
 
             peeledArmTypes.Add(armType);
-            GraphSnapshot filteredGraph = InventoryDiagramGraphPeelFilter.Filter(workingGraph, excludedArmTypes);
+            GraphSnapshot filteredGraph = InventoryDiagramGraphPeelFilter.Filter(
+                workingGraph,
+                excludedArmTypes,
+                allowCrossResourceGroupVnetPlacement: IsVnetPrimaryMode(mode));
 
             PeelCompileResult peeled = CompileOnce(
                 filteredGraph,
@@ -164,6 +170,11 @@ internal static class InventoryDiagramPeelBudgetApplier
         }
 
         return initial;
+    }
+
+    private static bool IsVnetPrimaryMode(DiagramMode mode)
+    {
+        return mode is DiagramMode.FullSubscription or DiagramMode.Network;
     }
 
     private static PeelCompileResult CompileOnce(

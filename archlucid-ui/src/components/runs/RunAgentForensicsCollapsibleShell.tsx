@@ -21,11 +21,7 @@ export function RunAgentForensicsCollapsibleShell(
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunAgentForensicsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runAgentForensicsOpen"),
-    ),
+    parseRunAgentForensicsOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

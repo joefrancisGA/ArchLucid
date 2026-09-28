@@ -84,11 +84,7 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const pathname = usePathname() ?? "/";
   const [validationInterviewOpen, setValidationInterviewOpenState] = useState(() =>
-    parsePilotRoiValidationInterviewOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("pilotRoiValidationInterviewOpen"),
-    ),
+    parsePilotRoiValidationInterviewOpenFromSearch(null),
   );
   const validationInterviewOpenRef = useRef(validationInterviewOpen);
   validationInterviewOpenRef.current = validationInterviewOpen;

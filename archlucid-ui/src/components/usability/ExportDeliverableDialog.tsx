@@ -46,14 +46,10 @@ const AUDIENCE_OPTIONS: readonly { id: ReviewDeliverableAudience; label: string;
 export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [open, setOpenState] = useState(() =>
-    parseReviewDeliverableOpenFromSearch(
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("deliverableOpen"),
-    ),
+    parseReviewDeliverableOpenFromSearch(null),
   );
   const [audience, setAudienceState] = useState<ReviewDeliverableAudience>(() => {
-    const parsed = parseReviewDeliverableAudienceFromSearch(
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("deliverableAudience"),
-    );
+    const parsed = parseReviewDeliverableAudienceFromSearch(null);
 
     return parsed ?? "sponsor";
   });

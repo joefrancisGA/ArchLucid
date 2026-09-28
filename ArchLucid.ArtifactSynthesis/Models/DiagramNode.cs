@@ -75,6 +75,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Shows the resource-group name in the painted card when it crossed a VNet boundary.</summary>
+    public bool IncludeResourceGroupInCaption
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     True when inventory shows a private endpoint reaching this resource (lock badge on forest canvases).
     /// </summary>

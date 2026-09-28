@@ -92,7 +92,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
     }
 
     [Fact]
-    public void Render_cross_group_vm_stays_in_its_resource_group_and_keeps_the_in_edge()
+    public void Render_cross_group_vm_moves_inside_the_vnet_box_and_keeps_its_group_label()
     {
         const string vnetArmId = "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/net";
         DiagramAst ast = Inventory(
@@ -107,11 +107,12 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ]);
 
         XDocument svg = Render(ast);
-        svg.Descendants().Count(element => element.Attribute("class")?.Value == "rg-frame").Should().Be(2);
+        svg.Descendants().Count(element => element.Attribute("class")?.Value == "rg-frame").Should().Be(0);
         List<XElement> frames = VnetFrames(svg);
         frames.Should().ContainSingle();
-        Contains(svg, Box(frames[0]), "vm").Should().BeFalse();
-        svg.ToString().Should().Contain(">in<");
+        Contains(svg, Box(frames[0]), "vm-app").Should().BeTrue();
+        svg.ToString().Should().Contain("rg-app");
+        svg.ToString().Should().NotContain(">in<");
     }
 
     [Fact]
@@ -154,7 +155,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
     }
 
     [Fact]
-    public void Render_resource_group_caption_uses_bold_resource_groups_icon()
+    public void Render_vnet_primary_frame_uses_the_stronger_stroke()
     {
         DiagramAst ast = Inventory(
             "Azure inventory (Network)",
@@ -167,17 +168,8 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ]);
 
         XDocument svg = Render(ast);
-        XElement caption = svg.Descendants().First(element => element.Attribute("class")?.Value == "rg-frame-label");
-        caption.Attribute("font-weight")?.Value.Should().Be("700");
-        XElement icon = svg.Descendants().First(element =>
-            element.Attribute("class")?.Value == "azure-icon"
-            && element.Attribute("data-file")?.Value == "Svg/resource-groups.svg");
-        IconDrawnSide(svg, "Svg/resource-groups.svg").Should().Be(DiagramForestResourceGroupFrameStyle.LabelFontSize);
-        XElement halo = svg.Descendants().First(element => element.Attribute("class")?.Value == "rg-frame-label-halo");
-        double haloWidth = double.Parse(halo.Attribute("width")!.Value, CultureInfo.InvariantCulture);
-        haloWidth.Should().BeGreaterThan(
-            DiagramForestResourceGroupFrameStyle.LabelFontSize + DiagramForestResourceGroupFrameSvgEmitter.CaptionIconGap);
-        icon.Should().NotBeNull();
+        XElement frame = svg.Descendants().First(element => element.Attribute("class")?.Value == "vnet-frame");
+        frame.Elements().First(element => element.Name.LocalName == "rect").Attribute("stroke-width")?.Value.Should().Be("2.5");
     }
 
     [Fact]

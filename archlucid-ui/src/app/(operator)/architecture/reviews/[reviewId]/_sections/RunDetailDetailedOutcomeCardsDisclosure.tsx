@@ -18,11 +18,7 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunDetailOutcomeCardsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
-    ),
+    parseRunDetailOutcomeCardsOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

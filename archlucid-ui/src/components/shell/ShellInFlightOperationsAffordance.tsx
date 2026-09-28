@@ -60,13 +60,11 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
   const pathname = usePathname() ?? "";
   const operations = useShellInFlightOperations();
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [open, setOpenState] = useState(() => readShellInFlightOpenFromWindow());
+  const [open, setOpenState] = useState(false);
   const openRef = useRef(open);
   openRef.current = open;
   const [cancellingIds, setCancellingIds] = useState<ReadonlySet<string>>(() => new Set());
-  const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(() =>
-    readShellInFlightCancelIdFromWindow(),
-  );
+  const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(null);
   const pendingCancelOperationIdRef = useRef(pendingCancelOperationId);
   pendingCancelOperationIdRef.current = pendingCancelOperationId;
   const [cancelFailureMessage, setCancelFailureMessage] = useState<string | null>(null);

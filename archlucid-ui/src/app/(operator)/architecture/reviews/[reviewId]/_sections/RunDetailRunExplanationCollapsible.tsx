@@ -112,32 +112,16 @@ export function RunDetailRunExplanationCollapsible(
     parentArchitectureId} = props;
   const pathname = usePathname() ?? "/";
   const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(() =>
-    parseRunAssessmentNarrativeOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runAssessmentNarrativeOpen"),
-    ),
+    parseRunAssessmentNarrativeOpenFromSearch(null),
   );
   const [coverageCurationOpen, setCoverageCurationOpenState] = useState(() =>
-    parseRunCoverageCurationOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runCoverageCurationOpen"),
-    ),
+    parseRunCoverageCurationOpenFromSearch(null),
   );
   const [impactAnalysisOpen, setImpactAnalysisOpenState] = useState(() =>
-    parseRunImpactAnalysisOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runImpactAnalysisOpen"),
-    ),
+    parseRunImpactAnalysisOpenFromSearch(null),
   );
   const [findingExplainabilityOpen, setFindingExplainabilityOpenState] = useState(() =>
-    parseRunFindingExplainabilityOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runFindingExplainabilityOpen"),
-    ),
+    parseRunFindingExplainabilityOpenFromSearch(null),
   );
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const explanationBlockedReason = explainRunBlockedReason(explanationFailure);

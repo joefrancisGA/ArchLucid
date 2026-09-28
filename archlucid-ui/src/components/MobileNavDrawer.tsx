@@ -39,11 +39,7 @@ import {
 export function MobileNavDrawer() {
   const pathname = usePathname() ?? "";
   const [open, setOpenState] = useState(() =>
-    parseMobileNavDrawerOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("mobileNavOpen"),
-    ),
+    parseMobileNavDrawerOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

@@ -26,11 +26,7 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
   const trail = props.feasibilityVerdict?.transparencyTrail ?? null;
   const missingTrailDefect = props.runCompleted && trail === null;
   const [detailsOpen, setDetailsOpenState] = useState(() =>
-    parseTransparencyTrailOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
-    ),
+    parseTransparencyTrailOpenFromSearch(null),
   );
 
   const syncDetailsOpenToUrl = useCallback(

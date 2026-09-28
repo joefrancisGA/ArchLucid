@@ -148,11 +148,7 @@ export function PageScopedContextualHelpPanel({
   const pathname = usePathname() ?? "";
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpenState] = useState(() =>
-    parsePageContextualHelpOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("pageHelpOpen"),
-    ),
+    parsePageContextualHelpOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;
@@ -160,11 +156,7 @@ export function PageScopedContextualHelpPanel({
   const dialogLabel = `Help: ${triggerLabel}`;
   const resolvedSectionId =
     (sectionId?.trim()
-      ?? parsePageContextualHelpSectionFromSearch(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get("pageHelpSection"),
-      ))
+      ?? parsePageContextualHelpSectionFromSearch(null))
     || null;
 
   const syncPageHelpToUrl = useCallback(

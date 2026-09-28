@@ -26,20 +26,12 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunDetailActivityTechnicalOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailActivityTechnicalOpen"),
-    ),
+    parseRunDetailActivityTechnicalOpenFromSearch(null),
   );
   const technicalOpenRef = useRef(technicalOpen);
   technicalOpenRef.current = technicalOpen;
   const [outcomeMetricsOpen, setOutcomeMetricsOpenState] = useState(() =>
-    parseRunDetailActivityOutcomeMetricsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailActivityOutcomeMetricsOpen"),
-    ),
+    parseRunDetailActivityOutcomeMetricsOpenFromSearch(null),
   );
   const outcomeMetricsOpenRef = useRef(outcomeMetricsOpen);
   outcomeMetricsOpenRef.current = outcomeMetricsOpen;

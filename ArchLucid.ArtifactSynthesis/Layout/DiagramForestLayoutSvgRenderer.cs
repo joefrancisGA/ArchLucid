@@ -85,19 +85,27 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
         else
         {
-            List<ComponentLayout> componentLayouts = BuildResourceGroupCellLayouts(
-                resourceGroupCells,
-                visibleEdges,
-                resolvedOptions,
-                labelContext,
-                ast.Title);
+            placements = IsVnetPrimaryTitle(ast.Title)
+                ? BuildVnetPrimaryPlacements(
+                    renderableNodes,
+                    resourceGroupCells,
+                    visibleEdges,
+                    resolvedOptions,
+                    labelContext,
+                    ast.Title)
+                : PlaceNodes(
+                    BuildResourceGroupCellLayouts(
+                        resourceGroupCells,
+                        visibleEdges,
+                        resolvedOptions,
+                        labelContext,
+                        ast.Title),
+                    resolvedOptions);
 
-            if (componentLayouts.Count == 0)
+            if (placements.Count == 0)
             {
                 return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
             }
-
-            placements = PlaceNodes(componentLayouts, resolvedOptions);
         }
 
         if (placements.Count == 0)
@@ -122,6 +130,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static bool IsDataFlowTitle(string title)
     {
         return title.Contains("(DataFlow)", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsVnetPrimaryTitle(string title)
+    {
+        return title.Contains("(FullSubscription)", StringComparison.OrdinalIgnoreCase)
+            || title.Contains("(Network)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDataInventoryTitle(string title)
@@ -159,6 +173,124 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             && to is not null
             && !string.IsNullOrWhiteSpace(from.VnetFrameId)
             && string.Equals(from.VnetFrameId, to.VnetFrameId, StringComparison.Ordinal);
+    }
+
+    private static List<NodePlacement> BuildVnetPrimaryPlacements(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> resourceGroupCells,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext,
+        string diagramTitle)
+    {
+        IReadOnlyDictionary<string, IReadOnlySet<string>> memberships =
+            DiagramForestVnetMembership.Resolve(nodes, visibleEdges, sameResourceGroupOnly: false);
+        Dictionary<string, DiagramNode> nodesById = nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal);
+        HashSet<string> assigned = [];
+        List<NodePlacement> placements = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships)
+        {
+            if (!nodesById.TryGetValue(vnetNodeId, out DiagramNode? vnet))
+            {
+                continue;
+            }
+
+            List<DiagramNode> members = memberIds
+                .Where(nodesById.ContainsKey)
+                .Select(nodeId => nodesById[nodeId])
+                .Where(node => !string.Equals(node.NodeId, vnetNodeId, StringComparison.Ordinal))
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+                .ToList();
+            if (members.Count == 0
+                || (IsDataInventoryTitle(diagramTitle) && !members.Any(IsDataOrStorageNode)))
+            {
+                continue;
+            }
+
+            foreach (DiagramNode member in members.Where(member =>
+                         !string.Equals(member.ArmResourceGroup, vnet.ArmResourceGroup, StringComparison.OrdinalIgnoreCase)))
+            {
+                member.IncludeResourceGroupInCaption = true;
+            }
+
+            List<NodePlacement> groupPlacements = LayoutNestedVnetMembers(
+                members.Append(vnet).ToList(),
+                visibleEdges,
+                options,
+                labelContext);
+            double pad = DiagramForestResourceGroupFrameStyle.Pad;
+            double labelBand = DiagramForestResourceGroupFrameStyle.LabelBand;
+            double interiorWidth = groupPlacements.Count == 0
+                ? options.UniformNodeWidth
+                : groupPlacements.Max(placement => placement.X + placement.Width);
+            double interiorHeight = groupPlacements.Count == 0
+                ? options.NodeHeight
+                : groupPlacements.Max(placement => placement.Y + placement.Height);
+            double groupWidth = interiorWidth + (pad * 2.0d);
+            double groupHeight = interiorHeight + labelBand + pad;
+            string frameId = $"vnet-{vnetNodeId}";
+
+            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
+            {
+                groupX = 0.0d;
+                rowY += rowHeight + options.ComponentVerticalGap;
+                rowHeight = 0.0d;
+            }
+
+            placements.AddRange(groupPlacements
+                .Where(placement => !string.Equals(placement.Node.NodeId, vnetNodeId, StringComparison.Ordinal))
+                .Select(placement => placement with
+                {
+                    X = placement.X + groupX + pad,
+                    Y = placement.Y + rowY + labelBand,
+                    VnetFrameId = frameId,
+                }));
+            placements.Add(new NodePlacement(
+                vnet,
+                groupX,
+                rowY,
+                groupWidth,
+                groupHeight,
+                DiagramForestNodeMetricsCalculator.Measure(vnet, options, labelContext),
+                VnetFrameId: frameId,
+                IsFrameAnchor: true));
+
+            assigned.Add(vnetNodeId);
+            assigned.UnionWith(members.Select(member => member.NodeId));
+            groupX += groupWidth + options.ComponentHorizontalGap;
+            rowHeight = Math.Max(rowHeight, groupHeight);
+        }
+
+        IReadOnlyList<DiagramNode> remainderNodes = nodes
+            .Where(node => !assigned.Contains(node.NodeId))
+            .ToList();
+        if (remainderNodes.Count > 0)
+        {
+            List<ComponentLayout> remainderLayouts = BuildResourceGroupCellLayouts(
+                DiagramResourceGroupCellFlowPlanner.OrderCells(
+                    DiagramResourceGroupPacker.PartitionCells(remainderNodes),
+                    visibleEdges),
+                visibleEdges,
+                options,
+                labelContext,
+                diagramTitle);
+            List<NodePlacement> remainderPlacements = PlaceNodes(remainderLayouts, options);
+            double offsetX = placements.Count == 0
+                ? 0.0d
+                : placements.Max(placement => placement.X + placement.Width) + options.ComponentHorizontalGap;
+            placements.AddRange(remainderPlacements.Select(placement => placement with
+            {
+                X = placement.X + offsetX,
+                Y = placement.Y,
+            }));
+        }
+
+        return placements;
     }
 
     private static bool IsInVerb(string? label)
@@ -941,9 +1073,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         DiagramForestEdgeArrowMarkerSvgEmitter.EmitDefs(svgNamespace, root);
 
+        bool vnetPrimary = IsVnetPrimaryTitle(title);
+
         if (frameBounds.Count > 0)
         {
-            root.Add(DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(svgNamespace, frameBounds));
+            root.Add(DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(svgNamespace, frameBounds, vnetPrimary));
         }
 
         if (subscriptionFrame is not null || nestedFrameBounds.Count > 0)
@@ -956,7 +1090,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             }
 
             containerFrames.AddRange(nestedFrameBounds);
-            root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames));
+            root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames, vnetPrimary));
         }
 
         if (isDataFlow && dataFlowColumns is not null && dataFlowColumns.Count > 0)

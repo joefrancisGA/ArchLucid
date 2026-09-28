@@ -1839,6 +1839,9 @@ export function DiagramsWorkbenchClient() {
               )}
             >
               <div className="grid min-w-0 gap-2">
+                <Label htmlFor="infra-diagrams-subscription-picker">
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
+                </Label>
                 <select
                   id="infra-diagrams-subscription-picker"
                   className="w-full bg-transparent px-3 py-2"
@@ -1957,6 +1960,9 @@ export function DiagramsWorkbenchClient() {
               )}
             >
               <div className="flex min-w-0 flex-col gap-1">
+                <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-subscription-picker">
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
+                </label>
                 <select
                   id="infra-diagrams-subscription-picker"
                   className="w-full bg-transparent px-3 py-2"

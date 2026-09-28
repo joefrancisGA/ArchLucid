@@ -58,11 +58,7 @@ function ProvenanceLink(props: {
 export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanelProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [traceExcerptOpen, setTraceExcerptOpenState] = useState(() =>
-    parseFindingPolicyTraceExcerptOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingPolicyTraceExcerptOpen"),
-    ),
+    parseFindingPolicyTraceExcerptOpenFromSearch(null),
   );
   const traceExcerptOpenRef = useRef(traceExcerptOpen);
   traceExcerptOpenRef.current = traceExcerptOpen;

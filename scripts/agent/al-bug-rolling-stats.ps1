@@ -18,7 +18,11 @@
   hit | dry | seed-only
 
 .PARAMETER Rolling24h
-  Print a markdown table of bugs found and dry runs in the previous 24 hours.
+  Print a markdown table of bugs found and dry runs in the previous 24 hours,
+  split by product line (SecureNow vs ArchLucid + shared libraries).
+
+.PARAMETER ProductLine
+  Optional product line for -RecordHunt: securenow | archlucid-shared (inferred from zone/paths when omitted).
 
 .PARAMETER AtUtc
   Optional UTC timestamp for the recorded event (ISO 8601). Tests only.
@@ -59,6 +63,9 @@ param(
     [string] $DefectClass,
 
     [switch] $Rolling24h,
+
+    [ValidateSet('securenow', 'archlucid-shared')]
+    [string] $ProductLine,
 
     [string] $AtUtc,
 
@@ -142,10 +149,89 @@ function ConvertTo-UtcDateTime {
     )
 }
 
+function Get-ProductLineClassifierScriptPath {
+    param([string] $Root)
+
+    return Join-Path $Root 'scripts\agent\al_bug_hunt_product_line.py'
+}
+
+function Invoke-HuntProductLineClassifier {
+    param(
+        [string] $RepoRoot,
+        [string] $ZoneId,
+        [string[]] $Paths,
+        [string] $ExplicitProductLine
+    )
+
+    $scriptPath = Get-ProductLineClassifierScriptPath -Root $RepoRoot
+
+    if (-not (Test-Path -LiteralPath $scriptPath)) {
+        throw "Missing product-line classifier at '$scriptPath'."
+    }
+
+    $python = if (Get-Command python3 -ErrorAction SilentlyContinue) { 'python3' } else { 'python' }
+    $argList = @(
+        $scriptPath,
+        '--classify',
+        '--zone-id',
+        $ZoneId
+    )
+
+    if ($Paths -and $Paths.Count -gt 0) {
+        $argList += @('--paths', ($Paths -join ','))
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitProductLine)) {
+        $argList += @('--product-line', $ExplicitProductLine)
+    }
+
+    $result = & $python @argList 2>&1
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Product-line classifier failed: $result"
+    }
+
+    $line = @($result | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })[-1]
+
+    if ($line -notin @('securenow', 'archlucid-shared')) {
+        throw "Unexpected product-line classifier output: '$line'."
+    }
+
+    return [string]$line
+}
+
+function New-ProductLine24HourBucket {
+    return [pscustomobject]@{
+        bugsFound24h = 0
+        dryRuns24h   = 0
+        hitRate24h   = 0.0
+    }
+}
+
+function Update-ProductLine24HourBucket {
+    param(
+        $Bucket,
+        [ValidateSet('hit', 'dry')]
+        [string] $Outcome
+    )
+
+    switch ($Outcome) {
+        'hit' { $Bucket.bugsFound24h++ }
+        'dry' { $Bucket.dryRuns24h++ }
+    }
+
+    $denominator = $Bucket.bugsFound24h + $Bucket.dryRuns24h
+
+    if ($denominator -gt 0) {
+        $Bucket.hitRate24h = [Math]::Round([double]$Bucket.bugsFound24h / [double]$denominator, 2)
+    }
+}
+
 function Get-Rolling24HourHuntStats {
     param(
         [object[]] $Entries,
-        [datetime] $NowUtc
+        [datetime] $NowUtc,
+        [string] $RepoRoot
     )
 
     $cutoff = $NowUtc.AddHours(-24)
@@ -153,6 +239,8 @@ function Get-Rolling24HourHuntStats {
     $dryRuns = 0
     $seedOnly = 0
     $huntsInWindow = 0
+    $securenow = New-ProductLine24HourBucket
+    $archlucidShared = New-ProductLine24HourBucket
 
     foreach ($entry in $Entries) {
         $at = ConvertTo-UtcDateTime -IsoTimestamp ([string]$entry.at)
@@ -161,20 +249,55 @@ function Get-Rolling24HourHuntStats {
             continue
         }
 
-        switch ([string]$entry.outcome) {
+        $outcome = [string]$entry.outcome
+        $countedHunt = $false
+        $productLine = $null
+
+        switch ($outcome) {
             'hit' {
                 $bugsFound++
                 $huntsInWindow++
+                $countedHunt = $true
             }
             'dry' {
                 $dryRuns++
                 $huntsInWindow++
+                $countedHunt = $true
             }
             'seed-only' { $seedOnly++ }
             'held-for-triage' { }
             default {
-                throw "Unknown hunt outcome '$($entry.outcome)' in run log."
+                throw "Unknown hunt outcome '$outcome' in run log."
             }
+        }
+
+        if (-not $countedHunt) {
+            continue
+        }
+
+        $entryPaths = @()
+
+        if ($entry.PSObject.Properties.Name -contains 'paths' -and $null -ne $entry.paths) {
+            $entryPaths = @($entry.paths)
+        }
+
+        $entryProductLine = $null
+
+        if ($entry.PSObject.Properties.Name -contains 'productLine') {
+            $entryProductLine = [string]$entry.productLine
+        }
+
+        $productLine = Invoke-HuntProductLineClassifier `
+            -RepoRoot $RepoRoot `
+            -ZoneId ([string]$entry.zoneId) `
+            -Paths $entryPaths `
+            -ExplicitProductLine $entryProductLine
+
+        if ($productLine -eq 'securenow') {
+            Update-ProductLine24HourBucket -Bucket $securenow -Outcome $outcome
+        }
+        else {
+            Update-ProductLine24HourBucket -Bucket $archlucidShared -Outcome $outcome
         }
     }
 
@@ -192,14 +315,16 @@ function Get-Rolling24HourHuntStats {
     }
 
     return [pscustomobject]@{
-        bugsFound24h   = $bugsFound
-        dryRuns24h     = $dryRuns
-        seedOnly24h    = $seedOnly
-        huntsInWindow  = $huntsInWindow
-        hitRate24h     = [Math]::Round($hitRate, 2)
-        warning24h     = $warning
-        windowStart    = $cutoff.ToString('o')
-        windowEnd      = $NowUtc.ToString('o')
+        bugsFound24h        = $bugsFound
+        dryRuns24h          = $dryRuns
+        seedOnly24h         = $seedOnly
+        huntsInWindow       = $huntsInWindow
+        hitRate24h          = [Math]::Round($hitRate, 2)
+        warning24h          = $warning
+        windowStart         = $cutoff.ToString('o')
+        windowEnd           = $NowUtc.ToString('o')
+        securenow           = $securenow
+        archlucidShared     = $archlucidShared
     }
 }
 
@@ -211,14 +336,32 @@ function Write-Rolling24HourHuntPreview {
     Write-Host ''
     Write-Host '| Field | Value |'
     Write-Host '| --- | --- |'
-    Write-Host ("| Bugs found | {0} |" -f $Stats.bugsFound24h)
-    Write-Host ("| Dry runs | {0} |" -f $Stats.dryRuns24h)
-    Write-Host ("| Hit rate | {0} |" -f $Stats.hitRate24h)
+    Write-Host ("| Bugs found (total) | {0} |" -f $Stats.bugsFound24h)
+    Write-Host ("| Dry runs (total) | {0} |" -f $Stats.dryRuns24h)
+    Write-Host ("| Hit rate (total) | {0} |" -f $Stats.hitRate24h)
+    Write-Host ''
+    Write-Host '### SecureNow'
+    Write-Host ''
+    Write-Host '| Field | Value |'
+    Write-Host '| --- | --- |'
+    Write-Host ("| Bugs found (24h) | {0} |" -f $Stats.securenow.bugsFound24h)
+    Write-Host ("| Dry runs (24h) | {0} |" -f $Stats.securenow.dryRuns24h)
+    Write-Host ("| Hit rate | {0} |" -f $Stats.securenow.hitRate24h)
+    Write-Host ''
+    Write-Host '### ArchLucid + shared libraries'
+    Write-Host ''
+    Write-Host '| Field | Value |'
+    Write-Host '| --- | --- |'
+    Write-Host ("| Bugs found (24h) | {0} |" -f $Stats.archlucidShared.bugsFound24h)
+    Write-Host ("| Dry runs (24h) | {0} |" -f $Stats.archlucidShared.dryRuns24h)
+    Write-Host ("| Hit rate | {0} |" -f $Stats.archlucidShared.hitRate24h)
 
     if (-not [string]::IsNullOrWhiteSpace($Stats.warning24h)) {
+        Write-Host ''
         Write-Host ("| Warning | {0} |" -f $Stats.warning24h)
     }
 
+    Write-Host ''
     Write-Host ("| Window (UTC) | {0} -> {1} |" -f $Stats.windowStart, $Stats.windowEnd)
 }
 
@@ -298,14 +441,31 @@ if (-not [string]::IsNullOrWhiteSpace($AtUtc)) {
 $entries = Read-HuntRunLog -Path $resolvedLog
 
 if ($RecordHunt) {
-    $newEntry = [pscustomobject]@{
-        at      = $nowUtc.ToString('o')
-        zoneId  = $HuntZoneId
-        outcome = $HuntOutcome
-    }
+    $resolvedPaths = @()
 
     if ($HuntPaths -and $HuntPaths.Count -gt 0) {
-        $newEntry | Add-Member -NotePropertyName paths -NotePropertyValue @($HuntPaths)
+        $resolvedPaths = @($HuntPaths)
+    }
+
+    $resolvedProductLine = $ProductLine
+
+    if ([string]::IsNullOrWhiteSpace($resolvedProductLine)) {
+        $resolvedProductLine = Invoke-HuntProductLineClassifier `
+            -RepoRoot $resolvedRoot `
+            -ZoneId $HuntZoneId `
+            -Paths $resolvedPaths `
+            -ExplicitProductLine ''
+    }
+
+    $newEntry = [pscustomobject]@{
+        at          = $nowUtc.ToString('o')
+        zoneId      = $HuntZoneId
+        outcome     = $HuntOutcome
+        productLine = $resolvedProductLine
+    }
+
+    if ($resolvedPaths.Count -gt 0) {
+        $newEntry | Add-Member -NotePropertyName paths -NotePropertyValue $resolvedPaths
     }
 
     if (-not [string]::IsNullOrWhiteSpace($Severity)) {
@@ -322,7 +482,7 @@ if ($RecordHunt) {
 }
 
 if ($Rolling24h) {
-    $stats = Get-Rolling24HourHuntStats -Entries $entries -NowUtc $nowUtc
+    $stats = Get-Rolling24HourHuntStats -Entries $entries -NowUtc $nowUtc -RepoRoot $resolvedRoot
     Write-Rolling24HourHuntPreview -Stats $stats
-    $stats | ConvertTo-Json -Compress
+    $stats | ConvertTo-Json -Compress -Depth 4
 }

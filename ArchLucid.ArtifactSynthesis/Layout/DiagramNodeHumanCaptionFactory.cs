@@ -55,6 +55,10 @@ public static class DiagramNodeHumanCaptionFactory
         string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
             ? null
             : node.ArmResourceGroup.Trim();
+        if (node.IncludeResourceGroupInCaption && resourceGroupCaption is not null)
+        {
+            combined = $"{combined} · {resourceGroupCaption}";
+        }
         string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
             ? combined
             : $"{combined} · {resourceGroupCaption}";
