@@ -150,6 +150,55 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_inner_throws_and_fail_closed_blocks_CheckOutputAsync_without_scrub()
+    {
+        CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-output-throw-fail-closed", breakerOptions);
+        Mock<IContentSafetyGuard> inner = new();
+        inner.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated inner output throw"));
+
+        Mock<IPromptRedactor> redactor = new();
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true },
+            redactor.Object);
+
+        ContentSafetyResult result =
+            await sut.CheckOutputAsync("{\"completion\":true}", CancellationToken.None);
+
+        result.IsAllowed.Should().BeFalse();
+        result.Category.Should().Be("SdkError");
+        redactor.Verify(r => r.RedactAlways(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task When_inner_returns_allowed_CheckInputAsync_keeps_circuit_closed()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-allowed-input", options);
+        Mock<IContentSafetyGuard> inner = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        inner.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allowed);
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult first = await sut.CheckInputAsync("a", CancellationToken.None);
+        first.IsAllowed.Should().BeTrue();
+
+        ContentSafetyResult second = await sut.CheckInputAsync("b", CancellationToken.None);
+        second.IsAllowed.Should().BeTrue();
+        inner.Verify(
+            g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task When_inner_throws_on_CheckOutputAsync_and_fail_open_allows_without_scrub_before_circuit_threshold()
     {
         CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
