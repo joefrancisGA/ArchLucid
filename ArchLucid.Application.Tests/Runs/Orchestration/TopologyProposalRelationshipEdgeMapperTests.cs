@@ -1452,4 +1452,79 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().ContainSingle(e => e.FromNodeId == "svc-orders" && e.ToNodeId == "ds-1");
     }
+
+    [Fact]
+    public void MapRelationships_resolves_source_via_svc_synthetic_fallback_on_data_node_with_service_terraform_source()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "ds-app",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "app",
+                Category = GraphTopologyCategories.Data,
+                SourceId = "azurerm_linux_web_app.app",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-app",
+                    TargetId = "api",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e => e.FromNodeId == "ds-app" && e.ToNodeId == "svc-1");
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_synthetic_endpoint_when_relationship_uses_mixed_case_prefix()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "SVC-api",
+                    TargetId = "DS-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+    }
 }

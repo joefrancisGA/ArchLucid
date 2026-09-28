@@ -1532,4 +1532,60 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("not-indexed", knownEndpointKeys).Should().BeFalse();
     }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_maps_both_synthetic_aliases_when_category_is_unset()
+    {
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode node = new()
+        {
+            NodeId = "node-shared",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "shared",
+            Category = null,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId.Should().ContainKey("svc-shared").WhoseValue.Should().Be("node-shared");
+        endpointKeyToNodeId.Should().ContainKey("ds-shared").WhoseValue.Should().Be("node-shared");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_maps_ds_synthetic_alias_for_storage_category_node()
+    {
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode node = new()
+        {
+            NodeId = "ds-blob",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "blob",
+            Category = GraphTopologyCategories.Storage,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId.Should().ContainKey("ds-blob").WhoseValue.Should().Be("ds-blob");
+        endpointKeyToNodeId.Should().NotContainKey("svc-blob");
+    }
+
+    [Fact]
+    public void EndpointKeyIsKnown_accepts_mixed_case_synthetic_prefix_when_canonical_key_indexed()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("SVC-api", knownEndpointKeys).Should().BeTrue();
+    }
 }
