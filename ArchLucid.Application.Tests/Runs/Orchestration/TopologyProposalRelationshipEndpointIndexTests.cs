@@ -712,4 +712,102 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         nodeId.Should().Be("svc-tf");
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_matches_graph_node_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-tf",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "azurerm_mssql_server.main",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "sql",
+            DatastoreId = "azurerm_mssql_server.main"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-tf");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_false_when_graph_node_is_not_topology_resource()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "req-1",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "api",
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = "api", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeFalse();
+
+        nodeId.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_id_is_datastore_synthetic_for_node_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = "overlay", ServiceId = "ds-api" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void RelationshipEndpointsAreKnown_trims_surrounding_whitespace_on_endpoint_ids()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "svc-api",
+            "ds-sql",
+        };
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "  svc-api  ",
+            TargetId = "  ds-sql  ",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(relationship, knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
 }
