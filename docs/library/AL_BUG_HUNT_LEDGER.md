@@ -24052,11 +24052,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 21
-- **bugs-found:** 24
+- **hunts:** 22
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — remediation factory path view filter hid selected ranked path without clearing pathId
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — improvement planning stale `theme` URL when theme id missing from loaded themes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24097,6 +24097,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `remediation-pattern-api.ts` / `remediation-factory-api.ts` — `proxyJson`/`proxyGet` omit `mergeRegistrationScopeForProxy` on list/detail/submit/approve and factory ranked/metrics calls consumed by operator remediation routes — **hit 2026-09-26 thorough hunt:** wrapped lib fetch helpers with `mergeRegistrationScopeForProxy`; regression `remediation-factory-api.test.ts`, `remediation-pattern-api.test.ts`.
 
 - [x] (proven) `RemediationFactoryClient` — `pathView` ranked-path filter hid the selected row from `visibleRankedPaths` while `pathId` URL param and inspect panel stayed on the prior path (diagram-reconcile / remediation-patterns filter/detail desync pattern) — **hit 2026-09-27 seed hunt (seed→hit):** clear `pathId` when the selected path drops out of the active ranked-path view; regression `clears pathId from the URL when the ranked path view filter hides the selected row`; 4 `RemediationFactoryClient` tests passed.
+
+- [x] (proven) `PlanningPageClient` — stale `theme` search param persisted when theme id was absent from loaded themes (state cleared locally but URL kept dead deep link; Slack `slackDisableId` stale deep-link pattern) — **hit 2026-09-28 seed hunt (seed→hit):** after planning bundle hydration, unknown theme ids clear `theme` from URL via `planningThemeHrefFromSearch`; regression `clears stale theme from the URL when the theme is missing from loaded themes` (`PlanningPageClient.test.tsx`).
+
+2026-09-28 seed hunt (seed→hit): reseeded ui-operator-routes; proved improvement planning stale theme URL after theme list refresh.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-operator-routes after remediation-factory hits; proved ranked-path view filter/detail desync on remediation factory.
 
