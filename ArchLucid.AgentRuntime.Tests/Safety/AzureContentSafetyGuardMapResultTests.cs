@@ -59,4 +59,16 @@ public sealed class AzureContentSafetyGuardMapResultTests
         mapped.IsAllowed.Should().BeFalse();
         mapped.Severity.Should().Be(4);
     }
+
+    [SkippableFact]
+    public void MapResult_allows_when_category_severity_is_null()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, null)]);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeTrue();
+    }
 }

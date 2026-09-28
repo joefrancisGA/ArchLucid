@@ -37,6 +37,25 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_circuit_open_CheckOutputAsync_fail_closed_without_calling_inner()
+    {
+        CircuitBreakerGate gate = OpenGate();
+        Mock<IContentSafetyGuard> inner = new();
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult result = await sut.CheckOutputAsync("completion", CancellationToken.None);
+
+        result.IsAllowed.Should().BeFalse();
+        result.Category.Should().Be("CircuitOpen");
+        inner.Verify(
+            g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task When_circuit_open_and_not_FailClosedOnSdkError_allows_with_scrub()
     {
         CircuitBreakerGate gate = OpenGate();
