@@ -4915,6 +4915,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-28 seed hunt #67 (seed-only): reseeded architecture-recommendation; no new hunt-ready rows; cheap-disproof closed `Non-Reliability` / `Non-Cost` negation on Reliability/Cost trade-off pairs (#66 `not-` class in scoped ProposedChange tests), explicit `Reliability` priority resolving Security/Reliability trade-offs toward availability-first, and Integration dimension using dedicated proposed-change copy with default alternatives; regressions `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability`, `BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_non_cost`, `BuildRecommendations_prefers_availability_first_when_priority_explicitly_names_reliability`, `BuildRecommendations_uses_integration_proposed_change_for_third_party_gap`, and `Build_returns_integration_default_paths`; 28 scoped Alternatives/ProposedChange tests passed.
+
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `Non-Reliability` declared priorities falsely prefer Reliability — **cheap-disproof 2026-09-28 seed hunt #67:** hyphenated `non-` negation in scoped engine tests; regression `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability`
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `Non-Cost` declared priorities falsely prefer Cost in Reliability/Cost trade-offs — **cheap-disproof 2026-09-28 seed hunt #67:** second trade-off pair; regression `BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_non_cost`
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — explicit Reliability priority might not resolve Security/Reliability trade-offs — **cheap-disproof 2026-09-28 seed hunt #67:** prefers availability-first compensating-controls copy; regression `BuildRecommendations_prefers_availability_first_when_priority_explicitly_names_reliability`
+- [x] (valid-no-repro) `ArchitectureRecommendationProposedChange.Build` — Integration Fail findings might fall back to generic template copy — **cheap-disproof 2026-09-28 seed hunt #67:** dimension-specific external-interface copy; regression `BuildRecommendations_uses_integration_proposed_change_for_third_party_gap`
+- [x] (valid-no-repro) `ArchitectureRecommendationAlternatives.Build` — Integration Fail findings might get dimension-specific alternatives — **cheap-disproof 2026-09-28 seed hunt #67:** intentional default paths; regression `Build_returns_integration_default_paths`
+
 2026-09-28 seed hunt #66 (seed-only): reseeded architecture-recommendation; no new hunt-ready rows; cheap-disproof closed `not-reliability` / `no reliability` declared priorities falsely preferring Reliability in Security/Reliability trade-offs (#19 `not-cost` class), `not-cost` falsely preferring Cost in Reliability/Cost trade-offs, and PrivacyCompliance findings using intentional default defer/evidence alternatives; regressions `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_reliability`, `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_no_reliability`, `BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_not_cost`, and `Build_returns_privacy_compliance_default_paths`; 23 scoped Alternatives/ProposedChange tests passed.
 
 - [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-reliability` declared priorities falsely prefer Reliability — **cheap-disproof 2026-09-28 seed hunt #66:** `not-` negation parity; regression `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_reliability`
@@ -4953,7 +4961,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-28

@@ -81,6 +81,20 @@ public sealed class ArchitectureRecommendationAlternativesTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void Build_returns_integration_default_paths()
+    {
+        IReadOnlyList<RecommendationAlternative> alternatives =
+            ArchitectureRecommendationAlternatives.Build(CreateFinding(
+                QualityDimension.Integration,
+                "Third-party webhook retries are undocumented"));
+
+        alternatives.Should().HaveCount(2);
+        alternatives[0].Path.Should().Contain("exception");
+        alternatives[1].Path.Should().Contain("additional evidence");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void Build_returns_privacy_compliance_default_paths()
     {
         IReadOnlyList<RecommendationAlternative> alternatives =

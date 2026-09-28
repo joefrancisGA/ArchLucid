@@ -441,4 +441,139 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         reliabilityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
             "Balance Reliability and Cost with explicit human approval.");
     }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["Non-Reliability pilot scope"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Reliability with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_non_cost()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            ["Non-Cost recovery program"]);
+
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+
+        reliabilityRecommendation.TradeOffs.Should().ContainSingle();
+        reliabilityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Reliability and Cost with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_prefers_availability_first_when_priority_explicitly_names_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["Reliability-first recovery objectives"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Prioritize availability-first with explicit compensating controls.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_uses_integration_proposed_change_for_third_party_gap()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-int",
+            Dimension = QualityDimension.Integration,
+            Title = "Third-party webhook retries are undocumented",
+            Rationale = "No failure handling recorded.",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "Medium",
+        };
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [finding],
+            ["Integration"]).Single();
+
+        recommendation.ProposedChange.Should().Contain("external interfaces");
+        recommendation.ProposedChange.Should().Contain("authentication");
+        recommendation.ProposedChange.Should().NotContain("Address finding:");
+    }
 }
