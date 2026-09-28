@@ -1340,4 +1340,119 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_both_synthetic_prefixes_when_category_is_unset()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "node-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "shared",
+            Category = null,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-shared", knownEndpointKeys).Should().BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-shared", knownEndpointKeys).Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_keeps_first_node_id_when_label_alias_already_registered()
+    {
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode first = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new()
+        };
+
+        GraphNode second = new()
+        {
+            NodeId = "svc-2",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, first);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, second);
+
+        endpointKeyToNodeId["api"].Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_name_matches_arm_resource_id_on_node()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["resourceId"] = canonicalArmId }
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = mixedCaseArmId, ServiceId = "svc-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_only_known_rows_when_list_mixes_valid_and_invalid_relationships()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = "svc-api",
+                TargetId = "ds-sql",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+            new ManifestRelationship
+            {
+                SourceId = "svc-api",
+                TargetId = "ds-missing",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle(r => r.TargetId == "ds-sql");
+    }
 }
