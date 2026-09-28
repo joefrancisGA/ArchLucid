@@ -437,4 +437,58 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         aliases["ds-orders"].Should().Be("ds-orders");
         aliases["ds-orders-db"].Should().Be("ds-orders");
     }
+
+    [Fact]
+    public void EndpointKeyIsKnown_resolves_arm_resource_id_via_normalization()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase) { canonicalArmId };
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(mixedCaseArmId, knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void IsRenameAliasDatastore_returns_false_when_accepted_datastore_has_same_id_and_name()
+    {
+        List<ManifestDatastore> accepted =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        ManifestDatastore duplicate = new() { DatastoreName = "sql", DatastoreId = "ds-sql" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(duplicate, accepted).Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddManifestServiceEndpointAliases_maps_inventoried_graph_node_for_service_name()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new() { ServiceName = "api", ServiceId = "svc-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(aliases, service, graphNodes);
+
+        aliases["api"].Should().Be("svc-inventoried");
+        aliases["svc-proposed"].Should().Be("svc-inventoried");
+        aliases["svc-api"].Should().Be("svc-inventoried");
+    }
 }
