@@ -6416,4 +6416,69 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Nodes.Should().HaveCount(2);
         merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_tags_greenfield_topology_nodes_with_agent_provenance()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        GraphNode svc = merged.Nodes.Should().ContainSingle().Subject;
+        svc.SourceType.Should().Be(nameof(AgentType.Topology));
+        svc.SourceId.Should().Be("ProposedChanges");
+        svc.Properties.Should().ContainKey("serviceType").WhoseValue.Should().Be(nameof(ServiceType.Api));
+        svc.Properties.Should().ContainKey("runtimePlatform").WhoseValue.Should().Be(nameof(RuntimePlatform.AppService));
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_from_critic_relationship_on_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-edge",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [critic]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }

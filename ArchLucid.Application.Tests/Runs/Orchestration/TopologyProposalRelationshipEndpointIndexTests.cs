@@ -914,6 +914,26 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void AddGraphNodeResolutionKeys_maps_node_id_when_label_is_empty()
+    {
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = string.Empty,
+            Category = GraphTopologyCategories.Compute,
+            Properties = new()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId.Should().ContainKey("svc-1").WhoseValue.Should().Be("svc-1");
+        endpointKeyToNodeId.Should().NotContainKey(string.Empty);
+        endpointKeyToNodeId.Should().NotContainKey("svc-");
+    }
+
+    [Fact]
     public void AddGraphNodeEndpointKeys_indexes_node_id_as_known_endpoint()
     {
         HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
