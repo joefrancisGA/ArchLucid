@@ -7251,3 +7251,4 @@
 {"at":"2026-09-27T23:59:24.5157354Z","zoneId":"api-key-auth","outcome":"hit","paths":["@(ArchLucid.Core/Authentication/ApiKeyMaterialNormalizer.cs,ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs,ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs)"]}
 {"at":"2026-09-28T00:03:13.0052624Z","zoneId":"archlucid-core","outcome":"hit","paths":["@(ArchLucid.Core/Persistence/Graph/GraphSnapshotKnowledgeModelMerger.cs)"]}
 {"at":"2026-09-28T00:15:50.7093767Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-09-28T00:27:25.2891707Z","zoneId":"api-governance-stickiness","outcome":"hit"}
