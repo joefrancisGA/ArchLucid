@@ -221,4 +221,105 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("svc-api", keys).Should().BeTrue();
         TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown("ds-sql", keys).Should().BeTrue();
     }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_endpoints_exist_only_in_additional_keys()
+    {
+        List<ManifestService> services = [];
+        List<ManifestDatastore> datastores = [];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = "svc-inventoried",
+                TargetId = "ds-inventoried",
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> withoutAdditional = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        withoutAdditional.Should().BeEmpty();
+
+        List<ManifestRelationship> withAdditional = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            ["svc-inventoried", "ds-inventoried"],
+            services,
+            datastores,
+            relationships);
+
+        withAdditional.Should().ContainSingle(relationship =>
+            relationship.SourceId == "svc-inventoried" && relationship.TargetId == "ds-inventoried");
+    }
+
+    [Fact]
+    public void RelationshipEndpointsAreKnown_requires_both_source_and_target_in_known_set()
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "svc-api",
+            "ds-sql",
+        };
+
+        ManifestRelationship bothKnown = new()
+        {
+            SourceId = "svc-api",
+            TargetId = "ds-sql",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(bothKnown, knownEndpointKeys)
+            .Should()
+            .BeTrue();
+
+        ManifestRelationship unknownTarget = new()
+        {
+            SourceId = "svc-api",
+            TargetId = "ds-missing",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(unknownTarget, knownEndpointKeys)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void TryClaimService_returns_false_when_name_id_or_synthetic_already_claimed()
+    {
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService first = new() { ServiceName = "api", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(first, claimed).Should().BeTrue();
+
+        ManifestService duplicateName = new() { ServiceName = "api", ServiceId = "svc-other" };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(duplicateName, claimed).Should().BeFalse();
+
+        ManifestService duplicateId = new() { ServiceName = "other", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(duplicateId, claimed).Should().BeFalse();
+
+        ManifestService duplicateSynthetic = new() { ServiceName = "api", ServiceId = "other-id" };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(duplicateSynthetic, claimed).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryClaimDatastore_returns_false_when_name_id_or_synthetic_already_claimed()
+    {
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore first = new() { DatastoreName = "sql", DatastoreId = "ds-sql" };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(first, claimed).Should().BeTrue();
+
+        ManifestDatastore duplicateName = new() { DatastoreName = "sql", DatastoreId = "ds-other" };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(duplicateName, claimed).Should().BeFalse();
+    }
 }
