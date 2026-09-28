@@ -4915,6 +4915,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-09-28 seed hunt #19 (seed→hit): reseeded architecture-recommendation; proved `not-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `no-cost` / `non-cost` negation was already handled; extended `IsNegatedDimensionMention` with `not-` / `not ` prefix parity; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`; 28 scoped Alternatives/ProposedChange/TradeOff tests passed.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
+
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `no-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `Low-Cost` remains a valid Cost preference; generalized negated dimension detection via `no-` / `non-` prefixes for all trade-off dimension tokens; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost` and `BuildRecommendations_prefers_cost_first_when_priority_mentions_low_cost_design`; 27 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `no-cost` declared priorities falsely prefer Cost — **hit 2026-09-27 seed hunt:** `no-` negation must mirror `non-` handling without blocking legitimate `Low-Cost` mentions; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
@@ -4942,11 +4946,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 18
-- **bugs-found:** 15
+- **hunts:** 19
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — no-cost priorities falsely preferred Cost in trade-offs
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — not-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

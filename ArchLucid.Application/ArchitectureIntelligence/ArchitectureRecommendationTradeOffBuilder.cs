@@ -157,7 +157,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         }
 
         return CreateNegatedDimensionPattern("non", dimensionToken).IsMatch(priority)
-            || CreateNegatedDimensionPattern("no", dimensionToken).IsMatch(priority);
+            || CreateNegatedDimensionPattern("no", dimensionToken).IsMatch(priority)
+            || CreateNegatedDimensionPattern("not", dimensionToken).IsMatch(priority);
     }
 
     private static Regex CreateNegatedDimensionPattern(string negationPrefix, string dimensionToken)
