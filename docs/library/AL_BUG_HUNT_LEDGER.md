@@ -19787,6 +19787,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-09-28 seed hunt #6997 (seed→hit): reseeded context-ingestion; proved terraform-show-json camelCase `forEach` for_each address suffix gap; cheap-disproof closed snake_case `provider_name`, `resource_address`, and `terraform_address`; regressions `ParseAsync_camel_case_for_each_appends_for_each_suffix_to_name`, `ParseAsync_snake_case_provider_name_projects_provider_name_exposure`, `ParseAsync_snake_case_resource_address_uses_explicit_address_when_name_collides`, and `ParseAsync_snake_case_terraform_address_uses_explicit_address`; 792 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `MapTerraformResource` — camelCase `forEach` on managed resources omitted for_each address suffix — **hit 2026-09-28 seed hunt #6997:** alias `forEach` alongside `for_each`; regression `ParseAsync_camel_case_for_each_appends_for_each_suffix_to_name`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `provider_name` might omit `providerName` exposure — **cheap-disproof 2026-09-28 seed hunt #6997:** regression `ParseAsync_snake_case_provider_name_projects_provider_name_exposure`
+- [x] (valid-no-repro) `TryGetResourceAddress` — snake_case `resource_address` might not resolve explicit collision addresses — **cheap-disproof 2026-09-28 seed hunt #6997:** regression `ParseAsync_snake_case_resource_address_uses_explicit_address_when_name_collides`
+- [x] (valid-no-repro) `TryGetResourceAddress` — snake_case `terraform_address` might not resolve explicit address — **cheap-disproof 2026-09-28 seed hunt #6997:** regression `ParseAsync_snake_case_terraform_address_uses_explicit_address`
+
 2026-09-28 seed hunt #6992 (seed-only): reseeded context-ingestion; no new hunt-ready rows; cheap-disproof closed snake_case `allow_missing`, `sensitive_values` redaction, `each_key`, and `each_value` Terraform show JSON resource attributes; regressions `ParseAsync_snake_case_allow_missing_maps_tf_allow_missing_property`, `ParseAsync_snake_case_sensitive_values_redacts_top_level_sensitive_tf_values`, `ParseAsync_snake_case_each_key_appends_for_each_suffix_to_name`, and `ParseAsync_snake_case_each_value_appends_for_each_suffix_to_name`; 788 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` — snake_case `allow_missing` might omit `tf.allow_missing` — **cheap-disproof 2026-09-28 seed hunt #6992:** regression `ParseAsync_snake_case_allow_missing_maps_tf_allow_missing_property`
