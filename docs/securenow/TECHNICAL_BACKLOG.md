@@ -94,6 +94,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Data flow compile | [securenow-data-flow-00-index.md](../../.cursor/prompts/securenow-data-flow-00-index.md) | **SN-DF-01–SN-DF-09** | [`SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) |
 | Probable evidence | [securenow-probable-evidence-00-index.md](../../.cursor/prompts/securenow-probable-evidence-00-index.md) | **SN-PE-01–SN-PE-HOLD** | [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) |
 | Runtime connections | [securenow-runtime-connection-00-index.md](../../.cursor/prompts/securenow-runtime-connection-00-index.md) | **SN-RT-01–SN-RT-13** | [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) |
+| Verification honesty | [securenow-verification-00-index.md](../../.cursor/prompts/securenow-verification-00-index.md) | **SN-VF-01–SN-VF-05** | [`SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md) |
 
 ---
 
@@ -206,6 +207,18 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | SN-RT-13 | E | Questionnaire UI (Yes/No/Skip) | **Shipped** |
 | SN-RT-14 | D/E | OP-01 map row for operator-inferred connections controller | **Shipped** |
 | SN-RT-HOLD | — | Secret persistence, auto-answer, merge observed into May access | **Hold** |
+
+### SN-VF — Verification honesty (**SN-VF-01–SN-VF-05**)
+
+Prompts only. Run in order. Settled scope: [`OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md`](OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md) Part 2, act-now list. Index: [`../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md).
+
+| ID | Title | Status |
+|----|-------|--------|
+| SN-VF-01 | Chronology and `Succeeded` capture | **Prompts** |
+| SN-VF-02 | Path absence requires completed analysis | **Prompts** |
+| SN-VF-03 | Substantive postcondition required | **Prompts** |
+| SN-VF-04 | Attested `ChangeImplemented` | **Prompts** |
+| SN-VF-05 | Workbench labels and Close affordance | **Prompts** |
 
 ---
 
