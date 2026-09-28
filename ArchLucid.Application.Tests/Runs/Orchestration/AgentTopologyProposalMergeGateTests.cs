@@ -5602,4 +5602,36 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.Warnings.Should().ContainSingle("greenfield-note");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_preserves_proposal_id_when_sanitizing()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-proposal-id",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                ProposalId = "proposal-keep-42",
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.ProposalId.Should().Be("proposal-keep-42");
+    }
 }
