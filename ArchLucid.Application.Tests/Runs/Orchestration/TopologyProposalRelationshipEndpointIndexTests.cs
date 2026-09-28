@@ -491,4 +491,104 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         aliases["svc-proposed"].Should().Be("svc-inventoried");
         aliases["svc-api"].Should().Be("svc-inventoried");
     }
+
+    [Fact]
+    public void AddManifestDatastoreEndpointAliases_maps_inventoried_graph_node_for_datastore_name()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new() { DatastoreName = "sql", DatastoreId = "ds-proposed" };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(aliases, datastore, graphNodes);
+
+        aliases["sql"].Should().Be("ds-inventoried");
+        aliases["ds-proposed"].Should().Be("ds-inventoried");
+        aliases["ds-sql"].Should().Be("ds-inventoried");
+    }
+
+    [Fact]
+    public void IsRenameAliasService_returns_false_when_candidate_name_or_id_is_blank()
+    {
+        List<ManifestService> accepted =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        ManifestService blankName = new() { ServiceName = "   ", ServiceId = "svc-api" };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(blankName, accepted).Should().BeFalse();
+
+        ManifestService blankId = new() { ServiceName = "billing-api", ServiceId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(blankId, accepted).Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_includes_arm_resource_id_from_topology_node_properties()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-srv";
+
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["resourceId"] = canonicalArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(mixedCaseArmId, knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<ManifestService> services = [];
+        List<ManifestDatastore> datastores = [];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm,
+                TargetId = targetArm,
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            [sourceArm, targetArm],
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm && relationship.TargetId == targetArm);
+    }
 }
