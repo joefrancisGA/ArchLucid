@@ -6889,4 +6889,46 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Nodes.Should().Contain(n => n.NodeId == "req-1" && n.NodeType == GraphNodeTypes.Requirement);
         merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_topology_datastore_when_graph_has_only_agent_proposed_topology_node()
+    {
+        GraphNode agentProposedDatastore = new()
+        {
+            NodeId = "ds-ledger",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "ledger",
+            Category = GraphTopologyCategories.Data,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(agentProposedDatastore);
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "audit-sql",
+                        DatastoreId = "ds-audit",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-audit" && n.Label == "audit-sql");
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-ledger");
+    }
 }

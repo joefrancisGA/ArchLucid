@@ -1857,4 +1857,16 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         endpointKeys.Should().BeEmpty();
     }
+
+    [Fact]
+    public void AddManifestDatastoreEndpointKeys_does_not_register_keys_when_name_and_id_are_whitespace()
+    {
+        HashSet<string> endpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new() { DatastoreName = "   ", DatastoreId = "   " };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
+
+        endpointKeys.Should().BeEmpty();
+    }
 }

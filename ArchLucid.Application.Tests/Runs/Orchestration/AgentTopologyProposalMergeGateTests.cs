@@ -6030,4 +6030,77 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedServices.Should().ContainSingle(s => s.ServiceName == "billing-api");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_drops_critic_proposal_that_only_declares_relationships_without_endpoint_registration()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-rel-only",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphHasOnlyAgentProposedTopologyNode_AllowsTopologyToDeclareNewDatastores()
+    {
+        GraphNode agentProposedDatastore = new()
+        {
+            NodeId = "ds-ledger",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "ledger",
+            Category = GraphTopologyCategories.Data,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(agentProposedDatastore);
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-datastore-extension",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "audit-sql",
+                        DatastoreId = "ds-audit",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedDatastores.Should().ContainSingle(d => d.DatastoreName == "audit-sql");
+    }
 }
