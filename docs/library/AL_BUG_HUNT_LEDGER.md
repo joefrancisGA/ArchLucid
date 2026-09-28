@@ -21546,11 +21546,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 18
-- **bugs-found:** 35
+- **hunts:** 19
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — reference-architecture markdown/DOCX requirement-text and sponsor-summary parity; finding-verification markdown sanitizer
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — architecture narrative markdown omitted RequirementText on requirement bullets
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21614,6 +21614,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `FindingVerificationReportMarkdownRenderer` — finding table cells bypass `LlmArtifactFreeTextSanitizer` (DOCX fixed in #1534) — **hit 2026-09-27 thorough hunt:** `EscapeCell` now sanitizes before pipe/newline escaping; regression `Render_strips_control_chars_from_finding_table_cells`
 
 2026-09-27 thorough hunt (hit): proved three seeded candidates — requirement-text export parity (markdown + DOCX Notes column), reference-architecture sponsor summary, and finding-verification markdown table sanitization; 3 targeted + 15 DocxExportService + 579 scoped ArtifactSynthesis tests passed (10 pre-existing unrelated Mermaid peel-budget / data-flow label failures).
+
+- [x] (proven) `ArchitectureNarrativeArtifactGenerator` — requirement bullets omitted `RequirementText` while `ReferenceArchitectureMarkdownGenerator`, DOCX coverage table, and `inventory.json` expose it — **hit 2026-09-28 seed hunt (seed→hit):** shared `FormatRequirementLine` suffix; regression `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag` (updated assertion).
+
+2026-09-28 seed hunt (seed→hit): reseeded artifact-synthesis; proved architecture-narrative requirement-text parity gap vs reference-architecture markdown; 1 targeted ArtifactSynthesis test passed.
 
 2026-09-11 seed hunt #1707 (seed→hit): reseeded artifact-synthesis after master merge; proved compliance-matrix gap substring mis-attribution and three markdown cross-surface parity gaps; 200 scoped ArtifactSynthesis tests passed.
 
