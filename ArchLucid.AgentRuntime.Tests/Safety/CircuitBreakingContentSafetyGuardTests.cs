@@ -177,6 +177,30 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task Consecutive_sdk_failures_on_CheckOutputAsync_open_circuit_then_fail_closed_when_configured()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-output-sdk", options);
+        Mock<IContentSafetyGuard> inner = new();
+        ContentSafetyResult sdkError = new(false, "Content safety service error.", "SdkError", null);
+        inner.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(sdkError);
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        ContentSafetyResult first = await sut.CheckOutputAsync("{\"a\":1}", CancellationToken.None);
+        first.IsAllowed.Should().BeFalse();
+        first.Category.Should().Be("SdkError");
+
+        ContentSafetyResult second = await sut.CheckOutputAsync("{\"b\":2}", CancellationToken.None);
+        second.IsAllowed.Should().BeFalse();
+        second.Category.Should().Be("CircuitOpen");
+    }
+
+    [Fact]
     public async Task Consecutive_sdk_failures_open_circuit_then_fail_closed_when_configured()
     {
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
