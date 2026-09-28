@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -104,14 +105,15 @@ public sealed partial class PreFinalizeChecklistService(
         }
 
         List<PreFinalizeChecklistItem> items = [];
+        string ledgerRunId = TechnologyLedgerRunIdKey.FromRunKey(runKey);
 
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            await _technologyLedgerRepository.GetByRunIdAsync(scope, ledgerRunId, cancellationToken).ConfigureAwait(false);
 
         int assumedTechnologyCount = ledgerEntries.Count(entry => entry.Status == TechnologyLedgerStatus.Assumed);
         items.Add(BuildAssumedTechnologyItem(assumedTechnologyCount));
 
-        List<Finding> findings = await LoadFindingsAsync(scope, runId, run, cancellationToken).ConfigureAwait(false);
+        List<Finding> findings = await LoadFindingsAsync(scope, ledgerRunId, run, cancellationToken).ConfigureAwait(false);
         IReadOnlyDictionary<string, ArchLucid.Contracts.Findings.FindingDisposition> latestDispositions =
             await LoadLatestDispositionsAsync(scope, findings, cancellationToken).ConfigureAwait(false);
         int criticalCount = PreFinalizeActiveFindingCounter.Count(findings, FindingSeverity.Critical, latestDispositions);

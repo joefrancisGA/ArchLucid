@@ -23538,11 +23538,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 10
-- **bugs-found:** 11
+- **hunts:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — pre-finalize evidence-linkage gap count double-counted supplemental linkage findings
+- **last-hunt:** 2026-09-28
+- **last-bug:** 2026-09-28 — pre-finalize checklist missed canonical N technology-ledger rows when run id was dashed D format
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23568,6 +23568,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernancePostureController` severity aggregates — posture counts may include remediated snapshot findings if disposition trail is not applied symmetrically with checklist — **cheap-disproof 2026-09-09 hunt #1384:** `SqlArchitecturePostureReader` scopes `latestDisposition` by `@ProjectId`; remediated findings remain in severity totals with separate `DispositionedCount` by design (`ReadAsync_aggregates_latest_snapshot_only_and_excludes_other_tenants`)
 - [x] (proven) `RiskExceptionDispositionGuard` / `RiskExceptionService.CreateAsync` — waiver create allowed when latest disposition was `RejectedAsNotApplicable` while only `Remediated` was rejected (risk register CTE and `PreFinalizeActiveFindingCounter` treat both as closed) — **hit 2026-09-10 seed hunt #1526:** reject all risk-register closed dispositions via `PreFinalizeActiveFindingCounter.IsClosedForRiskRegister`; regressions `EnsureWaiverAllowedForFindingAsync_rejects_rejected_as_not_applicable_latest_disposition` and `CreateAsync_rejects_when_finding_latest_disposition_is_rejected_as_not_applicable`
 - [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — gate-parity loader appends enforcing supplemental `evidence-linkage-*` findings before checklist evaluates gaps, so one unlinked critical finding reported count 2 — **hit 2026-09-27 seed hunt #53:** exclude supplemental linkage findings from active high-severity evaluation set; regression `BuildAsync_marks_evidence_linkage_blocking_when_linkage_engine_is_enforcing` asserts count 1
+
+- [x] (proven) `PreFinalizeChecklistService.BuildAsync` / `PreCommitSupplementalFindingsAppender` — technology ledger rows persist canonical `N` run ids (`TechnologyLedgerRunCommandService`) but checklist and gate-parity loader queried `GetByRunIdAsync` with the caller's dashed `D` route id, skipping assumed-technology and technology-consistency supplemental findings — **hit 2026-09-28 seed hunt (seed→hit):** `TechnologyLedgerRunIdKey` canonicalizes before ledger reads; regression `BuildAsync_marks_not_ready_when_assumed_technology_rows_use_canonical_n_run_id_and_checklist_uses_d_format`.
+
+2026-09-28 seed hunt (seed→hit): reseeded api-governance-stickiness; proved dashed-vs-canonical technology-ledger run id mismatch on pre-finalize checklist; 273 scoped stickiness/posture/checklist tests passed.
 
 2026-09-27 seed hunt #53 (seed→hit): reseeded api-governance-stickiness after evidence-linkage blocking checklist change; proved double-count on supplemental linkage rows; 272 scoped stickiness/posture/checklist tests passed.
 2026-09-10 seed hunt #1526 (hit): reseeded api-governance-stickiness; proved waiver guard gap for RejectedAsNotApplicable closed findings; 5 scoped guard/service regression tests passed.
