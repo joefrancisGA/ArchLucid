@@ -361,7 +361,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             VnetPrimaryGroup? rightGroup = sharedCell is null
                 ? null
                 : vnetGroups.FirstOrDefault(candidate => candidate.NodeId
-                    == ResolveSharedVnetPair(sharedCell.VnetConnectionCounts)!.Right);
+                    == ResolveSharedVnetPair(sharedCell.VnetConnectionCounts)!.Value.Right);
 
             if (sharedCell is not null && rightGroup is not null)
             {
@@ -458,11 +458,15 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach ((IReadOnlyList<NodePlacement> items, double width, double height) in block)
         {
-            placements.AddRange(items.Select(item => item with
+            foreach (NodePlacement item in items)
             {
-                X = item.X + groupX,
-                Y = item.Y + rowY,
-            }));
+                placements.Add(item with
+                {
+                    X = item.X + groupX,
+                    Y = item.Y + rowY,
+                });
+            }
+
             groupX += width + options.ComponentHorizontalGap;
             rowHeight = Math.Max(rowHeight, height);
         }
