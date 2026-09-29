@@ -1827,4 +1827,41 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().BeEmpty();
     }
+
+    [Fact]
+    public void MapRelationships_does_not_resolve_service_when_source_uses_mixed_case_datastore_synthetic_prefix()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "DS-api",
+                    TargetId = "ds-1",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().BeEmpty();
+    }
 }

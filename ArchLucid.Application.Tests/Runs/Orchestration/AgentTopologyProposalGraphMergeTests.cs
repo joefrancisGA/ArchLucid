@@ -7100,4 +7100,31 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [compliance]).Should().BeFalse();
     }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_critic_proposal_relationships_are_fully_stripped()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-stripped",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-service",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [critic]).Should().BeFalse();
+    }
 }
