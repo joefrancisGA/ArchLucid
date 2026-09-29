@@ -1268,6 +1268,54 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_arm_source_differs_only_in_case_from_graph_resourceId_property()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string mixedCaseArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = canonicalArmId }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(mixedCaseArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_arm_target_differs_only_in_case_from_graph_resourceId_property()
+    {
+        const string canonicalSqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-srv";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = canonicalSqlArmId }));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(ComputeSourceId, mixedCaseSqlArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_critic_proposes_arm_endpoints_on_tf_id_only_inventoried_graph()
     {
         const string appArmId =
