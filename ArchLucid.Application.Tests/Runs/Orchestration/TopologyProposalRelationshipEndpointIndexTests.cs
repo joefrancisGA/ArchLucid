@@ -3284,4 +3284,27 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         endpointKeyToNodeId[terraformSourceId.ToUpperInvariant()].Should().Be("svc-api");
     }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_tf_id_property_case_insensitively_when_value_is_arm_resource_id()
+    {
+        const string armResourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.id"] = armResourceId }
+        };
+
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(armResourceId.ToUpperInvariant(), knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
 }
