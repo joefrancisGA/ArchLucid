@@ -3261,4 +3261,27 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         endpointKeyToNodeId[armSourceId.ToUpperInvariant()].Should().Be("svc-1");
     }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_terraform_source_id_field_case_insensitively_on_topology_resource_node()
+    {
+        const string terraformSourceId = "azurerm_linux_web_app.app";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-api",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = "Terraform",
+            SourceId = terraformSourceId,
+            Properties = new Dictionary<string, string>()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId[terraformSourceId.ToUpperInvariant()].Should().Be("svc-api");
+    }
 }
