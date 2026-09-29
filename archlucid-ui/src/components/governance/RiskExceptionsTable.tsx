@@ -89,13 +89,16 @@ export function RiskExceptionsTable({
           <EnterpriseTableHeaderCell>
             <span>Expires</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              After this time the exception no longer covers the finding.
+            </span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
               The exception stops covering the finding after this time.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Actions</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              Renewal updates the coverage date. Revocation ends coverage. Neither remediates the finding.
+              Renew opens the exception record for a new coverage date and rationale. Revoke ends coverage. Neither remediates the finding.
             </span>
           </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
