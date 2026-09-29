@@ -15,10 +15,10 @@ internal static class InventoryDiagramBackboneKeepFilter
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(catalog);
 
-        IReadOnlySet<string> excludedArmResourceTypes =
-        [
+        IReadOnlySet<string> excludedArmResourceTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             "Microsoft.Network/virtualNetworks/subnets",
-        ];
+        };
         IReadOnlyList<GraphEdge> projectedPlacementEdges =
             DiagramHiddenSubnetVnetPlacementProjector.Project(
                 graph,
