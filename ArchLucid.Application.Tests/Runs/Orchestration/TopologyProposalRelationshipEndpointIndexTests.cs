@@ -2109,4 +2109,36 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterKnownRelationships_rejects_relationship_when_additional_endpoint_keys_do_not_cover_unknown_endpoints()
+    {
+        List<ManifestService> services =
+        [
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" },
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore { DatastoreName = "sql", DatastoreId = "ds-sql" },
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = "external-api",
+                TargetId = "external-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            ["external-api"],
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().BeEmpty();
+    }
 }
