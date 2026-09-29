@@ -2908,4 +2908,116 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_endpoints_use_arm_source_ids_from_declared_manifest_services_and_datastores()
+    {
+        const string serviceArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string datastoreArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<ManifestService> services =
+        [
+            new()
+            {
+                ServiceName = "api",
+                ServiceId = serviceArmId
+            }
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new()
+            {
+                DatastoreName = "sql",
+                DatastoreId = datastoreArmId
+            }
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = serviceArmId,
+                TargetId = datastoreArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == serviceArmId && relationship.TargetId == datastoreArmId);
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_declared_arm_source_ids_differ_only_in_case_from_relationship_endpoints()
+    {
+        const string serviceArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string datastoreArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<ManifestService> services =
+        [
+            new()
+            {
+                ServiceName = "api",
+                ServiceId = serviceArmId
+            }
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new()
+            {
+                DatastoreName = "sql",
+                DatastoreId = datastoreArmId
+            }
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = serviceArmId.ToUpperInvariant(),
+                TargetId = datastoreArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_arm_resource_id_property_case_insensitively_for_merge_gate_keys()
+    {
+        const string armResourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+        };
+
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(armResourceId.ToUpperInvariant(), knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
 }
