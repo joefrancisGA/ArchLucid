@@ -6002,6 +6002,170 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_compliance_rename_follows_topology_service_claim_in_same_batch_on_mixed_resourceId_and_tf_id_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                label: ComputeLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                label: DataLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = ComputeLabel,
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, compliance];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_critic_rename_follows_topology_service_claim_in_same_batch_on_mixed_resourceId_and_tf_resource_id_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                label: ComputeLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                label: DataLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = ComputeLabel,
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, critic];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_adds_edges_when_cost_rename_follows_topology_service_claim_in_same_batch()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
@@ -6136,6 +6300,166 @@ public sealed class AgentTopologyProposalGraphMergeTests
         };
 
         AgentResult[] results = [topology, compliance];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_cost_rename_follows_topology_datastore_claim_in_same_batch_on_mixed_resourceId_and_tf_resource_id_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                label: ComputeLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                label: DataLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = DataLabel,
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ]
+            }
+        };
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, cost];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_critic_rename_follows_topology_datastore_claim_in_same_batch_on_mixed_resourceId_and_tf_id_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                label: ComputeLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                label: DataLabel,
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = DataLabel,
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ]
+            }
+        };
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, critic];
         CrossAgentProposalConsistencyGate.ApplyToResults(results);
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
