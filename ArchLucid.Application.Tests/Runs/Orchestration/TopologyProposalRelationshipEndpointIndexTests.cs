@@ -2504,4 +2504,79 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         filtered.Should().ContainSingle(relationship =>
             relationship.SourceId == serviceTerraformId && relationship.TargetId == datastoreTerraformId);
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_manifest_service_id_matches_graph_terraform_source_id_case_insensitively()
+    {
+        const string terraformSourceId = "azurerm_app_service.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = "other",
+            ServiceId = terraformSourceId.ToUpperInvariant()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-api");
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_endpoints_use_terraform_addresses_on_manifest_service_and_datastore_names()
+    {
+        const string serviceTerraformId = "azurerm_linux_web_app.app";
+        const string datastoreTerraformId = "azurerm_mssql_database.db";
+
+        List<ManifestService> services =
+        [
+            new()
+            {
+                ServiceName = serviceTerraformId,
+                ServiceId = "svc-api"
+            }
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new()
+            {
+                DatastoreName = datastoreTerraformId,
+                DatastoreId = "ds-sql"
+            }
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = serviceTerraformId,
+                TargetId = datastoreTerraformId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == serviceTerraformId && relationship.TargetId == datastoreTerraformId);
+    }
 }
