@@ -7446,3 +7446,4 @@
 {"at":"2026-09-29T15:29:02.6188837Z","zoneId":"topology-proposal-merge","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-09-29T15:33:29.7368622Z","zoneId":"topology-proposal-merge","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-09-29T15:37:44.6688108Z","zoneId":"topology-proposal-merge","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-09-29T15:43:49.7564993Z","zoneId":"topology-proposal-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs,ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs,ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs,ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs)"]}
