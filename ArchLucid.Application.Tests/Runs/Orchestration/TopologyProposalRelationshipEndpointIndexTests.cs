@@ -1288,6 +1288,256 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_graph_resourceId_properties()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = sourceArm }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["resourceId"] = targetArm }
+        };
+
+        HashSet<string> additionalKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, data);
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm.ToUpperInvariant(),
+                TargetId = targetArm.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            additionalKeys,
+            [],
+            [],
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm.ToUpperInvariant() && relationship.TargetId == targetArm.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_mixed_resourceId_and_tf_id_graph_properties()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = sourceArm }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["tf.id"] = targetArm }
+        };
+
+        HashSet<string> additionalKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, data);
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm.ToUpperInvariant(),
+                TargetId = targetArm.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            additionalKeys,
+            [],
+            [],
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm.ToUpperInvariant() && relationship.TargetId == targetArm.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_mixed_resourceId_and_tf_resource_id_graph_properties()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = sourceArm }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = targetArm }
+        };
+
+        HashSet<string> additionalKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, data);
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm.ToUpperInvariant(),
+                TargetId = targetArm.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            additionalKeys,
+            [],
+            [],
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm.ToUpperInvariant() && relationship.TargetId == targetArm.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_mixed_tf_id_and_resourceId_graph_properties()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.id"] = sourceArm }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["resourceId"] = targetArm }
+        };
+
+        HashSet<string> additionalKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, data);
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm.ToUpperInvariant(),
+                TargetId = targetArm.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            additionalKeys,
+            [],
+            [],
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm.ToUpperInvariant() && relationship.TargetId == targetArm.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_mixed_tf_resource_id_and_resourceId_graph_properties()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = sourceArm }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["resourceId"] = targetArm }
+        };
+
+        HashSet<string> additionalKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, data);
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm.ToUpperInvariant(),
+                TargetId = targetArm.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            additionalKeys,
+            [],
+            [],
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm.ToUpperInvariant() && relationship.TargetId == targetArm.ToUpperInvariant());
+    }
+
+    [Fact]
     public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_mixed_tf_id_and_tf_resource_id_graph_properties()
     {
         const string sourceArm =
@@ -4259,5 +4509,97 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
 
         endpointKeyToNodeId[armResourceId.ToUpperInvariant()].Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_resourceId_property_case_insensitively_when_value_is_arm_resource_id()
+    {
+        const string armResourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId[armResourceId.ToUpperInvariant()].Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_mixed_resourceId_and_tf_id_property_values_case_insensitively()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = appArmId }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["tf.id"] = sqlArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, data);
+
+        endpointKeyToNodeId[appArmId.ToUpperInvariant()].Should().Be("svc-1");
+        endpointKeyToNodeId[sqlArmId.ToUpperInvariant()].Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_mixed_resourceId_and_tf_resource_id_property_values_case_insensitively()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["resourceId"] = appArmId }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, data);
+
+        endpointKeyToNodeId[appArmId.ToUpperInvariant()].Should().Be("svc-1");
+        endpointKeyToNodeId[sqlArmId.ToUpperInvariant()].Should().Be("ds-1");
     }
 }
