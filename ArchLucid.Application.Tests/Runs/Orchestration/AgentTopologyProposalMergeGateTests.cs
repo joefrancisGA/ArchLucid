@@ -1730,6 +1730,324 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_topology_proposes_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(appArmId, sqlArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_critic_proposes_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_compliance_proposes_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_cost_proposes_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_critic_proposes_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_compliance_proposes_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_cost_proposes_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_topology_proposes_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(appArmId, sqlArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_topology_proposes_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_inventoried_graph()
     {
         const string appArmId =
@@ -2039,6 +2357,694 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_mixed_resourceId_and_tf_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_mixed_resourceId_and_tf_resource_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }));
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_mixed_resourceId_and_tf_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_mixed_resourceId_and_tf_resource_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_mixed_resourceId_and_tf_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_mixed_resourceId_and_tf_resource_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [critic]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = mixedCaseAppArmId,
+                        TargetId = mixedCaseSqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(mixedCaseAppArmId, mixedCaseSqlArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(mixedCaseAppArmId, mixedCaseSqlArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_endpoints_on_inventoried_graph_with_tf_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.id", null);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_endpoints_on_inventoried_graph_with_tf_resource_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.resource_id", null);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_endpoints_on_inventoried_graph_with_resourceId_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("resourceId", null);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_inventoried_graph_with_tf_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.id", AgentType.Critic);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_inventoried_graph_with_tf_resource_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.resource_id", AgentType.Critic);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_critic_proposes_endpoints_on_inventoried_graph_with_resourceId_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("resourceId", AgentType.Critic);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_inventoried_graph_with_tf_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.id", AgentType.Compliance);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_inventoried_graph_with_tf_resource_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.resource_id", AgentType.Compliance);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_compliance_proposes_endpoints_on_inventoried_graph_with_resourceId_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("resourceId", AgentType.Compliance);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_inventoried_graph_with_tf_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.id", AgentType.Cost);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_inventoried_graph_with_tf_resource_id_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("tf.resource_id", AgentType.Cost);
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_cost_proposes_endpoints_on_inventoried_graph_with_resourceId_properties_only_differ_only_in_case()
+        => FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case("resourceId", AgentType.Cost);
 
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_compliance_proposes_arm_endpoints_on_mixed_resourceId_and_tf_id_inventoried_graph()
@@ -10178,5 +11184,56 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().HaveCount(2);
         filtered.Should().ContainSingle(r =>
             r.ResultId == "critic-1" && r.ProposedChanges!.AddedRelationships!.Count == 1);
+    }
+
+    private static void FilterValidatedProposals_keeps_homogeneous_arm_relationship_when_endpoints_differ_only_in_case(
+        string propertyKey,
+        AgentType? proposingAgent)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { [propertyKey] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { [propertyKey] = sqlArmId }));
+
+        AgentResult proposal = proposingAgent is null
+            ? TopologyResult(RelationshipProposal(Relationship(mixedCaseAppArmId, mixedCaseSqlArmId)))
+            : new AgentResult
+            {
+                ResultId = $"{proposingAgent}-1",
+                AgentType = proposingAgent.Value,
+                ProposedChanges = new AgentTopologyProposal
+                {
+                    SourceAgent = proposingAgent.Value,
+                    AddedRelationships =
+                    [
+                        new ManifestRelationship
+                        {
+                            SourceId = mixedCaseAppArmId,
+                            TargetId = mixedCaseSqlArmId,
+                            RelationshipType = RelationshipType.ReadsFrom
+                        }
+                    ]
+                }
+            };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [proposal]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 }
