@@ -1239,6 +1239,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Review diagram correspondence and open inventory diagram or reconciliation workbenches.
             </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              This compares diagram correspondence with captured inventory; it does not redraw Azure.
+            </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <Link
                 className={OPERATOR_LINK.inline}
@@ -1330,6 +1333,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseTabsContent value="terraform" className="mt-4 space-y-3">
             <section className={cnCard}>
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                This mapping is advisory. Exporting it does not apply Terraform.
+              </p>
               <dl className="grid gap-2 text-sm">
                 {buyerPolishedShell ? (
                   <CollapsibleSection
@@ -1629,6 +1635,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   AE-10 chain of custody for {resolvedAuditLineage.label}.
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  This lineage connects the resource evidence to the selected assessment context.
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                   <Link

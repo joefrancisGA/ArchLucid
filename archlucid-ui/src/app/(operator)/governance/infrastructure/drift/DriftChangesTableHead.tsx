@@ -132,7 +132,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         })}
         {showDiffColumns ? (
           <>
-            {renderHeader("change", "Change", undefined, {
+            {renderHeader("change", "Change", {
               kind: "select",
               value: tableFilterState.changeTypeFilter,
               options: INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
@@ -156,7 +156,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
                 onTableFiltersChange({ propertyFilter: "", ...resetPagePatch });
               },
             })}
-            {renderHeader("risk", "Risk", undefined, {
+            {renderHeader("risk", "Risk", {
               kind: "select",
               value: tableFilterState.riskFilter,
               options: INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,

@@ -22,6 +22,7 @@ import type {
   ResourceHubTab,
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { InfrastructureAskAuditContext } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ResourceHubDriftChangesTableProps = {
   readonly changes: readonly CloudResourceInventoryChangeSummary[];
@@ -54,12 +55,42 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
     <EnterpriseTable ariaLabel="Inventory drift changes for resource">
       <EnterpriseTableHead>
         <EnterpriseTableRow>
-          <EnterpriseTableHeaderCell>Property</EnterpriseTableHeaderCell>
-          {showChangeType ? <EnterpriseTableHeaderCell>Change</EnterpriseTableHeaderCell> : null}
-          {showRisk ? <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell> : null}
-          {showOldNew ? <EnterpriseTableHeaderCell>Old</EnterpriseTableHeaderCell> : null}
-          {showOldNew ? <EnterpriseTableHeaderCell>New</EnterpriseTableHeaderCell> : null}
-          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Property</span>
+            <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>The resource property associated with this change.</span>
+          </EnterpriseTableHeaderCell>
+          {showChangeType ? (
+            <EnterpriseTableHeaderCell>
+              <span>Change</span>
+              <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>What changed between the selected snapshots.</span>
+            </EnterpriseTableHeaderCell>
+          ) : null}
+          {showRisk ? (
+            <EnterpriseTableHeaderCell>
+              <span>Risk</span>
+              <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>The impact classification assigned to this change.</span>
+            </EnterpriseTableHeaderCell>
+          ) : null}
+          {showOldNew ? (
+            <EnterpriseTableHeaderCell>
+              <span>Old</span>
+              <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>
+                The value in the baseline snapshot.
+              </span>
+            </EnterpriseTableHeaderCell>
+          ) : null}
+          {showOldNew ? (
+            <EnterpriseTableHeaderCell>
+              <span>New</span>
+              <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>
+                The value in the later snapshot.
+              </span>
+            </EnterpriseTableHeaderCell>
+          ) : null}
+          <EnterpriseTableHeaderCell>
+            <span>Actions</span>
+            <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>Open the change in drift review or ask about its evidence.</span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
