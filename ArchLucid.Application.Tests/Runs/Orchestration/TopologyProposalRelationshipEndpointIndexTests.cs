@@ -2237,4 +2237,36 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().BeEmpty();
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_manifest_source_id_matches_graph_terraform_source_id()
+    {
+        const string terraformSourceId = "azurerm_mssql_server.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-sql",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "other",
+            DatastoreId = terraformSourceId
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-sql");
+    }
 }
