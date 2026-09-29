@@ -4602,4 +4602,74 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         endpointKeyToNodeId[appArmId.ToUpperInvariant()].Should().Be("svc-1");
         endpointKeyToNodeId[sqlArmId.ToUpperInvariant()].Should().Be("ds-1");
     }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_mixed_tf_id_compute_and_resourceId_datastore_property_values_case_insensitively()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.id"] = appArmId }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["resourceId"] = sqlArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, data);
+
+        endpointKeyToNodeId[appArmId.ToUpperInvariant()].Should().Be("svc-1");
+        endpointKeyToNodeId[sqlArmId.ToUpperInvariant()].Should().Be("ds-1");
+    }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_mixed_tf_resource_id_compute_and_resourceId_datastore_property_values_case_insensitively()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = appArmId }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["resourceId"] = sqlArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, data);
+
+        endpointKeyToNodeId[appArmId.ToUpperInvariant()].Should().Be("svc-1");
+        endpointKeyToNodeId[sqlArmId.ToUpperInvariant()].Should().Be("ds-1");
+    }
 }
