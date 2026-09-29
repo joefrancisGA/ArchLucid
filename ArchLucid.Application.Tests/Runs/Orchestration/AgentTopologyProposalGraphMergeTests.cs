@@ -6001,6 +6001,134 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_critic_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only(AgentType.Critic);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_compliance_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only(AgentType.Compliance);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_cost_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only(AgentType.Cost);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_critic_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only(AgentType.Critic);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_compliance_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only(AgentType.Compliance);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_cost_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only(AgentType.Cost);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_critic_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only(AgentType.Critic);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_compliance_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only(AgentType.Compliance);
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_cost_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only()
+        => WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only(AgentType.Cost);
+
+    private static void WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only(
+        AgentType agentType)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult agent = NonTopologyAgentRelationshipResult(agentType, appArmId, sqlArmId);
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [agent]).Should().BeTrue();
+    }
+
+    private static void WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_tf_resource_id_properties_only(
+        AgentType agentType)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = sqlArmId }));
+
+        AgentResult agent = NonTopologyAgentRelationshipResult(agentType, appArmId, sqlArmId);
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [agent]).Should().BeTrue();
+    }
+
+    private static void WouldChangeGraphForCommit_true_when_non_topology_agent_adds_arm_relationship_on_graph_nodes_with_resourceId_properties_only(
+        AgentType agentType)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult agent = NonTopologyAgentRelationshipResult(agentType, appArmId, sqlArmId);
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [agent]).Should().BeTrue();
+    }
+
+    private static AgentResult NonTopologyAgentRelationshipResult(AgentType agentType, string appArmId, string sqlArmId) =>
+        new()
+        {
+            ResultId = $"{agentType}-1",
+            AgentType = agentType,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = agentType,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+    [SkippableFact]
     public void WouldChangeGraphForCommit_true_when_topology_adds_arm_relationship_on_mixed_resourceId_and_tf_id_graph_nodes()
     {
         const string appArmId =
