@@ -6120,4 +6120,888 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.FromNodeId == "sql-1" &&
             e.ToNodeId == "ds-1");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_throws_when_graph_or_results_are_null()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        Action actGraph = () => AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(null!, []);
+        Action actResults = () => AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, null!);
+
+        actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
+        actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
+    }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_throws_when_graph_or_results_are_null()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        Action actGraph = () => AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(null!, []);
+        Action actResults = () => AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, null!);
+
+        actGraph.Should().Throw<ArgumentNullException>().WithParameterName("graph");
+        actResults.Should().Throw<ArgumentNullException>().WithParameterName("results");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_same_graph_when_results_list_is_empty()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, []);
+
+        merged.Should().BeSameAs(graph);
+    }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_results_list_is_empty()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, []).Should().BeFalse();
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_same_graph_when_merge_gate_filters_all_proposals()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-rejected",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Should().BeSameAs(graph);
+    }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_merge_gate_filters_all_proposals()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-rejected",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeFalse();
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_assigns_synthetic_node_ids_when_manifest_ids_are_blank()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "payments-api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "orders-db",
+                        DatastoreId = "   ",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-payments-api" && n.Label == "payments-api");
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-orders-db" && n.Label == "orders-db");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_snapshot_envelope_fields_when_adding_nodes()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.GraphSnapshotId.Should().Be(graph.GraphSnapshotId);
+        merged.ContextSnapshotId.Should().Be(graph.ContextSnapshotId);
+        merged.RunId.Should().Be(graph.RunId);
+        merged.CreatedUtc.Should().Be(graph.CreatedUtc);
+        merged.Warnings.Should().Equal(graph.Warnings);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_does_not_materialize_nodes_for_cost_rename_overlay_on_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-overlay",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = ComputeNodeId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_appends_edge_when_relationship_type_differs_from_existing_parallel_edge()
+    {
+        GraphSnapshot graph = GraphWithEdges(
+            [ComputeNode(), DataNode()],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "existing-connects",
+                    FromNodeId = ComputeNodeId,
+                    ToNodeId = DataNodeId,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = RelationshipType.ReadsFrom.ToString()
+                }
+            ]);
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-auth-edge",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.AuthenticatesWith
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().Contain(e =>
+            e.EdgeId == "existing-connects" && e.EdgeType == GraphEdgeTypes.ConnectsTo);
+        merged.Edges.Should().Contain(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.DependsOn);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_does_not_materialize_nodes_for_compliance_datastore_rename_overlay_on_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-overlay",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = DataNodeId,
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [compliance]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_tags_greenfield_topology_nodes_with_agent_provenance()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        GraphNode svc = merged.Nodes.Should().ContainSingle().Subject;
+        svc.SourceType.Should().Be(nameof(AgentType.Topology));
+        svc.SourceId.Should().Be("ProposedChanges");
+        svc.Properties.Should().ContainKey("serviceType").WhoseValue.Should().Be(nameof(ServiceType.Api));
+        svc.Properties.Should().ContainKey("runtimePlatform").WhoseValue.Should().Be(nameof(RuntimePlatform.AppService));
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_from_critic_relationship_on_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-edge",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [critic]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_greenfield_materializes_nodes_from_cost_declared_services()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-greenfield",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().ContainSingle(n =>
+            n.NodeId == "svc-api" &&
+            n.Label == "api" &&
+            n.Category == GraphTopologyCategories.Compute);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_tags_greenfield_datastore_nodes_with_data_category_and_properties()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "orders-db",
+                        DatastoreId = "   ",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        GraphNode ds = merged.Nodes.Should().ContainSingle().Subject;
+        ds.Category.Should().Be(GraphTopologyCategories.Data);
+        ds.SourceType.Should().Be(nameof(AgentType.Topology));
+        ds.SourceId.Should().Be("ProposedChanges");
+        ds.Properties.Should().ContainKey("datastoreType").WhoseValue.Should().Be(nameof(DatastoreType.Sql));
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_greenfield_compliance_materializes_declared_service_and_datastore_nodes()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [compliance]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-api" && n.Label == "api");
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-sql" && n.Label == "sql");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_topology_service_when_graph_has_only_requirement_nodes()
+    {
+        GraphSnapshot graph = Graph(
+            new GraphNode
+            {
+                NodeId = "req-1",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "api",
+                Properties = new()
+            });
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "billing-api",
+                        ServiceId = "   ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n =>
+            n.NodeType == GraphNodeTypes.TopologyResource && n.NodeId == "svc-billing-api");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_new_snapshot_when_edges_are_added_to_inventoried_graph()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Should().NotBeSameAs(graph);
+        merged.Edges.Should().HaveCount(1);
+        merged.Nodes.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_tags_agent_proposal_edges_with_inference_source()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_inventoried_node_ids_when_appending_edges()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == ComputeNodeId && n.Label == ComputeLabel);
+        merged.Nodes.Should().Contain(n => n.NodeId == DataNodeId && n.Label == DataLabel);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_same_graph_when_cost_proposal_relationships_are_fully_stripped()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-stripped",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-service",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Should().BeSameAs(graph);
+    }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_cost_proposal_relationships_are_fully_stripped()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-stripped",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-service",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [cost]).Should().BeFalse();
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_inventoried_edges_when_cost_appends_parallel_agent_edge()
+    {
+        GraphSnapshot graph = GraphWithEdges(
+            [ComputeNode(), DataNode()],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "inventory-edge",
+                    FromNodeId = ComputeNodeId,
+                    ToNodeId = DataNodeId,
+                    EdgeType = GraphEdgeTypes.DependsOn,
+                    Label = RelationshipType.AuthenticatesWith.ToString()
+                }
+            ]);
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().Contain(e => e.EdgeId == "inventory-edge");
+        merged.Edges.Should().Contain(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_does_not_duplicate_edges_when_proposal_lists_identical_relationship_twice()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = ComputeLabel,
+            TargetId = DataLabel,
+            RelationshipType = RelationshipType.ReadsFrom
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships = [relationship, relationship]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_non_topology_nodes_when_appending_agent_edges()
+    {
+        GraphNode requirement = new()
+        {
+            NodeId = "req-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "must-encrypt",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode(), requirement);
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == "req-1" && n.NodeType == GraphNodeTypes.Requirement);
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_topology_datastore_when_graph_has_only_agent_proposed_topology_node()
+    {
+        GraphNode agentProposedDatastore = new()
+        {
+            NodeId = "ds-ledger",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "ledger",
+            Category = GraphTopologyCategories.Data,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(agentProposedDatastore);
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "audit-sql",
+                        DatastoreId = "ds-audit",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-audit" && n.Label == "audit-sql");
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-ledger");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_topology_service_when_graph_has_only_agent_proposed_topology_node()
+    {
+        GraphNode agentProposedWorker = new()
+        {
+            NodeId = "svc-worker",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "worker",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = nameof(AgentType.Topology),
+            SourceId = "ProposedChanges",
+            Properties = new()
+        };
+
+        GraphSnapshot graph = Graph(agentProposedWorker);
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "billing-api",
+                        ServiceId = "svc-billing",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Should().NotBeSameAs(graph);
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-billing" && n.Label == "billing-api");
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-worker");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_preserves_graph_warnings_when_appending_agent_edges()
+    {
+        GraphSnapshot graph = GraphWithEdges([ComputeNode(), DataNode()], []);
+        graph.Warnings.Add("inventory-warn");
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Warnings.Should().Equal(["inventory-warn"]);
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
 }
