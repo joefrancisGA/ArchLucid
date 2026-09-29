@@ -6201,6 +6201,174 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_compliance_adds_arm_relationship_on_mixed_tf_id_compute_and_resourceId_datastore_graph_nodes()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [compliance]).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_compliance_adds_arm_relationship_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph_nodes()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [compliance]).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_cost_adds_arm_relationship_on_mixed_tf_id_compute_and_resourceId_datastore_graph_nodes()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [cost]).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_cost_adds_arm_relationship_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph_nodes()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.resource_id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = sqlArmId }));
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = appArmId,
+                        TargetId = sqlArmId,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [cost]).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void WithMergedTopologyProposals_adds_edges_for_relationship_only_proposals_referencing_agent_proposed_graph_endpoints()
     {
         GraphSnapshot graph = Graph(
