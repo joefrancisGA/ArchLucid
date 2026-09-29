@@ -1665,6 +1665,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
 
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [cost]).Should().BeTrue();
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-api" &&
             e.ToNodeId == "ds-sql" &&
@@ -6853,6 +6854,56 @@ public sealed class AgentTopologyProposalGraphMergeTests
         };
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [critic]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-api" && n.Label == "api");
+        merged.Nodes.Should().Contain(n => n.NodeId == "ds-sql" && n.Label == "sql");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_greenfield_topology_materializes_declared_service_and_datastore_nodes()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
 
         merged.Nodes.Should().HaveCount(2);
         merged.Nodes.Should().Contain(n => n.NodeId == "svc-api" && n.Label == "api");
