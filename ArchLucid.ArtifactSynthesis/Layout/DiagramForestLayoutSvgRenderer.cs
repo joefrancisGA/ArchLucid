@@ -21,6 +21,21 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         string? VnetFrameId = null,
         bool IsFrameAnchor = false);
 
+    private sealed record VnetPrimaryGroup(
+        string NodeId,
+        DiagramNode Vnet,
+        IReadOnlyList<DiagramNode> Members,
+        IReadOnlyList<NodePlacement> Placements,
+        double Width,
+        double Height);
+
+    private sealed record VnetRemainderCell(
+        DiagramResourceGroupPacker.ResourceGroupCell Cell,
+        IReadOnlyList<NodePlacement> Placements,
+        double Width,
+        double Height,
+        IReadOnlyDictionary<string, int> VnetConnectionCounts);
+
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -186,13 +201,15 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyDictionary<string, IReadOnlySet<string>> memberships =
             DiagramForestVnetMembership.Resolve(nodes, visibleEdges, sameResourceGroupOnly: false);
         Dictionary<string, DiagramNode> nodesById = nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal);
+        Dictionary<string, string> nodeToVnet = memberships
+            .SelectMany(pair => pair.Value.Append(pair.Key).Select(nodeId => (nodeId, pair.Key)))
+            .GroupBy(pair => pair.nodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First().Item2, StringComparer.Ordinal);
         HashSet<string> assigned = [];
         List<NodePlacement> placements = [];
-        double groupX = 0.0d;
-        double rowY = 0.0d;
-        double rowHeight = 0.0d;
+        List<VnetPrimaryGroup> vnetGroups = [];
 
-        foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships)
+        foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             if (!nodesById.TryGetValue(vnetNodeId, out DiagramNode? vnet))
             {
@@ -235,62 +252,220 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             double groupHeight = interiorHeight + labelBand + pad;
             string frameId = $"vnet-{vnetNodeId}";
 
-            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
-            {
-                groupX = 0.0d;
-                rowY += rowHeight + options.ComponentVerticalGap;
-                rowHeight = 0.0d;
-            }
-
-            placements.AddRange(groupPlacements
-                .Where(placement => !string.Equals(placement.Node.NodeId, vnetNodeId, StringComparison.Ordinal))
-                .Select(placement => placement with
-                {
-                    X = placement.X + groupX + pad,
-                    Y = placement.Y + rowY + labelBand,
-                    VnetFrameId = frameId,
-                }));
-            placements.Add(new NodePlacement(
+            vnetGroups.Add(new VnetPrimaryGroup(
+                vnetNodeId,
                 vnet,
-                groupX,
-                rowY,
+                members,
+                groupPlacements
+                    .Where(placement => !string.Equals(placement.Node.NodeId, vnetNodeId, StringComparison.Ordinal))
+                    .Select(placement => placement with
+                    {
+                        VnetFrameId = frameId,
+                    })
+                    .Append(new NodePlacement(
+                        vnet,
+                        0.0d,
+                        0.0d,
+                        groupWidth,
+                        groupHeight,
+                        DiagramForestNodeMetricsCalculator.Measure(vnet, options, labelContext),
+                        VnetFrameId: frameId,
+                        IsFrameAnchor: true))
+                    .ToList(),
                 groupWidth,
-                groupHeight,
-                DiagramForestNodeMetricsCalculator.Measure(vnet, options, labelContext),
-                VnetFrameId: frameId,
-                IsFrameAnchor: true));
+                groupHeight));
 
             assigned.Add(vnetNodeId);
             assigned.UnionWith(members.Select(member => member.NodeId));
-            groupX += groupWidth + options.ComponentHorizontalGap;
-            rowHeight = Math.Max(rowHeight, groupHeight);
         }
 
         IReadOnlyList<DiagramNode> remainderNodes = nodes
             .Where(node => !assigned.Contains(node.NodeId))
             .ToList();
-        if (remainderNodes.Count > 0)
+        List<VnetRemainderCell> remainderCells = [];
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells =
+            resourceGroupCells.Count > 0
+                ? resourceGroupCells
+                    .Select(cell => new DiagramResourceGroupPacker.ResourceGroupCell(
+                        cell.GroupName,
+                        cell.Nodes.Where(node => remainderNodes.Contains(node)).ToList()))
+                    .Where(cell => cell.Nodes.Count > 0)
+                    .ToList()
+                : DiagramResourceGroupPacker.PartitionCells(remainderNodes);
+
+        for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
         {
-            List<ComponentLayout> remainderLayouts = BuildResourceGroupCellLayouts(
-                DiagramResourceGroupCellFlowPlanner.OrderCells(
-                    DiagramResourceGroupPacker.PartitionCells(remainderNodes),
-                    visibleEdges),
+            DiagramResourceGroupPacker.ResourceGroupCell cell = cells[cellIndex];
+            List<NodePlacement> cellPlacements = LayoutResourceGroupCell(
+                cell,
+                $"vnet-remainder-{cellIndex}",
+                0,
                 visibleEdges,
                 options,
                 labelContext,
                 diagramTitle);
-            List<NodePlacement> remainderPlacements = PlaceNodes(remainderLayouts, options);
-            double offsetX = placements.Count == 0
-                ? 0.0d
-                : placements.Max(placement => placement.X + placement.Width) + options.ComponentHorizontalGap;
-            placements.AddRange(remainderPlacements.Select(placement => placement with
+            (double width, double height) = ResolveCellOuterSize(cellPlacements, options);
+            Dictionary<string, int> connectionCounts = [];
+            foreach (DiagramEdge edge in visibleEdges)
             {
-                X = placement.X + offsetX,
-                Y = placement.Y,
-            }));
+                if (edge.IsLayoutOnly || DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge))
+                {
+                    continue;
+                }
+
+                string? cellEndpoint = cell.Nodes.Any(node => node.NodeId == edge.FromNodeId)
+                    ? edge.FromNodeId
+                    : cell.Nodes.Any(node => node.NodeId == edge.ToNodeId)
+                        ? edge.ToNodeId
+                        : null;
+                string? otherEndpoint = cellEndpoint == edge.FromNodeId ? edge.ToNodeId : edge.FromNodeId;
+                if (cellEndpoint is null
+                    || otherEndpoint is null
+                    || !nodeToVnet.TryGetValue(otherEndpoint, out string? vnetNodeId)
+                    || !vnetGroups.Any(group => group.NodeId == vnetNodeId))
+                {
+                    continue;
+                }
+
+                connectionCounts[vnetNodeId] = connectionCounts.TryGetValue(vnetNodeId, out int count)
+                    ? count + 1
+                    : 1;
+            }
+
+            remainderCells.Add(new VnetRemainderCell(cell, cellPlacements, width, height, connectionCounts));
+        }
+
+        HashSet<VnetRemainderCell> placedCells = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+        HashSet<string> placedVnetGroups = [];
+        for (int groupIndex = 0; groupIndex < vnetGroups.Count; groupIndex++)
+        {
+            VnetPrimaryGroup group = vnetGroups[groupIndex];
+            if (placedVnetGroups.Contains(group.NodeId))
+            {
+                continue;
+            }
+
+            List<VnetRemainderCell> connectedCells = remainderCells
+                .Where(cell => !placedCells.Contains(cell)
+                    && ResolveSharedVnetPair(cell.VnetConnectionCounts) is null
+                    && ResolveWinningVnet(cell.VnetConnectionCounts) == group.NodeId)
+                .ToList();
+            VnetRemainderCell? sharedCell = remainderCells
+                .Where(cell => !placedCells.Contains(cell)
+                    && ResolveSharedVnetPair(cell.VnetConnectionCounts) is { } pair
+                    && pair.Left == group.NodeId)
+                .FirstOrDefault();
+            VnetPrimaryGroup? rightGroup = sharedCell is null
+                ? null
+                : vnetGroups.FirstOrDefault(candidate => candidate.NodeId
+                    == ResolveSharedVnetPair(sharedCell.VnetConnectionCounts)!.Right);
+
+            if (sharedCell is not null && rightGroup is not null)
+            {
+                List<VnetRemainderCell> rightConnectedCells = remainderCells
+                    .Where(cell => !placedCells.Contains(cell)
+                        && ResolveWinningVnet(cell.VnetConnectionCounts) == rightGroup.NodeId)
+                    .ToList();
+                List<(IReadOnlyList<NodePlacement> Items, double Width, double Height)> block =
+                [
+                    .. connectedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)),
+                    (group.Placements, group.Width, group.Height),
+                    (sharedCell.Placements, sharedCell.Width, sharedCell.Height),
+                    (rightGroup.Placements, rightGroup.Width, rightGroup.Height),
+                    .. rightConnectedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)),
+                ];
+                PlaceVnetPrimaryBlock(block, options, placements, ref groupX, ref rowY, ref rowHeight);
+                placedCells.UnionWith(connectedCells);
+                placedCells.Add(sharedCell);
+                placedCells.UnionWith(rightConnectedCells);
+                placedVnetGroups.Add(group.NodeId);
+                placedVnetGroups.Add(rightGroup.NodeId);
+                continue;
+            }
+
+            List<(IReadOnlyList<NodePlacement> Items, double Width, double Height)> neighborhood =
+            [
+                (group.Placements, group.Width, group.Height),
+                .. connectedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)),
+            ];
+            PlaceVnetPrimaryBlock(neighborhood, options, placements, ref groupX, ref rowY, ref rowHeight);
+            placedCells.UnionWith(connectedCells);
+            placedVnetGroups.Add(group.NodeId);
+        }
+
+        List<VnetRemainderCell> unplacedCells = remainderCells
+            .Where(cell => !placedCells.Contains(cell))
+            .ToList();
+        if (unplacedCells.Count > 0)
+        {
+            PlaceVnetPrimaryBlock(
+                unplacedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)).ToList(),
+                options,
+                placements,
+                ref groupX,
+                ref rowY,
+                ref rowHeight);
         }
 
         return placements;
+    }
+
+    private static string? ResolveWinningVnet(IReadOnlyDictionary<string, int> counts)
+    {
+        return counts
+            .OrderByDescending(pair => pair.Value)
+            .ThenBy(pair => pair.Key, StringComparer.Ordinal)
+            .Select(pair => pair.Key)
+            .FirstOrDefault();
+    }
+
+    private static (string Left, string Right)? ResolveSharedVnetPair(IReadOnlyDictionary<string, int> counts)
+    {
+        if (counts.Count != 2)
+        {
+            return null;
+        }
+
+        int highest = counts.Values.Max();
+        if (counts.Values.Any(value => value != highest))
+        {
+            return null;
+        }
+
+        string[] ids = counts.Keys.OrderBy(id => id, StringComparer.Ordinal).ToArray();
+        return (ids[0], ids[1]);
+    }
+
+    private static void PlaceVnetPrimaryBlock(
+        IReadOnlyList<(IReadOnlyList<NodePlacement> Items, double Width, double Height)> block,
+        DiagramForestLayoutOptions options,
+        List<NodePlacement> placements,
+        ref double groupX,
+        ref double rowY,
+        ref double rowHeight)
+    {
+        double blockWidth = block.Sum(item => item.Width)
+            + Math.Max(0, block.Count - 1) * options.ComponentHorizontalGap;
+        if (groupX > 0.0d && groupX + blockWidth > options.MaxNodeWidth * 3)
+        {
+            groupX = 0.0d;
+            rowY += rowHeight + options.ComponentVerticalGap;
+            rowHeight = 0.0d;
+        }
+
+        foreach ((IReadOnlyList<NodePlacement> items, double width, double height) in block)
+        {
+            placements.AddRange(items.Select(item => item with
+            {
+                X = item.X + groupX,
+                Y = item.Y + rowY,
+            }));
+            groupX += width + options.ComponentHorizontalGap;
+            rowHeight = Math.Max(rowHeight, height);
+        }
     }
 
     private static bool IsInVerb(string? label)
