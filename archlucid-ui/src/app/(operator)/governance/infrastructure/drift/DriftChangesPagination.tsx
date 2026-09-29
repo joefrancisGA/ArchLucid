@@ -46,6 +46,9 @@ export function DriftChangesPagination(props: DriftChangesPaginationProps): Reac
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-changes-showing-line">
         {showingLine}
       </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        Pagination changes which captured rows are displayed; it does not recapture inventory.
+      </p>
       <div className="flex flex-wrap items-end gap-3">
         <div className="grid gap-1">
           <Label htmlFor="infra-drift-changes-page-select">{DRIFT_CHANGES_PAGE_SELECT_LABEL}</Label>

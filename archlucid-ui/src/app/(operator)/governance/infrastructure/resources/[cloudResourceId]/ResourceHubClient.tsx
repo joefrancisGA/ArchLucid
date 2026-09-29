@@ -1285,7 +1285,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     label={hub.diagramCorrespondence.confidenceBand}
                   />
                 </div>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Match kind describes how the captured resource and diagram item correspond. Confidence band describes the evidence strength for that correspondence.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{hub.diagramCorrespondence.explainText}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Reconciliation records correspondence work; it does not change the diagram or Azure.
+                </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-reconcile">
                     <Link
@@ -1336,6 +1342,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 This mapping is advisory. Exporting it does not apply Terraform.
               </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Not mapped means no Terraform address was captured; it does not mean the resource is unmanaged in Azure.
+              </p>
               <dl className="grid gap-2 text-sm">
                 {buyerPolishedShell ? (
                   <CollapsibleSection
@@ -1352,11 +1361,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 ) : (
                   <div>
                     <dt className="font-medium">Terraform address</dt>
+                  <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    The advisory address used to identify this resource in Terraform.
+                  </dd>
                     <dd className="font-mono text-xs">{hub.terraformAddress ?? "Not mapped"}</dd>
                   </div>
                 )}
                 <div>
                   <dt className="font-medium">Generation method</dt>
+                  <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    How this Terraform mapping was produced from captured evidence.
+                  </dd>
                   <dd>{hub.terraformGenerationMethod ?? "—"}</dd>
                 </div>
               </dl>
@@ -1638,6 +1653,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   This lineage connects the resource evidence to the selected assessment context.
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Ask uses the selected control and resource evidence as context; it does not query Azure live.
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                   <Link
