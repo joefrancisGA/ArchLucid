@@ -1135,6 +1135,1462 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes("tf.id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes("tf.resource_id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes("resourceId");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_mixed_property_nodes("resourceId", "tf.id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_mixed_property_nodes("resourceId", "tf.resource_id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_mixed_property_nodes("tf.id", "resourceId");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_mixed_property_nodes("tf.resource_id", "resourceId");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_homogeneous_property_nodes("tf.id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_homogeneous_property_nodes("tf.resource_id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_homogeneous_property_nodes("resourceId");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_property_nodes("resourceId", "tf.id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_property_nodes("tf.id", "resourceId");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId");
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("tf.id", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("tf.resource_id", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("resourceId", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_tf_id_property_only_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("tf.id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_tf_resource_id_property_only_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("tf.resource_id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_resourceId_property_only_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("resourceId", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_id_property_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_resource_id_property_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.resource_id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_tf_id_compute_and_resourceId_datastore_graph_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("tf.id", "resourceId", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("tf.resource_id", "resourceId", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.id", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.resource_id", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("tf.id", "resourceId", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("tf.resource_id", "resourceId", uppercaseServiceAliasValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false, uppercaseRenamedAliasArmValue: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_uppercase_renamed_alias_arm_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false, uppercaseRenamedAliasArmValue: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_service_label_and_exact_case_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_renamed_datastore_label_and_exact_case_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false, uppercaseAllCombinedAliasArmValues: true, exactCaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.ExactBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseBoth);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.id", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes("resourceId", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.id", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("resourceId", "tf.resource_id", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.ExactBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_source_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_target_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_with_all_uppercase_alias_arm_values_but_relationship_uses_uppercase_both_direct_arm_endpoints_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes("tf.resource_id", "resourceId", FullCombinedDirectArmEndpointCasing.UppercaseBoth, uppercaseAllCombinedAliasArmValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_alias_targets_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("tf.resource_id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes("resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_node_id_and_datastore_arm_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_uppercase_node_id_and_arm_alias_values_service_arm_and_datastore_node_id_but_relationship_uses_renamed_labels_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_uppercase_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_uppercase_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false, uppercaseDirectArmEndpoint: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_alias_targets_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false, uppercaseNodeIdAliasTargets: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false, uppercaseDirectArmEndpoint: true, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_datastore_label_to_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes("tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes("tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes("resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes("resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_service_label_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_maps_renamed_datastore_label_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes("tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes("tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes("resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes("resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_uppercase_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_tf_id_property_only_nodes_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes("tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_tf_id_property_only_nodes_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes("tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_tf_resource_id_property_only_nodes_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_tf_resource_id_property_only_nodes_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes("tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_resourceId_property_only_nodes_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes("resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_resourceId_property_only_nodes_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes("resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_resourceId_and_tf_id_property_nodes_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_resourceId_and_tf_id_property_nodes_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_resourceId_and_tf_resource_id_property_nodes_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_resourceId_and_tf_resource_id_property_nodes_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_tf_id_compute_and_resourceId_datastore_graph_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_tf_id_compute_and_resourceId_datastore_graph_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("tf.id", "resourceId", serviceAlias: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph_service_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph_datastore_renamed()
+        => MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAlias: false);
+
+    [Fact]
     public void MapRelationships_resolves_when_relationship_arm_resource_ids_match_mixed_resourceId_source_and_tf_id_target_graph_properties()
     {
         const string sourceArm =
@@ -4487,5 +5943,1432 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
             endpointAliases);
 
         edges.Should().ContainSingle(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+    }
+
+    private static void MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes(
+        string propertyKey)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = appArmId,
+            ["renamed-sql"] = sqlArmId,
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = appArmId,
+            ["renamed-sql"] = sqlArmId,
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_homogeneous_property_nodes(
+        string propertyKey)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = appArmId.ToUpperInvariant(),
+            ["renamed-sql"] = sqlArmId.ToUpperInvariant(),
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = appArmId.ToUpperInvariant(),
+            ["renamed-sql"] = sqlArmId.ToUpperInvariant(),
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool uppercaseServiceAliasValue)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = uppercaseServiceAliasValue ? appArmId.ToUpperInvariant() : appArmId,
+            ["renamed-sql"] = uppercaseServiceAliasValue ? sqlArmId : sqlArmId.ToUpperInvariant(),
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool uppercaseServiceAliasValue)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = uppercaseServiceAliasValue ? appArmId.ToUpperInvariant() : appArmId,
+            ["renamed-sql"] = uppercaseServiceAliasValue ? sqlArmId : sqlArmId.ToUpperInvariant(),
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_single_endpoint_alias_arm_value_differs_only_in_case_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId.ToUpperInvariant(),
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_single_endpoint_alias_to_arm_with_direct_arm_endpoint_differs_only_in_case_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId;
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId.ToUpperInvariant(),
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId.ToUpperInvariant(),
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_single_endpoint_alias_and_direct_arm_both_differ_only_in_case_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceAlias)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            endpointAliases["renamed-api"] = appArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            endpointAliases["renamed-sql"] = sqlArmId.ToUpperInvariant();
+            relationship = new ManifestRelationship
+            {
+                SourceId = appArmId.ToUpperInvariant(),
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceAlias,
+        bool uppercaseRenamedAliasArmValue = false,
+        bool uppercaseAllCombinedAliasArmValues = false,
+        bool exactCaseDirectArmEndpoint = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (uppercaseAllCombinedAliasArmValues)
+        {
+            endpointAliases["renamed-api"] = appArmId.ToUpperInvariant();
+            endpointAliases["renamed-sql"] = sqlArmId.ToUpperInvariant();
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = uppercaseRenamedAliasArmValue && serviceAlias
+                ? appArmId.ToUpperInvariant()
+                : appArmId;
+            endpointAliases["renamed-sql"] = uppercaseRenamedAliasArmValue && !serviceAlias
+                ? sqlArmId.ToUpperInvariant()
+                : sqlArmId;
+        }
+
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = exactCaseDirectArmEndpoint ? sqlArmId : sqlArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            relationship = new ManifestRelationship
+            {
+                SourceId = exactCaseDirectArmEndpoint ? appArmId : appArmId.ToUpperInvariant(),
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_renamed_label_and_uppercase_direct_arm_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceAlias,
+        bool uppercaseRenamedAliasArmValue = false,
+        bool uppercaseAllCombinedAliasArmValues = false,
+        bool exactCaseDirectArmEndpoint = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (uppercaseAllCombinedAliasArmValues)
+        {
+            endpointAliases["renamed-api"] = appArmId.ToUpperInvariant();
+            endpointAliases["renamed-sql"] = sqlArmId.ToUpperInvariant();
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = uppercaseRenamedAliasArmValue && serviceAlias
+                ? appArmId.ToUpperInvariant()
+                : appArmId;
+            endpointAliases["renamed-sql"] = uppercaseRenamedAliasArmValue && !serviceAlias
+                ? sqlArmId.ToUpperInvariant()
+                : sqlArmId;
+        }
+
+        ManifestRelationship relationship;
+
+        if (serviceAlias)
+        {
+            relationship = new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = exactCaseDirectArmEndpoint ? sqlArmId : sqlArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+        else
+        {
+            relationship = new ManifestRelationship
+            {
+                SourceId = exactCaseDirectArmEndpoint ? appArmId : appArmId.ToUpperInvariant(),
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private enum FullCombinedDirectArmEndpointCasing
+    {
+        ExactBoth,
+        UppercaseSourceOnly,
+        UppercaseTargetOnly,
+        UppercaseBoth
+    }
+
+    private static void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_homogeneous_property_nodes(
+        string propertyKey,
+        FullCombinedDirectArmEndpointCasing directArmEndpointCasing,
+        bool uppercaseAllCombinedAliasArmValues = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = uppercaseAllCombinedAliasArmValues ? appArmId.ToUpperInvariant() : appArmId,
+            ["renamed-sql"] = uppercaseAllCombinedAliasArmValues ? sqlArmId.ToUpperInvariant() : sqlArmId
+        };
+
+        string sourceId = directArmEndpointCasing switch
+        {
+            FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly or FullCombinedDirectArmEndpointCasing.UppercaseBoth
+                => appArmId.ToUpperInvariant(),
+            _ => appArmId
+        };
+
+        string targetId = directArmEndpointCasing switch
+        {
+            FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly or FullCombinedDirectArmEndpointCasing.UppercaseBoth
+                => sqlArmId.ToUpperInvariant(),
+            _ => sqlArmId
+        };
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = sourceId,
+            TargetId = targetId,
+            RelationshipType = RelationshipType.ReadsFrom
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_full_combined_endpoint_aliases_map_but_relationship_uses_direct_arm_endpoints_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        FullCombinedDirectArmEndpointCasing directArmEndpointCasing,
+        bool uppercaseAllCombinedAliasArmValues = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = uppercaseAllCombinedAliasArmValues ? appArmId.ToUpperInvariant() : appArmId,
+            ["renamed-sql"] = uppercaseAllCombinedAliasArmValues ? sqlArmId.ToUpperInvariant() : sqlArmId
+        };
+
+        string sourceId = directArmEndpointCasing switch
+        {
+            FullCombinedDirectArmEndpointCasing.UppercaseSourceOnly or FullCombinedDirectArmEndpointCasing.UppercaseBoth
+                => appArmId.ToUpperInvariant(),
+            _ => appArmId
+        };
+
+        string targetId = directArmEndpointCasing switch
+        {
+            FullCombinedDirectArmEndpointCasing.UppercaseTargetOnly or FullCombinedDirectArmEndpointCasing.UppercaseBoth
+                => sqlArmId.ToUpperInvariant(),
+            _ => sqlArmId
+        };
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = sourceId,
+            TargetId = targetId,
+            RelationshipType = RelationshipType.ReadsFrom
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceAliasMapsToNodeId,
+        bool uppercaseNodeIdAliasTargets = false,
+        bool uppercaseArmAliasValues = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        string serviceNodeAliasTarget = uppercaseNodeIdAliasTargets ? "SVC-1" : "svc-1";
+        string datastoreNodeAliasTarget = uppercaseNodeIdAliasTargets ? "DS-1" : "ds-1";
+        string serviceArmAliasValue = uppercaseArmAliasValues ? appArmId.ToUpperInvariant() : appArmId;
+        string datastoreArmAliasValue = uppercaseArmAliasValues ? sqlArmId.ToUpperInvariant() : sqlArmId;
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (serviceAliasMapsToNodeId)
+        {
+            endpointAliases["renamed-api"] = serviceNodeAliasTarget;
+            endpointAliases["renamed-sql"] = datastoreArmAliasValue;
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = serviceArmAliasValue;
+            endpointAliases["renamed-sql"] = datastoreNodeAliasTarget;
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceAliasMapsToNodeId,
+        bool uppercaseNodeIdAliasTargets = false,
+        bool uppercaseArmAliasValues = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        string serviceNodeAliasTarget = uppercaseNodeIdAliasTargets ? "SVC-1" : "svc-1";
+        string datastoreNodeAliasTarget = uppercaseNodeIdAliasTargets ? "DS-1" : "ds-1";
+        string serviceArmAliasValue = uppercaseArmAliasValues ? appArmId.ToUpperInvariant() : appArmId;
+        string datastoreArmAliasValue = uppercaseArmAliasValues ? sqlArmId.ToUpperInvariant() : sqlArmId;
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (serviceAliasMapsToNodeId)
+        {
+            endpointAliases["renamed-api"] = serviceNodeAliasTarget;
+            endpointAliases["renamed-sql"] = datastoreArmAliasValue;
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = serviceArmAliasValue;
+            endpointAliases["renamed-sql"] = datastoreNodeAliasTarget;
+        }
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceRenamed,
+        bool uppercaseDirectArmEndpoint = false,
+        bool uppercaseNodeIdAliasTargets = false,
+        bool uppercaseArmAliasValues = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        string serviceNodeAliasTarget = uppercaseNodeIdAliasTargets ? "SVC-1" : "svc-1";
+        string datastoreNodeAliasTarget = uppercaseNodeIdAliasTargets ? "DS-1" : "ds-1";
+        string serviceArmAliasValue = uppercaseArmAliasValues ? appArmId.ToUpperInvariant() : appArmId;
+        string datastoreArmAliasValue = uppercaseArmAliasValues ? sqlArmId.ToUpperInvariant() : sqlArmId;
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (serviceRenamed)
+        {
+            endpointAliases["renamed-api"] = serviceNodeAliasTarget;
+            endpointAliases["renamed-sql"] = datastoreArmAliasValue;
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = serviceArmAliasValue;
+            endpointAliases["renamed-sql"] = datastoreNodeAliasTarget;
+        }
+
+        ManifestRelationship relationship = serviceRenamed
+            ? new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = uppercaseDirectArmEndpoint ? sqlArmId.ToUpperInvariant() : sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+            : new ManifestRelationship
+            {
+                SourceId = uppercaseDirectArmEndpoint ? appArmId.ToUpperInvariant() : appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceRenamed,
+        bool uppercaseDirectArmEndpoint = false,
+        bool uppercaseNodeIdAliasTargets = false,
+        bool uppercaseArmAliasValues = false)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        string serviceNodeAliasTarget = uppercaseNodeIdAliasTargets ? "SVC-1" : "svc-1";
+        string datastoreNodeAliasTarget = uppercaseNodeIdAliasTargets ? "DS-1" : "ds-1";
+        string serviceArmAliasValue = uppercaseArmAliasValues ? appArmId.ToUpperInvariant() : appArmId;
+        string datastoreArmAliasValue = uppercaseArmAliasValues ? sqlArmId.ToUpperInvariant() : sqlArmId;
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (serviceRenamed)
+        {
+            endpointAliases["renamed-api"] = serviceNodeAliasTarget;
+            endpointAliases["renamed-sql"] = datastoreArmAliasValue;
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = serviceArmAliasValue;
+            endpointAliases["renamed-sql"] = datastoreNodeAliasTarget;
+        }
+
+        ManifestRelationship relationship = serviceRenamed
+            ? new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = uppercaseDirectArmEndpoint ? sqlArmId.ToUpperInvariant() : sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+            : new ManifestRelationship
+            {
+                SourceId = uppercaseDirectArmEndpoint ? appArmId.ToUpperInvariant() : appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
 }
