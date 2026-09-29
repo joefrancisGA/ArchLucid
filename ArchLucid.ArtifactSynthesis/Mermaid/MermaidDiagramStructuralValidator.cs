@@ -72,7 +72,8 @@ public sealed class MermaidDiagramStructuralValidator : IMermaidDiagramStructura
 
     private static bool IsDirectedEdge(string line)
     {
-        return line.Contains("-->", StringComparison.Ordinal);
+        return line.Contains("-->", StringComparison.Ordinal)
+            || line.Contains("-.->", StringComparison.Ordinal);
     }
 
     /// <summary>

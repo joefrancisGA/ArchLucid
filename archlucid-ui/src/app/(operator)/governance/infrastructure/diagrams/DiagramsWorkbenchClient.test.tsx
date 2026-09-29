@@ -470,6 +470,7 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackKey: query.fallbackKey ?? null,
       status: "Failed",
       mermaid: null,
+      failureReason: "Simulated render failure.",
       metrics: null,
       fallbackArtifacts: [],
     }));
@@ -484,6 +485,8 @@ describe("DiagramsWorkbenchClient", () => {
       expect(strip).toHaveTextContent("Render failed");
       expect(strip).not.toHaveTextContent("subgraphs");
     });
+    expect(screen.getByTestId("infra-diagrams-render-failed")).toHaveTextContent("Simulated render failure.");
+    expect(screen.queryByText("This view is too large to read.")).not.toBeInTheDocument();
   });
 
   it("shows resource scope banner and scoped Ask link when cloudResourceId is in the URL", async () => {

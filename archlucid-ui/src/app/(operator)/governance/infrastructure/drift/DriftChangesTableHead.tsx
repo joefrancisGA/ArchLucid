@@ -58,14 +58,12 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
   const renderHeader = (
     column: DriftTableSortKey,
     label: string,
-    helperText: string | undefined,
     filter?: DriftChangesTableHeaderFilterConfig,
   ): React.JSX.Element => (
     <DriftChangesTableHeaderCell
       key={column}
       column={column}
       label={label}
-      helperText={helperText}
       sortBy={tableFilterState.sortBy}
       sortDir={tableFilterState.sortDir}
       sortDirection={sortDirectionForColumn(tableFilterState.sortBy, column, tableFilterState.sortDir)}
@@ -96,7 +94,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         </tr>
       ) : null}
       <EnterpriseTableHeadRow>
-        {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, "The inventory resource compared between snapshots.", {
+        {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceFilter,
           placeholder: "gateway",
@@ -108,7 +106,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, "The Azure resource group that contains this resource.", {
+        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceGroupFilter,
           placeholder: "rg-network",
@@ -120,7 +118,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceGroupFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, "The Azure type recorded for this resource.", {
+        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceTypeFilter,
           placeholder: "Network/publicIPAddresses",
@@ -134,7 +132,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         })}
         {showDiffColumns ? (
           <>
-            {renderHeader("change", "Change", undefined, {
+            {renderHeader("change", "Change", {
               kind: "select",
               value: tableFilterState.changeTypeFilter,
               options: INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS,
@@ -146,7 +144,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
                 onTableFiltersChange({ changeTypeFilter: "", ...resetPagePatch });
               },
             })}
-            {renderHeader("property", "Property", "The property that differed between the snapshots.", {
+            {renderHeader("property", "Property", {
               kind: "text",
               value: tableFilterState.propertyFilter,
               placeholder: "sku",
@@ -158,7 +156,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
                 onTableFiltersChange({ propertyFilter: "", ...resetPagePatch });
               },
             })}
-            {renderHeader("risk", "Risk", undefined, {
+            {renderHeader("risk", "Risk", {
               kind: "select",
               value: tableFilterState.riskFilter,
               options: INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS,
@@ -178,7 +176,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
           <th colSpan={columnCount} className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-left dark:border-neutral-800 dark:bg-neutral-900/40">
             <div className="flex flex-wrap items-center gap-2">
               <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Column filters active
+                Active filters narrow the displayed change list only.
               </span>
               <Button
                 type="button"
@@ -189,6 +187,9 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
               >
                 Clear all filters
               </Button>
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Clearing restores the current snapshot comparison view.
+              </span>
             </div>
           </th>
         </tr>

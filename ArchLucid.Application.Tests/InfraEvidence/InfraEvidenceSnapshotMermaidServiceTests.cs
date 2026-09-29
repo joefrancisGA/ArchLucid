@@ -266,6 +266,31 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Render_failure_response_includes_exception_message_without_stack_trace()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateServiceWithThrowingNetworkCompiler(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(
+                CreateScope(),
+                SnapshotId,
+                "network",
+                null,
+                null,
+                cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Status.Should().Be(MermaidDiagramRenderStatus.Failed.ToString());
+        result.Value.FailureReason.Should().Be("Simulated network mode compile failure.");
+        result.Value.FailureReason.Should().NotContain("at ");
+    }
+
+    [Fact]
     public async Task Snapshot_graph_stamps_microsoft_network_virtual_networks_as_network_category()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 2);

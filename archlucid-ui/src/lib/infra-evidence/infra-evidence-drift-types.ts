@@ -15,7 +15,8 @@ export type InfraEvidenceSnapshotSummary = {
   /** Bound architecture display name when returned by the snapshots API. */
   architectureName?: string | null;
   capturedUtc: string | null;
-  captureStatus: number;
+  /** `AzureInventoryCaptureStatus` name from the API, or the legacy numeric code. */
+  captureStatus: number | string;
   resourceCount: number;
   relationshipCount: number;
 };
