@@ -348,7 +348,9 @@ public sealed class DiagramForestVnetFrameLayoutTests
         XDocument svg = Render(ast);
         EdgeTitles(svg).Should().ContainSingle("private endpoint × 3");
         EdgeTitles(svg).Should().NotContain("private endpoint");
-        svg.Descendants().Count(element => element.Attribute("class")?.Value == "private-endpoint-access")
+        svg.Descendants().Count(element =>
+                element.Attribute("class")?.Value == "private-endpoint-access"
+                && element.Ancestors().Any(ancestor => ancestor.Attribute("class")?.Value == "node"))
             .Should().Be(3);
     }
 
