@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
@@ -35,6 +36,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double Width,
         double Height,
         IReadOnlyDictionary<string, int> VnetConnectionCounts);
+
+    private sealed record FrameEdgeRoute(
+        double FromX,
+        double FromY,
+        double ToX,
+        double ToY);
 
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
@@ -1266,6 +1273,15 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         {
             suppressedEdgeKeys.Add(DiagramForestEdgeLabelCollapse.EdgeKey(edge));
         }
+        (IReadOnlyList<DiagramEdge> bundledEdges,
+            IReadOnlySet<string> bundledOriginalKeys,
+            IReadOnlyDictionary<string, FrameEdgeRoute> bundledRoutes) =
+            ResolvePrivateEndpointBundles(
+                visibleEdges,
+                placements,
+                frameBounds,
+                nestedFrameBounds,
+                title);
         Dictionary<string, IReadOnlyList<DiagramNode>> componentByNodeId =
             BuildComponentMembership(renderableNodes, visibleEdges);
         Dictionary<string, DiagramNode> nodesById = renderableNodes.ToDictionary(
@@ -1312,9 +1328,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         List<(double X, double Y)> placedLabelCenters = [];
         List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted = [];
 
-        foreach (DiagramEdge edge in visibleEdges)
+        foreach (DiagramEdge edge in visibleEdges.Concat(bundledEdges))
         {
-            if (suppressedEdgeKeys.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge))
+            string edgeKey = DiagramForestEdgeLabelCollapse.EdgeKey(edge);
+            if (suppressedEdgeKeys.Contains(edgeKey)
+                || (!bundledEdges.Contains(edge) && bundledOriginalKeys.Contains(edgeKey))
                 || IsInteriorVnetPlacementEdge(edge, placements))
             {
                 continue;
@@ -1372,6 +1390,18 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 {
                     continue;
                 }
+            }
+            else if (bundledRoutes.TryGetValue(
+                         DiagramForestEdgeLabelCollapse.EdgeKey(edge),
+                         out FrameEdgeRoute? bundledRoute))
+            {
+                route = DiagramForestOrthogonalEdgeRouter.Route(
+                    bundledRoute.FromX,
+                    bundledRoute.FromY,
+                    bundledRoute.ToX,
+                    bundledRoute.ToY,
+                    [],
+                    alreadyRouted);
             }
             else
             {
@@ -1458,6 +1488,152 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
         return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static (
+        IReadOnlyList<DiagramEdge> BundledEdges,
+        IReadOnlySet<string> BundledOriginalKeys,
+        IReadOnlyDictionary<string, FrameEdgeRoute> BundledRoutes) ResolvePrivateEndpointBundles(
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        IReadOnlyList<NodePlacement> placements,
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> resourceGroupFrames,
+        IReadOnlyList<DiagramForestNestedFrameBounds> nestedFrames,
+        string title)
+    {
+        if (!IsVnetPrimaryTitle(title))
+        {
+            return ([], new HashSet<string>(StringComparer.Ordinal), new Dictionary<string, FrameEdgeRoute>());
+        }
+
+        Dictionary<string, NodePlacement> placementById = placements.ToDictionary(
+            placement => placement.Node.NodeId,
+            StringComparer.Ordinal);
+        Dictionary<(string ResourceGroupFrameId, string VnetFrameId), List<DiagramEdge>> candidates = [];
+
+        foreach (DiagramEdge edge in visibleEdges)
+        {
+            if (!IsPrivateEndpointEdge(edge)
+                || !placementById.TryGetValue(edge.FromNodeId, out NodePlacement? from)
+                || !placementById.TryGetValue(edge.ToNodeId, out NodePlacement? to))
+            {
+                continue;
+            }
+
+            NodePlacement? resourcePlacement = from.FrameCellId is not null && from.VnetFrameId is null
+                ? from
+                : to.FrameCellId is not null && to.VnetFrameId is null
+                    ? to
+                    : null;
+            NodePlacement? vnetPlacement = from.VnetFrameId is not null
+                ? from
+                : to.VnetFrameId is not null
+                    ? to
+                    : null;
+            if (resourcePlacement?.FrameCellId is null || vnetPlacement?.VnetFrameId is null)
+            {
+                continue;
+            }
+
+            var framePair = (
+                ResourceGroupFrameId: resourcePlacement.FrameCellId,
+                VnetFrameId: vnetPlacement.VnetFrameId);
+            if (!candidates.TryGetValue(framePair, out List<DiagramEdge>? group))
+            {
+                group = [];
+                candidates[framePair] = group;
+            }
+
+            group.Add(edge);
+        }
+
+        List<DiagramEdge> bundledEdges = [];
+        HashSet<string> bundledOriginalKeys = new(StringComparer.Ordinal);
+        Dictionary<string, FrameEdgeRoute> bundledRoutes = new(StringComparer.Ordinal);
+        foreach (((string resourceFrameId, string vnetFrameId), List<DiagramEdge> edges) in candidates)
+        {
+            if (edges.Count < 2)
+            {
+                continue;
+            }
+
+            DiagramResourceGroupPacker.ResourceGroupFrameBounds? resourceFrame =
+                resourceGroupFrames.FirstOrDefault(frame =>
+                    string.Equals(frame.FrameCellId, resourceFrameId, StringComparison.Ordinal));
+            DiagramForestNestedFrameBounds? vnetFrame = nestedFrames.FirstOrDefault(frame =>
+                string.Equals(frame.FrameId, vnetFrameId, StringComparison.Ordinal));
+            if (resourceFrame is null || vnetFrame is null)
+            {
+                continue;
+            }
+
+            DiagramEdge representative = edges[0];
+            DiagramEdge bundledEdge = new()
+            {
+                FromNodeId = representative.FromNodeId,
+                ToNodeId = representative.ToNodeId,
+                Label = $"private endpoint × {edges.Count}",
+                InferenceSource = representative.InferenceSource,
+                ProvenanceKind = representative.ProvenanceKind,
+            };
+            bundledEdges.Add(bundledEdge);
+            bundledOriginalKeys.UnionWith(edges.Select(DiagramForestEdgeLabelCollapse.EdgeKey));
+            bundledRoutes[DiagramForestEdgeLabelCollapse.EdgeKey(bundledEdge)] =
+                ResolveFrameEdgeRoute(resourceFrame, vnetFrame);
+        }
+
+        return (bundledEdges, bundledOriginalKeys, bundledRoutes);
+    }
+
+    private static bool IsPrivateEndpointEdge(DiagramEdge edge)
+    {
+        return string.Equals(edge.Label?.Trim(), "private endpoint", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static FrameEdgeRoute ResolveFrameEdgeRoute(
+        DiagramResourceGroupPacker.ResourceGroupFrameBounds resourceFrame,
+        DiagramForestNestedFrameBounds vnetFrame)
+    {
+        double resourceRight = resourceFrame.X + resourceFrame.Width;
+        double vnetRight = vnetFrame.X + vnetFrame.Width;
+        double resourceCenterY = resourceFrame.Y + (resourceFrame.Height / 2.0d);
+        double vnetCenterY = vnetFrame.Y + (vnetFrame.Height / 2.0d);
+
+        if (resourceRight <= vnetFrame.X)
+        {
+            return new FrameEdgeRoute(
+                resourceRight,
+                resourceCenterY,
+                vnetFrame.X,
+                vnetCenterY);
+        }
+
+        if (vnetRight <= resourceFrame.X)
+        {
+            return new FrameEdgeRoute(
+                resourceFrame.X,
+                resourceCenterY,
+                vnetRight,
+                vnetCenterY);
+        }
+
+        if (resourceFrame.Y <= vnetFrame.Y)
+        {
+            return new FrameEdgeRoute(
+                resourceFrame.X + (resourceFrame.Width / 2.0d),
+                resourceFrame.Y + resourceFrame.Height,
+                vnetFrame.X + (vnetFrame.Width / 2.0d),
+                vnetFrame.Y);
+        }
+
+        return new FrameEdgeRoute(
+            resourceFrame.X + (resourceFrame.Width / 2.0d),
+            resourceFrame.Y,
+            vnetFrame.X + (vnetFrame.Width / 2.0d),
+            vnetFrame.Y + vnetFrame.Height);
     }
 
     private static IReadOnlyList<DiagramEdge> ResolveVnetInternalPlacementEdges(
