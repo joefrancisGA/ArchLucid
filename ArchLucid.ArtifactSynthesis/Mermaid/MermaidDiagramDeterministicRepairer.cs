@@ -81,6 +81,10 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 // Layout-only ~~~ links must stay invisible after repair; dropping this
                 // flag turns packing edges into unlabeled visible arrows.
                 IsLayoutOnly = edge.IsLayoutOnly,
+                // Forest membership cites the inference source. A repaired label of "in"
+                // with a null source is not a VNet placement.
+                InferenceSource = edge.InferenceSource,
+                ProvenanceKind = edge.ProvenanceKind,
             });
         }
 
