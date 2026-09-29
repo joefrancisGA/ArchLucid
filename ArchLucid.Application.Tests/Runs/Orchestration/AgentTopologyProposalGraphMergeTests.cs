@@ -3864,6 +3864,195 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_compliance_rename_follows_topology_datastore_claim_in_same_batch()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ]
+            }
+        };
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, compliance];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_critic_rename_follows_topology_datastore_claim_in_same_batch()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ]
+            }
+        };
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-1",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, critic];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_cost_rename_follows_topology_datastore_claim_in_same_batch()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ]
+            }
+        };
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [topology, cost];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_adds_new_service_and_edge_on_agent_proposed_only_graph()
     {
         GraphSnapshot graph = Graph(ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
