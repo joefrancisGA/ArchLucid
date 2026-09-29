@@ -2301,4 +2301,68 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         nodeId.Should().Be("svc-api");
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_manifest_service_name_matches_graph_terraform_source_id()
+    {
+        const string terraformSourceId = "azurerm_linux_web_app.app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = terraformSourceId,
+            ServiceId = "svc-other"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-api");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_manifest_datastore_name_matches_graph_terraform_source_id()
+    {
+        const string terraformSourceId = "azurerm_mssql_server.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-sql",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = terraformSourceId,
+            DatastoreId = "ds-other"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-sql");
+    }
 }
