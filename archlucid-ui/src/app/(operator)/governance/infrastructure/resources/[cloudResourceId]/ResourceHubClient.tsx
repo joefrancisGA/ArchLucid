@@ -896,6 +896,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                 Open Infrastructure Ask with this resource and snapshot context prefilled.
               </p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                Ask starts with this resource and snapshot context; it does not broaden the evidence scope automatically.
+              </p>
               <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-open-ask">
                 <Link
                   href={buildInfrastructureAskHref({
@@ -916,6 +919,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Open in workbench</h2>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                 Cross-workbench exits for this resource without re-filtering manually.
+              </p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                These links carry the current resource context into another workbench.
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <Link
@@ -1029,8 +1035,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTable ariaLabel="Resource properties">
                         <EnterpriseTableHead>
                           <EnterpriseTableRow>
-                            <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                            <EnterpriseTableHeaderCell>Value</EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Key</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The configuration property name recorded in the snapshot.
+                              </span>
+                            </EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Value</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The configuration value recorded for this property.
+                              </span>
+                            </EnterpriseTableHeaderCell>
                           </EnterpriseTableRow>
                         </EnterpriseTableHead>
                         <EnterpriseTableBody>
@@ -1055,8 +1071,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTable ariaLabel="Resource tags">
                         <EnterpriseTableHead>
                           <EnterpriseTableRow>
-                            <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                            <EnterpriseTableHeaderCell>Value</EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Key</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The tag name recorded on the resource.
+                              </span>
+                            </EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Value</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The tag value recorded for this resource.
+                              </span>
+                            </EnterpriseTableHeaderCell>
                           </EnterpriseTableRow>
                         </EnterpriseTableHead>
                         <EnterpriseTableBody>
@@ -1090,9 +1116,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     <EnterpriseTable ariaLabel="RBAC assignments">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
-                          <EnterpriseTableHeaderCell>Principal</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Principal</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The identity granted this role.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Role</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The role recorded in the snapshot.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Scope</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              Where that role applies.
+                            </span>
+                          </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
@@ -1121,8 +1162,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
                           <EnterpriseTableHeaderCell>Type</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>From</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The source resource in the captured relationship.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>To</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The destination resource in the captured relationship.
+                            </span>
+                          </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
@@ -1150,8 +1201,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     <EnterpriseTable ariaLabel="Evidence pointers">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
-                          <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>Path</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Kind</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The type of captured evidence referenced by this pointer.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Path</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              Where the captured evidence is located in the evidence package.
+                            </span>
+                          </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>

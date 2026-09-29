@@ -116,7 +116,7 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell className="text-right">
           <span>Evidence</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            Evidence items recorded for this review.
+            Evidence items recorded in the package, not evidence currently available from Azure.
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
