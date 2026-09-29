@@ -19369,6 +19369,12 @@
             },
             "type": "array"
           },
+          "failureReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "fallbackArtifacts": {
             "items": {
               "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"
