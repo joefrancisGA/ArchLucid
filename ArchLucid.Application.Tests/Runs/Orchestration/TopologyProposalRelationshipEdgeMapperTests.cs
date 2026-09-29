@@ -1159,6 +1159,18 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_homogeneous_property_nodes("resourceId", serviceAlias: false);
 
     [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes("tf.id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes("tf.resource_id");
+
+    [Fact]
+    public void MapRelationships_resolves_when_endpoint_aliases_map_renamed_service_and_datastore_labels_to_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes("resourceId");
+
+    [Fact]
     public void MapRelationships_resolves_when_relationship_arm_resource_ids_match_mixed_resourceId_source_and_tf_id_target_graph_properties()
     {
         const string sourceArm =
@@ -4569,6 +4581,58 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
             nodes,
             [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_endpoint_aliases_map_renamed_labels_to_arm_on_homogeneous_property_nodes(
+        string propertyKey)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["renamed-api"] = appArmId,
+            ["renamed-sql"] = sqlArmId,
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
             endpointAliases);
 
         edges.Should().ContainSingle(e =>
