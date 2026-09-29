@@ -1288,6 +1288,56 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_arm_endpoints_exist_only_in_additional_keys_built_from_mixed_tf_id_and_tf_resource_id_graph_properties()
+    {
+        const string sourceArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArm =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        GraphNode compute = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.id"] = sourceArm }
+        };
+
+        GraphNode data = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = targetArm }
+        };
+
+        HashSet<string> additionalKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, compute);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(additionalKeys, data);
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArm.ToUpperInvariant(),
+                TargetId = targetArm.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom,
+            },
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            additionalKeys,
+            [],
+            [],
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == sourceArm.ToUpperInvariant() && relationship.TargetId == targetArm.ToUpperInvariant());
+    }
+
+    [Fact]
     public void IsRenameAliasDatastore_returns_false_when_candidate_name_or_id_is_blank()
     {
         List<ManifestDatastore> accepted =
