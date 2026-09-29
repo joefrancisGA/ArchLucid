@@ -1964,4 +1964,30 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
             .Should()
             .BeTrue();
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_id_matches_ds_synthetic_for_compute_node_label()
+    {
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "azurerm_app_service.main",
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new() { ServiceName = "other", ServiceId = "ds-api" };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-api");
+    }
 }

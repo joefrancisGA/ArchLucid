@@ -7004,4 +7004,73 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Warnings.Should().Equal(["inventory-warn"]);
         merged.Edges.Should().ContainSingle(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_uses_cost_rename_alias_when_compliance_later_declares_same_service_name_with_different_id()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-rename",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-rename",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-other",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.AuthenticatesWith
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost, compliance]);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().OnlyContain(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
 }
