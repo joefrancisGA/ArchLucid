@@ -264,6 +264,68 @@ public sealed class DiagramForestVnetFrameLayoutTests
         Math.Abs(sharedY - right.Y).Should().BeLessThan(1.0d);
     }
 
+    [Fact]
+    public void Render_vnet_caption_stays_above_member_cards()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (FullSubscription)",
+            [
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+            ],
+            [Cited("vm", "vnet")]);
+
+        XDocument svg = Render(ast);
+        XElement frame = VnetFrames(svg).Should().ContainSingle().Subject;
+        (double frameX, double frameY, double frameWidth, double frameHeight) = Box(frame);
+        XElement vm = svg.Descendants().First(element =>
+            element.Attribute("class")?.Value == "node"
+            && element.Elements().Any(child =>
+                child.Name.LocalName == "title"
+                && child.Value.Contains("vm", StringComparison.Ordinal)));
+        string transform = vm.Attribute("transform")!.Value;
+        string[] coordinates = transform.Replace("translate(", string.Empty, StringComparison.Ordinal).TrimEnd(')').Split(',');
+        double vmY = double.Parse(coordinates[1], CultureInfo.InvariantCulture);
+        XElement caption = frame.Descendants().First(element =>
+            element.Name.LocalName == "text"
+            && element.Value == "app-vnet");
+
+        vmY.Should().BeGreaterThanOrEqualTo(frameY + DiagramForestResourceGroupFrameStyle.LabelBand - 0.5d);
+        vmY.Should().BeLessThan(frameY + frameHeight);
+        caption.Attribute("font-size")!.Value.Should().Be("14");
+        caption.Attribute("fill")!.Value.Should().Be("#334155");
+        frameX.Should().BeGreaterThanOrEqualTo(0);
+        frameWidth.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void Render_unplaced_resource_groups_wrap_into_multiple_rows()
+    {
+        DiagramNode[] nodes =
+        [
+            Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+            Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+            Workload("vault-a", "vault-a", "Microsoft.KeyVault/vaults", "rg-a"),
+            Workload("vault-b", "vault-b", "Microsoft.KeyVault/vaults", "rg-b"),
+            Workload("vault-c", "vault-c", "Microsoft.KeyVault/vaults", "rg-c"),
+            Workload("vault-d", "vault-d", "Microsoft.KeyVault/vaults", "rg-d"),
+            Workload("vault-e", "vault-e", "Microsoft.KeyVault/vaults", "rg-e"),
+            Workload("vault-f", "vault-f", "Microsoft.KeyVault/vaults", "rg-f"),
+        ];
+
+        XDocument svg = Render(Inventory(
+            "Azure inventory (FullSubscription)",
+            nodes,
+            [Cited("vm", "vnet")]));
+
+        List<double> remainderY = ResourceGroupFrames(svg)
+            .Select(frame => Box(frame).Y)
+            .Distinct()
+            .ToList();
+
+        remainderY.Should().HaveCountGreaterThan(1);
+    }
+
     private XDocument Render(DiagramAst ast)
     {
         DiagramForestLayoutResult result = renderer.Render(ast);

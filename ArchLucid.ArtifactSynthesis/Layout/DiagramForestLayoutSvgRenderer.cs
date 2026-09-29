@@ -260,6 +260,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     .Where(placement => !string.Equals(placement.Node.NodeId, vnetNodeId, StringComparison.Ordinal))
                     .Select(placement => placement with
                     {
+                        X = placement.X + pad,
+                        Y = placement.Y + labelBand,
                         VnetFrameId = frameId,
                     })
                     .Append(new NodePlacement(
@@ -407,7 +409,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 placements,
                 ref groupX,
                 ref rowY,
-                ref rowHeight);
+                ref rowHeight,
+                wrapItems: true);
         }
 
         return placements;
@@ -445,8 +448,36 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         List<NodePlacement> placements,
         ref double groupX,
         ref double rowY,
-        ref double rowHeight)
+        ref double rowHeight,
+        bool wrapItems = false)
     {
+        if (wrapItems)
+        {
+            foreach ((IReadOnlyList<NodePlacement> items, double width, double height) in block)
+            {
+                if (groupX > 0.0d && groupX + width > options.MaxNodeWidth * 3)
+                {
+                    groupX = 0.0d;
+                    rowY += rowHeight + options.ComponentVerticalGap;
+                    rowHeight = 0.0d;
+                }
+
+                foreach (NodePlacement item in items)
+                {
+                    placements.Add(item with
+                    {
+                        X = item.X + groupX,
+                        Y = item.Y + rowY,
+                    });
+                }
+
+                groupX += width + options.ComponentHorizontalGap;
+                rowHeight = Math.Max(rowHeight, height);
+            }
+
+            return;
+        }
+
         double blockWidth = block.Sum(item => item.Width)
             + Math.Max(0, block.Count - 1) * options.ComponentHorizontalGap;
         if (groupX > 0.0d && groupX + blockWidth > options.MaxNodeWidth * 3)
