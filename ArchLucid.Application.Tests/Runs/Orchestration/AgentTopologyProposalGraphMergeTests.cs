@@ -1720,6 +1720,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [critic]);
 
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [critic]).Should().BeTrue();
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-api" &&
             e.ToNodeId == "ds-sql" &&
@@ -1774,6 +1775,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
 
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeTrue();
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-api" &&
             e.ToNodeId == "ds-sql" &&

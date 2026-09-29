@@ -3352,4 +3352,26 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         endpointKeyToNodeId[armResourceId.ToUpperInvariant()].Should().Be("svc-1");
     }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_includes_tf_resource_id_property_case_insensitively_when_value_is_arm_resource_id()
+    {
+        const string armResourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "ds-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+            Category = GraphTopologyCategories.Data,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = armResourceId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId[armResourceId.ToUpperInvariant()].Should().Be("ds-1");
+    }
 }
