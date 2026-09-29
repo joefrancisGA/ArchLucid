@@ -3020,4 +3020,115 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
             .Should()
             .BeTrue();
     }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_endpoints_use_arm_addresses_on_manifest_service_and_datastore_names()
+    {
+        const string serviceArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string datastoreArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<ManifestService> services =
+        [
+            new()
+            {
+                ServiceName = serviceArmId,
+                ServiceId = "svc-api"
+            }
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new()
+            {
+                DatastoreName = datastoreArmId,
+                DatastoreId = "ds-sql"
+            }
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = serviceArmId,
+                TargetId = datastoreArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle(relationship =>
+            relationship.SourceId == serviceArmId && relationship.TargetId == datastoreArmId);
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_name_matches_arm_source_id_on_node_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-sql",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new Dictionary<string, string>()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = armSourceId.ToUpperInvariant(),
+            DatastoreId = "ds-proposed"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-sql");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_name_matches_arm_source_id_on_node_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new Dictionary<string, string>()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = armSourceId.ToUpperInvariant(),
+            ServiceId = "svc-proposed"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-1");
+    }
 }
