@@ -2269,4 +2269,36 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         nodeId.Should().Be("ds-sql");
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_manifest_source_id_matches_graph_terraform_source_id()
+    {
+        const string terraformSourceId = "azurerm_app_service.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = "other",
+            ServiceId = terraformSourceId
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-api");
+    }
 }
