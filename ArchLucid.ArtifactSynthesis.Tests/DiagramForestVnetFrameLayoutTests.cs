@@ -326,6 +326,57 @@ public sealed class DiagramForestVnetFrameLayoutTests
         remainderY.Should().HaveCountGreaterThan(1);
     }
 
+    [Fact]
+    public void Render_bundles_private_endpoint_edges_to_one_vnet()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (FullSubscription)",
+            [
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+                PrivateWorkload("vault-a", "vault-a", "rg-sec"),
+                PrivateWorkload("vault-b", "vault-b", "rg-sec"),
+                PrivateWorkload("vault-c", "vault-c", "rg-sec"),
+            ],
+            [
+                Cited("vm", "vnet"),
+                PrivateEndpoint("vault-a", "vnet"),
+                PrivateEndpoint("vault-b", "vnet"),
+                PrivateEndpoint("vault-c", "vnet"),
+            ]);
+
+        XDocument svg = Render(ast);
+        EdgeTitles(svg).Should().ContainSingle("private endpoint × 3");
+        EdgeTitles(svg).Should().NotContain("private endpoint");
+        svg.Descendants().Count(element => element.Attribute("class")?.Value == "private-endpoint-access")
+            .Should().Be(3);
+    }
+
+    [Fact]
+    public void Render_does_not_bundle_private_endpoint_edges_to_different_vnets()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet-a", "vnet-a", "/subscriptions/s/resourceGroups/rg-a/providers/Microsoft.Network/virtualNetworks/a", "rg-a"),
+                Vnet("vnet-b", "vnet-b", "/subscriptions/s/resourceGroups/rg-b/providers/Microsoft.Network/virtualNetworks/b", "rg-b"),
+                Workload("vm-a", "vm-a", "Microsoft.Compute/virtualMachines", "rg-a"),
+                Workload("vm-b", "vm-b", "Microsoft.Compute/virtualMachines", "rg-b"),
+                PrivateWorkload("vault-a", "vault-a", "rg-sec"),
+                PrivateWorkload("vault-b", "vault-b", "rg-sec"),
+            ],
+            [
+                Cited("vm-a", "vnet-a"),
+                Cited("vm-b", "vnet-b"),
+                PrivateEndpoint("vault-a", "vnet-a"),
+                PrivateEndpoint("vault-b", "vnet-b"),
+            ]);
+
+        List<string> titles = EdgeTitles(Render(ast));
+        titles.Count(title => title == "private endpoint").Should().Be(2);
+        titles.Should().NotContain(title => title.StartsWith("private endpoint ×", StringComparison.Ordinal));
+    }
+
     private XDocument Render(DiagramAst ast)
     {
         DiagramForestLayoutResult result = renderer.Render(ast);
@@ -344,6 +395,14 @@ public sealed class DiagramForestVnetFrameLayoutTests
     {
         return svg.Descendants()
             .Where(element => element.Attribute("class")?.Value == "rg-frame")
+            .ToList();
+    }
+
+    private static List<string> EdgeTitles(XDocument svg)
+    {
+        return svg.Descendants()
+            .Where(element => element.Attribute("class")?.Value == "edge")
+            .Select(element => element.Elements().First(child => child.Name.LocalName == "title").Value)
             .ToList();
     }
 
@@ -450,6 +509,13 @@ public sealed class DiagramForestVnetFrameLayoutTests
         };
     }
 
+    private static DiagramNode PrivateWorkload(string nodeId, string label, string resourceGroup)
+    {
+        DiagramNode node = Workload(nodeId, label, "Microsoft.KeyVault/vaults", resourceGroup);
+        node.HasPrivateEndpointAccess = true;
+        return node;
+    }
+
     private static DiagramEdge Cited(string fromNodeId, string toNodeId)
     {
         return new DiagramEdge
@@ -458,6 +524,17 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ToNodeId = toNodeId,
             Label = "in",
             InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
+        };
+    }
+
+    private static DiagramEdge PrivateEndpoint(string fromNodeId, string toNodeId)
+    {
+        return new DiagramEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            Label = "private endpoint",
+            InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
         };
     }
 }
