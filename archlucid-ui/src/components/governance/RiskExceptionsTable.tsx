@@ -71,13 +71,13 @@ export function RiskExceptionsTable({
           <EnterpriseTableHeaderCell>
             <span>Owner</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              The person recorded for the exception.
+              The person recorded for the exception, not necessarily the current finding owner.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Rationale</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              Why coverage was requested for this finding.
+              Why coverage was requested for this finding. View full rationale reveals the complete recorded explanation.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>

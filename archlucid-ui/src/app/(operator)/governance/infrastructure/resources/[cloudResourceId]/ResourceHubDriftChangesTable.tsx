@@ -57,7 +57,9 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
         <EnterpriseTableRow>
           <EnterpriseTableHeaderCell>
             <span>Property</span>
-            <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>The resource property associated with this change.</span>
+            <span className={`ml-2 font-normal ${OPERATOR_TYPOGRAPHY.helper}`}>
+              The changed inventory field for this resource. Opening it takes you to the corresponding drift detail.
+            </span>
           </EnterpriseTableHeaderCell>
           {showChangeType ? (
             <EnterpriseTableHeaderCell>

@@ -104,7 +104,7 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell className="text-right">
           <span>Findings</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            Recorded issues for this review.
+            Findings recorded in this package, not necessarily findings currently open.
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">
@@ -122,13 +122,13 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell>
           <span>Approval</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            The governance outcome recorded for this review.
+            The package’s recorded governance outcome, not a new approval action.
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
           <span>Action</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            Open the review package or its architecture workspace.
+            These links open existing review context; they do not finalize or reopen the package.
           </span>
         </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>

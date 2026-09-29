@@ -176,7 +176,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
           <th colSpan={columnCount} className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 text-left dark:border-neutral-800 dark:bg-neutral-900/40">
             <div className="flex flex-wrap items-center gap-2">
               <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Column filters active
+                Active filters narrow the displayed change list only.
               </span>
               <Button
                 type="button"
@@ -187,6 +187,9 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
               >
                 Clear all filters
               </Button>
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Clearing restores the current snapshot comparison view.
+              </span>
             </div>
           </th>
         </tr>
