@@ -74,15 +74,19 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
   }
 
   return (
-    <EnterpriseTable ariaLabel={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL}>
-      <DriftSnapshotsTableHead
-        tableFilterState={tableFilterState}
-        hasActiveFilters={hasActiveFilters}
-        onSortColumn={onSortColumn}
-        onTableFiltersChange={onTableFiltersChange}
-        onClearFilters={onClearFilters}
-      />
-      <EnterpriseTableBody data-testid="infra-drift-snapshots-body">
+    <div className="space-y-2">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        Selecting a row changes the page context only; it does not modify the snapshot. Capture status describes snapshot capture, not Azure resource health. Relationship counts are relationships captured in this snapshot, not changes between snapshots. Delete removes the stored snapshot record from ArchLucid; it does not delete Azure resources.
+      </p>
+      <EnterpriseTable ariaLabel={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL}>
+        <DriftSnapshotsTableHead
+          tableFilterState={tableFilterState}
+          hasActiveFilters={hasActiveFilters}
+          onSortColumn={onSortColumn}
+          onTableFiltersChange={onTableFiltersChange}
+          onClearFilters={onClearFilters}
+        />
+        <EnterpriseTableBody data-testid="infra-drift-snapshots-body">
         {snapshots.map((snapshot) => {
           const isSelected = selectedSnapshotId === snapshot.snapshotId;
           const isFocused = focusedSnapshotId === snapshot.snapshotId;
@@ -179,7 +183,8 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
             </EnterpriseTableRow>
           );
         })}
-      </EnterpriseTableBody>
-    </EnterpriseTable>
+        </EnterpriseTableBody>
+      </EnterpriseTable>
+    </div>
   );
 }

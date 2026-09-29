@@ -83,19 +83,19 @@ export function RiskExceptionsTable({
           <EnterpriseTableHeaderCell>
             <span>Status</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              Active means the exception currently covers the finding.
+              Status describes exception coverage, not finding workflow status.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Expires</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              After this time the exception no longer covers the finding.
+              The exception stops covering the finding after this time.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Actions</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              Renew or revoke the exception; these actions change the exception record, not Azure.
+              Renewal updates the coverage date. Revocation ends coverage. Neither remediates the finding.
             </span>
           </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>

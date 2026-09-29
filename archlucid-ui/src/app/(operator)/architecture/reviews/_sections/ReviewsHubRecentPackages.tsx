@@ -107,7 +107,12 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
             Recorded issues for this review.
           </span>
         </EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Risks</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Warnings recorded in this review package.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">
           <span>Evidence</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
