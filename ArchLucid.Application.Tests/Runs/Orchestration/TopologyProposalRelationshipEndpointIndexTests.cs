@@ -610,6 +610,72 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void AddManifestServiceEndpointAliases_maps_inventoried_graph_node_when_service_id_matches_arm_source_id_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "other",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new()
+        {
+            ServiceName = "api",
+            ServiceId = armSourceId.ToUpperInvariant()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(aliases, service, graphNodes);
+
+        aliases[armSourceId.ToUpperInvariant()].Should().Be("svc-inventoried");
+    }
+
+    [Fact]
+    public void AddManifestDatastoreEndpointAliases_maps_inventoried_graph_node_when_datastore_id_matches_arm_source_id_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "other",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "sql",
+            DatastoreId = armSourceId.ToUpperInvariant()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(aliases, datastore, graphNodes);
+
+        aliases[armSourceId.ToUpperInvariant()].Should().Be("ds-inventoried");
+    }
+
+    [Fact]
     public void IsRenameAliasService_returns_false_when_candidate_name_or_id_is_blank()
     {
         List<ManifestService> accepted =
