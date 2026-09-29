@@ -7192,6 +7192,65 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_uses_cost_rename_alias_when_compliance_later_adds_parallel_relationship()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-rename",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-follow",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.AuthenticatesWith
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost, compliance]);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().OnlyContain(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_uses_cost_rename_alias_when_critic_later_adds_parallel_relationship()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
@@ -9443,5 +9502,99 @@ public sealed class AgentTopologyProposalGraphMergeTests
         };
 
         AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [critic, topology]).Should().BeFalse();
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_returns_same_graph_when_critic_and_compliance_proposals_both_fully_strip_relationships()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-stripped",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-service",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-stripped",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = "unknown-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [critic, compliance]);
+
+        merged.Should().BeSameAs(graph);
+    }
+
+    [Fact]
+    public void WouldChangeGraphForCommit_returns_false_when_critic_and_compliance_proposals_both_fully_strip_relationships()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-stripped",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "unknown-service",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-stripped",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = "unknown-sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [critic, compliance]).Should().BeFalse();
     }
 }
