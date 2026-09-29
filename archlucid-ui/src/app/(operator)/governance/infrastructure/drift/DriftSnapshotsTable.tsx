@@ -14,7 +14,7 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
-import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import type { DriftSnapshotsTableFilterState } from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
 import { cn } from "@/lib/utils";
 import {
@@ -87,7 +87,7 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
           const isSelected = selectedSnapshotId === snapshot.snapshotId;
           const isFocused = focusedSnapshotId === snapshot.snapshotId;
           const subscriptionLabel = formatSubscriptionCell(snapshot);
-          const captureStatus = resolveInfraEvidenceSnapshotCaptureStatusPresentation(snapshot.captureStatus);
+          const captureStatus = infraEvidenceSnapshotCaptureStatusTagProps(snapshot.captureStatus);
           const deleteAriaLabel = formatGovernanceInfrastructureDriftDeleteSnapshotAriaLabel(subscriptionLabel);
 
           return (
@@ -120,8 +120,7 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
                 <div className="flex flex-wrap items-center gap-2">
                   <span>{subscriptionLabel}</span>
                   <StatusTag
-                    kind={captureStatus.kind}
-                    label={captureStatus.label}
+                    {...captureStatus}
                     data-testid={`infra-drift-snapshot-capture-status-${snapshot.snapshotId}`}
                   />
                 </div>
