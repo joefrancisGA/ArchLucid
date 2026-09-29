@@ -2636,7 +2636,11 @@ export function DiagramsWorkbenchClient() {
       ) : renderResult?.status === "Failed" ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY}
+          description={
+            renderResult.failureReason?.trim().length
+              ? renderResult.failureReason
+              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY
+          }
           testId="infra-diagrams-render-failed"
           footer={
             <Button type="button" size="sm" variant="primary" onClick={handleRenderRetry}>

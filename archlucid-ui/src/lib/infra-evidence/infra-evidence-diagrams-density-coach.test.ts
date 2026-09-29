@@ -19,13 +19,24 @@ describe("shouldShowInfraDiagramsDensityCoach", () => {
     expect(shouldShowInfraDiagramsDensityCoach(readableFullSubscriptionPartition)).toBe(false);
   });
 
-  it("shows the coach when full subscription is partitioned and nothing paints", () => {
+  it("does not show the coach when rendering fails", () => {
     expect(
       shouldShowInfraDiagramsDensityCoach({
         ...readableFullSubscriptionPartition,
         renderStatus: "Failed",
         paintDiagramCanvas: false,
         nodeCount: 11,
+      }),
+    ).toBe(false);
+  });
+
+  it("shows the coach when a partitioned diagram has nothing painted", () => {
+    expect(
+      shouldShowInfraDiagramsDensityCoach({
+        ...readableFullSubscriptionPartition,
+        renderStatus: "Partitioned",
+        paintDiagramCanvas: false,
+        nodeCount: 401,
       }),
     ).toBe(true);
   });

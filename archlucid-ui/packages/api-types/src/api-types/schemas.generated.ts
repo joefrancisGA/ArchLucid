@@ -5606,6 +5606,7 @@ export interface components {
             completenessWarnings?: string[];
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
+            failureReason?: null | string;
             identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];
             layoutEngine?: null | string;
             layoutSvg?: null | string;

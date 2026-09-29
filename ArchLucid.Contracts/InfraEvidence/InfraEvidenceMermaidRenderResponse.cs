@@ -32,6 +32,12 @@ public sealed class InfraEvidenceMermaidRenderResponse
         set;
     }
 
+    public string? FailureReason
+    {
+        get;
+        set;
+    }
+
     public InfraEvidenceMermaidComplexityMetrics? Metrics
     {
         get;

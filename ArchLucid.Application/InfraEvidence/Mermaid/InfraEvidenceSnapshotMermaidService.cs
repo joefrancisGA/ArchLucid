@@ -477,7 +477,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return CreateFailedRenderResponse(snapshotId, modeKey, fallbackKey);
+            return CreateFailedRenderResponse(snapshotId, modeKey, fallbackKey, ex.Message);
         }
     }
 
@@ -536,7 +536,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     private static InfraEvidenceMermaidRenderResponse CreateFailedRenderResponse(
         Guid snapshotId,
         string modeKey,
-        string? fallbackKey)
+        string? fallbackKey,
+        string? failureReason)
     {
         return new InfraEvidenceMermaidRenderResponse
         {
@@ -545,6 +546,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             FallbackKey = fallbackKey,
             Status = MermaidDiagramRenderStatus.Failed.ToString(),
             Mermaid = null,
+            FailureReason = NormalizeFailureReason(failureReason),
             Metrics = null,
             FallbackArtifacts = [],
         };
@@ -809,6 +811,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             Mode = modeKey,
             FallbackKey = fallbackKey,
             Status = renderResult.Status.ToString(),
+            FailureReason = renderResult.Status == MermaidDiagramRenderStatus.Failed
+                ? NormalizeFailureReason(string.Join(" ", renderResult.ValidationErrors))
+                : null,
             Mermaid = InfraEvidenceMermaidResponseContent.SelectMermaidForClient(
                 includeMermaid,
                 renderResult.PrimaryMermaid,
@@ -822,6 +827,16 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CompletenessWarnings = ResolveCompletenessWarnings(snapshot),
             CompletenessSummary = BuildCompletenessSummary(modeKey, sourceGraph, snapshot),
         };
+    }
+
+    private static string? NormalizeFailureReason(string? reason)
+    {
+        string normalized = reason?.Trim() ?? string.Empty;
+        return normalized.Length == 0
+            ? null
+            : normalized.Length <= 500
+                ? normalized
+                : normalized[..500];
     }
 
     private static InfraEvidenceMermaidCompletenessSummary? BuildCompletenessSummary(

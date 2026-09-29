@@ -19381,6 +19381,12 @@
               "string"
             ]
           },
+          "failureReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "identityDiagramHints": {
             "anyOf": [
               {
