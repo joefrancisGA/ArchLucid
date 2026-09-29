@@ -2845,4 +2845,67 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         filtered.Should().ContainSingle();
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_id_matches_arm_source_id_on_node_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new Dictionary<string, string>()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = "other",
+            ServiceId = armSourceId.ToUpperInvariant()
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_additional_endpoint_keys_supply_arm_ids_case_insensitively()
+    {
+        const string sourceArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string targetArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<ManifestService> services = [];
+        List<ManifestDatastore> datastores = [];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = sourceArmId.ToUpperInvariant(),
+                TargetId = targetArmId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            [sourceArmId, targetArmId],
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle();
+    }
 }
