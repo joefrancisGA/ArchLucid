@@ -58,14 +58,12 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
   const renderHeader = (
     column: DriftTableSortKey,
     label: string,
-    helperText: string | undefined,
     filter?: DriftChangesTableHeaderFilterConfig,
   ): React.JSX.Element => (
     <DriftChangesTableHeaderCell
       key={column}
       column={column}
       label={label}
-      helperText={helperText}
       sortBy={tableFilterState.sortBy}
       sortDir={tableFilterState.sortDir}
       sortDirection={sortDirectionForColumn(tableFilterState.sortBy, column, tableFilterState.sortDir)}
@@ -96,7 +94,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
         </tr>
       ) : null}
       <EnterpriseTableHeadRow>
-        {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, "The inventory resource compared between snapshots.", {
+        {renderHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceFilter,
           placeholder: "gateway",
@@ -108,7 +106,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, "The Azure resource group that contains this resource.", {
+        {renderHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceGroupFilter,
           placeholder: "rg-network",
@@ -120,7 +118,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
             onTableFiltersChange({ resourceGroupFilter: "", ...resetPagePatch });
           },
         })}
-        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, "The Azure type recorded for this resource.", {
+        {renderHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL, {
           kind: "text",
           value: tableFilterState.resourceTypeFilter,
           placeholder: "Network/publicIPAddresses",
@@ -146,7 +144,7 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
                 onTableFiltersChange({ changeTypeFilter: "", ...resetPagePatch });
               },
             })}
-            {renderHeader("property", "Property", "The property that differed between the snapshots.", {
+            {renderHeader("property", "Property", {
               kind: "text",
               value: tableFilterState.propertyFilter,
               placeholder: "sku",

@@ -528,6 +528,10 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-sort-change")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-property")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-sort-risk")).toBeInTheDocument();
+    expect(within(diffTable).queryByText("The inventory resource compared between snapshots.")).not.toBeInTheDocument();
+    expect(within(diffTable).queryByText("The Azure resource group that contains this resource.")).not.toBeInTheDocument();
+    expect(within(diffTable).queryByText("The Azure type recorded for this resource.")).not.toBeInTheDocument();
+    expect(within(diffTable).queryByText("The property that differed between the snapshots.")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-resource-filter-trigger")).toBeInTheDocument();
     expect(within(diffTable).getByTestId("infra-drift-change-type-filter-trigger")).toBeInTheDocument();
     expect(within(diffTable).getByTestId("infra-drift-property-filter-trigger")).toBeInTheDocument();
