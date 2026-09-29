@@ -198,6 +198,72 @@ public sealed class DiagramForestVnetFrameLayoutTests
             && line.Contains("vnet", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Render_full_subscription_seats_connected_resource_group_beside_vnet()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (FullSubscription)",
+            [
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-sec"),
+            ],
+            [
+                Cited("vm", "vnet"),
+                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = "private endpoint" },
+            ]);
+
+        XDocument svg = Render(ast);
+        XElement vnetFrame = VnetFrames(svg).Should().ContainSingle().Subject;
+        XElement resourceGroupFrame = ResourceGroupFrames(svg)
+            .Single(frame => frame.Elements().First(element => element.Name.LocalName == "title").Value == "rg-sec");
+        (double vnetX, double vnetY, double vnetWidth, double vnetHeight) = Box(vnetFrame);
+        (double groupX, double groupY, double groupWidth, double groupHeight) = Box(resourceGroupFrame);
+        DiagramForestLayoutOptions options = new();
+
+        Math.Abs(groupX - (vnetX + vnetWidth + options.ComponentHorizontalGap)).Should().BeLessThan(1.0d);
+        Math.Abs(groupY - vnetY).Should().BeLessThan(1.0d);
+        Contains(svg, (vnetX, vnetY, vnetWidth, vnetHeight), "vault").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Render_shared_resource_group_sits_between_two_vnets()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet-a", "vnet-a", "/subscriptions/s/resourceGroups/rg-a/providers/Microsoft.Network/virtualNetworks/a", "rg-a"),
+                Vnet("vnet-b", "vnet-b", "/subscriptions/s/resourceGroups/rg-b/providers/Microsoft.Network/virtualNetworks/b", "rg-b"),
+                Workload("vm-a", "vm-a", "Microsoft.Compute/virtualMachines", "rg-a"),
+                Workload("vm-b", "vm-b", "Microsoft.Compute/virtualMachines", "rg-b"),
+                Workload("vault", "vault-shared", "Microsoft.KeyVault/vaults", "rg-sec"),
+            ],
+            [
+                Cited("vm-a", "vnet-a"),
+                Cited("vm-b", "vnet-b"),
+                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet-a", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet-b", Label = "private endpoint" },
+            ]);
+
+        XDocument svg = Render(ast);
+        List<XElement> vnetFrames = VnetFrames(svg);
+        vnetFrames.Should().HaveCount(2);
+        XElement sharedFrame = ResourceGroupFrames(svg)
+            .Single(frame => frame.Elements().First(element => element.Name.LocalName == "title").Value == "rg-sec");
+        (double sharedX, double sharedY, double sharedWidth, double sharedHeight) = Box(sharedFrame);
+        List<(double X, double Y, double Width, double Height)> boxes = vnetFrames.Select(Box).ToList();
+        (double X, double Y, double Width, double Height) left = boxes.OrderBy(box => box.X).First();
+        (double X, double Y, double Width, double Height) right = boxes.OrderBy(box => box.X).Last();
+        DiagramForestLayoutOptions options = new();
+
+        (sharedX > left.X + left.Width).Should().BeTrue();
+        (sharedX + sharedWidth < right.X).Should().BeTrue();
+        Math.Abs(sharedX - (left.X + left.Width + options.ComponentHorizontalGap)).Should().BeLessThan(1.0d);
+        Math.Abs(right.X - (sharedX + sharedWidth + options.ComponentHorizontalGap)).Should().BeLessThan(1.0d);
+        Math.Abs(sharedY - left.Y).Should().BeLessThan(1.0d);
+        Math.Abs(sharedY - right.Y).Should().BeLessThan(1.0d);
+    }
+
     private XDocument Render(DiagramAst ast)
     {
         DiagramForestLayoutResult result = renderer.Render(ast);
@@ -209,6 +275,13 @@ public sealed class DiagramForestVnetFrameLayoutTests
     {
         return svg.Descendants()
             .Where(element => element.Attribute("class")?.Value == "vnet-frame")
+            .ToList();
+    }
+
+    private static List<XElement> ResourceGroupFrames(XDocument svg)
+    {
+        return svg.Descendants()
+            .Where(element => element.Attribute("class")?.Value == "rg-frame")
             .ToList();
     }
 
