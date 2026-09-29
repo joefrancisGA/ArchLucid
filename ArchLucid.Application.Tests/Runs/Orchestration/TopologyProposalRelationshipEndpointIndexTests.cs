@@ -2365,4 +2365,68 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         nodeId.Should().Be("ds-sql");
     }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_manifest_datastore_id_matches_graph_terraform_source_id()
+    {
+        const string terraformSourceId = "azurerm_mssql_server.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-sql",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "other",
+            DatastoreId = terraformSourceId
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-sql");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_manifest_service_id_matches_graph_terraform_source_id_on_label_index()
+    {
+        const string terraformSourceId = "azurerm_app_service.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = terraformSourceId,
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = "api",
+            ServiceId = terraformSourceId
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-api");
+    }
 }
