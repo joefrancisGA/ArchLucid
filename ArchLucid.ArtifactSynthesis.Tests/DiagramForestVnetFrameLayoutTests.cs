@@ -216,7 +216,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
         XDocument svg = Render(ast);
         XElement vnetFrame = VnetFrames(svg).Should().ContainSingle().Subject;
         XElement resourceGroupFrame = ResourceGroupFrames(svg)
-            .Single(frame => frame.Element(XName.Get("title"))?.Value == "rg-sec");
+            .Single(frame => frame.Elements().First(element => element.Name.LocalName == "title").Value == "rg-sec");
         (double vnetX, double vnetY, double vnetWidth, double vnetHeight) = Box(vnetFrame);
         (double groupX, double groupY, double groupWidth, double groupHeight) = Box(resourceGroupFrame);
         DiagramForestLayoutOptions options = new();
@@ -249,7 +249,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
         List<XElement> vnetFrames = VnetFrames(svg);
         vnetFrames.Should().HaveCount(2);
         XElement sharedFrame = ResourceGroupFrames(svg)
-            .Single(frame => frame.Element(XName.Get("title"))?.Value == "rg-sec");
+            .Single(frame => frame.Elements().First(element => element.Name.LocalName == "title").Value == "rg-sec");
         (double sharedX, double sharedY, double sharedWidth, double sharedHeight) = Box(sharedFrame);
         List<(double X, double Y, double Width, double Height)> boxes = vnetFrames.Select(Box).ToList();
         (double X, double Y, double Width, double Height) left = boxes.OrderBy(box => box.X).First();
