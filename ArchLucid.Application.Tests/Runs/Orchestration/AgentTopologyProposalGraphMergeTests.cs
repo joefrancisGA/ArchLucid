@@ -310,6 +310,26 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [SkippableFact]
+    public void WithMergedTopologyProposals_adds_edges_when_relationships_use_arm_tf_id_properties()
+    {
+        const string vmResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        GraphSnapshot graph = Graph(
+            Node("t1", "vm-graph", properties: new Dictionary<string, string> { ["tf.id"] = vmResourceId }),
+            Node("ds-1", "sql", sourceId: "azurerm_mssql_server.main", sourceType: "Terraform"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(vmResourceId)), resultId: "r1", taskId: "t1", runId: "run-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "t1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [SkippableFact]
     public void WithMergedTopologyProposals_adds_edges_when_relationships_use_renamed_service_labels()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
