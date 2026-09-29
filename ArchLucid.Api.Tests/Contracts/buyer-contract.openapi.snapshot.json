@@ -29004,7 +29004,8 @@
           "Executed",
           "Verified",
           "VerificationFailed",
-          "Closed"
+          "Closed",
+          "ChangeImplemented"
         ],
         "type": "string"
       },

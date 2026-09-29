@@ -12,9 +12,12 @@ export function mapRemediationInstanceStatusToColumn(status: RemediationInstance
       return "approved";
     case "Executed":
       return "executed";
+    case "ChangeImplemented":
+      return "implemented";
     case "Verified":
-    case "VerificationFailed":
       return "verified";
+    case "VerificationFailed":
+      return "verification-failed";
     case "Closed":
       return "closed";
     default:
@@ -39,11 +42,15 @@ export function canExecuteRemediationInstance(status: RemediationInstanceStatus)
 }
 
 export function canVerifyRemediationInstance(status: RemediationInstanceStatus): boolean {
+  return status === "ChangeImplemented";
+}
+
+export function canAttestChangeImplemented(status: RemediationInstanceStatus): boolean {
   return status === "Executed";
 }
 
 export function canCloseRemediationInstance(status: RemediationInstanceStatus): boolean {
-  return status === "Verified" || status === "VerificationFailed";
+  return status === "Verified";
 }
 
 export function isRemediationTransitionBlocked(status: RemediationInstanceStatus, blockers: readonly string[]): boolean {

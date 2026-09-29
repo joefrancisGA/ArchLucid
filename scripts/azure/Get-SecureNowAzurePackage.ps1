@@ -435,7 +435,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.1"
+$scriptVersion = "0.4.2"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources

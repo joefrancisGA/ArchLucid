@@ -12,21 +12,54 @@ public static class RemediationInstanceVerificationEvaluator
         RemediationPatternVersionContent content,
         AzureInventorySnapshotDetailReadModel verificationSnapshot,
         Guid executionSnapshotId,
+        DateTime? executionCapturedUtc,
         RemediationPathNarrative? pathNarrative = null,
-        RemediationPathVerificationContext? pathVerificationContext = null)
+        RemediationPathVerificationContext? pathVerificationContext = null,
+        DateTime? changeImplementedUtc = null)
     {
         ArgumentNullException.ThrowIfNull(instance);
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(verificationSnapshot);
 
+        List<string> failures = [];
+
         if (verificationSnapshot.Header.SnapshotId == executionSnapshotId)
         {
-            return Failed(
-                instance,
-                ["Verification snapshot must be captured after the execution snapshot."]);
+            failures.Add("Verification chronology failed: verification snapshot must not reuse the execution snapshot.");
         }
 
-        List<string> failures = [];
+        if (executionCapturedUtc is null)
+        {
+            failures.Add("Verification chronology failed: execution snapshot capture time is missing.");
+        }
+
+        if (verificationSnapshot.Header.CapturedUtc is null)
+        {
+            failures.Add("Verification chronology failed: verification snapshot capture time is missing.");
+        }
+        else if (executionCapturedUtc is DateTime executionCaptured
+                 && verificationSnapshot.Header.CapturedUtc <= executionCaptured)
+        {
+            failures.Add("Verification chronology failed: verification snapshot must be captured strictly later than the execution snapshot.");
+        }
+
+        if (changeImplementedUtc is DateTime attestedUtc
+            && verificationSnapshot.Header.CapturedUtc is DateTime verificationCaptured
+            && verificationCaptured <= attestedUtc)
+        {
+            failures.Add("Verification chronology failed: verification snapshot must be captured strictly later than the change implementation attestation.");
+        }
+
+        if (verificationSnapshot.Header.CaptureStatus != AzureInventoryCaptureStatus.Succeeded)
+        {
+            failures.Add(
+                $"Verification capture status failed: verification snapshot capture status is {verificationSnapshot.Header.CaptureStatus}, not Succeeded.");
+        }
+
+        if (failures.Count > 0)
+        {
+            return Failed(instance, failures);
+        }
 
         if (instance.CloudResourceId is Guid cloudResourceId && cloudResourceId != Guid.Empty)
         {
@@ -38,6 +71,7 @@ public static class RemediationInstanceVerificationEvaluator
         }
 
         HashSet<string> evaluatedQueries = new(StringComparer.OrdinalIgnoreCase);
+        bool substantivePostconditionPassed = false;
 
         foreach (string query in content.Execution?.VerificationQueries ?? [])
         {
@@ -55,6 +89,10 @@ public static class RemediationInstanceVerificationEvaluator
                     out string? failure))
             {
                 failures.Add(failure ?? $"Verification query failed: {query}");
+            }
+            else if (IsSubstantiveQuery(query))
+            {
+                substantivePostconditionPassed = true;
             }
         }
 
@@ -77,7 +115,16 @@ public static class RemediationInstanceVerificationEvaluator
                 {
                     failures.Add(failure ?? $"Verification query failed: {query}");
                 }
+                else if (IsSubstantiveQuery(query))
+                {
+                    substantivePostconditionPassed = true;
+                }
             }
+        }
+
+        if (!substantivePostconditionPassed)
+        {
+            failures.Add("Verification requires at least one substantive postcondition to pass.");
         }
 
         bool passed = failures.Count == 0;
@@ -92,9 +139,17 @@ public static class RemediationInstanceVerificationEvaluator
                 failures,
                 verificationSnapshotId = verificationSnapshot.Header.SnapshotId,
                 executionSnapshotId,
+                executionCapturedUtc,
+                changeImplementedUtc,
+                verificationCapturedUtc = verificationSnapshot.Header.CapturedUtc,
+                verificationCaptureStatus = verificationSnapshot.Header.CaptureStatus,
             }),
         };
     }
+
+    private static bool IsSubstantiveQuery(string query) =>
+        query.Trim().StartsWith("property:", StringComparison.OrdinalIgnoreCase)
+        || query.Trim().StartsWith("path:hash-absent=", StringComparison.OrdinalIgnoreCase);
 
     private static RemediationInstanceVerificationResult Failed(
         RemediationInstanceRecord instance,
@@ -225,6 +280,12 @@ public static class RemediationInstanceVerificationEvaluator
         if (!expectedHash.AsSpan().SequenceEqual(pathVerificationContext.SourcePathCanonicalHash))
         {
             failure = $"Path hash in query '{query}' does not match the frozen path narrative hash bytes.";
+            return false;
+        }
+
+        if (!pathVerificationContext.PathAnalysisCompleted)
+        {
+            failure = $"Verification query '{query}' failed — path analysis did not complete for the verification snapshot.";
             return false;
         }
 

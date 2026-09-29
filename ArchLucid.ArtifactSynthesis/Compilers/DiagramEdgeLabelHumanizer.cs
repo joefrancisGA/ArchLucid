@@ -248,6 +248,13 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "private endpoint";
+
+            return true;
+        }
+
         if (string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase)
