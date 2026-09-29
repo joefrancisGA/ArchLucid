@@ -2055,6 +2055,62 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_labels_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceAliasMapsToNodeId: false, uppercaseNodeIdAliasTargets: true, uppercaseArmAliasValues: true);
 
     [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("tf.resource_id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes("resourceId", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("resourceId", "tf.resource_id", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.id", "resourceId", serviceRenamed: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: true);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph()
+        => MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes("tf.resource_id", "resourceId", serviceRenamed: false);
+
+    [Fact]
     public void MapRelationships_resolves_when_endpoint_alias_maps_renamed_service_label_to_arm_on_mixed_resourceId_and_tf_id_property_nodes()
         => MapRelationships_resolves_when_endpoint_alias_maps_renamed_label_to_arm_on_mixed_property_nodes("resourceId", "tf.id", serviceAlias: true);
 
@@ -6877,6 +6933,141 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
                     RelationshipType = RelationshipType.ReadsFrom
                 }
             ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_homogeneous_property_nodes(
+        string propertyKey,
+        bool serviceRenamed)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [propertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [propertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (serviceRenamed)
+        {
+            endpointAliases["renamed-api"] = "svc-1";
+            endpointAliases["renamed-sql"] = sqlArmId;
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = appArmId;
+            endpointAliases["renamed-sql"] = "ds-1";
+        }
+
+        ManifestRelationship relationship = serviceRenamed
+            ? new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+            : new ManifestRelationship
+            {
+                SourceId = appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    private static void MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_mixed_property_nodes(
+        string computePropertyKey,
+        string dataPropertyKey,
+        bool serviceRenamed)
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { [computePropertyKey] = appArmId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new Dictionary<string, string> { [dataPropertyKey] = sqlArmId }
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+
+        if (serviceRenamed)
+        {
+            endpointAliases["renamed-api"] = "svc-1";
+            endpointAliases["renamed-sql"] = sqlArmId;
+        }
+        else
+        {
+            endpointAliases["renamed-api"] = appArmId;
+            endpointAliases["renamed-sql"] = "ds-1";
+        }
+
+        ManifestRelationship relationship = serviceRenamed
+            ? new ManifestRelationship
+            {
+                SourceId = "renamed-api",
+                TargetId = sqlArmId,
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+            : new ManifestRelationship
+            {
+                SourceId = appArmId,
+                TargetId = "renamed-sql",
+                RelationshipType = RelationshipType.ReadsFrom
+            };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship],
             endpointAliases);
 
         edges.Should().ContainSingle(e =>
