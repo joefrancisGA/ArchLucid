@@ -2655,4 +2655,105 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
             relationship.SourceId == serviceTerraformId.ToUpperInvariant()
             && relationship.TargetId == datastoreTerraformId.ToUpperInvariant());
     }
+
+    [Fact]
+    public void AddGraphNodeEndpointKeys_indexes_terraform_source_id_from_topology_resource_node()
+    {
+        const string terraformSourceId = "azurerm_linux_web_app.app";
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-api",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            SourceType = "Terraform",
+            SourceId = terraformSourceId,
+            Properties = new()
+        };
+
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(knownEndpointKeys, node);
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(terraformSourceId, knownEndpointKeys)
+            .Should()
+            .BeTrue();
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(terraformSourceId.ToUpperInvariant(), knownEndpointKeys)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_manifest_service_name_matches_graph_terraform_source_id_case_insensitively()
+    {
+        const string terraformSourceId = "azurerm_app_service.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = terraformSourceId,
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = terraformSourceId.ToUpperInvariant(),
+            ServiceId = "svc-other"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-api");
+    }
+
+    [Fact]
+    public void FilterKnownRelationships_keeps_relationship_when_terraform_names_on_manifest_differ_only_in_case_from_relationship_endpoints()
+    {
+        const string serviceTerraformId = "azurerm_linux_web_app.app";
+        const string datastoreTerraformId = "azurerm_mssql_database.db";
+
+        List<ManifestService> services =
+        [
+            new()
+            {
+                ServiceName = serviceTerraformId,
+                ServiceId = "svc-api"
+            }
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new()
+            {
+                DatastoreName = datastoreTerraformId,
+                DatastoreId = "ds-sql"
+            }
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                SourceId = serviceTerraformId.ToUpperInvariant(),
+                TargetId = datastoreTerraformId.ToUpperInvariant(),
+                RelationshipType = RelationshipType.ReadsFrom
+            }
+        ];
+
+        List<ManifestRelationship> filtered = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            relationships);
+
+        filtered.Should().ContainSingle();
+    }
 }

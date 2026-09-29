@@ -2345,4 +2345,45 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().ContainSingle(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
     }
+
+    [Fact]
+    public void MapRelationships_resolves_when_relationship_terraform_tf_id_differs_only_in_case_from_graph_property()
+    {
+        const string appResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "obj-app",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "azurerm_linux_web_app.app",
+                SourceId = "decl-tf-show-json-1",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["tf.id"] = appResourceId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = appResourceId.ToUpperInvariant(),
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e => e.FromNodeId == "obj-app" && e.ToNodeId == "ds-1");
+    }
 }
