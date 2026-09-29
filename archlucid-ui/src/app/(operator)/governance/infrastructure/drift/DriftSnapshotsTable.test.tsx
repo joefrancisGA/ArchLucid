@@ -89,6 +89,34 @@ describe("DriftSnapshotsTable", () => {
     expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
       "Blocked",
     );
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "title",
+      "Inventory capture failed.",
+    );
+  });
+
+  it("renders the API string status instead of treating every capture as blocked", () => {
+    render(
+      <DriftSnapshotsTable
+        snapshots={[
+          snapshot({ captureStatus: "Succeeded" }),
+          snapshot({
+            snapshotId: "22222222-2222-2222-2222-222222222222",
+            captureStatus: "Pending",
+          }),
+        ]}
+        selectedSnapshotId=""
+        focusedSnapshotId=""
+        {...tableProps}
+      />,
+    );
+
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Ready",
+    );
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-22222222-2222-2222-2222-222222222222")).toHaveTextContent(
+      "In progress",
+    );
   });
 
   it("calls onSelectSnapshot when a row is clicked and exposes select/delete actions", () => {

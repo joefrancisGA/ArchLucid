@@ -168,7 +168,7 @@ import {
   type DriftLastComparisonSelection,
 } from "@/lib/infra-evidence/infra-evidence-drift-last-comparison-storage";
 import { partitionInfraEvidenceLaterSnapshotsForAnchor } from "@/lib/infra-evidence/infra-evidence-drift-later-snapshots";
-import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -1464,8 +1464,7 @@ export function DriftWorkbenchClient() {
                     <>
                       {" "}
                       <StatusTag
-                        kind={resolveInfraEvidenceSnapshotCaptureStatusPresentation(selectedSnapshot.captureStatus).kind}
-                        label={resolveInfraEvidenceSnapshotCaptureStatusPresentation(selectedSnapshot.captureStatus).label}
+                        {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)}
                         data-testid="infra-drift-selected-snapshot-capture-status"
                       />
                     </>
