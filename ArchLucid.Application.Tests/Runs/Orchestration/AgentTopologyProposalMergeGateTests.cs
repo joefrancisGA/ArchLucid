@@ -1977,6 +1977,38 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_endpoints_on_mixed_resourceId_and_tf_id_inventoried_graph_differ_only_in_case()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-graph";
+        const string mixedCaseAppArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-graph";
+        const string mixedCaseSqlArmId =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["resourceId"] = appArmId }),
+            DataNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(mixedCaseAppArmId, mixedCaseSqlArmId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_compliance_proposes_arm_endpoints_on_mixed_resourceId_and_tf_id_inventoried_graph()
     {
         const string appArmId =
