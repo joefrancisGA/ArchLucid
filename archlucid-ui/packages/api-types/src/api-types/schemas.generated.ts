@@ -5604,9 +5604,9 @@ export interface components {
             collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
             completenessSummary?: null | components["schemas"]["InfraEvidenceMermaidCompletenessSummary"];
             completenessWarnings?: string[];
+            failureReason?: null | string;
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
-            failureReason?: null | string;
             identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];
             layoutEngine?: null | string;
             layoutSvg?: null | string;
