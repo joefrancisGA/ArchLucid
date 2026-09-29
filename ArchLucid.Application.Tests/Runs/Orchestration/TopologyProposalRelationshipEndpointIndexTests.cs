@@ -676,6 +676,103 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void AddManifestServiceEndpointAliases_maps_inventoried_graph_node_when_service_name_matches_arm_source_id_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "other",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new()
+        {
+            ServiceName = armSourceId.ToUpperInvariant(),
+            ServiceId = "svc-proposed"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(aliases, service, graphNodes);
+
+        aliases[armSourceId.ToUpperInvariant()].Should().Be("svc-inventoried");
+    }
+
+    [Fact]
+    public void AddManifestDatastoreEndpointAliases_maps_inventoried_graph_node_when_datastore_name_matches_arm_source_id_case_insensitively()
+    {
+        const string armSourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql-srv";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "other",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "ARM",
+                SourceId = armSourceId,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = armSourceId.ToUpperInvariant(),
+            DatastoreId = "ds-proposed"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(aliases, datastore, graphNodes);
+
+        aliases[armSourceId.ToUpperInvariant()].Should().Be("ds-inventoried");
+    }
+
+    [Fact]
+    public void AddManifestServiceEndpointAliases_maps_inventoried_graph_node_when_service_name_matches_arm_resource_id_property_case_insensitively()
+    {
+        const string armResourceId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-inventoried",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "other",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+            }
+        ];
+
+        Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService service = new()
+        {
+            ServiceName = armResourceId.ToUpperInvariant(),
+            ServiceId = "svc-proposed"
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(aliases, service, graphNodes);
+
+        aliases[armResourceId.ToUpperInvariant()].Should().Be("svc-inventoried");
+    }
+
+    [Fact]
     public void IsRenameAliasService_returns_false_when_candidate_name_or_id_is_blank()
     {
         List<ManifestService> accepted =
