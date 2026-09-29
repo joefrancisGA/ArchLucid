@@ -398,6 +398,36 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [SkippableFact]
+    public void WithMergedTopologyProposals_adds_edges_when_both_endpoints_match_arm_on_tf_id_properties_only()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            Node("svc-1", "api", GraphTopologyCategories.Compute, null, null, new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            Node("ds-1", "sql", GraphTopologyCategories.Data, null, null, new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(appArmId, sqlArmId)),
+            resultId: "r1",
+            taskId: "t1",
+            runId: "run-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [SkippableFact]
     public void WithMergedTopologyProposals_does_not_duplicate_nodes_when_service_id_matches_arm_tf_id_property()
     {
         const string vmResourceId =
@@ -1426,6 +1456,35 @@ public sealed class AgentTopologyProposalGraphMergeTests
         GraphSnapshot graph = Graph(ComputeNode(nodeId: "svc-api"), DataNode(nodeId: "ds-sql"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship()), resultId: "r1", taskId: "t1", runId: "run-1");
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_topology_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-graph";
+        const string sqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-graph";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                nodeId: "svc-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = appArmId }),
+            DataNode(
+                nodeId: "ds-1",
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string> { ["tf.id"] = sqlArmId }));
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(appArmId, sqlArmId)),
+            resultId: "r1",
+            taskId: "t1",
+            runId: "run-1");
 
         AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeTrue();
     }
