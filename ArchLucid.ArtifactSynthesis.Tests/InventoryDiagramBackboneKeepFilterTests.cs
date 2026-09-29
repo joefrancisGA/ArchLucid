@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Contracts.InfraEvidence.DiagramPeel;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
