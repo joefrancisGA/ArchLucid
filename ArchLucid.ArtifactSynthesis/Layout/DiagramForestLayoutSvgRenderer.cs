@@ -1330,8 +1330,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         foreach (DiagramEdge edge in visibleEdges.Concat(bundledEdges))
         {
-            if (suppressedEdgeKeys.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge))
-                || bundledOriginalKeys.Contains(DiagramForestEdgeLabelCollapse.EdgeKey(edge))
+            string edgeKey = DiagramForestEdgeLabelCollapse.EdgeKey(edge);
+            if (suppressedEdgeKeys.Contains(edgeKey)
+                || (!bundledRoutes.ContainsKey(edgeKey) && bundledOriginalKeys.Contains(edgeKey))
                 || IsInteriorVnetPlacementEdge(edge, placements))
             {
                 continue;
