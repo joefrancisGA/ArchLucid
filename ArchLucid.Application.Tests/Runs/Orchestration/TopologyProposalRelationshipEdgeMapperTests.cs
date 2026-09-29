@@ -1231,6 +1231,30 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("tf.id", uppercaseServiceAliasValue: false);
 
     [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_tf_resource_id_property_only_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("tf.resource_id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_resourceId_property_only_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_homogeneous_property_nodes("resourceId", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_id_property_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_resource_id_property_nodes_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.resource_id", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_tf_id_compute_and_resourceId_datastore_graph_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("tf.id", "resourceId", uppercaseServiceAliasValue: false);
+
+    [Fact]
+    public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph_datastore_uppercase()
+        => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("tf.resource_id", "resourceId", uppercaseServiceAliasValue: false);
+
+    [Fact]
     public void MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_resourceId_and_tf_id_property_nodes()
         => MapRelationships_resolves_when_combined_endpoint_alias_arm_values_differ_only_in_case_asymmetrically_on_mixed_property_nodes("resourceId", "tf.id", uppercaseServiceAliasValue: true);
 
