@@ -322,6 +322,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             SeedNodeId = isOverflow ? null : node.NodeId,
             ArmResourceType = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmType(node),
             ArmResourceKind = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadKind(node),
+            ExternalLinkedServiceType = isOverflow
+                ? null
+                : node.Properties.TryGetValue(
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalLinkedServiceTypePropertyKey,
+                    out string? linkedServiceType)
+                    ? linkedServiceType
+                    : null,
             ArmResourceGroup = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             IsExecutiveOverflow = isOverflow,
         };
