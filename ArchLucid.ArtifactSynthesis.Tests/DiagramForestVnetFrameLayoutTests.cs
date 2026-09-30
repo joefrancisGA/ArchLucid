@@ -266,6 +266,42 @@ public sealed class DiagramForestVnetFrameLayoutTests
     }
 
     [Fact]
+    public void Render_network_mode_emits_neighborhood_metadata_and_frame_membership()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-sec"),
+            ],
+            [
+                Cited("vm", "vnet"),
+                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = "private endpoint" },
+            ]);
+
+        XDocument svg = Render(ast);
+        XElement metadata = svg.Descendants().Single(element =>
+            element.Name.LocalName == "metadata"
+            && element.Attribute("id")?.Value == "diagram-neighborhoods");
+        XElement neighborhood = metadata.Elements().Single(element => element.Name.LocalName == "neighborhood");
+
+        neighborhood.Attribute("kind")?.Value.Should().Be("vnet");
+        neighborhood.Attribute("resource-count")?.Value.Should().Be("2");
+        neighborhood.Elements().Where(element => element.Name.LocalName == "member")
+            .Select(element => element.Attribute("id")?.Value)
+            .Should().Contain(["vm", "vault"]);
+        neighborhood.Elements().Single(element => element.Name.LocalName == "type")
+            .Attribute("name")?.Value.Should().Be("virtualMachines");
+        VnetFrames(svg).Single().Attribute("data-neighborhood-id")?.Value
+            .Should().Be(neighborhood.Attribute("id")?.Value);
+        ResourceGroupFrames(svg).Single(frame =>
+                frame.Attribute("data-neighborhood-id")?.Value == neighborhood.Attribute("id")?.Value)
+            .Attribute("data-neighborhood-id")?.Value
+            .Should().Be(neighborhood.Attribute("id")?.Value);
+    }
+
+    [Fact]
     public void Render_vnet_caption_stays_above_member_cards()
     {
         DiagramAst ast = Inventory(

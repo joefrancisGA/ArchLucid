@@ -15,6 +15,7 @@ export type ArchitectureDiagramMermaidViewportFrameProps = {
   readonly controls: ReactNode;
   readonly children: ReactNode;
   readonly cameraMaxHeightClassName: string;
+  readonly className?: string;
 };
 
 const VIEWPORT_FRAME_CLASSNAME =
@@ -41,7 +42,7 @@ export function ArchitectureDiagramMermaidViewportFrame(
       role={props.ariaLabel != null ? 'img' : undefined}
       aria-label={props.ariaLabel}
       aria-describedby={props.describedBy}
-      className={VIEWPORT_FRAME_CLASSNAME}
+      className={cn(VIEWPORT_FRAME_CLASSNAME, props.className)}
       data-testid={props.viewportTestId}
       onWheel={props.onWheel}
       onKeyDown={props.onKeyDown}

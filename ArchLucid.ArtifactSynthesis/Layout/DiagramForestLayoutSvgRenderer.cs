@@ -47,6 +47,20 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<string> FromNodeIds,
         IReadOnlyList<string> ToNodeIds);
 
+    private sealed record NeighborhoodMetadata(
+        string Id,
+        string Kind,
+        string Title,
+        IReadOnlyList<NodePlacement> Members,
+        IReadOnlyList<string> FrameIds,
+        IReadOnlyList<(string Name, int Count)> Types);
+
+    private sealed record NeighborhoodLink(string From, string To, int Count);
+
+    private sealed record NeighborhoodMap(
+        IReadOnlyList<NeighborhoodMetadata> Neighborhoods,
+        IReadOnlyList<NeighborhoodLink> Links);
+
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -1419,13 +1433,25 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             svgNamespace + "svg",
             new XAttribute("xmlns", svgNamespace.NamespaceName));
 
-        DiagramForestEdgeArrowMarkerSvgEmitter.EmitDefs(svgNamespace, root);
-
         bool vnetPrimary = IsVnetPrimaryTitle(title);
+        NeighborhoodMap neighborhoodMap = vnetPrimary
+            ? ResolveNeighborhoodMetadata(placements, frameBounds, nestedFrameBounds, visibleEdges)
+            : new NeighborhoodMap([], []);
+        if (neighborhoodMap.Neighborhoods.Count > 0)
+        {
+            root.AddFirst(EmitNeighborhoodMetadata(svgNamespace, neighborhoodMap));
+        }
+
+        DiagramForestEdgeArrowMarkerSvgEmitter.EmitDefs(svgNamespace, root);
 
         if (frameBounds.Count > 0)
         {
-            root.Add(DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(svgNamespace, frameBounds, vnetPrimary));
+            XElement frameLayer = DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(
+                svgNamespace,
+                frameBounds,
+                vnetPrimary);
+            ApplyNeighborhoodFrameAttributes(frameLayer, neighborhoodMap.Neighborhoods);
+            root.Add(frameLayer);
         }
 
         if (subscriptionFrame is not null || nestedFrameBounds.Count > 0)
@@ -1438,7 +1464,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             }
 
             containerFrames.AddRange(nestedFrameBounds);
-            root.Add(DiagramForestNestedFrameSvgEmitter.EmitLayer(svgNamespace, containerFrames, vnetPrimary));
+            XElement frameLayer = DiagramForestNestedFrameSvgEmitter.EmitLayer(
+                svgNamespace,
+                containerFrames,
+                vnetPrimary);
+            ApplyNeighborhoodFrameAttributes(frameLayer, neighborhoodMap.Neighborhoods);
+            root.Add(frameLayer);
         }
 
         if (isDataFlow && dataFlowColumns is not null && dataFlowColumns.Count > 0)
@@ -1643,6 +1674,300 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 $"{minX:0.###} {minY:0.###} {viewBoxWidth:0.###} {viewBoxHeight:0.###}")));
 
         return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static NeighborhoodMap ResolveNeighborhoodMetadata(
+        IReadOnlyList<NodePlacement> placements,
+        IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> resourceGroupFrames,
+        IReadOnlyList<DiagramForestNestedFrameBounds> nestedFrames,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
+        Dictionary<string, NodePlacement> placementsById = placements
+            .Where(placement => !placement.IsFrameAnchor)
+            .ToDictionary(placement => placement.Node.NodeId, StringComparer.Ordinal);
+        Dictionary<string, List<NodePlacement>> placementsByResourceFrame = placements
+            .Where(placement => !placement.IsFrameAnchor && placement.FrameCellId is not null)
+            .GroupBy(placement => placement.FrameCellId!, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.ToList(), StringComparer.Ordinal);
+        Dictionary<string, string> vnetNodeByFrameId = nestedFrames
+            .Where(frame => string.Equals(frame.Kind, "vnet", StringComparison.Ordinal))
+            .ToDictionary(
+                frame => frame.FrameId,
+                frame => frame.FrameId.StartsWith("vnet-", StringComparison.Ordinal)
+                    ? frame.FrameId["vnet-".Length..]
+                    : frame.FrameId,
+                StringComparer.Ordinal);
+        List<NeighborhoodMetadata> neighborhoods = [];
+        Dictionary<string, NeighborhoodMetadata> byId = new(StringComparer.Ordinal);
+
+        foreach ((string frameId, string vnetNodeId) in vnetNodeByFrameId)
+        {
+            List<NodePlacement> members = placements
+                .Where(placement => !placement.IsFrameAnchor
+                    && string.Equals(placement.VnetFrameId, frameId, StringComparison.Ordinal)
+                    && !string.Equals(placement.Node.NodeId, vnetNodeId, StringComparison.Ordinal))
+                .ToList();
+            NeighborhoodMetadata neighborhood = CreateNeighborhood(
+                $"vnet:{vnetNodeId}",
+                "vnet",
+                nestedFrames.First(frame => frame.FrameId == frameId).Label,
+                members,
+                [frameId]);
+            neighborhoods.Add(neighborhood);
+            byId[neighborhood.Id] = neighborhood;
+        }
+
+        List<(string FrameId, List<NodePlacement> Members)> remainder = [];
+        foreach (DiagramResourceGroupPacker.ResourceGroupFrameBounds frame in resourceGroupFrames)
+        {
+            remainder.Add((
+                frame.FrameCellId,
+                placementsByResourceFrame.TryGetValue(frame.FrameCellId, out List<NodePlacement>? members)
+                    ? members
+                    : []));
+        }
+
+        foreach ((string frameId, List<NodePlacement> members) in remainder)
+        {
+            List<string> targetVnets = visibleEdges
+                .Select(edge => ResolveOtherEndpointForFrame(edge, members))
+                .Where(endpoint => endpoint is not null)
+                .Select(endpoint => endpoint!)
+                .Where(vnetNodeByFrameId.ContainsValue)
+                .Select(endpoint => vnetNodeByFrameId.First(pair => pair.Value == endpoint).Key)
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (targetVnets.Count == 1 && byId.TryGetValue($"vnet:{vnetNodeByFrameId[targetVnets[0]]}", out NeighborhoodMetadata? vnet))
+            {
+                byId[vnet.Id] = vnet with
+                {
+                    Members = vnet.Members.Concat(members).ToList(),
+                    FrameIds = vnet.FrameIds.Concat([frameId]).ToList(),
+                };
+                neighborhoods[neighborhoods.FindIndex(candidate => candidate.Id == vnet.Id)] = byId[vnet.Id];
+                continue;
+            }
+
+            bool isRollup = members.Count == 1
+                && string.Equals(
+                    members[0].Node.NodeId,
+                    "other-resource-groups-rollup",
+                    StringComparison.Ordinal);
+            string kind = isRollup ? "other" : targetVnets.Count > 1 ? "shared" : "remainder";
+            string id = isRollup ? "other-resource-groups" : $"{kind}:{frameId}";
+            NeighborhoodMetadata cell = CreateNeighborhood(
+                id,
+                kind,
+                isRollup
+                    ? members[0].Node.Label
+                    : members.FirstOrDefault()?.Node.ArmResourceGroup ?? frameId,
+                members,
+                [frameId]);
+            neighborhoods.Add(cell);
+            byId[id] = cell;
+        }
+
+        List<NeighborhoodMetadata> singletons = neighborhoods
+            .Where(neighborhood => neighborhood.Kind == "remainder"
+                && neighborhood.Members.Count == 1
+                && !string.Equals(
+                    neighborhood.Members[0].Node.NodeId,
+                    "other-resource-groups-rollup",
+                    StringComparison.Ordinal))
+            .ToList();
+        if (singletons.Count >= 2)
+        {
+            foreach (NeighborhoodMetadata singleton in singletons)
+            {
+                neighborhoods.Remove(singleton);
+                byId.Remove(singleton.Id);
+            }
+
+            NeighborhoodMetadata other = CreateNeighborhood(
+                "other-resource-groups",
+                "other",
+                $"Other resource groups ({singletons.Count})",
+                singletons.SelectMany(singleton => singleton.Members).ToList(),
+                singletons.SelectMany(singleton => singleton.FrameIds).ToList());
+            neighborhoods.Add(other);
+            byId[other.Id] = other;
+        }
+
+        List<NeighborhoodLink> links = [];
+        foreach (DiagramEdge edge in visibleEdges)
+        {
+            if (edge.IsLayoutOnly
+                || string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
+                    StringComparison.OrdinalIgnoreCase)
+                || !placementsById.ContainsKey(edge.FromNodeId)
+                || !placementsById.ContainsKey(edge.ToNodeId))
+            {
+                continue;
+            }
+
+            string? from = ResolveNeighborhoodForNode(neighborhoods, edge.FromNodeId);
+            string? to = ResolveNeighborhoodForNode(neighborhoods, edge.ToNodeId);
+            if (from is null || to is null || string.Equals(from, to, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            (string left, string right) = string.CompareOrdinal(from, to) < 0 ? (from, to) : (to, from);
+            int linkIndex = links.FindIndex(link => link.From == left && link.To == right);
+            if (linkIndex >= 0)
+            {
+                links[linkIndex] = links[linkIndex] with { Count = links[linkIndex].Count + 1 };
+            }
+            else
+            {
+                links.Add(new NeighborhoodLink(left, right, 1));
+            }
+        }
+
+        return new NeighborhoodMap(
+            neighborhoods
+                .OrderBy(neighborhood => neighborhood.Kind switch
+                {
+                    "vnet" => 0,
+                    "shared" => 1,
+                    "remainder" => 2,
+                    _ => 3,
+                })
+                .ThenBy(neighborhood => neighborhood.Id, StringComparer.Ordinal)
+                .ToList(),
+            links
+                .OrderBy(link => link.From, StringComparer.Ordinal)
+                .ThenBy(link => link.To, StringComparer.Ordinal)
+                .ToList());
+    }
+
+    private static string? ResolveNeighborhoodForNode(
+        IReadOnlyList<NeighborhoodMetadata> neighborhoods,
+        string nodeId)
+    {
+        NeighborhoodMetadata? memberNeighborhood = neighborhoods.FirstOrDefault(candidate =>
+            candidate.Members.Any(member => member.Node.NodeId == nodeId));
+        if (memberNeighborhood is not null)
+        {
+            return memberNeighborhood.Id;
+        }
+
+        return neighborhoods
+            .Where(candidate => candidate.Kind == "vnet")
+            .FirstOrDefault(candidate =>
+            {
+                string vnetNodeId = candidate.Id.StartsWith("vnet:", StringComparison.Ordinal)
+                    ? candidate.Id["vnet:".Length..]
+                    : string.Empty;
+                return string.Equals(vnetNodeId, nodeId, StringComparison.Ordinal);
+            })
+            ?.Id;
+    }
+
+    private static string? ResolveOtherEndpointForFrame(
+        DiagramEdge edge,
+        IReadOnlyList<NodePlacement> frameMembers)
+    {
+        bool fromInFrame = frameMembers.Any(member => member.Node.NodeId == edge.FromNodeId);
+        bool toInFrame = frameMembers.Any(member => member.Node.NodeId == edge.ToNodeId);
+        if (fromInFrame == toInFrame)
+        {
+            return null;
+        }
+
+        return fromInFrame ? edge.ToNodeId : edge.FromNodeId;
+    }
+
+    private static NeighborhoodMetadata CreateNeighborhood(
+        string id,
+        string kind,
+        string title,
+        IReadOnlyList<NodePlacement> members,
+        IReadOnlyList<string> frameIds)
+    {
+        IReadOnlyList<(string Name, int Count)> types = members
+            .Select(member => member.Node.ArmResourceType?.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault())
+            .Where(type => !string.IsNullOrWhiteSpace(type))
+            .GroupBy(type => type!, StringComparer.Ordinal)
+            .OrderByDescending(group => group.Count())
+            .ThenBy(group => group.Key, StringComparer.Ordinal)
+            .Take(4)
+            .Select(group => (group.Key, group.Count()))
+            .ToList();
+        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types);
+    }
+
+    private static XElement EmitNeighborhoodMetadata(
+        XNamespace svgNamespace,
+        NeighborhoodMap map)
+    {
+        XElement metadata = new(
+            svgNamespace + "metadata",
+            new XAttribute("id", "diagram-neighborhoods"));
+
+        foreach (NeighborhoodMetadata neighborhood in map.Neighborhoods)
+        {
+            XElement element = new(
+                svgNamespace + "neighborhood",
+                new XAttribute("id", neighborhood.Id),
+                new XAttribute("kind", neighborhood.Kind),
+                new XAttribute("title", neighborhood.Title),
+                new XAttribute("resource-count", neighborhood.Members.Count));
+            foreach (NodePlacement member in neighborhood.Members)
+            {
+                element.Add(new XElement(
+                    svgNamespace + "member",
+                    new XAttribute("id", MermaidIdSanitizer.Sanitize(member.Node.NodeId))));
+            }
+
+            foreach (string frameId in neighborhood.FrameIds)
+            {
+                element.Add(new XElement(svgNamespace + "frame", new XAttribute("id", frameId)));
+            }
+
+            foreach ((string name, int count) in neighborhood.Types)
+            {
+                element.Add(new XElement(
+                    svgNamespace + "type",
+                    new XAttribute("name", name),
+                    new XAttribute("count", count)));
+            }
+
+            metadata.Add(element);
+        }
+
+        foreach (NeighborhoodLink link in map.Links)
+        {
+            metadata.Add(new XElement(
+                svgNamespace + "link",
+                new XAttribute("from", link.From),
+                new XAttribute("to", link.To),
+                new XAttribute("count", link.Count)));
+        }
+
+        return metadata;
+    }
+
+    private static void ApplyNeighborhoodFrameAttributes(
+        XElement frameLayer,
+        IReadOnlyList<NeighborhoodMetadata> neighborhoods)
+    {
+        Dictionary<string, string> frameToNeighborhood = neighborhoods
+            .SelectMany(neighborhood => neighborhood.FrameIds.Select(frameId => (frameId, neighborhood.Id)))
+            .ToDictionary(pair => pair.frameId, pair => pair.Id, StringComparer.Ordinal);
+        foreach (XElement frame in frameLayer.Elements())
+        {
+            string frameId = frame.Attribute("data-frame-id")?.Value
+                ?? frame.Attribute("data-frame-cell-id")?.Value
+                ?? string.Empty;
+            if (frameToNeighborhood.TryGetValue(frameId, out string? neighborhoodId))
+            {
+                frame.Add(new XAttribute("data-neighborhood-id", neighborhoodId));
+            }
+        }
     }
 
     private static (

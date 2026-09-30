@@ -109,5 +109,11 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage"
 
 export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = "Fit in view" as const;
 
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = "Subscription map" as const;
+
+export const ARCHITECTURE_DIAGRAM_MAP_LABEL = "Map" as const;
+
+export const ARCHITECTURE_DIAGRAM_PLATE_LABEL = "Plate" as const;
+
 export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
   "Focus the diagram, then Ctrl+scroll to zoom. + / − keys zoom. 0 or Fit in view resets to the fitted 100%." as const;
