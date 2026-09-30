@@ -43,9 +43,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("primary");
-    if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
-      clearPostSignInReturnUrl();
-    }
+    clearPostSignInReturnUrl();
     throw error;
   }
   const url = buildAuthorizeUrl({
@@ -98,9 +96,7 @@ export async function initiateSupplementalOidcRedirect(
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("google");
-    if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
-      clearPostSignInReturnUrl();
-    }
+    clearPostSignInReturnUrl();
     throw error;
   }
   const url = buildAuthorizeUrl({
