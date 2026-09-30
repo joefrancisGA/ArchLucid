@@ -926,6 +926,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       [...svg.querySelectorAll('g.edge')].forEach((edge, index) => {
         edge.classList.toggle('diagram-click-dim', !result.keptEdgeIndexes.has(index));
       });
+      [...svg.querySelectorAll('g.edge-stub')].forEach((stub) => {
+        const from = normalizeDiagramFocusToken(stub.getAttribute('data-from') ?? '');
+        const to = normalizeDiagramFocusToken(stub.getAttribute('data-to') ?? '');
+        stub.classList.toggle(
+          'diagram-click-dim',
+          !result.keptNodeIds.has(from) && !result.keptNodeIds.has(to),
+        );
+      });
     });
 
     const handleClick = (event: MouseEvent): void => {
@@ -933,6 +941,23 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       if (!(target instanceof Element)) {
         clearFocus();
+        return;
+      }
+
+      const stub = target.closest('g.edge-stub');
+
+      if (stub !== null) {
+        const id = stub.getAttribute('data-focus-node') ?? '';
+
+        if (id.length === 0
+          || normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
+          clearFocus();
+          return;
+        }
+
+        const chip = stub.querySelector('text')?.textContent?.trim() ?? '';
+        const name = chip.replace(/^[→←]\s*/u, '') || id;
+        setClickFocus({ id, name });
         return;
       }
 
