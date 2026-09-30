@@ -6747,7 +6747,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -18400,6 +18400,8 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; no new reachable mechanism-backed candidate survived the terminal/in-progress precedence and forward-compatible failure parsing review.
 
 Split from retired `archlucid-core` (ABQ-08).
 
