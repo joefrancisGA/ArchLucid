@@ -404,7 +404,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 (group.Placements, group.Width, group.Height),
                 .. connectedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)),
             ];
-            PlaceVnetPrimaryBlock(neighborhood, options, placements, ref groupX, ref rowY, ref rowHeight);
+            PlaceVnetPrimaryNeighborhood(
+                neighborhood,
+                options,
+                placements,
+                ref groupX,
+                ref rowY,
+                ref rowHeight);
             placedCells.UnionWith(connectedCells);
             placedVnetGroups.Add(group.NodeId);
         }
@@ -425,6 +431,68 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return placements;
+    }
+
+    private static void PlaceVnetPrimaryNeighborhood(
+        IReadOnlyList<(IReadOnlyList<NodePlacement> Items, double Width, double Height)> neighborhood,
+        DiagramForestLayoutOptions options,
+        List<NodePlacement> placements,
+        ref double groupX,
+        ref double rowY,
+        ref double rowHeight)
+    {
+        double widthGuard = options.MaxNodeWidth * 3;
+        double neighborhoodWidth = neighborhood.Sum(item => item.Width)
+            + Math.Max(0, neighborhood.Count - 1) * options.ComponentHorizontalGap;
+
+        if (groupX > 0.0d && groupX + neighborhoodWidth > widthGuard)
+        {
+            groupX = 0.0d;
+            rowY += rowHeight + options.ComponentVerticalGap;
+            rowHeight = 0.0d;
+        }
+
+        double neighborhoodX = groupX;
+        double neighborhoodRowY = rowY;
+        double neighborhoodRowHeight = 0.0d;
+        double localX = neighborhoodX;
+        bool wrapped = false;
+
+        foreach ((IReadOnlyList<NodePlacement> items, double width, double height) in neighborhood)
+        {
+            double relativeRight = (localX - neighborhoodX) + width;
+            if (localX > neighborhoodX && relativeRight > widthGuard)
+            {
+                localX = neighborhoodX;
+                neighborhoodRowY += neighborhoodRowHeight + options.ComponentVerticalGap;
+                neighborhoodRowHeight = 0.0d;
+                wrapped = true;
+            }
+
+            foreach (NodePlacement item in items)
+            {
+                placements.Add(item with
+                {
+                    X = item.X + localX,
+                    Y = item.Y + neighborhoodRowY,
+                });
+            }
+
+            localX += width + options.ComponentHorizontalGap;
+            neighborhoodRowHeight = Math.Max(neighborhoodRowHeight, height);
+        }
+
+        if (wrapped)
+        {
+            groupX = 0.0d;
+            rowY = neighborhoodRowY + neighborhoodRowHeight + options.ComponentVerticalGap;
+            rowHeight = 0.0d;
+        }
+        else
+        {
+            groupX = localX;
+            rowHeight = Math.Max(rowHeight, neighborhoodRowHeight);
+        }
     }
 
     private static string? ResolveWinningVnet(IReadOnlyDictionary<string, int> counts)
