@@ -129,10 +129,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
         ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
 
-        string? normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeOptional(
-            string.IsNullOrWhiteSpace(effectiveRequest.RunId)
-                ? isolated.RunId ?? runId
-                : runId);
+        string? normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeOptional(runId);
 
         if (!string.IsNullOrWhiteSpace(normalizedRunId))
         {

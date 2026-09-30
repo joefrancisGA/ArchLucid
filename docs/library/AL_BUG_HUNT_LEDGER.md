@@ -26458,13 +26458,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 14
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 2
+- **hunts:** 15
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-07 — review cache hit cleared PublishBlocked for blocked analysis reruns
+- **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
@@ -26490,8 +26490,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired entry TTL refresh extends wall-clock retention without re-evaluating manifest inputs — **cheap-disproof 2026-09-08 (#1316):** intentional improve-loop pin semantics; same storage key implies unchanged manifest hash; `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`; tombstoned runs still miss (`TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`)
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` / `ClosedLoopContinueRunSingleFlight` — publish vs analysis in-flight partitions (`publish=1` vs `publish=0`) can double-run identical manifest under concurrent mixed intent — **cheap-disproof 2026-09-08 (#1316):** intentional flight partition via `ReviewCacheKeyBuilder.BuildInFlight`; publish requires live adversarial pass (`RunAsync_publish_request_bypasses_review_cache_hit`); regression `CoalesceAsync_does_not_share_flight_across_publish_intent`
 
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys (reachability: multiple uploaded architecture files can arrive with the same client-visible file name and content type).
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request (reachability: callers may omit optional `ClosedLoopReasoningRequest.RunId` for anonymous/new analyses).
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys — **cheap-disproved 2026-09-30:** the files expose no contract that duplicate source ordering is semantically interchangeable; a cache miss alone is not a proven wrong outcome for an ordered source list.
+- [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request — **hit 2026-09-30:** cache manifests intentionally omit generated run ids, and cache-hit finalization preserved the cached identity for a request that generated a new run id; fixed by always applying the current resolved run id to the isolated result and model; regression `RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`.
+
+2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder; no new reachable candidate emerged; 61 scoped tests passed.
 
