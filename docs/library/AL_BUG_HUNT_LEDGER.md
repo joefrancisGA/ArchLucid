@@ -5720,7 +5720,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -17959,6 +17959,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-09-26 — Restore point collection source parser mishandled JSON reference on source.id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; checked terminal/in-progress precedence, forward-compatible failure parsing, status coercion, and pipeline options; no new reachable mechanism-backed candidate survived review.
 
 Split from retired `archlucid-core` (ABQ-08).
 
