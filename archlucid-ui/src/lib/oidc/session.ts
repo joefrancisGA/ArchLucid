@@ -180,6 +180,12 @@ export function storePkceState(
   sessionStorage.setItem(keys.nonceKey, nonce);
 }
 
+export function clearPkceState(flow: OidcPkceFlow = "primary"): void {
+  const keys = pkceStorageKeys(flow);
+
+  removeOidcKeys([keys.stateKey, keys.codeVerifierKey, keys.nonceKey]);
+}
+
 export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceState, "flow"> | null {
   return readPkceStateForFlow(flow);
 }

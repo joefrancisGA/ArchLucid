@@ -38,4 +38,29 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_NONCE_KEY)).toBe("primary-nonce");
     expect(sessionStorage.getItem(OIDC_GOOGLE_NONCE_KEY)).toBe("google-nonce");
   });
+
+  it("clears primary PKCE state when discovery fails before redirect", async () => {
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("discovery unavailable");
+      }),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(initiateOidcRedirect()).rejects.toThrow("discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_CODE_VERIFIER_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_NONCE_KEY)).toBeNull();
+  });
 });
