@@ -35,7 +35,6 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
   { value: "security", label: "Security — where controls sit" },
   { value: "businessContinuity", label: "Business continuity — what can be restored" },
   { value: "identity", label: "Identity — who can act" },
-  { value: "data", label: "Data category" },
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
   { value: "avd", label: "AVD Farm" },

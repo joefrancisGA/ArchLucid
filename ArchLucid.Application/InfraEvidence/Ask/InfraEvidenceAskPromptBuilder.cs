@@ -14,7 +14,7 @@ internal static class InfraEvidenceAskPromptBuilder
         "You are an enterprise cloud architect answering questions from structured infrastructure-evidence rows. "
         + "Use ONLY the provided evidence lines. Do not invent Azure resource ids, change ids, or finding ids. "
         + "Return ONLY JSON: {\"answer\":\"...\",\"citationIds\":[\"kind:id\",...],"
-        + "\"viewPlan\":{\"mermaidMode\":\"executive|network|identity|data|full|resourceGroup|dependencyNeighborhood\","
+        + "\"viewPlan\":{\"mermaidMode\":\"executive|network|identity|dataFlow|dataArchitecture|full|resourceGroup|dependencyNeighborhood\","
         + "\"resourceGroupName\":null,\"seedNodeId\":null,\"snapshotId\":null,\"cloudResourceId\":null,"
         + "\"fitTargetNodeId\":null,\"honestyLabel\":\"Proposed view — existing diagram modes only\"}} "
         + "where citationIds must be chosen from the allowedCitationIds list and viewPlan is optional for DiagramView topics.";
@@ -78,8 +78,10 @@ internal static class InfraEvidenceAskPromptBuilder
 
         if (ContainsAny(normalizedQuestion, "identity"))
             plan.MermaidMode = "identity";
-        else if (ContainsAny(normalizedQuestion, "data"))
-            plan.MermaidMode = "data";
+        else if (ContainsAny(normalizedQuestion, "data flow", "dataflow"))
+            plan.MermaidMode = "dataFlow";
+        else if (ContainsAny(normalizedQuestion, "data architecture", "data store", "database", "data"))
+            plan.MermaidMode = "dataArchitecture";
         else if (ContainsAny(normalizedQuestion, "executive"))
             plan.MermaidMode = "executive";
         else if (ContainsAny(normalizedQuestion, "peering", "vnet", "network"))

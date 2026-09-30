@@ -43,7 +43,6 @@ public sealed class MermaidDiagramFallbackSetBuilder : IMermaidDiagramFallbackSe
         AddModeArtifact(artifacts, graph, DiagramMode.Executive, InventoryDiagramFallbackArtifactKeys.Executive, thresholds, null);
         AddModeArtifact(artifacts, graph, DiagramMode.Network, InventoryDiagramFallbackArtifactKeys.Network, thresholds, null);
         AddModeArtifact(artifacts, graph, DiagramMode.Identity, InventoryDiagramFallbackArtifactKeys.Identity, thresholds, null);
-        AddModeArtifact(artifacts, graph, DiagramMode.Data, InventoryDiagramFallbackArtifactKeys.Data, thresholds, null);
         AddModeArtifact(artifacts, graph, DiagramMode.Architecture, InventoryDiagramFallbackArtifactKeys.CrossBoundary, thresholds, null);
 
         return artifacts;

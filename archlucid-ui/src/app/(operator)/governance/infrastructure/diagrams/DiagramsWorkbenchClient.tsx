@@ -278,8 +278,6 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 
 function infraDiagramModeJobCaption(mode: string): string | null {
   switch (mode) {
-    case "data":
-      return "This view filters the infrastructure forest to data resources.";
     case "dataArchitecture":
       return "This diagram shows what stores data.";
     case "dataFlow":
@@ -303,17 +301,11 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
             connectors: "Connectors are declared repository relationships.",
             evidence: "Configuration from inventory.",
           }
-        : mode === "data"
-          ? {
-              boxes: "Boxes are data resources in the infrastructure forest.",
-              connectors: "Connectors are the infrastructure relationships already drawn.",
-              evidence: "Configuration from inventory.",
-            }
-          : {
-              boxes: "Boxes are Azure resources in this view.",
-              connectors: "Connectors are relationships already present in inventory.",
-              evidence: "Configuration from inventory.",
-            };
+        : {
+            boxes: "Boxes are Azure resources in this view.",
+            connectors: "Connectors are relationships already present in inventory.",
+            evidence: "Configuration from inventory.",
+          };
 
   return (
     <section className="space-y-1" aria-label="How to read this diagram" data-testid="infra-diagrams-legend">

@@ -8,7 +8,7 @@ export const INFRA_DIAGRAMS_RESOURCE_GROUP_MAP_VIEW_MARKER = "al-view=resource-g
 
 export const INFRA_DIAGRAMS_BACKBONE_KEEP_VIEW_MARKER = "al-view=backbone-keep";
 
-const THEMATIC_PARTITION_KEYS = new Set(["executive", "network", "identity", "data", "cross-boundary"]);
+const THEMATIC_PARTITION_KEYS = new Set(["executive", "network", "identity", "cross-boundary"]);
 
 export function isInfraDiagramsResourceGroupMode(mode: string): boolean {
   return mode.trim() === INFRA_DIAGRAMS_RESOURCE_GROUP_MODE;
