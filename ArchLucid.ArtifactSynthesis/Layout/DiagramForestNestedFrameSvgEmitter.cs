@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 /// <summary>Paints VNet and subnet frames beneath resource-group frames.</summary>
 public static class DiagramForestNestedFrameSvgEmitter
 {
-    public const double VnetCaptionFontSize = 11.0d;
+    public const double VnetCaptionFontSize = 14.0d;
     public const double CaptionIconGap = 4.0d;
 
     private static readonly AzureArchitectureIconCatalog IconCatalog = AzureArchitectureIconCatalog.Load();
@@ -62,7 +62,7 @@ public static class DiagramForestNestedFrameSvgEmitter
         XElement group = new(svgNamespace + "g", new XAttribute("class", $"{frame.Kind}-frame-caption"));
         if (icon is not null)
         {
-            double labelWidth = Math.Max(24.0d, frame.Label.Length * 6.6d);
+            double labelWidth = Math.Max(24.0d, frame.Label.Length * fontSize * 0.6d);
             double haloWidth = fontSize + CaptionIconGap + labelWidth + 8.0d;
             group.Add(new XElement(
                 svgNamespace + "rect",
@@ -88,7 +88,7 @@ public static class DiagramForestNestedFrameSvgEmitter
             new XAttribute("y", Format(frame.Y + 13.0d)),
             new XAttribute("font-size", Format(fontSize)),
             new XAttribute("font-weight", isVnet ? "700" : "600"),
-            new XAttribute("fill", "#64748b"),
+            new XAttribute("fill", isVnet ? "#334155" : "#64748b"),
             new XAttribute("pointer-events", "none"),
             SecurityElement.Escape(frame.Label) ?? string.Empty));
         return group;

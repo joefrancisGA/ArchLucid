@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Xml.Linq;
 
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Core.Diagrams;
@@ -22,7 +23,9 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         DiagramForestOrthogonalEdgeRouter.RouteResult route,
         bool suppressOnPathLabel,
         bool showArrow,
-        List<(double X, double Y)> placedLabelCenters)
+        List<(double X, double Y)> placedLabelCenters,
+        IReadOnlyList<string>? bundleFromNodeIds = null,
+        IReadOnlyList<string>? bundleToNodeIds = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
@@ -47,6 +50,17 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         if (!string.IsNullOrWhiteSpace(edge.InferenceSource))
         {
             edgeGroup.Add(new XAttribute("data-inference", edge.InferenceSource));
+        }
+
+        if (bundleFromNodeIds is { Count: > 0 } && bundleToNodeIds is { Count: > 0 })
+        {
+            edgeGroup.Add(new XAttribute("data-bundle-from", string.Join(' ', bundleFromNodeIds)));
+            edgeGroup.Add(new XAttribute("data-bundle-to", string.Join(' ', bundleToNodeIds)));
+        }
+        else
+        {
+            edgeGroup.Add(new XAttribute("data-from", MermaidIdSanitizer.Sanitize(edge.FromNodeId)));
+            edgeGroup.Add(new XAttribute("data-to", MermaidIdSanitizer.Sanitize(edge.ToNodeId)));
         }
 
         edgeGroup.Add(new XAttribute("data-visual-kind", ToVisualKindAttribute(visualKind)));
