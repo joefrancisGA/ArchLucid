@@ -1,14 +1,14 @@
 export const ARCHITECTURE_DIAGRAM_FULLSCREEN_PARAM = "diagFullscreen";
 export const ARCHITECTURE_DIAGRAM_ZOOM_PARAM = "diagZoom";
 
-/** Minimum diagram zoom as a scale factor (60%). */
-export const MIN_ARCHITECTURE_DIAGRAM_ZOOM = 0.6;
+/** Minimum diagram zoom as a scale factor (10%). */
+export const MIN_ARCHITECTURE_DIAGRAM_ZOOM = 0.1;
 
 /** Maximum diagram zoom as a scale factor (1000%). */
 export const MAX_ARCHITECTURE_DIAGRAM_ZOOM = 10;
 
 /** Minimum diagram zoom shown in the percent input. */
-export const MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT = 60;
+export const MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT = 10;
 
 /** Maximum diagram zoom shown in the percent input. */
 export const MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT = 1000;

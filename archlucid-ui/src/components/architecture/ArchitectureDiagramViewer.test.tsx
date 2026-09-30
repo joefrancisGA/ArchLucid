@@ -437,7 +437,6 @@ describe('ArchitectureDiagramViewer', () => {
       baseHeightPx: 10,
       inkMeasured: true,
       rawScale: 1,
-      widthScale: 1,
       fitScale: 1,
       overflows: false,
     });
@@ -471,7 +470,6 @@ describe('ArchitectureDiagramViewer', () => {
       baseHeightPx: 240,
       inkMeasured: false,
       rawScale: 1,
-      widthScale: 1,
       fitScale: 1,
       overflows: false,
     });

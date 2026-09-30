@@ -543,71 +543,27 @@ describe("help-mermaid", () => {
     svg.remove();
   });
 
-  it("uses the architecture minimum or width fit for an overflow plate", () => {
+  it("uses the unclamped contain scale for an overview-sized overflow plate", () => {
     expect(
       resolveMermaidViewportDefaultZoom({
         baseWidthPx: 3000,
         baseHeightPx: 2000,
         inkMeasured: true,
         rawScale: 0.3,
-        widthScale: 0.5,
         fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
         overflows: true,
-      }, 0.6),
-    ).toBe(0.6);
+      }),
+    ).toBe(0.3);
     expect(
       resolveMermaidViewportDefaultZoom({
         baseWidthPx: 1600,
         baseHeightPx: 900,
         inkMeasured: true,
-        rawScale: 0.3,
-        widthScale: 0.8,
-        fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
-        overflows: true,
-      }, 0.6),
-    ).toBe(0.8);
-    expect(
-      resolveMermaidViewportDefaultZoom({
-        baseWidthPx: 1600,
-        baseHeightPx: 900,
-        inkMeasured: true,
-        rawScale: 0.7,
-        widthScale: 0.9,
-        fitScale: 0.7,
-        overflows: true,
-      }, 0.6),
-    ).toBe(0.7);
-    expect(
-      resolveMermaidViewportDefaultZoom({
-        baseWidthPx: 3000,
-        baseHeightPx: 2000,
-        inkMeasured: true,
-        rawScale: 0.3,
-        widthScale: 0.5,
+        rawScale: 0.6,
         fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
         overflows: true,
       }),
     ).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
-  });
-
-  it("reports width-only scale separately from contain scale", () => {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rect.setAttribute("width", "1000");
-    rect.setAttribute("height", "2000");
-    group.appendChild(rect);
-    svg.appendChild(group);
-    document.body.appendChild(svg);
-
-    (group as SVGGraphicsElement).getBBox = () =>
-      ({ x: 0, y: 0, width: 1000, height: 2000, top: 0, right: 1000, bottom: 2000, left: 0, toJSON: () => ({}) }) as DOMRect;
-
-    const baseFit = fitMermaidSvgElementToViewport(svg, 600, 400);
-
-    expect(baseFit?.widthScale).toBeCloseTo(576 / 1000);
-    expect(baseFit?.rawScale).toBeCloseTo(376 / 2000);
-    svg.remove();
   });
 
   it("applies layout-affecting zoom on top of a viewport contain-fit", () => {
@@ -767,7 +723,7 @@ describe("help-mermaid", () => {
   it("treats a large unmeasured viewport as unpainted ink", () => {
     expect(
       isMermaidViewportPaintTooSmall(
-        { baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false, rawScale: 1, widthScale: 1, fitScale: 1, overflows: false },
+        { baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false, rawScale: 1, fitScale: 1, overflows: false },
         1,
       ),
     ).toBe(true);
@@ -777,7 +733,6 @@ describe("help-mermaid", () => {
         baseHeightPx: 240,
         inkMeasured: false,
         rawScale: 1,
-        widthScale: 1,
         fitScale: 1,
         overflows: false,
       }),
@@ -790,7 +745,6 @@ describe("help-mermaid", () => {
       baseHeightPx,
       inkMeasured: true,
       rawScale: 1,
-      widthScale: 1,
       fitScale: 1,
       overflows: false,
     });
