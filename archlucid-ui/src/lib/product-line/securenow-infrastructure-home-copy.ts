@@ -36,8 +36,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
   {
     href: SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
-    summary:
-      "Declare ConnectsTo or DependsOn edges between resources when config files or tribal knowledge are not ingested.",
+    summary: "Declare edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
