@@ -440,7 +440,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByText("Advisory export")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
+      "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full&tab=diagram&infrastructureAskOpen=1",
     );
     expect(screen.queryByTestId("infra-diagrams-render-status-strip")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
@@ -525,7 +525,7 @@ describe("DiagramsWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
+      "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&tab=diagram&infrastructureAskOpen=1",
     );
   });
 
@@ -572,7 +572,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}&tab=diagram`,
+      `/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}&tab=diagram&infrastructureAskOpen=1`,
     );
   });
 

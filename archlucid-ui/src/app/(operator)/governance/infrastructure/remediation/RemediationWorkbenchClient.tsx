@@ -25,7 +25,8 @@ import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-e
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_REMEDIATION_FINDING_ID_DISCLOSURE_OPEN_PARAM,
   infraRemediationFindingIdDisclosureHrefFromSearch,
@@ -625,7 +626,7 @@ export function RemediationWorkbenchClient() {
       : detail?.finding?.findingId?.trim() ?? "";
     const scopedInstanceId = selectedInstanceId.length > 0 ? selectedInstanceId : urlInstanceId;
 
-    return buildInfrastructureAskHref({
+    return buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
       cloudResourceId: scopedCloudResourceId,
       snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : undefined,
       findingId: scopedFindingId.length > 0 ? scopedFindingId : undefined,
@@ -638,6 +639,8 @@ export function RemediationWorkbenchClient() {
   }, [
     auditScope,
     detail,
+    pathname,
+    searchParams,
     selectedInstanceId,
     urlCloudResourceId,
     urlCorrespondenceId,

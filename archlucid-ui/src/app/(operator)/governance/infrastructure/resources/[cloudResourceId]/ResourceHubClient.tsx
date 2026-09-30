@@ -81,8 +81,8 @@ import {
   formatInfraEvidenceRemediationApiError,
   matchOperationalFinding,
 } from "@/lib/infra-evidence/infra-evidence-remediation-api";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
 import {
-  buildInfrastructureAskHref,
   parseResourceHubQueryValueFromSearch,
   parseResourceHubTabFromSearch,
   resolveInfrastructureAskAuditContext,
@@ -180,6 +180,8 @@ function buildHubDriftChangeWorkbenchHref(
 }
 
 function buildHubDriftChangeAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
@@ -187,7 +189,7 @@ function buildHubDriftChangeAskHref(
   auditContext: InfrastructureAskAuditContext = {},
   explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId,
     runId: runId.length > 0 ? runId : undefined,
@@ -199,6 +201,8 @@ function buildHubDriftChangeAskHref(
 }
 
 function buildHubFindingAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
@@ -206,7 +210,7 @@ function buildHubFindingAskHref(
   auditContext: InfrastructureAskAuditContext = {},
   explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -218,6 +222,8 @@ function buildHubFindingAskHref(
 }
 
 function buildHubRemediationAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
@@ -225,7 +231,7 @@ function buildHubRemediationAskHref(
   auditContext: InfrastructureAskAuditContext = {},
   explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -237,6 +243,8 @@ function buildHubRemediationAskHref(
 }
 
 function buildHubAuditLineageAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
@@ -247,7 +255,7 @@ function buildHubAuditLineageAskHref(
   },
   explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -298,6 +306,8 @@ function buildHubScopedTabHref(
 }
 
 function buildHubDiagramCorrespondenceAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
@@ -305,7 +315,7 @@ function buildHubDiagramCorrespondenceAskHref(
   auditContext: InfrastructureAskAuditContext = {},
   explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -324,6 +334,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const infrastructureAskHandoffSearch = searchParams.toString();
   const activeTab = parseResourceHubTabFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
@@ -917,7 +928,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </p>
               <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-open-ask">
                 <Link
-                  href={buildInfrastructureAskHref({
+                  href={buildInfrastructureAskHandoffHref(pathname, infrastructureAskHandoffSearch, {
                     cloudResourceId,
                     snapshotId: resolvedSnapshotId,
                     runId,
@@ -1277,7 +1288,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   buildChangeWorkbenchHref={(change) =>
                     buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                   buildChangeAskHref={(change) =>
-                    buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
+                    buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
                   testIdPrefix="infra-resource-hub-drift"
                 />
               </section>
@@ -1305,7 +1316,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 buildChangeWorkbenchHref={(change) =>
                   buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                 buildChangeAskHref={(change) =>
-                  buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
+                  buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
                 testIdPrefix="infra-resource-hub-drift-tab"
               />
             ) : (
@@ -1399,6 +1410,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-ask">
                     <Link
                       href={buildHubDiagramCorrespondenceAskHref(
+                        pathname,
+                        infrastructureAskHandoffSearch,
                         cloudResourceId,
                         resolvedSnapshotId,
                         runId,
@@ -1621,7 +1634,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
+                                    href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
                                     data-testid={`infra-resource-hub-finding-ask-${item.id}`}
                                   >
                                     Ask
@@ -1631,7 +1644,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             ) : (
                               <Button asChild size="sm" variant="outline">
                                 <Link
-                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
+                                  href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
                                   data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
                                 >
                                   Ask
@@ -1720,7 +1733,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           </Button>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext, workQueue)}
+                              href={buildHubRemediationAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext, workQueue)}
                               data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
                             >
                               Ask
@@ -1761,7 +1774,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                   <Link
                     className={OPERATOR_LINK.inline}
-                    href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
+                    href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1790,7 +1803,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </Link>
                             <Link
                               className="text-sm text-al-link hover:underline"
-                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
+                              href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, {
                                 assessmentId: match.assessmentId,
                                 auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
                                 controlId: match.controlId,

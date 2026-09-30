@@ -142,7 +142,8 @@ import {
   isInfraEvidenceResourceGroupMapMermaid,
   parseInfraDiagramsResourceGroupName,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   infraDiagramsResourceIdDisclosureHrefFromSearch,
@@ -2460,7 +2461,7 @@ export function DiagramsWorkbenchClient() {
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
             data-testid="infra-diagrams-open-ask"
-            href={buildInfrastructureAskHref({
+            href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
               snapshotId: selectedSnapshotId,
               seedNodeId:

@@ -80,7 +80,8 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM,
   infraDriftChangeIdentifiersDisclosureHrefFromSearch,
@@ -1586,7 +1587,7 @@ export function DriftWorkbenchClient() {
               {selectedDiffId.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-drift-open-ask">
                   <Link
-                    href={buildInfrastructureAskHref({
+                    href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
                       cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                       snapshotId: selectedSnapshotId,
                       diffId: selectedDiffId,

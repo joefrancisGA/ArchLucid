@@ -84,7 +84,8 @@ import {
 import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAM_RECONCILE_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   infraDiagramReconcileResourceIdDisclosureHrefFromSearch,
@@ -162,6 +163,8 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
 ];
 
 function buildDiagramReconcileCorrespondenceAskHref(
+  pathname: string,
+  currentSearch: string,
   row: DiagramInfrastructureCorrespondenceRow,
   snapshotId: string,
   runId: string,
@@ -177,7 +180,7 @@ function buildDiagramReconcileCorrespondenceAskHref(
       : undefined
   );
 
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -1499,6 +1502,8 @@ export function DiagramReconcileWorkbenchClient() {
                         <Button asChild variant="outline" size="sm">
                           <Link
                             href={buildDiagramReconcileCorrespondenceAskHref(
+                              pathname,
+                              searchParams.toString(),
                               row,
                               selectedSnapshotId,
                               runId,

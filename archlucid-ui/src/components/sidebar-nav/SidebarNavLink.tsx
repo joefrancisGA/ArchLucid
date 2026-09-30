@@ -2,9 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
+import { tryResolveInfrastructureAskOverlayHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { trackNavLinkClick } from "@/lib/operator/operator-navigation-telemetry";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
@@ -44,6 +47,7 @@ function sidebarNavLinkSupplementalHint(presented: NavLinkItem, advancedDemo: bo
 }
 
 export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
+  const pathname = usePathname() ?? "/";
   const { presented } = props;
   const supplementalHint = sidebarNavLinkSupplementalHint(presented, props.advancedDemo);
   const hintId = supplementalHint === null ? undefined : sidebarNavLinkHintId(presented.href);
@@ -104,7 +108,21 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
       aria-keyshortcuts={
         presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
       }
-      onClick={() => {
+      onClick={(event) => {
+        const overlayHref =
+          typeof window !== "undefined"
+            ? tryResolveInfrastructureAskOverlayHref(
+                presented.href,
+                pathname,
+                window.location.search.slice(1),
+              )
+            : null;
+
+        if (overlayHref != null) {
+          event.preventDefault();
+          commitHrefIfChanged(overlayHref, { notify: false });
+        }
+
         if (props.navGroupId !== undefined && props.unlockPhase !== undefined) {
           trackNavLinkClick({
             href: presented.href,
