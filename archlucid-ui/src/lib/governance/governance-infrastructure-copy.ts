@@ -53,6 +53,11 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW = "Advanced operatio
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD =
   "Grounded Q&A over structured inventory rows with citation-backed answers. Use canned prompts or your own question when citations and insufficient-evidence outcomes are acceptable." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_ASK_DRAWER_LEAD =
+  "Ask grounded questions without leaving this workbench. Answers use the inventory snapshot in scope on this page." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_DRAWER_FULL_PAGE_ACTION = "Open full Ask page" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE =
   "Answers cite structured inventory rows only — not sealed review records or official assurance materials." as const;
 

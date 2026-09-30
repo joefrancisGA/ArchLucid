@@ -4,6 +4,8 @@ import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 
+import { InfrastructureAskDrawerHost } from "@/components/infra-evidence/InfrastructureAskDrawerHost";
+
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellStatusQueryGate";
@@ -410,6 +412,9 @@ function AppShellInner({ children }: AppShellClientProps) {
         <AppToasterDeferred />
         <RouteAnnouncerDeferred />
         <TrialLimitModalHostDeferred />
+        <Suspense fallback={null}>
+          <InfrastructureAskDrawerHost />
+        </Suspense>
         <AppShellHelpOverlays
           helpDocSearchOpen={helpDocSearchOpen}
           helpGuidesOpen={helpGuidesOpen}
