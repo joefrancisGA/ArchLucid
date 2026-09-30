@@ -1467,7 +1467,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
                 if (route is null)
                 {
-                    continue;
+                    throw new InvalidOperationException(
+                        $"Data-flow edge could not be routed between placed nodes '{routeFromNodeId}' and '{routeToNodeId}'.");
                 }
             }
             else if (bundledRoutes.TryGetValue(
