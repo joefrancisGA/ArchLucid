@@ -7495,7 +7495,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -7504,6 +7504,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** 0
 
 2026-09-12 seed hunt #2132 (seed-only): reseeded saml-jwt-bearer; no new hunt-ready rows.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication sources, including claim normalization, role extraction, metadata binding, recent-authentication timestamps, and bearer handling; no new reachable mechanism-backed candidate survived review.
 
 ### Hypotheses
 
