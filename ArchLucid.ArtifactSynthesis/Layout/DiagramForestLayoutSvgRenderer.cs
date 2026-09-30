@@ -68,7 +68,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             .FilterCanvasEdges(
                 renderableNodes,
                 DiagramExecutiveOverflowCanvasExclusion.CanvasVisibleEdges(ast.Nodes, ast.Edges),
-                resolvedOptions.IncludeCrossGroupFanOut)
+                resolvedOptions.IncludeCrossGroupFanOut || IsDataFlowTitle(ast.Title))
             .ToList();
         DiagramForestSingletonTailPlanner.Result singletonResult =
             DiagramForestSingletonTailPlanner.Apply(ast.Title, renderableNodes, visibleEdges);

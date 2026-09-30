@@ -67,7 +67,10 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             EmitNestedGraph(ast, builder, renderableSubgraphs, resourceGroupClusteredNodeIds);
         }
 
-        EmitVisibleEdges(ast, builder, resolvedOptions.IncludeCrossGroupFanOut);
+        EmitVisibleEdges(
+            ast,
+            builder,
+            resolvedOptions.IncludeCrossGroupFanOut || IsDataFlowTitle(ast.Title));
 
         builder.Append('}');
 
@@ -90,6 +93,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         {
             AppendNodeStatement(builder, indentText, node);
         }
+    }
+
+    private static bool IsDataFlowTitle(string title)
+    {
+        return title.Contains("(DataFlow)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void EmitNestedGraph(
