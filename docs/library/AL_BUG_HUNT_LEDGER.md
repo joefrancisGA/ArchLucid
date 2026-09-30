@@ -9577,7 +9577,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
@@ -18559,6 +18559,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **code-changed-since:** yes
 
 2026-09-30 seed hunt (seed-only): inspected the configured Safety and Http paths; they expose only the content-safety interface and transport settings, while the actual SSRF guard is outside this zone and its known candidates are closed; no new reachable candidate emerged.
+
+2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
 
 2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
 
