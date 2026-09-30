@@ -3238,7 +3238,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -5240,6 +5240,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): repeated the marketing route review again; the marketing filter reported the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
 
 2026-09-30 seed hunt (seed-only): repeated the marketing route review once more; the marketing filter retained the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
+
+2026-09-30 seed hunt (seed-only): repeated the marketing route review again; the marketing filter retained the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
 
 2026-09-12 seed hunt #2086 (seed-only): reseeded llm-wallet; 17 scoped tests passed; no new hunt-ready rows
 
