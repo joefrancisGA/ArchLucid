@@ -105,7 +105,11 @@ export async function fetchShowcasePayload(
       return { kind: "invalid" };
     }
 
-    if (!Array.isArray(payload.artifacts) || !Array.isArray(payload.pipelineTimeline)) {
+    if (
+      !Array.isArray(payload.artifacts) ||
+      !Array.isArray(payload.pipelineTimeline) ||
+      payload.pipelineTimeline.some((event) => event === null || typeof event !== "object" || Array.isArray(event))
+    ) {
       return { kind: "invalid" };
     }
 

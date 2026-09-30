@@ -25980,11 +25980,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 19
-- **bugs-found:** 24
+- **hunts:** 20
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-30 — showcase payload missing run identity
+- **last-bug:** 2026-09-30 — showcase payload null timeline row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25994,6 +25994,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `normalizeSeeItMarketingPayload` accepted a rich live demo payload without `manifest`, so `/see-it` rendered blank policy-pack metadata instead of the trusted snapshot — **hit 2026-09-30 seed hunt:** require a non-empty `manifestId` before treating live JSON as usable; regression `falls back when a rich live payload omits the manifest` in `see-it.test.tsx`.
 - [x] (proven) `fetchShowcasePayload` accepted a live showcase payload with an empty `run.runId`, so `ShowcaseQuickNav` built unusable operator review/finding URLs from the missing identity — **hit 2026-09-30 seed hunt:** reject missing or blank run identities as invalid; regression `treats API payloads missing the run identity as invalid` in `showcase-page.test.tsx`.
+- [x] (proven) `DemoPreviewMarketingBody.toAuthorityPipelineItems` dereferenced null timeline entries after `fetchShowcasePayload` validated only the array container, so malformed live JSON crashed the showcase page — **hit 2026-09-30 seed hunt:** reject null/non-object timeline rows as invalid; regression `treats API payloads with a null timeline row as invalid` in `showcase-page.test.tsx`.
 
 ### Hypotheses
 
