@@ -27,6 +27,13 @@ public sealed class DiagramForestLayoutOptions
         init;
     } = 280;
 
+    /// <summary>Target width-to-height ratio for a plate that needs more than three cells per row.</summary>
+    public double PlateTargetAspect
+    {
+        get;
+        init;
+    } = 1.6d;
+
     public int NodeHorizontalGap
     {
         get;

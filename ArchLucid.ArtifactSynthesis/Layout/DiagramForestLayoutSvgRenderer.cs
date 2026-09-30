@@ -348,6 +348,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             remainderCells.Add(new VnetRemainderCell(cell, cellPlacements, width, height, connectionCounts));
         }
 
+        double rowWidthLimit = ResolveRowWidthLimit(
+            vnetGroups.Select(group => (group.Width, group.Height))
+                .Concat(remainderCells.Select(cell => (cell.Width, cell.Height))),
+            options);
         HashSet<VnetRemainderCell> placedCells = [];
         double groupX = 0.0d;
         double rowY = 0.0d;
@@ -390,7 +394,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     (rightGroup.Placements, rightGroup.Width, rightGroup.Height),
                     .. rightConnectedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)),
                 ];
-                PlaceVnetPrimaryBlock(block, options, placements, ref groupX, ref rowY, ref rowHeight);
+                PlaceVnetPrimaryBlock(block, rowWidthLimit, options, placements, ref groupX, ref rowY, ref rowHeight);
                 placedCells.UnionWith(connectedCells);
                 placedCells.Add(sharedCell);
                 placedCells.UnionWith(rightConnectedCells);
@@ -406,6 +410,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             ];
             PlaceVnetPrimaryNeighborhood(
                 neighborhood,
+                rowWidthLimit,
                 options,
                 placements,
                 ref groupX,
@@ -422,6 +427,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         {
             PlaceVnetPrimaryBlock(
                 unplacedCells.Select(cell => (cell.Placements, cell.Width, cell.Height)).ToList(),
+                rowWidthLimit,
                 options,
                 placements,
                 ref groupX,
@@ -433,19 +439,30 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         return placements;
     }
 
+    private static double ResolveRowWidthLimit(
+        IEnumerable<(double Width, double Height)> cells,
+        DiagramForestLayoutOptions options)
+    {
+        double area = cells.Sum(cell =>
+            (cell.Width + options.ComponentHorizontalGap)
+            * (cell.Height + options.ComponentVerticalGap));
+        double aspectWidth = Math.Sqrt(Math.Max(0.0d, area * options.PlateTargetAspect));
+        return Math.Max(options.MaxNodeWidth * 3, aspectWidth);
+    }
+
     private static void PlaceVnetPrimaryNeighborhood(
         IReadOnlyList<(IReadOnlyList<NodePlacement> Items, double Width, double Height)> neighborhood,
+        double rowWidthLimit,
         DiagramForestLayoutOptions options,
         List<NodePlacement> placements,
         ref double groupX,
         ref double rowY,
         ref double rowHeight)
     {
-        double widthGuard = options.MaxNodeWidth * 3;
         double neighborhoodWidth = neighborhood.Sum(item => item.Width)
             + Math.Max(0, neighborhood.Count - 1) * options.ComponentHorizontalGap;
 
-        if (groupX > 0.0d && groupX + neighborhoodWidth > widthGuard)
+        if (groupX > 0.0d && groupX + neighborhoodWidth > rowWidthLimit)
         {
             groupX = 0.0d;
             rowY += rowHeight + options.ComponentVerticalGap;
@@ -461,7 +478,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         foreach ((IReadOnlyList<NodePlacement> items, double width, double height) in neighborhood)
         {
             double relativeRight = (localX - neighborhoodX) + width;
-            if (localX > neighborhoodX && relativeRight > widthGuard)
+            if (localX > neighborhoodX && relativeRight > rowWidthLimit)
             {
                 localX = neighborhoodX;
                 neighborhoodRowY += neighborhoodRowHeight + options.ComponentVerticalGap;
@@ -523,6 +540,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
     private static void PlaceVnetPrimaryBlock(
         IReadOnlyList<(IReadOnlyList<NodePlacement> Items, double Width, double Height)> block,
+        double rowWidthLimit,
         DiagramForestLayoutOptions options,
         List<NodePlacement> placements,
         ref double groupX,
@@ -534,7 +552,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         {
             foreach ((IReadOnlyList<NodePlacement> items, double width, double height) in block)
             {
-                if (groupX > 0.0d && groupX + width > options.MaxNodeWidth * 3)
+                if (groupX > 0.0d && groupX + width > rowWidthLimit)
                 {
                     groupX = 0.0d;
                     rowY += rowHeight + options.ComponentVerticalGap;
@@ -559,7 +577,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         double blockWidth = block.Sum(item => item.Width)
             + Math.Max(0, block.Count - 1) * options.ComponentHorizontalGap;
-        if (groupX > 0.0d && groupX + blockWidth > options.MaxNodeWidth * 3)
+        if (groupX > 0.0d && groupX + blockWidth > rowWidthLimit)
         {
             groupX = 0.0d;
             rowY += rowHeight + options.ComponentVerticalGap;
@@ -733,10 +751,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         ArgumentNullException.ThrowIfNull(islands);
 
         List<NodePlacement> placements = [];
-        double islandX = 0.0d;
-        double rowY = 0.0d;
-        double rowHeight = 0.0d;
-
+        List<(List<NodePlacement> Placements, double Width, double Height)> layouts = [];
         foreach (IReadOnlyList<DiagramNode> island in islands)
         {
             if (island is null || island.Count == 0)
@@ -750,8 +765,19 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 options,
                 labelContext);
             (double islandWidth, double islandHeight) = ResolveCellOuterSize(islandPlacements, options);
+            layouts.Add((islandPlacements, islandWidth, islandHeight));
+        }
 
-            if (islandX > 0.0d && islandX + islandWidth > options.MaxNodeWidth * 3)
+        double rowWidthLimit = ResolveRowWidthLimit(
+            layouts.Select(layout => (layout.Width, layout.Height)),
+            options);
+        double islandX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach ((List<NodePlacement> islandPlacements, double islandWidth, double islandHeight) in layouts)
+        {
+            if (islandX > 0.0d && islandX + islandWidth > rowWidthLimit)
             {
                 islandX = 0.0d;
                 rowY += rowHeight + options.ComponentVerticalGap;
@@ -911,11 +937,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             groups.Add((null, null, remainder));
         }
 
-        List<NodePlacement> placements = [];
-        double groupX = 0.0d;
-        double rowY = 0.0d;
-        double rowHeight = 0.0d;
-
+        List<(string? FrameId, DiagramNode? Vnet, List<NodePlacement> Placements, double Width, double Height, double OffsetX, double OffsetY)> layouts = [];
         foreach ((string? frameId, DiagramNode? vnet, IReadOnlyList<DiagramNode> groupNodes) in groups)
         {
             List<NodePlacement> groupPlacements = LayoutNestedVnetMembers(
@@ -936,8 +958,27 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 : groupPlacements.Max(placement => placement.Y + placement.Height);
             double groupWidth = framed ? interiorWidth + (pad * 2.0d) : interiorWidth;
             double groupHeight = framed ? interiorHeight + labelBand + pad : interiorHeight;
+            layouts.Add((
+                frameId,
+                vnet,
+                groupPlacements,
+                groupWidth,
+                groupHeight,
+                framed ? pad : 0.0d,
+                framed ? labelBand : 0.0d));
+        }
 
-            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
+        double rowWidthLimit = ResolveRowWidthLimit(
+            layouts.Select(layout => (layout.Width, layout.Height)),
+            options);
+        List<NodePlacement> placements = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach ((string? frameId, DiagramNode? vnet, List<NodePlacement> groupPlacements, double groupWidth, double groupHeight, double offsetX, double offsetY) in layouts)
+        {
+            if (groupX > 0.0d && groupX + groupWidth > rowWidthLimit)
             {
                 groupX = 0.0d;
                 rowY += rowHeight + options.ComponentVerticalGap;
@@ -1024,11 +1065,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             return LayoutCellInterior(vnetMembers, visibleEdges, options, labelContext);
         }
 
-        List<NodePlacement> placements = [];
-        double groupX = 0.0d;
-        double rowY = 0.0d;
-        double rowHeight = 0.0d;
-
+        List<(List<NodePlacement> Placements, double Width, double Height)> layouts = [];
         foreach (IReadOnlyList<DiagramNode> group in groups)
         {
             List<NodePlacement> groupPlacements = LayoutCellInterior(
@@ -1037,8 +1074,20 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 options,
                 labelContext);
             (double groupWidth, double groupHeight) = ResolveCellOuterSize(groupPlacements, options);
+            layouts.Add((groupPlacements, groupWidth, groupHeight));
+        }
 
-            if (groupX > 0.0d && groupX + groupWidth > options.MaxNodeWidth * 3)
+        double rowWidthLimit = ResolveRowWidthLimit(
+            layouts.Select(layout => (layout.Width, layout.Height)),
+            options);
+        List<NodePlacement> placements = [];
+        double groupX = 0.0d;
+        double rowY = 0.0d;
+        double rowHeight = 0.0d;
+
+        foreach ((List<NodePlacement> groupPlacements, double groupWidth, double groupHeight) in layouts)
+        {
+            if (groupX > 0.0d && groupX + groupWidth > rowWidthLimit)
             {
                 groupX = 0.0d;
                 rowY += rowHeight + options.ComponentVerticalGap;
