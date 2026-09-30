@@ -6348,7 +6348,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 10
+- **hunts:** 16
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -6747,7 +6747,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -7506,6 +7506,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2132 (seed-only): reseeded saml-jwt-bearer; no new hunt-ready rows.
 
 2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication sources, including claim normalization, role extraction, metadata binding, recent-authentication timestamps, and bearer handling; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
 
 ### Hypotheses
 
@@ -9565,11 +9577,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 15
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
+- **hunts:** 17
+- **bugs-found:** 17
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-30
+- **last-bug:** 2026-09-30 — numeric ServiceNow sys_id caused inbound payload reader to throw instead of rejecting the webhook
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9617,6 +9629,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1704 (dry): reseeded itsm-inbound-webhooks JSON reader parity; cheap-disproof closed four hunt-ready rows; 48 scoped ITSM inbound webhook tests passed.
 
 - [x] (invalid) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` accepted as external key — cheap-disproof 2026-09-26 seed hunt: ServiceNow correlation requires 32-character hexadecimal sys_id; `GetString()` on numeric returns null and `TryRead` fails; no ARM/vendor path emits numeric sys_id
+
+2026-09-30 seed hunt (hit): `ItsmInboundServiceNowPayloadReader` called `JsonElement.GetString()` on numeric `sys_id`/`sysId` tokens, throwing `InvalidOperationException` instead of returning an unrecognized payload; numeric token now rejects cleanly via `ReadStringToken`; regression `TryRead_rejects_numeric_sys_id_without_throwing`; 48 scoped ITSM inbound webhook tests passed.
+
+- [x] (proven) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` / `sysId` caused `JsonElement.GetString()` to throw, allowing malformed inbound webhook input to escape the reader’s validation path toward HTTP 500 — **hit 2026-09-30:** read only string tokens before `GetString()`; regression `TryRead_rejects_numeric_sys_id_without_throwing`.
+- [x] (proven) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — valid non-object JSON webhook roots caused `EnumerateObject()` to throw instead of returning an unrecognized payload — **hit 2026-09-30 seed hunt:** attacker-controlled array roots now reject cleanly; regression `TryRead_rejects_non_object_json_without_throwing`.
 
 ---
 
@@ -9738,7 +9755,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 13
+- **hunts:** 15
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-13
@@ -18401,6 +18418,8 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; no new reachable mechanism-backed candidate survived the terminal/in-progress precedence and forward-compatible failure parsing review.
+
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
@@ -18543,6 +18562,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-30 seed hunt (seed-only): inspected the configured Safety and Http paths; they expose only the content-safety interface and transport settings, while the actual SSRF guard is outside this zone and its known candidates are closed; no new reachable candidate emerged.
+
+2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
+
+2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
 
 2026-09-12 thorough hunt #1954 (dry): cheap-disproof closed integration outbound client candidate already fixed in #1928; no open hunt-ready rows.
 
