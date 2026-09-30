@@ -655,8 +655,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   }, [dark, svgMarkup]);
 
   const neighborhoodMap = useMemo<DiagramNeighborhoodMap | null>(
-    () => (sanitizedSvg === null ? null : parseDiagramNeighborhoodMap(sanitizedSvg)),
-    [sanitizedSvg],
+    () => (svgMarkup === null ? null : parseDiagramNeighborhoodMap(svgMarkup)),
+    [svgMarkup],
   );
   const activeNeighborhood = openNeighborhoodId === null
     ? null
