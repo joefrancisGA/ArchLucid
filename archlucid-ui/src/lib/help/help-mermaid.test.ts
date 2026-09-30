@@ -560,10 +560,10 @@ describe("help-mermaid", () => {
         baseHeightPx: 900,
         inkMeasured: true,
         rawScale: 0.6,
-        fitScale: 0.6,
+        fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
         overflows: true,
       }),
-    ).toBe(0.6);
+    ).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
   });
 
   it("applies layout-affecting zoom on top of a viewport contain-fit", () => {

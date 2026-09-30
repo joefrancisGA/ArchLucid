@@ -44,7 +44,10 @@ import {
   parseArchitectureDiagramZoomFromSearch,
 } from '@/lib/architecture/architecture-diagram-fullscreen-url';
 import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
-import { applyDiagramOverviewCaptions } from '@/lib/architecture/architecture-diagram-overview-captions';
+import {
+  applyDiagramOverviewCaptions,
+  readDiagramPaintedScale,
+} from '@/lib/architecture/architecture-diagram-overview-captions';
 import {
   normalizeDiagramFocusToken,
   resolveDiagramClickFocus,
@@ -155,7 +158,8 @@ function applyMermaidViewportCamera(
 
   if (baseFit !== null && baseFit.inkMeasured) {
     applyMermaidSvgViewportZoom(svg, baseFit, zoom);
-    applyDiagramOverviewCaptions(svg, zoom);
+    const paintedScale = readDiagramPaintedScale(svg);
+    applyDiagramOverviewCaptions(svg, paintedScale ?? 1);
   }
 
   return baseFit;

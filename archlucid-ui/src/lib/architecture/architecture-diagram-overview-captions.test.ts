@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   applyDiagramOverviewCaptions,
   formatOverviewCaption,
   isDiagramOverviewScale,
+  readDiagramPaintedScale,
   truncateOverviewName,
 } from "@/lib/architecture/architecture-diagram-overview-captions";
 
@@ -51,10 +52,43 @@ describe("architecture diagram overview captions", () => {
     applyDiagramOverviewCaptions(svg, 0.4);
     expect(svg.querySelector("text.overview-caption")?.textContent).toBe("alpha · 1");
     expect(svg.querySelector("g.node text")).toHaveClass("diagram-overview-hidden");
-    expect(svg.querySelector("g.edge text.edge-label")).toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.edge text.edge-label")).not.toHaveClass("diagram-overview-hidden");
 
     applyDiagramOverviewCaptions(svg, 0.5);
     expect(svg.querySelector("g.overview-captions")).toBeNull();
     expect(svg.querySelector("g.node text")).not.toHaveClass("diagram-overview-hidden");
+  });
+
+  it("leaves thin frames and their labels intact", () => {
+    const svg = createSvg(`
+      <g class="vnet-frame"><title>thin</title><rect x="0" y="0" width="100" height="42"/></g>
+      <g class="node" transform="translate(10 10)"><rect class="node-card" width="10" height="10"/><text>card</text></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+
+    expect(svg.querySelector("g.overview-captions")).toBeNull();
+    expect(svg.querySelector("g.node text")).not.toHaveClass("diagram-overview-hidden");
+  });
+
+  it("clips a qualifying caption to its frame", () => {
+    const svg = createSvg(`
+      <g class="vnet-frame"><title>alpha</title><rect x="0" y="0" width="100" height="50"/></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+
+    expect(svg.querySelector("text.overview-caption")).toHaveAttribute("clip-path", "url(#diagram-overview-clip-0)");
+    expect(svg.querySelector("clipPath rect")).toHaveAttribute("height", "50");
+  });
+
+  it("reads the scale after CSS has painted the SVG", () => {
+    const svg = createSvg("");
+    svg.setAttribute("viewBox", "0 0 200 100");
+    vi.spyOn(svg, "getBoundingClientRect").mockReturnValue({
+      width: 80,
+    } as DOMRect);
+
+    expect(readDiagramPaintedScale(svg)).toBe(0.4);
   });
 });
