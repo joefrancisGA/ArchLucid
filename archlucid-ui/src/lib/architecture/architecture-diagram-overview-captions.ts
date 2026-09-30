@@ -125,11 +125,6 @@ function estimateOverviewCaptionWidth(text: string, paintedScale: number): numbe
   return (text.length * 0.6 * OVERVIEW_CAPTION_FONT_SIZE_PX) / paintedScale;
 }
 
-function readViewBoxTop(svg: SVGSVGElement): number {
-  const viewBox = (svg.getAttribute("viewBox") ?? "").trim().split(/[\s,]+/u).map(Number);
-  return Number.isFinite(viewBox[1]) ? viewBox[1] : 0;
-}
-
 type CaptionBounds = {
   readonly x: number;
   readonly y: number;
@@ -144,6 +139,24 @@ function overlaps(first: CaptionBounds, second: CaptionBounds): boolean {
     && first.y < second.y + second.height
     && first.y + first.height > second.y
   );
+}
+
+function expandBounds(bounds: CaptionBounds, padding: number): CaptionBounds {
+  return {
+    x: bounds.x - padding,
+    y: bounds.y - padding,
+    width: bounds.width + padding * 2,
+    height: bounds.height + padding * 2,
+  };
+}
+
+function intersectsAny(
+  bounds: CaptionBounds,
+  rectangles: readonly CaptionBounds[],
+  padding: number,
+): boolean {
+  const expanded = expandBounds(bounds, padding);
+  return rectangles.some((rectangle) => overlaps(expanded, expandBounds(rectangle, padding)));
 }
 
 function countNodesInside(svg: SVGSVGElement, frameRect: Rect): number {
@@ -205,9 +218,12 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
   captions.appendChild(defs);
   let captionCount = 0;
   const placedCaptionBounds: CaptionBounds[] = [];
-  const viewBoxTop = readViewBoxTop(svg);
   const captionHeight = OVERVIEW_CAPTION_FONT_SIZE_PX / paintedScale;
   const captionLineHeight = 16 / paintedScale;
+  const captionHaloPadding = 2 / paintedScale;
+  const frameRects = [...svg.querySelectorAll("g.vnet-frame, g.rg-frame")]
+    .map(frameRect)
+    .filter((rect): rect is Rect => rect !== null);
 
   const frames = [...svg.querySelectorAll("g.vnet-frame, g.rg-frame")]
     .map((frame) => ({
@@ -252,10 +268,9 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     const captionText = formatOverviewCaption(name, countNodesInside(svg, rect));
     const captionWidth = estimateOverviewCaptionWidth(captionText, paintedScale);
     const fitsInside = captionWidth <= rect.width - 16 / paintedScale;
-    const canPlaceOutside = rect.y - 4 / paintedScale - captionHeight >= viewBoxTop;
-    const outside = !fitsInside && canPlaceOutside;
-    const x = outside ? rect.x : rect.x + 8 / paintedScale;
-    let baselineY = outside ? rect.y - 4 / paintedScale : rect.y + 14 / paintedScale;
+    const outside = !fitsInside;
+    let x = rect.x + 8 / paintedScale;
+    let baselineY = rect.y + 14 / paintedScale;
     let bounds: CaptionBounds = {
       x,
       y: baselineY - captionHeight,
@@ -264,28 +279,73 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     };
 
     if (outside) {
-      let moves = 0;
-      while (moves < 3) {
-        const overlappingBounds = placedCaptionBounds.filter((placed) => overlaps(bounds, placed));
-        if (overlappingBounds.length === 0) {
+      const rightX = rect.x + rect.width + 6 / paintedScale;
+      let rightBaselineY = rect.y + 16 / paintedScale;
+      let rightBounds: CaptionBounds = {
+        x: rightX,
+        y: rightBaselineY - captionHeight,
+        width: captionWidth,
+        height: captionHeight,
+      };
+      let rightAccepted = false;
+
+      for (let moves = 0; moves <= 3; moves += 1) {
+        const hitsFrame = intersectsAny(rightBounds, frameRects, captionHaloPadding);
+        if (hitsFrame) {
           break;
         }
 
-        baselineY = Math.max(
+        const overlappingBounds = placedCaptionBounds.filter((placed) =>
+          intersectsAny(rightBounds, [placed], captionHaloPadding));
+        if (overlappingBounds.length === 0) {
+          rightAccepted = true;
+          break;
+        }
+
+        rightBaselineY = Math.max(
           ...overlappingBounds.map((placed) => placed.y + placed.height + captionLineHeight),
         );
-        bounds = { ...bounds, y: baselineY - captionHeight };
-        moves += 1;
+        rightBounds = { ...rightBounds, y: rightBaselineY - captionHeight };
       }
 
-      const haloPadding = 2 / paintedScale;
+      if (rightAccepted) {
+        x = rightBounds.x;
+        baselineY = rightBaselineY;
+        bounds = rightBounds;
+      } else {
+        x = rect.x;
+        baselineY = rect.y - 4 / paintedScale;
+        bounds = {
+          x,
+          y: baselineY - captionHeight,
+          width: captionWidth,
+          height: captionHeight,
+        };
+
+        for (let moves = 0; moves <= 3; moves += 1) {
+          const hitsFrame = intersectsAny(bounds, frameRects, captionHaloPadding);
+          const overlappingBounds = placedCaptionBounds.filter((placed) =>
+            intersectsAny(bounds, [placed], captionHaloPadding));
+          if (!hitsFrame && overlappingBounds.length === 0) {
+            break;
+          }
+
+          if (hitsFrame || moves === 3) {
+            break;
+          }
+
+          baselineY += captionLineHeight;
+          bounds = { ...bounds, y: baselineY - captionHeight };
+        }
+      }
+
       const halo = document.createElementNS(SVG_NS, "rect");
       halo.setAttribute("class", "overview-caption-halo");
-      halo.setAttribute("x", String(bounds.x - haloPadding));
-      halo.setAttribute("y", String(bounds.y - haloPadding));
-      halo.setAttribute("width", String(bounds.width + haloPadding * 2));
-      halo.setAttribute("height", String(bounds.height + haloPadding * 2));
-      halo.setAttribute("rx", String(haloPadding));
+      halo.setAttribute("x", String(bounds.x - captionHaloPadding));
+      halo.setAttribute("y", String(bounds.y - captionHaloPadding));
+      halo.setAttribute("width", String(bounds.width + captionHaloPadding * 2));
+      halo.setAttribute("height", String(bounds.height + captionHaloPadding * 2));
+      halo.setAttribute("rx", String(captionHaloPadding));
       halo.setAttribute("fill", "#ffffff");
       halo.setAttribute("fill-opacity", "0.85");
       captions.appendChild(halo);
