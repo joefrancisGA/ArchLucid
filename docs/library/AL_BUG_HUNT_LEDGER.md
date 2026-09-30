@@ -9577,11 +9577,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 16
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-26
-- **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
+- **hunts:** 17
+- **bugs-found:** 17
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-30
+- **last-bug:** 2026-09-30 — numeric ServiceNow sys_id caused inbound payload reader to throw instead of rejecting the webhook
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9629,6 +9629,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1704 (dry): reseeded itsm-inbound-webhooks JSON reader parity; cheap-disproof closed four hunt-ready rows; 48 scoped ITSM inbound webhook tests passed.
 
 - [x] (invalid) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` accepted as external key — cheap-disproof 2026-09-26 seed hunt: ServiceNow correlation requires 32-character hexadecimal sys_id; `GetString()` on numeric returns null and `TryRead` fails; no ARM/vendor path emits numeric sys_id
+
+2026-09-30 seed hunt (hit): `ItsmInboundServiceNowPayloadReader` called `JsonElement.GetString()` on numeric `sys_id`/`sysId` tokens, throwing `InvalidOperationException` instead of returning an unrecognized payload; numeric token now rejects cleanly via `ReadStringToken`; regression `TryRead_rejects_numeric_sys_id_without_throwing`; 48 scoped ITSM inbound webhook tests passed.
+
+- [x] (proven) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` / `sysId` caused `JsonElement.GetString()` to throw, allowing malformed inbound webhook input to escape the reader’s validation path toward HTTP 500 — **hit 2026-09-30:** read only string tokens before `GetString()`; regression `TryRead_rejects_numeric_sys_id_without_throwing`.
 
 ---
 

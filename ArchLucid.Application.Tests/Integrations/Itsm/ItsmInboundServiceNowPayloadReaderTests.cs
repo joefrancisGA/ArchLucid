@@ -62,4 +62,15 @@ public sealed class ItsmInboundServiceNowPayloadReaderTests
         ok.Should().BeTrue();
         result.StatusValue.Should().Be("6");
     }
+
+    [Fact]
+    public void TryRead_rejects_numeric_sys_id_without_throwing()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"sys_id":12345,"state":"6"}""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("ServiceNow sys_id is a string token; malformed JSON must be rejected rather than throwing");
+    }
 }
