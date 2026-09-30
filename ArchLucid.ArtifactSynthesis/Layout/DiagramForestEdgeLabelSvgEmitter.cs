@@ -151,7 +151,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         double deltaX = longest.X2 - longest.X1;
         double deltaY = longest.Y2 - longest.Y1;
         bool horizontal = Math.Abs(deltaX) >= Math.Abs(deltaY);
-        double perpendicularStep = labelHeight + LabelStackGap;
+        double perpendicularStep = (horizontal ? labelHeight : labelWidth) + LabelStackGap;
 
         for (int attempt = 0; attempt <= MaxLabelStackSteps; attempt++)
         {

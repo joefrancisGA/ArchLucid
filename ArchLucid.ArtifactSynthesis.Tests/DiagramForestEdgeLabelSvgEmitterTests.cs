@@ -78,7 +78,7 @@ public sealed class DiagramForestEdgeLabelSvgEmitterTests
 
         (double secondX, double secondY) = ReadCenter(second);
 
-        secondX.Should().Be(55);
+        secondX.Should().Be(94.8);
         secondY.Should().Be(90);
     }
 
