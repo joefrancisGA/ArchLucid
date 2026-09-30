@@ -128,7 +128,7 @@ Set `status` to `cooling` when yield has dropped but exhaustion is not complete.
 
 If every **hunt-ready** hypothesis was tested and **none** produced a failing repro: increment `hunts` and `consecutive-dry-hunts`, set `last-hunt` to today, tick attempted rows with **`(valid-no-repro)`** or **`(invalid)`** (see Phase 1.1c), **stop**. Do not invent another bug in the same files or jump to another zone.
 
-A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`.
+A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`. After **8** seed-only outcomes for one zone in 24 hours, the picker skips that zone while any other open or unseeded zone is below that threshold. A hint still selects the saturated zone.
 
 ---
 
@@ -146,8 +146,8 @@ Do **not** spend a full repro loop on template candidates. Read the zone `paths`
 
 1. **Promote** a candidate to `(hunt-ready)` only when it meets the quality bar (1.1b).
 2. **Retire** a candidate as `(invalid)` when the locus or prerequisite does not exist in these files.
-3. If you promote a hunt-ready row, **prove it in this same run** (failing repro). A proven row makes this seed hunt a **hit**. Do not leave a new hunt-ready row untested because another `/al-bug` is queued.
-4. If nothing is hunt-ready after the read, stop as **seed-only** (not a dry hunt), keep the seed-hunt banner in the result table, and do not invent a fourth generic template.
+3. If you promote a hunt-ready row, **prove it in this same run** (failing repro). A proven row makes this seed hunt a **hit**. Do not leave a new hunt-ready row untested because another `/al-bug` is queued. Promote **at most one** row per seed hunt.
+4. If nothing is hunt-ready after the read, stop as **seed-only** (not a dry hunt) and keep the seed-hunt banner in the result table. Before stopping, persist up to five new `(candidate)` rows. Each row names a locus in these files and an input the code can receive. Leave those rows open for the next run. Do not add a passing regression for a hypothesis you did not try to falsify. Do not invent a generic harm-class template.
 
 For a previously hunted zone with no open rows, reseed from fresh evidence rather than copying old mechanisms:
 

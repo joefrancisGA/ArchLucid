@@ -1335,4 +1335,109 @@ Describe 'al-bug-pick-zone.ps1' {
         $seedOnly.seedOnly24h | Should -Be 10
         $thorough.exploreBonus | Should -Be 1
     }
+
+    It 'skips a seed-only saturated zone when another open zone is fresh' {
+        $content = @"
+# fixture
+
+## Zone: zone-saturated
+
+- **id:** zone-saturated
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/Saturated.cs
+- **hunts:** 100
+- **bugs-found:** 90
+- **last-hunt:** 2026-09-01
+- **test-filter:** ``FullyQualifiedName~Saturated``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) closed
+
+## Zone: zone-fresh
+
+- **id:** zone-fresh
+- **status:** unseeded
+- **impact:** medium
+- **paths:** ArchLucid.Core/Fresh.cs
+- **hunts:** 0
+- **bugs-found:** 0
+- **last-hunt:** never
+- **test-filter:** ``FullyQualifiedName~Fresh``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) fresh lens
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'saturated.jsonl'
+        $lines = @()
+        for ($i = 0; $i -lt 8; $i++) {
+            $lines += "{`"at`":`"2026-09-06T1$i`:00:00Z`",`"zoneId`":`"zone-saturated`",`"outcome`":`"seed-only`"}"
+        }
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $rotated = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z'
+        $hinted = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z' -Hint 'zone-saturated'
+
+        $rotated.zoneId | Should -Be 'zone-fresh'
+        $hinted.zoneId | Should -Be 'zone-saturated'
+        $hinted.seedOnlySaturated | Should -Be $true
+    }
+
+    It 'keeps seed-only saturated zones eligible when every open zone is saturated' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/A.cs
+- **hunts:** 20
+- **bugs-found:** 10
+- **last-hunt:** 2026-09-01
+- **test-filter:** ``FullyQualifiedName~A``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) closed
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/B.cs
+- **hunts:** 4
+- **bugs-found:** 1
+- **last-hunt:** 2026-09-01
+- **test-filter:** ``FullyQualifiedName~B``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) closed
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'all-saturated.jsonl'
+        $lines = @()
+        foreach ($zoneId in @('zone-a', 'zone-b')) {
+            for ($i = 0; $i -lt 8; $i++) {
+                $lines += "{`"at`":`"2026-09-06T1$i`:00:00Z`",`"zoneId`":`"$zoneId`",`"outcome`":`"seed-only`"}"
+            }
+        }
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z'
+
+        $result.zoneId | Should -Be 'zone-a'
+        $result.eligibleCount | Should -Be 2
+        $result.seedOnlySaturated | Should -Be $true
+    }
 }
