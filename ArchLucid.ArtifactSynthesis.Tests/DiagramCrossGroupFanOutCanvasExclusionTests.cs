@@ -18,7 +18,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().NotContain("likely · in");
+        result.Svg.Should().Contain("likely · in");
         result.Svg.Should().NotContain("likely · applies");
         result.Svg.Should().Contain("connects");
     }
@@ -50,7 +50,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
             .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: false)
             .ToList();
 
-        filtered.Should().NotContain(sameGroupLikely);
+        filtered.Should().Contain(sameGroupLikely);
         filtered.Should().Contain(crossGroupConnects);
         filtered.Should().NotContain(crossGroupLikely);
 
@@ -58,6 +58,19 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
             .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: true)
             .Should()
             .ContainInOrder(sameGroupLikely, crossGroupLikely, crossGroupConnects);
+    }
+
+    [Fact]
+    public void Render_data_flow_paints_cross_group_likely_edges_without_opt_in()
+    {
+        DiagramAst ast = BuildTwoResourceGroupAst();
+        ast.Title = "Azure inventory (DataFlow)";
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("likely · in");
+        result.Svg.Should().Contain("likely · applies");
     }
 
     private static DiagramAst BuildTwoResourceGroupAst()
