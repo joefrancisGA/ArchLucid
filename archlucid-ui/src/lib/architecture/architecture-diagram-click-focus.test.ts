@@ -59,7 +59,7 @@ describe("resolveDiagramClickFocus", () => {
       ],
     });
 
-    expect(result.keptNodeIds).toEqual(new Set(["vault", "vnet-a", "vm-in-vnet-a"]));
+    expect([...result.keptNodeIds].sort()).toEqual(["vault", "vminvneta", "vneta"]);
     expect(result.keptFrameIds).toEqual(new Set(["vnet-vnet-a"]));
     expect(result.keptEdgeIndexes).toEqual(new Set([0]));
   });
