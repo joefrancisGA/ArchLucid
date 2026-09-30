@@ -7,6 +7,7 @@ import {
   OIDC_GOOGLE_OAUTH_STATE_KEY,
   OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
+  OIDC_POST_SIGN_IN_RETURN_URL_KEY,
 } from "@/lib/oidc/storage-keys";
 import { readPkceState, storePkceState } from "@/lib/oidc/session";
 
@@ -62,5 +63,28 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_CODE_VERIFIER_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_NONCE_KEY)).toBeNull();
+  });
+
+  it("clears the stored return path when discovery fails before redirect", async () => {
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("discovery unavailable");
+      }),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(initiateOidcRedirect("/architecture/reviews")).rejects.toThrow("discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
   });
 });

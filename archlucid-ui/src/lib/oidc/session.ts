@@ -220,6 +220,10 @@ export function storePostSignInReturnUrl(url: string): void {
   }
 }
 
+export function clearPostSignInReturnUrl(): void {
+  sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+}
+
 /**
  * Reads and clears the stored post-sign-in return URL (single-use).
  * Returns null when absent, never written, or (defense in depth) no longer a safe path.

@@ -13214,11 +13214,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 21
-- **bugs-found:** 24
+- **hunts:** 22
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-30 — failed OIDC discovery left stale PKCE state in sessionStorage
+- **last-bug:** 2026-09-30 — failed OIDC discovery left a stale post-sign-in return path in sessionStorage
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13228,6 +13228,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `parseDiscoveryDocument` accepts any non-empty `issuer` string without validating that it is an absolute HTTP(S) issuer matching the configured authority, so a reachable discovery response can be treated as metadata for a different issuer — **cheap-disproved 2026-09-30:** the parsed `issuer` is not consumed by the browser authorization or token flow; only validated endpoint fields drive behavior in these files, so no wrong outcome is reachable here.
 - [x] (proven) `initiateOidcRedirect` writes PKCE state before discovery completes and leaves that state in `sessionStorage` when discovery fails, so a failed redirect attempt can leave stale verifier/nonce material for the next callback — **hit 2026-09-30:** discovery rejection left the newly generated state, verifier, and nonce stored despite no authorization redirect; fixed by clearing flow-scoped PKCE state on discovery failure for primary and Google redirects; regression `clears primary PKCE state when discovery fails before redirect`.
+- [x] (proven) `initiateOidcRedirect` leaves a stored post-sign-in return path after discovery fails — **hit 2026-09-30 seed hunt:** `storePostSignInReturnUrl` ran before `loadDiscoveryDocument`, and the rejection path cleared PKCE but not the return path; fixed by clearing the stored return URL when discovery fails; regression `clears the stored return path when discovery fails before redirect`.
 - [x] (invalid) Authority host check accepts a look-alike domain as the configured issuer — locus is `archlucid-ui/src/lib/auth/oidc-authority-host.ts`, outside this zone; covered by `oidc-authority-host.test.ts`.
 - [x] (valid-no-repro) OIDC redirect builds a return URL that leaves the operator origin — `storePostSignInReturnUrl` / `isSafeReturnPath` reject absolute, protocol-relative, and smuggled paths; covered by `session.test.ts` and `safe-return-path.test.ts`.
 - [x] (invalid) Silent renew uses a stale authority after tenant IdP switch — `ensureAccessTokenFresh` reads `getOidcAuthority()` on each refresh; discovery cache is keyed by normalized discovery URL, not a frozen authority snapshot.
@@ -13268,6 +13269,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1234 (hit): reseeded ui-oidc zone; proved end_session_endpoint scheme gap (parity with #805 authorization_endpoint fix); cheap-disproved id_token-absent nonce bypass; seeded BFF expiry skew and client logout URL validation candidates.
 
 2026-09-30 thorough hunt (hit): proved failed OIDC discovery left stale PKCE state after `initiateOidcRedirect` had written it; fixed cleanup for primary and supplemental flows; cheap-disproved issuer validation as a client-side defect because the parsed issuer is not consumed; 59 scoped OIDC tests passed.
+
+2026-09-30 seed hunt (seed→hit): proved failed discovery also left the newly stored post-sign-in return path despite no redirect; added cleanup for primary and supplemental redirects and regression `clears the stored return path when discovery fails before redirect`; 60 scoped OIDC tests passed.
 
 ---
 

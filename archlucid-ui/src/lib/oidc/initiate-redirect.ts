@@ -8,7 +8,12 @@ import { buildAuthorizeUrl } from "@/lib/oidc/build-authorize-url";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { createPkcePair, randomOpaqueState } from "@/lib/oidc/pkce";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
-import { clearPkceState, storePkceState, storePostSignInReturnUrl } from "@/lib/oidc/session";
+import {
+  clearPkceState,
+  clearPostSignInReturnUrl,
+  storePkceState,
+  storePostSignInReturnUrl,
+} from "@/lib/oidc/session";
 
 /**
  * Builds the IdP authorization URL and navigates the browser to it.
@@ -38,6 +43,9 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("primary");
+    if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
+      clearPostSignInReturnUrl();
+    }
     throw error;
   }
   const url = buildAuthorizeUrl({
@@ -90,6 +98,9 @@ export async function initiateSupplementalOidcRedirect(
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("google");
+    if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
+      clearPostSignInReturnUrl();
+    }
     throw error;
   }
   const url = buildAuthorizeUrl({
