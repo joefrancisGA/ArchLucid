@@ -242,7 +242,18 @@ def update_zone_ledger(content: str, result: HuntResult) -> str:
 
     def set_field(field: str, value: str) -> None:
         nonlocal block
-        block = re.sub(rf"(- \*\*{re.escape(field)}:\*\* ).*", rf"\1{value}", block, count=1)
+        pattern = rf"(- \*\*{re.escape(field)}:\*\* ).*"
+        if re.search(pattern, block):
+            block = re.sub(pattern, rf"\1{value}", block, count=1)
+            return
+
+        # Some older ledger zones omit last-hunt entirely. Without a persisted
+        # timestamp, the picker treats them as never hunted and counts all
+        # recent commits as churn on every subsequent batch run.
+        anchor = re.search(r"(- \*\*hunts:\*\* \d+\n)", block)
+        if not anchor:
+            raise RuntimeError(f"missing field {field} and hunts anchor for {result.zone_id}")
+        block = block[:anchor.end()] + f"- **{field}:** {value}\n" + block[anchor.end():]
 
     bump("hunts")
     set_field("last-hunt", TODAY)

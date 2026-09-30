@@ -2768,9 +2768,9 @@
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 1331
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 970
 - **consecutive-dry-hunts:** 0
-P26-09-29
 - **last-bug:** 2026-09-18 — hunt #6951: azurerm_fty Compute-category ds- alias gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
