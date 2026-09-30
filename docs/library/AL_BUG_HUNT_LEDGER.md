@@ -2767,8 +2767,55 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1403
+- **hunts:** 1497
 - **last-hunt:** 2026-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
 P26-09-30
 P26-09-30
 P26-09-30
@@ -5888,8 +5935,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 29
+- **hunts:** 31
 - **last-hunt:** 2026-09-30
+P26-09-30
 P26-09-30
 P26-09-30
 - **bugs-found:** 16
@@ -10666,8 +10714,10 @@ P26-09-30
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 48
+- **hunts:** 52
 - **last-hunt:** 2026-09-30
+P26-09-30
+P26-09-30
 P26-09-30
 P26-09-30
 P26-09-30
