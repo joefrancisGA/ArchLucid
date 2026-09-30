@@ -25980,17 +25980,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 17
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
+- **hunts:** 18
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-26 — sponsor run collateral issue shell sign-in returnUrl
+- **last-bug:** 2026-09-30 — rich live `/see-it` payload missing manifest
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-12 seed hunt #1947 (seed-only): re-read marketing surfaces after master merge churn; sign-in returnUrl, see-it disclosure, and quick-scan parity paths remain covered by existing regressions; no new mechanism-backed hunt-ready rows.
 
 2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter retained the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
+
+- [x] (proven) `normalizeSeeItMarketingPayload` accepted a rich live demo payload without `manifest`, so `/see-it` rendered blank policy-pack metadata instead of the trusted snapshot — **hit 2026-09-30 seed hunt:** require a non-empty `manifestId` before treating live JSON as usable; regression `falls back when a rich live payload omits the manifest` in `see-it.test.tsx`.
 
 ### Hypotheses
 
