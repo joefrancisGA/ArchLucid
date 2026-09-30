@@ -6348,7 +6348,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -7506,6 +7506,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2132 (seed-only): reseeded saml-jwt-bearer; no new hunt-ready rows.
 
 2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication sources, including claim normalization, role extraction, metadata binding, recent-authentication timestamps, and bearer handling; no new reachable mechanism-backed candidate survived review.
+
+2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
 
 2026-09-30 seed hunt (seed-only): re-read SAML/JWT/SCIM authentication surfaces and their metadata/claim parsing paths; no new reachable mechanism-backed candidate survived review.
 
