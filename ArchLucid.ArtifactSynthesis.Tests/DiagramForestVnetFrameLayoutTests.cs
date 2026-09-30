@@ -3,8 +3,8 @@ using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
-using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
