@@ -36,7 +36,7 @@ The chip keeps the current size. Width stays `(label.Length * 6.4) + (LabelPaddi
 
 1. The first label on an edge is centered on the midpoint of that edge's longest segment. Do not add the 10px perpendicular offset.
 2. Two chips collide when their rectangles overlap or touch. Use those rectangles. Do not use a 12px center radius.
-3. When the midpoint collides with a chip already placed, keep the same position along the segment and step perpendicular to the segment. The step is the chip height plus 2px. On a horizontal segment, the first step is up (smaller Y), the next is down (larger Y), then one step further up, then one step further down. On a vertical segment, the first step is to the right (larger X), the next is to the left (smaller X), then further right, then further left. Stop at the first free slot. Eight steps is enough.
+3. When the midpoint collides with a chip already placed, keep the same position along the segment and step perpendicular to the segment by the chip dimension on that axis plus 2px: chip height for a horizontal segment, chip width for a vertical segment. On a horizontal segment, the first step is up (smaller Y), the next is down (larger Y), then one step further up, then one step further down. On a vertical segment, the first step is to the right (larger X), the next is to the left (smaller X), then further right, then further left. Stop at the first free slot. Eight steps is enough.
 4. Do not slide the label along the segment.
 
 Remove `LabelOffset`, `LabelCollisionRadius`, and `LabelNudge` when nothing reads them.
@@ -49,7 +49,7 @@ Add `ArchLucid.ArtifactSynthesis.Tests/DiagramForestEdgeLabelSvgEmitterTests.cs`
 
 1. One horizontal segment from `(0, 100)` to `(200, 100)`, label `used by`. The chip center is `(100, 100)`.
 2. The same horizontal segment for two edges, labels `used by` and `peering`. Both centers have x `100`. The second center's y is `100` minus the chip height minus 2. The chip rectangles do not overlap.
-3. One vertical segment from `(40, 0)` to `(40, 180)` for two edges, labels `used by` and `peering`. Both centers have y `90`. The second center's x is `40` plus the chip height plus 2. The chip rectangles do not overlap.
+3. One vertical segment from `(40, 0)` to `(40, 180)` for two edges, labels `used by` and `peering`. Both centers have y `90`. The second center's x is `40` plus the chip width plus 2. The chip rectangles do not overlap.
 4. Through `DiagramForestLayoutSvgRenderer`, two topology cards and one edge labelled `used by`. Parse that edge path `d` (`M`, then `H` or `V`) into segments. The label center matches the longest segment's midpoint. It is not 10px off that midpoint.
 
 The existing six-peering label count, the empty private-endpoint edge with no `edge-label`, and the `private endpoint × 3` bundle title stay as they are.
