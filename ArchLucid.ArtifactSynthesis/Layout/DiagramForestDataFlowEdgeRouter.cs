@@ -27,29 +27,37 @@ internal static class DiagramForestDataFlowEdgeRouter
             return TryRoute(to, from, columns, allBounds, toNodeId, fromNodeId, options);
         }
 
-        Dictionary<int, DiagramForestDataFlowColumnLayout.ColumnInfo> columnByIndex = columns
-            .ToDictionary(column => column.StageIndex);
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> orderedColumns = columns
+            .OrderBy(column => column.LeftX)
+            .ToList();
+        int fromColumnIndex = FindColumnIndex(orderedColumns, from.ColumnIndex);
+        int toColumnIndex = FindColumnIndex(orderedColumns, to.ColumnIndex);
+        if (fromColumnIndex < 0 || toColumnIndex < 0)
+        {
+            return null;
+        }
         List<DiagramForestOrthogonalEdgeRouter.Rect> obstacles = BuildObstacles(allBounds, fromNodeId, toNodeId);
         double fromCenterY = from.Y + (from.Height / 2.0d);
         double toCenterY = to.Y + (to.Height / 2.0d);
         double fromRightX = from.X + from.Width;
         double toLeftX = to.X;
-        int columnDelta = to.ColumnIndex - from.ColumnIndex;
+        int columnDelta = toColumnIndex - fromColumnIndex;
 
         if (columnDelta == 0)
         {
-            return TryRouteSameColumn(from, to, columnByIndex, obstacles, fromCenterY, toCenterY);
+            double laneX = ResolveColumnGutterX(orderedColumns, fromColumnIndex, options);
+            return ValidateAndBuild(
+                [
+                    (fromRightX, fromCenterY, laneX, fromCenterY),
+                    (laneX, fromCenterY, laneX, toCenterY),
+                    (laneX, toCenterY, toLeftX, toCenterY),
+                ],
+                obstacles);
         }
 
         if (columnDelta == 1)
         {
-            if (!columnByIndex.TryGetValue(from.ColumnIndex, out DiagramForestDataFlowColumnLayout.ColumnInfo? leftColumn)
-                || !columnByIndex.TryGetValue(to.ColumnIndex, out DiagramForestDataFlowColumnLayout.ColumnInfo? rightColumn))
-            {
-                return null;
-            }
-
-            double gutterCenterX = (leftColumn.LeftX + leftColumn.Width + rightColumn.LeftX) / 2.0d;
+            double gutterCenterX = ResolveColumnGutterX(orderedColumns, fromColumnIndex, options);
             List<(double X1, double Y1, double X2, double Y2)> segments =
             [
                 (fromRightX, fromCenterY, gutterCenterX, fromCenterY),
@@ -60,52 +68,55 @@ internal static class DiagramForestDataFlowEdgeRouter
             return ValidateAndBuild(segments, obstacles);
         }
 
-        if (!columnByIndex.TryGetValue(from.ColumnIndex, out DiagramForestDataFlowColumnLayout.ColumnInfo? sourceColumn)
-            || !columnByIndex.TryGetValue(to.ColumnIndex, out DiagramForestDataFlowColumnLayout.ColumnInfo? targetColumn))
-        {
-            return null;
-        }
-
-        if (!columnByIndex.TryGetValue(to.ColumnIndex - 1, out DiagramForestDataFlowColumnLayout.ColumnInfo? columnBeforeTarget))
-        {
-            return null;
-        }
-
-        double targetGutterCenterX = (columnBeforeTarget.LeftX + columnBeforeTarget.Width + targetColumn.LeftX) / 2.0d;
+        double sourceGutterX = ResolveColumnGutterX(orderedColumns, fromColumnIndex, options);
+        double targetGutterX = ResolveColumnGutterX(orderedColumns, toColumnIndex - 1, options);
         double skyLaneY = options.Padding + (options.DataFlowSkyLaneHeight / 2.0d);
         List<(double X1, double Y1, double X2, double Y2)> skipSegments =
         [
-            (fromRightX, fromCenterY, fromRightX, skyLaneY),
-            (fromRightX, skyLaneY, targetGutterCenterX, skyLaneY),
-            (targetGutterCenterX, skyLaneY, targetGutterCenterX, toCenterY),
-            (targetGutterCenterX, toCenterY, toLeftX, toCenterY),
+            (fromRightX, fromCenterY, sourceGutterX, fromCenterY),
+            (sourceGutterX, fromCenterY, sourceGutterX, skyLaneY),
+            (sourceGutterX, skyLaneY, targetGutterX, skyLaneY),
+            (targetGutterX, skyLaneY, targetGutterX, toCenterY),
+            (targetGutterX, toCenterY, toLeftX, toCenterY),
         ];
 
         return ValidateAndBuild(skipSegments, obstacles);
     }
 
-    private static DiagramForestOrthogonalEdgeRouter.RouteResult? TryRouteSameColumn(
-        DiagramForestDataFlowColumnLayout.NodePlacement from,
-        DiagramForestDataFlowColumnLayout.NodePlacement to,
-        IReadOnlyDictionary<int, DiagramForestDataFlowColumnLayout.ColumnInfo> columnByIndex,
-        IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles,
-        double fromCenterY,
-        double toCenterY)
+    private static int FindColumnIndex(
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> columns,
+        int stageIndex)
     {
-        if (!columnByIndex.TryGetValue(from.ColumnIndex, out DiagramForestDataFlowColumnLayout.ColumnInfo? column))
+        for (int index = 0; index < columns.Count; index++)
         {
-            return null;
+            if (columns[index].StageIndex == stageIndex)
+            {
+                return index;
+            }
         }
 
-        double laneX = column.LeftX + (column.Width / 2.0d);
-        double fromAttachY = fromCenterY <= toCenterY ? from.Y + from.Height : from.Y;
-        double toAttachY = fromCenterY <= toCenterY ? to.Y : to.Y + to.Height;
-        List<(double X1, double Y1, double X2, double Y2)> segments =
-        [
-            (laneX, fromAttachY, laneX, toAttachY),
-        ];
+        return -1;
+    }
 
-        return ValidateAndBuild(segments, obstacles);
+    private static double ResolveColumnGutterX(
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> columns,
+        int gutterIndex,
+        DiagramForestLayoutOptions options)
+    {
+        if (gutterIndex < 0)
+        {
+            return columns[0].LeftX - (options.DataFlowColumnGutter / 2.0d);
+        }
+
+        if (gutterIndex >= columns.Count - 1)
+        {
+            DiagramForestDataFlowColumnLayout.ColumnInfo lastColumn = columns[^1];
+            return lastColumn.LeftX + lastColumn.Width + (options.DataFlowColumnGutter / 2.0d);
+        }
+
+        DiagramForestDataFlowColumnLayout.ColumnInfo leftColumn = columns[gutterIndex];
+        DiagramForestDataFlowColumnLayout.ColumnInfo rightColumn = columns[gutterIndex + 1];
+        return (leftColumn.LeftX + leftColumn.Width + rightColumn.LeftX) / 2.0d;
     }
 
     private static DiagramForestOrthogonalEdgeRouter.RouteResult? ValidateAndBuild(
