@@ -3104,7 +3104,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 32
+- **hunts:** 34
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -5584,7 +5584,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 11
+- **hunts:** 18
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -6138,10 +6138,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 8
+- **hunts:** 16
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6348,10 +6348,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 2
+- **hunts:** 10
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-30
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -6383,10 +6383,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 14
+- **hunts:** 22
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-11 — fetched doc-index rows sharing `/help` hub url dropped when titles differ
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6747,10 +6747,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 7
+- **hunts:** 15
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7495,10 +7495,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-05 — SAML ambiguous multi-valued scope attributes promoted first value; custom-role permissions resolved via `sub` instead of `oid`; unparseable `auth_time` fell through to fresh `iat` for step-up
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -9337,10 +9337,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 927
+- **hunts:** 935
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI career export gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10706,7 +10706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 27
+- **hunts:** 34
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -18377,7 +18377,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 10
+- **hunts:** 15
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -18444,10 +18444,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 16
+- **hunts:** 24
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-09 — Enterprise one-seat subscription mapped to Architect LLM spend plan; exclude/excluding/except marketplace negation gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18520,10 +18520,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 11
+- **hunts:** 13
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -20603,7 +20603,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 22
+- **hunts:** 29
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -23304,7 +23304,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 21
+- **hunts:** 27
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
@@ -23887,7 +23887,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 284
+- **hunts:** 289
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
@@ -25993,10 +25993,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26326,10 +26326,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 8
+- **hunts:** 10
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-07 — review cache hit cleared PublishBlocked for blocked analysis reruns
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -26742,7 +26742,7 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 8
+- **hunts:** 15
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
