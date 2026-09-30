@@ -436,6 +436,9 @@ describe('ArchitectureDiagramViewer', () => {
       baseWidthPx: 10,
       baseHeightPx: 10,
       inkMeasured: true,
+      rawScale: 1,
+      fitScale: 1,
+      overflows: false,
     });
 
     render(
@@ -466,6 +469,9 @@ describe('ArchitectureDiagramViewer', () => {
       baseWidthPx: 800,
       baseHeightPx: 240,
       inkMeasured: false,
+      rawScale: 1,
+      fitScale: 1,
+      overflows: false,
     });
 
     render(
