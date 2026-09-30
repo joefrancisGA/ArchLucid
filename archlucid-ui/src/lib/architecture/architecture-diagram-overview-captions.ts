@@ -3,6 +3,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 export const DIAGRAM_OVERVIEW_CAPTION_MAX_SCALE = 0.45;
 export const DIAGRAM_OVERVIEW_HIERARCHY_MAX_SCALE = 0.30;
 export const OVERVIEW_CAPTION_MIN_FRAME_PX = 18;
+const OVERVIEW_SEATED_PAIR_GAP = 28;
 const OVERVIEW_CAPTION_FONT_SIZE_PX = 14;
 const MAX_OVERVIEW_NAME_LENGTH = 32;
 
@@ -57,13 +58,33 @@ function isInside(point: { x: number; y: number }, rect: Rect): boolean {
   );
 }
 
-function isRectInside(inner: Rect, outer: Rect): boolean {
-  return (
-    inner.x >= outer.x
-    && inner.y >= outer.y
-    && inner.x + inner.width <= outer.x + outer.width
-    && inner.y + inner.height <= outer.y + outer.height
+function hasPositiveOverlap(firstStart: number, firstEnd: number, secondStart: number, secondEnd: number): boolean {
+  return Math.min(firstEnd, secondEnd) > Math.max(firstStart, secondStart);
+}
+
+function isSeatedWithVnet(resourceGroupRect: Rect, vnetRect: Rect): boolean {
+  if (
+    hasPositiveOverlap(resourceGroupRect.x, resourceGroupRect.x + resourceGroupRect.width, vnetRect.x, vnetRect.x + vnetRect.width)
+    && hasPositiveOverlap(resourceGroupRect.y, resourceGroupRect.y + resourceGroupRect.height, vnetRect.y, vnetRect.y + vnetRect.height)
+  ) {
+    return true;
+  }
+
+  if (!hasPositiveOverlap(
+    resourceGroupRect.y,
+    resourceGroupRect.y + resourceGroupRect.height,
+    vnetRect.y,
+    vnetRect.y + vnetRect.height,
+  )) {
+    return false;
+  }
+
+  const horizontalGap = Math.max(
+    resourceGroupRect.x - (vnetRect.x + vnetRect.width),
+    vnetRect.x - (resourceGroupRect.x + resourceGroupRect.width),
+    0,
   );
+  return horizontalGap <= OVERVIEW_SEATED_PAIR_GAP;
 }
 
 function readNodeCenter(node: Element): { x: number; y: number } | null {
@@ -98,6 +119,23 @@ export function truncateOverviewName(name: string): string {
 
 export function formatOverviewCaption(name: string, count: number): string {
   return `${truncateOverviewName(name)} · ${count}`;
+}
+
+function fitOverviewCaption(name: string, count: number, frameWidth: number, paintedScale: number): string {
+  const availableWidth = Math.max(1, frameWidth - 16 / paintedScale);
+  const characterWidth = 0.6 * (OVERVIEW_CAPTION_FONT_SIZE_PX / paintedScale);
+  const suffix = ` · ${count}`;
+  const fullName = truncateOverviewName(name);
+
+  if ((fullName.length + suffix.length) * characterWidth <= availableWidth) {
+    return `${fullName}${suffix}`;
+  }
+
+  const availableNameCharacters = Math.max(
+    1,
+    Math.floor(availableWidth / characterWidth) - suffix.length - 1,
+  );
+  return `${name.trim().slice(0, availableNameCharacters)}…${suffix}`;
 }
 
 function countNodesInside(svg: SVGSVGElement, frameRect: Rect): number {
@@ -179,10 +217,10 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
   }
 
   frames.forEach(({ frame, rect, name, isVnet }) => {
-    const hasDisplayedVnet = !isVnet
-      && frames.some((candidate) => candidate.isVnet && isRectInside(candidate.rect, rect));
+    const hasSeatedVnet = !isVnet
+      && frames.some((candidate) => candidate.isVnet && isSeatedWithVnet(rect, candidate.rect));
 
-    if (hierarchyMode && hasDisplayedVnet) {
+    if (hasSeatedVnet) {
       return;
     }
 
@@ -218,7 +256,7 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     caption.setAttribute("font-weight", "700");
     caption.setAttribute("fill", "#334155");
     caption.setAttribute("clip-path", `url(#${clipId})`);
-    caption.textContent = formatOverviewCaption(name, countNodesInside(svg, rect));
+    caption.textContent = fitOverviewCaption(name, countNodesInside(svg, rect), rect.width, paintedScale);
     captions.appendChild(caption);
     captionCount += 1;
   });
