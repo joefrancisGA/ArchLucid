@@ -2767,8 +2767,44 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1331
+- **hunts:** 1403
 - **last-hunt:** 2026-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
 - **bugs-found:** 970
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-18 — hunt #6951: azurerm_fty Compute-category ds- alias gap
@@ -5852,10 +5888,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 23
+- **hunts:** 29
+- **last-hunt:** 2026-09-30
+P26-09-30
+P26-09-30
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+P26-09-30
 - **last-bug:** 2026-09-28 — not-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -6259,10 +6298,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 15
+- **hunts:** 17
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+P26-09-30
 - **last-bug:** 2026-09-25 — client sort stayed newest-first after sort= URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10626,10 +10666,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 38
+- **hunts:** 48
+- **last-hunt:** 2026-09-30
+P26-09-30
+P26-09-30
+P26-09-30
+P26-09-30
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+P26-09-30
 - **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -13046,10 +13091,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 38
+- **hunts:** 40
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+P26-09-30
 - **last-bug:** 2026-09-27 — chunk-cap failure deleted vectors before skip-unchanged could recover
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -13188,10 +13234,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 450
+- **hunts:** 452
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 3502
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+P26-09-30
 - **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -23300,10 +23347,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 19
+- **hunts:** 21
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+P26-09-30
 - **last-bug:** 2026-09-28 — architecture narrative markdown omitted RequirementText on requirement bullets
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23883,10 +23931,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 282
+- **hunts:** 284
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+P26-09-30
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -25810,10 +25859,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 22
+- **hunts:** 24
+- **last-hunt:** 2026-09-30
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+- **consecutive-dry-hunts:** 2
+P26-09-30
 - **last-bug:** 2026-09-28 — improvement planning stale `theme` URL when theme id missing from loaded themes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
