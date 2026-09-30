@@ -439,7 +439,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         return placements;
     }
 
-    private static double ResolveRowWidthLimit(
+    internal static double ResolveRowWidthLimit(
         IEnumerable<(double Width, double Height)> cells,
         DiagramForestLayoutOptions options)
     {

@@ -19,6 +19,27 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Resolve_row_width_limit_keeps_three_cell_floor_and_scales_large_plates()
+    {
+        DiagramForestLayoutOptions options = new()
+        {
+            MaxNodeWidth = 280,
+            ComponentHorizontalGap = 48,
+            ComponentVerticalGap = 40,
+            PlateTargetAspect = 1.6d,
+        };
+
+        DiagramForestLayoutSvgRenderer.ResolveRowWidthLimit(
+            [(280d, 200d)],
+            options).Should().Be(840d);
+
+        double expected = Math.Sqrt(12 * (280d + 48d) * (200d + 40d) * 1.6d);
+        DiagramForestLayoutSvgRenderer.ResolveRowWidthLimit(
+            Enumerable.Repeat((280d, 200d), 12),
+            options).Should().BeApproximately(expected, 0.001d);
+    }
+
+    [Fact]
     public void Render_network_inventory_adds_vnet_frame_without_subscription_frame()
     {
         DiagramAst ast = new()
