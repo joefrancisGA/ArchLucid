@@ -69,6 +69,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>ADF or Synapse connector type for a synthetic external linked-service node.</summary>
+    public string? ExternalLinkedServiceType
+    {
+        get;
+        set;
+    }
+
     public string? ArmResourceGroup
     {
         get;
