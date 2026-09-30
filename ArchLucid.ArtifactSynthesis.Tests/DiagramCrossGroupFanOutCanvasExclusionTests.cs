@@ -18,7 +18,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().Contain("likely · in");
+        result.Svg.Should().NotContain("likely · in");
         result.Svg.Should().NotContain("likely · applies");
         result.Svg.Should().Contain("connects");
     }
@@ -50,9 +50,14 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
             .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: false)
             .ToList();
 
-        filtered.Should().Contain(sameGroupLikely);
+        filtered.Should().NotContain(sameGroupLikely);
         filtered.Should().Contain(crossGroupConnects);
         filtered.Should().NotContain(crossGroupLikely);
+
+        DiagramCrossGroupFanOutCanvasExclusion
+            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: true)
+            .Should()
+            .ContainInOrder(sameGroupLikely, crossGroupLikely, crossGroupConnects);
     }
 
     private static DiagramAst BuildTwoResourceGroupAst()
