@@ -686,6 +686,13 @@ export function sanitizeArchitectureDiagramSvg(
   return DOMPurify.sanitize(withVisibleLabels, {
     USE_PROFILES: { svg: true, svgFilters: true },
     FORBID_TAGS: ["script", "foreignObject"],
-    ADD_ATTR: ["data-from", "data-to", "data-bundle-from", "data-bundle-to", "data-focus-node"],
+    ADD_ATTR: [
+      "data-from",
+      "data-to",
+      "data-bundle-from",
+      "data-bundle-to",
+      "data-focus-node",
+      "data-neighborhood-id",
+    ],
   });
 }
