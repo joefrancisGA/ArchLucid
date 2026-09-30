@@ -605,8 +605,8 @@ describe("help-mermaid", () => {
 
     const baseFit = fitMermaidSvgElementToViewport(svg, 600, 400);
 
-    expect(baseFit?.widthScale).toBeCloseTo(576 / 1000);
-    expect(baseFit?.rawScale).toBeCloseTo(376 / 2000);
+    expect(baseFit?.widthScale).toBeCloseTo(576 / 1024);
+    expect(baseFit?.rawScale).toBeCloseTo(376 / 2024);
     svg.remove();
   });
 
