@@ -1380,12 +1380,42 @@ export function DiagramReconcileWorkbenchClient() {
           <EnterpriseTable ariaLabel="Diagram reconciliation correspondence rows">
             <EnterpriseTableHead>
               <EnterpriseTableRow>
-                <EnterpriseTableHeaderCell>Match</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Diagram</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>ARM id</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Explanation</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Match</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How this diagram item lines up with an inventory resource.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Confidence</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How strongly the recorded correspondence supports this match. It is not a percentage.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Diagram</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The diagram item in this correspondence row.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>ARM id</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The Azure resource identifier recorded for this match.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Explanation</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded reason for this correspondence.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Actions</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Record correspondence work. It does not change the diagram or Azure.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>

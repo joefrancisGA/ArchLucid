@@ -138,9 +138,24 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
           <EnterpriseTable ariaLabel="Submitted and cited evidence inventory">
             <EnterpriseTableHead>
               <EnterpriseTableRow>
-                <EnterpriseTableHeaderCell scope="col">Source</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell scope="col">Kind</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell scope="col">Ingested</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col">
+                  <span>Source</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Where this evidence item came from.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col">
+                  <span>Kind</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The kind of evidence item recorded for this review.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col">
+                  <span>Ingested</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    When this evidence item was added to the review.
+                  </span>
+                </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell scope="col">
                   <span>Cited by</span>
                   <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>

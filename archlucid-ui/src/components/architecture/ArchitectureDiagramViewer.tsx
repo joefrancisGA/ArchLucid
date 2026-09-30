@@ -45,6 +45,10 @@ import {
 } from '@/lib/architecture/architecture-diagram-fullscreen-url';
 import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
 import {
+  applyDiagramOverviewCaptions,
+  readDiagramPaintedScale,
+} from '@/lib/architecture/architecture-diagram-overview-captions';
+import {
   normalizeDiagramFocusToken,
   resolveDiagramClickFocus,
   type DiagramClickFocusEdge,
@@ -154,6 +158,8 @@ function applyMermaidViewportCamera(
 
   if (baseFit !== null && baseFit.inkMeasured) {
     applyMermaidSvgViewportZoom(svg, baseFit, zoom);
+    const paintedScale = readDiagramPaintedScale(svg);
+    applyDiagramOverviewCaptions(svg, paintedScale ?? 1);
   }
 
   return baseFit;
@@ -464,6 +470,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
   '[&_svg_g.edge-label_text]:fill-[#111827] dark:[&_svg_g.edge-label_text]:fill-[#e2e8f0]',
   '[&_svg_.diagram-click-dim]:opacity-[0.15]',
+  '[&_svg_.diagram-overview-hidden]:invisible',
 );
 
 const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
@@ -926,6 +933,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       [...svg.querySelectorAll('g.edge')].forEach((edge, index) => {
         edge.classList.toggle('diagram-click-dim', !result.keptEdgeIndexes.has(index));
       });
+      [...svg.querySelectorAll('g.edge-stub')].forEach((stub) => {
+        const from = normalizeDiagramFocusToken(stub.getAttribute('data-from') ?? '');
+        const to = normalizeDiagramFocusToken(stub.getAttribute('data-to') ?? '');
+        stub.classList.toggle(
+          'diagram-click-dim',
+          !result.keptNodeIds.has(from) && !result.keptNodeIds.has(to),
+        );
+      });
     });
 
     const handleClick = (event: MouseEvent): void => {
@@ -933,6 +948,23 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
       if (!(target instanceof Element)) {
         clearFocus();
+        return;
+      }
+
+      const stub = target.closest('g.edge-stub');
+
+      if (stub !== null) {
+        const id = stub.getAttribute('data-focus-node') ?? '';
+
+        if (id.length === 0
+          || normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
+          clearFocus();
+          return;
+        }
+
+        const chip = stub.querySelector('text')?.textContent?.trim() ?? '';
+        const name = chip.replace(/^[→←]\s*/u, '') || id;
+        setClickFocus({ id, name });
         return;
       }
 

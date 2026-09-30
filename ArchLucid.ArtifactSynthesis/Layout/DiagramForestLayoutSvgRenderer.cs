@@ -1400,6 +1400,12 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
         List<(double X, double Y, double Width, double Height)> placedLabelBounds = [];
         List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted = [];
+        IReadOnlyList<DiagramForestLongEdgeStub.RowBand> rowBands = DiagramForestLongEdgeStub.BuildRowBands(
+            frameBounds
+                .Select(frame => (frame.Y, frame.Height))
+                .Concat(nestedFrameBounds
+                    .Where(frame => string.Equals(frame.Kind, "vnet", StringComparison.Ordinal))
+                    .Select(frame => (frame.Y, frame.Height))));
 
         foreach (DiagramEdge edge in visibleEdges.Concat(bundledEdges))
         {
@@ -1495,6 +1501,26 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     obstacles,
                     alreadyRouted,
                     extraVerticalChannelX);
+            }
+
+            if (route.Segments.Count > 0
+                && DiagramForestLongEdgeStub.ShouldStub(route.Segments[0].Y1, route.Segments[^1].Y2, rowBands))
+            {
+                alreadyRouted.Add(DiagramForestLongEdgeStub.BuildStubSegments(route.Segments, options.NodeHorizontalGap));
+                foreach (XElement stub in DiagramForestLongEdgeStub.Emit(
+                    svgNamespace,
+                    edge,
+                    route.Segments,
+                    fromPlacement.Node.Label,
+                    toPlacement.Node.Label,
+                    routeFromNodeId,
+                    routeToNodeId,
+                    options.NodeHorizontalGap))
+                {
+                    edgeLayer.Add(stub);
+                }
+
+                continue;
             }
 
             alreadyRouted.Add(route.Segments);

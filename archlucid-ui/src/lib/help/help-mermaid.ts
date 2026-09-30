@@ -390,6 +390,8 @@ export type MermaidViewportFitDimensions = {
   readonly baseHeightPx: number;
   /** False when the SVG was sized to the camera budget without a measurable ink bbox. */
   readonly inkMeasured: boolean;
+  /** Contain scale before applying the minimum-legible-label floor. */
+  readonly rawScale: number;
   readonly fitScale: number;
   readonly overflows: boolean;
 };
@@ -708,6 +710,7 @@ function applyMermaidViewportNullInkFallback(
     baseWidthPx: widthPx,
     baseHeightPx: heightPx,
     inkMeasured: false,
+    rawScale: 1,
     fitScale: 1,
     overflows: false,
   };
@@ -796,7 +799,7 @@ export function fitMermaidSvgElementToViewport(
   const baseHeightPx = Math.max(1, Math.round(viewHeight));
   const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
 
-  return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
+  return { baseWidthPx, baseHeightPx, inkMeasured: true, rawScale, fitScale, overflows };
 }
 
 /** Default zoom after paint: 100% when ink fits; contain scale when it overflows. */
@@ -805,7 +808,11 @@ export function resolveMermaidViewportDefaultZoom(baseFit: MermaidViewportFitDim
     return 1;
   }
 
-  return baseFit.overflows ? baseFit.fitScale : 1;
+  return baseFit.overflows
+    ? baseFit.rawScale < 0.45
+      ? baseFit.rawScale
+      : baseFit.fitScale
+    : 1;
 }
 
 /** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */
@@ -959,5 +966,5 @@ export function fitInventoryDiagramSvgElementToFocusNodeIds(
   const baseHeightPx = Math.max(1, Math.round(viewHeight));
   const overflows = viewWidth > availableWidth || viewHeight > availableHeight;
 
-  return { baseWidthPx, baseHeightPx, inkMeasured: true, fitScale, overflows };
+  return { baseWidthPx, baseHeightPx, inkMeasured: true, rawScale, fitScale, overflows };
 }
