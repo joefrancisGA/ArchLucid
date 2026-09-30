@@ -90,7 +90,14 @@ export async function fetchShowcasePayload(
       return { kind: "bad_json" };
     }
 
-    if (payload == null || typeof payload !== "object" || payload.run == null || payload.manifest == null) {
+    if (
+      payload == null ||
+      typeof payload !== "object" ||
+      payload.run == null ||
+      typeof payload.run.runId !== "string" ||
+      payload.run.runId.trim().length === 0 ||
+      payload.manifest == null
+    ) {
       return { kind: "invalid" };
     }
 

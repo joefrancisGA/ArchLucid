@@ -25980,11 +25980,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 18
-- **bugs-found:** 23
+- **hunts:** 19
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-30 — rich live `/see-it` payload missing manifest
+- **last-bug:** 2026-09-30 — showcase payload missing run identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25993,6 +25993,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter retained the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
 
 - [x] (proven) `normalizeSeeItMarketingPayload` accepted a rich live demo payload without `manifest`, so `/see-it` rendered blank policy-pack metadata instead of the trusted snapshot — **hit 2026-09-30 seed hunt:** require a non-empty `manifestId` before treating live JSON as usable; regression `falls back when a rich live payload omits the manifest` in `see-it.test.tsx`.
+- [x] (proven) `fetchShowcasePayload` accepted a live showcase payload with an empty `run.runId`, so `ShowcaseQuickNav` built unusable operator review/finding URLs from the missing identity — **hit 2026-09-30 seed hunt:** reject missing or blank run identities as invalid; regression `treats API payloads missing the run identity as invalid` in `showcase-page.test.tsx`.
 
 ### Hypotheses
 
