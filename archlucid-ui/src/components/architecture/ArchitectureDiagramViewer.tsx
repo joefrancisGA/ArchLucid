@@ -44,6 +44,7 @@ import {
   parseArchitectureDiagramZoomFromSearch,
 } from '@/lib/architecture/architecture-diagram-fullscreen-url';
 import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
+import { applyDiagramOverviewCaptions } from '@/lib/architecture/architecture-diagram-overview-captions';
 import {
   normalizeDiagramFocusToken,
   resolveDiagramClickFocus,
@@ -154,6 +155,7 @@ function applyMermaidViewportCamera(
 
   if (baseFit !== null && baseFit.inkMeasured) {
     applyMermaidSvgViewportZoom(svg, baseFit, zoom);
+    applyDiagramOverviewCaptions(svg, zoom);
   }
 
   return baseFit;
@@ -464,6 +466,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
   '[&_svg_g.edge-label_text]:fill-[#111827] dark:[&_svg_g.edge-label_text]:fill-[#e2e8f0]',
   '[&_svg_.diagram-click-dim]:opacity-[0.15]',
+  '[&_svg_.diagram-overview-hidden]:invisible',
 );
 
 const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
