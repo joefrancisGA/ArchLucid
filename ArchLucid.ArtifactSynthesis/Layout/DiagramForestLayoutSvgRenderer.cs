@@ -992,7 +992,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 VnetFrameId = frameId,
             }));
 
-            if (framed)
+            if (frameId is not null && vnet is not null)
             {
                 placements.Add(new NodePlacement(
                     vnet!,
