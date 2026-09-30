@@ -752,7 +752,7 @@ describe('ArchitectureDiagramViewer', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(60);
     });
 
     rerender(
@@ -800,7 +800,7 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
-  it('defaults zoom below 100 percent when measured ink overflows the viewport', async () => {
+  it('defaults zoom at the 60 percent floor when measured ink overflows the viewport', async () => {
     const largeSvg =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
       '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
@@ -850,8 +850,7 @@ describe('ArchitectureDiagramViewer', () => {
         (screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement).value,
       );
 
-      expect(zoomValue).toBeLessThan(100);
-      expect(zoomValue).toBeGreaterThan(0);
+      expect(zoomValue).toBe(60);
     });
   });
 
@@ -902,7 +901,7 @@ describe('ArchitectureDiagramViewer', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(60);
     });
 
     rerender(
