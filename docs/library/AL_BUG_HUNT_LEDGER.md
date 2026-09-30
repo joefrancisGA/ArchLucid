@@ -10839,7 +10839,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
@@ -10879,6 +10879,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the billing source and test surfaces; no new reachable candidate emerged; 17 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): repeated the billing source review; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing source review again; no new reachable candidate emerged; 17 scoped tests passed.
 
 2026-09-03 seed hunt #564: proved abandoned-checkout Pending retry conflict; reseeded ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates.
 
