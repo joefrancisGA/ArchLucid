@@ -46,6 +46,7 @@ export function RiskExceptionsRenewPanel({
     >
       <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
         <span>New expiry (UTC)</span>
+        <span>The renewal date is the requested end of exception coverage.</span>
         <input
           type="datetime-local"
           className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
@@ -61,6 +62,7 @@ export function RiskExceptionsRenewPanel({
       </label>
       <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
         <span>Rationale (optional)</span>
+        <span>The renewal rationale becomes part of the exception record.</span>
         <input
           className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
           value={renewRationale}
@@ -68,6 +70,11 @@ export function RiskExceptionsRenewPanel({
         />
       </label>
       <div className="flex flex-wrap gap-2">
+        {!canMutate && mutationDisabledReason !== null ? (
+          <span className={cn("basis-full", OPERATOR_TYPOGRAPHY.helper)}>
+            This disabled action means this session cannot change the exception record.
+          </span>
+        ) : null}
         <Button
           type="submit"
           size="sm"
