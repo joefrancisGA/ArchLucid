@@ -8427,3 +8427,4 @@
 {"at":"2026-09-30T20:42:33.0898521Z","zoneId":"itsm-inbound-webhooks","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs","ArchLucid.Application/Integrations/Itsm/","ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
 {"at":"2026-09-30T20:49:52.2449064Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Integrations/Itsm/"]}
 {"at":"2026-09-30T21:00:09.5753335Z","zoneId":"itsm-inbound-webhooks","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
+{"at":"2026-09-30T21:05:55.4674205Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/","ArchLucid.Core/Http/"]}
