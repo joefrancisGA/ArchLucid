@@ -8,6 +8,13 @@ internal static class ItsmInboundJsonElementReader
 {
     internal static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
     {
+        if (element.ValueKind != JsonValueKind.Object)
+        {
+            value = default;
+
+            return false;
+        }
+
         foreach (JsonProperty property in element.EnumerateObject())
         {
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))

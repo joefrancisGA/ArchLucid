@@ -73,4 +73,14 @@ public sealed class ItsmInboundServiceNowPayloadReaderTests
 
         ok.Should().BeFalse("ServiceNow sys_id is a string token; malformed JSON must be rejected rather than throwing");
     }
+
+    [Fact]
+    public void TryRead_rejects_non_object_json_without_throwing()
+    {
+        using JsonDocument document = JsonDocument.Parse("""["not-a-webhook-object"]""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("valid JSON with the wrong top-level shape must be rejected rather than throwing");
+    }
 }

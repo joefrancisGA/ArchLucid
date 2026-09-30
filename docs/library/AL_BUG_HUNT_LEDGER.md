@@ -9633,6 +9633,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (hit): `ItsmInboundServiceNowPayloadReader` called `JsonElement.GetString()` on numeric `sys_id`/`sysId` tokens, throwing `InvalidOperationException` instead of returning an unrecognized payload; numeric token now rejects cleanly via `ReadStringToken`; regression `TryRead_rejects_numeric_sys_id_without_throwing`; 48 scoped ITSM inbound webhook tests passed.
 
 - [x] (proven) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` / `sysId` caused `JsonElement.GetString()` to throw, allowing malformed inbound webhook input to escape the reader’s validation path toward HTTP 500 — **hit 2026-09-30:** read only string tokens before `GetString()`; regression `TryRead_rejects_numeric_sys_id_without_throwing`.
+- [x] (proven) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — valid non-object JSON webhook roots caused `EnumerateObject()` to throw instead of returning an unrecognized payload — **hit 2026-09-30 seed hunt:** attacker-controlled array roots now reject cleanly; regression `TryRead_rejects_non_object_json_without_throwing`.
 
 ---
 
