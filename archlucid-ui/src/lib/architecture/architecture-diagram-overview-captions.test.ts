@@ -82,6 +82,47 @@ describe("architecture diagram overview captions", () => {
     expect(svg.querySelector("clipPath rect")).toHaveAttribute("height", "50");
   });
 
+  it("hides the sanitized resource-group name while the overview caption is on", () => {
+    const svg = createSvg(`
+      <g class="rg-frame">
+        <title>alpha</title>
+        <rect class="rg-frame-plate" x="0" y="0" width="100" height="50"/>
+        <g class="azure-icon"></g>
+        <text class="clusterLabelText">alpha</text>
+      </g>
+      <g class="node" transform="translate(180 180)"><g class="azure-icon"></g><rect class="node-card" width="10" height="10"/></g>
+      <g class="edge"><text class="edge-label">used by</text></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+
+    expect(svg.querySelector("text.overview-caption")?.textContent).toBe("alpha · 0");
+    expect(svg.querySelector("g.rg-frame > text.clusterLabelText")).toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.rg-frame > g.azure-icon")).toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.node g.azure-icon")).not.toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.edge text.edge-label")).not.toHaveClass("diagram-overview-hidden");
+
+    applyDiagramOverviewCaptions(svg, 0.5);
+
+    expect(svg.querySelector("g.overview-captions")).toBeNull();
+    expect(svg.querySelector("g.rg-frame > text.clusterLabelText")).not.toHaveClass("diagram-overview-hidden");
+  });
+
+  it("keeps the sanitized name on a frame that is too short for an overview caption", () => {
+    const svg = createSvg(`
+      <g class="rg-frame">
+        <title>thin</title>
+        <rect class="rg-frame-plate" x="0" y="0" width="100" height="40"/>
+        <text class="clusterLabelText">thin</text>
+      </g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+
+    expect(svg.querySelector("g.overview-captions")).toBeNull();
+    expect(svg.querySelector("text.clusterLabelText")).not.toHaveClass("diagram-overview-hidden");
+  });
+
   it("reads the scale after CSS has painted the SVG", () => {
     const svg = createSvg("");
     svg.setAttribute("viewBox", "0 0 200 100");

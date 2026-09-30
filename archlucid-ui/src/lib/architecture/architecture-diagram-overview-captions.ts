@@ -105,6 +105,13 @@ function frameRect(frame: Element): Rect | null {
   return null;
 }
 
+function hideOriginalFrameCaption(frame: Element): void {
+  frame.querySelectorAll(":scope > text, :scope > g.azure-icon, g.vnet-frame-caption, rect.rg-frame-label-halo, rect.vnet-frame-label-halo")
+    .forEach((element) => {
+      element.classList.add("diagram-overview-hidden");
+    });
+}
+
 function clearOverviewState(svg: SVGSVGElement): void {
   svg.querySelectorAll(".diagram-overview-hidden").forEach((element) => {
     element.classList.remove("diagram-overview-hidden");
@@ -160,12 +167,7 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     clipPath.appendChild(clipRect);
     defs.appendChild(clipPath);
 
-    const frameLabelSelector = frame.classList.contains("rg-frame")
-      ? "text.rg-frame-label, rect.rg-frame-label-halo"
-      : "g.vnet-frame-caption text, rect.vnet-frame-label-halo";
-    frame.querySelectorAll(frameLabelSelector).forEach((element) => {
-      element.classList.add("diagram-overview-hidden");
-    });
+    hideOriginalFrameCaption(frame);
     svg.querySelectorAll("g.node").forEach((node) => {
       const center = readNodeCenter(node);
       if (center !== null && isInside(center, rect)) {
