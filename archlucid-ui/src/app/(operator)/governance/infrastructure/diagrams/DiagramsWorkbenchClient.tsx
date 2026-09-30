@@ -780,7 +780,7 @@ export function DiagramsWorkbenchClient() {
 
     const presentation = parseInfraDiagramsDataFlowCaptionPresentation(mermaidSource);
 
-    if (presentation.honestyCaptions.length === 0 && presentation.metadataComments.length === 0) {
+    if (presentation.honestyCaptions.length === 0) {
       return null;
     }
 
