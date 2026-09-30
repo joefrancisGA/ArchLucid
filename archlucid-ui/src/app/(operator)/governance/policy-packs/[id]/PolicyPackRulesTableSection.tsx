@@ -65,11 +65,36 @@ export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionPr
         <EnterpriseTable ariaLabel={ariaLabel} data-testid={props.tableTestId ?? "policy-pack-rules-table"}>
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Rule key</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Rule name</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Requirement</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Evidence expected</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Rule key</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The stable identifier for this rule. The key stays with the rule.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Rule name</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The plain-language name recorded for this rule.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Severity</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  How serious a match against this rule is recorded as.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Requirement</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  What the rule requires before it is satisfied.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Evidence expected</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The evidence this rule expects a review to cite.
+                </span>
+              </EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>

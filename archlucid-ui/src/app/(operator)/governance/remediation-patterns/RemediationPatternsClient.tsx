@@ -309,10 +309,25 @@ function VersionHistoryTable(props: {
       <EnterpriseTable ariaLabel="Remediation pattern version history">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Version</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Version</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The recorded version of this pattern.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Author</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Author</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Who recorded this pattern version.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Updated</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                When this pattern version was last recorded.
+              </span>
+            </EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
