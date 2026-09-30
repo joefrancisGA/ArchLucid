@@ -71,6 +71,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
                 new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
                 new XAttribute("stroke-width", "1.5"),
                 new XAttribute("stroke-linejoin", "round"),
+                new XAttribute("vector-effect", "non-scaling-stroke"),
                 new XAttribute("class", "edge-path"),
             ];
 

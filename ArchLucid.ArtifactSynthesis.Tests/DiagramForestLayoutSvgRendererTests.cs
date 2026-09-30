@@ -778,4 +778,87 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Which.Should()
             .Be("4 3");
     }
+
+    [Fact]
+    public void Render_same_label_component_draws_every_connector()
+    {
+        const string sharedLabel = "likely · Likely connected to";
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-source", Label = "Source", OrderKey = 0 },
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-ingestion", Label = "Ingestion", OrderKey = 1 },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "sftp-a",
+                    Label = "sftp_ahcccs",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    ArmResourceGroup = "rg-data",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "sftp-b",
+                    Label = "hsag_sftp",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    ArmResourceGroup = "rg-data",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "adf",
+                    Label = "adf-factory",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DataFactory/factories",
+                    SubgraphId = "data-flow-stage-ingestion",
+                    ArmResourceGroup = "rg-data",
+                    OrderKey = 2,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "sftp-a",
+                    ToNodeId = "adf",
+                    Label = sharedLabel,
+                    ProvenanceKind = "DeterministicInference",
+                },
+                new DiagramEdge
+                {
+                    FromNodeId = "sftp-b",
+                    ToNodeId = "adf",
+                    Label = sharedLabel,
+                    ProvenanceKind = "DeterministicInference",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+        List<XElement> paths = document.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .ToList();
+
+        result.Succeeded.Should().BeTrue();
+        paths.Should().HaveCount(2);
+        paths.Should().OnlyContain(path =>
+            string.Equals((string?)path.Attribute("vector-effect"), "non-scaling-stroke", StringComparison.Ordinal));
+        paths.Select(path => (string?)path.Parent?.Attribute("data-from"))
+            .Should()
+            .OnlyHaveUniqueItems();
+        paths.Select(path => (string?)path.Parent?.Attribute("data-to"))
+            .Distinct()
+            .Should()
+            .ContainSingle();
+    }
 }
