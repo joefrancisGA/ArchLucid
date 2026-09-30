@@ -1205,8 +1205,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       {controlsInsideViewport ? null : viewportControls}
 
       {neighborhoodMap !== null && effectiveSurface === 'map' ? (
-        <div className="mb-3 flex justify-end">
-          <Button type="button" variant="outline" size="sm" data-testid="architecture-diagram-surface-toggle" onClick={showPlate}>
+        <div className="mb-3 flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-base"
+            data-testid="architecture-diagram-surface-toggle"
+            onClick={showPlate}
+          >
             {ARCHITECTURE_DIAGRAM_PLATE_LABEL}
           </Button>
         </div>
