@@ -300,6 +300,52 @@ public sealed class DiagramForestVnetFrameLayoutTests
     }
 
     [Fact]
+    public void Render_wide_vnet_neighborhood_wraps_connected_groups_under_vnet()
+    {
+        DiagramNode[] nodes =
+        [
+            Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+            Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+            PrivateWorkload("vault-a", "vault-a", "rg-a"),
+            PrivateWorkload("vault-b", "vault-b", "rg-b"),
+            PrivateWorkload("vault-c", "vault-c", "rg-c"),
+            PrivateWorkload("vault-d", "vault-d", "rg-d"),
+            PrivateWorkload("vault-e", "vault-e", "rg-e"),
+            PrivateWorkload("vault-f", "vault-f", "rg-f"),
+        ];
+
+        XDocument svg = Render(Inventory(
+            "Azure inventory (FullSubscription)",
+            nodes,
+            [
+                Cited("vm", "vnet"),
+                PrivateEndpoint("vault-a", "vnet"),
+                PrivateEndpoint("vault-b", "vnet"),
+                PrivateEndpoint("vault-c", "vnet"),
+                PrivateEndpoint("vault-d", "vnet"),
+                PrivateEndpoint("vault-e", "vnet"),
+                PrivateEndpoint("vault-f", "vnet"),
+            ]));
+
+        XElement vnetFrame = VnetFrames(svg).Should().ContainSingle().Subject;
+        (double vnetX, double vnetY, double vnetWidth, _) = Box(vnetFrame);
+        List<(double X, double Y, double Width, double Height)> connectedFrames =
+            ResourceGroupFrames(svg)
+                .Where(frame => frame.Elements().First(element => element.Name.LocalName == "title").Value.StartsWith("rg-", StringComparison.Ordinal)
+                    && frame.Elements().First(element => element.Name.LocalName == "title").Value != "rg-net")
+                .Select(Box)
+                .ToList();
+        DiagramForestLayoutOptions options = new();
+
+        connectedFrames.Should().HaveCount(6);
+        connectedFrames.Should().Contain(frame => Math.Abs(frame.Y - vnetY) < 1.0d);
+        connectedFrames.Should().Contain(frame => frame.Y > vnetY + 1.0d);
+        connectedFrames.Should().OnlyContain(frame => frame.X >= vnetX - 1.0d);
+        connectedFrames.Should().OnlyContain(frame => frame.X + frame.Width - vnetX <= options.MaxNodeWidth * 3 + frame.Width + 1.0d);
+        vnetWidth.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
     public void Render_unplaced_resource_groups_wrap_into_multiple_rows()
     {
         DiagramNode[] nodes =
