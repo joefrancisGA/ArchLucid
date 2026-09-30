@@ -3951,12 +3951,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 28
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-09-13 seed hunt #2272 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
+
+2026-09-30 seed hunt (seed-only): re-read the email OTP controller and service delegation paths; all 41 scoped tests passed; retained two concrete HTTP-boundary candidates for a later repro pass.
+
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work (reachability: the public `POST v1/auth/email-otp/challenge` JSON body accepts arbitrary client-supplied `Email` text).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope (reachability: the controller consumes the application service result on the public `POST v1/auth/email-otp/verify` path).
 
 2026-09-12 seed hunt #2253 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
 2026-09-12 seed hunt #2159 (seed-only): reseeded email-otp-auth with `-Hint email-otp-auth`; no new hunt-ready rows.
