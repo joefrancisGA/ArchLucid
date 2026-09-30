@@ -2,6 +2,10 @@
 
 ## Zone: topology-proposal-merge
 
+2026-09-30 seed hunt (seed→hit): uncategorized inventory node indexed before a same-label Data node claimed `ds-{label}` via the omit-category both-prefix registration; `PreferCategorizedSyntheticAlias` restores the categorized node's primary prefix after indexing. Regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`. 1588 scoped topology-proposal-merge tests passed.
+
+- [x] (proven) `TopologyProposalTerraformSourceIdHeuristics` — omitted-category node registers both `svc-` and `ds-` prefixes and `TryAdd` blocks the later categorized node's primary alias — **hit 2026-09-30:** categorized primary prefix overwrites the fallback after the index is built; regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`.
+
 2026-09-29 seed hunt #3055 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows; cheap-disproof closed #3051×#3054 diagonal for mixed node-id/ARM combined `endpointAliases` with **hybrid** relationships when node-id alias targets, ARM alias values, **and** the direct relationship ARM endpoint all use uppercase casing; fourteen regressions under prefix `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_`; 1412 scoped topology-proposal-merge tests passed.
 
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper` — simultaneous uppercase node-id aliases, ARM aliases, and direct hybrid relationship ARM break resolution — **cheap-disproof 2026-09-29 seed hunt #3055:** combined alias canonicalization + direct-endpoint ARM normalization on hybrid path; regressions `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_id_property_only_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_id_property_only_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_tf_resource_id_property_only_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_tf_resource_id_property_only_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_resourceId_property_only_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_resourceId_property_only_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_id_property_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_id_property_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_resourceId_and_tf_resource_id_property_nodes`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_id_compute_and_resourceId_datastore_graph`, `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_service_label_and_direct_datastore_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph`, and `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_datastore_label_and_direct_service_arm_on_mixed_tf_resource_id_compute_and_resourceId_datastore_graph`
@@ -2767,94 +2771,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1497
+- **hunts:** 1498
 - **last-hunt:** 2026-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-- **bugs-found:** 970
+- **bugs-found:** 971
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-18 — hunt #6951: azurerm_fty Compute-category ds- alias gap
+- **last-bug:** 2026-09-30 — omitted-category node stole categorized ds- alias
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5937,12 +5858,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **hunts:** 31
 - **last-hunt:** 2026-09-30
-P26-09-30
-P26-09-30
-P26-09-30
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-28 — not-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -6350,7 +6267,6 @@ P26-09-30
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-25 — client sort stayed newest-first after sort= URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10716,15 +10632,8 @@ P26-09-30
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
 - **hunts:** 52
 - **last-hunt:** 2026-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
-P26-09-30
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -13145,7 +13054,6 @@ P26-09-30
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-27 — chunk-cap failure deleted vectors before skip-unchanged could recover
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -13288,7 +13196,6 @@ P26-09-30
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 3502
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -23401,7 +23308,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-28 — architecture narrative markdown omitted RequirementText on requirement bullets
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23985,7 +23891,6 @@ P26-09-30
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
-P26-09-30
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -25913,7 +25818,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 2
-P26-09-30
 - **last-bug:** 2026-09-28 — improvement planning stale `theme` URL when theme id missing from loaded themes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
