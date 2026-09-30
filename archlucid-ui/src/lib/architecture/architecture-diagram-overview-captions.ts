@@ -1,6 +1,7 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 export const DIAGRAM_OVERVIEW_CAPTION_MAX_SCALE = 0.45;
+export const DIAGRAM_OVERVIEW_HIERARCHY_MAX_SCALE = 0.30;
 export const OVERVIEW_CAPTION_MIN_FRAME_PX = 18;
 const OVERVIEW_CAPTION_FONT_SIZE_PX = 14;
 const MAX_OVERVIEW_NAME_LENGTH = 32;
@@ -56,6 +57,15 @@ function isInside(point: { x: number; y: number }, rect: Rect): boolean {
   );
 }
 
+function isRectInside(inner: Rect, outer: Rect): boolean {
+  return (
+    inner.x >= outer.x
+    && inner.y >= outer.y
+    && inner.x + inner.width <= outer.x + outer.width
+    && inner.y + inner.height <= outer.y + outer.height
+  );
+}
+
 function readNodeCenter(node: Element): { x: number; y: number } | null {
   const card = node.querySelector("rect.node-card");
   const rect = readRect(card);
@@ -73,6 +83,10 @@ function readNodeCenter(node: Element): { x: number; y: number } | null {
 
 export function isDiagramOverviewScale(scale: number): boolean {
   return Number.isFinite(scale) && scale < DIAGRAM_OVERVIEW_CAPTION_MAX_SCALE;
+}
+
+export function isDiagramOverviewHierarchyScale(scale: number): boolean {
+  return Number.isFinite(scale) && scale <= DIAGRAM_OVERVIEW_HIERARCHY_MAX_SCALE;
 }
 
 export function truncateOverviewName(name: string): string {
@@ -138,21 +152,37 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     return;
   }
 
+  const hierarchyMode = isDiagramOverviewHierarchyScale(paintedScale);
   const captions = document.createElementNS(SVG_NS, "g");
   captions.setAttribute("class", "overview-captions");
   const defs = document.createElementNS(SVG_NS, "defs");
   captions.appendChild(defs);
   let captionCount = 0;
 
-  svg.querySelectorAll("g.vnet-frame, g.rg-frame").forEach((frame) => {
-    const rect = frameRect(frame);
-    const name = frame.querySelector(":scope > title")?.textContent?.trim() ?? "";
+  const frames = [...svg.querySelectorAll("g.vnet-frame, g.rg-frame")]
+    .map((frame) => ({
+      frame,
+      rect: frameRect(frame),
+      name: frame.querySelector(":scope > title")?.textContent?.trim() ?? "",
+      isVnet: frame.classList.contains("vnet-frame"),
+    }))
+    .filter((candidate): candidate is typeof candidate & { rect: Rect } =>
+      candidate.rect !== null && candidate.name.length > 0
+        && candidate.rect.height * paintedScale >= OVERVIEW_CAPTION_MIN_FRAME_PX,
+    );
 
-    if (
-      rect === null
-      || name.length === 0
-      || rect.height * paintedScale < OVERVIEW_CAPTION_MIN_FRAME_PX
-    ) {
+  if (hierarchyMode) {
+    svg.querySelectorAll("g.node text, g.edge text, g.edge-stub text").forEach((element) => {
+      element.classList.add("diagram-overview-hidden");
+    });
+    svg.querySelectorAll("g.vnet-frame, g.rg-frame").forEach(hideOriginalFrameCaption);
+  }
+
+  frames.forEach(({ frame, rect, name, isVnet }) => {
+    const hasDisplayedVnet = !isVnet
+      && frames.some((candidate) => candidate.isVnet && isRectInside(candidate.rect, rect));
+
+    if (hierarchyMode && hasDisplayedVnet) {
       return;
     }
 
@@ -168,14 +198,16 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     defs.appendChild(clipPath);
 
     hideOriginalFrameCaption(frame);
-    svg.querySelectorAll("g.node").forEach((node) => {
-      const center = readNodeCenter(node);
-      if (center !== null && isInside(center, rect)) {
-        node.querySelectorAll("text").forEach((element) => {
-          element.classList.add("diagram-overview-hidden");
-        });
-      }
-    });
+    if (!hierarchyMode) {
+      svg.querySelectorAll("g.node").forEach((node) => {
+        const center = readNodeCenter(node);
+        if (center !== null && isInside(center, rect)) {
+          node.querySelectorAll("text").forEach((element) => {
+            element.classList.add("diagram-overview-hidden");
+          });
+        }
+      });
+    }
 
     const caption = document.createElementNS(SVG_NS, "text");
     caption.setAttribute("class", "overview-caption");

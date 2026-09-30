@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   applyDiagramOverviewCaptions,
   formatOverviewCaption,
+  isDiagramOverviewHierarchyScale,
   isDiagramOverviewScale,
   readDiagramPaintedScale,
   truncateOverviewName,
@@ -20,6 +21,11 @@ describe("architecture diagram overview captions", () => {
   it("uses a strict 45 percent threshold", () => {
     expect(isDiagramOverviewScale(0.449)).toBe(true);
     expect(isDiagramOverviewScale(0.45)).toBe(false);
+  });
+
+  it("uses an inclusive 30 percent hierarchy threshold", () => {
+    expect(isDiagramOverviewHierarchyScale(0.3)).toBe(true);
+    expect(isDiagramOverviewHierarchyScale(0.3001)).toBe(false);
   });
 
   it("formats and truncates captions", () => {
@@ -131,5 +137,40 @@ describe("architecture diagram overview captions", () => {
     } as DOMRect);
 
     expect(readDiagramPaintedScale(svg)).toBe(0.4);
+  });
+
+  it("keeps one VNet identity instead of a nested RG identity in hierarchy mode", () => {
+    const svg = createSvg(`
+      <g class="rg-frame">
+        <title>rg-alpha</title>
+        <rect class="rg-frame-plate" x="0" y="0" width="120" height="100"/>
+        <text class="clusterLabelText">rg-alpha</text>
+      </g>
+      <g class="vnet-frame">
+        <title>vnet-alpha</title>
+        <rect x="10" y="10" width="80" height="70"/>
+        <g class="vnet-frame-caption"><text>vnet-alpha</text></g>
+      </g>
+      <g class="node" transform="translate(20 20)">
+        <rect class="node-card" width="10" height="10"/><text>card</text>
+      </g>
+      <g class="edge"><path d="M0 0H10"/><text class="edge-label">used by</text></g>
+      <g class="edge-stub"><path d="M0 0H10"/><text>→ peer</text></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.3);
+
+    expect([...svg.querySelectorAll("text.overview-caption")].map((text) => text.textContent)).toEqual([
+      "vnet-alpha · 1",
+    ]);
+    expect(svg.querySelector("g.node text")).toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.edge text")).toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.edge-stub text")).toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelector("g.edge path")).not.toHaveClass("diagram-overview-hidden");
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+
+    expect(svg.querySelector("g.edge text")).not.toHaveClass("diagram-overview-hidden");
+    expect(svg.querySelectorAll("text.overview-caption")).toHaveLength(2);
   });
 });
