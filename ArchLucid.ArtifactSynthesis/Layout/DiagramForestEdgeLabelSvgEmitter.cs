@@ -155,7 +155,9 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         for (int attempt = 0; attempt <= MaxLabelStackSteps; attempt++)
         {
-            int direction = attempt == 0 ? 0 : ((attempt + 1) / 2) * (attempt % 2 == 1 ? -1 : 1);
+            int direction = attempt == 0
+                ? 0
+                : ((attempt + 1) / 2) * (attempt % 2 == 1 ? (horizontal ? -1 : 1) : (horizontal ? 1 : -1));
             double candidateX = horizontal ? midX : midX + (direction * perpendicularStep);
             double candidateY = horizontal ? midY + (direction * perpendicularStep) : midY;
             bool collides = placedLabelBounds.Any(placed =>

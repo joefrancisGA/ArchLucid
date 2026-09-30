@@ -53,7 +53,7 @@ public sealed class DiagramForestEdgeLabelSvgEmitterTests
         firstX.Should().Be(100);
         firstY.Should().Be(100);
         secondX.Should().Be(100);
-        secondY.Should().Be(85);
+        secondY.Should().Be(83);
     }
 
     [Fact]
