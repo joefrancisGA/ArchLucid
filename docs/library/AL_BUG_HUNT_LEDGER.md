@@ -9770,7 +9770,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-13
@@ -9819,6 +9819,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` skips expression-bodied mutating actions — **cheap-disproof 2026-09-11 seed hunt #1702:** `ExpressionBody` analyzed when body null; regression `AL0003_reports_when_expression_bodied_HttpPost_lacks_IAudit_LogAsync`
 
 2026-09-11 seed hunt #1702 (dry): reseeded security-analyzers after master churn; cheap-disproof closed four hunt-ready rows; 57 scoped analyzer tests passed.
+
+2026-09-30 seed hunt (seed-only): re-read the three security analyzer implementations and their scoped tests; all 57 tests passed; retained two concrete analyzer blind-spot candidates for a later repro pass.
+
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` does not inspect the inferred type of a `var` local whose referenced method returns `ClaimsPrincipal` or `IHttpContextAccessor`, so a banned tenant-identity type from a compiled dependency may cross the inner-layer boundary without ARCH001 (reachability: inner-layer code can assign a referenced boundary/factory method result to `var`).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` scans only `MethodDeclarationSyntax` bodies in the current API compilation, so a mutating controller action inherited from a referenced base assembly may bypass AL0003 when its implementation body is not present in the analyzed syntax trees (reachability: API controllers can inherit shared controller actions from referenced assemblies).
 
 ---
 
