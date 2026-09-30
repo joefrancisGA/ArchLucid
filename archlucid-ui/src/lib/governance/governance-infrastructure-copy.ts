@@ -775,8 +775,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
   {
     href: GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
     label: GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE,
-    summary:
-      "Declare ConnectsTo or DependsOn edges between resources when config files or tribal knowledge are not ingested.",
+    summary: "Declare edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
