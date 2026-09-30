@@ -37,7 +37,7 @@ describe("architecture diagram overview captions", () => {
 
   it("counts node centers inside a VNet frame", () => {
     const svg = createSvg(`
-      <g class="vnet-frame"><title>alpha</title><rect x="10" y="10" width="80" height="80"/></g>
+      <g class="vnet-frame"><title>alpha</title><rect x="10" y="10" width="400" height="80"/></g>
       <g class="node" transform="translate(20 20)"><rect class="node-card" width="10" height="10"/></g>
       <g class="node" transform="translate(70 70)"><rect class="node-card" width="10" height="10"/></g>
       <g class="node" transform="translate(100 100)"><rect class="node-card" width="10" height="10"/></g>
@@ -50,7 +50,7 @@ describe("architecture diagram overview captions", () => {
 
   it("adds and removes the overview layer and hidden classes", () => {
     const svg = createSvg(`
-      <g class="rg-frame"><title>alpha</title><rect class="rg-frame-plate" x="0" y="0" width="100" height="100"/></g>
+      <g class="rg-frame"><title>alpha</title><rect class="rg-frame-plate" x="0" y="0" width="400" height="100"/></g>
       <g class="node" transform="translate(10 10)"><rect class="node-card" width="10" height="10"/><text>card</text></g>
       <g class="edge"><text class="edge-label">used by</text></g>
     `);
@@ -92,7 +92,7 @@ describe("architecture diagram overview captions", () => {
     const svg = createSvg(`
       <g class="rg-frame">
         <title>alpha</title>
-        <rect class="rg-frame-plate" x="0" y="0" width="100" height="50"/>
+        <rect class="rg-frame-plate" x="0" y="0" width="400" height="50"/>
         <g class="azure-icon"></g>
         <text class="clusterLabelText">alpha</text>
       </g>
@@ -143,12 +143,12 @@ describe("architecture diagram overview captions", () => {
     const svg = createSvg(`
       <g class="rg-frame">
         <title>rg-alpha</title>
-        <rect class="rg-frame-plate" x="0" y="0" width="120" height="100"/>
+        <rect class="rg-frame-plate" x="0" y="0" width="600" height="100"/>
         <text class="clusterLabelText">rg-alpha</text>
       </g>
       <g class="vnet-frame">
         <title>vnet-alpha</title>
-        <rect x="10" y="10" width="80" height="70"/>
+        <rect x="10" y="10" width="600" height="70"/>
         <g class="vnet-frame-caption"><text>vnet-alpha</text></g>
       </g>
       <g class="node" transform="translate(20 20)">
@@ -171,6 +171,37 @@ describe("architecture diagram overview captions", () => {
     applyDiagramOverviewCaptions(svg, 0.4);
 
     expect(svg.querySelector("g.edge text")).not.toHaveClass("diagram-overview-hidden");
-    expect(svg.querySelectorAll("text.overview-caption")).toHaveLength(2);
+    expect(svg.querySelectorAll("text.overview-caption")).toHaveLength(1);
+  });
+
+  it("seats a VNet beside an RG in the same row through the overview range", () => {
+    const svg = createSvg(`
+      <g class="rg-frame"><title>resource-group-long-name</title><rect class="rg-frame-plate" x="0" y="0" width="400" height="60"/></g>
+      <g class="vnet-frame"><title>vnet-alpha</title><rect x="428" y="0" width="400" height="60"/></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+    expect([...svg.querySelectorAll("text.overview-caption")].map((text) => text.textContent)).toEqual([
+      "vnet-alpha · 0",
+    ]);
+
+    const separate = createSvg(`
+      <g class="rg-frame"><title>resource-group-long-name</title><rect class="rg-frame-plate" x="0" y="0" width="400" height="60"/></g>
+      <g class="vnet-frame"><title>vnet-alpha</title><rect x="429" y="100" width="400" height="60"/></g>
+    `);
+    applyDiagramOverviewCaptions(separate, 0.4);
+    expect(separate.querySelectorAll("text.overview-caption")).toHaveLength(2);
+  });
+
+  it("shortens an overview caption before clipping it", () => {
+    const svg = createSvg(`
+      <g class="rg-frame"><title>resource-group-name-that-is-too-long</title><rect class="rg-frame-plate" x="0" y="0" width="70" height="60"/></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.4);
+
+    const text = svg.querySelector("text.overview-caption")?.textContent ?? "";
+    expect(text).toMatch(/… · 0$/u);
+    expect(text).not.toContain("resource-group-name-that-is-too-long");
   });
 });
