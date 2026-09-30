@@ -141,6 +141,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     {
         if (context.Symbol is not INamedTypeSymbol controllerType ||
             controllerType.TypeKind != TypeKind.Class ||
+            controllerType.IsAbstract ||
             !InheritsControllerBase(controllerType, controllerBaseType))
         {
             return;

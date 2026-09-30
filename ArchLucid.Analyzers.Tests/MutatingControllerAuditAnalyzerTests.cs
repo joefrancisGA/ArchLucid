@@ -812,6 +812,40 @@ namespace ArchLucid.Api.Probe
     }
 
     [Fact]
+    public async Task AL0003_reports_one_diagnostic_for_concrete_controller_in_multi_level_referenced_inheritance()
+    {
+        MetadataReference sharedControllerReference = BuildSharedControllerReference();
+        CSharpCompilation apiCompilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    """
+namespace ArchLucid.Api.Probe
+{
+    public abstract class IntermediateController : Shared.Controllers.SharedMutatingController
+    {
+    }
+
+    public sealed class ConcreteController : IntermediateController
+    {
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences().Append(sharedControllerReference),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await apiCompilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new MutatingControllerAuditAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Single(
+            diagnostics,
+            diagnostic => diagnostic.Id == Al0003MutatingControllerAuditDescriptor.Rule.Id);
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_expression_bodied_HttpPost_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +
