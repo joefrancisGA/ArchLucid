@@ -42,9 +42,22 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                     : MermaidIdSanitizer.Sanitize(node.SubgraphId),
                 OrderKey = node.OrderKey,
                 CloudResourceId = node.CloudResourceId,
+                ArmResourceId = node.ArmResourceId,
                 SeedNodeId = node.SeedNodeId,
                 ArmResourceType = node.ArmResourceType,
+                ArmResourceKind = node.ArmResourceKind,
+                ExternalLinkedServiceType = node.ExternalLinkedServiceType,
                 ArmResourceGroup = node.ArmResourceGroup,
+                IncludeResourceGroupInCaption = node.IncludeResourceGroupInCaption,
+                HasPrivateEndpointAccess = node.HasPrivateEndpointAccess,
+                IsExecutiveOverflow = node.IsExecutiveOverflow,
+                IsUnresolvedPolicyOutlineOnly = node.IsUnresolvedPolicyOutlineOnly,
+                ParentAttachmentDetails = node.ParentAttachmentDetails.ToList(),
+                ConnectionState = node.ConnectionState,
+                ConnectionStateMessage = node.ConnectionStateMessage,
+                UnresolvedRelationshipDetails = node.UnresolvedRelationshipDetails.ToList(),
+                IsAvdCollapsedBoundary = node.IsAvdCollapsedBoundary,
+                DataFlowTraversalHopEvidenceDetails = node.DataFlowTraversalHopEvidenceDetails.ToList(),
             });
         }
 
@@ -85,6 +98,10 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 // with a null source is not a VNet placement.
                 InferenceSource = edge.InferenceSource,
                 ProvenanceKind = edge.ProvenanceKind,
+                DeclaredConnectionId = edge.DeclaredConnectionId,
+                IsDataFlowNsgBlocked = edge.IsDataFlowNsgBlocked,
+                DataFlowNsgAnnotationLabels = edge.DataFlowNsgAnnotationLabels.ToList(),
+                DataFlowNsgSupportingRuleDetails = edge.DataFlowNsgSupportingRuleDetails.ToList(),
             });
         }
 

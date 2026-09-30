@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -13,6 +14,133 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 
 public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
 {
+    [Theory]
+    [InlineData("AzureBlobStorage", "Svg/storage-account.svg")]
+    [InlineData("AzureMySql", "Svg/mysql.svg")]
+    [InlineData("Sftp", "Svg/resource-linked.svg")]
+    public void Repair_keeps_linked_service_icon_metadata_for_forest_layout(
+        string linkedServiceType,
+        string expectedIconFile)
+    {
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "external-linked-service",
+                    Label = linkedServiceType,
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = linkedServiceType,
+                },
+            ],
+        });
+
+        DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(repaired);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain($"data-file=\"{expectedIconFile}\"");
+    }
+
+    [Fact]
+    public void Repair_keeps_resource_kind_for_specialized_icon_resolution()
+    {
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "function-app",
+                    Label = "function-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    ArmResourceKind = "functionapp",
+                },
+            ],
+        });
+
+        DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(repaired);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("data-file=\"Svg/function-app.svg\"");
+        result.Svg.Should().NotContain("data-file=\"Svg/app-service.svg\"");
+    }
+
+    [Fact]
+    public void Repair_keeps_node_and_edge_painter_metadata_and_copies_lists()
+    {
+        DiagramNode sourceNode = new()
+        {
+            NodeId = "node",
+            Label = "node",
+            NodeType = "TopologyResource",
+            ArmResourceId = "/subscriptions/s/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/node",
+            SeedNodeId = "seed",
+            ArmResourceType = "Microsoft.Storage/storageAccounts",
+            ArmResourceKind = "StorageV2",
+            ExternalLinkedServiceType = "AzureBlobStorage",
+            ArmResourceGroup = "rg",
+            IncludeResourceGroupInCaption = true,
+            HasPrivateEndpointAccess = true,
+            IsExecutiveOverflow = true,
+            IsUnresolvedPolicyOutlineOnly = true,
+            ParentAttachmentDetails = ["parent detail"],
+            ConnectionState = InventoryDiagramConnectionState.Used,
+            ConnectionStateMessage = "used by app",
+            UnresolvedRelationshipDetails = ["missing relationship"],
+            IsAvdCollapsedBoundary = true,
+            DataFlowTraversalHopEvidenceDetails = ["hop evidence"],
+        };
+        DiagramEdge sourceEdge = new()
+        {
+            FromNodeId = "node",
+            ToNodeId = "node",
+            Label = "connects",
+            IsLayoutOnly = true,
+            InferenceSource = "inference-source",
+            ProvenanceKind = "ObservedFact",
+            DeclaredConnectionId = "declared-connection",
+            IsDataFlowNsgBlocked = true,
+            DataFlowNsgAnnotationLabels = ["tcp/443"],
+            DataFlowNsgSupportingRuleDetails = ["allow rule"],
+        };
+
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Nodes = [sourceNode],
+            Edges = [sourceEdge],
+        });
+        DiagramNode repairedNode = repaired.Nodes.Should().ContainSingle().Subject;
+        DiagramEdge repairedEdge = repaired.Edges.Should().ContainSingle().Subject;
+
+        repairedNode.ArmResourceId.Should().Be(sourceNode.ArmResourceId);
+        repairedNode.ArmResourceKind.Should().Be(sourceNode.ArmResourceKind);
+        repairedNode.ExternalLinkedServiceType.Should().Be(sourceNode.ExternalLinkedServiceType);
+        repairedNode.IncludeResourceGroupInCaption.Should().BeTrue();
+        repairedNode.HasPrivateEndpointAccess.Should().BeTrue();
+        repairedNode.IsExecutiveOverflow.Should().BeTrue();
+        repairedNode.IsUnresolvedPolicyOutlineOnly.Should().BeTrue();
+        repairedNode.ParentAttachmentDetails.Should().Equal(sourceNode.ParentAttachmentDetails);
+        repairedNode.ParentAttachmentDetails.Should().NotBeSameAs(sourceNode.ParentAttachmentDetails);
+        repairedNode.ConnectionState.Should().Be(sourceNode.ConnectionState);
+        repairedNode.ConnectionStateMessage.Should().Be(sourceNode.ConnectionStateMessage);
+        repairedNode.UnresolvedRelationshipDetails.Should().Equal(sourceNode.UnresolvedRelationshipDetails);
+        repairedNode.UnresolvedRelationshipDetails.Should().NotBeSameAs(sourceNode.UnresolvedRelationshipDetails);
+        repairedNode.IsAvdCollapsedBoundary.Should().BeTrue();
+        repairedNode.DataFlowTraversalHopEvidenceDetails.Should().Equal(sourceNode.DataFlowTraversalHopEvidenceDetails);
+        repairedNode.DataFlowTraversalHopEvidenceDetails.Should().NotBeSameAs(sourceNode.DataFlowTraversalHopEvidenceDetails);
+
+        repairedEdge.DeclaredConnectionId.Should().Be(sourceEdge.DeclaredConnectionId);
+        repairedEdge.IsDataFlowNsgBlocked.Should().BeTrue();
+        repairedEdge.DataFlowNsgAnnotationLabels.Should().Equal(sourceEdge.DataFlowNsgAnnotationLabels);
+        repairedEdge.DataFlowNsgAnnotationLabels.Should().NotBeSameAs(sourceEdge.DataFlowNsgAnnotationLabels);
+        repairedEdge.DataFlowNsgSupportingRuleDetails.Should().Equal(sourceEdge.DataFlowNsgSupportingRuleDetails);
+        repairedEdge.DataFlowNsgSupportingRuleDetails.Should().NotBeSameAs(sourceEdge.DataFlowNsgSupportingRuleDetails);
+    }
+
     [Fact]
     public void Repair_keeps_hidden_subnet_vnet_placement_source()
     {
