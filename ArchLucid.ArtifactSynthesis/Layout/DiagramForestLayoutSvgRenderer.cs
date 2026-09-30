@@ -1398,7 +1398,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));
-        List<(double X, double Y)> placedLabelCenters = [];
+        List<(double X, double Y, double Width, double Height)> placedLabelBounds = [];
         List<IReadOnlyList<(double X1, double Y1, double X2, double Y2)>> alreadyRouted = [];
 
         foreach (DiagramEdge edge in visibleEdges.Concat(bundledEdges))
@@ -1509,7 +1509,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 route,
                 suppressOnPathLabel,
                 showArrow,
-                placedLabelCenters,
+                placedLabelBounds,
                 bundledEndpointIds.TryGetValue(
                     DiagramForestEdgeLabelCollapse.EdgeKey(edge),
                     out BundleEndpointIds? endpointIds)

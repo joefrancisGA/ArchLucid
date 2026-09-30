@@ -13,9 +13,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
     private const double LabelFontSize = 11.0d;
     private const double LabelPaddingX = 4.0d;
     private const double LabelPaddingY = 2.0d;
-    private const double LabelOffset = 10.0d;
-    private const double LabelCollisionRadius = 12.0d;
-    private const double LabelNudge = 14.0d;
+    private const double LabelStackGap = 2.0d;
+    private const int MaxLabelStackSteps = 8;
 
     public static XElement EmitEdgeGroup(
         XNamespace svgNamespace,
@@ -23,14 +22,14 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         DiagramForestOrthogonalEdgeRouter.RouteResult route,
         bool suppressOnPathLabel,
         bool showArrow,
-        List<(double X, double Y)> placedLabelCenters,
+        List<(double X, double Y, double Width, double Height)> placedLabelBounds,
         IReadOnlyList<string>? bundleFromNodeIds = null,
         IReadOnlyList<string>? bundleToNodeIds = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
         ArgumentNullException.ThrowIfNull(route);
-        ArgumentNullException.ThrowIfNull(placedLabelCenters);
+        ArgumentNullException.ThrowIfNull(placedLabelBounds);
 
         string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
         string title = label.Length == 0 ? "connector" : label;
@@ -102,10 +101,14 @@ internal static class DiagramForestEdgeLabelSvgEmitter
             return edgeGroup;
         }
 
-        (double labelX, double labelY) = ResolveLabelAnchor(route.Segments, placedLabelCenters);
         double labelWidth = EstimateLabelWidth(label);
         double labelHeight = LabelFontSize + (LabelPaddingY * 2.0d);
-        placedLabelCenters.Add((labelX, labelY));
+        (double labelX, double labelY) = ResolveLabelAnchor(
+            route.Segments,
+            labelWidth,
+            labelHeight,
+            placedLabelBounds);
+        placedLabelBounds.Add((labelX, labelY, labelWidth, labelHeight));
 
         edgeGroup.Add(new XElement(
             svgNamespace + "g",
@@ -136,7 +139,9 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
     private static (double X, double Y) ResolveLabelAnchor(
         IReadOnlyList<(double X1, double Y1, double X2, double Y2)> segments,
-        List<(double X, double Y)> placedLabelCenters)
+        double labelWidth,
+        double labelHeight,
+        IReadOnlyList<(double X, double Y, double Width, double Height)> placedLabelBounds)
     {
         (double X1, double Y1, double X2, double Y2) longest = segments
             .OrderByDescending(segment => SegmentLength(segment))
@@ -145,41 +150,35 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         double midY = (longest.Y1 + longest.Y2) / 2.0d;
         double deltaX = longest.X2 - longest.X1;
         double deltaY = longest.Y2 - longest.Y1;
-        double offsetX = 0.0d;
-        double offsetY = 0.0d;
+        bool horizontal = Math.Abs(deltaX) >= Math.Abs(deltaY);
+        double perpendicularStep = labelHeight + LabelStackGap;
 
-        if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+        for (int attempt = 0; attempt <= MaxLabelStackSteps; attempt++)
         {
-            offsetY = -LabelOffset;
-        }
-        else
-        {
-            offsetX = LabelOffset;
-        }
-
-        for (int attempt = 0; attempt < 5; attempt++)
-        {
-            double candidateX = midX + offsetX;
-            double candidateY = midY + offsetY;
-            bool collides = placedLabelCenters.Any(center =>
-                Distance(center.X, center.Y, candidateX, candidateY) < LabelCollisionRadius);
+            int direction = attempt == 0 ? 0 : ((attempt + 1) / 2) * (attempt % 2 == 1 ? -1 : 1);
+            double candidateX = horizontal ? midX : midX + (direction * perpendicularStep);
+            double candidateY = horizontal ? midY + (direction * perpendicularStep) : midY;
+            bool collides = placedLabelBounds.Any(placed =>
+                RectanglesOverlapOrTouch(
+                    candidateX,
+                    candidateY,
+                    labelWidth,
+                    labelHeight,
+                    placed.X,
+                    placed.Y,
+                    placed.Width,
+                    placed.Height));
 
             if (!collides)
             {
                 return (candidateX, candidateY);
             }
-
-            if (Math.Abs(deltaX) >= Math.Abs(deltaY))
-            {
-                midX += LabelNudge * Math.Sign(deltaX == 0 ? 1 : deltaX);
-            }
-            else
-            {
-                midY += LabelNudge * Math.Sign(deltaY == 0 ? 1 : deltaY);
-            }
         }
 
-        return (midX + offsetX, midY + offsetY);
+        int fallbackDirection = MaxLabelStackSteps / 2;
+        return horizontal
+            ? (midX, midY - (fallbackDirection * perpendicularStep))
+            : (midX + (fallbackDirection * perpendicularStep), midY);
     }
 
     private static double SegmentLength((double X1, double Y1, double X2, double Y2) segment)
@@ -190,12 +189,18 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
     }
 
-    private static double Distance(double x1, double y1, double x2, double y2)
+    private static bool RectanglesOverlapOrTouch(
+        double centerX1,
+        double centerY1,
+        double width1,
+        double height1,
+        double centerX2,
+        double centerY2,
+        double width2,
+        double height2)
     {
-        double deltaX = x2 - x1;
-        double deltaY = y2 - y1;
-
-        return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+        return Math.Abs(centerX1 - centerX2) <= (width1 + width2) / 2.0d
+            && Math.Abs(centerY1 - centerY2) <= (height1 + height2) / 2.0d;
     }
 
     private static double EstimateLabelWidth(string label)
