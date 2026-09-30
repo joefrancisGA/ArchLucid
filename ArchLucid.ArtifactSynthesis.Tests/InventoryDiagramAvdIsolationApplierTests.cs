@@ -40,7 +40,7 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     private readonly DiagramAstFromGraphCompiler compiler = new();
 
     [Fact]
-    public void Compile_full_subscription_omits_avd_internal_resources_and_shows_count_boundary()
+    public void Compile_full_subscription_omits_avd_internal_resources_without_avd_trace()
     {
         GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: false);
 
@@ -48,8 +48,7 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
 
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == HostPoolArmId);
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == AvdOnlyVmArmId);
-        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary)
-            .Which.Label.Should().Be("Azure Virtual Desktop · 1 host pool · 1 session host");
+        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
     }
 
     [Fact]
@@ -91,13 +90,13 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     }
 
     [Fact]
-    public void Compile_full_subscription_shows_collapsed_boundary_for_shared_firewall_edge()
+    public void Compile_full_subscription_keeps_shared_firewall_without_avd_trace()
     {
         GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: true);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary);
+        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == HostPoolArmId);
         ast.Nodes.Should().Contain(node => node.ArmResourceId == FirewallArmId);
     }
@@ -128,7 +127,7 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
         ast.Nodes.Should().NotContain(node =>
             node.ArmResourceId != null
             && node.ArmResourceId.Contains("/virtualMachines/host1", StringComparison.Ordinal));
-        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary);
+        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
     }
 
     [Fact]

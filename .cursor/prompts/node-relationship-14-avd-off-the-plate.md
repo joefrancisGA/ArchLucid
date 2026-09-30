@@ -28,18 +28,13 @@ A NIC or disk whose only cited parent is an omitted session-host virtual machine
 
 Do not change `DiagramsWorkbenchClient` or add a control. `includeAvdAssets=true` and `DiagramMode.Avd` still include the omitted nodes.
 
-When the omitted set is non-empty, the plate shows one collapsed boundary, not one per hidden virtual machine:
-
-- If `InventoryDiagramAvdBoundaryApplier` already emits a boundary because of a shared edge, set that node's label to `Azure Virtual Desktop · {hostPools} {hostPoolWord} · {sessionHosts} {sessionHostWord}`. `hostPoolWord` is `host pool` when the count is 1 and `host pools` otherwise. `sessionHostWord` is `session host` when the count is 1 and `session hosts` otherwise. One boundary keeps one label. Do not add a second card for the same host pool.
-- If no shared edge exists, emit one boundary node with that label and no connector. `{hostPools}` is the count of omitted host-pool nodes. `{sessionHosts}` is the count of omitted session-host virtual machines. A zero session-host count still prints `0 session hosts` when host pools were omitted.
-
-The boundary is not a resource-group frame and not a VNet member. It does not expand on click.
+When the omitted set is non-empty, do not emit an AVD boundary, count node, placeholder, or caption. The general diagram must contain no AVD trace by default. Shared resources that also serve non-AVD workloads remain visible because they are ordinary shared resources; they must not be replaced by an AVD boundary.
 
 ## Tests
 
 Extend `InventoryDiagramAvdIsolationApplierTests` or the scope-resolver tests beside them.
 
-1. A host pool and a virtual machine whose id's last segment equals the session host's last segment, with no `SessionHostToVm` edge, are absent from Full subscription when `IncludeAvdAssets` is false. The plate contains one node whose label is `Azure Virtual Desktop · 1 host pool · 1 session host`.
+1. A host pool and a virtual machine whose id's last segment equals the session host's last segment, with no `SessionHostToVm` edge, are absent from Full subscription when `IncludeAvdAssets` is false. The plate contains no AVD boundary or count node.
 2. The NIC and disk cited only to that virtual machine are absent. A disk cited to a different virtual machine remains.
 3. A virtual machine with a cited edge to a load balancer remains, even when its name matches a session host.
 4. The same snapshot compiled with `IncludeAvdAssets` true includes the host pool and the session-host virtual machine, and does not add the count-only boundary.
@@ -48,7 +43,7 @@ Extend `InventoryDiagramAvdIsolationApplierTests` or the scope-resolver tests be
 ## Acceptance criteria
 
 - With **Show AVD Assets** unchecked, Full subscription and Network show no host pool, workspace, application group, scaling plan, session host, session-host virtual machine, or that virtual machine's exclusive NIC and disks.
-- One chip carries the host-pool count and the session-host count.
+- The default plate contains no AVD node, boundary, count, or caption.
 - Checking **Show AVD Assets** is the only opt-in. No new checkbox and no new diagram mode.
 - A virtual machine that also serves a non-AVD workload stays on the plate.
 
