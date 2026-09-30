@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security;
 using System.Xml.Linq;
 
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -152,7 +153,55 @@ public static class DiagramForestNodeSvgEmitter
             group.Add(resourceGroupText);
         }
 
+        if (metrics.NsgInboundRuleChips.Count > 0)
+        {
+            double chipY = height - options.NodePaddingY - options.LineHeight;
+            double chipX = textX;
+            foreach (DiagramNsgInboundRuleChip chip in metrics.NsgInboundRuleChips)
+            {
+                group.Add(EmitNsgRuleChip(svgNamespace, chip, chipX, chipY));
+                chipX += EstimateChipWidth(chip.Text) + 4.0d;
+            }
+        }
+
         return group;
+    }
+
+    private static XElement EmitNsgRuleChip(
+        XNamespace svgNamespace,
+        DiagramNsgInboundRuleChip chip,
+        double x,
+        double y)
+    {
+        double chipWidth = EstimateChipWidth(chip.Text);
+        XElement chipGroup = new(
+            svgNamespace + "g",
+            new XAttribute("class", chip.IsRisky ? "nsg-rule-chip-risk" : "nsg-rule-chip"));
+        chipGroup.Add(new XElement(
+            svgNamespace + "rect",
+            new XAttribute("x", Format(x)),
+            new XAttribute("y", Format(y - 10.0d)),
+            new XAttribute("width", Format(chipWidth)),
+            new XAttribute("height", "14"),
+            new XAttribute("rx", "3"),
+            new XAttribute("fill", chip.IsRisky ? "#fee2e2" : "#e2e8f0"),
+            new XAttribute("stroke", chip.IsRisky ? "#dc2626" : "#64748b"),
+            new XAttribute("stroke-width", "1")));
+        chipGroup.Add(new XElement(
+            svgNamespace + "text",
+            new XAttribute("x", Format(x + 4.0d)),
+            new XAttribute("y", Format(y)),
+            new XAttribute("font-size", "9"),
+            new XAttribute("font-family", "system-ui,sans-serif"),
+            new XAttribute("fill", chip.IsRisky ? "#991b1b" : "#334155"),
+            Escape(chip.Text)));
+
+        return chipGroup;
+    }
+
+    private static double EstimateChipWidth(string text)
+    {
+        return Math.Max(36.0d, text.Length * 5.5d + 8.0d);
     }
 
     private static string Escape(string value)

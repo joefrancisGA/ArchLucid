@@ -26,21 +26,21 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
             && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
         {
-            combined = $"{combined} · Orphaned: {node.ConnectionStateMessage.Trim()}";
+            combined = $"{combined} · Missing a required link: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · Used"
-                : $"{combined} · Used: {node.ConnectionStateMessage.Trim()}";
+                ? $"{combined} · In use off the diagram"
+                : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
-            combined = $"{combined} · Unconnected";
+            combined = $"{combined} · Stands alone";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
         {
-            combined = $"{combined} · Unknown";
+            combined = $"{combined} · Needs evidence";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)

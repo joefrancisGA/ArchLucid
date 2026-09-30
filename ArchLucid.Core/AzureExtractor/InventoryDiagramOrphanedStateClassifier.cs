@@ -51,7 +51,8 @@ public static class InventoryDiagramOrphanedStateClassifier
             return ClassifyWorkflow(graphNode, armIdToGraphNode, evidenceCurrency);
         }
 
-        if (TryClassifyUnconnected(armResourceType))
+        if (TryClassifyUnconnected(armResourceType)
+            || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {
             return InventoryDiagramConnectionStateResult.Unconnected();
         }

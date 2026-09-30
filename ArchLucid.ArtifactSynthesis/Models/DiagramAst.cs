@@ -39,4 +39,11 @@ public class DiagramAst
         get;
         set;
     } = [];
+
+    /// <summary>Imported relationships omitted from the canvas, emitted as Mermaid ledger comments.</summary>
+    public List<DiagramMermaidLedgerDrop> LedgerDrops
+    {
+        get;
+        set;
+    } = [];
 }

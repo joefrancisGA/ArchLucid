@@ -16,6 +16,7 @@ public static class InventoryDiagramAvdScopeResolver
 
         HashSet<string> avdOnlyNodeIds = [];
         Dictionary<string, string> nodeIdToHostPoolArmId = new(StringComparer.Ordinal);
+        HashSet<string> sessionHostLastSegments = BuildSessionHostLastSegments(graph);
 
         foreach (GraphNode node in graph.Nodes)
         {
@@ -37,10 +38,10 @@ public static class InventoryDiagramAvdScopeResolver
                 continue;
             }
 
-            if (IsAvdOnlySessionHostVirtualMachine(node, graph, avdOnlyNodeIds))
+            if (IsAvdOnlySessionHostVirtualMachine(node, graph, avdOnlyNodeIds, sessionHostLastSegments))
             {
                 avdOnlyNodeIds.Add(node.NodeId);
-                string? hostPoolArmId = ResolveHostPoolArmIdForSessionHostVm(node, graph, nodesById);
+                string? hostPoolArmId = ResolveHostPoolArmIdForSessionHostVm(node, graph, nodesById, sessionHostLastSegments);
                 if (!string.IsNullOrWhiteSpace(hostPoolArmId))
                 {
                     nodeIdToHostPoolArmId[node.NodeId] = hostPoolArmId;
@@ -156,7 +157,8 @@ public static class InventoryDiagramAvdScopeResolver
     private static bool IsAvdOnlySessionHostVirtualMachine(
         GraphNode node,
         GraphSnapshot graph,
-        IReadOnlySet<string> avdOnlyNodeIds)
+        IReadOnlySet<string> avdOnlyNodeIds,
+        IReadOnlySet<string> sessionHostLastSegments)
     {
         string armType = ReadArmType(node);
 
@@ -166,12 +168,59 @@ public static class InventoryDiagramAvdScopeResolver
             return false;
         }
 
-        if (!IsSessionHostBackingTarget(node.NodeId, graph))
+        if (IsSessionHostBackingTarget(node.NodeId, graph)
+            || MatchesSessionHostLastSegment(ReadArmId(node), sessionHostLastSegments))
         {
-            return false;
+            return !HasProvenNonAvdRole(node.NodeId, graph, avdOnlyNodeIds);
         }
 
-        return !HasProvenNonAvdRole(node.NodeId, graph, avdOnlyNodeIds);
+        return false;
+    }
+
+    private static HashSet<string> BuildSessionHostLastSegments(GraphSnapshot graph)
+    {
+        HashSet<string> segments = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            string armType = ReadArmType(node);
+            string armId = ReadArmId(node);
+
+            if (!armType.Contains("sessionHosts", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(armId))
+            {
+                continue;
+            }
+
+            string? lastSegment = ReadLastArmSegment(armId);
+
+            if (!string.IsNullOrWhiteSpace(lastSegment))
+            {
+                segments.Add(lastSegment);
+            }
+        }
+
+        return segments;
+    }
+
+    private static bool MatchesSessionHostLastSegment(string armId, IReadOnlySet<string> sessionHostLastSegments)
+    {
+        string? vmLastSegment = ReadLastArmSegment(armId);
+
+        return !string.IsNullOrWhiteSpace(vmLastSegment)
+            && sessionHostLastSegments.Contains(vmLastSegment);
+    }
+
+    private static string? ReadLastArmSegment(string armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return null;
+        }
+
+        int slash = armId.LastIndexOf('/');
+
+        return slash < 0 ? armId.Trim() : armId[(slash + 1)..].Trim();
     }
 
     private static bool IsSessionHostBackingTarget(string nodeId, GraphSnapshot graph)
@@ -185,11 +234,21 @@ public static class InventoryDiagramAvdScopeResolver
                 StringComparison.OrdinalIgnoreCase));
     }
 
+    private static bool IsSessionHostExclusiveAttachment(string armType)
+    {
+        return armType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("/disks", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool HasProvenNonAvdRole(
         string nodeId,
         GraphSnapshot graph,
         IReadOnlySet<string> avdOnlyNodeIds)
     {
+        Dictionary<string, GraphNode> nodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
         foreach (GraphEdge edge in EnumerateIncidentEdges(graph, nodeId))
         {
             if (edge.Weight < MinimumEdgeWeight)
@@ -209,6 +268,12 @@ public static class InventoryDiagramAvdScopeResolver
                 ? edge.ToNodeId
                 : edge.FromNodeId;
 
+            if (nodesById.TryGetValue(otherNodeId, out GraphNode? otherNode)
+                && IsSessionHostExclusiveAttachment(ReadArmType(otherNode)))
+            {
+                continue;
+            }
+
             if (!avdOnlyNodeIds.Contains(otherNodeId))
             {
                 return true;
@@ -221,7 +286,8 @@ public static class InventoryDiagramAvdScopeResolver
     private static string? ResolveHostPoolArmIdForSessionHostVm(
         GraphNode vmNode,
         GraphSnapshot graph,
-        IReadOnlyDictionary<string, GraphNode> nodesById)
+        IReadOnlyDictionary<string, GraphNode> nodesById,
+        IReadOnlySet<string> sessionHostLastSegments)
     {
         foreach (GraphEdge edge in graph.Edges)
         {
@@ -236,6 +302,33 @@ public static class InventoryDiagramAvdScopeResolver
             }
 
             if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? hostNode))
+            {
+                continue;
+            }
+
+            string? hostPoolArmId = InventoryDiagramAvdClassifier.TryReadHostPoolArmId(ReadArmId(hostNode));
+
+            if (!string.IsNullOrWhiteSpace(hostPoolArmId))
+            {
+                return hostPoolArmId;
+            }
+        }
+
+        string? vmLastSegment = ReadLastArmSegment(ReadArmId(vmNode));
+
+        if (string.IsNullOrWhiteSpace(vmLastSegment))
+        {
+            return null;
+        }
+
+        foreach (GraphNode hostNode in graph.Nodes)
+        {
+            if (!ReadArmType(hostNode).Contains("sessionHosts", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!string.Equals(ReadLastArmSegment(ReadArmId(hostNode)), vmLastSegment, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }

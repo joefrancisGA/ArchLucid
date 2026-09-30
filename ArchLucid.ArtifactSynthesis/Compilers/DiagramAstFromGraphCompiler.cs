@@ -210,6 +210,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             InventoryDiagramDataFlowNsgAnnotationApplier.Apply(ast, graph, nodeIdMap);
         }
 
+        InventoryDiagramAvdBoundaryApplier.Apply(ast, graph, nodeIdMap, mode, options);
+
         if (isDataFlowMode)
         {
             ast.FlowchartDirection = "LR";

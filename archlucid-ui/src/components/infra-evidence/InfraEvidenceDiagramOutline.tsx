@@ -10,8 +10,16 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/de
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
@@ -50,6 +58,52 @@ import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-conn
 
 const OUTLINE_NODES_OPEN_STORAGE_KEY = "infra-diagrams-outline-nodes-open";
 const OUTLINE_EDGES_OPEN_STORAGE_KEY = "infra-diagrams-outline-edges-open";
+
+type ConnectionStateKey = "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown";
+
+function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): string {
+  switch (state) {
+    case "Connected":
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION;
+
+    case "Used":
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION;
+
+    case "Orphaned":
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION;
+
+    case "Unconnected":
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION;
+
+    default:
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+  }
+}
+
+function resolveUnknownNodeReason(node: InfraEvidenceMermaidOutlineNode): string {
+  const details = node.unresolvedRelationshipDetails ?? [];
+
+  if (details.length > 0) {
+    return details.join(" ");
+  }
+
+  return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;
+}
+
+function formatLedgerDropLabel(
+  drop: { readonly reason: string; readonly from: string; readonly to: string | null },
+  nodes: readonly InfraEvidenceMermaidOutlineNode[],
+): string {
+  const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
+
+  if (drop.reason === "nsg-unattached") {
+    return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL} · ${fromLabel}`;
+  }
+
+  const toLabel = drop.to == null ? "—" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
+
+  return `${drop.reason} · ${fromLabel} → ${toLabel}`;
+}
 
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
@@ -159,6 +213,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly sectionLabel: string;
   readonly sectionTestId: string;
+  readonly showUnknownReason?: boolean;
   readonly nodeSortKey: InfraEvidenceDiagramOutlineNodeSortKey;
   readonly nodeSortDir: "asc" | "desc";
   readonly onSort: (column: InfraEvidenceDiagramOutlineNodeSortKey) => void;
@@ -169,6 +224,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
     nodes,
     sectionLabel,
     sectionTestId,
+    showUnknownReason = false,
     nodeSortKey,
     nodeSortDir,
     onSort,
@@ -213,6 +269,11 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 onSort={onSort}
                 resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
               />
+              {showUnknownReason ? (
+                <th className="px-3 py-2 font-medium" scope="col">
+                  Reason
+                </th>
+              ) : null}
               {showNeighborhoodActions ? (
                 <th className="px-3 py-2 font-medium" scope="col">
                   Neighborhood
@@ -230,6 +291,11 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
                   {formatOutlineCell(node.resourceGroup)}
                 </td>
+                {showUnknownReason ? (
+                  <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
+                    {resolveUnknownNodeReason(node)}
+                  </td>
+                ) : null}
                 {showNeighborhoodActions ? (
                   <td className="px-3 py-2">
                     <Button
@@ -384,8 +450,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     () => sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir),
     [edgeSortDir, edgeSortKey, outline.edges, outline.nodes],
   );
-  const showNeighborhoodActions = onFocusNeighborhood != null;
+  const unknownNodes = stateRows.get("Unknown") ?? [];
   const showEdgesSection = outline.edges.length > 0;
+  const showLedgerSection = (outline.ledgerDrops?.length ?? 0) > 0;
+
+  const showNeighborhoodActions = onFocusNeighborhood != null;
 
   const handleNodeSort = (column: InfraEvidenceDiagramOutlineNodeSortKey) => {
     const next = toggleInfraEvidenceDiagramOutlineNodeSort(nodeSortKey, nodeSortDir, column);
@@ -450,19 +519,56 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 </p>
               ) : null}
               <div className="flex flex-col gap-4">
-                {(["Connected", "Used", "Orphaned", "Unconnected", "Unknown"] as const).map((state) => (
+                {unknownNodes.length > 0 ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-diagrams-unknown-questions"
+                  >
+                    {unknownNodes.length === 1
+                      ? "ArchLucid has a question about 1 resource."
+                      : `ArchLucid has questions about ${unknownNodes.length} resources.`}
+                  </p>
+                ) : null}
+                {(["Connected", "Used", "Orphaned", "Unconnected", "Unknown"] as const).map((state) => {
+                  const nodes = stateRows.get(state) ?? [];
+
+                  if (nodes.length === 0) {
+                    return null;
+                  }
+
+                  return (
                   <InfraEvidenceDiagramOutlineNodeTable
                     key={state}
-                    nodes={stateRows.get(state) ?? []}
-                    sectionLabel={`${state} nodes`}
+                    nodes={nodes}
+                    sectionLabel={resolveOutlineConnectionStateSectionLabel(state)}
                     sectionTestId={`infra-diagrams-${state.toLowerCase()}-nodes-list`}
+                    showUnknownReason={state === "Unknown"}
                     nodeSortKey={nodeSortKey}
                     nodeSortDir={nodeSortDir}
                     onSort={handleNodeSort}
                     showNeighborhoodActions={showNeighborhoodActions}
                     onFocusNeighborhood={onFocusNeighborhood}
                   />
-                ))}
+                  );
+                })}
+                {showLedgerSection ? (
+                  <section
+                    className="flex flex-col gap-2"
+                    data-testid="infra-diagrams-ledger-drops-list"
+                    aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL}
+                  >
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                      {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL}
+                    </h3>
+                    <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                      {(outline.ledgerDrops ?? []).map((drop) => (
+                        <li key={`${drop.reason}-${drop.from}-${drop.to ?? "_"}`}>
+                          {formatLedgerDropLabel(drop, outline.nodes)}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
               </div>
               {outline.nodes.length === 0 ? (
                 <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

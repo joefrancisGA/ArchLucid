@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -134,33 +136,72 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     }
 
     [Fact]
-    public void Compile_nsg_without_association_keeps_nsg_node()
+    public void Compile_nsg_without_association_records_ledger_drop_and_removes_card()
     {
         GraphSnapshot graph = BuildNsgGraph(includeAssociation: false);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        DiagramNode nsg = ast.Nodes.Should().ContainSingle(node =>
-            node.ArmResourceType == "Microsoft.Network/networkSecurityGroups").Subject;
-        nsg.IsUnresolvedPolicyOutlineOnly.Should().BeTrue();
-        ast.Edges.Should().NotContain(edge =>
-            edge.InferenceSource == GraphEdgeInferenceSources.InventoryNsgPolicyAttachment);
+        ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
+        ast.LedgerDrops.Should().ContainSingle(drop =>
+            drop.Reason == "nsg-unattached"
+            && drop.FromNodeId.Length > 0);
     }
 
     [Fact]
-    public void Compile_unresolved_nsg_stays_in_mermaid_outline_but_not_forest_canvas()
+    public void Compile_unresolved_nsg_emits_ledger_comment_not_canvas_card()
     {
         GraphSnapshot graph = BuildNsgGraph(includeAssociation: false);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
         string mermaid = new MermaidDiagramRenderer().Render(ast);
 
-        mermaid.Should().Contain("al-outline-only=true");
-        mermaid.Should().Contain("Microsoft.Network/networkSecurityGroups");
+        mermaid.Should().Contain("al-ledger-drop nsg-unattached");
+        mermaid.Should().NotContain("al-outline-only=true");
 
         DiagramForestLayoutResult forestLayout = new DiagramForestLayoutSvgRenderer().Render(ast);
         forestLayout.Succeeded.Should().BeTrue();
         forestLayout.Svg.Should().NotContain("networkSecurityGroups");
+    }
+
+    [Fact]
+    public void Compile_nsg_attached_to_subnet_paints_inbound_chips_on_visible_owner()
+    {
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/app";
+
+        GraphSnapshot graph = BuildNsgGraph(includeAssociation: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
+        DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
+        owner.NsgInboundRuleChips.Should().ContainSingle(chip => chip.Text == "in 443/TCP · Internet");
+
+        DiagramForestLayoutResult layout = new DiagramForestLayoutSvgRenderer().Render(ast);
+        layout.Succeeded.Should().BeTrue();
+        layout.Svg.Should().Contain("in 443/TCP · Internet");
+    }
+
+    [Fact]
+    public void Compile_nsg_attached_subnet_shows_three_rule_chips_plus_remainder_and_risky_rdp()
+    {
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/app";
+
+        GraphSnapshot graph = BuildNsgGraph(includeAssociation: true, inboundAllowRuleCount: 4, includeRiskyRdpRule: true);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
+        owner.NsgInboundRuleChips.Should().HaveCount(4);
+        owner.NsgInboundRuleChips.Should().Contain(chip => chip.Text == "+2");
+        owner.NsgInboundRuleChips.Should().Contain(chip =>
+            chip.Text == "in 3389/TCP · Internet" && chip.IsRisky);
+
+        DiagramForestLayoutResult layout = new DiagramForestLayoutSvgRenderer().Render(ast);
+        layout.Succeeded.Should().BeTrue();
+        layout.Svg.Should().Contain("nsg-rule-chip-risk");
     }
 
     [Fact]
@@ -293,7 +334,10 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         };
     }
 
-    private static GraphSnapshot BuildNsgGraph(bool includeAssociation)
+    private static GraphSnapshot BuildNsgGraph(
+        bool includeAssociation,
+        int inboundAllowRuleCount = 1,
+        bool includeRiskyRdpRule = false)
     {
         const string subnetArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/app";
@@ -308,18 +352,40 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
             "nsg-node",
             nsgArmId,
             "Microsoft.Network/networkSecurityGroups");
-        nsg.Properties[
-                $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}0{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleProtocolSuffix}"] =
-            "TCP";
-        nsg.Properties[
-                $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}0{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleDestinationPortRangeSuffix}"] =
-            "443";
-        nsg.Properties[
-                $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}0{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleDirectionSuffix}"] =
-            "Inbound";
-        nsg.Properties[
-                $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}0{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleAccessSuffix}"] =
-            "Allow";
+
+        int ruleIndex = 0;
+
+        void AddInboundAllowRule(string priority, string port, string protocol = "TCP", string source = "*")
+        {
+            string prefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}{ruleIndex}";
+            nsg.Properties[$"{prefix}{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrioritySuffix}"] =
+                priority;
+            nsg.Properties[$"{prefix}{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleProtocolSuffix}"] =
+                protocol;
+            nsg.Properties[$"{prefix}{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleDestinationPortRangeSuffix}"] =
+                port;
+            nsg.Properties[$"{prefix}{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleDirectionSuffix}"] =
+                "Inbound";
+            nsg.Properties[$"{prefix}{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleAccessSuffix}"] =
+                "Allow";
+            nsg.Properties[$"{prefix}{InventoryDiagramNodeRelationshipPropertyKeys.NsgRuleSourceAddressPrefixSuffix}"] =
+                source;
+            ruleIndex++;
+        }
+
+        AddInboundAllowRule("100", "443");
+
+        for (int extra = 1; extra < inboundAllowRuleCount; extra++)
+        {
+            AddInboundAllowRule(
+                (200 + extra).ToString(CultureInfo.InvariantCulture),
+                (8000 + extra).ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (includeRiskyRdpRule)
+        {
+            AddInboundAllowRule("50", "3389");
+        }
 
         if (includeAssociation)
         {
