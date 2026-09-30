@@ -72,6 +72,15 @@ public static class TopologyProposalRelationshipEdgeMapper
                 node.NodeId);
         }
 
+        foreach (GraphNode node in topologyNodes)
+        {
+            TopologyProposalTerraformSourceIdHeuristics.PreferCategorizedSyntheticAlias(
+                endpointKeyToNodeId,
+                node.Label,
+                node.Category,
+                node.NodeId);
+        }
+
         if (endpointAliases is null)
             return endpointKeyToNodeId;
 
