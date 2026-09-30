@@ -9577,11 +9577,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 17
-- **bugs-found:** 17
+- **hunts:** 18
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-30 — numeric ServiceNow sys_id caused inbound payload reader to throw instead of rejecting the webhook
+- **last-bug:** 2026-09-30 — non-object JSON webhook root caused inbound payload reader to throw instead of rejecting the webhook
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9634,6 +9634,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` / `sysId` caused `JsonElement.GetString()` to throw, allowing malformed inbound webhook input to escape the reader’s validation path toward HTTP 500 — **hit 2026-09-30:** read only string tokens before `GetString()`; regression `TryRead_rejects_numeric_sys_id_without_throwing`.
 - [x] (proven) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — valid non-object JSON webhook roots caused `EnumerateObject()` to throw instead of returning an unrecognized payload — **hit 2026-09-30 seed hunt:** attacker-controlled array roots now reject cleanly; regression `TryRead_rejects_non_object_json_without_throwing`.
+- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.CreateEntryOptions` eviction callback removes claims by key without distinguishing cache-entry generations — a transient processing failure can call `ReleaseAsync` and a same-delivery retry can re-establish the claim before the removed entry's callback runs; if the delayed callback clears the new claim, a second concurrent retry could pass `TryClaimAsync` and apply the webhook twice.
+
+2026-09-30 seed hunt (seed-only): reviewed inbound controller, JSON readers, facade, pipeline, status mappers, correlation/replay support, and replay-guard tests; retained one reachable replay-eviction race candidate for a dedicated concurrency repro.
 
 ---
 
