@@ -9777,7 +9777,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -9788,6 +9788,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2275 (seed-only): reseeded security-analyzers with `-Hint security analyzers`; no new hunt-ready rows.
 
 2026-09-30 thorough hunt (hit): cheap-disproved the `var` inferred-type candidate because `AnalyzeIdentifierName` checks `ILocalSymbol.Type`; proved that `MutatingControllerAuditAnalyzer` scanned only current-compilation method syntax and missed a tracked action inherited from a referenced controller assembly; fixed referenced-base traversal and added a compiled-reference regression; 58 scoped analyzer tests passed.
+
+2026-09-30 seed hunt (seed-only): re-read the three analyzer implementations after the referenced-controller fix; all 58 scoped tests passed; retained two fresh inheritance candidates for a later repro pass.
 
 ### Hypotheses
 
@@ -9833,6 +9835,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` misses the inferred type of a `var` local — cheap-disproof 2026-09-30: `AnalyzeIdentifierName` reads `ILocalSymbol.Type`, so a `var` local whose referenced method returns `ClaimsPrincipal` or `IHttpContextAccessor` is already checked.
 - [x] (proven) `MutatingControllerAuditAnalyzer` misses tracked actions inherited from referenced controller assemblies — **hit 2026-09-30:** semantic-model analysis visited only current-compilation `MethodDeclarationSyntax` bodies, so an API controller inheriting a `[HttpPost]` action from a referenced base assembly emitted no AL0003; fixed by traversing referenced base-controller methods with existing exclusion, allowlist, verb, and shadow checks; regression `AL0003_reports_mutating_action_in_referenced_controller_base_assembly`.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` can report the same referenced mutating action once for each level of a multi-level current-compilation controller hierarchy, producing duplicate AL0003 diagnostics for one inherited endpoint (reachability: API controllers can inherit a shared referenced base through an intermediate controller class).
+- [ ] (candidate) `RequireAuthorizationAnalyzer.AnalyzeNamedType` inspects only `symbol.GetMembers()`, so a derived controller with no declared public methods may receive a type-level AL0001 diagnostic even when its inherited action from a referenced base controller is explicitly `[AllowAnonymous]` (reachability: API controllers can inherit public actions and authorization attributes from shared controller assemblies).
 
 ---
 
