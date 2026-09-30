@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -264,6 +265,134 @@ public sealed class DiagramForestVnetFrameLayoutTests
         Math.Abs(sharedY - right.Y).Should().BeLessThan(1.0d);
     }
 
+    [Fact]
+    public void Render_vnet_caption_stays_above_member_cards()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (FullSubscription)",
+            [
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+            ],
+            [Cited("vm", "vnet")]);
+
+        XDocument svg = Render(ast);
+        XElement frame = VnetFrames(svg).Should().ContainSingle().Subject;
+        (double frameX, double frameY, double frameWidth, double frameHeight) = Box(frame);
+        XElement vm = svg.Descendants().First(element =>
+            element.Attribute("class")?.Value == "node"
+            && element.Elements().Any(child =>
+                child.Name.LocalName == "title"
+                && child.Value.Contains("vm", StringComparison.Ordinal)));
+        string transform = vm.Attribute("transform")!.Value;
+        string[] coordinates = transform.Replace("translate(", string.Empty, StringComparison.Ordinal).TrimEnd(')').Split(',');
+        double vmY = double.Parse(coordinates[1], CultureInfo.InvariantCulture);
+        XElement caption = frame.Descendants().First(element =>
+            element.Name.LocalName == "text"
+            && element.Value == "app-vnet");
+
+        vmY.Should().BeGreaterThanOrEqualTo(frameY + DiagramForestResourceGroupFrameStyle.LabelBand - 0.5d);
+        vmY.Should().BeLessThan(frameY + frameHeight);
+        caption.Attribute("font-size")!.Value.Should().Be("14");
+        caption.Attribute("fill")!.Value.Should().Be("#334155");
+        frameX.Should().BeGreaterThanOrEqualTo(0);
+        frameWidth.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void Render_unplaced_resource_groups_wrap_into_multiple_rows()
+    {
+        DiagramNode[] nodes =
+        [
+            Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+            Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+            Workload("vault-a", "vault-a", "Microsoft.KeyVault/vaults", "rg-a"),
+            Workload("vault-b", "vault-b", "Microsoft.KeyVault/vaults", "rg-b"),
+            Workload("vault-c", "vault-c", "Microsoft.KeyVault/vaults", "rg-c"),
+            Workload("vault-d", "vault-d", "Microsoft.KeyVault/vaults", "rg-d"),
+            Workload("vault-e", "vault-e", "Microsoft.KeyVault/vaults", "rg-e"),
+            Workload("vault-f", "vault-f", "Microsoft.KeyVault/vaults", "rg-f"),
+        ];
+
+        XDocument svg = Render(Inventory(
+            "Azure inventory (FullSubscription)",
+            nodes,
+            [Cited("vm", "vnet")]));
+
+        List<double> remainderY = ResourceGroupFrames(svg)
+            .Select(frame => Box(frame).Y)
+            .Distinct()
+            .ToList();
+
+        remainderY.Should().HaveCountGreaterThan(1);
+    }
+
+    [Fact]
+    public void Render_bundles_private_endpoint_edges_to_one_vnet()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (FullSubscription)",
+            [
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
+                PrivateWorkload("vault-a", "vault-a", "rg-sec"),
+                PrivateWorkload("vault-b", "vault-b", "rg-sec"),
+                PrivateWorkload("vault-c", "vault-c", "rg-sec"),
+            ],
+            [
+                Cited("vm", "vnet"),
+                PrivateEndpoint("vault-a", "vnet"),
+                PrivateEndpoint("vault-b", "vnet"),
+                PrivateEndpoint("vault-c", "vnet"),
+            ]);
+
+        XDocument svg = Render(ast);
+        EdgeTitles(svg).Should().ContainSingle("private endpoint × 3");
+        EdgeTitles(svg).Should().NotContain("private endpoint");
+        XElement bundledEdge = svg
+            .Descendants()
+            .Single(element =>
+                element.Attribute("class")?.Value == "edge"
+                && element.Descendants().Any(descendant => descendant.Name.LocalName == "title"
+                    && descendant.Value == "private endpoint × 3"));
+        bundledEdge.Attribute("data-bundle-from")?.Value
+            .Should().Be(string.Join(
+                ' ',
+                new[] { "vault-a", "vault-b", "vault-c" }
+                    .Select(MermaidIdSanitizer.Sanitize)
+                    .OrderBy(id => id, StringComparer.Ordinal)));
+        bundledEdge.Attribute("data-bundle-to")?.Value.Should().Be(MermaidIdSanitizer.Sanitize("vnet"));
+        svg.Descendants().Count(element =>
+                element.Attribute("class")?.Value == "private-endpoint-access"
+                && element.Ancestors().Any(ancestor => ancestor.Attribute("class")?.Value == "node"))
+            .Should().Be(3);
+    }
+
+    [Fact]
+    public void Render_does_not_bundle_private_endpoint_edges_to_different_vnets()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet-a", "vnet-a", "/subscriptions/s/resourceGroups/rg-a/providers/Microsoft.Network/virtualNetworks/a", "rg-a"),
+                Vnet("vnet-b", "vnet-b", "/subscriptions/s/resourceGroups/rg-b/providers/Microsoft.Network/virtualNetworks/b", "rg-b"),
+                Workload("vm-a", "vm-a", "Microsoft.Compute/virtualMachines", "rg-a"),
+                Workload("vm-b", "vm-b", "Microsoft.Compute/virtualMachines", "rg-b"),
+                PrivateWorkload("vault-a", "vault-a", "rg-sec"),
+                PrivateWorkload("vault-b", "vault-b", "rg-sec"),
+            ],
+            [
+                Cited("vm-a", "vnet-a"),
+                Cited("vm-b", "vnet-b"),
+                PrivateEndpoint("vault-a", "vnet-a"),
+                PrivateEndpoint("vault-b", "vnet-b"),
+            ]);
+
+        List<string> titles = EdgeTitles(Render(ast));
+        titles.Count(title => title == "private endpoint").Should().Be(2);
+        titles.Should().NotContain(title => title.StartsWith("private endpoint ×", StringComparison.Ordinal));
+    }
+
     private XDocument Render(DiagramAst ast)
     {
         DiagramForestLayoutResult result = renderer.Render(ast);
@@ -282,6 +411,14 @@ public sealed class DiagramForestVnetFrameLayoutTests
     {
         return svg.Descendants()
             .Where(element => element.Attribute("class")?.Value == "rg-frame")
+            .ToList();
+    }
+
+    private static List<string> EdgeTitles(XDocument svg)
+    {
+        return svg.Descendants()
+            .Where(element => element.Attribute("class")?.Value == "edge")
+            .Select(element => element.Elements().First(child => child.Name.LocalName == "title").Value)
             .ToList();
     }
 
@@ -388,6 +525,13 @@ public sealed class DiagramForestVnetFrameLayoutTests
         };
     }
 
+    private static DiagramNode PrivateWorkload(string nodeId, string label, string resourceGroup)
+    {
+        DiagramNode node = Workload(nodeId, label, "Microsoft.KeyVault/vaults", resourceGroup);
+        node.HasPrivateEndpointAccess = true;
+        return node;
+    }
+
     private static DiagramEdge Cited(string fromNodeId, string toNodeId)
     {
         return new DiagramEdge
@@ -396,6 +540,17 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ToNodeId = toNodeId,
             Label = "in",
             InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
+        };
+    }
+
+    private static DiagramEdge PrivateEndpoint(string fromNodeId, string toNodeId)
+    {
+        return new DiagramEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            Label = "private endpoint",
+            InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
         };
     }
 }
