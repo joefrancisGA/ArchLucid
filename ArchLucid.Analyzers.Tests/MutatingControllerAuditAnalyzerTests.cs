@@ -846,6 +846,48 @@ namespace ArchLucid.Api.Probe
     }
 
     [Fact]
+    public async Task AL0003_does_not_report_shadowed_mutating_action_in_deeply_nested_controller()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public abstract class BaseController : ControllerBase
+{
+    [HttpPost]
+    public virtual IActionResult Post() => Ok();
+}
+
+public static class Container
+{
+    public abstract class IntermediateController : BaseController
+    {
+        public sealed class ConcreteController(IAuditService auditService) : IntermediateController
+        {
+            public override IActionResult Post()
+            {
+                auditService.LogAsync(new AuditEvent(), default);
+                return Ok();
+            }
+        }
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_expression_bodied_HttpPost_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +

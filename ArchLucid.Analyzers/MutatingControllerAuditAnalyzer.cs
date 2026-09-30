@@ -283,11 +283,20 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         {
             foreach (INamedTypeSymbol type in namespaceSymbol.GetTypeMembers())
             {
-                yield return type;
-
-                foreach (INamedTypeSymbol nestedType in type.GetTypeMembers())
+                foreach (INamedTypeSymbol nestedType in GetNamedTypes(type))
                     yield return nestedType;
             }
+        }
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetNamedTypes(INamedTypeSymbol type)
+    {
+        yield return type;
+
+        foreach (INamedTypeSymbol nestedType in type.GetTypeMembers())
+        {
+            foreach (INamedTypeSymbol descendantType in GetNamedTypes(nestedType))
+                yield return descendantType;
         }
     }
 
