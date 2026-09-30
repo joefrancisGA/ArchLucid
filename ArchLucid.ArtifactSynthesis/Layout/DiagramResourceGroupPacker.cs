@@ -147,9 +147,11 @@ public static class DiagramResourceGroupPacker
                 continue;
             }
 
-            string? groupName = members
-                .Select(member => NormalizeGroupName(member.Node.ArmResourceGroup))
-                .FirstOrDefault(name => name is not null);
+            string? groupName = string.Equals(frameCellId, "shared-services", StringComparison.Ordinal)
+                ? "Shared services"
+                : members
+                    .Select(member => NormalizeGroupName(member.Node.ArmResourceGroup))
+                    .FirstOrDefault(name => name is not null);
 
             if (groupName is null)
             {

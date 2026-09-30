@@ -3,6 +3,7 @@ using ArchLucid.Persistence.Integrations;
 using FluentAssertions;
 
 using Microsoft.Extensions.Caching.Memory;
+using Moq;
 
 namespace ArchLucid.Persistence.Tests.Integrations;
 
@@ -94,5 +95,34 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
 
         first.Should().BeTrue();
         second.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Delayed_eviction_callback_does_not_remove_a_reclaimed_event()
+    {
+        List<PostEvictionCallbackRegistration> callbacks = [];
+        Mock<IMemoryCache> cache = new();
+        Mock<ICacheEntry> entry = new();
+        object? cacheKey = null;
+        entry.SetupGet(e => e.PostEvictionCallbacks).Returns(callbacks);
+        cache.Setup(c => c.CreateEntry(It.IsAny<object>()))
+            .Callback<object>(key => cacheKey = key)
+            .Returns(entry.Object);
+
+        const string eventId = "delivery-delayed-eviction";
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache.Object, TimeProvider.System);
+
+        bool first = await sut.TryClaimAsync(TenantA, "Jira", eventId, CancellationToken.None);
+        await sut.ReleaseAsync(TenantA, "Jira", eventId, CancellationToken.None);
+        bool reclaimed = await sut.TryClaimAsync(TenantA, "Jira", eventId, CancellationToken.None);
+
+        callbacks.Should().HaveCount(2);
+        callbacks[0].EvictionCallback!(cacheKey!, true, EvictionReason.Removed, callbacks[0].State);
+
+        bool duplicate = await sut.TryClaimAsync(TenantA, "Jira", eventId, CancellationToken.None);
+
+        first.Should().BeTrue();
+        reclaimed.Should().BeTrue();
+        duplicate.Should().BeFalse("an eviction callback for the released entry must not clear the reclaimed event claim");
     }
 }

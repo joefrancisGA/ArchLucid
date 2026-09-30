@@ -150,5 +150,6 @@ export function filterInfraEvidenceMermaidOutline(
   return {
     nodes: visibleNodes,
     edges: visibleEdges,
+    ledgerDrops: outline.ledgerDrops ?? [],
   };
 }

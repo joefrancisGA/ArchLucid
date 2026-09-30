@@ -68,6 +68,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         AppendEdges(ast, sb);
+        AppendLedgerDrops(ast, sb);
 
         return sb.ToString();
     }
@@ -80,6 +81,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         AppendEdges(ast, sb);
+        AppendLedgerDrops(ast, sb);
     }
 
     private static void RenderSubgraphTree(
@@ -165,6 +167,14 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             tokens.Add($"al-state={node.ConnectionState.Value}");
         }
 
+        foreach (string unresolvedDetail in node.UnresolvedRelationshipDetails)
+        {
+            if (!string.IsNullOrWhiteSpace(unresolvedDetail))
+            {
+                tokens.Add($"al-unresolved={QuoteMetadataValue(unresolvedDetail)}");
+            }
+        }
+
         if (tokens.Count == 0)
         {
             return string.Empty;
@@ -188,6 +198,18 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         return "\"" + trimmed.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
+    }
+
+    private static void AppendLedgerDrops(DiagramAst ast, StringBuilder sb)
+    {
+        foreach (DiagramMermaidLedgerDrop drop in ast.LedgerDrops)
+        {
+            string fromId = MermaidIdSanitizer.Sanitize(drop.FromNodeId);
+            string toToken = string.IsNullOrWhiteSpace(drop.ToNodeId)
+                ? "_"
+                : MermaidIdSanitizer.Sanitize(drop.ToNodeId);
+            sb.AppendLine($"    %% al-ledger-drop {drop.Reason} {fromId} {toToken}");
+        }
     }
 
     private static void AppendEdges(DiagramAst ast, StringBuilder sb)

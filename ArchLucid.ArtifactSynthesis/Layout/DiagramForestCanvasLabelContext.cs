@@ -98,8 +98,11 @@ public sealed class DiagramForestCanvasLabelContext
             _options.MaxNodeWidth);
         int textLineCount = nameLines.Count + resourceGroupLines.Count;
         double textBlockHeight = textLineCount * _options.LineHeight;
+        double chipBandHeight = node.NsgInboundRuleChips.Count > 0
+            ? _options.LineHeight + 4.0d
+            : 0.0d;
         double height = (_options.NodePaddingY * 2)
-            + Math.Max(_options.PictogramSize, textBlockHeight);
+            + Math.Max(_options.PictogramSize, textBlockHeight + chipBandHeight);
 
         return new DiagramForestNodeMetrics(
             Width: width,
@@ -110,6 +113,7 @@ public sealed class DiagramForestCanvasLabelContext
             PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),
             AzureIcon: DiagramInventoryAzureIconResolver.Resolve(node),
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
+            NsgInboundRuleChips: node.NsgInboundRuleChips,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
     }
 }

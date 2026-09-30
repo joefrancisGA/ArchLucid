@@ -207,11 +207,11 @@ public sealed class DiagramForestVnetFrameLayoutTests
             [
                 Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
                 Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
-                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-sec"),
+                Workload("storage", "st-sec", "Microsoft.Storage/storageAccounts", "rg-sec"),
             ],
             [
                 Cited("vm", "vnet"),
-                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet", Label = "private endpoint" },
             ]);
 
         XDocument svg = Render(ast);
@@ -224,7 +224,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
 
         Math.Abs(groupX - (vnetX + vnetWidth + options.ComponentHorizontalGap)).Should().BeLessThan(1.0d);
         Math.Abs(groupY - vnetY).Should().BeLessThan(1.0d);
-        Contains(svg, (vnetX, vnetY, vnetWidth, vnetHeight), "vault").Should().BeFalse();
+        Contains(svg, (vnetX, vnetY, vnetWidth, vnetHeight), "st-sec").Should().BeFalse();
     }
 
     [Fact]
@@ -237,13 +237,13 @@ public sealed class DiagramForestVnetFrameLayoutTests
                 Vnet("vnet-b", "vnet-b", "/subscriptions/s/resourceGroups/rg-b/providers/Microsoft.Network/virtualNetworks/b", "rg-b"),
                 Workload("vm-a", "vm-a", "Microsoft.Compute/virtualMachines", "rg-a"),
                 Workload("vm-b", "vm-b", "Microsoft.Compute/virtualMachines", "rg-b"),
-                Workload("vault", "vault-shared", "Microsoft.KeyVault/vaults", "rg-sec"),
+                Workload("storage", "st-shared", "Microsoft.Storage/storageAccounts", "rg-sec"),
             ],
             [
                 Cited("vm-a", "vnet-a"),
                 Cited("vm-b", "vnet-b"),
-                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet-a", Label = "private endpoint" },
-                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet-b", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet-a", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet-b", Label = "private endpoint" },
             ]);
 
         XDocument svg = Render(ast);
@@ -284,21 +284,33 @@ public sealed class DiagramForestVnetFrameLayoutTests
         XElement metadata = svg.Descendants().Single(element =>
             element.Name.LocalName == "metadata"
             && element.Attribute("id")?.Value == "diagram-neighborhoods");
-        XElement neighborhood = metadata.Elements().Single(element => element.Name.LocalName == "neighborhood");
+        XElement vnetNeighborhood = metadata.Elements()
+            .Single(element =>
+                element.Name.LocalName == "neighborhood"
+                && element.Attribute("kind")?.Value == "vnet");
+        XElement sharedNeighborhood = metadata.Elements()
+            .Single(element =>
+                element.Name.LocalName == "neighborhood"
+                && element.Attribute("kind")?.Value == "shared-services");
 
-        neighborhood.Attribute("kind")?.Value.Should().Be("vnet");
-        neighborhood.Attribute("resource-count")?.Value.Should().Be("2");
-        neighborhood.Elements().Where(element => element.Name.LocalName == "member")
+        vnetNeighborhood.Attribute("resource-count")?.Value.Should().Be("1");
+        vnetNeighborhood.Elements().Where(element => element.Name.LocalName == "member")
             .Select(element => element.Attribute("id")?.Value)
-            .Should().Contain(["vm", "vault"]);
-        neighborhood.Elements().Single(element => element.Name.LocalName == "type")
+            .Should().ContainSingle()
+            .Which.Should().Be("vm");
+        vnetNeighborhood.Elements().Single(element => element.Name.LocalName == "type")
             .Attribute("name")?.Value.Should().Be("virtualMachines");
+        sharedNeighborhood.Elements().Where(element => element.Name.LocalName == "member")
+            .Select(element => element.Attribute("id")?.Value)
+            .Should().ContainSingle()
+            .Which.Should().Be("vault");
         VnetFrames(svg).Single().Attribute("data-neighborhood-id")?.Value
-            .Should().Be(neighborhood.Attribute("id")?.Value);
-        ResourceGroupFrames(svg).Single(frame =>
-                frame.Attribute("data-neighborhood-id")?.Value == neighborhood.Attribute("id")?.Value)
+            .Should().Be(vnetNeighborhood.Attribute("id")?.Value);
+        svg.Descendants()
+            .Single(element =>
+                element.Attribute("data-frame-cell-id")?.Value == "shared-services")
             .Attribute("data-neighborhood-id")?.Value
-            .Should().Be(neighborhood.Attribute("id")?.Value);
+            .Should().Be(sharedNeighborhood.Attribute("id")?.Value);
     }
 
     [Fact]
@@ -342,12 +354,12 @@ public sealed class DiagramForestVnetFrameLayoutTests
         [
             Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
             Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
-            PrivateWorkload("vault-a", "vault-a", "rg-a"),
-            PrivateWorkload("vault-b", "vault-b", "rg-b"),
-            PrivateWorkload("vault-c", "vault-c", "rg-c"),
-            PrivateWorkload("vault-d", "vault-d", "rg-d"),
-            PrivateWorkload("vault-e", "vault-e", "rg-e"),
-            PrivateWorkload("vault-f", "vault-f", "rg-f"),
+            PrivateWorkload("st-a", "st-a", "rg-a", "Microsoft.Storage/storageAccounts"),
+            PrivateWorkload("st-b", "st-b", "rg-b", "Microsoft.Storage/storageAccounts"),
+            PrivateWorkload("st-c", "st-c", "rg-c", "Microsoft.Storage/storageAccounts"),
+            PrivateWorkload("st-d", "st-d", "rg-d", "Microsoft.Storage/storageAccounts"),
+            PrivateWorkload("st-e", "st-e", "rg-e", "Microsoft.Storage/storageAccounts"),
+            PrivateWorkload("st-f", "st-f", "rg-f", "Microsoft.Storage/storageAccounts"),
         ];
 
         XDocument svg = Render(Inventory(
@@ -355,12 +367,12 @@ public sealed class DiagramForestVnetFrameLayoutTests
             nodes,
             [
                 Cited("vm", "vnet"),
-                PrivateEndpoint("vault-a", "vnet"),
-                PrivateEndpoint("vault-b", "vnet"),
-                PrivateEndpoint("vault-c", "vnet"),
-                PrivateEndpoint("vault-d", "vnet"),
-                PrivateEndpoint("vault-e", "vnet"),
-                PrivateEndpoint("vault-f", "vnet"),
+                PrivateEndpoint("st-a", "vnet"),
+                PrivateEndpoint("st-b", "vnet"),
+                PrivateEndpoint("st-c", "vnet"),
+                PrivateEndpoint("st-d", "vnet"),
+                PrivateEndpoint("st-e", "vnet"),
+                PrivateEndpoint("st-f", "vnet"),
             ]));
 
         XElement vnetFrame = VnetFrames(svg).Should().ContainSingle().Subject;
@@ -388,12 +400,12 @@ public sealed class DiagramForestVnetFrameLayoutTests
         [
             Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
             Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
-            Workload("vault-a", "vault-a", "Microsoft.KeyVault/vaults", "rg-a"),
-            Workload("vault-b", "vault-b", "Microsoft.KeyVault/vaults", "rg-b"),
-            Workload("vault-c", "vault-c", "Microsoft.KeyVault/vaults", "rg-c"),
-            Workload("vault-d", "vault-d", "Microsoft.KeyVault/vaults", "rg-d"),
-            Workload("vault-e", "vault-e", "Microsoft.KeyVault/vaults", "rg-e"),
-            Workload("vault-f", "vault-f", "Microsoft.KeyVault/vaults", "rg-f"),
+            Workload("st-a", "st-a", "Microsoft.Storage/storageAccounts", "rg-a"),
+            Workload("st-b", "st-b", "Microsoft.Storage/storageAccounts", "rg-b"),
+            Workload("st-c", "st-c", "Microsoft.Storage/storageAccounts", "rg-c"),
+            Workload("st-d", "st-d", "Microsoft.Storage/storageAccounts", "rg-d"),
+            Workload("st-e", "st-e", "Microsoft.Storage/storageAccounts", "rg-e"),
+            Workload("st-f", "st-f", "Microsoft.Storage/storageAccounts", "rg-f"),
         ];
 
         XDocument svg = Render(Inventory(
@@ -402,6 +414,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
             [Cited("vm", "vnet")]));
 
         List<double> remainderY = ResourceGroupFrames(svg)
+            .Where(frame => frame.Attribute("data-frame-cell-id")?.Value != "shared-services")
             .Select(frame => Box(frame).Y)
             .Distinct()
             .ToList();
@@ -607,9 +620,13 @@ public sealed class DiagramForestVnetFrameLayoutTests
         };
     }
 
-    private static DiagramNode PrivateWorkload(string nodeId, string label, string resourceGroup)
+    private static DiagramNode PrivateWorkload(
+        string nodeId,
+        string label,
+        string resourceGroup,
+        string armType = "Microsoft.KeyVault/vaults")
     {
-        DiagramNode node = Workload(nodeId, label, "Microsoft.KeyVault/vaults", resourceGroup);
+        DiagramNode node = Workload(nodeId, label, armType, resourceGroup);
         node.HasPrivateEndpointAccess = true;
         return node;
     }
@@ -634,5 +651,71 @@ public sealed class DiagramForestVnetFrameLayoutTests
             Label = "private endpoint",
             InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
         };
+    }
+
+    [Fact]
+    public void Render_places_shared_service_types_in_shared_services_frame()
+    {
+        const string vnetArmId = "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app";
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet", "app-vnet", vnetArmId, "rg-app"),
+                Subnet("subnet", vnetArmId, "app", "rg-app"),
+                Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-app"),
+                Workload("workspace", "law-app", "Microsoft.OperationalInsights/workspaces", "rg-app"),
+                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-app"),
+            ],
+            [
+                Cited("vm", "subnet"),
+                PrivateEndpoint("vault", "vnet"),
+            ]);
+
+        XDocument svg = Render(ast);
+        XElement sharedFrame = svg.Descendants()
+            .First(element =>
+                element.Attribute("data-frame-cell-id")?.Value == "shared-services"
+                && element.Attribute("data-frame-kind")?.Value == "shared-services");
+        (double x, double y, double width, double height) box = Box(sharedFrame);
+        Contains(svg, box, "law-app").Should().BeTrue();
+        Contains(svg, box, "vault-app").Should().BeTrue();
+        Contains(svg, box, "vm-app").Should().BeFalse();
+        svg.Descendants().Count(element =>
+            element.Attribute("class")?.Value == "rg-frame"
+            && element.Attribute("data-frame-cell-id")?.Value != "shared-services").Should().Be(0);
+        svg.Descendants().First(element => element.Attribute("id")?.Value == "diagram-neighborhoods")
+            .Descendants().Any(element =>
+                element.Name.LocalName == "neighborhood"
+                && element.Attribute("kind")?.Value == "shared-services").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Render_non_catalog_resource_stays_in_resource_group_not_shared_services()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Workload("storage", "st-app", "Microsoft.Storage/storageAccounts", "rg-app"),
+            ],
+            []);
+
+        XDocument svg = Render(ast);
+        svg.Descendants().Any(element => element.Attribute("data-frame-cell-id")?.Value == "shared-services")
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void Render_executive_title_has_no_shared_services_frame()
+    {
+        DiagramAst ast = Inventory(
+            "Azure inventory (Executive)",
+            [
+                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-app"),
+            ],
+            []);
+
+        XDocument svg = Render(ast);
+        svg.Descendants().Any(element => element.Attribute("data-frame-cell-id")?.Value == "shared-services")
+            .Should().BeFalse();
     }
 }

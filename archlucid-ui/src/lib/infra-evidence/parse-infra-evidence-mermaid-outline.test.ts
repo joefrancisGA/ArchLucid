@@ -5,7 +5,22 @@ import {
   resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineSeedNodeId,
+  type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+
+function expectedOutlineNode(
+  node: Pick<InfraEvidenceMermaidOutlineNode, "id" | "label"> &
+    Partial<Omit<InfraEvidenceMermaidOutlineNode, "id" | "label">>,
+): InfraEvidenceMermaidOutlineNode {
+  return {
+    resourceType: null,
+    resourceGroup: null,
+    connectionState: null,
+    seedNodeId: null,
+    outlineOnlyOnCanvas: false,
+    ...node,
+  };
+}
 
 describe("parseInfraEvidenceMermaidOutline", () => {
   it("skips subgraph and end structure lines", () => {
@@ -64,13 +79,12 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
 
     expect(outline.nodes).toEqual([
-      {
+      expectedOutlineNode({
         id: "n_a1",
         label: "nic-prod",
         resourceType: "Microsoft.Network/networkInterfaces",
         resourceGroup: "rg-network",
-        seedNodeId: null,
-      },
+      }),
     ]);
   });
 
@@ -83,13 +97,13 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
 
     expect(outline.nodes).toEqual([
-      {
+      expectedOutlineNode({
         id: "n_a1",
         label: "nic-prod",
         resourceType: "Microsoft.Network/networkInterfaces",
         resourceGroup: "rg-network",
         seedNodeId: "22222222-2222-2222-2222-222222222222",
-      },
+      }),
     ]);
   });
 
@@ -103,13 +117,13 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
 
     expect(outline.nodes).toEqual([
-      {
+      expectedOutlineNode({
         id: "n_vnet",
         label: "vnet-aep-hi-test-wus-001",
         resourceType: "Microsoft.Network/virtualNetworks",
         resourceGroup: "anly-aep-test-hi",
         seedNodeId: "22222222-2222-2222-2222-222222222222",
-      },
+      }),
     ]);
   });
 
@@ -227,13 +241,31 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
 
     expect(outline.nodes).toEqual([
-      {
+      expectedOutlineNode({
         id: "vnet1",
         label: "vnet-eastus",
-        resourceType: null,
         resourceGroup: "rg-network",
-        seedNodeId: null,
-      },
+      }),
     ]);
+  });
+
+  it("parses al-state, al-unresolved, and ledger drop comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-ledger-drop nsg-unattached n_nsg _",
+        '    %% al-type=Microsoft.Storage/storageAccounts al-rg=rg-app al-state=Unknown al-unresolved="missing subnet link"',
+        '    n_orphan["orphan-storage"]',
+      ].join("\n"),
+    );
+
+    expect(outline.ledgerDrops).toEqual([
+      { reason: "nsg-unattached", from: "n_nsg", to: null },
+    ]);
+    expect(outline.nodes[0]).toMatchObject({
+      id: "n_orphan",
+      connectionState: "Unknown",
+      unresolvedRelationshipDetails: ["missing subnet link"],
+    });
   });
 });

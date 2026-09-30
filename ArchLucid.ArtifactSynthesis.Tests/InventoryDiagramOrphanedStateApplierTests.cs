@@ -51,7 +51,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         restorePointCollection.ConnectionStateMessage.Should().Contain("virtual machine");
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(restorePointCollection);
-        caption.CombinedPlainText.Should().Contain("Orphaned:");
+        caption.CombinedPlainText.Should().Contain("Missing a required link:");
         caption.CombinedPlainText.Should().Contain("vm-deleted");
     }
 
@@ -67,7 +67,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         storage.ConnectionState.Should().Be(InventoryDiagramConnectionState.Unconnected);
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(storage);
-        caption.CombinedPlainText.Should().Contain("Unconnected");
+        caption.CombinedPlainText.Should().Contain("Stands alone");
     }
 
     [Fact]

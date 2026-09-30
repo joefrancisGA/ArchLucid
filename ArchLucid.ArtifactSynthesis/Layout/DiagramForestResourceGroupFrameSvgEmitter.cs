@@ -53,6 +53,9 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
             svgNamespace + "g",
             new XAttribute("class", "rg-frame"),
             new XAttribute("data-frame-cell-id", frame.FrameCellId),
+            string.Equals(frame.FrameCellId, "shared-services", StringComparison.Ordinal)
+                ? new XAttribute("data-frame-kind", "shared-services")
+                : null,
             new XElement(svgNamespace + "title", escapedName),
             new XElement(
                 svgNamespace + "rect",

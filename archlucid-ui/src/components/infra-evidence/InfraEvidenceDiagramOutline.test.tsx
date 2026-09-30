@@ -36,6 +36,7 @@ const outline: InfraEvidenceMermaidOutline = {
       declaredConnectionId: null,
     },
   ],
+  ledgerDrops: [],
 };
 
 function getNodesTable(): HTMLTableElement {
@@ -345,6 +346,7 @@ describe("InfraEvidenceDiagramOutline", () => {
           label: "gamma-node",
           resourceType: "Microsoft.Storage/storageAccounts",
           resourceGroup: "rg-c",
+          connectionState: "Unconnected",
         },
       ],
       edges: [
@@ -365,8 +367,8 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     const nodesTable = getNodesTable();
 
-    expect(screen.getByText("Connected nodes (2)")).toBeTruthy();
-    expect(within(getUnconnectedNodesList()).getByText("Unconnected nodes (1)")).toBeTruthy();
+    expect(screen.getByText("Connected on the diagram (2)")).toBeTruthy();
+    expect(within(getUnconnectedNodesList()).getByText("Stands alone (1)")).toBeTruthy();
     expect(
       countNodeDataRows(nodesTable)
       + countNodeDataRows(within(getUnconnectedNodesList()).getByRole("table")),
@@ -383,6 +385,7 @@ describe("InfraEvidenceDiagramOutline", () => {
           label: "standalone-resource",
           resourceType: "Microsoft.Storage/storageAccounts",
           resourceGroup: "rg-extra",
+          connectionState: "Unconnected",
         },
       ],
       edges: outline.edges,
@@ -423,8 +426,8 @@ describe("InfraEvidenceDiagramOutline", () => {
     const nodesTable = getNodesTable();
     const edgesTable = getEdgesTable();
 
-    expect(screen.getByText("Connected nodes (201)")).toBeTruthy();
-    expect(within(getUnconnectedNodesList()).getByText("Unconnected nodes (0)")).toBeTruthy();
+    expect(screen.getByText("Connected on the diagram (201)")).toBeTruthy();
+    expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
     expect(countNodeDataRows(nodesTable)).toBe(201);
     expect(within(edgesTable).getAllByRole("row")).toHaveLength(202);
     expect(screen.queryByTestId("infra-diagrams-outline-nodes-truncated")).toBeNull();
@@ -563,5 +566,142 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
     expect(toHeader).toHaveAttribute("aria-label", "Sort by To, ascending");
+  });
+
+  it("shows unknown questions notice and empty-detail reason without inputs", () => {
+    const unknownOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_unknown",
+          label: "mystery-storage",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-data",
+          connectionState: "Unknown",
+        },
+      ],
+      edges: [],
+      ledgerDrops: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={unknownOutline} defaultNodesOpen={true} />);
+
+    expect(screen.getByTestId("infra-diagrams-unknown-questions")).toHaveTextContent(
+      "ArchLucid has a question about 1 resource.",
+    );
+    const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
+    expect(within(unknownSection).getByText("Needs evidence (1)")).toBeTruthy();
+    expect(
+      within(unknownSection).getByText(
+        "No cited connection, and this type is not on the shared-service list.",
+      ),
+    ).toBeTruthy();
+    expect(within(unknownSection).queryByRole("textbox")).toBeNull();
+    expect(within(unknownSection).queryByRole("button", { name: /save/i })).toBeNull();
+  });
+
+  it("shows unresolved relationship details on unknown rows", () => {
+    const unknownOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_unknown",
+          label: "mystery-storage",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-data",
+          connectionState: "Unknown",
+          unresolvedRelationshipDetails: ["Route table hop unresolved"],
+        },
+      ],
+      edges: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={unknownOutline} defaultNodesOpen={true} />);
+
+    expect(
+      within(screen.getByTestId("infra-diagrams-unknown-nodes-list")).getByText("Route table hop unresolved"),
+    ).toBeTruthy();
+  });
+
+  it("does not show questions notice for unconnected shared-service types", () => {
+    const workspaceOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_law",
+          label: "law-app",
+          resourceType: "Microsoft.OperationalInsights/workspaces",
+          resourceGroup: "rg-ops",
+          connectionState: "Unconnected",
+        },
+      ],
+      edges: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={workspaceOutline} defaultNodesOpen={true} />);
+
+    expect(screen.queryByTestId("infra-diagrams-unknown-questions")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unconnected-nodes-list")).toBeTruthy();
+    expect(screen.queryByTestId("infra-diagrams-unknown-nodes-list")).toBeNull();
+  });
+
+  it("hides empty state sections when all nodes are connected", () => {
+    const connectedOnly: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_a",
+          label: "alpha",
+          resourceType: "Microsoft.Network/virtualNetworks",
+          resourceGroup: "rg-a",
+          connectionState: "Connected",
+        },
+        {
+          id: "n_b",
+          label: "beta",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-b",
+          connectionState: "Connected",
+        },
+      ],
+      edges: [
+        {
+          from: "n_a",
+          to: "n_b",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={connectedOnly} defaultNodesOpen={true} />);
+
+    expect(screen.getByTestId("infra-diagrams-connected-nodes-list")).toBeTruthy();
+    expect(screen.queryByTestId("infra-diagrams-used-nodes-list")).toBeNull();
+    expect(screen.queryByTestId("infra-diagrams-orphaned-nodes-list")).toBeNull();
+    expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
+    expect(screen.queryByTestId("infra-diagrams-unknown-nodes-list")).toBeNull();
+  });
+
+  it("renders ledger drops when mermaid outline includes them", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n_nsg",
+              label: "nsg-app",
+              resourceType: "Microsoft.Network/networkSecurityGroups",
+              resourceGroup: "rg-net",
+            },
+          ],
+          edges: [],
+          ledgerDrops: [{ reason: "nsg-unattached", from: "n_nsg", to: null }],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    expect(screen.getByTestId("infra-diagrams-ledger-drops-list")).toHaveTextContent("Dropped imports");
   });
 });

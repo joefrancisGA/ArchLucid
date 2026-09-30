@@ -215,6 +215,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             && string.Equals(from.VnetFrameId, to.VnetFrameId, StringComparison.Ordinal);
     }
 
+    private const string SharedServicesFrameCellId = "shared-services";
+    private const string SharedServicesFrameTitle = "Shared services";
+
     private static List<NodePlacement> BuildVnetPrimaryPlacements(
         IReadOnlyList<DiagramNode> nodes,
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> resourceGroupCells,
@@ -223,9 +226,18 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestCanvasLabelContext labelContext,
         string diagramTitle)
     {
+        List<DiagramNode> sharedServiceNodes = nodes
+            .Where(node => DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+            .OrderBy(node => node.OrderKey)
+            .ThenBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToList();
+        List<DiagramNode> packableNodes = nodes
+            .Where(node => !DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+            .ToList();
+
         IReadOnlyDictionary<string, IReadOnlySet<string>> memberships =
-            DiagramForestVnetMembership.Resolve(nodes, visibleEdges, sameResourceGroupOnly: false);
-        Dictionary<string, DiagramNode> nodesById = nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal);
+            DiagramForestVnetMembership.Resolve(packableNodes, visibleEdges, sameResourceGroupOnly: false);
+        Dictionary<string, DiagramNode> nodesById = packableNodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal);
         Dictionary<string, string> nodeToVnet = memberships
             .SelectMany(pair => pair.Value.Append(pair.Key).Select(nodeId => (nodeId, pair.Key)))
             .GroupBy(pair => pair.nodeId, StringComparer.Ordinal)
@@ -306,7 +318,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             assigned.UnionWith(members.Select(member => member.NodeId));
         }
 
-        IReadOnlyList<DiagramNode> remainderNodes = nodes
+        IReadOnlyList<DiagramNode> remainderNodes = packableNodes
             .Where(node => !assigned.Contains(node.NodeId))
             .ToList();
         List<VnetRemainderCell> remainderCells = [];
@@ -450,7 +462,52 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 wrapItems: true);
         }
 
+        if (sharedServiceNodes.Count > 0)
+        {
+            List<NodePlacement> sharedPlacements = LayoutSharedServicesCell(
+                sharedServiceNodes,
+                visibleEdges,
+                options,
+                labelContext);
+            (double width, double height) = ResolveCellOuterSize(sharedPlacements, options);
+            PlaceVnetPrimaryBlock(
+                [(sharedPlacements, width, height)],
+                ResolveRowWidthLimit([(width, height)], options),
+                options,
+                placements,
+                ref groupX,
+                ref rowY,
+                ref rowHeight,
+                wrapItems: true);
+        }
+
         return placements;
+    }
+
+    private static List<NodePlacement> LayoutSharedServicesCell(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> visibleEdges,
+        DiagramForestLayoutOptions options,
+        DiagramForestCanvasLabelContext labelContext)
+    {
+        List<NodePlacement> interiorPlacements = LayoutCellInterior(nodes, visibleEdges, options, labelContext);
+        double innerWidth = interiorPlacements.Count == 0
+            ? options.UniformNodeWidth
+            : interiorPlacements.Max(placement => placement.X + placement.Width);
+        double innerHeight = interiorPlacements.Count == 0
+            ? options.NodeHeight
+            : interiorPlacements.Max(placement => placement.Y + placement.Height);
+        double offsetX = DiagramForestResourceGroupFrameStyle.Pad;
+        double offsetY = DiagramForestResourceGroupFrameStyle.LabelBand;
+
+        return interiorPlacements
+            .Select(placement => placement with
+            {
+                X = placement.X + offsetX,
+                Y = placement.Y + offsetY,
+                FrameCellId = SharedServicesFrameCellId,
+            })
+            .ToList();
     }
 
     internal static double ResolveRowWidthLimit(
@@ -1739,9 +1796,19 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
             if (targetVnets.Count == 1 && byId.TryGetValue($"vnet:{vnetNodeByFrameId[targetVnets[0]]}", out NeighborhoodMetadata? vnet))
             {
+                List<NodePlacement> mergeMembers = members
+                    .Where(placement =>
+                        !DiagramSharedServiceCatalog.IsSharedService(placement.Node.ArmResourceType))
+                    .ToList();
+
+                if (mergeMembers.Count == 0)
+                {
+                    continue;
+                }
+
                 byId[vnet.Id] = vnet with
                 {
-                    Members = vnet.Members.Concat(members).ToList(),
+                    Members = vnet.Members.Concat(mergeMembers).ToList(),
                     FrameIds = vnet.FrameIds.Concat([frameId]).ToList(),
                 };
                 neighborhoods[neighborhoods.FindIndex(candidate => candidate.Id == vnet.Id)] = byId[vnet.Id];
@@ -1793,6 +1860,22 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             byId[other.Id] = other;
         }
 
+        List<NodePlacement> sharedServiceMembers = placements
+            .Where(placement => !placement.IsFrameAnchor
+                && string.Equals(placement.FrameCellId, SharedServicesFrameCellId, StringComparison.Ordinal))
+            .ToList();
+        if (sharedServiceMembers.Count > 0)
+        {
+            NeighborhoodMetadata sharedServices = CreateNeighborhood(
+                SharedServicesFrameCellId,
+                "shared-services",
+                SharedServicesFrameTitle,
+                sharedServiceMembers,
+                [SharedServicesFrameCellId]);
+            neighborhoods.Add(sharedServices);
+            byId[sharedServices.Id] = sharedServices;
+        }
+
         List<NeighborhoodLink> links = [];
         foreach (DiagramEdge edge in visibleEdges)
         {
@@ -1833,7 +1916,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     "vnet" => 0,
                     "shared" => 1,
                     "remainder" => 2,
-                    _ => 3,
+                    "other" => 3,
+                    "shared-services" => 4,
+                    _ => 5,
                 })
                 .ThenBy(neighborhood => neighborhood.Id, StringComparer.Ordinal)
                 .ToList(),
@@ -1954,9 +2039,15 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         XElement frameLayer,
         IReadOnlyList<NeighborhoodMetadata> neighborhoods)
     {
-        Dictionary<string, string> frameToNeighborhood = neighborhoods
-            .SelectMany(neighborhood => neighborhood.FrameIds.Select(frameId => (frameId, neighborhood.Id)))
-            .ToDictionary(pair => pair.frameId, pair => pair.Id, StringComparer.Ordinal);
+        Dictionary<string, string> frameToNeighborhood = new(StringComparer.Ordinal);
+
+        foreach (NeighborhoodMetadata neighborhood in neighborhoods)
+        {
+            foreach (string frameId in neighborhood.FrameIds)
+            {
+                frameToNeighborhood.TryAdd(frameId, neighborhood.Id);
+            }
+        }
         foreach (XElement frame in frameLayer.Elements())
         {
             string frameId = frame.Attribute("data-frame-id")?.Value

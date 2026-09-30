@@ -3238,7 +3238,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 17
+- **hunts:** 19
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -3636,7 +3636,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-12
@@ -5225,13 +5225,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-09-30 seed hunt (seed-only): re-read the marketing route surfaces; the marketing test filter reported 442 passing and 26 failing tests, but the representative breadcrumb failures are stale because `OperatorPageBreadcrumb` intentionally returns null system-wide; no new reachable product candidate emerged.
+
+2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter again reported 442 passing and 26 failing tests with the same intentional breadcrumb-test mismatch; no new reachable product candidate emerged.
+
+2026-09-30 seed hunt (seed-only): repeated the marketing route review again; the marketing filter reported the same 442 passing and 26 failing baseline; no new reachable product candidate emerged.
 
 2026-09-12 seed hunt #2086 (seed-only): reseeded llm-wallet; 17 scoped tests passed; no new hunt-ready rows
 
@@ -9577,11 +9583,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 17
-- **bugs-found:** 17
+- **hunts:** 19
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-30 — numeric ServiceNow sys_id caused inbound payload reader to throw instead of rejecting the webhook
+- **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9634,6 +9640,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ItsmInboundServiceNowPayloadReader` — numeric JSON `sys_id` / `sysId` caused `JsonElement.GetString()` to throw, allowing malformed inbound webhook input to escape the reader’s validation path toward HTTP 500 — **hit 2026-09-30:** read only string tokens before `GetString()`; regression `TryRead_rejects_numeric_sys_id_without_throwing`.
 - [x] (proven) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — valid non-object JSON webhook roots caused `EnumerateObject()` to throw instead of returning an unrecognized payload — **hit 2026-09-30 seed hunt:** attacker-controlled array roots now reject cleanly; regression `TryRead_rejects_non_object_json_without_throwing`.
+- [x] (proven) `MemoryCacheItsmInboundWebhookReplayGuard.CreateEntryOptions` eviction callback removed claims by key without distinguishing cache-entry generations — a transient processing failure called `ReleaseAsync`, a same-delivery retry re-established the claim, and the released entry's delayed callback cleared the new claim so a second concurrent retry passed `TryClaimAsync`; callbacks now remove only their current claim generation; regression `Delayed_eviction_callback_does_not_remove_a_reclaimed_event`.
+
+2026-09-30 seed hunt (seed-only): reviewed inbound controller, JSON readers, facade, pipeline, status mappers, correlation/replay support, and replay-guard tests; retained one reachable replay-eviction race candidate for a dedicated concurrency repro.
+
+2026-09-30 thorough hunt (hit): deterministic replay-guard repro proved a delayed eviction callback could clear a reclaimed claim and permit duplicate delivery; claim generations now use conditional removal, with 6 replay-guard tests and 48 scoped ITSM webhook tests passing.
 
 ---
 
@@ -10834,7 +10845,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 6
+- **hunts:** 13
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-11
@@ -10858,6 +10869,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` maps `IsPaymentPastDue` only from `Suspended` status — **cheap-disproof 2026-09-11 thorough hunt #1700:** Stripe `past_due` and `invoice.payment_failed` webhooks call `SuspendSubscriptionAsync` before status reads (`StripeBillingSubscriptionWebhookProcessorTests.HandleSubscriptionUpdatedAsync_past_due_suspends_subscription`); facade maps `Suspended` to past-due; regressions `GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due` and `GetSubscriptionStatusAsync_does_not_flag_active_subscription_as_payment_past_due`.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
+
+2026-09-30 seed hunt (seed-only): re-read all `ArchLucid.Application/Billing/` sources and the Marketplace, BillingCheckout, and TenantLlmCostReporting test surfaces; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing-zone review again; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing-zone review with no code churn; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing-zone review again with no code churn; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): re-read the billing source and test surfaces; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing source review; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the billing source review again; no new reachable candidate emerged; 17 scoped tests passed.
 
 2026-09-03 seed hunt #564: proved abandoned-checkout Pending retry conflict; reseeded ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates.
 
@@ -18555,7 +18584,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 13
+- **hunts:** 16
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -18568,6 +18597,12 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
 
 2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
+
+2026-09-30 seed hunt (seed-only): inspected all configured Safety and Http source files and the PrivateNetwork test surface; no implementation caller or new reachable candidate exists within this zone.
+
+2026-09-30 seed hunt (seed-only): re-read all configured Safety and Http source files; no new reachable candidate emerged; 32 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the configured Safety and Http source review; no new reachable candidate emerged; 32 scoped tests passed.
 
 2026-09-12 thorough hunt #1954 (dry): cheap-disproof closed integration outbound client candidate already fixed in #1928; no open hunt-ready rows.
 
@@ -26369,7 +26404,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 10
+- **hunts:** 13
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-30
@@ -26398,6 +26433,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `FinalizeCoalescedReviewResult` / `ApplyCacheHitPolicy` — identical incomplete-framing rerun cache hit clears `ReviewCompleteBlocked` — **cheap-disproof 2026-09-08 (#1309):** intentional analysis-only cache-hit isolation; `RunAsync_second_identical_incomplete_framing_request_cache_hit_clears_review_complete_blocked`
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired entry TTL refresh extends wall-clock retention without re-evaluating manifest inputs — **cheap-disproof 2026-09-08 (#1316):** intentional improve-loop pin semantics; same storage key implies unchanged manifest hash; `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`; tombstoned runs still miss (`TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`)
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` / `ClosedLoopContinueRunSingleFlight` — publish vs analysis in-flight partitions (`publish=1` vs `publish=0`) can double-run identical manifest under concurrent mixed intent — **cheap-disproof 2026-09-08 (#1316):** intentional flight partition via `ReviewCacheKeyBuilder.BuildInFlight`; publish requires live adversarial pass (`RunAsync_publish_request_bypasses_review_cache_hit`); regression `CoalesceAsync_does_not_share_flight_across_publish_intent`
+
+2026-09-30 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder; no new reachable candidate emerged; 61 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the orchestrator and review-cache source review; no new reachable candidate emerged; 61 scoped tests passed.
+
+2026-09-30 seed hunt (seed-only): repeated the orchestrator and review-cache source review again; no new reachable candidate emerged; 61 scoped tests passed.
 
 2026-09-08 thorough hunt #1316 (dry): cheap-disproof closed pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
 2026-09-08 seed hunt #1309 (seed-only): reseeded orchestrator/cache after git churn; cheap-disproof closed review-tier, publish-storage asymmetry, and incomplete-framing cache-hit candidates; kept pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
