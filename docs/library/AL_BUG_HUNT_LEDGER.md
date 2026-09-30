@@ -23887,13 +23887,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 289
+- **hunts:** 290
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
 - [x] (proven) `GovernanceController.EnsureSealedManifestReadAllowedAsync` / `EnsureSealedManifestReadAllowedForApprovalRequestAsync` / `GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId` — zero-width-space (U+200B) and related invisible prefixes/suffixes on `runId` were not stripped before `Guid.TryParse`, so sealed-manifest hash guard returned null (skipped) while HTTP validation also rejected the same literals — **hit 2026-09-28 seed hunt (seed→hit):** `GovernanceRunIdNormalizer` strips invisible key-material chars before parse; regressions `Approve_returns_conflict_when_approval_run_id_has_zero_width_prefix_and_sealed_manifest_hash_drift` and `RecordGovernanceMutationCorrection_returns_conflict_when_zero_width_prefixed_run_id_has_sealed_manifest_hash_drift`.
 
