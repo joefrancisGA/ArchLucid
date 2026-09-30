@@ -9594,7 +9594,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -9793,6 +9793,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-30 thorough hunt (hit): proved duplicate AL0003 diagnostics for an abstract intermediate controller in a multi-level referenced inheritance chain and a false-positive AL0001 on a derived controller whose inherited action was `[AllowAnonymous]`; fixed abstract-controller traversal and inherited authorization-action handling; 60 scoped analyzer tests passed.
 
+2026-09-30 seed hunt (seed-only): re-read the analyzer implementations after the inheritance fixes; all 60 scoped tests passed; retained two fresh inherited-action candidates for a later repro pass.
+
 ### Hypotheses
 
 - [x] (proven) Controller action mutates state without audit attribute and analyzer stays silent — **hit 2026-08-24:** `TrackedVerbAttribute` omitted `HttpPatchAttribute`; many PATCH endpoints skipped AL0003; regression in `AL0003_reports_when_HttpPatch_action_lacks_IAudit_LogAsync`
@@ -9839,6 +9841,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MutatingControllerAuditAnalyzer` misses tracked actions inherited from referenced controller assemblies — **hit 2026-09-30:** semantic-model analysis visited only current-compilation `MethodDeclarationSyntax` bodies, so an API controller inheriting a `[HttpPost]` action from a referenced base assembly emitted no AL0003; fixed by traversing referenced base-controller methods with existing exclusion, allowlist, verb, and shadow checks; regression `AL0003_reports_mutating_action_in_referenced_controller_base_assembly`.
 - [x] (proven) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` reported the same referenced mutating action once for each level of a multi-level current-compilation controller hierarchy — **hit 2026-09-30:** an abstract intermediate controller and its concrete descendant each received AL0003 for the same referenced `[HttpPost]`; fixed by excluding abstract controller types from endpoint diagnostics; regression `AL0003_reports_one_diagnostic_for_concrete_controller_in_multi_level_referenced_inheritance`.
 - [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` falsely flagged a derived controller with no declared methods even when its inherited action was `[AllowAnonymous]` — **hit 2026-09-30:** the type-level fallback ignored inherited public actions and reported AL0001 on the derived type; fixed by evaluating inherited actions before the no-public-method fallback; regression `Does_not_report_derived_controller_when_only_inherited_action_is_allow_anonymous`.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` evaluates inherited actions only when the derived controller has no qualifying declared public methods, so a controller that adds one authorized action may still omit an inherited unauthorised action from AL0001 analysis (reachability: API controllers can extend shared controller bases with additional public endpoints).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` reports referenced base actions conservatively without inspecting their compiled bodies, so a referenced `[HttpPost]` action that logs through a concrete `IAuditService` implementation may receive a false-positive AL0003 (reachability: shared controller assemblies can contain audited actions consumed by the API compilation as metadata references).
 
 ---
 
