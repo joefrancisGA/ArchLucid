@@ -43,6 +43,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         double ToX,
         double ToY);
 
+    private sealed record BundleEndpointIds(
+        IReadOnlyList<string> FromNodeIds,
+        IReadOnlyList<string> ToNodeIds);
+
     public DiagramForestLayoutResult Render(DiagramAst ast, DiagramForestLayoutOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -1275,7 +1279,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
         (IReadOnlyList<DiagramEdge> bundledEdges,
             IReadOnlySet<string> bundledOriginalKeys,
-            IReadOnlyDictionary<string, FrameEdgeRoute> bundledRoutes) =
+            IReadOnlyDictionary<string, FrameEdgeRoute> bundledRoutes,
+            IReadOnlyDictionary<string, BundleEndpointIds> bundledEndpointIds) =
             ResolvePrivateEndpointBundles(
                 visibleEdges,
                 placements,
@@ -1436,7 +1441,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 route,
                 suppressOnPathLabel,
                 showArrow,
-                placedLabelCenters));
+                placedLabelCenters,
+                bundledEndpointIds.TryGetValue(
+                    DiagramForestEdgeLabelCollapse.EdgeKey(edge),
+                    out BundleEndpointIds? endpointIds)
+                    ? endpointIds.FromNodeIds
+                    : null,
+                endpointIds?.ToNodeIds));
         }
 
         root.Add(edgeLayer);
@@ -1493,7 +1504,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static (
         IReadOnlyList<DiagramEdge> BundledEdges,
         IReadOnlySet<string> BundledOriginalKeys,
-        IReadOnlyDictionary<string, FrameEdgeRoute> BundledRoutes) ResolvePrivateEndpointBundles(
+        IReadOnlyDictionary<string, FrameEdgeRoute> BundledRoutes,
+        IReadOnlyDictionary<string, BundleEndpointIds> BundledEndpointIds) ResolvePrivateEndpointBundles(
         IReadOnlyList<DiagramEdge> visibleEdges,
         IReadOnlyList<NodePlacement> placements,
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupFrameBounds> resourceGroupFrames,
@@ -1502,7 +1514,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     {
         if (!IsVnetPrimaryTitle(title))
         {
-            return ([], new HashSet<string>(StringComparer.Ordinal), new Dictionary<string, FrameEdgeRoute>());
+            return (
+                [],
+                new HashSet<string>(StringComparer.Ordinal),
+                new Dictionary<string, FrameEdgeRoute>(),
+                new Dictionary<string, BundleEndpointIds>());
         }
 
         Dictionary<string, NodePlacement> placementById = placements.ToDictionary(
@@ -1549,6 +1565,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         List<DiagramEdge> bundledEdges = [];
         HashSet<string> bundledOriginalKeys = new(StringComparer.Ordinal);
         Dictionary<string, FrameEdgeRoute> bundledRoutes = new(StringComparer.Ordinal);
+        Dictionary<string, BundleEndpointIds> bundledEndpointIds = new(StringComparer.Ordinal);
         foreach (((string resourceFrameId, string vnetFrameId), List<DiagramEdge> edges) in candidates)
         {
             if (edges.Count < 2)
@@ -1577,11 +1594,23 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             };
             bundledEdges.Add(bundledEdge);
             bundledOriginalKeys.UnionWith(edges.Select(DiagramForestEdgeLabelCollapse.EdgeKey));
-            bundledRoutes[DiagramForestEdgeLabelCollapse.EdgeKey(bundledEdge)] =
+            string bundledEdgeKey = DiagramForestEdgeLabelCollapse.EdgeKey(bundledEdge);
+            bundledRoutes[bundledEdgeKey] =
                 ResolveFrameEdgeRoute(resourceFrame, vnetFrame);
+            bundledEndpointIds[bundledEdgeKey] = new BundleEndpointIds(
+                edges
+                    .Select(edge => MermaidIdSanitizer.Sanitize(edge.FromNodeId))
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(id => id, StringComparer.Ordinal)
+                    .ToArray(),
+                edges
+                    .Select(edge => MermaidIdSanitizer.Sanitize(edge.ToNodeId))
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(id => id, StringComparer.Ordinal)
+                    .ToArray());
         }
 
-        return (bundledEdges, bundledOriginalKeys, bundledRoutes);
+        return (bundledEdges, bundledOriginalKeys, bundledRoutes, bundledEndpointIds);
     }
 
     private static bool IsPrivateEndpointEdge(DiagramEdge edge)

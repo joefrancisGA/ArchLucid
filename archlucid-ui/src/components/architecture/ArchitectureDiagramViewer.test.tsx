@@ -234,6 +234,51 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Node A')).toBeInTheDocument();
   });
 
+  it('dims unrelated forest ink without changing the camera viewBox', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="vnet-frame" data-frame-id="vnet-vnet-a"><title>vnet-a</title><rect x="0" y="0" width="120" height="100"/></g>',
+      '  <g class="node" id="node-vault" transform="translate(10,20)"><title>vault</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="node" id="node-vm" transform="translate(60,20)"><title>vm</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="node" id="node-other" transform="translate(160,20)"><title>other</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="edge" data-from="vault" data-to="vm"><title>used by</title><path d="M50 30L60 30"/></g>',
+      '  <g class="edge" data-from="other" data-to="outside"><title>used by</title><path d="M200 30L220 30"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [],
+          edges: [{ from: 'vault', to: 'vm', label: 'used by', source: 'observed', declaredConnectionId: null }],
+        }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    const viewBox = host.querySelector('svg')?.getAttribute('viewBox');
+
+    fireEvent.click(host.querySelector('#node-vault')!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'Showing connections for vault.',
+      );
+      expect(host.querySelector('#node-other')).toHaveClass('diagram-click-dim');
+    });
+    expect(host.querySelector('svg')?.getAttribute('viewBox')).toBe(viewBox);
+
+    fireEvent.keyDown(screen.getByTestId('architecture-diagram-viewport'), { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByTestId('diagram-click-focus-status')).toBeNull();
+      expect(host.querySelector('#node-other')).not.toHaveClass('diagram-click-dim');
+    });
+  });
+
   it('scopes host CSS to card bodies so forest accents and pictograms keep baked fills', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',

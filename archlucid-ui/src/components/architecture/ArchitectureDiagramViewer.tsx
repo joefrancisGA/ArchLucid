@@ -45,6 +45,16 @@ import {
 } from '@/lib/architecture/architecture-diagram-fullscreen-url';
 import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
 import {
+  normalizeDiagramFocusToken,
+  resolveDiagramClickFocus,
+  type DiagramClickFocusEdge,
+  type DiagramClickFocusFacts,
+  type DiagramClickFocusFrame,
+  type DiagramClickFocusNode,
+  type DiagramClickFocusRect,
+} from '@/lib/architecture/architecture-diagram-click-focus';
+import type { InfraEvidenceMermaidOutline } from '@/lib/infra-evidence/parse-infra-evidence-mermaid-outline';
+import {
   applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
@@ -89,6 +99,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly focusNodeIds?: readonly string[];
   /** Increment when focus selection changes so camera refits. */
   readonly focusNonce?: number;
+  /** Logical inventory outline used for click-focus neighborhood membership. */
+  readonly outline?: InfraEvidenceMermaidOutline | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
   readonly cameraMaxHeightClassName?: string;
 };
@@ -145,6 +157,99 @@ function applyMermaidViewportCamera(
   }
 
   return baseFit;
+}
+
+function readSvgRect(element: Element): DiagramClickFocusRect | null {
+  const rect = element.querySelector('rect');
+
+  if (rect === null) {
+    return null;
+  }
+
+  const x = Number.parseFloat(rect.getAttribute('x') ?? '0');
+  const y = Number.parseFloat(rect.getAttribute('y') ?? '0');
+  const width = Number.parseFloat(rect.getAttribute('width') ?? '');
+  const height = Number.parseFloat(rect.getAttribute('height') ?? '');
+
+  if (![x, y, width, height].every(Number.isFinite)) {
+    return null;
+  }
+
+  return { x, y, width, height };
+}
+
+function readForestNodeFact(element: Element): DiagramClickFocusNode | null {
+  const id = element.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+  const card = element.querySelector('rect.node-card');
+  const transform = element.getAttribute('transform') ?? '';
+  const match = /^translate\(\s*([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\s*\)$/u.exec(transform);
+
+  if (id.length === 0 || card === null || match === null) {
+    return null;
+  }
+
+  const x = Number.parseFloat(match[1]);
+  const y = Number.parseFloat(match[2]);
+  const width = Number.parseFloat(card.getAttribute('width') ?? '');
+  const height = Number.parseFloat(card.getAttribute('height') ?? '');
+
+  if (![x, y, width, height].every(Number.isFinite)) {
+    return null;
+  }
+
+  return {
+    id,
+    center: { x: x + (width / 2), y: y + (height / 2) },
+  };
+}
+
+function readClickFocusFacts(svg: SVGSVGElement): DiagramClickFocusFacts {
+  const nodes = [...svg.querySelectorAll('g.node')]
+    .map(readForestNodeFact)
+    .filter((node): node is DiagramClickFocusNode => node !== null);
+  const frames: DiagramClickFocusFrame[] = [];
+
+  for (const frame of svg.querySelectorAll('g.vnet-frame')) {
+    const id = frame.getAttribute('data-frame-id') ?? '';
+    const rect = readSvgRect(frame);
+
+    if (id.length > 0 && rect !== null) {
+      frames.push({ id, rect, kind: 'vnet' });
+    }
+  }
+
+  for (const frame of svg.querySelectorAll('g.rg-frame')) {
+    const id = frame.getAttribute('data-frame-cell-id') ?? '';
+    const rect = frame.querySelector('rect.rg-frame-plate');
+
+    if (id.length > 0 && rect !== null) {
+      const x = Number.parseFloat(rect.getAttribute('x') ?? '0');
+      const y = Number.parseFloat(rect.getAttribute('y') ?? '0');
+      const width = Number.parseFloat(rect.getAttribute('width') ?? '');
+      const height = Number.parseFloat(rect.getAttribute('height') ?? '');
+
+      if ([x, y, width, height].every(Number.isFinite)) {
+        frames.push({ id, rect: { x, y, width, height }, kind: 'resourceGroup' });
+      }
+    }
+  }
+
+  const edges: DiagramClickFocusEdge[] = [...svg.querySelectorAll('g.edge')].map((edge) => ({
+    from: (edge.getAttribute('data-bundle-from') ?? edge.getAttribute('data-from') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean),
+    to: (edge.getAttribute('data-bundle-to') ?? edge.getAttribute('data-to') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean),
+  }));
+
+  return { nodes, frames, edges };
+}
+
+function clearClickFocusClasses(svg: SVGSVGElement): void {
+  svg.querySelectorAll('.diagram-click-dim').forEach((element) => {
+    element.classList.remove('diagram-click-dim');
+  });
 }
 
 function reportMermaidViewportPaintFailure(
@@ -358,6 +463,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_path.edge-path]:fill-none',
   '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
   '[&_svg_g.edge-label_text]:fill-[#111827] dark:[&_svg_g.edge-label_text]:fill-[#e2e8f0]',
+  '[&_svg_.diagram-click-dim]:opacity-[0.15]',
 );
 
 const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
@@ -378,6 +484,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     viewportControlsLayout = 'overlay',
     focusNodeIds = EMPTY_FOCUS_NODE_IDS,
     focusNonce = 0,
+    outline = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
   } = props;
   const pathname = usePathname() ?? '';
@@ -390,6 +497,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [clickFocus, setClickFocus] = useState<{ id: string; name: string } | null>(null);
   const [renderGeneration, setRenderGeneration] = useState(0);
   const [fullscreenOpen, setFullscreenOpenState] = useState(readFullscreenOpenFromUrl);
   const viewportFrameRef = useRef<HTMLDivElement | null>(null);
@@ -773,6 +881,94 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
 
   useEffect(() => {
+    const hosts = [svgHostRef.current, fullscreenHostRef.current].filter(
+      (host): host is HTMLDivElement => host !== null,
+    );
+    const clearFocus = (): void => {
+      setClickFocus(null);
+    };
+
+    if (sanitizedSvg === null || layoutSvg?.trim().length === 0) {
+      hosts.forEach((host) => {
+        const svg = host.querySelector('svg');
+
+        if (svg instanceof SVGSVGElement) {
+          clearClickFocusClasses(svg);
+        }
+      });
+      return;
+    }
+
+    hosts.forEach((host) => {
+      const svg = host.querySelector('svg');
+
+      if (!(svg instanceof SVGSVGElement)) {
+        return;
+      }
+
+      clearClickFocusClasses(svg);
+
+      if (clickFocus === null) {
+        return;
+      }
+
+      const result = resolveDiagramClickFocus(clickFocus.id, outline, readClickFocusFacts(svg));
+
+      [...svg.querySelectorAll('g.node')].forEach((node) => {
+        const nodeId = normalizeDiagramFocusToken(node.getAttribute('id')?.replace(/^node-/u, '') ?? '');
+        node.classList.toggle('diagram-click-dim', !result.keptNodeIds.has(nodeId));
+      });
+      [...svg.querySelectorAll('g.vnet-frame, g.rg-frame')].forEach((frame) => {
+        frame.classList.toggle('diagram-click-dim', !result.keptFrameIds.has(
+          frame.getAttribute('data-frame-id') ?? frame.getAttribute('data-frame-cell-id') ?? '',
+        ));
+      });
+      [...svg.querySelectorAll('g.edge')].forEach((edge, index) => {
+        edge.classList.toggle('diagram-click-dim', !result.keptEdgeIndexes.has(index));
+      });
+    });
+
+    const handleClick = (event: MouseEvent): void => {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        clearFocus();
+        return;
+      }
+
+      const node = target.closest('g.node');
+
+      if (node === null) {
+        clearFocus();
+        return;
+      }
+
+      const id = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+
+      if (normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
+        clearFocus();
+        return;
+      }
+
+      const title = node.querySelector('title')?.textContent?.trim() ?? id;
+      setClickFocus({
+        id,
+        name: title.replace(/\s+—\s+Private endpoint access$/u, ''),
+      });
+    };
+
+    hosts.forEach((host) => host.addEventListener('click', handleClick));
+
+    return (): void => {
+      hosts.forEach((host) => host.removeEventListener('click', handleClick));
+    };
+  }, [clickFocus, fullscreenOpen, layoutSvg, outline, sanitizedSvg]);
+
+  useEffect(() => {
+    setClickFocus(null);
+  }, [layoutSvg]);
+
+  useEffect(() => {
     const frame = viewportFrameRef.current;
 
     if (frame === null) {
@@ -780,7 +976,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     }
 
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      if (
+        event.target instanceof HTMLInputElement
+        || event.target instanceof HTMLTextAreaElement
+        || event.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setClickFocus(null);
         return;
       }
 
@@ -896,6 +1102,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       {canvasStale ? (
         <p className={cn('mb-2 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.helper)}>
           Canvas may be stale while a new render loads.
+        </p>
+      ) : null}
+
+      {clickFocus !== null ? (
+        <p
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="diagram-click-focus-status"
+          aria-live="polite"
+        >
+          {`Showing connections for ${clickFocus.name}.`}
         </p>
       ) : null}
 
