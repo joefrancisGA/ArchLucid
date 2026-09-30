@@ -8464,3 +8464,4 @@
 {"at":"2026-09-30T23:45:48.3906098Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-09-30T23:47:37.6214866Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-09-30T23:49:53.6569917Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-09-30T23:54:41.9081068Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs,ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}

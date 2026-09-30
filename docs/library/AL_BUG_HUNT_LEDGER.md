@@ -3948,9 +3948,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
@@ -3960,8 +3960,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-30 seed hunt (seed-only): re-read the email OTP controller and service delegation paths; all 41 scoped tests passed; retained two concrete HTTP-boundary candidates for a later repro pass.
 
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work (reachability: the public `POST v1/auth/email-otp/challenge` JSON body accepts arbitrary client-supplied `Email` text).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope (reachability: the controller consumes the application service result on the public `POST v1/auth/email-otp/verify` path).
+2026-09-30 thorough hunt (dry): cheap-disproved the whitespace-email candidate because `EmailOtpRequestFlow` normalizes and rejects it before rate limiting, challenge creation, or delivery while preserving the neutral anti-enumeration response; classified the explicit-empty-scope candidate as valid-no-repro because the controller intentionally maps both null and empty scopes to `TrialLocalJwtScopeDefaults`; 41 scoped tests passed.
+
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work — **cheap-disproved 2026-09-30:** `EmailOtpRequestFlow` normalizes and rejects whitespace before rate limiting, challenge creation, or delivery while preserving the neutral anti-enumeration response.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope — **cheap-disproved 2026-09-30:** null and empty scopes intentionally share the `TrialLocalJwtScopeDefaults` fallback path; the controller's existing scope-parity regression covers the intended behavior.
 
 2026-09-12 seed hunt #2253 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
 2026-09-12 seed hunt #2159 (seed-only): reseeded email-otp-auth with `-Hint email-otp-auth`; no new hunt-ready rows.
@@ -3976,8 +3978,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] A consumed or expired OTP still issues a session Î“Ã‡Ã¶ retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work (reachability: the public `POST v1/auth/email-otp/challenge` JSON body accepts arbitrary client-supplied `Email` text).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope (reachability: the controller consumes the application service result on the public `POST v1/auth/email-otp/verify` path).
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary — service-level normalization returns the neutral result before side effects.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default — null and empty scope values intentionally share the local-trial fallback.
 - [x] Challenge lookup is not tenant-scoped and can verify another tenant's code Î“Ã‡Ã¶ retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
 - [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 - [x] (proven) Mixed-case invitation email on the row blocks acceptance after OTP verify — **hit 2026-08-24:** `TryAcceptInvitationAsync` compared `invitation.Email` to normalized sign-in email with ordinal equality and `FindInvitationByIdAsync` filtered via `ListPendingByNormalizedEmailAsync`; legacy/display-case rows never accepted; fixed with `InvitationEmailMatchesVerifiedEmail` + `GetPendingByIdAsync`
