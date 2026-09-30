@@ -121,21 +121,29 @@ export function formatOverviewCaption(name: string, count: number): string {
   return `${truncateOverviewName(name)} · ${count}`;
 }
 
-function fitOverviewCaption(name: string, count: number, frameWidth: number, paintedScale: number): string {
-  const availableWidth = Math.max(1, frameWidth - 16 / paintedScale);
-  const characterWidth = 0.6 * (OVERVIEW_CAPTION_FONT_SIZE_PX / paintedScale);
-  const suffix = ` · ${count}`;
-  const fullName = truncateOverviewName(name);
+function estimateOverviewCaptionWidth(text: string, paintedScale: number): number {
+  return (text.length * 0.6 * OVERVIEW_CAPTION_FONT_SIZE_PX) / paintedScale;
+}
 
-  if ((fullName.length + suffix.length) * characterWidth <= availableWidth) {
-    return `${fullName}${suffix}`;
-  }
+function readViewBoxTop(svg: SVGSVGElement): number {
+  const viewBox = (svg.getAttribute("viewBox") ?? "").trim().split(/[\s,]+/u).map(Number);
+  return Number.isFinite(viewBox[1]) ? viewBox[1] : 0;
+}
 
-  const availableNameCharacters = Math.max(
-    1,
-    Math.floor(availableWidth / characterWidth) - suffix.length - 1,
+type CaptionBounds = {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+};
+
+function overlaps(first: CaptionBounds, second: CaptionBounds): boolean {
+  return (
+    first.x < second.x + second.width
+    && first.x + first.width > second.x
+    && first.y < second.y + second.height
+    && first.y + first.height > second.y
   );
-  return `${name.trim().slice(0, availableNameCharacters)}…${suffix}`;
 }
 
 function countNodesInside(svg: SVGSVGElement, frameRect: Rect): number {
@@ -196,6 +204,10 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
   const defs = document.createElementNS(SVG_NS, "defs");
   captions.appendChild(defs);
   let captionCount = 0;
+  const placedCaptionBounds: CaptionBounds[] = [];
+  const viewBoxTop = readViewBoxTop(svg);
+  const captionHeight = OVERVIEW_CAPTION_FONT_SIZE_PX / paintedScale;
+  const captionLineHeight = 16 / paintedScale;
 
   const frames = [...svg.querySelectorAll("g.vnet-frame, g.rg-frame")]
     .map((frame) => ({
@@ -207,7 +219,8 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
     .filter((candidate): candidate is typeof candidate & { rect: Rect } =>
       candidate.rect !== null && candidate.name.length > 0
         && candidate.rect.height * paintedScale >= OVERVIEW_CAPTION_MIN_FRAME_PX,
-    );
+    )
+    .sort((first, second) => first.rect.y - second.rect.y || first.rect.x - second.rect.x);
 
   if (hierarchyMode) {
     svg.querySelectorAll("g.node text, g.edge text, g.edge-stub text").forEach((element) => {
@@ -224,17 +237,6 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
       return;
     }
 
-    const clipId = `diagram-overview-clip-${captionCount}`;
-    const clipPath = document.createElementNS(SVG_NS, "clipPath");
-    clipPath.setAttribute("id", clipId);
-    const clipRect = document.createElementNS(SVG_NS, "rect");
-    clipRect.setAttribute("x", String(rect.x));
-    clipRect.setAttribute("y", String(rect.y));
-    clipRect.setAttribute("width", String(rect.width));
-    clipRect.setAttribute("height", String(rect.height));
-    clipPath.appendChild(clipRect);
-    defs.appendChild(clipPath);
-
     hideOriginalFrameCaption(frame);
     if (!hierarchyMode) {
       svg.querySelectorAll("g.node").forEach((node) => {
@@ -247,17 +249,73 @@ export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: n
       });
     }
 
+    const captionText = formatOverviewCaption(name, countNodesInside(svg, rect));
+    const captionWidth = estimateOverviewCaptionWidth(captionText, paintedScale);
+    const fitsInside = captionWidth <= rect.width - 16 / paintedScale;
+    const canPlaceOutside = rect.y - 4 / paintedScale - captionHeight >= viewBoxTop;
+    const outside = !fitsInside && canPlaceOutside;
+    const x = outside ? rect.x : rect.x + 8 / paintedScale;
+    let baselineY = outside ? rect.y - 4 / paintedScale : rect.y + 14 / paintedScale;
+    let bounds: CaptionBounds = {
+      x,
+      y: baselineY - captionHeight,
+      width: captionWidth,
+      height: captionHeight,
+    };
+
+    if (outside) {
+      let moves = 0;
+      while (moves < 3) {
+        const overlappingBounds = placedCaptionBounds.filter((placed) => overlaps(bounds, placed));
+        if (overlappingBounds.length === 0) {
+          break;
+        }
+
+        baselineY = Math.max(
+          ...overlappingBounds.map((placed) => placed.y + placed.height + captionLineHeight),
+        );
+        bounds = { ...bounds, y: baselineY - captionHeight };
+        moves += 1;
+      }
+
+      const haloPadding = 2 / paintedScale;
+      const halo = document.createElementNS(SVG_NS, "rect");
+      halo.setAttribute("class", "overview-caption-halo");
+      halo.setAttribute("x", String(bounds.x - haloPadding));
+      halo.setAttribute("y", String(bounds.y - haloPadding));
+      halo.setAttribute("width", String(bounds.width + haloPadding * 2));
+      halo.setAttribute("height", String(bounds.height + haloPadding * 2));
+      halo.setAttribute("rx", String(haloPadding));
+      halo.setAttribute("fill", "#ffffff");
+      halo.setAttribute("fill-opacity", "0.85");
+      captions.appendChild(halo);
+    } else {
+      const clipId = `diagram-overview-clip-${captionCount}`;
+      const clipPath = document.createElementNS(SVG_NS, "clipPath");
+      clipPath.setAttribute("id", clipId);
+      const clipRect = document.createElementNS(SVG_NS, "rect");
+      clipRect.setAttribute("x", String(rect.x));
+      clipRect.setAttribute("y", String(rect.y));
+      clipRect.setAttribute("width", String(rect.width));
+      clipRect.setAttribute("height", String(rect.height));
+      clipPath.appendChild(clipRect);
+      defs.appendChild(clipPath);
+    }
+
     const caption = document.createElementNS(SVG_NS, "text");
     caption.setAttribute("class", "overview-caption");
-    caption.setAttribute("x", String(rect.x + 8 / paintedScale));
-    caption.setAttribute("y", String(rect.y + 14 / paintedScale));
+    caption.setAttribute("x", String(x));
+    caption.setAttribute("y", String(baselineY));
     caption.setAttribute("text-anchor", "start");
     caption.setAttribute("font-size", String(OVERVIEW_CAPTION_FONT_SIZE_PX / paintedScale));
     caption.setAttribute("font-weight", "700");
     caption.setAttribute("fill", "#334155");
-    caption.setAttribute("clip-path", `url(#${clipId})`);
-    caption.textContent = fitOverviewCaption(name, countNodesInside(svg, rect), rect.width, paintedScale);
+    if (!outside) {
+      caption.setAttribute("clip-path", `url(#diagram-overview-clip-${captionCount})`);
+    }
+    caption.textContent = captionText;
     captions.appendChild(caption);
+    placedCaptionBounds.push(bounds);
     captionCount += 1;
   });
 
