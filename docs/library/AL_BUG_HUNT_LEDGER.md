@@ -3948,7 +3948,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-30
@@ -3976,6 +3976,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] A consumed or expired OTP still issues a session Î“Ã‡Ã¶ retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work (reachability: the public `POST v1/auth/email-otp/challenge` JSON body accepts arbitrary client-supplied `Email` text).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope (reachability: the controller consumes the application service result on the public `POST v1/auth/email-otp/verify` path).
 - [x] Challenge lookup is not tenant-scoped and can verify another tenant's code Î“Ã‡Ã¶ retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
 - [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 - [x] (proven) Mixed-case invitation email on the row blocks acceptance after OTP verify — **hit 2026-08-24:** `TryAcceptInvitationAsync` compared `invitation.Email` to normalized sign-in email with ordinal equality and `FindInvitationByIdAsync` filtered via `ListPendingByNormalizedEmailAsync`; legacy/display-case rows never accepted; fixed with `InvitationEmailMatchesVerifiedEmail` + `GetPendingByIdAsync`
