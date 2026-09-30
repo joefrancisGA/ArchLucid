@@ -79,7 +79,7 @@ describe("architecture diagram overview captions", () => {
 
   it("clips a qualifying caption to its frame", () => {
     const svg = createSvg(`
-      <g class="vnet-frame"><title>alpha</title><rect x="0" y="0" width="100" height="50"/></g>
+      <g class="vnet-frame"><title>alpha</title><rect x="0" y="0" width="800" height="50"/></g>
     `);
 
     applyDiagramOverviewCaptions(svg, 0.4);
@@ -193,21 +193,63 @@ describe("architecture diagram overview captions", () => {
     expect(separate.querySelectorAll("text.overview-caption")).toHaveLength(2);
   });
 
-  it("places a full narrow-frame caption above the frame", () => {
+  it("places a full narrow-frame caption to the right of the frame", () => {
     const svg = createSvg(`
-      <g class="vnet-frame"><title>vnet-avd-hi-nprd</title><rect x="0" y="80" width="200" height="60"/></g>
+      <g class="vnet-frame"><title>vnet-edw-hi-nprd-wus-001</title><rect x="0" y="0" width="200" height="120"/></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.2);
+
+    const text = svg.querySelector("text.overview-caption");
+    expect(text?.textContent).toBe("vnet-edw-hi-nprd-wus-001 · 0");
+    expect(text?.textContent).not.toContain("…");
+    expect(Number(text?.getAttribute("x"))).toBe(200 + 6 / 0.2);
+    expect(Number(text?.getAttribute("y"))).toBe(16 / 0.2);
+    expect(text).not.toHaveAttribute("clip-path");
+    expect(svg.querySelector("rect.overview-caption-halo")).toBe(
+      text?.previousElementSibling,
+    );
+  });
+
+  it("keeps right-side halos clear of stacked frames", () => {
+    const svg = createSvg(`
+      <g class="vnet-frame"><title>vnet-alpha</title><rect x="0" y="0" width="200" height="120"/></g>
+      <g class="rg-frame"><title>resource-group-beta</title><rect class="rg-frame-plate" x="0" y="120" width="200" height="120"/></g>
+    `);
+
+    applyDiagramOverviewCaptions(svg, 0.2);
+
+    const frameRects = [...svg.querySelectorAll("rect:not(.overview-caption-halo)")];
+    for (const halo of svg.querySelectorAll("rect.overview-caption-halo")) {
+      const haloRight = Number(halo.getAttribute("x")) + Number(halo.getAttribute("width"));
+      expect(haloRight).toBeGreaterThan(200);
+      expect(frameRects.some((frame) => {
+        const frameX = Number(frame.getAttribute("x"));
+        const frameRight = frameX + Number(frame.getAttribute("width"));
+        const frameY = Number(frame.getAttribute("y"));
+        const frameBottom = frameY + Number(frame.getAttribute("height"));
+        const haloX = Number(halo.getAttribute("x"));
+        const haloY = Number(halo.getAttribute("y"));
+        return haloX < frameRight
+          && haloRight > frameX
+          && haloY < frameBottom
+          && Number(halo.getAttribute("height")) + haloY > frameY;
+      })).toBe(false);
+    }
+  });
+
+  it("uses above placement when the right side would cover another frame", () => {
+    const svg = createSvg(`
+      <g class="vnet-frame"><title>vnet-alpha</title><rect x="0" y="200" width="200" height="60"/></g>
+      <g class="rg-frame"><title>resource-group-beta</title><rect class="rg-frame-plate" x="210" y="200" width="400" height="60"/></g>
     `);
 
     applyDiagramOverviewCaptions(svg, 0.4);
 
     const text = svg.querySelector("text.overview-caption");
-    expect(text?.textContent).toBe("vnet-avd-hi-nprd · 0");
-    expect(text?.textContent).not.toContain("…");
-    expect(Number(text?.getAttribute("y"))).toBeLessThan(80);
+    expect(Number(text?.getAttribute("x"))).toBe(0);
+    expect(Number(text?.getAttribute("y"))).toBeLessThan(200);
     expect(text).not.toHaveAttribute("clip-path");
-    expect(svg.querySelector("rect.overview-caption-halo")).toBe(
-      text?.previousElementSibling,
-    );
   });
 
   it("keeps a wide caption inside the frame", () => {
@@ -223,38 +265,10 @@ describe("architecture diagram overview captions", () => {
     expect(svg.querySelector("rect.overview-caption-halo")).toBeNull();
   });
 
-  it("stacks outside captions that would overlap", () => {
-    const svg = createSvg(`
-      <g class="rg-frame"><title>resource-group-alpha</title><rect class="rg-frame-plate" x="0" y="80" width="200" height="60"/></g>
-      <g class="rg-frame"><title>resource-group-beta</title><rect class="rg-frame-plate" x="0" y="90" width="200" height="60"/></g>
-    `);
-
-    applyDiagramOverviewCaptions(svg, 0.4);
-
-    const captions = [...svg.querySelectorAll("text.overview-caption")];
-    expect(captions).toHaveLength(2);
-    expect(Number(captions[1]?.getAttribute("y"))).toBe(
-      Number(captions[0]?.getAttribute("y")) + 16 / 0.4,
-    );
-  });
-
-  it("keeps a top-edge narrow caption inside the frame", () => {
-    const svg = createSvg(`
-      <g class="vnet-frame"><title>vnet-avd-hi-nprd</title><rect x="0" y="0" width="200" height="60"/></g>
-    `);
-
-    applyDiagramOverviewCaptions(svg, 0.4);
-
-    const text = svg.querySelector("text.overview-caption");
-    expect(Number(text?.getAttribute("y"))).toBe(14 / 0.4);
-    expect(text).toHaveAttribute("clip-path");
-    expect(svg.querySelector("rect.overview-caption-halo")).toBeNull();
-  });
-
   it("keeps the full narrow caption in hierarchy mode", () => {
     const svg = createSvg(`
-      <g class="vnet-frame"><title>vnet-avd-hi-nprd</title><rect x="0" y="150" width="200" height="90"/></g>
-      <g class="node" transform="translate(20 170)"><rect class="node-card" width="10" height="10"/><text>card</text></g>
+      <g class="vnet-frame"><title>vnet-avd-hi-nprd</title><rect x="0" y="0" width="200" height="90"/></g>
+      <g class="node" transform="translate(20 20)"><rect class="node-card" width="10" height="10"/><text>card</text></g>
     `);
 
     applyDiagramOverviewCaptions(svg, 0.2);
