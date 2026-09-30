@@ -8455,3 +8455,4 @@
 {"at":"2026-09-30T23:05:07.4550212Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs,ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
 {"at":"2026-09-30T23:10:21.2626852Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs,ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
 {"at":"2026-09-30T23:14:13.8050284Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-09-30T23:26:24.8897173Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs,ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs,ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs"]}

@@ -1,5 +1,10 @@
+using System.Collections.Immutable;
+
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Testing;
 
 namespace ArchLucid.Analyzers.Tests;
@@ -770,6 +775,43 @@ public sealed class ReadOnlyController(IAuditService auditService) : ControllerB
     }
 
     [Fact]
+    public async Task AL0003_reports_mutating_action_in_referenced_controller_base_assembly()
+    {
+        MetadataReference sharedControllerReference = BuildSharedControllerReference();
+        CSharpCompilation apiCompilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    """
+namespace ArchLucid.Api.Probe
+{
+    public sealed class ReferencedBaseDerivedController : Shared.Controllers.SharedMutatingController
+    {
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences().Append(sharedControllerReference),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        INamedTypeSymbol derivedType =
+            apiCompilation.GetTypeByMetadataName("ArchLucid.Api.Probe.ReferencedBaseDerivedController")!;
+        Assert.Equal("SharedMutatingController", derivedType.BaseType?.Name);
+        IMethodSymbol inheritedPost = derivedType.BaseType!.GetMembers("Post").OfType<IMethodSymbol>().Single();
+        Assert.Contains(inheritedPost.GetAttributes(), attribute =>
+            attribute.AttributeClass?.Name == "HttpPostAttribute");
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await apiCompilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new MutatingControllerAuditAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Contains(diagnostics, diagnostic =>
+            diagnostic.Id == Al0003MutatingControllerAuditDescriptor.Rule.Id &&
+            diagnostic.GetMessage().Contains("SharedMutatingController.Post", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_expression_bodied_HttpPost_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +
@@ -803,4 +845,42 @@ public sealed class ExpressionBodyController : ControllerBase
 
     private static Solution MarkAssemblyAsArchLucidApi(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
+
+    private static MetadataReference BuildSharedControllerReference()
+    {
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "Shared.Controllers",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AuditAndMvcStubs +
+                    """
+
+namespace Shared.Controllers
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public abstract class SharedMutatingController : ControllerBase
+{
+    [HttpPost("x")]
+    public IActionResult Post() => Ok();
+}
+}
+""")
+            ],
+            TrustedPlatformReferences(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        using MemoryStream image = new();
+        EmitResult emit = compilation.Emit(image);
+        Assert.True(emit.Success, string.Join(Environment.NewLine, emit.Diagnostics));
+
+        return MetadataReference.CreateFromImage(image.ToArray());
+    }
+
+    private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
+        ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Where(path => !path.Contains("Microsoft.AspNetCore", StringComparison.OrdinalIgnoreCase))
+            .Select(path => MetadataReference.CreateFromFile(path));
 }

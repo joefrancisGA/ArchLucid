@@ -9777,15 +9777,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 16
-- **bugs-found:** 17
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-05 — AL0003 missed `[MutatingAuditExcluded]` on implemented interface methods
+- **hunts:** 17
+- **bugs-found:** 18
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-30
+- **last-bug:** 2026-09-30 — AL0003 missed mutating actions inherited from referenced controller assemblies
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2275 (seed-only): reseeded security-analyzers with `-Hint security analyzers`; no new hunt-ready rows.
+
+2026-09-30 thorough hunt (hit): cheap-disproved the `var` inferred-type candidate because `AnalyzeIdentifierName` checks `ILocalSymbol.Type`; proved that `MutatingControllerAuditAnalyzer` scanned only current-compilation method syntax and missed a tracked action inherited from a referenced controller assembly; fixed referenced-base traversal and added a compiled-reference regression; 58 scoped analyzer tests passed.
 
 ### Hypotheses
 
@@ -9829,8 +9831,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-30 seed hunt (seed-only): re-read the three security analyzer implementations and their scoped tests; all 57 tests passed; retained two concrete analyzer blind-spot candidates for a later repro pass.
 
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` does not inspect the inferred type of a `var` local whose referenced method returns `ClaimsPrincipal` or `IHttpContextAccessor`, so a banned tenant-identity type from a compiled dependency may cross the inner-layer boundary without ARCH001 (reachability: inner-layer code can assign a referenced boundary/factory method result to `var`).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` scans only `MethodDeclarationSyntax` bodies in the current API compilation, so a mutating controller action inherited from a referenced base assembly may bypass AL0003 when its implementation body is not present in the analyzed syntax trees (reachability: API controllers can inherit shared controller actions from referenced assemblies).
+- [x] (invalid) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` misses the inferred type of a `var` local — cheap-disproof 2026-09-30: `AnalyzeIdentifierName` reads `ILocalSymbol.Type`, so a `var` local whose referenced method returns `ClaimsPrincipal` or `IHttpContextAccessor` is already checked.
+- [x] (proven) `MutatingControllerAuditAnalyzer` misses tracked actions inherited from referenced controller assemblies — **hit 2026-09-30:** semantic-model analysis visited only current-compilation `MethodDeclarationSyntax` bodies, so an API controller inheriting a `[HttpPost]` action from a referenced base assembly emitted no AL0003; fixed by traversing referenced base-controller methods with existing exclusion, allowlist, verb, and shadow checks; regression `AL0003_reports_mutating_action_in_referenced_controller_base_assembly`.
 
 ---
 

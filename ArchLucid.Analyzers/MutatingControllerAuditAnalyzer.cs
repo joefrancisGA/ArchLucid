@@ -61,6 +61,14 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 compilationStartAnalysisContext.CancellationToken);
 
         compilationStartAnalysisContext.RegisterSemanticModelAction(AnalyzeSemanticModel);
+        compilationStartAnalysisContext.RegisterSymbolAction(
+            symbolContext => AnalyzeReferencedBaseActions(
+                symbolContext,
+                controllerBaseType,
+                nonActionAttributeType,
+                exclusionAttribute,
+                allowFqEntries),
+            SymbolKind.NamedType);
         return;
 
         void AnalyzeSemanticModel(SemanticModelAnalysisContext semanticModelAnalysisContext)
@@ -120,6 +128,53 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 semanticModelAnalysisContext.ReportDiagnostic(
                     Al0003MutatingControllerAuditDescriptor.Create(identifierLocationScoped,
                         fqAllowlistKeyScoped));
+            }
+        }
+    }
+
+    private static void AnalyzeReferencedBaseActions(
+        SymbolAnalysisContext context,
+        INamedTypeSymbol controllerBaseType,
+        INamedTypeSymbol? nonActionAttributeType,
+        INamedTypeSymbol? exclusionAttribute,
+        ImmutableHashSet<string> allowFqEntries)
+    {
+        if (context.Symbol is not INamedTypeSymbol controllerType ||
+            controllerType.TypeKind != TypeKind.Class ||
+            !InheritsControllerBase(controllerType, controllerBaseType))
+        {
+            return;
+        }
+
+        for (INamedTypeSymbol? baseType = controllerType.BaseType;
+             baseType is not null &&
+             !SymbolEqualityComparer.Default.Equals(baseType, controllerBaseType);
+             baseType = baseType.BaseType)
+        {
+            foreach (IMethodSymbol method in baseType.GetMembers().OfType<IMethodSymbol>())
+            {
+                if (method.DeclaringSyntaxReferences.Length > 0 ||
+                    method.IsAbstract ||
+                    !MethodIsCandidateApiAction(method, controllerBaseType, nonActionAttributeType) ||
+                    !MethodSpecifiesTrackedVerb(method) ||
+                    IsShadowedVirtualMutatingAction(method, context.Compilation) ||
+                    MutatingAuditExcludeApplies(exclusionAttribute, method) ||
+                    allowFqEntries.Contains(FormatAllowlistKey(method)))
+                {
+                    continue;
+                }
+
+                Location? location = controllerType.Locations.FirstOrDefault();
+
+                if (location is null)
+                {
+                    continue;
+                }
+
+                context.ReportDiagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Create(
+                        location,
+                        FormatAllowlistKey(method)));
             }
         }
     }
