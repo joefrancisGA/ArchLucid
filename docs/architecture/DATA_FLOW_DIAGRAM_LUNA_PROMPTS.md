@@ -1,5 +1,5 @@
-> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, stop showing compiler comments in Declared pipeline wiring, and replace the blue compute pictogram on external linked services with the official icon. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-03-linked-service-icons.md`](../../.cursor/prompts/data-flow-diagram-03-linked-service-icons.md)
+> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, stop hiding inferred linked-service edges behind the cross-group filter, stop showing compiler comments in Declared pipeline wiring, and replace the blue compute pictogram on external linked services with the official icon. Internal engineering only.
+> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-04-paint-inferred-links.md`](../../.cursor/prompts/data-flow-diagram-04-paint-inferred-links.md)
 
 # Data flow diagram — Luna prompts
 
@@ -11,13 +11,18 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 
 | ID | Prompt | Intent |
 |----|--------|--------|
-| **DFV-01** | [data-flow-diagram-01-draw-relationships.md](../../.cursor/prompts/data-flow-diagram-01-draw-relationships.md) | Draw every counted relationship. The sky-lane vertical currently runs through wider cards, `TryRoute` returns null, and the SVG drops the edge. |
+| **DFV-01** | [data-flow-diagram-01-draw-relationships.md](../../.cursor/prompts/data-flow-diagram-01-draw-relationships.md) | Draw every counted relationship that reaches the router. Shipped in PR 4114. The sky-lane vertical used to run through wider cards, `TryRoute` returned null, and the SVG dropped the edge. |
 | **DFV-02** | [data-flow-diagram-02-hide-compiler-comments.md](../../.cursor/prompts/data-flow-diagram-02-hide-compiler-comments.md) | Keep the honesty sentences. Stop joining provenance comments into the summary and stop listing seed ids on the page. |
 | **DFV-03** | [data-flow-diagram-03-linked-service-icons.md](../../.cursor/prompts/data-flow-diagram-03-linked-service-icons.md) | Map `arm.externalLinkedServiceType` to the official icon. Non-Azure connectors use Resource Linked. Access connectors stay pictograms. |
+| **DFV-04** | [data-flow-diagram-04-paint-inferred-links.md](../../.cursor/prompts/data-flow-diagram-04-paint-inferred-links.md) | Paint `likely ·` linked-service edges on Data flow with the checkbox off. Hide `likely ·` and `applies` on other diagrams only when the resource groups differ. |
 
 ## Run order
 
-**01 → owner look → 02 → owner look → 03.** Each later prompt starts from the accepted branch of the previous one only when that branch changed files the next prompt reads. DFV-02 does not depend on DFV-01. Do not run two of these in one session.
+**01 is on `master` (PR 4114).** The canvas stayed empty because the fan-out filter removes inferred edges before routing. Next: **04 → owner look**. **02** and **03** do not depend on 04. Do not run two of these in one session.
+
+## After PR 4114
+
+A second look at the same snapshot still showed no connectors. `DiagramCrossGroupFanOutCanvasExclusion.ShouldExclude` drops every `likely ·` or `applies` edge once both ends have a resource group. It does not compare the groups. External linked-service ids (`adf-external:{factoryArmId}|{name}`) parse to the factory's resource group, so those same-group edges are dropped too. DFV-04 is that fix. Do not reopen the router.
 
 ## Already true — do not redo
 
