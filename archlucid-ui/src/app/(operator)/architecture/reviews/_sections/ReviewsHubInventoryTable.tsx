@@ -37,7 +37,12 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
           <span className="sr-only">Pinned</span>
           <ReviewPinGlyph filled={false} className="h-3.5 w-3.5 text-al-text-secondary" />
         </EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className={REVIEW_TITLE_COLUMN_CLASS}>Review</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className={REVIEW_TITLE_COLUMN_CLASS}>
+          <span>Review</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Open the review package represented by this row.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
           <span>Architecture</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -68,7 +73,12 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
             The person recorded as responsible for this review.
           </span>
         </EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Updated</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The last recorded package update, not the latest Azure capture.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">
           <span>Findings</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>

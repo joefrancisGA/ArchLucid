@@ -105,6 +105,9 @@ export function DriftChangesPagination(props: DriftChangesPaginationProps): Reac
         </div>
         <div className="grid gap-1">
           <Label htmlFor="infra-drift-changes-page-size">{DRIFT_CHANGES_PAGE_SIZE_LABEL}</Label>
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Changes display density only; it does not change the comparison.
+          </span>
           <select
             id="infra-drift-changes-page-size"
             className={cn(
