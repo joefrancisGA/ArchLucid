@@ -26414,7 +26414,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-30
@@ -26423,6 +26423,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **code-changed-since:** 0
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-09-30 seed hunt (seed-only): re-read the orchestrator/cache slice; 61 scoped tests passed; retained two concrete cache candidates for the next repro pass.
 
 ### Hypotheses
 
@@ -26443,6 +26445,9 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `FinalizeCoalescedReviewResult` / `ApplyCacheHitPolicy` — identical incomplete-framing rerun cache hit clears `ReviewCompleteBlocked` — **cheap-disproof 2026-09-08 (#1309):** intentional analysis-only cache-hit isolation; `RunAsync_second_identical_incomplete_framing_request_cache_hit_clears_review_complete_blocked`
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired entry TTL refresh extends wall-clock retention without re-evaluating manifest inputs — **cheap-disproof 2026-09-08 (#1316):** intentional improve-loop pin semantics; same storage key implies unchanged manifest hash; `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`; tombstoned runs still miss (`TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`)
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` / `ClosedLoopContinueRunSingleFlight` — publish vs analysis in-flight partitions (`publish=1` vs `publish=0`) can double-run identical manifest under concurrent mixed intent — **cheap-disproof 2026-09-08 (#1316):** intentional flight partition via `ReviewCacheKeyBuilder.BuildInFlight`; publish requires live adversarial pass (`RunAsync_publish_request_bypasses_review_cache_hit`); regression `CoalesceAsync_does_not_share_flight_across_publish_intent`
+
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys (reachability: multiple uploaded architecture files can arrive with the same client-visible file name and content type).
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request (reachability: callers may omit optional `ClosedLoopReasoningRequest.RunId` for anonymous/new analyses).
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder; no new reachable candidate emerged; 61 scoped tests passed.
 
