@@ -759,6 +759,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           aria-label="Resource identifiers"
           data-testid="infra-resource-hub-identifier-strip"
         >
+          <p className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.helper)}>
+            These identifiers locate the resource in captured inventory; they are not editable Azure settings.
+          </p>
           <dl className="m-0 grid gap-2 text-sm md:grid-cols-2">
             <div>
               <dt className="font-medium">{GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL}</dt>
@@ -830,17 +833,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       ) : null}
 
       {loadError != null ? (
-        <EnterpriseCompactEmptyState
-          role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-resource-hub-load-error"
-          footer={
-            <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
-              Retry
-            </Button>
-          }
-        />
+        <>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            This page could not load captured evidence. It does not prove the Azure resource is unavailable.
+          </p>
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-resource-hub-load-error"
+            footer={
+              <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
+                Retry
+              </Button>
+            }
+          />
+        </>
       ) : null}
 
       {loading && hub == null ? (
@@ -866,14 +874,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               ))}
             </EnterpriseTabsList>
             {loading ? (
-              <p
-                className={cn("m-0 inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
-                role="status"
-                data-testid="infra-resource-hub-refreshing"
-              >
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Refreshing…
-              </p>
+              <div className="space-y-1">
+                <p
+                  className={cn("m-0 inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
+                  role="status"
+                  data-testid="infra-resource-hub-refreshing"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Refreshing…
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Refreshing reloads the evidence hub; it does not recapture Azure inventory.
+                </p>
+              </div>
             ) : null}
             {auditScopeActive ? (
               <InfraEvidenceAuditScopeChip
@@ -885,6 +898,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </div>
 
           <EnterpriseTabsContent value="overview" className="mt-4 space-y-4">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Overview combines the selected resource&apos;s captured configuration, findings, and recent changes.
+            </p>
             {hub.auditLineageLink.available !== true ? (
               <InfraAuditLineageUnavailableBanner
                 degradedReason={hub.auditLineageLink.degradedReason}
@@ -1238,13 +1254,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Recent changes</h2>
                   {hub.recentChanges.length > 5 ? (
-                    <Link
-                      className={OPERATOR_LINK.inline}
-                      href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext, workQueue)}
-                      data-testid="infra-resource-hub-overview-view-all-drift"
-                    >
-                      View all {hub.recentChanges.length} in Drift
-                    </Link>
+                    <div className="flex flex-col items-end gap-1">
+                      <Link
+                        className={OPERATOR_LINK.inline}
+                        href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext, workQueue)}
+                        data-testid="infra-resource-hub-overview-view-all-drift"
+                      >
+                        View all {hub.recentChanges.length} in Drift
+                      </Link>
+                      <span className={cn("text-right", OPERATOR_TYPOGRAPHY.helper)}>
+                        Opens all captured changes for this resource in the selected snapshot context.
+                      </span>
+                    </div>
                   ) : null}
                 </div>
                 <ResourceHubDriftChangesTable
@@ -1351,6 +1372,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{hub.diagramCorrespondence.explainText}</p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  This explanation describes the recorded correspondence result, not observed runtime traffic.
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Reconciliation records correspondence work; it does not change the diagram or Azure.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -1389,11 +1413,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </div>
               </section>
             ) : (
-              <EnterpriseCompactEmptyState
-                title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE}
-                description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
-                testId="infra-resource-hub-diagram-empty"
-              />
+              <>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  No correspondence was recorded for this resource in the selected snapshot.
+                </p>
+                <EnterpriseCompactEmptyState
+                  title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE}
+                  description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
+                  testId="infra-resource-hub-diagram-empty"
+                />
+              </>
             )}
           </EnterpriseTabsContent>
 
@@ -1782,6 +1811,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 className={cnCardDashed}
                 data-testid="infra-resource-hub-audit-degraded"
               >
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  No audit evidence snapshot currently references this resource; this is not evidence that the control is absent.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {hub.auditLineageLink.degradedReason ??
                     "No audit evidence snapshot rows reference this cloud resource yet."}

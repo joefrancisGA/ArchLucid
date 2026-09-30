@@ -48,11 +48,6 @@ internal static class DiagramCrossGroupFanOutCanvasExclusion
             return false;
         }
 
-        if (string.Equals(fromGroup, toGroup, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
         return IsHiddenFanOutLabel(edge.Label);
     }
 

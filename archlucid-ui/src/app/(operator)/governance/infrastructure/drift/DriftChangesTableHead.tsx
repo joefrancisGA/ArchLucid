@@ -85,10 +85,19 @@ export function DriftChangesTableHead(props: DriftChangesTableHeadProps): React.
               Change categories describe what differed between the selected snapshots: Added, Removed, Changed, and Unchanged.
             </span>
             <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              These are comparison results, not remediation state.
+            </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Unchanged means compared inventory values matched; it does not mean the resource is healthy.
+            </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Rows are grouped by resource so related property changes can be reviewed together.
             </span>
             <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Risk is the impact classification assigned to this change.
+            </span>
+            <span className={cn("ml-3 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Property filtering matches the captured property name. Risk filtering narrows the recorded impact classification.
             </span>
           </th>
         </tr>
