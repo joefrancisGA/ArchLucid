@@ -9750,7 +9750,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-13
@@ -18559,6 +18559,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **code-changed-since:** yes
 
 2026-09-30 seed hunt (seed-only): inspected the configured Safety and Http paths; they expose only the content-safety interface and transport settings, while the actual SSRF guard is outside this zone and its known candidates are closed; no new reachable candidate emerged.
+
+2026-09-30 seed hunt (seed-only): re-read the configured Safety and Http paths; they still expose only the content-safety interface and transport settings, with no new reachable candidate.
 
 2026-09-12 thorough hunt #1954 (dry): cheap-disproof closed integration outbound client candidate already fixed in #1928; no open hunt-ready rows.
 
