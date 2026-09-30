@@ -12,6 +12,13 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly seedNodeId?: string | null;
   /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
   readonly outlineOnlyOnCanvas?: boolean;
+  readonly unresolvedRelationshipDetails?: readonly string[];
+};
+
+export type InfraEvidenceMermaidLedgerDrop = {
+  readonly reason: string;
+  readonly from: string;
+  readonly to: string | null;
 };
 
 export type InfraEvidenceDiagramOutlineEdgeSource =
@@ -37,6 +44,7 @@ export type InfraEvidenceMermaidOutlineEdge = {
 export type InfraEvidenceMermaidOutline = {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly edges: readonly InfraEvidenceMermaidOutlineEdge[];
+  readonly ledgerDrops?: readonly InfraEvidenceMermaidLedgerDrop[];
 };
 
 const NODE_WITH_LABEL =
@@ -153,7 +161,9 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
 const OUTLINE_METADATA_TOKEN =
-  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only|al-unresolved)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+
+const LEDGER_DROP_COMMENT = /^%%\s+al-ledger-drop\s+(\S+)\s+(\S+)\s+(\S+)/u;
 
 const EDGE_OUTLINE_METADATA_TOKEN =
   /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
@@ -164,6 +174,7 @@ type OutlineNodeMetadata = {
   readonly connectionState: InfraEvidenceMermaidOutlineNode["connectionState"];
   readonly seedNodeId: string | null;
   readonly outlineOnlyOnCanvas: boolean;
+  readonly unresolvedRelationshipDetails: readonly string[];
 };
 
 type OutlineEdgeMetadata = {
@@ -199,6 +210,7 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let connectionState: InfraEvidenceMermaidOutlineNode["connectionState"] = null;
   let seedNodeId: string | null = null;
   let outlineOnlyOnCanvas = false;
+  const unresolvedRelationshipDetails: string[] = [];
 
   for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
     const key = match[1];
@@ -234,13 +246,31 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     if (key === "al-outline-only" && (value === "true" || value === "1")) {
       outlineOnlyOnCanvas = true;
     }
+
+    if (key === "al-unresolved") {
+      unresolvedRelationshipDetails.push(value);
+    }
   }
 
-  return { resourceType, resourceGroup, connectionState, seedNodeId, outlineOnlyOnCanvas };
+  return {
+    resourceType,
+    resourceGroup,
+    connectionState,
+    seedNodeId,
+    outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails,
+  };
 }
 
 function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
-  return { resourceType: null, resourceGroup: null, connectionState: null, seedNodeId: null, outlineOnlyOnCanvas: false };
+  return {
+    resourceType: null,
+    resourceGroup: null,
+    connectionState: null,
+    seedNodeId: null,
+    outlineOnlyOnCanvas: false,
+    unresolvedRelationshipDetails: [],
+  };
 }
 
 function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
@@ -399,6 +429,10 @@ function mergeOutlineNodeMetadata(
     connectionState: preferred.connectionState ?? fallback.connectionState,
     seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
     outlineOnlyOnCanvas: preferred.outlineOnlyOnCanvas || fallback.outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails:
+      preferred.unresolvedRelationshipDetails.length > 0
+        ? preferred.unresolvedRelationshipDetails
+        : fallback.unresolvedRelationshipDetails,
   };
 }
 
@@ -417,6 +451,10 @@ function withPrecedingMetadata(
     connectionState: node.connectionState ?? preceding.connectionState,
     seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
     outlineOnlyOnCanvas: node.outlineOnlyOnCanvas === true || preceding.outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails:
+      preceding.unresolvedRelationshipDetails.length > 0
+        ? preceding.unresolvedRelationshipDetails
+        : node.unresolvedRelationshipDetails,
   };
 }
 
@@ -461,6 +499,10 @@ function readNodeToken(
     connectionState: metadata.connectionState,
     seedNodeId: metadata.seedNodeId,
     outlineOnlyOnCanvas: metadata.outlineOnlyOnCanvas ? true : undefined,
+    unresolvedRelationshipDetails:
+      metadata.unresolvedRelationshipDetails.length > 0
+        ? metadata.unresolvedRelationshipDetails
+        : undefined,
   };
 }
 
@@ -497,6 +539,13 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, outlineOnlyOnCanvas: true });
+    }
+
+    if ((existing.unresolvedRelationshipDetails?.length ?? 0) === 0
+      && (node.unresolvedRelationshipDetails?.length ?? 0) > 0) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, unresolvedRelationshipDetails: node.unresolvedRelationshipDetails });
     }
 
     return;
@@ -598,6 +647,7 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
+  const ledgerDrops: InfraEvidenceMermaidLedgerDrop[] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
   let pendingEdgeMetadata: OutlineEdgeMetadata = emptyOutlineEdgeMetadata();
@@ -628,6 +678,16 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     // Own-line comments: mermaid.js only strips %% at line start. Inventory metadata
     // is emitted that way so the diagram parses; attach tokens to the next node.
     if (line.startsWith("%%")) {
+      const ledgerMatch = LEDGER_DROP_COMMENT.exec(line);
+
+      if (ledgerMatch != null) {
+        ledgerDrops.push({
+          reason: ledgerMatch[1],
+          from: ledgerMatch[2],
+          to: ledgerMatch[3] === "_" ? null : ledgerMatch[3],
+        });
+      }
+
       pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
       pendingEdgeMetadata = mergeOutlineEdgeMetadata(parseOutlineEdgeMetadata(line), pendingEdgeMetadata);
       continue;
@@ -727,5 +787,6 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   return {
     nodes: [...nodeMap.values()],
     edges,
+    ledgerDrops,
   };
 }

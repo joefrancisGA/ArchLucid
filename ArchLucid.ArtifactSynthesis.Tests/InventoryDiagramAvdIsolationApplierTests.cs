@@ -40,17 +40,16 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     private readonly DiagramAstFromGraphCompiler compiler = new();
 
     [Fact]
-    public void Compile_full_subscription_omits_avd_internal_resources()
+    public void Compile_full_subscription_omits_avd_internal_resources_and_shows_count_boundary()
     {
         GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: false);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == HostPoolArmId);
-        ast.Nodes.Should().NotContain(node => node.ArmResourceId == WorkspaceArmId);
-        ast.Nodes.Should().NotContain(node => node.ArmResourceId == ApplicationGroupArmId);
-        ast.Nodes.Should().NotContain(node => node.ArmResourceId == SessionHostArmId);
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == AvdOnlyVmArmId);
+        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary)
+            .Which.Label.Should().Be("Azure Virtual Desktop · 1 host pool · 1 session host");
     }
 
     [Fact]
@@ -92,13 +91,13 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     }
 
     [Fact]
-    public void Compile_full_subscription_omits_collapsed_avd_boundary_for_shared_firewall_edge()
+    public void Compile_full_subscription_shows_collapsed_boundary_for_shared_firewall_edge()
     {
         GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: true);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
+        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary);
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == HostPoolArmId);
         ast.Nodes.Should().Contain(node => node.ArmResourceId == FirewallArmId);
     }
@@ -115,23 +114,71 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
         ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
     }
 
-    private static GraphSnapshot BuildAvdTopologyGraph(bool includeDualRoleVm, bool includeFirewallEdge)
+    [Fact]
+    public void Compile_full_subscription_omits_session_host_vm_when_name_matches_without_session_host_edge()
     {
+        GraphSnapshot graph = BuildAvdTopologyGraph(
+            includeDualRoleVm: false,
+            includeFirewallEdge: false,
+            includeSessionHostToVmEdge: false,
+            sessionHostVmName: "host1");
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node =>
+            node.ArmResourceId != null
+            && node.ArmResourceId.Contains("/virtualMachines/host1", StringComparison.Ordinal));
+        ast.Nodes.Should().ContainSingle(node => node.IsAvdCollapsedBoundary);
+    }
+
+    [Fact]
+    public void Compile_full_subscription_omits_nic_exclusively_attached_to_avd_only_vm()
+    {
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/avd-nic";
+
+        GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: false, includeFirewallEdge: false);
+        graph.Nodes.Add(CreateTopologyNode("avd-nic-node", nicArmId, "Microsoft.Network/networkInterfaces"));
+        graph.Edges.Add(CreateEdge("avd-nic-node", "avd-vm-node", GraphEdgeTypes.ConnectsTo));
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node => node.ArmResourceId == nicArmId);
+        ast.Nodes.Should().NotContain(node => node.ArmResourceId == AvdOnlyVmArmId);
+    }
+
+    private static GraphSnapshot BuildAvdTopologyGraph(
+        bool includeDualRoleVm,
+        bool includeFirewallEdge,
+        bool includeSessionHostToVmEdge = true,
+        string sessionHostVmName = "avd01")
+    {
+        string avdVmArmId =
+            $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/{sessionHostVmName}";
+
         List<GraphNode> nodes =
         [
             CreateTopologyNode("host-pool-node", HostPoolArmId, "Microsoft.DesktopVirtualization/hostPools"),
             CreateTopologyNode("workspace-node", WorkspaceArmId, "Microsoft.DesktopVirtualization/workspaces"),
             CreateTopologyNode("app-group-node", ApplicationGroupArmId, "Microsoft.DesktopVirtualization/applicationGroups"),
             CreateTopologyNode("session-host-node", SessionHostArmId, "Microsoft.DesktopVirtualization/hostPools/sessionHosts"),
-            CreateTopologyNode("avd-vm-node", AvdOnlyVmArmId, "Microsoft.Compute/virtualMachines"),
+            CreateTopologyNode("avd-vm-node", avdVmArmId, "Microsoft.Compute/virtualMachines"),
         ];
 
         List<GraphEdge> edges =
         [
             CreateEdge("workspace-node", "app-group-node", GraphEdgeTypes.Contains),
             CreateEdge("app-group-node", "host-pool-node", GraphEdgeTypes.Contains),
-            CreateEdge("session-host-node", "avd-vm-node", GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryAvdSessionHostToVm),
         ];
+
+        if (includeSessionHostToVmEdge)
+        {
+            edges.Add(CreateEdge(
+                "session-host-node",
+                "avd-vm-node",
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.InventoryAvdSessionHostToVm));
+        }
 
         if (includeDualRoleVm)
         {

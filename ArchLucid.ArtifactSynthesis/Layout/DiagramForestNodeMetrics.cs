@@ -1,5 +1,7 @@
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
+using ArchLucid.ArtifactSynthesis.Models;
+
 public sealed record DiagramForestNodeMetrics(
     double Width,
     double Height,
@@ -9,4 +11,5 @@ public sealed record DiagramForestNodeMetrics(
     DiagramInventoryPictogramKind PictogramKind,
     AzureArchitectureIconCatalogEntry? AzureIcon,
     bool HasPrivateEndpointAccess,
+    IReadOnlyList<DiagramNsgInboundRuleChip> NsgInboundRuleChips,
     bool SuppressResourceGroupCaption = false);

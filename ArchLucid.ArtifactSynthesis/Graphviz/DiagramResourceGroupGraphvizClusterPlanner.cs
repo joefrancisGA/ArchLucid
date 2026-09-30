@@ -36,8 +36,19 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
             .OrderBy(node => node.OrderKey)
             .ThenBy(node => node.NodeId, StringComparer.Ordinal)
             .ToList();
+        bool vnetPrimary = IsVnetPrimaryTitle(ast.Title);
+        List<DiagramNode> sharedServiceNodes = vnetPrimary
+            ? renderableNodes
+                .Where(node => DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+                .ToList()
+            : [];
+        List<DiagramNode> clusterableNodes = vnetPrimary
+            ? renderableNodes
+                .Where(node => !DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+                .ToList()
+            : renderableNodes;
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> cells =
-            DiagramResourceGroupPacker.PartitionCells(renderableNodes);
+            DiagramResourceGroupPacker.PartitionCells(clusterableNodes);
         List<ClusterPlan> clusters = [];
 
         for (int cellIndex = 0; cellIndex < cells.Count; cellIndex++)
@@ -55,7 +66,18 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
                 cell.Nodes));
         }
 
+        if (sharedServiceNodes.Count > 0)
+        {
+            clusters.Add(new ClusterPlan("cluster_shared_services", "Shared services", sharedServiceNodes));
+        }
+
         return clusters;
+    }
+
+    private static bool IsVnetPrimaryTitle(string title)
+    {
+        return title.Contains("(FullSubscription)", StringComparison.OrdinalIgnoreCase)
+            || title.Contains("(Network)", StringComparison.OrdinalIgnoreCase);
     }
 
     public static HashSet<string> ResolveClusteredNodeIds(IReadOnlyList<ClusterPlan> clusters)
@@ -100,18 +122,24 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
         HashSet<string> resourceGroupNodeIds = resourceGroupCluster.Nodes
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> sharedServiceNodeIds = ast.Nodes
+            .Where(node => DiagramSharedServiceCatalog.IsSharedService(node.ArmResourceType))
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
         List<VnetClusterPlan> plans = [];
 
         foreach ((string vnetNodeId, IReadOnlySet<string> memberIds) in memberships)
         {
             if (!nodesById.TryGetValue(vnetNodeId, out DiagramNode? vnet)
-                || !resourceGroupNodeIds.Contains(vnetNodeId))
+                || !resourceGroupNodeIds.Contains(vnetNodeId)
+                || sharedServiceNodeIds.Contains(vnetNodeId))
             {
                 continue;
             }
 
             List<DiagramNode> members = memberIds
                 .Where(resourceGroupNodeIds.Contains)
+                .Where(nodeId => !sharedServiceNodeIds.Contains(nodeId))
                 .Where(nodesById.ContainsKey)
                 .Select(nodeId => nodesById[nodeId])
                 .OrderBy(node => node.OrderKey)

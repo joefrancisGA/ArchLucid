@@ -157,4 +157,11 @@ public class DiagramNode
         get;
         set;
     } = [];
+
+    /// <summary>Inbound allow-rule chips painted on the visible NSG owner (NR-13).</summary>
+    public List<DiagramNsgInboundRuleChip> NsgInboundRuleChips
+    {
+        get;
+        set;
+    } = [];
 }
