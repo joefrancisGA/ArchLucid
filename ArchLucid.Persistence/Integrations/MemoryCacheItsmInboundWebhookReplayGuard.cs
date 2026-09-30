@@ -17,7 +17,7 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
 
     private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-    private readonly ConcurrentDictionary<string, byte> _claimedKeys = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, object> _claimedKeys = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
     public Task<bool> HasSeenAsync(
@@ -52,16 +52,18 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
 
         string cacheKey = BuildCacheKey(tenantId, providerName, eventId);
 
-        if (!_claimedKeys.TryAdd(cacheKey, 0))
+        object claimToken = new();
+
+        if (!_claimedKeys.TryAdd(cacheKey, claimToken))
             return Task.FromResult(false);
 
         try
         {
-            _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
+            _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey, claimToken));
         }
         catch
         {
-            _claimedKeys.TryRemove(cacheKey, out _);
+            RemoveClaimIfCurrent(cacheKey, claimToken, _claimedKeys);
 
             throw;
         }
@@ -82,8 +84,9 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
         string cacheKey = BuildCacheKey(tenantId, providerName, eventId);
-        _claimedKeys.TryAdd(cacheKey, 0);
-        _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
+        object claimToken = new();
+        _claimedKeys.AddOrUpdate(cacheKey, claimToken, (_, _) => claimToken);
+        _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey, claimToken));
 
         return Task.CompletedTask;
     }
@@ -107,7 +110,7 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
         return Task.CompletedTask;
     }
 
-    private MemoryCacheEntryOptions CreateEntryOptions(string cacheKey)
+    private MemoryCacheEntryOptions CreateEntryOptions(string cacheKey, object claimToken)
     {
         MemoryCacheEntryOptions options = new()
         {
@@ -118,15 +121,26 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
         options.RegisterPostEvictionCallback(
             static (key, _, _, state) =>
             {
-                if (key is not string evictedKey || state is not ConcurrentDictionary<string, byte> claimedKeys)
+                if (key is not string evictedKey || state is not ClaimEvictionState evictionState)
                     return;
 
-                claimedKeys.TryRemove(evictedKey, out _);
+                RemoveClaimIfCurrent(evictedKey, evictionState.ClaimToken, evictionState.ClaimedKeys);
             },
-            _claimedKeys);
+            new ClaimEvictionState(_claimedKeys, claimToken));
 
         return options;
     }
+
+    private static void RemoveClaimIfCurrent(
+        string cacheKey,
+        object claimToken,
+        ConcurrentDictionary<string, object> claimedKeys) =>
+        ((ICollection<KeyValuePair<string, object>>)claimedKeys)
+            .Remove(new KeyValuePair<string, object>(cacheKey, claimToken));
+
+    private sealed record ClaimEvictionState(
+        ConcurrentDictionary<string, object> ClaimedKeys,
+        object ClaimToken);
 
     internal static string BuildCacheKey(Guid tenantId, string providerName, string eventId) =>
         $"itsm-inbound-webhook-replay:{tenantId:D}:{providerName.Trim().ToLowerInvariant()}:{eventId.Trim().ToLowerInvariant()}";
