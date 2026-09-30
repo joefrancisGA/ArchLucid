@@ -3238,7 +3238,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -5234,6 +5234,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 2026-09-30 seed hunt (seed-only): re-read the marketing route surfaces; the marketing test filter reported 442 passing and 26 failing tests, but the representative breadcrumb failures are stale because `OperatorPageBreadcrumb` intentionally returns null system-wide; no new reachable product candidate emerged.
+
+2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter again reported 442 passing and 26 failing tests with the same intentional breadcrumb-test mismatch; no new reachable product candidate emerged.
 
 2026-09-12 seed hunt #2086 (seed-only): reseeded llm-wallet; 17 scoped tests passed; no new hunt-ready rows
 
