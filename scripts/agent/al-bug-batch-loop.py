@@ -239,7 +239,7 @@ def update_zone_ledger(content: str, result: HuntResult) -> str:
         nonlocal block
         pattern = rf"(- \*\*{re.escape(field)}:\*\* ).*"
         if re.search(pattern, block):
-            block = re.sub(pattern, rf"\1{value}", block, count=1)
+            block = re.sub(pattern, rf"\g<1>{value}", block, count=1)
             return
 
         # Some older ledger zones omit last-hunt entirely. Without a persisted
