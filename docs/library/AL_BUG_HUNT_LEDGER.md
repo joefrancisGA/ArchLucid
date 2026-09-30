@@ -3104,10 +3104,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 26
+- **hunts:** 32
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -3238,7 +3238,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 15
+- **hunts:** 17
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -3848,7 +3848,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 20
+- **hunts:** 23
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -4422,10 +4422,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 253
+- **hunts:** 261
 - **bugs-found:** 484
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-11
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4464,7 +4464,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 11
+- **hunts:** 17
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -5584,10 +5584,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-07 — findings snapshot anchor ids not bound to golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -5638,7 +5638,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 20
+- **hunts:** 24
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -6263,7 +6263,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 22
+- **hunts:** 23
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
@@ -6919,7 +6919,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 5
+- **hunts:** 12
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -10975,10 +10975,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 9
+- **hunts:** 17
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-04 — confidence enrichment ignored recorded composite quality-gate rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12945,10 +12945,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 914
+- **hunts:** 922
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-14
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-13 — hunt #2475: InsertAsync silently overwrote duplicate identity id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -13133,10 +13133,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-28 — BFF session POST mapped zero expires_in to a one-hour cookie TTL
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -18260,10 +18260,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 7
+- **hunts:** 15
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-11 — at-sign-delimited resource tokens under-penalized duplication parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -18377,10 +18377,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-10
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -20383,10 +20383,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 936
+- **hunts:** 944
 - **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-25
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-15 — hunt #3528: spaced-slash `10 / weekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk` week UOM parity gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25254,10 +25254,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 9
+- **hunts:** 17
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-09 — org-required toggle on inactive platform pack bypassed inactive gate for enabled assignments and returned HTTP 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25304,10 +25304,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 11
+- **hunts:** 19
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-28
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-28 — pre-finalize checklist missed canonical N technology-ledger rows when run id was dashed D format
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25358,7 +25358,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 14
+- **hunts:** 16
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -25898,10 +25898,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — sponsor run collateral issue shell sign-in returnUrl
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26742,10 +26742,10 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26787,10 +26787,10 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 7
+- **hunts:** 15
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-12 — help-teams-integration TOC kept claim heading while header strip owns the band
 - **related-pd-tb:** none
 - **code-changed-since:** yes
