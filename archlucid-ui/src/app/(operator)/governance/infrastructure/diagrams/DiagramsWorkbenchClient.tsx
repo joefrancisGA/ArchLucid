@@ -2617,6 +2617,7 @@ export function DiagramsWorkbenchClient() {
             cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
+            outline={visibleMermaidOutline}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}

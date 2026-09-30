@@ -348,6 +348,15 @@ public sealed class DiagramForestVnetFrameLayoutTests
         XDocument svg = Render(ast);
         EdgeTitles(svg).Should().ContainSingle("private endpoint × 3");
         EdgeTitles(svg).Should().NotContain("private endpoint");
+        XElement bundledEdge = svg
+            .Descendants()
+            .Single(element =>
+                element.Attribute("class")?.Value == "edge"
+                && element.Descendants().Any(descendant => descendant.Name.LocalName == "title"
+                    && descendant.Value == "private endpoint × 3"));
+        bundledEdge.Attribute("data-bundle-from")?.Value
+            .Should().Be("vault-a vault-b vault-c");
+        bundledEdge.Attribute("data-bundle-to")?.Value.Should().Be("vnet");
         svg.Descendants().Count(element =>
                 element.Attribute("class")?.Value == "private-endpoint-access"
                 && element.Ancestors().Any(ancestor => ancestor.Attribute("class")?.Value == "node"))
