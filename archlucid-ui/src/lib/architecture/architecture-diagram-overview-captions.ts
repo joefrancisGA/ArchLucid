@@ -1,6 +1,7 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 export const DIAGRAM_OVERVIEW_CAPTION_MAX_SCALE = 0.45;
+export const OVERVIEW_CAPTION_MIN_FRAME_PX = 18;
 const OVERVIEW_CAPTION_FONT_SIZE_PX = 14;
 const MAX_OVERVIEW_NAME_LENGTH = 32;
 
@@ -111,42 +112,84 @@ function clearOverviewState(svg: SVGSVGElement): void {
   svg.querySelector("g.overview-captions")?.remove();
 }
 
-export function applyDiagramOverviewCaptions(svg: SVGSVGElement, drawnScale: number): void {
+export function readDiagramPaintedScale(svg: SVGSVGElement): number | null {
+  const viewBox = (svg.getAttribute("viewBox") ?? "").trim().split(/[\s,]+/u).map(Number);
+  const viewBoxWidth = viewBox[2];
+  const paintedWidth = svg.getBoundingClientRect().width;
+
+  if (!Number.isFinite(viewBoxWidth) || viewBoxWidth <= 0 || !Number.isFinite(paintedWidth) || paintedWidth <= 0) {
+    return null;
+  }
+
+  return paintedWidth / viewBoxWidth;
+}
+
+export function applyDiagramOverviewCaptions(svg: SVGSVGElement, paintedScale: number): void {
   clearOverviewState(svg);
 
-  if (!isDiagramOverviewScale(drawnScale)) {
+  if (!isDiagramOverviewScale(paintedScale)) {
     return;
   }
 
-  svg.querySelectorAll(
-    "g.node text, text.rg-frame-label, rect.rg-frame-label-halo, "
-      + "g.vnet-frame-caption text, rect.vnet-frame-label-halo, "
-      + "g.edge text.edge-label, g.edge-stub text",
-  ).forEach((element) => element.classList.add("diagram-overview-hidden"));
-
   const captions = document.createElementNS(SVG_NS, "g");
   captions.setAttribute("class", "overview-captions");
+  const defs = document.createElementNS(SVG_NS, "defs");
+  captions.appendChild(defs);
+  let captionCount = 0;
 
   svg.querySelectorAll("g.vnet-frame, g.rg-frame").forEach((frame) => {
     const rect = frameRect(frame);
     const name = frame.querySelector(":scope > title")?.textContent?.trim() ?? "";
 
-    if (rect === null || name.length === 0) {
+    if (
+      rect === null
+      || name.length === 0
+      || rect.height * paintedScale < OVERVIEW_CAPTION_MIN_FRAME_PX
+    ) {
       return;
     }
 
+    const clipId = `diagram-overview-clip-${captionCount}`;
+    const clipPath = document.createElementNS(SVG_NS, "clipPath");
+    clipPath.setAttribute("id", clipId);
+    const clipRect = document.createElementNS(SVG_NS, "rect");
+    clipRect.setAttribute("x", String(rect.x));
+    clipRect.setAttribute("y", String(rect.y));
+    clipRect.setAttribute("width", String(rect.width));
+    clipRect.setAttribute("height", String(rect.height));
+    clipPath.appendChild(clipRect);
+    defs.appendChild(clipPath);
+
+    const frameLabelSelector = frame.classList.contains("rg-frame")
+      ? "text.rg-frame-label, rect.rg-frame-label-halo"
+      : "g.vnet-frame-caption text, rect.vnet-frame-label-halo";
+    frame.querySelectorAll(frameLabelSelector).forEach((element) => {
+      element.classList.add("diagram-overview-hidden");
+    });
+    svg.querySelectorAll("g.node").forEach((node) => {
+      const center = readNodeCenter(node);
+      if (center !== null && isInside(center, rect)) {
+        node.querySelectorAll("text").forEach((element) => {
+          element.classList.add("diagram-overview-hidden");
+        });
+      }
+    });
+
     const caption = document.createElementNS(SVG_NS, "text");
     caption.setAttribute("class", "overview-caption");
-    caption.setAttribute("x", String(rect.x + rect.width / 2));
-    caption.setAttribute("y", String(rect.y + rect.height / 2));
-    caption.setAttribute("text-anchor", "middle");
-    caption.setAttribute("dominant-baseline", "middle");
-    caption.setAttribute("font-size", String(OVERVIEW_CAPTION_FONT_SIZE_PX / drawnScale));
+    caption.setAttribute("x", String(rect.x + 8 / paintedScale));
+    caption.setAttribute("y", String(rect.y + 14 / paintedScale));
+    caption.setAttribute("text-anchor", "start");
+    caption.setAttribute("font-size", String(OVERVIEW_CAPTION_FONT_SIZE_PX / paintedScale));
     caption.setAttribute("font-weight", "700");
     caption.setAttribute("fill", "#334155");
+    caption.setAttribute("clip-path", `url(#${clipId})`);
     caption.textContent = formatOverviewCaption(name, countNodesInside(svg, rect));
     captions.appendChild(caption);
+    captionCount += 1;
   });
 
-  svg.appendChild(captions);
+  if (captionCount > 0) {
+    svg.appendChild(captions);
+  }
 }

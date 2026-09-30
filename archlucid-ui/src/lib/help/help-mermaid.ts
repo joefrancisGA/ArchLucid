@@ -808,7 +808,11 @@ export function resolveMermaidViewportDefaultZoom(baseFit: MermaidViewportFitDim
     return 1;
   }
 
-  return baseFit.overflows ? baseFit.rawScale : 1;
+  return baseFit.overflows
+    ? baseFit.rawScale < 0.45
+      ? baseFit.rawScale
+      : baseFit.fitScale
+    : 1;
 }
 
 /** Drop cached ink viewBox when mermaid markup is replaced (new innerHTML). */
