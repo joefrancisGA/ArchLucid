@@ -1218,7 +1218,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             <p className="m-0 font-semibold">Questionable resource</p>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => setClickFocus(null)}
               aria-label="Close questionable resource explanation"
