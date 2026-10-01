@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.Contracts.Persistence.Graph;
+using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
