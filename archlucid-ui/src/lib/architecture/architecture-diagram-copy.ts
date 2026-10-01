@@ -113,7 +113,7 @@ export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = "Subscription map" as
 
 export const ARCHITECTURE_DIAGRAM_MAP_LABEL = "Map" as const;
 
-export const ARCHITECTURE_DIAGRAM_PLATE_LABEL = "Plate" as const;
+export const ARCHITECTURE_DIAGRAM_PLATE_LABEL = "Full plate" as const;
 
 export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
   "Focus the diagram, then Ctrl+scroll to zoom. + / − keys zoom. 0 or Fit in view resets to the fitted 100%." as const;
