@@ -91,7 +91,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
             renderableNodes,
-            resolvedOptions);
+            resolvedOptions,
+            visibleEdges,
+            IsDataFlowTitle(ast.Title));
         // Visio-style: resource groups are the canvas containers. Peering and
         // other edges still route between boxes after placement.
         IReadOnlyList<DiagramResourceGroupPacker.ResourceGroupCell> resourceGroupCells =
