@@ -9883,6 +9883,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-01 seed hunt (seed-only): repeated the selected safety and prompt-injection source review; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only): repeated source-level reseed of the safety and prompt-injection sanitizer scope; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only): reseeded the safety and prompt-injection sanitizer sources; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only): inspected the safety and prompt-injection sanitizers; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-09-28 seed hunt #155 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproof closed evidence-package scalar `SystemName` / `Environment` CRLF / newline / `\u2029` spoofing `Evidence Package:` pseudo-fields (#154 unicode paragraph evidence-package scalar class); regressions `SanitizeAsync_evidence_package_environment_paragraph_separator_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`, `SanitizeAsync_evidence_package_system_name_crlf_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`, `SanitizeAsync_evidence_package_environment_crlf_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`, and `SanitizeAsync_evidence_package_system_name_newline_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`; 573 scoped agent-runtime-safety tests passed.
 
 - [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer` — evidence-package `Environment` with embedded `\u2029` may spoof `Evidence Package:` pseudo-fields — **cheap-disproof 2026-09-28 seed hunt #155:** `SanitizeEvidencePackageScalars`; regression `SanitizeAsync_evidence_package_environment_paragraph_separator_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`
@@ -13142,6 +13150,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: retrieval
+
+2026-10-01 seed hunt (seed-only): inspected retrieval indexing, in-memory search, Azure scope filtering, query orchestration, structural chunking, and lexical reranking; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-27 seed hunt #38 (seed→hit): reseeded retrieval; proved `IndexDocumentsAsync` removed prior vectors before `MaxChunksPerIndexOperation` validation so cap failures left documents unsearchable while unchanged-hash retries skipped re-embedding; fixed by deferring `RemoveChunksForDocumentAsync` until after the cap check; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`; 351 scoped retrieval/indexing tests passed.
 
