@@ -3636,10 +3636,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-01
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3665,6 +3665,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ApplyBriefGrounding` drops contradicting `AddedServices` but not `AddedDatastores` when confirmed constraints mention HTTPS — **cheap-disproof 2026-09-09 seed hunt #1479:** brief grounding intentionally scopes to service-name contradiction (TB-2349); regression `ApplyBriefGrounding_filters_services_only_not_datastores`.
 
 2026-09-09 seed hunt #1479 (seed-only): reseeded storage-vs-data-category after exhaustion threshold; cheap-disproof closed Cost controls dedupe and brief-grounding datastore scope candidates; zone marked exhausted; 32 scoped Application tests passed.
+
+2026-10-01 seed hunt (seed-only): reopened by post-commit churn; re-read the two orchestration sources and found no new reachable category/alias candidate; 31 scoped post-processor/consistency-gate tests passed; zone remains exhausted.
 
 2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
 
