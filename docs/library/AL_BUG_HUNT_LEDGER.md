@@ -13215,6 +13215,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-01 seed hunt (seed-only): inspected retrieval indexing, in-memory vector search, query orchestration, reranking, and structural chunking; no hunt-ready row was promoted; seeded TopK-bound and non-positive chunk-size candidates; 351 scoped retrieval/indexing tests passed.
+
 2026-10-01 seed hunt (seed-only): extended the retrieval source review across Azure Search adapters, scope validation, summarization, chunking, and embedding caching; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): inspected retrieval indexing, in-memory search, Azure scope filtering, query orchestration, structural chunking, and lexical reranking; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -13306,6 +13308,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-09-12 seed hunt #1923 (seed-only): reseeded retrieval; scoped retrieval/indexing tests passed; no new hunt-ready defect proven this pass.
+
+### Hypotheses
+
+- [ ] (candidate) `InMemoryVectorIndex.SearchAsync` — a direct vector-index caller with a negative `RetrievalQuery.TopK` throws from `Enumerable.Take` instead of applying the retrieval contract's minimum bound; reachability: the index accepts `RetrievalQuery` directly and does not clamp `TopK`, while query-service callers clamp separately.
+- [ ] (candidate) `StructureAwareTextChunker.Chunk` — non-positive `maxChars` can silently return no chunks or produce invalid fallback behavior instead of rejecting an invalid chunking request; reachability: the public chunker accepts caller-supplied `maxChars` and `overlap` values without validation.
+
 ---
 
 ## Zone: ui-oidc
