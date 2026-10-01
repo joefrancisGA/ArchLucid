@@ -26653,10 +26653,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-27 — create-home findings empty state ignored in-progress when analysisStagesComplete omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26689,6 +26689,12 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `resolveRunDetailTabbedWorkspace` / `ReviewPackageWhatIfControl` — `pipelineInFlight={showProgressTracker && !manifestId}` while Activity still mounted tracker when `showProgressTracker && manifestId` — **hit 2026-09-26 thorough hunt:** fixed via `resolveReviewPackagePipelineInFlight(showProgressTracker)` (`stays in flight when progress tracker is on even if goldenManifestId is already on the run`)
 - [x] (proven) `RunDetailPageViewCreateHome` / `RunDetailReviewPackageStampViewport` — duplicate `RunDetailOverviewTransparencyTrail` on pre-manifest create-home column — **hit 2026-09-26 thorough hunt:** removed redundant create-home trail; stamp viewport owns pre-finalize trail (`does not duplicate the transparency trail above the create-home stamp viewport`)
 - [x] (proven) `RunDetailCreateHomeActivityPanel` — orientation `buildReviewWorkspaceTabHref` links omitted create-home intent — **hit 2026-09-26 seed hunt:** Open overview / Review findings / Open clarifications dropped `fromGeneration` + create intent; fixed with `includeCreateIntent: true` on all orientation tab hrefs
+
+- [ ] (candidate) `RunDetailFindingsWorkspace` classification-band URL sync — `classificationBand` commits with `history.replaceState` and listens only for `popstate`, so a same-route Next.js soft navigation that changes the classification query could leave the findings presentation on the prior band (reachability: the band is a live review-detail query surface; needs a concrete soft-navigation transition).
+- [ ] (candidate) `RunDetailFindingsWorkspace` list-view URL sync — `listView` has the same popstate-only synchronization and may ignore a same-route `findingsListView` query update from a soft link or command surface (reachability: list/table view is encoded in the review-detail URL; needs a concrete transition showing stale density mode).
+- [ ] (candidate) `page.tsx` route redirect context — the server route narrows `searchParams` to `fromGeneration` and `intent` and passes `searchForRedirect: null`, so a malformed/missing review id redirect may drop review workspace tab or disclosure query state (reachability: review-detail deep links carry `reviewTab` and disclosure parameters; needs the shared route to redirect this page while preserving those keys).
+
+2026-10-01 seed hunt (seed-only, hint `V`): reseeded review-detail workspace URL synchronization, findings controls, and server route query forwarding; seeded three concrete candidates, and 17 targeted review-detail tests passed with no hunt-ready defect to prove in this pass.
 
 2026-09-25 seed hunt (seed-only): reseeded ui-review-detail-workspace; no new hunt-ready hypotheses — deferred-explanation finding-count parity remains covered via `resolveRunDetailDeferredSurfaceFindingCount` / `resolveRunDetailOutcomeCardsFindingCountDisplay` on tab badges, outcome cards, policy callout, inspect checklist, and review-package summary; `RunExplanationSection` falls back to `summary.findingCount` inside deferred explanation load; 34 scoped RunDetail/reviewId unit tests passed.
 
