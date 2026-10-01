@@ -19,6 +19,88 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Render_data_flow_shows_human_type_captions_without_changing_other_modes()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "logic-connection",
+                    Label = "office365",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/connections",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "access-connector",
+                    Label = "unity-catalog-access-connector",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Databricks/accessConnectors",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "fabric",
+                    Label = "hihapfabriccapchynprd",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Fabric/capacities",
+                    OrderKey = 2,
+                },
+                new DiagramNode
+                {
+                    NodeId = "function",
+                    Label = "function-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    ArmResourceKind = "functionapp",
+                    OrderKey = 3,
+                },
+                new DiagramNode
+                {
+                    NodeId = "mysql-link",
+                    Label = "azuremysql1",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "AzureMySql",
+                    OrderKey = 4,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult dataFlowResult = renderer.Render(ast);
+
+        dataFlowResult.Succeeded.Should().BeTrue(dataFlowResult.Error);
+        dataFlowResult.Svg.Should().Contain("Logic App connection");
+        dataFlowResult.Svg.Should().Contain("Access connector");
+        dataFlowResult.Svg.Should().Contain("Fabric capacity");
+        dataFlowResult.Svg.Should().Contain("Function App");
+        dataFlowResult.Svg.Should().Contain("MySQL link");
+        dataFlowResult.Svg.Should().NotContain("Topology resource");
+        XDocument.Parse(dataFlowResult.Svg!)
+            .Descendants()
+            .Where(element => element.Name.LocalName == "text")
+            .Select(element => element.Value)
+            .Should()
+            .NotContain("App Service");
+
+        ast.Title = "Azure inventory (FullSubscription)";
+        DiagramForestLayoutResult fullSubscriptionResult = renderer.Render(ast);
+
+        fullSubscriptionResult.Succeeded.Should().BeTrue(fullSubscriptionResult.Error);
+        List<string> fullSubscriptionText = XDocument.Parse(fullSubscriptionResult.Svg!)
+            .Descendants()
+            .Where(element => element.Name.LocalName == "text")
+            .Select(element => element.Value)
+            .ToList();
+        fullSubscriptionText.Should().NotContain("Logic App connection");
+        fullSubscriptionText.Should().NotContain("Access connector");
+        fullSubscriptionText.Should().NotContain("MySQL link");
+    }
+
+    [Fact]
     public void Render_data_flow_shows_consumer_status_for_data_stores_only()
     {
         DiagramAst ast = new()

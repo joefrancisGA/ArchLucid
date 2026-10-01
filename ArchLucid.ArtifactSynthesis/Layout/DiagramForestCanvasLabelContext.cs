@@ -9,6 +9,7 @@ public sealed class DiagramForestCanvasLabelContext
     private readonly IReadOnlyList<string> _peerResourceGroupNames;
     private readonly DiagramForestLayoutOptions _options;
     private readonly HashSet<string> _suppressResourceGroupCaptionNodeIds;
+    private readonly bool _isDataFlow;
     private readonly IReadOnlyDictionary<string, string> _consumerStatusByNodeId;
 
     private DiagramForestCanvasLabelContext(
@@ -16,12 +17,14 @@ public sealed class DiagramForestCanvasLabelContext
         IReadOnlyList<string> peerResourceGroupNames,
         DiagramForestLayoutOptions options,
         HashSet<string> suppressResourceGroupCaptionNodeIds,
+        bool isDataFlow,
         IReadOnlyDictionary<string, string> consumerStatusByNodeId)
     {
         _peerResourceNames = peerResourceNames;
         _peerResourceGroupNames = peerResourceGroupNames;
         _options = options;
         _suppressResourceGroupCaptionNodeIds = suppressResourceGroupCaptionNodeIds;
+        _isDataFlow = isDataFlow;
         _consumerStatusByNodeId = consumerStatusByNodeId;
     }
 
@@ -58,6 +61,7 @@ public sealed class DiagramForestCanvasLabelContext
             peerResourceGroupNames,
             options,
             suppressResourceGroupCaptionNodeIds,
+            isDataFlow,
             consumerStatusByNodeId);
     }
 
@@ -73,6 +77,9 @@ public sealed class DiagramForestCanvasLabelContext
             _options,
             textColumnMaxWidth);
         _consumerStatusByNodeId.TryGetValue(node.NodeId, out string? consumerStatusLine);
+        string? dataFlowTypeLine = _isDataFlow
+            ? DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node)
+            : null;
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
             || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)
@@ -88,6 +95,7 @@ public sealed class DiagramForestCanvasLabelContext
             .DefaultIfEmpty(0)
             .Max();
         longestLineChars = Math.Max(longestLineChars, consumerStatusLine?.Length ?? 0);
+        longestLineChars = Math.Max(longestLineChars, dataFlowTypeLine?.Length ?? 0);
         double privateEndpointIndicatorWidth = node.HasPrivateEndpointAccess
             ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
             : 0.0d;
@@ -109,6 +117,7 @@ public sealed class DiagramForestCanvasLabelContext
             _options.MinNodeWidth,
             _options.MaxNodeWidth);
         int textLineCount = nameLines.Count
+            + (dataFlowTypeLine is null ? 0 : 1)
             + (consumerStatusLine is null ? 0 : 1)
             + resourceGroupLines.Count;
         double textBlockHeight = textLineCount * _options.LineHeight;
@@ -122,6 +131,7 @@ public sealed class DiagramForestCanvasLabelContext
             Width: width,
             Height: height,
             NameLines: nameLines,
+            DataFlowTypeLine: dataFlowTypeLine,
             ConsumerStatusLine: consumerStatusLine,
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,

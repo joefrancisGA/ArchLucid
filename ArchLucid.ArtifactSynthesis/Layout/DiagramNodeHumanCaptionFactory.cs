@@ -6,6 +6,50 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 
 public static class DiagramNodeHumanCaptionFactory
 {
+    public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
+        {
+            string linkedServiceType = node.ExternalLinkedServiceType.Trim();
+
+            return linkedServiceType switch
+            {
+                "AzureBlobStorage" or "AzureBlobFS" => "Blob link",
+                "AzureMySql" => "MySQL link",
+                "Sftp" => "SFTP link",
+                "HttpServer" or "Web" or "RestService" => "HTTP link",
+                _ => $"{linkedServiceType} link",
+            };
+        }
+
+        if (node.ArmResourceType?.Equals("Microsoft.Web/connections", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return "Logic App connection";
+        }
+
+        if (node.ArmResourceType?.Equals("Microsoft.Databricks/accessConnectors", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return "Access connector";
+        }
+
+        if (node.ArmResourceType?.Equals("Microsoft.Fabric/capacities", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return "Fabric capacity";
+        }
+
+        if (node.ArmResourceType?.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return node.ArmResourceKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0]
+                .Equals("functionapp", StringComparison.OrdinalIgnoreCase) == true
+                ? "Function App"
+                : "App Service";
+        }
+
+        return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+    }
+
     public static DiagramNodeHumanCaption Create(DiagramNode node)
     {
         ArgumentNullException.ThrowIfNull(node);

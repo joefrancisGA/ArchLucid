@@ -52,6 +52,7 @@ public static class DiagramForestNodeSvgEmitter
             new XAttribute("pointer-events", "none")));
 
         double textBlockHeight = (metrics.NameLines.Count * options.LineHeight)
+            + (metrics.DataFlowTypeLine is null ? 0 : options.LineHeight)
             + (metrics.ConsumerStatusLine is null ? 0 : options.LineHeight)
             + (metrics.ResourceGroupLines.Count * options.LineHeight);
         double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
@@ -122,6 +123,24 @@ public static class DiagramForestNodeSvgEmitter
 
         group.Add(text);
 
+        int linesAfterName = metrics.NameLines.Count;
+        if (metrics.DataFlowTypeLine is not null)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline + (linesAfterName * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape(metrics.DataFlowTypeLine)));
+            linesAfterName++;
+        }
+
         if (metrics.ConsumerStatusLine is not null)
         {
             group.Add(new XElement(
@@ -129,20 +148,20 @@ public static class DiagramForestNodeSvgEmitter
                 new XAttribute("x", Format(textX)),
                 new XAttribute(
                     "y",
-                    Format(firstLineBaseline + (metrics.NameLines.Count * options.LineHeight))),
+                    Format(firstLineBaseline + (linesAfterName * options.LineHeight))),
                 new XAttribute("text-anchor", "start"),
                 new XAttribute("font-size", "11"),
                 new XAttribute("font-weight", "400"),
                 new XAttribute("font-family", "system-ui,sans-serif"),
                 new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
                 Escape(metrics.ConsumerStatusLine)));
+            linesAfterName++;
         }
 
         if (metrics.ResourceGroupLines.Count > 0)
         {
             double resourceGroupTextY = firstLineBaseline
-                + ((metrics.NameLines.Count + (metrics.ConsumerStatusLine is null ? 0 : 1))
-                    * options.LineHeight);
+                + (linesAfterName * options.LineHeight);
             XElement resourceGroupText = new(
                 svgNamespace + "text",
                 new XAttribute("x", Format(textX)),
