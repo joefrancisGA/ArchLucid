@@ -5825,6 +5825,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-01 seed hunt (seed-only): repeated the architecture-recommendation filter; all 40 focused tests passed and no reachable mechanism-backed candidate emerged.
+
 2026-10-01 seed hunt (seed-only): repeated the picker-selected architecture-recommendation check; the exact Alternatives/ProposedChange filter passed 40 tests again, with no new reachable mechanism-backed candidate.
 
 2026-10-01 seed hunt (seed-only): reseeded `ArchitectureRecommendationEngine` and its alternatives/proposed-change helpers; the exact focused filter passed 40 tests, and no new reachable mechanism-backed candidate was found or promoted.
