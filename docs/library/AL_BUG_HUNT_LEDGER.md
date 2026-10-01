@@ -4514,6 +4514,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.ReportUnanalyzableIfScopedTableReferenced` may miss SQL-standard quoted identifiers such as `"dbo"."Runs"` because the fallback regex recognizes bracketed or bare identifiers only; reachable from unresolved SQL expressions in persistence Dapper calls because SQL Server accepts quoted identifiers.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgumentExpression` may ignore Dapper overloads whose SQL parameter is named something other than `sql`, `command`, or `commandText`; reachable because analyzer binding relies on parameter-name matching before positional fallback.
 - [x] (proven) Analyzer missed Dapper `QueryAsync` on tenant tables — **hit 2026-08-24:** `TryGetSqlArgument` always used `Arguments[0]` (connection) instead of the `sql`/`command` parameter; regression in `ARCH006_reports_unscoped_static_sql_on_scoped_table`
 - [x] (proven) Interpolated SQL treated as scoped when tenant predicate only appeared in a comment — **hit 2026-08-24:** predicate regex matched `/* TenantId = @TenantId ... */`; regression in `Tenant_id_predicate_in_sql_comment_does_not_bind_runs`
 - [x] (invalid) Empty exemption justification does not fire — `ARCH006b_reports_empty_exemption_justification` already covers class-level blank justification
