@@ -20825,6 +20825,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-01 seed hunt (seed-only): inspected contract converters and serialization surfaces; no hunt-ready row was promoted; seeded null claim-entry and invalid insight-density-score candidates; 515 scoped Contracts tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded archlucid-contracts; proved `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` dropped out-of-range numeric ordinals instead of throwing like `treatment`/`classification`; fixed to throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`; 22 scoped `ArchitectureFindingJsonConverter` tests passed.
 
 - **id:** archlucid-contracts
@@ -20842,6 +20844,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [ ] (candidate) `AgentResultClaimListJsonConverter.Read` — null entries in a claims array throw a `JsonException` instead of being ignored like blank claims; reachability: persisted/agent-produced `claims` arrays are deserialized through this converter and may contain explicit JSON `null` entries.
+- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadInsightDensityFields` — non-integral or out-of-range `insightDensityScore` values are silently ignored, leaving the default score instead of rejecting malformed contract input; reachability: the converter reads this optional JSON property directly from persisted architecture findings.
+
 2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
