@@ -8489,3 +8489,4 @@
 {"at":"2026-10-01T01:04:44.9981857Z","zoneId":"finding-disposition","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs,ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs"]}
 {"at":"2026-10-01T01:07:09.2336626Z","zoneId":"ui-operator-lib","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/"]}
 {"at":"2026-10-01T12:12:55.8428710Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
+{"at":"2026-10-01T12:16:24.9700177Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}

@@ -13302,13 +13302,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 458
-- **last-hunt:** 2026-09-30
+- **hunts:** 459
+- **last-hunt:** 2026-10-01
 - **bugs-found:** 3502
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-01 seed hunt (seed-only): inspected ArchLucid.Core source despite the picker path containing only this ledger; the exact `FullyQualifiedName~ArchLucid.Core` filter passed all 7,163 tests. No new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than ArchLucid.Core source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
