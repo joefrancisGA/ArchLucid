@@ -193,6 +193,38 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
     }
 
     [Fact]
+    public async Task RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-cache-identity",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
+
+        second.RunId.Should().NotBe(first.RunId);
+    }
+
+    [Fact]
     public async Task RunAsync_does_not_persist_recommendation_apply_when_publish_blocked()
     {
         ServiceCollection services = new();

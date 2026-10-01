@@ -3636,10 +3636,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-12
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-01
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3665,6 +3665,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ApplyBriefGrounding` drops contradicting `AddedServices` but not `AddedDatastores` when confirmed constraints mention HTTPS — **cheap-disproof 2026-09-09 seed hunt #1479:** brief grounding intentionally scopes to service-name contradiction (TB-2349); regression `ApplyBriefGrounding_filters_services_only_not_datastores`.
 
 2026-09-09 seed hunt #1479 (seed-only): reseeded storage-vs-data-category after exhaustion threshold; cheap-disproof closed Cost controls dedupe and brief-grounding datastore scope candidates; zone marked exhausted; 32 scoped Application tests passed.
+
+2026-10-01 seed hunt (seed-only): reopened by post-commit churn; re-read the two orchestration sources and found no new reachable category/alias candidate; 31 scoped post-processor/consistency-gate tests passed; zone remains exhausted.
 
 2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
 
@@ -3948,9 +3950,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 29
+- **hunts:** 32
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
@@ -3960,8 +3962,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-30 seed hunt (seed-only): re-read the email OTP controller and service delegation paths; all 41 scoped tests passed; retained two concrete HTTP-boundary candidates for a later repro pass.
 
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work (reachability: the public `POST v1/auth/email-otp/challenge` JSON body accepts arbitrary client-supplied `Email` text).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope (reachability: the controller consumes the application service result on the public `POST v1/auth/email-otp/verify` path).
+2026-09-30 thorough hunt (dry): cheap-disproved the whitespace-email candidate because `EmailOtpRequestFlow` normalizes and rejects it before rate limiting, challenge creation, or delivery while preserving the neutral anti-enumeration response; classified the explicit-empty-scope candidate as valid-no-repro because the controller intentionally maps both null and empty scopes to `TrialLocalJwtScopeDefaults`; 41 scoped tests passed.
+
+2026-10-01 seed hunt (seed-only): re-read the email OTP controller boundary and service composition; no new reachable candidate emerged; the two picker-scoped test classes passed (41); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read email OTP challenge/verify request mapping and service flow composition; no new reachable candidate emerged; the two picker-scoped test classes passed (41); no hypothesis was promoted.
+
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work — **cheap-disproved 2026-09-30:** `EmailOtpRequestFlow` normalizes and rejects whitespace before rate limiting, challenge creation, or delivery while preserving the neutral anti-enumeration response.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope — **cheap-disproved 2026-09-30:** null and empty scopes intentionally share the `TrialLocalJwtScopeDefaults` fallback path; the controller's existing scope-parity regression covers the intended behavior.
 
 2026-09-12 seed hunt #2253 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
 2026-09-12 seed hunt #2159 (seed-only): reseeded email-otp-auth with `-Hint email-otp-auth`; no new hunt-ready rows.
@@ -3976,8 +3984,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] A consumed or expired OTP still issues a session Î“Ã‡Ã¶ retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work (reachability: the public `POST v1/auth/email-otp/challenge` JSON body accepts arbitrary client-supplied `Email` text).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope (reachability: the controller consumes the application service result on the public `POST v1/auth/email-otp/verify` path).
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary — service-level normalization returns the neutral result before side effects.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default — null and empty scope values intentionally share the local-trial fallback.
 - [x] Challenge lookup is not tenant-scoped and can verify another tenant's code Î“Ã‡Ã¶ retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
 - [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 - [x] (proven) Mixed-case invitation email on the row blocks acceptance after OTP verify — **hit 2026-08-24:** `TryAcceptInvitationAsync` compared `invitation.Email` to normalized sign-in email with ordinal equality and `FindInvitationByIdAsync` filtered via `ListPendingByNormalizedEmailAsync`; legacy/display-case rows never accepted; fixed with `InvitationEmailMatchesVerifiedEmail` + `GetPendingByIdAsync`
@@ -5287,13 +5295,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 34
+- **hunts:** 38
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-01 seed hunt (seed-only): re-read `FindingDispositionService` and `FindingDispositionValidation`; no new reachable candidate emerged; the picker’s `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read finding disposition bulk recording, normalization, history scope filtering, and row-version validation; no new reachable candidate emerged; `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the complete disposition validation matrix and remediated impact-preview attestation path; no new reachable candidate emerged; `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read disposition request validation and bulk/record service boundaries; no new reachable candidate emerged; `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
 
 2026-09-13 seed hunt #2268 (seed-only): reseeded finding-disposition with `-Hint finding disposition`; no new hunt-ready rows.
 
@@ -5655,7 +5671,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 24
+- **hunts:** 26
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -5737,7 +5753,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -5808,6 +5824,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: architecture-recommendation
+
+2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed again and no reachable mechanism-backed candidate emerged.
+
+2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed, with no reachable mechanism-backed candidate.
+
+2026-10-01 seed hunt (seed-only): repeated the architecture-recommendation filter once more; all 40 focused tests passed, with no reachable mechanism-backed candidate.
+
+2026-10-01 seed hunt (seed-only): repeated the architecture-recommendation filter; all 40 focused tests passed again, with no reachable mechanism-backed candidate.
+
+2026-10-01 seed hunt (seed-only): repeated the architecture-recommendation filter; all 40 focused tests passed and no reachable mechanism-backed candidate emerged.
+
+2026-10-01 seed hunt (seed-only): repeated the picker-selected architecture-recommendation check; the exact Alternatives/ProposedChange filter passed 40 tests again, with no new reachable mechanism-backed candidate.
+
+2026-10-01 seed hunt (seed-only): reseeded `ArchitectureRecommendationEngine` and its alternatives/proposed-change helpers; the exact focused filter passed 40 tests, and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-28 seed hunt #69 (seed-only): reseeded architecture-recommendation; no new hunt-ready rows; cheap-disproof closed Cost titles without `ceiling` using generic proposed-change and default alternatives (#68 Reliability class), `not-security` negation on Security/Reliability trade-offs (#66 `not-reliability` class), `unreliability` mentions not counting as Reliability-first trade-off preferences, and Security/Cost plus Reliability/Cost trade-offs staying on the primary dimension recommendation when competing findings are listed first; regressions `Build_cost_title_without_ceiling_uses_generic_cost_change`, `Build_cost_title_without_ceiling_returns_default_paths`, `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_security`, `BuildRecommendations_does_not_treat_unreliability_priority_as_reliability_first`, `BuildRecommendations_security_cost_trade_off_stays_on_security_when_cost_is_first`, and `BuildRecommendations_reliability_cost_trade_off_stays_on_reliability_when_cost_is_first`; 40 scoped Alternatives/ProposedChange tests passed.
 
@@ -6367,7 +6397,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** AuthCallbackAccessPanel
 - **hunts:** 16
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-09-30
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -9594,7 +9624,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -9777,15 +9807,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 16
-- **bugs-found:** 17
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-13
-- **last-bug:** 2026-09-05 — AL0003 missed `[MutatingAuditExcluded]` on implemented interface methods
+- **hunts:** 21
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-30
+- **last-bug:** 2026-09-30 — AL0003 false-positive for shadowed mutating actions in deeply nested controllers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2275 (seed-only): reseeded security-analyzers with `-Hint security analyzers`; no new hunt-ready rows.
+
+2026-09-30 thorough hunt (hit): cheap-disproved the `var` inferred-type candidate because `AnalyzeIdentifierName` checks `ILocalSymbol.Type`; proved that `MutatingControllerAuditAnalyzer` scanned only current-compilation method syntax and missed a tracked action inherited from a referenced controller assembly; fixed referenced-base traversal and added a compiled-reference regression; 58 scoped analyzer tests passed.
+
+2026-09-30 seed hunt (seed-only): re-read the three analyzer implementations after the referenced-controller fix; all 58 scoped tests passed; retained two fresh inheritance candidates for a later repro pass.
+
+2026-09-30 thorough hunt (hit): proved duplicate AL0003 diagnostics for an abstract intermediate controller in a multi-level referenced inheritance chain and a false-positive AL0001 on a derived controller whose inherited action was `[AllowAnonymous]`; fixed abstract-controller traversal and inherited authorization-action handling; 60 scoped analyzer tests passed.
+
+2026-09-30 seed hunt (seed-only): re-read the analyzer implementations after the inheritance fixes; all 60 scoped tests passed; retained two fresh inherited-action candidates for a later repro pass.
+
+2026-09-30 thorough hunt (dry): cheap-disproved the inherited AL0001 omission candidate because a derived controller with an authorized action still caused AL0001 to report the inherited unauthorized action on its declaring base; classified the referenced compiled-body AL0003 candidate as valid-no-repro because metadata analysis has no method body or operation graph to falsify the distinction; 60 scoped analyzer tests passed.
+
+2026-09-30 seed hunt (seed→hit): proved `MutatingControllerAuditAnalyzer` missed shadowed virtual mutating actions when the overriding controller was nested more than one level deep; `GetNamedTypesInAssembly` enumerated only one nested-type level, so the base action produced a false-positive AL0003; fixed recursive nested-type traversal and added `AL0003_does_not_report_shadowed_mutating_action_in_deeply_nested_controller`; 61 scoped analyzer tests passed.
 
 ### Hypotheses
 
@@ -9829,8 +9871,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-30 seed hunt (seed-only): re-read the three security analyzer implementations and their scoped tests; all 57 tests passed; retained two concrete analyzer blind-spot candidates for a later repro pass.
 
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` does not inspect the inferred type of a `var` local whose referenced method returns `ClaimsPrincipal` or `IHttpContextAccessor`, so a banned tenant-identity type from a compiled dependency may cross the inner-layer boundary without ARCH001 (reachability: inner-layer code can assign a referenced boundary/factory method result to `var`).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` scans only `MethodDeclarationSyntax` bodies in the current API compilation, so a mutating controller action inherited from a referenced base assembly may bypass AL0003 when its implementation body is not present in the analyzed syntax trees (reachability: API controllers can inherit shared controller actions from referenced assemblies).
+- [x] (invalid) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` misses the inferred type of a `var` local — cheap-disproof 2026-09-30: `AnalyzeIdentifierName` reads `ILocalSymbol.Type`, so a `var` local whose referenced method returns `ClaimsPrincipal` or `IHttpContextAccessor` is already checked.
+- [x] (proven) `MutatingControllerAuditAnalyzer` misses tracked actions inherited from referenced controller assemblies — **hit 2026-09-30:** semantic-model analysis visited only current-compilation `MethodDeclarationSyntax` bodies, so an API controller inheriting a `[HttpPost]` action from a referenced base assembly emitted no AL0003; fixed by traversing referenced base-controller methods with existing exclusion, allowlist, verb, and shadow checks; regression `AL0003_reports_mutating_action_in_referenced_controller_base_assembly`.
+- [x] (proven) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` reported the same referenced mutating action once for each level of a multi-level current-compilation controller hierarchy — **hit 2026-09-30:** an abstract intermediate controller and its concrete descendant each received AL0003 for the same referenced `[HttpPost]`; fixed by excluding abstract controller types from endpoint diagnostics; regression `AL0003_reports_one_diagnostic_for_concrete_controller_in_multi_level_referenced_inheritance`.
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` falsely flagged a derived controller with no declared methods even when its inherited action was `[AllowAnonymous]` — **hit 2026-09-30:** the type-level fallback ignored inherited public actions and reported AL0001 on the derived type; fixed by evaluating inherited actions before the no-public-method fallback; regression `Does_not_report_derived_controller_when_only_inherited_action_is_allow_anonymous`.
+- [x] (invalid) `RequireAuthorizationAnalyzer` evaluates inherited actions only when the derived controller has no qualifying declared public methods, so a controller that adds one authorized action may still omit an inherited unauthorised action from AL0001 analysis — **cheap-disproved 2026-09-30:** a repro with an authorized action on the derived controller still emitted AL0001 for the inherited unauthorized action's declaring base controller; no omission observed.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` reports referenced base actions conservatively without inspecting their compiled bodies, so a referenced `[HttpPost]` action that logs through a concrete `IAuditService` implementation may receive a false-positive AL0003 — **cheap-disproved 2026-09-30:** compiled metadata exposes no method body or operation graph to the analyzer, so the suspected audited-body distinction is not reachable as a falsifiable analyzer behavior without changing the analyzer's supported metadata contract; retain as a design limitation rather than a proven defect.
+- [x] (proven) `MutatingControllerAuditAnalyzer` misses shadowed virtual mutating actions in controllers nested more than one type level deep — **hit 2026-09-30 seed hunt:** `GetNamedTypesInAssembly` enumerated only direct and one-level nested types, so a deeply nested audited override was invisible to `IsShadowedVirtualMutatingAction` and the unaudited base action emitted a false-positive AL0003; fixed with recursive nested-type enumeration; regression `AL0003_does_not_report_shadowed_mutating_action_in_deeply_nested_controller`.
 
 ---
 
@@ -13197,20 +13244,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 20
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
+- **hunts:** 23
+- **bugs-found:** 26
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-28 — BFF session POST mapped zero expires_in to a one-hour cookie TTL
+- **last-bug:** 2026-09-30 — failed OIDC discovery preserved a prior stale post-sign-in return path
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-30 seed hunt (seed-only): re-read the OIDC discovery, PKCE, token, session, and BFF sync library; all 58 scoped OIDC tests passed; retained two discovery/redirect candidates for a later repro pass.
 
 ### Hypotheses
 
-- [ ] (candidate) `parseDiscoveryDocument` accepts any non-empty `issuer` string without validating that it is an absolute HTTP(S) issuer matching the configured authority, so a reachable discovery response can be treated as metadata for a different issuer (reachability: the OIDC provider controls the JSON returned by `/.well-known/openid-configuration`).
-- [ ] (candidate) `initiateOidcRedirect` writes PKCE state before discovery completes and leaves that state in `sessionStorage` when discovery fails, so a failed redirect attempt can leave stale verifier/nonce material for the next callback (reachability: the public sign-in flow performs the storage write before the network discovery request).
+- [x] (valid-no-repro) `parseDiscoveryDocument` accepts any non-empty `issuer` string without validating that it is an absolute HTTP(S) issuer matching the configured authority, so a reachable discovery response can be treated as metadata for a different issuer — **cheap-disproved 2026-09-30:** the parsed `issuer` is not consumed by the browser authorization or token flow; only validated endpoint fields drive behavior in these files, so no wrong outcome is reachable here.
+- [x] (proven) `initiateOidcRedirect` writes PKCE state before discovery completes and leaves that state in `sessionStorage` when discovery fails, so a failed redirect attempt can leave stale verifier/nonce material for the next callback — **hit 2026-09-30:** discovery rejection left the newly generated state, verifier, and nonce stored despite no authorization redirect; fixed by clearing flow-scoped PKCE state on discovery failure for primary and Google redirects; regression `clears primary PKCE state when discovery fails before redirect`.
+- [x] (proven) `initiateOidcRedirect` leaves a stored post-sign-in return path after discovery fails — **hit 2026-09-30 seed hunt:** `storePostSignInReturnUrl` ran before `loadDiscoveryDocument`, and the rejection path cleared PKCE but not the return path; fixed by clearing the stored return URL when discovery fails; regression `clears the stored return path when discovery fails before redirect`.
+- [x] (proven) `initiateOidcRedirect` preserves a pre-existing post-sign-in return path when a later failed attempt omits `returnUrl` — **hit 2026-09-30 seed hunt:** rejection cleanup was conditional on the current attempt having a return URL, so stale state from an earlier flow survived; fixed by unconditionally clearing the shared return-path key on discovery failure; regression `clears a stale return path when a later discovery attempt has no return URL`.
+- [x] (proven) `initiateOidcRedirect` leaves a stored post-sign-in return path after discovery fails — **hit 2026-09-30 seed hunt:** `storePostSignInReturnUrl` ran before `loadDiscoveryDocument`, and the rejection path cleared PKCE but not the return path; fixed by clearing the stored return URL when discovery fails; regression `clears the stored return path when discovery fails before redirect`.
 - [x] (invalid) Authority host check accepts a look-alike domain as the configured issuer — locus is `archlucid-ui/src/lib/auth/oidc-authority-host.ts`, outside this zone; covered by `oidc-authority-host.test.ts`.
 - [x] (valid-no-repro) OIDC redirect builds a return URL that leaves the operator origin — `storePostSignInReturnUrl` / `isSafeReturnPath` reject absolute, protocol-relative, and smuggled paths; covered by `session.test.ts` and `safe-return-path.test.ts`.
 - [x] (invalid) Silent renew uses a stale authority after tenant IdP switch — `ensureAccessTokenFresh` reads `getOidcAuthority()` on each refresh; discovery cache is keyed by normalized discovery URL, not a frozen authority snapshot.
@@ -13250,6 +13300,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-07 seed hunt #1234 (hit): reseeded ui-oidc zone; proved end_session_endpoint scheme gap (parity with #805 authorization_endpoint fix); cheap-disproved id_token-absent nonce bypass; seeded BFF expiry skew and client logout URL validation candidates.
 
+2026-09-30 thorough hunt (hit): proved failed OIDC discovery left stale PKCE state after `initiateOidcRedirect` had written it; fixed cleanup for primary and supplemental flows; cheap-disproved issuer validation as a client-side defect because the parsed issuer is not consumed; 59 scoped OIDC tests passed.
+
+2026-09-30 seed hunt (seed→hit): proved failed discovery also left the newly stored post-sign-in return path despite no redirect; added cleanup for primary and supplemental redirects and regression `clears the stored return path when discovery fails before redirect`; 60 scoped OIDC tests passed.
+
+2026-09-30 seed hunt (seed→hit): proved a later failed redirect with no `returnUrl` also preserved a pre-existing stale post-sign-in path; discovery failure now clears the shared return-path key unconditionally; regression `clears a stale return path when a later discovery attempt has no return URL`; 61 scoped OIDC tests passed.
+
 ---
 
 ## Zone: archlucid-core
@@ -13260,13 +13316,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 458
-- **last-hunt:** 2026-09-30
+- **hunts:** 459
+- **last-hunt:** 2026-10-01
 - **bugs-found:** 3502
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-01 seed hunt (seed-only): inspected ArchLucid.Core source despite the picker path containing only this ledger; the exact `FullyQualifiedName~ArchLucid.Core` filter passed all 7,163 tests. No new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than ArchLucid.Core source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
@@ -18342,9 +18400,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-11 — at-sign-delimited resource tokens under-penalized duplication parity
 - **related-pd-tb:** none
@@ -20619,7 +20677,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -23400,15 +23458,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 27
-- **last-hunt:** 2026-09-30
-- **bugs-found:** 36
+- **hunts:** 28
+- **last-hunt:** 2026-10-01
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-28 — architecture narrative markdown omitted RequirementText on requirement bullets
+- **last-bug:** 2026-10-01 — incomplete data-flow traversal path preserved a direct source-to-target bridge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a direct source-to-target data-flow edge won over a longer cited traversal path ending at an intermediate hop, so a missing terminal hop was bridged in the diagram — **hit 2026-10-01 seed hunt:** partial traversal paths now win whenever they contain a hop, preserving the unresolved-gap marker and removing the unsupported direct edge; regression `Compile_data_flow_missing_intermediate_hop_does_not_bridge_gap`.
 
 - [x] (invalid) Generated document embeds unsanitized user HTML/script — `LlmArtifactFreeTextSanitizer` and `WordDocumentBuilder` emit plain OpenXML text nodes (control/bidi strip only); DOCX does not execute embedded markup as script
 - [x] (invalid) Packager includes artifacts from a run outside the requested scope — `ArtifactPackagingService` only zips the `artifacts` list passed by the caller; no cross-run artifact selection locus in this zone
@@ -23447,6 +23507,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — security posture lines omitted `ControlId` and `Impact` present in DOCX four-column table — **hit 2026-09-11 hunt #1707 (seed→hit):** markdown emitted `{ControlName}: {Status}` only; fixed with `{ControlId} {ControlName} ({Impact}): {Status}`; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_security_control_id_and_impact_matching_docx_export` and updated narrative coverage batch
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — compliance posture lines omitted `AppliesToCategory` present in DOCX export and `compliance-matrix.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with `[{AppliesToCategory}]` suffix; regression `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_compliance_applies_to_category_matching_docx_export`
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — unresolved-issue bullets omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with issue type prefix and supporting-finding suffix; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_issue_type_and_supporting_finding_ids_matching_unresolved_issues_json`
+
+2026-10-01 seed hunt (seed→hit): promoted and proved incomplete data-flow traversal path bridging in `InventoryDiagramDataFlowTraversalHopProjector`; fixed partial-path selection; 7 focused traversal tests passed. The full picker filter then reported 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
@@ -23983,13 +24045,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 290
-- **last-hunt:** 2026-09-30
+- **hunts:** 291
+- **last-hunt:** 2026-10-01
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-01 seed hunt (seed-only): inspected the Governance/Tenancy controller scope despite the picker path containing only this ledger; the exact filter built and ran 154 tests (137 passed, 17 SQL-backed integration cases unavailable on this Linux VM). The two unit failures came from default-Moq repositories returning null from `ListWorkspacesAsync`; both production fallback implementations return non-null lists, so no reachable mechanism-backed candidate was promoted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
@@ -25912,10 +25976,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 24
+- **hunts:** 30
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 8
 - **last-bug:** 2026-09-28 — improvement planning stale `theme` URL when theme id missing from loaded themes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25961,6 +26025,22 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PlanningPageClient` — stale `theme` search param persisted when theme id was absent from loaded themes (state cleared locally but URL kept dead deep link; Slack `slackDisableId` stale deep-link pattern) — **hit 2026-09-28 seed hunt (seed→hit):** after planning bundle hydration, unknown theme ids clear `theme` from URL via `planningThemeHrefFromSearch`; regression `clears stale theme from the URL when the theme is missing from loaded themes` (`PlanningPageClient.test.tsx`).
 
 2026-09-28 seed hunt (seed→hit): reseeded ui-operator-routes; proved improvement planning stale theme URL after theme list refresh.
+
+2026-10-01 seed hunt (seed-only): re-read the operator route surface and found no new reachable candidate; the broad `operator` filter exposed unrelated baseline failures before termination, while the representative `PlanningPageClient` test passed; no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the planning, remediation-pattern, and remediation-factory route surfaces; no new reachable candidate emerged; representative `RemediationPatternsClient` tests passed (14); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the planning, remediation-pattern, and remediation-factory operator route surfaces; no new reachable candidate emerged; focused `PlanningPageClient` test passed (1); broad `operator` filter was not rerun because the prior run exposed unrelated baseline failures; no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read infrastructure operator workbenches, including resource, remediation, drift, diagram, Terraform, and Ask drawer surfaces; no new reachable candidate emerged; focused infrastructure Ask URL and PlanningPageClient tests passed (5 total); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read recent infrastructure Ask drawer, diagrams, remediation, drift, resource, and Terraform operator surfaces; no new reachable candidate emerged; focused infrastructure operator tests passed (7 total); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the infrastructure Ask transcript/drawer lifecycle and recent operator workbench surfaces; no new reachable candidate emerged; focused infrastructure operator tests passed (7 total); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the Ask transcript persistence boundary and drawer URL lifecycle; no new reachable candidate emerged; focused transcript and drawer tests passed (12 total); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read resource, remediation, drift, and diagram workbench selection/URL synchronization; no new reachable candidate emerged; focused operator route tests passed (7 total); no hypothesis was promoted.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-operator-routes after remediation-factory hits; proved ranked-path view filter/detail desync on remediation factory.
 
@@ -26097,13 +26177,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 26
+- **hunts:** 31
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-01 seed hunt (seed-only): re-read operator scope storage, cache invalidation, URL helpers, labels, and response guards; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read scope bootstrap, cross-tab scope refresh, cache invalidation, and scope-agnostic shell caches; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read operator scope-change event ordering and cache invalidation helpers; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read dedicated workspace persistence, remote bootstrap project selection, and sample-scope exclusion; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read remote bootstrap workspace/project resolution and dedicated-scope local persistence; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
 
 ### Hypotheses
 
@@ -26430,13 +26520,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 14
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 2
+- **hunts:** 15
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-07 — review cache hit cleared PublishBlocked for blocked analysis reruns
+- **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
@@ -26462,8 +26552,14 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired entry TTL refresh extends wall-clock retention without re-evaluating manifest inputs — **cheap-disproof 2026-09-08 (#1316):** intentional improve-loop pin semantics; same storage key implies unchanged manifest hash; `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`; tombstoned runs still miss (`TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`)
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` / `ClosedLoopContinueRunSingleFlight` — publish vs analysis in-flight partitions (`publish=1` vs `publish=0`) can double-run identical manifest under concurrent mixed intent — **cheap-disproof 2026-09-08 (#1316):** intentional flight partition via `ReviewCacheKeyBuilder.BuildInFlight`; publish requires live adversarial pass (`RunAsync_publish_request_bypasses_review_cache_hit`); regression `CoalesceAsync_does_not_share_flight_across_publish_intent`
 
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys (reachability: multiple uploaded architecture files can arrive with the same client-visible file name and content type).
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request (reachability: callers may omit optional `ClosedLoopReasoningRequest.RunId` for anonymous/new analyses).
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys — **cheap-disproved 2026-09-30:** the files expose no contract that duplicate source ordering is semantically interchangeable; a cache miss alone is not a proven wrong outcome for an ordered source list.
+- [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request — **hit 2026-09-30:** cache manifests intentionally omit generated run ids, and cache-hit finalization preserved the cached identity for a request that generated a new run id; fixed by always applying the current resolved run id to the isolated result and model; regression `RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`.
+
+2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
+
+2026-10-01 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder after the generated-identity fix; no new reachable candidate emerged; 62 scoped orchestrator/cache tests passed.
+
+2026-10-01 seed hunt (seed-only): repeated the orchestrator, review cache, and cache manifest builder source review; no new reachable candidate emerged; 62 scoped orchestrator/cache tests passed.
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder; no new reachable candidate emerged; 61 scoped tests passed.
 

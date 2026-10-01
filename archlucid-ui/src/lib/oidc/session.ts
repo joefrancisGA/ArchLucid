@@ -180,6 +180,12 @@ export function storePkceState(
   sessionStorage.setItem(keys.nonceKey, nonce);
 }
 
+export function clearPkceState(flow: OidcPkceFlow = "primary"): void {
+  const keys = pkceStorageKeys(flow);
+
+  removeOidcKeys([keys.stateKey, keys.codeVerifierKey, keys.nonceKey]);
+}
+
 export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceState, "flow"> | null {
   return readPkceStateForFlow(flow);
 }
@@ -212,6 +218,10 @@ export function storePostSignInReturnUrl(url: string): void {
   if (isSafeReturnPath(url)) {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, url);
   }
+}
+
+export function clearPostSignInReturnUrl(): void {
+  sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 }
 
 /**

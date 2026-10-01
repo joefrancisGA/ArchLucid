@@ -143,6 +143,54 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             reportedAnyMethod = true;
         }
 
+        if (!hasQualifyingPublicMethods)
+        {
+            for (INamedTypeSymbol? baseType = symbol.BaseType;
+                 baseType is not null &&
+                 !SymbolEqualityComparer.Default.Equals(baseType, controllerBase);
+                 baseType = baseType.BaseType)
+            {
+                foreach (IMethodSymbol inheritedMethod in baseType.GetMembers().OfType<IMethodSymbol>())
+                {
+                    if (inheritedMethod.IsStatic ||
+                        inheritedMethod.MethodKind != MethodKind.Ordinary ||
+                        inheritedMethod.AssociatedSymbol is not null ||
+                        inheritedMethod.DeclaredAccessibility != Accessibility.Public ||
+                        (nonActionAttribute is not null &&
+                         (SymbolHasAttribute(inheritedMethod, nonActionAttribute) ||
+                          MethodInheritsAttributeFromOverriddenChain(inheritedMethod, nonActionAttribute))))
+                    {
+                        continue;
+                    }
+
+                    hasQualifyingPublicMethods = true;
+                    foundPublicApiAction = true;
+
+                    if (SymbolHasAuthorizeOrAllowAnonymous(inheritedMethod, authorizeAttribute, allowAnonymousAttribute) ||
+                        MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(
+                            inheritedMethod,
+                            authorizeAttribute,
+                            allowAnonymousAttribute))
+                    {
+                        continue;
+                    }
+
+                    Location? location = symbol.Locations.FirstOrDefault();
+
+                    if (location is null)
+                    {
+                        continue;
+                    }
+
+                    context.ReportDiagnostic(
+                        Al0001Descriptor.Create(
+                            location,
+                            inheritedMethod.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+                    reportedAnyMethod = true;
+                }
+            }
+        }
+
         if (reportedAnyMethod || foundPublicApiAction)
             return;
 
