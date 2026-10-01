@@ -8477,3 +8477,4 @@
 {"at":"2026-10-01T00:26:42.3131111Z","zoneId":"ui-operator-routes","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/"]}
 {"at":"2026-10-01T00:28:45.1471593Z","zoneId":"ui-operator-routes","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/"]}
 {"at":"2026-10-01T00:33:50.3052601Z","zoneId":"finding-disposition","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs,ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs"]}
+{"at":"2026-10-01T00:35:55.7137642Z","zoneId":"ui-operator-lib","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/"]}
