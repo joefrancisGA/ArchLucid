@@ -5841,6 +5841,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-01 seed hunt (seed-only): inspected `ArchitectureRecommendationEngine`; no hunt-ready row was promoted; seeded two candidate rows for dependency normalization and null finding elements; 40 scoped Alternatives/ProposedChange tests passed.
+
 2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed again and no reachable mechanism-backed candidate emerged.
 
 2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed, with no reachable mechanism-backed candidate.
@@ -5932,6 +5934,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2081 (seed-only): reseeded architecture-recommendation; 13 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — declared priorities are copied verbatim into every recommendation's `Dependencies`, so blank or duplicate priority entries may produce misleading dependency metadata; reachability: callers provide the persisted `declaredPriorities` list and the engine performs no normalization before `ToList()`.
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — a null element in the reachable specialist-finding collection throws from `IsActionableFinding` instead of being skipped or represented as invalid input; reachability: the public method accepts an arbitrary `IReadOnlyList<SpecialistReviewFinding>` and validates the list itself but not its elements.
 
 - [x] Recommended change targets an element that is not in the current package (retired: engine has no package element targeting)
 - [x] Alternative list duplicates the primary recommendation as if it were distinct
