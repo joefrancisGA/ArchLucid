@@ -9640,6 +9640,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook facade, processing pipeline, and replay-guard review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
+2026-10-01 seed hunt (seed-only, hint `V`): re-read the inbound controller, facade, pipeline, JSON readers, correlation support, and replay guard after the three recent ITSM fixes; the exact `ItsmInboundWebhook` filter passed 48 tests and no new hunt-ready candidate was proven.
+
 2026-10-01 seed hunt (seed-only, hint `V`): repeated the selected inbound webhook source review and replay-guard inspection; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only, hint `V`): repeated source review of inbound webhook authentication, payload parsing, tenant correlation, replay claims, and audit emission; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -9702,6 +9704,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): reviewed inbound controller, JSON readers, facade, pipeline, status mappers, correlation/replay support, and replay-guard tests; retained one reachable replay-eviction race candidate for a dedicated concurrency repro.
 
 2026-09-30 thorough hunt (hit): deterministic replay-guard repro proved a delayed eviction callback could clear a reclaimed claim and permit duplicate delivery; claim generations now use conditional removal, with 6 replay-guard tests and 48 scoped ITSM webhook tests passing.
+
+- [ ] (candidate) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — a syntactically valid but semantically ambiguous timestamp header may be accepted or rejected differently across timezone/offset forms because validation delegates directly to `WebhookSecrets.TimestampWithinSkew` with `TimeProvider.System` (reachability: attacker-controlled `X-ArchLucid-Timestamp` reaches every authenticated webhook when timestamp skew enforcement is enabled; needs a concrete bypass or false rejection).
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline` replay-id fallback — webhook deliveries without `X-ArchLucid-Webhook-Delivery-Id` or Atlassian identifier derive the replay key from provider, external key, and status, so repeated legitimate transitions carrying the same status within retention may be suppressed (reachability: Jira and ServiceNow controller routes pass nullable delivery ids; needs a vendor payload sequence showing a distinct event with the same tuple).
+- [ ] (candidate) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` unscoped lookup — deployment-wide-secret webhook routes resolve by provider and external key without an authenticated tenant constraint, so duplicate external keys across tenants could select the wrong correlation row (reachability: unscoped `/jira` and `/servicenow` routes pass `tenantId: null`; needs a production repository ordering/uniqueness path with duplicate keys).
 
 ---
 
