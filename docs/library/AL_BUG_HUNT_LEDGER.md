@@ -5825,6 +5825,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-01 seed hunt (seed-only): repeated the picker-selected architecture-recommendation check; the exact Alternatives/ProposedChange filter passed 40 tests again, with no new reachable mechanism-backed candidate.
+
 2026-10-01 seed hunt (seed-only): reseeded `ArchitectureRecommendationEngine` and its alternatives/proposed-change helpers; the exact focused filter passed 40 tests, and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-28 seed hunt #69 (seed-only): reseeded architecture-recommendation; no new hunt-ready rows; cheap-disproof closed Cost titles without `ceiling` using generic proposed-change and default alternatives (#68 Reliability class), `not-security` negation on Security/Reliability trade-offs (#66 `not-reliability` class), `unreliability` mentions not counting as Reliability-first trade-off preferences, and Security/Cost plus Reliability/Cost trade-offs staying on the primary dimension recommendation when competing findings are listed first; regressions `Build_cost_title_without_ceiling_uses_generic_cost_change`, `Build_cost_title_without_ceiling_returns_default_paths`, `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_security`, `BuildRecommendations_does_not_treat_unreliability_priority_as_reliability_first`, `BuildRecommendations_security_cost_trade_off_stays_on_security_when_cost_is_first`, and `BuildRecommendations_reliability_cost_trade_off_stays_on_reliability_when_cost_is_first`; 40 scoped Alternatives/ProposedChange tests passed.
