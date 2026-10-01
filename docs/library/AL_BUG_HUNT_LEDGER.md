@@ -9931,6 +9931,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-01 seed hunt (seed-only): inspected the selected safety and prompt-injection files; no hunt-ready row was promoted; seeded threshold-range and null-evidence-element candidates; 573 scoped agent-runtime-safety tests passed.
+
 2026-10-01 seed hunt (seed-only): repeated the selected safety and prompt-injection source review; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): repeated source-level reseed of the safety and prompt-injection sanitizer scope; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -10794,6 +10796,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AzureContentSafetyGuard.MapResult` — a configured threshold outside Azure's four-level range may cause every category to be allowed or blocked without validation; reachability: `BlockSeverityThreshold` is read from `IOptionsMonitor<ContentSafetyOptions>` at request time and this guard does not validate its range.
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — null elements inside evidence policy/service/pattern/note collections throw before the agent call rather than failing closed with sanitized remaining evidence; reachability: the sanitizer accepts mutable evidence collections from deserialized agent evidence and iterates each element without null guards.
 
 - [x] (valid-no-repro) Content safety guard maps a blocked category to allow on SDK failure — intentional fail-open when `FailClosedOnSdkError=false` (`AzureContentSafetyGuardSdkFailureTests`).
 - [x] (proven) Untrusted evidence delimiter is stripped so injection payload reaches the model prompt — embedded `</untrusted_input>` / `<untrusted_input>` broke the outer wrapper; fixed with ZWSP tag neutralization in `AzureResourceTagPromptSanitizer`.
