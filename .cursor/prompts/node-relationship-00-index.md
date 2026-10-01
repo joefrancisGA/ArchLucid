@@ -28,7 +28,7 @@ Canonical wave doc: [`docs/architecture/INVENTORY_DIAGRAM_NODE_RELATIONSHIP_LUNA
 | **Connection ledger** | A lineless card is unlabeled, or the outline calls it unconnected. | Every visible resource is Connected, Used, Orphaned, Unconnected, or Unknown. | **NR-11** |
 | **Unknown questions** | Unknown is a bare label, and empty states still render. | The outline states the question and does not ask for an answer. Zero-count sections are hidden. | **NR-12** |
 | **NSG port chips** | An unresolved NSG is still a card, and a resolved NSG shows no ports. | Inbound allow rules are protocol and port chips on the owner. No NSG card. | **NR-13** |
-| **AVD off the plate** | A session-host VM without a session-host edge still paints. | Those VMs, NICs, and disks stay off unless Show AVD Assets is on. One chip states the counts. | **NR-14** |
+| **AVD off the plate** | A session-host VM without a session-host edge still paints. | Those VMs, NICs, and disks stay off unless Show AVD Assets is on. No AVD boundary or count node remains by default. | **NR-14** |
 
 ## What this set does not change
 
