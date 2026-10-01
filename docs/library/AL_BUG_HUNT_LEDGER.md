@@ -26717,10 +26717,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-26 — detailed/guided wizards kept deep-linked step after step= / intakeStep= cleared from URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26754,6 +26754,14 @@ ABQ-09 churn hotspot; intake wizard route tree.
 2026-09-11 seed hunt #1684 (hit): reseeded ui-review-intake-wizards; proved orphan rerun quick-start title prefill; 4 first-pilot intake wizard unit tests passed.
 
 - [x] (proven) `useNewRunWizardSteps` / `useGuidedIntakeWizard` — wizard step index stayed on step 0 after App Router `step=` / `intakeStep=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908 (seed→hit):** hooks initialized step from URL in `useState` and only re-synced on `popstate`; client navigations left `filteredSorted`/confirm UI on the wrong slide; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in popstate handlers; regression `follows step= URL changes without a popstate event`.
+
+- [ ] (candidate) `ReviewsNewPathSwitcher` — `activePath` is initialized from `path=` only in the route effect and path commits use `history.replaceState` without notification; a same-mounted App Router/query transition that changes `path` without remount could leave the rendered wizard on the previous path (reachability: `path=` is an operator-controlled deep-link and `selectPath` commits query state without a Next router navigation; needs a concrete transition showing stale path UI).
+- [ ] (candidate) `useFirstPilotIntakeWizard` — `exampleTemplatePrefillAppliedRef` permanently suppresses later template query changes while the quick-start wizard remains mounted, so navigating from one `template=` deep link to another may retain the first title/brief (reachability: `exampleTemplate` is derived from live search params and the effect is ref-gated; needs proof that same-mounted template transitions are supported rather than intentionally one-shot).
+- [ ] (candidate) `useGuidedIntakePriorRunPrefill` — once one `rerun=` package has been applied, `appliedRef` blocks a later prior-run query from applying its own empty-field/scope prefill in the same mounted wizard (reachability: `priorRunId` is a live search-param input and the effect reruns for a changed id; needs a supported same-session rerun transition that should replace prior context).
+
+2026-10-01 seed hunt (seed-only, hint `V`): reseeded the UI review-intake route after step, pilot, and disclosure URL-sync fixes; seeded three concrete same-mounted deep-link/prefill candidates and found no hunt-ready defect to prove in this pass.
+
+2026-10-01 seed hunt (seed-only, hint `V`): scoped URL-sync tests had 13 passing and 12 pre-existing `ReviewsNewPathSwitcher` assertion failures because those tests still expect `router.replace` while the route now commits with `history.replaceState`; no candidate was promoted or proven.
 
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `rerun=` survives switch to guided intake and prefills Socratic intake — **cheap-disproof 2026-09-25 seed hunt #3908:** guided intake intentionally consumes `rerun=` via `useGuidedIntakePriorRunPrefill`; regression `prefills guided intake from rerun= when the prior package intake is available`.
 
