@@ -52,6 +52,7 @@ public static class DiagramForestNodeSvgEmitter
             new XAttribute("pointer-events", "none")));
 
         double textBlockHeight = (metrics.NameLines.Count * options.LineHeight)
+            + (metrics.ConsumerStatusLine is null ? 0 : options.LineHeight)
             + (metrics.ResourceGroupLines.Count * options.LineHeight);
         double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
         double contentTop = (height - contentHeight) / 2.0;
@@ -121,9 +122,27 @@ public static class DiagramForestNodeSvgEmitter
 
         group.Add(text);
 
+        if (metrics.ConsumerStatusLine is not null)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline + (metrics.NameLines.Count * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape(metrics.ConsumerStatusLine)));
+        }
+
         if (metrics.ResourceGroupLines.Count > 0)
         {
-            double resourceGroupTextY = firstLineBaseline + (metrics.NameLines.Count * options.LineHeight);
+            double resourceGroupTextY = firstLineBaseline
+                + ((metrics.NameLines.Count + (metrics.ConsumerStatusLine is null ? 0 : 1))
+                    * options.LineHeight);
             XElement resourceGroupText = new(
                 svgNamespace + "text",
                 new XAttribute("x", Format(textX)),

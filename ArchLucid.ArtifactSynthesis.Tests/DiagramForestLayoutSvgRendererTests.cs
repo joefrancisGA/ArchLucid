@@ -19,6 +19,103 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Render_data_flow_shows_consumer_status_for_data_stores_only()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "storage-used",
+                    Label = "storage-used",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "storage",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage-empty",
+                    Label = "storage-empty",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "storage",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "app",
+                    Label = "app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    SubgraphId = "application",
+                    OrderKey = 2,
+                },
+                new DiagramNode
+                {
+                    NodeId = "factory",
+                    Label = "factory",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DataFactory/factories",
+                    SubgraphId = "ingestion",
+                    OrderKey = 3,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "storage-used",
+                    ToNodeId = "app",
+                    Label = "uses",
+                },
+                new DiagramEdge
+                {
+                    FromNodeId = "storage-used",
+                    ToNodeId = "factory",
+                    Label = "uses",
+                },
+            ],
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "storage",
+                    Label = "Storage",
+                    OrderKey = 0,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "application",
+                    Label = "Application",
+                    OrderKey = 1,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "ingestion",
+                    Label = "Ingestion",
+                    OrderKey = 2,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult dataFlowResult = renderer.Render(ast);
+
+        dataFlowResult.Succeeded.Should().BeTrue(dataFlowResult.Error);
+        dataFlowResult.Svg.Should().Contain("Used by 2");
+        dataFlowResult.Svg.Should().Contain("No consumer found");
+
+        ast.Title = "Azure inventory (FullSubscription)";
+        DiagramForestLayoutResult fullSubscriptionResult = renderer.Render(ast);
+
+        fullSubscriptionResult.Succeeded.Should().BeTrue(fullSubscriptionResult.Error);
+        fullSubscriptionResult.Svg.Should().NotContain("Used by 2");
+        fullSubscriptionResult.Svg.Should().NotContain("No consumer found");
+    }
+
+    [Fact]
     public void Resolve_row_width_limit_keeps_three_cell_floor_and_scales_large_plates()
     {
         DiagramForestLayoutOptions options = new()
