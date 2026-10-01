@@ -25712,11 +25712,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 31
-- **bugs-found:** 26
+- **hunts:** 32
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — pre-finalize checklist kept evidence-linkage gaps Advisory when linkage engine was enforcing (parity gap vs pre-commit gate after #1418 tech-consistency fix)
+- **last-hunt:** 2026-10-01
+- **last-bug:** 2026-10-01 — execute-time empty coverage baseline failed to detect newly added coverage assignments before finalize
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -25796,9 +25796,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — evidence-linkage supplemental findings with `WarnOnly=false` differed from live gate — **superseded 2026-09-27 thorough hunt:** shared appender bug; dry-run and live gate now block together when linkage is enforcing.
 
-- (candidate) `PreFinalizeChecklistService.BuildAsync` — the request's accepted GUID spelling is passed unchanged to `PreCommitGovernanceGate.EvaluateAsync` while the checklist's ledger and supplemental-finding paths use the canonical `N` form; verify that brace/dashed input cannot make gate-generated finding identity or audit/diagnostic output diverge from checklist findings. Reachability: the finalize-readiness API accepts a run-id string and callers can submit any `Guid.TryParse`-accepted representation.
+- [x] (valid-no-repro) `PreFinalizeChecklistService.BuildAsync` — the request's accepted GUID spelling is passed unchanged to `PreCommitGovernanceGate.EvaluateAsync` while the checklist's ledger and supplemental-finding paths use the canonical `N` form; existing gate and ledger paths parse/canonicalize the identifier, and no divergent outcome was reproduced in this pass. Reachability: the finalize-readiness API accepts a run-id string and callers can submit any `Guid.TryParse`-accepted representation.
 - (candidate) `PreCommitSupplementalFindingsAppender.AppendAsync` — technology-consistency findings are appended before `FindingEvidenceLinkageFindingEngine.Evaluate`; verify that a high-severity technology finding whose engine/type metadata is transformed by a custom or persisted engine still receives the intended linkage exemption rather than an extra blocking linkage finding. Reachability: technology-ledger inconsistencies are generated from user-editable ledger rows and the linkage engine is enabled by application configuration.
 - [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — supplying both `targetRunId` and `targetManifestId` evaluates the run target while silently dropping the manifest target; the public request validator requires exactly one target, so this ambiguity is not reachable through the API contract.
+
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — an execute-time empty `CoverageAssignments` baseline skipped comparison, so a disabled or newly added assignment could create current coverage rows without a blocking drift item while the pack-assignment hash stayed unchanged — **hit 2026-10-01 seed hunt:** removed the `Count > 0` guard and always hash-compared the captured coverage slice; regression `EvaluateAsync_adds_blocking_item_when_coverage_is_added_after_execute_from_an_empty_snapshot`.
+
+2026-10-01 seed hunt (seed→hit): proved empty execute-time coverage baselines were treated as “not captured,” allowing newly added coverage rows to escape finalize drift detection; fixed with unconditional coverage snapshot comparison; 11 scoped `PreFinalizeExecuteBaselineDriftEvaluator` tests passed.
 
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
