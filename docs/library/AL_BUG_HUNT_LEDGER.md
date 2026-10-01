@@ -9638,6 +9638,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook authentication, parsing, tenant-correlation, replay-claim, and audit review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-10-01 seed hunt (seed-only, hint `V`): inspected inbound webhook authentication, payload parsing, tenant correlation, replay claiming/release, and audit paths; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-26 seed hunt (seed-only): reseeded itsm-inbound-webhooks after #3911 Jira numeric key/status rejection; scoped 48 Application + 5 Persistence + 18 API inbound webhook tests passed; cheap-disproved ServiceNow numeric `sys_id` (32-char hex contract); no new hunt-ready rows.
