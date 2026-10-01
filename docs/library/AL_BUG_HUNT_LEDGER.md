@@ -13151,6 +13151,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-01 seed hunt (seed-only): inspected retrieval indexing, in-memory search, Azure scope filtering, query orchestration, structural chunking, and lexical reranking; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-09-27 seed hunt #38 (seed→hit): reseeded retrieval; proved `IndexDocumentsAsync` removed prior vectors before `MaxChunksPerIndexOperation` validation so cap failures left documents unsearchable while unchanged-hash retries skipped re-embedding; fixed by deferring `RemoveChunksForDocumentAsync` until after the cap check; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`; 351 scoped retrieval/indexing tests passed.
 
 2026-09-27 thorough hunt #37 (hit): proved `AdminRagHealthQuery.GetRagHealth` mapped `ChunkCount` from catalog document rows; fixed by tracking `IndexedChunkCount` on `RecordIndexed` and aggregating `RetrievalCorpusFreshnessSummary.ChunkCount`; regressions `IndexDocumentsAsync_records_chunk_count_in_corpus_freshness_summary` and updated `AdminRagHealthQuery_marks_fresh_stale_and_null_last_indexed`; 350 scoped retrieval/indexing tests passed.
