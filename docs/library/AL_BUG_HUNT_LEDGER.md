@@ -26153,9 +26153,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
@@ -26166,6 +26166,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-01 seed hunt (seed-only): re-read scope bootstrap, cross-tab scope refresh, cache invalidation, and scope-agnostic shell caches; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
 
 2026-10-01 seed hunt (seed-only): re-read operator scope-change event ordering and cache invalidation helpers; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read dedicated workspace persistence, remote bootstrap project selection, and sample-scope exclusion; no new reachable candidate emerged; representative operator library tests passed (64); no hypothesis was promoted.
 
 ### Hypotheses
 
