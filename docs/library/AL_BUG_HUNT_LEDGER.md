@@ -8,7 +8,7 @@
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — resolution indexed requirement/non-topology nodes before topology nodes, so a shared label could create an edge to a requirement node instead of the service/datastore — **hit 2026-10-01 seed hunt:** restrict all mapper resolution-index passes to `GraphTopologyResource` nodes; regression `MapRelationships_ignores_non_topology_nodes_that_share_an_endpoint_label`.
 
-2026-10-01 seed hunt (seed→hit): proved a graph requirement node sharing a service label could capture relationship resolution before the actual topology node; filtered non-topology nodes from endpoint resolution; 1,589 scoped merge tests passed.
+2026-10-01 seed hunt (seed-only): revalidated the topology endpoint collision regression already fixed in the preceding hunt; no new defect or hypothesis was promoted.
 
 2026-09-29 seed hunt #3055 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows; cheap-disproof closed #3051×#3054 diagonal for mixed node-id/ARM combined `endpointAliases` with **hybrid** relationships when node-id alias targets, ARM alias values, **and** the direct relationship ARM endpoint all use uppercase casing; fourteen regressions under prefix `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_`; 1412 scoped topology-proposal-merge tests passed.
 
@@ -2775,7 +2775,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1594
+- **hunts:** 1595
 - **last-hunt:** 2026-10-01
 - **bugs-found:** 972
 - **consecutive-dry-hunts:** 0
