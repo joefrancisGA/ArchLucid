@@ -177,8 +177,8 @@ type OutlineNodeMetadata = {
   readonly seedNodeId: string | null;
   readonly outlineOnlyOnCanvas: boolean;
   readonly unresolvedRelationshipDetails: readonly string[];
-  readonly questionableReason: string | null;
-  readonly questionableAction: string | null;
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
 };
 
 type OutlineEdgeMetadata = {
@@ -273,8 +273,8 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     seedNodeId,
     outlineOnlyOnCanvas,
     unresolvedRelationshipDetails,
-    questionableReason,
-    questionableAction,
+    ...(questionableReason === null ? {} : { questionableReason }),
+    ...(questionableAction === null ? {} : { questionableAction }),
   };
 }
 
@@ -286,8 +286,6 @@ function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
     seedNodeId: null,
     outlineOnlyOnCanvas: false,
     unresolvedRelationshipDetails: [],
-    questionableReason: null,
-    questionableAction: null,
   };
 }
 

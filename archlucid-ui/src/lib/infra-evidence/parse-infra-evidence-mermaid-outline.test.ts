@@ -88,6 +88,25 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     ]);
   });
 
+  it("parses policy-pack questionable attention metadata", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    %% al-questionable-reason="Named like an AVD host and not registered" al-questionable-action="Register or retire"',
+        '    vm01["avd01-nprod-0"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      expectedOutlineNode({
+        id: "vm01",
+        label: "avd01-nprod-0",
+        questionableReason: "Named like an AVD host and not registered",
+        questionableAction: "Register or retire",
+      }),
+    ]);
+  });
+
   it("still parses legacy inline inventory node metadata comments", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
