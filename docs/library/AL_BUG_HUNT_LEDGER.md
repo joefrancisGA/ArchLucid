@@ -5254,6 +5254,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: llm-wallet
 
+2026-10-01 seed hunt (seed-only): revalidated the wallet concurrency paths and moved the two existing candidates into the parser-visible `### Hypotheses` block; no new defect or hypothesis was promoted; 17 scoped LlmTenantWalletService tests passed.
+
 2026-10-01 seed hunt (seed-only): inspected wallet controller, service, and SQL repository concurrency paths; no hunt-ready row was promoted; seeded blank row-version and null database row-version candidates; 17 scoped LlmTenantWalletService tests passed.
 
 - **id:** llm-wallet
@@ -5283,6 +5285,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2086 (seed-only): reseeded llm-wallet; 17 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `WalletController.TryDecodeRowVersion` — a missing or whitespace row-version token is accepted as an empty byte array, allowing a settings PUT to reach the service without an explicit optimistic-concurrency token; reachability: the public wallet PUT accepts nullable `RowVersionBase64` and maps blank input to `[]`.
+- [ ] (candidate) `SqlLlmTenantWalletRepository.SelectAsync` — a null database `RowVersion` is converted to an empty array and can be emitted as a valid-looking empty concurrency token, weakening stale-write detection; reachability: SQL projection permits nullable `rowVersion` and the repository maps null to `[]` before service/controller response mapping.
 
 - [x] (invalid) Debit applies to a different tenant's wallet when the header tenant differs from the route — wallet paths scope by ambient `ScopeContext.TenantId`; no cross-tenant debit/read in listed controllers/services
 - [x] (proven) Concurrent debits both succeed past the remaining balance — **hit 2026-08-24:** `TryAuthorizeOverageSpendAsync` was read-only; parallel authorizes overspent before async settlement; fixed with atomic `TryConsumeAsync` reserve + settlement reconcile; regression in `TryAuthorizeOverageSpendAsync_parallel_estimates_only_one_succeeds_when_balance_covers_single_estimate`
