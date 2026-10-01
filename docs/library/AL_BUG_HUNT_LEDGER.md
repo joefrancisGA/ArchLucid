@@ -11173,11 +11173,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 39
-- **bugs-found:** 31
+- **hunts:** 40
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — non-postgres/redis/mysql/cosmos labels still matched bare engine substring tokens
+- **last-hunt:** 2026-10-01
+- **last-bug:** 2026-10-01 — mixed private-positive and non-private-negative rationale suppressed required private endpoint promotion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11188,6 +11188,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-27 seed hunt (seed→hit): reseeded decisioning after non-storage parity fixes; proved bare `.Contains("database")` still matched `non-database-*` labels and `SecurityControlsDecisionStrategy` / `ManifestGovernanceMerger` substring-matched `private` inside `non-private` text; fixed with `ContainsAffirmativeDatabaseKeyword` and `DecisioningTextTokenMatcher.ContainsAffirmativePrivateKeyword`; regressions in `TopologyDatastoreLabelHeuristicTests`, `SegmentationSemanticsPathAnalyzerTests`, and `DecisionEngineV2Tests`; 13 scoped tests passed.
 
 - [x] (proven) Decisioning datastore / security-control heuristics — `non-database` and negated `private` phrases — **hit 2026-09-27 seed hunt:** delimiter-split `database` token with `non` negation; affirmative private keyword helper for merge strategies.
+
+- [x] (proven) `DecisioningTextTokenMatcher.ContainsAffirmativePrivateKeyword` — any `non-private` phrase anywhere in a rationale suppressed a separate affirmative `private` requirement — **hit 2026-10-01 seed hunt:** removed the blanket mixed-text rejection; `ContainsStandaloneToken` already excludes the negated occurrence while preserving positive private mentions; regression `ResolveAsync_security_node_promotes_private_endpoints_when_rationale_prohibits_non_private_fallback`.
+
+2026-10-01 seed hunt (seed→hit): proved mixed rationale text such as “Prefer private endpoints; non-private connectivity is prohibited” incorrectly produced no security-control promotion; removed redundant whole-string negation checks; 10 scoped `DecisionEngineV2Tests` passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded decisioning after TopologyDatastore storage-token fixes; proved `TopologyAntiPatternFindingEngine.LooksPubliclyExposed` still used bare `.Contains("storage")`/`blob` so `public-non-storage-*` labels false-emitted public-exposure findings, and `SegmentationSemanticsPathAnalyzer.IsDatastoreNode` still bare-matched `storage` inside `non-storage` labels; fixed with shared `ContainsAffirmativeStorageKeyword` / new `ContainsAffirmativeBlobKeyword`; regressions `AnalyzeAsync_WhenLabelIsPublicNonStorage_DoesNotEmitPublicExposureFinding` and `IsSensitiveTarget_does_not_treat_non_storage_label_as_datastore`; 14 scoped SegmentationSemantics + TopologyAntiPattern + TopologyDatastore tests passed.
 
