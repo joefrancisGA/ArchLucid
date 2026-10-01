@@ -197,6 +197,53 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_ignores_non_topology_nodes_that_share_an_endpoint_label()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "requirement-api",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "api",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-orders",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "orders",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "orders",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-api"
+            && e.ToNodeId == "ds-orders"
+            && e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property()
     {
         const string vmResourceId =
