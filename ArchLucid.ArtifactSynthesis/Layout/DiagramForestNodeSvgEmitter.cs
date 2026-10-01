@@ -207,7 +207,7 @@ public static class DiagramForestNodeSvgEmitter
                     "y",
                     Format(firstLineBaseline
                         + (linesAfterName * options.LineHeight)
-                        + (resourceGroupLines.Count * options.LineHeight))),
+                        + (metrics.ResourceGroupLines.Count * options.LineHeight))),
                 new XAttribute("text-anchor", "start"),
                 new XAttribute("font-size", "10"),
                 new XAttribute("font-weight", "700"),
