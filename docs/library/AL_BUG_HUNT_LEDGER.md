@@ -25942,10 +25942,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 24
+- **hunts:** 25
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-bug:** 2026-09-28 — improvement planning stale `theme` URL when theme id missing from loaded themes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25995,6 +25995,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-01 seed hunt (seed-only): re-read the operator route surface and found no new reachable candidate; the broad `operator` filter exposed unrelated baseline failures before termination, while the representative `PlanningPageClient` test passed; no hypothesis was promoted.
 
 2026-10-01 seed hunt (seed-only): re-read the planning, remediation-pattern, and remediation-factory route surfaces; no new reachable candidate emerged; representative `RemediationPatternsClient` tests passed (14); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the planning, remediation-pattern, and remediation-factory operator route surfaces; no new reachable candidate emerged; focused `PlanningPageClient` test passed (1); broad `operator` filter was not rerun because the prior run exposed unrelated baseline failures; no hypothesis was promoted.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-operator-routes after remediation-factory hits; proved ranked-path view filter/detail desync on remediation factory.
 
