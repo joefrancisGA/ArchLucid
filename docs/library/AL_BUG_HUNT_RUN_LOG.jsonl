@@ -8491,3 +8491,4 @@
 {"at":"2026-10-01T12:12:55.8428710Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
 {"at":"2026-10-01T12:16:24.9700177Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
 {"at":"2026-10-01T12:23:56.0284847Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/"]}
+{"at":"2026-10-01T12:27:27.1203928Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs"]}
