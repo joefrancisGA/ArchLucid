@@ -25796,6 +25796,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — evidence-linkage supplemental findings with `WarnOnly=false` differed from live gate — **superseded 2026-09-27 thorough hunt:** shared appender bug; dry-run and live gate now block together when linkage is enforcing.
 
+- (candidate) `PreFinalizeChecklistService.BuildAsync` — the request's accepted GUID spelling is passed unchanged to `PreCommitGovernanceGate.EvaluateAsync` while the checklist's ledger and supplemental-finding paths use the canonical `N` form; verify that brace/dashed input cannot make gate-generated finding identity or audit/diagnostic output diverge from checklist findings. Reachability: the finalize-readiness API accepts a run-id string and callers can submit any `Guid.TryParse`-accepted representation.
+- (candidate) `PreCommitSupplementalFindingsAppender.AppendAsync` — technology-consistency findings are appended before `FindingEvidenceLinkageFindingEngine.Evaluate`; verify that a high-severity technology finding whose engine/type metadata is transformed by a custom or persisted engine still receives the intended linkage exemption rather than an extra blocking linkage finding. Reachability: technology-ledger inconsistencies are generated from user-editable ledger rows and the linkage engine is enabled by application configuration.
+- [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — supplying both `targetRunId` and `targetManifestId` evaluates the run target while silently dropping the manifest target; the public request validator requires exactly one target, so this ambiguity is not reachable through the API contract.
+
 2026-09-11 seed hunt #1694 (seed-only): reseeded application-governance-policy after #1535; cheap-disproof on dry-run non-GUID null shape; 1 scoped PolicyPackGovernanceDryRunService test passed.
 
 2026-09-10 seed hunt (hit): extended lineage sealed-manifest guard to top findings projection.
