@@ -8517,3 +8517,4 @@
 {"at":"2026-10-01T13:57:37.8906882Z","zoneId":"itsm-inbound-webhooks","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs","ArchLucid.Application/Integrations/Itsm/","ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
 {"at":"2026-10-01T14:03:48.221686177Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-01T14:07:28Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/"]}
+{"at":"2026-10-01T14:12:18.861272175Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}

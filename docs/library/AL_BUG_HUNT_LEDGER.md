@@ -23199,10 +23199,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-27 — `GraphSnapshotExtensions` neighbor traversal missed nodes when edge endpoints differed from `NodeId` only by surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23234,6 +23234,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
 
 
+
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder` — relationship endpoints with surrounding whitespace are skipped because `nodeIdByArmId` is keyed by the raw ARM id while graph snapshot traversal now trims endpoint ids (reachability: imported inventory relationship rows supply `FromAzureResourceId`/`ToAzureResourceId`; needs a reachable padded-id record).
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder` — duplicate resources whose Azure resource ids differ only by casing create duplicate graph nodes with the same case-insensitive identity while the lookup silently keeps the last row (reachability: inventory snapshots can contain case-variant resource ids; needs evidence that upstream snapshot validation permits both rows).
+- [ ] (candidate) `ProvenanceCompletenessAnalyzer` — duplicate internal provenance node ids in a deserialized snapshot throw from `ToDictionary` instead of returning an incomplete/diagnostic result (reachability: persisted provenance JSON is deserialized before analysis; needs proof malformed duplicate ids can be stored or reach the analyzer).
+
+2026-10-01 seed hunt (seed-only, hint `V`): reseeded graph snapshot normalization, inventory overlay identity, and provenance completeness after five recent graph fixes; seeded three concrete candidates, with 356 KnowledgeGraph tests passing and 3 pre-existing failures plus 47 Provenance tests passing; no hunt-ready defect was proven in this pass.
 
 ### Hypotheses
 
