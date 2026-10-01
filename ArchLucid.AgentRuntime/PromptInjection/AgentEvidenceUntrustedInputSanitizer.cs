@@ -108,8 +108,11 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
         SanitizeStringList(request.Assumptions);
     }
 
-    private static void SanitizeStringList(List<string> rows)
+    private static void SanitizeStringList(List<string>? rows)
     {
+        if (rows is null)
+            return;
+
         for (int i = 0; i < rows.Count; i++)
             rows[i] = AzureResourceTagPromptSanitizer.SanitizeScalar(rows[i]);
     }

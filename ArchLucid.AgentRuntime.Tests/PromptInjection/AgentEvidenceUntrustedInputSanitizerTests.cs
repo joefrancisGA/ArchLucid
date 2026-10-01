@@ -47,6 +47,18 @@ public sealed class AgentEvidenceUntrustedInputSanitizerTests
     }
 
     [Fact]
+    public async Task SanitizeAsync_skips_null_string_lists_from_deserialized_evidence()
+    {
+        ArchitectureRequest request = MinimalArchitectureRequest();
+        AgentEvidencePackage evidence = BuildEvidence();
+        evidence.Policies[0].RequiredControls = null!;
+
+        Func<Task> act = () => _sut.SanitizeAsync(evidence, request, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
     public async Task SanitizeAsync_wraps_prior_manifest_version_used_by_user_prompt_composer()
     {
         ArchitectureRequest request = MinimalArchitectureRequest();
