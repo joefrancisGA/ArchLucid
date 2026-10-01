@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
+import { HelpAzureInventoryNeverShowReferenceSection } from "@/app/(operator)/help/_sections/HelpAzureInventoryNeverShowReferenceSection";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GovernanceInfrastructureDriftHelpEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-help-infrastructure-strips";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -312,6 +313,8 @@ export function HelpGovernanceInfrastructureDriftGuideView(
               testId="help-governance-infrastructure-drift-table-columns"
             />
           </section>
+
+          <HelpAzureInventoryNeverShowReferenceSection readingBodyClass={readingBodyClass} />
 
           <section
             aria-labelledby="help-governance-infrastructure-drift-applicability"
