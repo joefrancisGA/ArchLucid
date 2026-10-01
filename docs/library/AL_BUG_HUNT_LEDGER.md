@@ -5261,6 +5261,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: llm-wallet
 
+2026-10-01 seed hunt (seed-only): revalidated the blank row-version and nullable database row-version candidates against the selected wallet paths; neither reached a new hunt-ready mechanism, no candidate was promoted, and 17 scoped LlmTenantWalletService tests passed.
+
 2026-10-01 seed hunt (seed-only): revalidated the wallet concurrency paths and moved the two existing candidates into the parser-visible `### Hypotheses` block; no new defect or hypothesis was promoted; 17 scoped LlmTenantWalletService tests passed.
 
 2026-10-01 seed hunt (seed-only): inspected wallet controller, service, and SQL repository concurrency paths; no hunt-ready row was promoted; seeded blank row-version and null database row-version candidates; 17 scoped LlmTenantWalletService tests passed.
