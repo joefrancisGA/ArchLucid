@@ -9883,6 +9883,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-01 seed hunt (seed-only): repeated the selected safety and prompt-injection source review; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-10-01 seed hunt (seed-only): repeated source-level reseed of the safety and prompt-injection sanitizer scope; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): reseeded the safety and prompt-injection sanitizer sources; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
