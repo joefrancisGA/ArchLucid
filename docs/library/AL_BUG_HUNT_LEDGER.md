@@ -9638,6 +9638,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+2026-10-01 seed hunt (seed-only, hint `V`): repeated the selected inbound webhook source review and replay-guard inspection; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-10-01 seed hunt (seed-only, hint `V`): repeated source review of inbound webhook authentication, payload parsing, tenant correlation, replay claims, and audit emission; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook authentication, parsing, tenant-correlation, replay-claim, and audit review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
