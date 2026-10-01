@@ -9931,6 +9931,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-01 thorough hunt (dry): cheap-disproved the threshold-range candidate; `MapResult` consistently applies the configured comparison for below/equal/above severities, and no reachable contract showed an invalid threshold as an actual caller input; 574 scoped agent-runtime-safety tests passed.
+
 2026-10-01 thorough hunt (hit): `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` dereferenced null policy rows from deserialized evidence before the agent call; added null guards for policy, service, pattern, and note collections; regression `SanitizeAsync_skips_null_policy_rows_from_deserialized_evidence`; repro failed before the fix and passed after; 574 scoped agent-runtime-safety tests passed.
 
 2026-10-01 seed hunt (seed-only): inspected the selected safety and prompt-injection files; no hunt-ready row was promoted; seeded threshold-range and null-evidence-element candidates; 573 scoped agent-runtime-safety tests passed.
@@ -10799,7 +10801,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AzureContentSafetyGuard.MapResult` — a configured threshold outside Azure's four-level range may cause every category to be allowed or blocked without validation; reachability: `BlockSeverityThreshold` is read from `IOptionsMonitor<ContentSafetyOptions>` at request time and this guard does not validate its range.
+- [x] (valid-no-repro) `AzureContentSafetyGuard.MapResult` — a configured threshold outside Azure's four-level range might cause incorrect blanket allow/block behavior; **cheap-disproof 2026-10-01:** the mapping comparison is consistent for the tested severity boundaries, with no reachable invalid-threshold caller contract demonstrated.
 - [x] (proven) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — null elements inside evidence policy/service/pattern/note collections threw before the agent call; **hit 2026-10-01:** skip null collection rows while sanitizing all non-null evidence; regression `SanitizeAsync_skips_null_policy_rows_from_deserialized_evidence`.
 
 - [x] (valid-no-repro) Content safety guard maps a blocked category to allow on SDK failure — intentional fail-open when `FailClosedOnSdkError=false` (`AzureContentSafetyGuardSdkFailureTests`).
