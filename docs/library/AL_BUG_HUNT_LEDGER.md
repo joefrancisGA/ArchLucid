@@ -2919,6 +2919,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.ReportUnanalyzableIfScopedTableReferenced` — dynamic SQL using SQL-standard quoted identifiers such as `"dbo"."Runs"` may evade the fallback table guess because the regex only recognizes bracketed or bare identifiers; reachability: unresolved SQL expressions are analyzed from persistence Dapper calls and SQL Server accepts quoted identifiers.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgumentExpression` — a Dapper overload whose SQL parameter uses an alias other than `sql`, `command`, or `commandText` may be ignored and bypass ARCH006; reachability: the analyzer relies on parameter-name matching for named/positional overload arguments and does not fall back to SQL-type semantics.
+
 - [ ] (candidate) `WalletController.TryDecodeRowVersion` — a missing or whitespace row-version token is accepted as an empty byte array, allowing a settings PUT to reach the service without an explicit optimistic-concurrency token; reachability: the public wallet PUT accepts nullable `RowVersionBase64` and maps blank input to `[]`.
 - [ ] (candidate) `SqlLlmTenantWalletRepository.SelectAsync` — a null database `RowVersion` is converted to an empty array and can be emitted as a valid-looking empty concurrency token, weakening stale-write detection; reachability: SQL projection permits nullable `rowVersion` and the repository maps null to `[]` before service/controller response mapping.
 
@@ -4488,6 +4491,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: tenant-scoped-analyzer
+
+2026-10-01 seed hunt (seed-only): inspected SQL argument binding, resolved/unresolved SQL analysis, registry loading, and exemption handling; no hunt-ready row was promoted; seeded quoted-identifier and aliased-SQL-parameter candidates; 17 analyzer tests passed.
 
 - **id:** tenant-scoped-analyzer
 - **status:** open
