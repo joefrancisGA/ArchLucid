@@ -4487,6 +4487,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-01 seed hunt (seed-only): repeated the selected `RunsListClient.tsx` source review for filter disclosure, row/card activation, inspector state, and pagination; the exact focused filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only): inspected `RunsListClient.tsx` for URL filter synchronization, inspector/card activation, filtering, sorting, and pagination boundaries; the exact `RunsListClient` filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 ### Hypotheses
 
 - [x] (proven) Analyzer missed Dapper `QueryAsync` on tenant tables — **hit 2026-08-24:** `TryGetSqlArgument` always used `Arguments[0]` (connection) instead of the `sql`/`command` parameter; regression in `ARCH006_reports_unscoped_static_sql_on_scoped_table`
@@ -6232,6 +6236,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-01 seed hunt (seed-only): inspected the DOCX, inventory, icon-catalog, and Mermaid artifact paths; the exact picker filter ran 639 tests with 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped, while focused DOCX (11/11) and inventory-generator (5/5) tests passed; no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
 
@@ -9624,13 +9630,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook facade, processing pipeline, and replay-guard review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only, hint `V`): re-read the inbound controller, facade, pipeline, JSON readers, correlation support, and replay guard after the three recent ITSM fixes; the exact `ItsmInboundWebhook` filter passed 48 tests and no new hunt-ready candidate was proven.
+
+2026-10-01 seed hunt (seed-only, hint `V`): repeated the selected inbound webhook source review and replay-guard inspection; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only, hint `V`): repeated source review of inbound webhook authentication, payload parsing, tenant correlation, replay claims, and audit emission; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook authentication, parsing, tenant-correlation, replay-claim, and audit review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-01 seed hunt (seed-only, hint `V`): inspected inbound webhook authentication, payload parsing, tenant correlation, replay claiming/release, and audit paths; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-26 seed hunt (seed-only): reseeded itsm-inbound-webhooks after #3911 Jira numeric key/status rejection; scoped 48 Application + 5 Persistence + 18 API inbound webhook tests passed; cheap-disproved ServiceNow numeric `sys_id` (32-char hex contract); no new hunt-ready rows.
 
@@ -9686,6 +9704,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): reviewed inbound controller, JSON readers, facade, pipeline, status mappers, correlation/replay support, and replay-guard tests; retained one reachable replay-eviction race candidate for a dedicated concurrency repro.
 
 2026-09-30 thorough hunt (hit): deterministic replay-guard repro proved a delayed eviction callback could clear a reclaimed claim and permit duplicate delivery; claim generations now use conditional removal, with 6 replay-guard tests and 48 scoped ITSM webhook tests passing.
+
+- [x] (invalid) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — timestamp skew is explicitly optional when the header is absent; the facade's bypass matches `CONFIGURATION_REFERENCE.md` and the ITSM replay-guard runbook, while present malformed/stale values still flow through `WebhookSecrets.TimestampWithinSkew`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline` replay-id fallback — deliveries without either explicit identifier intentionally use provider + external key + status as the documented synthetic id; no reachable Jira or ServiceNow event sequence proving two distinct same-tuple deliveries was found, and `ItsmInboundWebhookReplayEventIdTests` covers the fallback contract.
+- [x] (invalid) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` unscoped lookup — both SQL and in-memory repositories return no row unless provider + external key is unique; duplicate cross-tenant correlations therefore cannot select an arbitrary tenant row.
+
+2026-10-01 thorough hunt (dry, hint `V`): tested all three seeded candidates; optional timestamp behavior matches documented contract, synthetic replay fallback had no reachable same-tuple vendor sequence, and unscoped correlation lookup is ambiguity-safe; exact `ItsmInboundWebhook` filter passed 48 tests.
 
 ---
 
@@ -13150,6 +13174,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: retrieval
+
+2026-10-01 seed hunt (seed-only): extended the retrieval source review across Azure Search adapters, scope validation, summarization, chunking, and embedding caching; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): inspected retrieval indexing, in-memory search, Azure scope filtering, query orchestration, structural chunking, and lexical reranking; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
 
@@ -26691,10 +26717,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-26 — detailed/guided wizards kept deep-linked step after step= / intakeStep= cleared from URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26728,6 +26754,14 @@ ABQ-09 churn hotspot; intake wizard route tree.
 2026-09-11 seed hunt #1684 (hit): reseeded ui-review-intake-wizards; proved orphan rerun quick-start title prefill; 4 first-pilot intake wizard unit tests passed.
 
 - [x] (proven) `useNewRunWizardSteps` / `useGuidedIntakeWizard` — wizard step index stayed on step 0 after App Router `step=` / `intakeStep=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908 (seed→hit):** hooks initialized step from URL in `useState` and only re-synced on `popstate`; client navigations left `filteredSorted`/confirm UI on the wrong slide; fixed by syncing from `searchParams` and using `readWindowLocationSearch()` in popstate handlers; regression `follows step= URL changes without a popstate event`.
+
+- [ ] (candidate) `ReviewsNewPathSwitcher` — `activePath` is initialized from `path=` only in the route effect and path commits use `history.replaceState` without notification; a same-mounted App Router/query transition that changes `path` without remount could leave the rendered wizard on the previous path (reachability: `path=` is an operator-controlled deep-link and `selectPath` commits query state without a Next router navigation; needs a concrete transition showing stale path UI).
+- [ ] (candidate) `useFirstPilotIntakeWizard` — `exampleTemplatePrefillAppliedRef` permanently suppresses later template query changes while the quick-start wizard remains mounted, so navigating from one `template=` deep link to another may retain the first title/brief (reachability: `exampleTemplate` is derived from live search params and the effect is ref-gated; needs proof that same-mounted template transitions are supported rather than intentionally one-shot).
+- [ ] (candidate) `useGuidedIntakePriorRunPrefill` — once one `rerun=` package has been applied, `appliedRef` blocks a later prior-run query from applying its own empty-field/scope prefill in the same mounted wizard (reachability: `priorRunId` is a live search-param input and the effect reruns for a changed id; needs a supported same-session rerun transition that should replace prior context).
+
+2026-10-01 seed hunt (seed-only, hint `V`): reseeded the UI review-intake route after step, pilot, and disclosure URL-sync fixes; seeded three concrete same-mounted deep-link/prefill candidates and found no hunt-ready defect to prove in this pass.
+
+2026-10-01 seed hunt (seed-only, hint `V`): scoped URL-sync tests had 13 passing and 12 pre-existing `ReviewsNewPathSwitcher` assertion failures because those tests still expect `router.replace` while the route now commits with `history.replaceState`; no candidate was promoted or proven.
 
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `rerun=` survives switch to guided intake and prefills Socratic intake — **cheap-disproof 2026-09-25 seed hunt #3908:** guided intake intentionally consumes `rerun=` via `useGuidedIntakePriorRunPrefill`; regression `prefills guided intake from rerun= when the prior package intake is available`.
 
