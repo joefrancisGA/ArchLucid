@@ -38,7 +38,7 @@ public static class InventoryDiagramAvdScopeResolver
                 continue;
             }
 
-            if (IsAvdOnlySessionHostVirtualMachine(node, graph, avdOnlyNodeIds, sessionHostLastSegments))
+            if (IsAvdOnlySessionHostVirtualMachine(node, graph, sessionHostLastSegments))
             {
                 avdOnlyNodeIds.Add(node.NodeId);
                 string? hostPoolArmId = ResolveHostPoolArmIdForSessionHostVm(node, graph, nodesById, sessionHostLastSegments);
@@ -157,7 +157,6 @@ public static class InventoryDiagramAvdScopeResolver
     private static bool IsAvdOnlySessionHostVirtualMachine(
         GraphNode node,
         GraphSnapshot graph,
-        IReadOnlySet<string> avdOnlyNodeIds,
         IReadOnlySet<string> sessionHostLastSegments)
     {
         string armType = ReadArmType(node);
@@ -171,7 +170,7 @@ public static class InventoryDiagramAvdScopeResolver
         if (IsSessionHostBackingTarget(node.NodeId, graph)
             || MatchesSessionHostLastSegment(ReadArmId(node), sessionHostLastSegments))
         {
-            return !HasProvenNonAvdRole(node.NodeId, graph, avdOnlyNodeIds);
+            return true;
         }
 
         return false;
@@ -232,55 +231,6 @@ public static class InventoryDiagramAvdScopeResolver
                 edge.InferenceSource,
                 InventoryDiagramAvdEdgeSources.SessionHostToVm,
                 StringComparison.OrdinalIgnoreCase));
-    }
-
-    private static bool IsSessionHostExclusiveAttachment(string armType)
-    {
-        return armType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("/disks", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool HasProvenNonAvdRole(
-        string nodeId,
-        GraphSnapshot graph,
-        IReadOnlySet<string> avdOnlyNodeIds)
-    {
-        Dictionary<string, GraphNode> nodesById = graph.Nodes
-            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-
-        foreach (GraphEdge edge in EnumerateIncidentEdges(graph, nodeId))
-        {
-            if (edge.Weight < MinimumEdgeWeight)
-            {
-                continue;
-            }
-
-            if (string.Equals(
-                    edge.InferenceSource,
-                    InventoryDiagramAvdEdgeSources.SessionHostToVm,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            string otherNodeId = string.Equals(edge.FromNodeId, nodeId, StringComparison.Ordinal)
-                ? edge.ToNodeId
-                : edge.FromNodeId;
-
-            if (nodesById.TryGetValue(otherNodeId, out GraphNode? otherNode)
-                && IsSessionHostExclusiveAttachment(ReadArmType(otherNode)))
-            {
-                continue;
-            }
-
-            if (!avdOnlyNodeIds.Contains(otherNodeId))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static string? ResolveHostPoolArmIdForSessionHostVm(

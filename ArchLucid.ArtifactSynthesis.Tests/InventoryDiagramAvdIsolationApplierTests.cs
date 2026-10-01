@@ -69,13 +69,15 @@ public sealed class InventoryDiagramAvdIsolationApplierTests
     }
 
     [Fact]
-    public void Compile_full_subscription_keeps_dual_role_vm()
+    public void Compile_full_subscription_hides_identified_avd_vm_even_with_shared_resource_edge()
     {
         GraphSnapshot graph = BuildAvdTopologyGraph(includeDualRoleVm: true, includeFirewallEdge: false);
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.ArmResourceId == DualRoleVmArmId);
+        ast.Nodes.Should().NotContain(node => node.ArmResourceId == DualRoleVmArmId);
+        ast.Nodes.Should().Contain(node => node.ArmResourceId == SharedStorageArmId);
+        ast.Nodes.Should().NotContain(node => node.IsAvdCollapsedBoundary);
     }
 
     [Fact]
