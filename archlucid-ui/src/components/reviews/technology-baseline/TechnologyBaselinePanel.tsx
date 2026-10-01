@@ -352,13 +352,48 @@ export function TechnologyBaselinePanel({
         <EnterpriseTable ariaLabel="Technology baseline" data-testid="technology-baseline-table">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Technology</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Provider</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Source</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Locked</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Role</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The architecture role this technology fills.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Technology</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The technology recorded for this role.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Provider</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Who provides this technology.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Status</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The recorded state of this baseline entry.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Source</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Where this baseline entry came from.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Locked</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Whether this entry is locked against further change.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Actions</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Approve, lock, or unlock this baseline record. These actions do not change Azure.
+                </span>
+              </EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
