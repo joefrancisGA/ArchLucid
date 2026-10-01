@@ -6838,10 +6838,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-27 — OIDC/SAML discovery reported success for invisible-only issuer entity IDs that activation rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6903,6 +6903,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2311 (seed-only): reseeded identity-provider-config; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2342 (seed-only): reseeded identity-provider-config; no new hunt-ready rows.
+
+
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — validates a trimmed issuer URI but passes the original request to the sandbox service, so surrounding whitespace can reach the generated test-login token or response (reachability: admin test-login accepts an issuer string and trims only a local validation copy; needs a concrete observable token/response mismatch).
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — activation audit serializes raw `request.Protocol` instead of normalized `record.Protocol`, so mixed-case or padded protocol input can make the audit trail disagree with the persisted enum (reachability: the endpoint accepts case-insensitive/padded protocol values and emits the audit event after persistence; needs audit consumers to rely on this field).
+- [ ] (candidate) `IdentityProviderActivationService.ResolveOptionalPersistedField` — when switching protocols, an explicitly supplied protocol-inapplicable optional field can be persisted (for example `KeyVaultSecretName` on SAML), leaving stale or semantically incompatible configuration on the active tenant row (reachability: activation accepts both optional fields on every protocol; needs the runtime resolver to consume the incompatible field).
+
+2026-10-01 seed hunt (seed-only, hint `V`): reseeded identity-provider activation normalization, audit parity, and protocol-specific optional-field handling after recent substantive-mapping fixes; seeded three concrete candidates and 40 scoped activation tests passed, with no hunt-ready defect proven in this pass.
 
 ### Hypotheses
 

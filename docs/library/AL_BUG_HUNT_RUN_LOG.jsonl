@@ -8518,3 +8518,4 @@
 {"at":"2026-10-01T14:03:48.221686177Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-01T14:07:28Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/"]}
 {"at":"2026-10-01T14:12:18.861272175Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}
+{"at":"2026-10-01T14:18:13.041Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs","ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
