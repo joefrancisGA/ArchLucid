@@ -5659,7 +5659,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -6371,7 +6371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** AuthCallbackAccessPanel
 - **hunts:** 16
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-09-30
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -25993,6 +25993,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-28 seed hunt (seed→hit): reseeded ui-operator-routes; proved improvement planning stale theme URL after theme list refresh.
 
 2026-10-01 seed hunt (seed-only): re-read the operator route surface and found no new reachable candidate; the broad `operator` filter exposed unrelated baseline failures before termination, while the representative `PlanningPageClient` test passed; no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read the planning, remediation-pattern, and remediation-factory route surfaces; no new reachable candidate emerged; representative `RemediationPatternsClient` tests passed (14); no hypothesis was promoted.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-operator-routes after remediation-factory hits; proved ranked-path view filter/detail desync on remediation factory.
 
