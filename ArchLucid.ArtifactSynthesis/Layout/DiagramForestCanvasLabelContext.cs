@@ -119,7 +119,8 @@ public sealed class DiagramForestCanvasLabelContext
         int textLineCount = nameLines.Count
             + (dataFlowTypeLine is null ? 0 : 1)
             + (consumerStatusLine is null ? 0 : 1)
-            + resourceGroupLines.Count;
+            + resourceGroupLines.Count
+            + (node.QuestionableAttention is null ? 0 : 1);
         double textBlockHeight = textLineCount * _options.LineHeight;
         double chipBandHeight = node.NsgInboundRuleChips.Count > 0
             ? _options.LineHeight + 4.0d
@@ -139,6 +140,7 @@ public sealed class DiagramForestCanvasLabelContext
             AzureIcon: DiagramInventoryAzureIconResolver.Resolve(node),
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
             NsgInboundRuleChips: node.NsgInboundRuleChips,
+            IsQuestionable: node.QuestionableAttention is not null,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
     }
 

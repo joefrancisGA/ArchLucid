@@ -14,4 +14,5 @@ public sealed record DiagramForestNodeMetrics(
     AzureArchitectureIconCatalogEntry? AzureIcon,
     bool HasPrivateEndpointAccess,
     IReadOnlyList<DiagramNsgInboundRuleChip> NsgInboundRuleChips,
+    bool IsQuestionable,
     bool SuppressResourceGroupCaption = false);

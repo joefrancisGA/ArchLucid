@@ -29,13 +29,20 @@ public static class DiagramForestNodeSvgEmitter
             svgNamespace + "g",
             new XAttribute("class", "node"),
             new XAttribute("id", $"node-{nodeId}"));
-        group.Add(new XElement(svgNamespace + "title", Escape(accessibilityTitle)));
+        string? questionableTitle = metrics.IsQuestionable
+            ? $"{accessibilityTitle} — Questionable; select the resource for the reason and recommended action"
+            : null;
+        group.Add(new XElement(
+            svgNamespace + "title",
+            Escape(questionableTitle ?? accessibilityTitle)));
         group.Add(new XElement(
             svgNamespace + "rect",
-            new XAttribute("class", "node-card"),
+            new XAttribute("class", metrics.IsQuestionable ? "node-card node-card-questionable" : "node-card"),
             new XAttribute("width", Format(width)),
             new XAttribute("height", Format(height)),
-            new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeFill),
+            new XAttribute(
+                "fill",
+                metrics.IsQuestionable ? "#FDE68A" : ArchitectureDiagramMermaidPalette.LightNodeFill),
             new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightNodeBorder),
             new XAttribute("stroke-width", "1.5"),
             new XAttribute("rx", "6"),
@@ -189,6 +196,24 @@ public static class DiagramForestNodeSvgEmitter
             }
 
             group.Add(resourceGroupText);
+        }
+
+        if (metrics.IsQuestionable)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline
+                        + (linesAfterName * options.LineHeight)
+                        + (resourceGroupLines.Count * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "10"),
+                new XAttribute("font-weight", "700"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", "#92400E"),
+                Escape("Questionable")));
         }
 
         if (metrics.NsgInboundRuleChips.Count > 0)
