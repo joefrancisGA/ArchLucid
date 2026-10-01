@@ -24,6 +24,9 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
 
         foreach (PolicyEvidence policy in evidence.Policies)
         {
+            if (policy is null)
+                continue;
+
             policy.Title = AzureResourceTagPromptSanitizer.SanitizeScalar(policy.Title);
             policy.Summary = AzureResourceTagPromptSanitizer.SanitizeScalar(policy.Summary);
             SanitizeStringList(policy.RequiredControls);
@@ -32,6 +35,9 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
 
         foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog)
         {
+            if (service is null)
+                continue;
+
             service.ServiceName = AzureResourceTagPromptSanitizer.SanitizeScalar(service.ServiceName);
             service.Summary = AzureResourceTagPromptSanitizer.SanitizeScalar(service.Summary);
             SanitizeStringList(service.RecommendedUseCases);
@@ -39,6 +45,9 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
 
         foreach (PatternEvidence pattern in evidence.Patterns)
         {
+            if (pattern is null)
+                continue;
+
             pattern.Name = AzureResourceTagPromptSanitizer.SanitizeScalar(pattern.Name);
             pattern.Summary = AzureResourceTagPromptSanitizer.SanitizeScalar(pattern.Summary);
             SanitizeStringList(pattern.SuggestedServices);
@@ -56,7 +65,12 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
         }
 
         foreach (EvidenceNote note in evidence.Notes)
+        {
+            if (note is null)
+                continue;
+
             note.Message = AzureResourceTagPromptSanitizer.SanitizeScalar(note.Message);
+        }
 
         return Task.CompletedTask;
     }
