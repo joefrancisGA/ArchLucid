@@ -5739,7 +5739,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -6369,7 +6369,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** AuthCallbackAccessPanel
 - **hunts:** 16
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-30
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -26496,6 +26496,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
 2026-10-01 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder after the generated-identity fix; no new reachable candidate emerged; 62 scoped orchestrator/cache tests passed.
+
+2026-10-01 seed hunt (seed-only): repeated the orchestrator, review cache, and cache manifest builder source review; no new reachable candidate emerged; 62 scoped orchestrator/cache tests passed.
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator, review cache, and cache manifest builder; no new reachable candidate emerged; 61 scoped tests passed.
 
