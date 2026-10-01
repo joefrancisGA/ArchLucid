@@ -9630,10 +9630,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-01
 - **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -9705,9 +9705,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-30 thorough hunt (hit): deterministic replay-guard repro proved a delayed eviction callback could clear a reclaimed claim and permit duplicate delivery; claim generations now use conditional removal, with 6 replay-guard tests and 48 scoped ITSM webhook tests passing.
 
-- [ ] (candidate) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — a syntactically valid but semantically ambiguous timestamp header may be accepted or rejected differently across timezone/offset forms because validation delegates directly to `WebhookSecrets.TimestampWithinSkew` with `TimeProvider.System` (reachability: attacker-controlled `X-ArchLucid-Timestamp` reaches every authenticated webhook when timestamp skew enforcement is enabled; needs a concrete bypass or false rejection).
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline` replay-id fallback — webhook deliveries without `X-ArchLucid-Webhook-Delivery-Id` or Atlassian identifier derive the replay key from provider, external key, and status, so repeated legitimate transitions carrying the same status within retention may be suppressed (reachability: Jira and ServiceNow controller routes pass nullable delivery ids; needs a vendor payload sequence showing a distinct event with the same tuple).
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` unscoped lookup — deployment-wide-secret webhook routes resolve by provider and external key without an authenticated tenant constraint, so duplicate external keys across tenants could select the wrong correlation row (reachability: unscoped `/jira` and `/servicenow` routes pass `tenantId: null`; needs a production repository ordering/uniqueness path with duplicate keys).
+- [x] (invalid) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — timestamp skew is explicitly optional when the header is absent; the facade's bypass matches `CONFIGURATION_REFERENCE.md` and the ITSM replay-guard runbook, while present malformed/stale values still flow through `WebhookSecrets.TimestampWithinSkew`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline` replay-id fallback — deliveries without either explicit identifier intentionally use provider + external key + status as the documented synthetic id; no reachable Jira or ServiceNow event sequence proving two distinct same-tuple deliveries was found, and `ItsmInboundWebhookReplayEventIdTests` covers the fallback contract.
+- [x] (invalid) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` unscoped lookup — both SQL and in-memory repositories return no row unless provider + external key is unique; duplicate cross-tenant correlations therefore cannot select an arbitrary tenant row.
+
+2026-10-01 thorough hunt (dry, hint `V`): tested all three seeded candidates; optional timestamp behavior matches documented contract, synthetic replay fallback had no reachable same-tuple vendor sequence, and unscoped correlation lookup is ambiguity-safe; exact `ItsmInboundWebhook` filter passed 48 tests.
 
 ---
 
