@@ -6,6 +6,7 @@ public sealed record DiagramForestNodeMetrics(
     double Width,
     double Height,
     IReadOnlyList<string> NameLines,
+    string? DataFlowTypeLine,
     string? ConsumerStatusLine,
     IReadOnlyList<string> ResourceGroupLines,
     DiagramNodeHumanCaption Caption,
