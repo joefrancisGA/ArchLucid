@@ -40,6 +40,11 @@ describe("governance infrastructure drift help drift guard", () => {
   it("lists guide headings including claim discipline, where-to-go-next, and phase-2 sections", () => {
     expect(
       GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS.some(
+        (heading) => heading.id === "inventory-resources-excluded-from-views",
+      ),
+    ).toBe(true);
+    expect(
+      GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS.some(
         (heading) => heading.id === "help-governance-infrastructure-drift-claim-discipline-heading",
       ),
     ).toBe(true);

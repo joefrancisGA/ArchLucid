@@ -22,6 +22,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL,
 } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  AZURE_INVENTORY_NEVER_SHOW_HELP_SECTION_ID,
+  AZURE_INVENTORY_NEVER_SHOW_HELP_SECTION_TITLE,
+} from "@/lib/infra-evidence/azure-inventory-never-show-help-content";
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PAGE_EYEBROW = "Help topic" as const;
 
@@ -181,6 +185,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_GUIDE_HEADINGS: readonly HelpM
   { level: 2, id: "what-drift-workbench-shows", title: "What the drift workbench shows" },
   { level: 2, id: "how-drift-compare-works", title: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL },
   { level: 2, id: "reading-the-drift-table", title: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TABLE_SECTION_TITLE },
+  {
+    level: 2,
+    id: AZURE_INVENTORY_NEVER_SHOW_HELP_SECTION_ID,
+    title: AZURE_INVENTORY_NEVER_SHOW_HELP_SECTION_TITLE,
+  },
   {
     level: 2,
     id: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_HEADING_ID,

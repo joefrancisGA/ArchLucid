@@ -1,15 +1,21 @@
 import type { InfraEvidenceMermaidOutline, InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
-/** Mirrors backend {@link AzureInventoryNeverShowArmTypes} for diagram outline filtering. */
-const CATALOG_ARM_TYPES: readonly string[] = [
+/**
+ * Mirrors backend {@link AzureInventoryNeverShowArmTypes} for diagram outline filtering and help copy.
+ * Keep aligned with `ArchLucid.Core/AzureExtractor/AzureInventoryNeverShowArmTypes.cs`.
+ */
+export const AZURE_INVENTORY_NEVER_SHOW_CATALOG_ARM_TYPES: readonly string[] = [
   "Microsoft.Portal/dashboards",
   "Microsoft.OperationalInsights/workspaces",
   "Microsoft.Insights/activityLogAlerts",
   "Microsoft.Insights/metricAlerts",
   "Microsoft.Insights/workbooks",
   "Microsoft.Insights/scheduledQueryRules",
+  "Microsoft.Insights/actionGroups",
+  "Microsoft.Insights/dataCollectionRules",
   "Microsoft.AlertsManagement/smartDetectorAlertRules",
   "Microsoft.OperationsManagement/solutions",
+  "Microsoft.Network/enterprisePolicies",
   "Microsoft.Network/dnszones",
   "Microsoft.Network/privateDnsZones",
   "Microsoft.Network/dnsResolvers",
@@ -22,6 +28,7 @@ const CATALOG_ARM_TYPES: readonly string[] = [
   "Microsoft.Automation/automationAccounts/runbooks",
   "Microsoft.Compute/virtualMachines/extensions",
   "Microsoft.Compute/virtualMachineScaleSets/extensions",
+  "Microsoft.Compute/disks",
   "Microsoft.Compute/sshPublicKeys",
   "Microsoft.HybridCompute/machines/extensions",
   "Microsoft.Maintenance/maintenanceConfigurations",
@@ -29,25 +36,23 @@ const CATALOG_ARM_TYPES: readonly string[] = [
   "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
   "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
   "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+  "Microsoft.Web/serverFarms",
 ];
 
-const SQL_DATABASE_ARM_TYPE_PREFIXES: readonly string[] = [
-  "Microsoft.Sql/servers/databases",
-  "Microsoft.Sql/managedInstances/databases",
-];
-
-const NEVER_SHOW_SQL_DATABASE_NAMES: readonly string[] = ["master"];
-
-const LAST_SEGMENTS: readonly string[] = [
+export const AZURE_INVENTORY_NEVER_SHOW_RESOURCE_TYPE_LAST_SEGMENTS: readonly string[] = [
   "dashboards",
   "workspaces",
   "activitylogalerts",
   "metricalerts",
   "workbooks",
   "scheduledqueryrules",
+  "actiongroups",
+  "datacollectionrules",
   "smartdetectoralertrules",
   "solutions",
+  "enterprisepolicies",
   "extensions",
+  "disks",
   "sshpublickeys",
   "dnssettings",
   "dnszones",
@@ -65,7 +70,16 @@ const LAST_SEGMENTS: readonly string[] = [
   "virtualnetworkpeerings",
   "maintenanceconfigurations",
   "configurationassignments",
+  "serverfarms",
 ];
+
+export const AZURE_INVENTORY_NEVER_SHOW_SQL_DATABASE_ARM_TYPE_PREFIXES: readonly string[] = [
+  "Microsoft.Sql/servers/databases",
+  "Microsoft.Sql/managedInstances/databases",
+];
+
+/** Mirrors {@link AzureInventoryNeverShowSqlDatabaseNames.NeverShowDatabaseNames}. */
+export const AZURE_INVENTORY_NEVER_SHOW_SQL_DATABASE_NAMES: readonly string[] = ["master"];
 
 function readLastSegment(value: string): string {
   const segments = value.split("/").filter((segment) => segment.trim().length > 0);
@@ -84,13 +98,17 @@ export function shouldOmitAzureInventoryNeverShowArmType(armType: string | null 
     return false;
   }
 
-  if (CATALOG_ARM_TYPES.some((catalogType) => catalogType.localeCompare(trimmed, undefined, { sensitivity: "accent" }) === 0)) {
+  if (
+    AZURE_INVENTORY_NEVER_SHOW_CATALOG_ARM_TYPES.some(
+      (catalogType) => catalogType.localeCompare(trimmed, undefined, { sensitivity: "accent" }) === 0,
+    )
+  ) {
     return true;
   }
 
   const lastSegment = readLastSegment(trimmed).toLowerCase();
 
-  return LAST_SEGMENTS.some((segment) => segment === lastSegment);
+  return AZURE_INVENTORY_NEVER_SHOW_RESOURCE_TYPE_LAST_SEGMENTS.some((segment) => segment === lastSegment);
 }
 
 export function shouldOmitAzureInventoryNeverShowSqlDatabaseName(
@@ -109,7 +127,7 @@ export function shouldOmitAzureInventoryNeverShowSqlDatabaseName(
 
   const normalizedName = trimmedName.toLowerCase();
 
-  return NEVER_SHOW_SQL_DATABASE_NAMES.some((databaseName) => databaseName === normalizedName);
+  return AZURE_INVENTORY_NEVER_SHOW_SQL_DATABASE_NAMES.some((databaseName) => databaseName === normalizedName);
 }
 
 function isSqlDatabaseResourceType(resourceType: string | null | undefined): boolean {
@@ -119,8 +137,9 @@ function isSqlDatabaseResourceType(resourceType: string | null | undefined): boo
     return false;
   }
 
-  return SQL_DATABASE_ARM_TYPE_PREFIXES.some(
-    (prefix) => trimmed.localeCompare(prefix, undefined, { sensitivity: "accent" }) === 0
+  return AZURE_INVENTORY_NEVER_SHOW_SQL_DATABASE_ARM_TYPE_PREFIXES.some(
+    (prefix) =>
+      trimmed.localeCompare(prefix, undefined, { sensitivity: "accent" }) === 0
       || trimmed.toLowerCase().startsWith(`${prefix.toLowerCase()}/`),
   );
 }

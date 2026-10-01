@@ -19,6 +19,12 @@ describe("azure-inventory-never-show-arm-types", () => {
     expect(shouldOmitAzureInventoryNeverShowArmType("flowlogs")).toBe(true);
   });
 
+  it("omits disks, action groups, and app service plans", () => {
+    expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Compute/disks")).toBe(true);
+    expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Insights/actionGroups")).toBe(true);
+    expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Web/serverFarms")).toBe(true);
+  });
+
   it("keeps backbone inventory types", () => {
     expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Network/virtualNetworks")).toBe(false);
     expect(shouldOmitAzureInventoryNeverShowArmType("Microsoft.Compute/virtualMachines")).toBe(false);
