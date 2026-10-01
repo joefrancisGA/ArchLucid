@@ -6237,6 +6237,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-01 seed hunt (seed-only): inspected the DOCX, inventory, icon-catalog, and Mermaid artifact paths; the exact picker filter ran 639 tests with 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped, while focused DOCX (11/11) and inventory-generator (5/5) tests passed; no new reachable mechanism-backed candidate was found or promoted.
+
 ### Hypotheses
 
 - [x] (proven) Deployment evidence listed `terraform-pilot` before composition roots — fixed by reordering to hosted validate/apply sequence (composition, leaves, orchestrator legacy, pilot default profile).
