@@ -10861,6 +10861,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: application-analysis
 
+2026-10-01 seed hunt (seed-only): inspected comparison drift and quality-delta paths; no hunt-ready row was promoted; seeded null-finding-list and case-variant JSON-property candidates; 19 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 - **id:** application-analysis
 - **status:** open
 - **impact:** medium
@@ -10886,6 +10888,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 ### Hypotheses
+
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — null finding elements in either comparison findings list may throw while mapping specialist findings instead of preserving a safe quality delta; reachability: compare payloads are deserialized into mutable finding lists before this calculator is invoked.
+- [ ] (candidate) `ComparisonDriftAnalyzer.CompareElement` — object properties that differ only by casing may be reported as removed/added rather than compared as the same field; reachability: persisted comparison payloads can contain JSON property names from mixed serializer casing policies.
+
 2026-09-12 seed hunt #1895 (seed-only): reseeded application-analysis; scoped tests passed; no hunt-ready defect proven this pass.
 
 
