@@ -10,8 +10,9 @@
 
 2026-10-01 seed hunt (seed-only): revalidated the topology endpoint collision regression already fixed in the preceding hunt; no new defect or hypothesis was promoted.
 
-- (candidate) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — the case-insensitive `sanitizedResultsById` dictionary can collapse two persisted agent results whose `ResultId` values differ only by case, then emit the winning sanitized result once for each original row; verify whether duplicate proposal materialization can occur. Reachability: `ResultId` is carried from agent-produced/persisted `AgentResult` rows and this path has no uniqueness or casing validation.
-- (candidate) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — proposals containing only `RequiredControls` are retained by the merge gate but graph merge never materializes those controls; verify whether the commit caller relies on this graph-merge result to preserve proposal controls. Reachability: topology, cost, compliance, and critic agent payloads can contain `AgentTopologyProposal.RequiredControls`, and the selected graph-merge path explicitly processes only endpoint aliases, nodes, and relationships.
+- [ ] (candidate) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — the case-insensitive `sanitizedResultsById` dictionary can collapse two persisted agent results whose `ResultId` values differ only by case, then emit the winning sanitized result once for each original row; verify whether duplicate proposal materialization can occur. Reachability: `ResultId` is carried from agent-produced/persisted `AgentResult` rows and this path has no uniqueness or casing validation.
+- [ ] (candidate) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — proposals containing only `RequiredControls` are retained by the merge gate but graph merge never materializes those controls; verify whether the commit caller relies on this graph-merge result to preserve proposal controls. Reachability: topology, cost, compliance, and critic agent payloads can contain `AgentTopologyProposal.RequiredControls`, and the selected graph-merge path explicitly processes only endpoint aliases, nodes, and relationships.
+- [ ] (candidate) `MergeEndpointAliasesInto` — two accepted proposals can contribute the same display-name alias for distinct inventoried endpoints, and `TryAdd` silently keeps the first mapping; verify whether a later relationship using that ambiguous alias can attach to the wrong topology node. Reachability: agent proposals may rename or refer to inventoried services/datastores by user-visible names, while endpoint aliases are merged case-insensitively without conflict reporting.
 
 2026-09-29 seed hunt #3055 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows; cheap-disproof closed #3051×#3054 diagonal for mixed node-id/ARM combined `endpointAliases` with **hybrid** relationships when node-id alias targets, ARM alias values, **and** the direct relationship ARM endpoint all use uppercase casing; fourteen regressions under prefix `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_`; 1412 scoped topology-proposal-merge tests passed.
 
@@ -2778,7 +2779,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1596
+- **hunts:** 1597
 - **last-hunt:** 2026-10-01
 - **bugs-found:** 972
 - **consecutive-dry-hunts:** 0
