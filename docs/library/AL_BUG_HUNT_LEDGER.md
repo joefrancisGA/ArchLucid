@@ -5291,15 +5291,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
 2026-10-01 seed hunt (seed-only): re-read `FindingDispositionService` and `FindingDispositionValidation`; no new reachable candidate emerged; the picker’s `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
+
+2026-10-01 seed hunt (seed-only): re-read finding disposition bulk recording, normalization, history scope filtering, and row-version validation; no new reachable candidate emerged; `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
 
 2026-09-13 seed hunt #2268 (seed-only): reseeded finding-disposition with `-Hint finding disposition`; no new hunt-ready rows.
 
