@@ -946,11 +946,36 @@ export function RemediationPatternsClient() {
             <EnterpriseTable ariaLabel="Remediation patterns">
               <EnterpriseTableHead>
                 <EnterpriseTableRow>
-                  <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Attention</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Approved version</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Key</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The stable identifier for this pattern. The key stays with the pattern.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Name</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The display name recorded for this pattern.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Status</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Whether this pattern is ready or still needs attention.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Attention</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Why this pattern needs attention, or that it does not.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Approved version</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The version currently approved for use. It may differ from a later draft.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                 </EnterpriseTableRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
