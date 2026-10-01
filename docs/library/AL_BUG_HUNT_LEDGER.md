@@ -9883,6 +9883,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-01 seed hunt (seed-only): reseeded the safety and prompt-injection sanitizer sources; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-10-01 seed hunt (seed-only): inspected the safety and prompt-injection sanitizers; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-09-28 seed hunt #155 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproof closed evidence-package scalar `SystemName` / `Environment` CRLF / newline / `\u2029` spoofing `Evidence Package:` pseudo-fields (#154 unicode paragraph evidence-package scalar class); regressions `SanitizeAsync_evidence_package_environment_paragraph_separator_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`, `SanitizeAsync_evidence_package_system_name_crlf_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`, `SanitizeAsync_evidence_package_environment_crlf_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`, and `SanitizeAsync_evidence_package_system_name_newline_does_not_spoof_evidence_package_colon_fields_in_topology_prompt`; 573 scoped agent-runtime-safety tests passed.
