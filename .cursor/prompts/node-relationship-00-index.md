@@ -3,9 +3,10 @@
      orphaned state, AVD isolation, data-flow hops, and NSG connector annotations.
      2026-09-27: hidden NSG attachment, effective-control reachability, connection ledger.
      2026-09-30: unknown questions (display only), NSG port chips, session hosts off the plate.
+     2026-10-01: an identified AVD resource stays hidden despite shared-infrastructure edges.
      Do not implement from this index. -->
 
-# Inventory diagram node relationships — Luna prompt set (NR-01–NR-14)
+# Inventory diagram node relationships — Luna prompt set (NR-01–NR-15)
 
 **Do not implement from this index.** Paste **one** numbered `.cursor/prompts/node-relationship-*.md` file per GPT-5.6 Luna session.
 
@@ -29,6 +30,7 @@ Canonical wave doc: [`docs/architecture/INVENTORY_DIAGRAM_NODE_RELATIONSHIP_LUNA
 | **Unknown questions** | Unknown is a bare label, and empty states still render. | The outline states the question and does not ask for an answer. Zero-count sections are hidden. | **NR-12** |
 | **NSG port chips** | An unresolved NSG is still a card, and a resolved NSG shows no ports. | Inbound allow rules are protocol and port chips on the owner. No NSG card. | **NR-13** |
 | **AVD off the plate** | A session-host VM without a session-host edge still paints. | Those VMs, NICs, and disks stay off unless Show AVD Assets is on. No AVD boundary or count node remains by default. | **NR-14** |
+| **Identified AVD stays hidden** | A matched session-host VM stays because it also connects to shared infrastructure. | Identification is enough. The VM, NIC, and disk stay off. The shared infrastructure stays on. | **NR-15** |
 
 ## What this set does not change
 
@@ -38,7 +40,7 @@ Do not download icons or change VNet packing. Do not make an NSG, network securi
 
 **01 → owner look → 02 → owner look → 03 → owner look → 04 → owner look → 05.**
 
-**NR-06** and **NR-07** follow **NR-04**. **NR-08** follows **NR-02** and **NR-07**. **NR-09** follows **NR-02** and **VN-07**. **NR-10** follows **NR-09**. **NR-11** follows **NR-05**, **NR-09**, and **NR-10**. Do not re-run NR-01 through NR-08 for the follow-on. **NR-12** follows **NR-11**. **NR-13** follows **NR-09**. **NR-14** follows the NR-06 filter already in the tree. Do not re-run NR-01 through NR-11 for NR-12 through NR-14.
+**NR-06** and **NR-07** follow **NR-04**. **NR-08** follows **NR-02** and **NR-07**. **NR-09** follows **NR-02** and **VN-07**. **NR-10** follows **NR-09**. **NR-11** follows **NR-05**, **NR-09**, and **NR-10**. Do not re-run NR-01 through NR-08 for the follow-on. **NR-12** follows **NR-11**. **NR-13** follows **NR-09**. **NR-14** follows the NR-06 filter already in the tree. Do not re-run NR-01 through NR-11 for NR-12 through NR-14. **NR-15** follows **NR-14** and removes the shared-infrastructure exception. Do not re-run NR-01 through NR-14 for NR-15.
 
 Each implementation prompt ends **before commit**. The owner looks, then says whether to commit.
 
@@ -60,3 +62,4 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 12 | `node-relationship-12-unknown-questions.md` | `nr/12-unknown-questions` |
 | 13 | `node-relationship-13-nsg-port-chips.md` | `nr/13-nsg-port-chips` |
 | 14 | `node-relationship-14-avd-off-the-plate.md` | `nr/14-avd-off-the-plate` |
+| 15 | `node-relationship-15-identified-avd-stays-hidden.md` | `nr/15-identified-avd-stays-hidden` |
