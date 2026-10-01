@@ -2919,6 +2919,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [ ] (candidate) `WalletController.TryDecodeRowVersion` — a missing or whitespace row-version token is accepted as an empty byte array, allowing a settings PUT to reach the service without an explicit optimistic-concurrency token; reachability: the public wallet PUT accepts nullable `RowVersionBase64` and maps blank input to `[]`.
+- [ ] (candidate) `SqlLlmTenantWalletRepository.SelectAsync` — a null database `RowVersion` is converted to an empty array and can be emitted as a valid-looking empty concurrency token, weakening stale-write detection; reachability: SQL projection permits nullable `rowVersion` and the repository maps null to `[]` before service/controller response mapping.
+
+
 - [ ] (candidate) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — the case-insensitive `sanitizedResultsById` dictionary can collapse two persisted agent results whose `ResultId` values differ only by case, then emit the winning sanitized result once for each original row; verify whether duplicate proposal materialization can occur. Reachability: `ResultId` is carried from agent-produced/persisted `AgentResult` rows and this path has no uniqueness or casing validation.
 - [ ] (candidate) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — proposals containing only `RequiredControls` are retained by the merge gate but graph merge never materializes those controls; verify whether the commit caller relies on this graph-merge result to preserve proposal controls. Reachability: topology, cost, compliance, and critic agent payloads can contain `AgentTopologyProposal.RequiredControls`, and the selected graph-merge path explicitly processes only endpoint aliases, nodes, and relationships.
 - [ ] (candidate) `MergeEndpointAliasesInto` — two accepted proposals can contribute the same display-name alias for distinct inventoried endpoints, and `TryAdd` silently keeps the first mapping; verify whether a later relationship using that ambiguous alias can attach to the wrong topology node. Reachability: agent proposals may rename or refer to inventoried services/datastores by user-visible names, while endpoint aliases are merged case-insensitively without conflict reporting.
@@ -5249,6 +5253,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: llm-wallet
+
+2026-10-01 seed hunt (seed-only): inspected wallet controller, service, and SQL repository concurrency paths; no hunt-ready row was promoted; seeded blank row-version and null database row-version candidates; 17 scoped LlmTenantWalletService tests passed.
 
 - **id:** llm-wallet
 - **status:** open
