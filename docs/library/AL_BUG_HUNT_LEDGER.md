@@ -3950,9 +3950,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
@@ -3963,6 +3963,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the email OTP controller and service delegation paths; all 41 scoped tests passed; retained two concrete HTTP-boundary candidates for a later repro pass.
 
 2026-09-30 thorough hunt (dry): cheap-disproved the whitespace-email candidate because `EmailOtpRequestFlow` normalizes and rejects it before rate limiting, challenge creation, or delivery while preserving the neutral anti-enumeration response; classified the explicit-empty-scope candidate as valid-no-repro because the controller intentionally maps both null and empty scopes to `TrialLocalJwtScopeDefaults`; 41 scoped tests passed.
+
+2026-10-01 seed hunt (seed-only): re-read the email OTP controller boundary and service composition; no new reachable candidate emerged; the two picker-scoped test classes passed (41); no hypothesis was promoted.
 
 - [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary, so a client can receive a generic success response for an unusable address and consume rate-limit/audit work — **cheap-disproved 2026-09-30:** `EmailOtpRequestFlow` normalizes and rejects whitespace before rate limiting, challenge creation, or delivery while preserving the neutral anti-enumeration response.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` converts an explicit `Guid.Empty` tenant or workspace returned by a successful service result into the local trial default, potentially issuing a token scoped to the fallback rather than preserving the service's invalid scope — **cheap-disproved 2026-09-30:** null and empty scopes intentionally share the `TrialLocalJwtScopeDefaults` fallback path; the controller's existing scope-parity regression covers the intended behavior.
