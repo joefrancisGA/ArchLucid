@@ -23980,15 +23980,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-26 — security-trust publication audit field surrogate guard gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-02 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths; seeded an unbounded model-catalog evaluation evidence candidate; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server; no candidate promoted.
+
 ### Hypotheses
+
+- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` accepts attacker-controlled `RecordAgentModelCatalogEvaluationRequest.EvidenceJson` and forwards it without a controller-side size bound; reachable from the authenticated platform-operator JSON endpoint, with potential persistent storage amplification or request resource pressure requiring a bounded-input repro.
 
 2026-09-26 seed hunt (seed→hit): reseeded api-authority-admin-controllers; proved security-trust publication audit field surrogate guard gap; 1 scoped `SecurityTrustPublicationControllerTests` passed.
 
