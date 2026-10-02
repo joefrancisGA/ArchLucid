@@ -10886,10 +10886,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-27 — replay comparison treated agent presence-only deltas as non-material
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -10903,6 +10903,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — a supplied `PreloadedRunDetail.Manifest` is accepted after validating only `PreloadedRunDetail.Run.RunId`, so a stale preloaded detail could carry a manifest from another run into the report (reachable input: internal export/analysis caller supplying a preloaded detail; needs proof that such preloaded details can be assembled with mismatched manifest provenance).
 
 2026-10-02 seed hunt (seed-only): reseeded architecture-analysis and compare-quality orchestration paths; 19 picker-scoped tests passed with analyzers disabled; no candidate met the failing-repro bar.
+
+2026-10-02 seed hunt (seed-only, second pass): revalidated the three open architecture-analysis candidates; 19 picker-scoped tests passed with analyzers disabled; no candidate met the failing-repro bar.
 
 2026-09-12 seed hunt #2259 (seed-only): reseeded application-analysis with `-Hint application analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
