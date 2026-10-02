@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -36,13 +37,26 @@ public sealed partial class PolicyPacksController
         if (promoteValidation is not null)
             return promoteValidation;
 
-        PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result = await _httpFacade.PromoteCatalogEntryAsync(
-            new PolicyPackPromoteCatalogBody
-            {
-                SourcePolicyPackId = request.SourcePolicyPackId,
-                Version = request.Version,
-            },
-            ct).ConfigureAwait(false);
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result;
+        try
+        {
+            result = await _httpFacade.PromoteCatalogEntryAsync(
+                new PolicyPackPromoteCatalogBody
+                {
+                    SourcePolicyPackId = request.SourcePolicyPackId,
+                    Version = request.Version,
+                },
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return MapPolicyPackSealedManifestConflict(ex);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -84,9 +98,22 @@ public sealed partial class PolicyPacksController
         if (demoteValidation is not null)
             return demoteValidation;
 
-        PolicyPackHttpResult<bool> result = await _httpFacade.DemoteCatalogEntryAsync(
-            new PolicyPackDemoteCatalogBody { PolicyPackCatalogEntryId = request.PolicyPackCatalogEntryId },
-            ct).ConfigureAwait(false);
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        PolicyPackHttpResult<bool> result;
+        try
+        {
+            result = await _httpFacade.DemoteCatalogEntryAsync(
+                new PolicyPackDemoteCatalogBody { PolicyPackCatalogEntryId = request.PolicyPackCatalogEntryId },
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return MapPolicyPackSealedManifestConflict(ex);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
