@@ -8488,3 +8488,4 @@
 {"at":"2026-10-01T13:57:37.8906882Z","zoneId":"itsm-inbound-webhooks","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs","ArchLucid.Application/Integrations/Itsm/","ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
 {"at":"2026-10-01T14:03:48.221686177Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-02T05:19:10.5968681Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-02T05:41:37.7589185Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.cs","ArchLucid.Api/Controllers/Tenancy/"]}
