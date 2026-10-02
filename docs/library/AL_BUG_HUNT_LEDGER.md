@@ -25525,16 +25525,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 17
-- **bugs-found:** 10
+- **hunts:** 18
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-09 — org-required toggle on inactive platform pack bypassed inactive gate for enabled assignments and returned HTTP 404
+- **last-hunt:** 2026-10-02
+- **last-bug:** 2026-10-02 — scope-specific effective policy-pack responses used a cross-scope output-cache policy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-12 seed hunt #2178 (seed-only): reseeded api-policy-packs with `-Hint governance`; no new hunt-ready rows.
+
+2026-10-02 seed hunt (hit): proved cross-scope output caching on effective policy-pack reads; 1 focused regression test passed after removing the shared anonymous cache policy. The full controller filter had 55 passing and 17 unrelated baseline failures from null test scopes.
 
 ### Hypotheses
 
@@ -25552,6 +25554,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — facade `ValidationFailed` outcome fell through to HTTP 200 — **hit 2026-09-08 hunt #1311 (seed→hit):** `PolicyPackHttpFacade.PromoteCatalogEntryAsync` maps catalog snapshot limit violations to `ValidationFailed`; controller handled only cross-tenant and not-found outcomes; fixed by returning HTTP 400 problem detail; regression `PromoteCatalogEntry_returns_bad_request_when_snapshot_exceeds_catalog_limits`
 - [x] (invalid) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack may return HTTP 404 instead of 409 — **duplicate of #1312:** already proven and fixed 2026-09-08; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
 - [x] (proven) `PolicyPacksController.SetAssignmentOrganizationRequired` — setting org-required on inactive platform pack returned HTTP 404 and enabled assignments bypassed inactive gate — **hit 2026-09-09 hunt #1433:** #1225 gate only blocked disabled rows; workflow/http now map inactive org-required toggle to HTTP 409 (`PlatformPackInactive`); workspace service rejects all org-required toggles on inactive packs; regressions `TrySetAssignmentOrganizationRequired_returns_false_when_setting_org_required_on_enabled_inactive_platform_pack`, `TrySetAssignmentOrganizationRequiredWithOutcomeAsync_returns_platform_pack_inactive_when_setting_org_required_on_inactive_pack`, `SetAssignmentOrganizationRequired_returns_conflict_when_setting_org_required_on_inactive_platform_pack`
+- [x] (proven) `PolicyPacksController.GetEffective` / `GetEffectiveContent` — tenant/workspace/project-specific responses used the `ImmutableShort` output-cache policy, which varied only by `Accept` and could replay one scope's policy-pack data to another scope — **hit 2026-10-02 seed hunt:** removed output caching from both effective endpoints; regression `PolicyPacksControllerOutputCacheTests.Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — `isOrganizationRequired: true` on inactive platform pack bypassed `IsGloballyActiveAsync` gate symmetric with #1225 toggle path — **hit 2026-09-08 hunt #1312:** assign-create path force-enabled org-required rows on catalog-inactive platform packs; fixed by rejecting before `TryAssignAsync`; regression `TryAssignAsync_returns_pack_not_found_when_organization_required_on_inactive_platform_pack`
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin could assign Tenant/Workspace-scoped rows without tenant-admin JWT — **hit 2026-09-08 hunt #1312:** only org-required was gated in #1205; fixed by requiring tenant administrator for non-Project `scopeLevel`; regressions `TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`, `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
 - [x] (proven) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack returned HTTP 404 instead of 409 symmetric with org-required disable (#1206) — **hit 2026-09-08 hunt #1312:** workflow mapped inactive enable to `NotFound`; fixed with `PlatformPackInactive` → HTTP 409; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
