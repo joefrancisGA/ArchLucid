@@ -22,15 +22,17 @@ internal static partial class TerraformAzurermResourceTypeParser
             return null;
 
         string trimmed = sourceId.Trim();
-        Match azurerm = AzurermToken().Match(trimmed);
+        MatchCollection azurermMatches = AzurermToken().Matches(trimmed);
+        MatchCollection azureadMatches = AzureadToken().Matches(trimmed);
 
-        if (azurerm.Success)
-            return azurerm.Groups[1].Value;
+        Match? azurerm = azurermMatches.Count == 0 ? null : azurermMatches[azurermMatches.Count - 1];
+        Match? azuread = azureadMatches.Count == 0 ? null : azureadMatches[azureadMatches.Count - 1];
 
-        Match azuread = AzureadToken().Match(trimmed);
-
-        if (!azuread.Success)
+        if (azurerm is null && azuread is null)
             return null;
+
+        if (azuread is null || (azurerm is not null && azurerm.Index > azuread.Index))
+            return azurerm!.Groups[1].Value;
 
         return "azuread_" + azuread.Groups[1].Value;
     }

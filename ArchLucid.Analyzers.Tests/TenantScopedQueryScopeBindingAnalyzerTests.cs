@@ -286,6 +286,36 @@ public sealed class LocalVariableRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class DynamicLocalRunsRepository
+{
+    public void Load(IDbConnection connection, string filterColumn)
+    {
+        string sql = "SELECT RunId FROM dbo.Runs WHERE " + filterColumn + " IS NULL";
+        _ = SqlMapper.Query<int>(connection, sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(69, 13, 69, 50)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_static_readonly_field()
     {
         const string testCode = SharedStubs +
@@ -392,6 +422,52 @@ public sealed class StoredProcedureRunsRepository
 """;
 
         await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_primary_key_delete_on_triple_scoped_table()
+    {
+        const string executeAsyncStub = """
+
+namespace Dapper
+{
+    public static partial class SqlMapper
+    {
+        public static System.Threading.Tasks.Task<int> ExecuteAsync(
+            System.Data.IDbConnection cnn,
+            string sql,
+            object? param = null) =>
+            throw null!;
+    }
+}
+""";
+
+        const string testCode = SharedStubs + executeAsyncStub +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class RunsRepository
+{
+    public System.Threading.Tasks.Task DeleteAsync(IDbConnection connection, int runId)
+    {
+        return SqlMapper.ExecuteAsync(
+            connection,
+            "DELETE FROM dbo.Runs WHERE RunId = @runId");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(79, 16, 81, 57)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }
 
     [Fact]

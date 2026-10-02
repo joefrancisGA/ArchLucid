@@ -190,7 +190,12 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
         if (sqlTexts.Count == 0)
         {
-            ReportUnanalyzableIfScopedTableReferenced(context, registry, resolution, reportLocation);
+            ReportUnanalyzableIfScopedTableReferenced(
+                context,
+                registry,
+                resolution,
+                sqlExpression,
+                reportLocation);
 
             return;
         }
@@ -230,24 +235,25 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         SyntaxNodeAnalysisContext context,
         TenantScopedTableRegistry registry,
         TenantScopedSqlExpressionResolver.ResolutionResult resolution,
+        ExpressionSyntax sqlExpression,
         Location reportLocation)
     {
         if (resolution.HasScopeHelperInvocation)
             return;
 
-        if (context.Node is not ExpressionSyntax expression)
-            return;
-
-        string expressionText = expression.ToString();
-
-        foreach (string table in GuessTablesFromExpressionText(expressionText))
+        foreach (string expressionText in TenantScopedSqlExpressionResolver.GetExpressionTextsForDiagnostics(
+                     sqlExpression,
+                     context.SemanticModel))
         {
-            if (!registry.IsTenantScoped(table))
-                continue;
+            foreach (string table in GuessTablesFromExpressionText(expressionText))
+            {
+                if (!registry.IsTenantScoped(table))
+                    continue;
 
-            context.ReportDiagnostic(Arch006Descriptor.CreateUnanalyzableSql(reportLocation, table));
+                context.ReportDiagnostic(Arch006Descriptor.CreateUnanalyzableSql(reportLocation, table));
 
-            return;
+                return;
+            }
         }
     }
 

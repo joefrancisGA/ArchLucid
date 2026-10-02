@@ -59,6 +59,31 @@ internal static class TenantScopedSqlExpressionResolver
         return ResolveCore(expression, semanticModel, visitingInterpolatedHole: false);
     }
 
+    internal static IEnumerable<string> GetExpressionTextsForDiagnostics(
+        ExpressionSyntax expression,
+        SemanticModel semanticModel)
+    {
+        yield return expression.ToString();
+
+        ISymbol? symbol = semanticModel.GetSymbolInfo(expression).Symbol;
+        SyntaxReference? syntaxReference = symbol?.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference is null)
+            yield break;
+
+        SyntaxNode syntax = syntaxReference.GetSyntax();
+        if (syntax is VariableDeclaratorSyntax declarator &&
+            declarator.Initializer?.Value is ExpressionSyntax initializer)
+        {
+            yield return initializer.ToString();
+        }
+        else if (syntax is PropertyDeclarationSyntax propertyDeclaration &&
+                 propertyDeclaration.Initializer?.Value is ExpressionSyntax propertyInitializer)
+        {
+            yield return propertyInitializer.ToString();
+        }
+    }
+
     private static ResolutionResult ResolveCore(
         ExpressionSyntax expression,
         SemanticModel semanticModel,
