@@ -13,6 +13,8 @@ export type InfraEvidenceMermaidOutlineNode = {
   /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
   readonly outlineOnlyOnCanvas?: boolean;
   readonly unresolvedRelationshipDetails?: readonly string[];
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
 };
 
 export type InfraEvidenceMermaidLedgerDrop = {
@@ -161,7 +163,7 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
 const OUTLINE_METADATA_TOKEN =
-  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only|al-unresolved)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only|al-unresolved|al-questionable-reason|al-questionable-action)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
 
 const LEDGER_DROP_COMMENT = /^%%\s+al-ledger-drop\s+(\S+)\s+(\S+)\s+(\S+)/u;
 
@@ -175,6 +177,8 @@ type OutlineNodeMetadata = {
   readonly seedNodeId: string | null;
   readonly outlineOnlyOnCanvas: boolean;
   readonly unresolvedRelationshipDetails: readonly string[];
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
 };
 
 type OutlineEdgeMetadata = {
@@ -210,6 +214,8 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let connectionState: InfraEvidenceMermaidOutlineNode["connectionState"] = null;
   let seedNodeId: string | null = null;
   let outlineOnlyOnCanvas = false;
+  let questionableReason: string | null = null;
+  let questionableAction: string | null = null;
   const unresolvedRelationshipDetails: string[] = [];
 
   for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
@@ -247,6 +253,14 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
       outlineOnlyOnCanvas = true;
     }
 
+    if (key === "al-questionable-reason") {
+      questionableReason = value;
+    }
+
+    if (key === "al-questionable-action") {
+      questionableAction = value;
+    }
+
     if (key === "al-unresolved") {
       unresolvedRelationshipDetails.push(value);
     }
@@ -259,6 +273,8 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     seedNodeId,
     outlineOnlyOnCanvas,
     unresolvedRelationshipDetails,
+    ...(questionableReason === null ? {} : { questionableReason }),
+    ...(questionableAction === null ? {} : { questionableAction }),
   };
 }
 
@@ -433,6 +449,8 @@ function mergeOutlineNodeMetadata(
       preferred.unresolvedRelationshipDetails.length > 0
         ? preferred.unresolvedRelationshipDetails
         : fallback.unresolvedRelationshipDetails,
+    questionableReason: preferred.questionableReason ?? fallback.questionableReason,
+    questionableAction: preferred.questionableAction ?? fallback.questionableAction,
   };
 }
 
@@ -455,6 +473,8 @@ function withPrecedingMetadata(
       preceding.unresolvedRelationshipDetails.length > 0
         ? preceding.unresolvedRelationshipDetails
         : node.unresolvedRelationshipDetails,
+    questionableReason: node.questionableReason ?? preceding.questionableReason,
+    questionableAction: node.questionableAction ?? preceding.questionableAction,
   };
 }
 

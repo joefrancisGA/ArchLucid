@@ -1,0 +1,7 @@
+{
+  "name": "UHG unregistered AVD session hosts",
+  "version": "1.0.0",
+  "complianceRuleKeys": [
+    "uhg-avd-vm-not-in-host-pool"
+  ]
+}

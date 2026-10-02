@@ -167,6 +167,12 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             tokens.Add($"al-state={node.ConnectionState.Value}");
         }
 
+        if (node.QuestionableAttention is not null)
+        {
+            tokens.Add($"al-questionable-reason={QuoteMetadataValue(node.QuestionableAttention.Reason)}");
+            tokens.Add($"al-questionable-action={QuoteMetadataValue(node.QuestionableAttention.RecommendedAction)}");
+        }
+
         foreach (string unresolvedDetail in node.UnresolvedRelationshipDetails)
         {
             if (!string.IsNullOrWhiteSpace(unresolvedDetail))

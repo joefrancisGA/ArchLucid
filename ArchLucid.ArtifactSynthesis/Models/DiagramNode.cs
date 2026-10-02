@@ -137,6 +137,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Optional policy-pack explanation for a resource requiring human review.</summary>
+    public DiagramQuestionableAttention? QuestionableAttention
+    {
+        get;
+        set;
+    }
+
     /// <summary>Partially unresolved relationships that do not orphan the resource (e.g. workflow actions).</summary>
     public List<string> UnresolvedRelationshipDetails
     {

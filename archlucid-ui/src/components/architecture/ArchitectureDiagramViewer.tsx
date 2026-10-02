@@ -457,6 +457,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
   // Fallback ink when Mermaid CSS is stripped. Scope to card bodies only — never pictogram or accent rects.
   '[&_svg_g.node>rect.node-card]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_g.node>rect.node-card]:fill-slate-700',
+  '[&_svg_g.node>rect.node-card-questionable]:fill-[#FDE68A] dark:[&_svg_g.node>rect.node-card-questionable]:fill-[#A16207]',
   '[&_svg_g.node>rect.node-card]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_g.node>rect.node-card]:stroke-slate-200',
   '[&_svg_g.node>rect.node-card]:stroke-[1.5px]',
   '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:fill-slate-700',
@@ -1136,6 +1137,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
   const viewportControls = renderDiagramViewportControls(zoom, fitToView, viewportControlOptions);
   const controlsInsideViewport = viewportControlsLayout === 'overlay';
+  const questionableNode = clickFocus === null || outline === null
+    ? null
+    : outline.nodes.find((node) => (
+      node.id === clickFocus.id
+      || node.seedNodeId === clickFocus.id
+    )) ?? null;
 
   const renderMermaidInk = (
     hostRef: React.RefObject<HTMLDivElement | null>,
@@ -1200,6 +1207,33 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         >
           {`Showing connections for ${clickFocus.name}.`}
         </p>
+      ) : null}
+
+      {questionableNode?.questionableReason != null ? (
+        <aside
+          className="mb-3 space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+          data-testid="infra-diagrams-questionable-panel"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="m-0 font-semibold">Questionable resource</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setClickFocus(null)}
+              aria-label="Close questionable resource explanation"
+            >
+              Close
+            </Button>
+          </div>
+          <p className="m-0">{questionableNode.questionableReason}</p>
+          {questionableNode.questionableAction != null ? (
+            <p className="m-0">
+              <span className="font-semibold">Recommended action: </span>
+              {questionableNode.questionableAction}
+            </p>
+          ) : null}
+        </aside>
       ) : null}
 
       {controlsInsideViewport ? null : viewportControls}
