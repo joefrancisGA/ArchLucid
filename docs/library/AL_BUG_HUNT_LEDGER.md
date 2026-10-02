@@ -25567,10 +25567,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-28 — pre-finalize checklist missed canonical N technology-ledger rows when run id was dashed D format
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25599,6 +25599,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — gate-parity loader appends enforcing supplemental `evidence-linkage-*` findings before checklist evaluates gaps, so one unlinked critical finding reported count 2 — **hit 2026-09-27 seed hunt #53:** exclude supplemental linkage findings from active high-severity evaluation set; regression `BuildAsync_marks_evidence_linkage_blocking_when_linkage_engine_is_enforcing` asserts count 1
 
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` / `PreCommitSupplementalFindingsAppender` — technology ledger rows persist canonical `N` run ids (`TechnologyLedgerRunCommandService`) but checklist and gate-parity loader queried `GetByRunIdAsync` with the caller's dashed `D` route id, skipping assumed-technology and technology-consistency supplemental findings — **hit 2026-09-28 seed hunt (seed→hit):** `TechnologyLedgerRunIdKey` canonicalizes before ledger reads; regression `BuildAsync_marks_not_ready_when_assumed_technology_rows_use_canonical_n_run_id_and_checklist_uses_d_format`.
+
+- [ ] (candidate) `GovernanceStickinessController.EnsureBulkDispositionSealedManifestAllowedAsync` — missing finding-inspect rows are skipped before the bulk disposition facade runs, so a deleted or stale finding id could bypass the sealed-manifest guard if the facade accepts that id as a no-op or recreates it (reachable input: `POST /v1/governance/findings/bulk-disposition` with a finding id that disappears between read and mutation; needs a concrete facade outcome and failing repro).
+- [ ] (candidate) `GovernanceStickinessController.EnsureRegistersSealedManifestAllowedAsync` — register reads validate the latest committed run for the requested project but may not guard an older run that still supplies register data during projection lag (reachable input: project-scoped risk/decision register request while latest-run resolution and register projection disagree; needs proof that the reader can return an older unsealed run).
+- [ ] (candidate) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — a whitespace-only `ArchitectureRequestId` with a non-empty execute governance snapshot returns no baseline-drift item instead of the missing-request block (reachable input: persisted run row with whitespace request id and an execute snapshot; needs confirmation that this shape can be produced by a supported execute path).
+
+2026-10-02 seed hunt (seed-only): reseeded governance stickiness controllers and pre-finalize checklist paths; 207 scoped governance API tests passed with analyzers disabled; no candidate met the failing-repro bar.
 
 2026-09-28 seed hunt (seed→hit): reseeded api-governance-stickiness; proved dashed-vs-canonical technology-ledger run id mismatch on pre-finalize checklist; 273 scoped stickiness/posture/checklist tests passed.
 
