@@ -9912,6 +9912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-02 thorough hunt (dry): cheap-disproved the Unicode format-control candidate because preserved format characters do not break the `<untrusted_input>` or customer-content delimiters; cheap-disproved the streaming-buffer candidate because buffering is the intentional pre-yield output-safety boundary and the focused suite covers blocked output; 575 focused tests passed with analyzers disabled.
+
 2026-10-02 seed hunt (seed-only): re-read the selected safety and prompt-injection sources; seeded Unicode-format-control preservation and unbounded streaming-buffer candidates; the exact filter was blocked by unrelated ARCH006/ARCH006a diagnostics, while 575 focused tests passed with analyzers disabled.
 
 2026-10-01 seed hunt (seed-only): repeated the selected safety and prompt-injection source review; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -10778,8 +10780,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AzureResourceTagPromptSanitizer.StripControlChars` preserves Unicode format and bidirectional-control characters because it removes `char.IsControl` values only; reachable through untrusted Azure tag, evidence, and prompt scalar inputs passed to `SanitizeScalar`, with a possible visual/prompt-field spoofing outcome.
-- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` buffers every completion chunk before output safety evaluation; reachable from streaming model responses with large or unbounded chunk sequences, with a possible memory-amplification/resource-exhaustion outcome before the caller receives any chunk.
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.StripControlChars` preserves Unicode format and bidirectional-control characters — cheap-disproof 2026-10-02 thorough hunt: preserved format characters do not break the `<untrusted_input>` or customer-content delimiters, so no prompt-field escape or failing repro was demonstrated.
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` buffers every completion chunk before output safety evaluation — cheap-disproof 2026-10-02 thorough hunt: pre-yield buffering is the intentional output-safety boundary and the focused blocked-output tests cover the required behavior; no failing resource-safety repro was demonstrated.
 - [x] (valid-no-repro) Content safety guard maps a blocked category to allow on SDK failure — intentional fail-open when `FailClosedOnSdkError=false` (`AzureContentSafetyGuardSdkFailureTests`).
 - [x] (proven) Untrusted evidence delimiter is stripped so injection payload reaches the model prompt — embedded `</untrusted_input>` / `<untrusted_input>` broke the outer wrapper; fixed with ZWSP tag neutralization in `AzureResourceTagPromptSanitizer`.
 - [x] (valid-no-repro) Sanitizer runs after the prompt is assembled instead of before — `ArchitectureRunExecuteOrchestrator.AgentLoop` calls `SanitizeAsync` before `agentExecutor.ExecuteAsync`.
