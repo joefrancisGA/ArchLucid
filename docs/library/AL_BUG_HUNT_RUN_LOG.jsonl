@@ -8516,3 +8516,4 @@
 {"at":"2026-10-02T23:11:07.8919056Z","zoneId":"application-tenancy-lifecycle","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-02T23:14:47.5905095Z","zoneId":"api-governance-stickiness","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs,ArchLucid.Application/Governance/"]}
 {"at":"2026-10-02T23:17:03.8902976Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx"]}
+{"at":"2026-10-02T23:19:52.2414263Z","zoneId":"application-agents","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/"]}
