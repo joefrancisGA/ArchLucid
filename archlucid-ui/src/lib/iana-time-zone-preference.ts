@@ -147,7 +147,7 @@ export async function syncIanaTimeZonePreferenceFromServer(): Promise<string | n
     // UTC was the implicit client default before the product default moved to Eastern.
     // Do not promote that legacy cache value to an explicit account preference.
     const localTimeZoneToSync =
-      !remote.ianaTimeZoneIsExplicit && isUtcIanaTimeZoneId(localTimeZoneId)
+      !remote.ianaTimeZoneIsExplicit && !isUserPersistIntentActive() && isUtcIanaTimeZoneId(localTimeZoneId)
         ? DEFAULT_IANA_TIME_ZONE_ID
         : localTimeZoneId;
 
@@ -167,11 +167,12 @@ export async function syncIanaTimeZonePreferenceFromServer(): Promise<string | n
       return localTimeZoneToSync;
     }
 
-    persistIanaTimeZonePreferenceLocally(
-      remote.ianaTimeZoneIsExplicit ? normalizedRemote : localTimeZoneToSync,
-    );
+    const shouldUseRemoteValue = remote.ianaTimeZoneIsExplicit || isUserPersistIntentActive();
+    const resolvedTimeZoneId = shouldUseRemoteValue ? normalizedRemote : localTimeZoneToSync;
 
-    return remote.ianaTimeZoneIsExplicit ? normalizedRemote : localTimeZoneToSync;
+    persistIanaTimeZonePreferenceLocally(resolvedTimeZoneId);
+
+    return resolvedTimeZoneId;
   }
   catch {
     return null;
