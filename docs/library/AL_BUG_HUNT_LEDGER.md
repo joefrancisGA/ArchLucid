@@ -10780,10 +10780,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 55
-- **last-hunt:** 2026-09-30
+- **hunts:** 56
+- **last-hunt:** 2026-10-02
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -10792,13 +10792,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-02 seed hunt (seed-only): re-read selected safety and prompt-injection sources; seeded a sanitizer-reentrancy candidate for repeated in-place sanitization; 575 focused tests passed with analyzers disabled and no candidate promoted.
 
+2026-10-02 thorough hunt (dry): cheap-disproved the sanitizer-reentrancy candidate because the production prepare stage builds a fresh evidence package and request, then invokes `SanitizeAsync` once; no reachable caller reuses the same objects across the sanitizer boundary; 575 focused agent-runtime-safety tests passed with analyzers disabled.
+
 2026-09-12 seed hunt #2136 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
-- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` mutates evidence and request objects in place, so repeated sanitization of the same objects may nest `<untrusted_input>` wrappers and grow prompt content; reachable when a reused evidence/request object crosses the sanitizer boundary more than once.
+- [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` mutates evidence and request objects in place, so repeated sanitization of the same objects may nest `<untrusted_input>` wrappers and grow prompt content — cheap-disproof 2026-10-02 thorough hunt: `AgentLoopPrepareStage.PrepareAsync` builds a fresh evidence package and request, then invokes the sanitizer once; no production caller provides the required repeated-object reachability.
 - [x] (valid-no-repro) `NullContentSafetyGuard.CheckInputAsync` and `CheckOutputAsync` ignore an already-canceled token and return allowed — cheap-disproof 2026-10-02 thorough hunt: the guard is an intentional disabled-content-safety pass-through and focused tests establish allowed/no-category behavior; no cancellation-contract failure was reproduced.
 - [x] (valid-no-repro) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — cheap-disproof 2026-10-02 thorough hunt: the guard intentionally throws a deterministic configuration error before any cancellable operation; no cancellation-contract failure was reproduced.
 - [x] (invalid) `CustomerContentPromptDelimiters.AppendQuarantinedSection` writes callback content directly between the begin/end markers — cheap-disproof 2026-10-02 thorough hunt: every production caller escapes customer content before writing it, so the callback-level concern has no reachable untrusted-input path.
