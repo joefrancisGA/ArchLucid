@@ -5639,7 +5639,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -5695,7 +5695,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
 - **hunts:** 26
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-27 — padded OperatorBaseUrl broke weekly sponsor report logo image URL
 - **related-pd-tb:** none
@@ -26985,10 +26985,12 @@ ABQ-09 churn hotspot.
 2026-09-08 thorough hunt #1298 (hit): proved architecture-scoped pick-review stale filter carryover; 11 scoped saved-view/clear-all/pick-review unit tests passed.
 2026-09-07 seed hunt #1290 (seed→hit): reseeded `onPickReviewForTriage` architecture-scope merge hypothesis; 5 scoped pick-review / saved-view unit tests passed.
 
-- [ ] (candidate) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is always `null`, so a buyer-polished tenant findings queue cannot render its approval-status banner even when an approval record exists; candidate input is a completed governance approval represented by the approval/provenance data available to adjacent governance surfaces. Reachability from this client’s queue data contract is not established yet.
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is always `null`, so a buyer-polished tenant findings queue cannot render its approval-status banner even when an approval record exists — cheap-disproof 2026-10-02 thorough hunt: this queue client receives no approval provenance in its props or queue-mode data contract; adjacent governance surfaces source showcase provenance independently, so no reachable completed-approval input exists in this path.
 - [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — an operator saved view with persisted `payload.filters` set to `null`, an array, or an object with malformed `nlFacets` is cast directly to `FindingsSavedViewFilters`; candidate input is malformed saved-view JSON returned by the operator saved-views API, with the wrong outcome being a throw or corrupted filter navigation instead of a safe fallback. API reachability and current helper behavior still need a focused repro.
 
 2026-10-02 seed hunt (seed-only): reread `GovernanceFindingsQueueClient.tsx` and its focused tests; existing scoped Vitest failures were React external-store/update-depth and workspace-label baseline failures, not source-tied repros; retained two mechanism-backed candidates and found no hunt-ready row to prove.
+
+2026-10-02 thorough hunt (dry): cheap-disproved the approval-banner candidate because the selected queue path has no reachable approval-provenance input; retained the malformed saved-view payload candidate pending proof that the API can return unsupported filter JSON. Focused Vitest ran 22 tests: 11 passed and 11 failed on baseline React external-store/update-depth or workspace-label failures.
 
 2026-10-02 seed hunt (seed-only): re-read the queue client, saved-view contract, approval banner contract, and focused tests; converted the two prior candidates into picker-recognized rows, but neither had a complete reachable input contract for a failing repro.
 
