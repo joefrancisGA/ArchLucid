@@ -8489,3 +8489,4 @@
 {"at":"2026-10-01T14:03:48.221686177Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-02T05:19:10.5968681Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-02T05:41:37.7589185Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.cs","ArchLucid.Api/Controllers/Tenancy/"]}
+{"at":"2026-10-02T05:46:45.7778713Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared"}

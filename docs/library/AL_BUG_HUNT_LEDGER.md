@@ -9910,6 +9910,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+- [ ] (candidate) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` / `ContentSafetyEnforcingAgentCompletionClient` — when the content-safety circuit is open with `FailClosedOnSdkError=false`, the guard redacts the original prompt only into a local `scrubbed` value, returns an allow-only `ContentSafetyResult`, and the enforcing client forwards the original prompt to the LLM (reachable through the registered completion-client safety decorator; concrete input: a prompt containing a deny-list secret while the circuit is open; wrong outcome: the model receives the unredacted secret despite the degraded-path warning and audit counts). Not promoted to hunt-ready in this seed run because the current guard contract has no sanitized-text channel and no integration repro was added.
+
 2026-10-01 seed hunt (seed-only): repeated the selected safety and prompt-injection source review; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): repeated source-level reseed of the safety and prompt-injection sanitizer scope; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
