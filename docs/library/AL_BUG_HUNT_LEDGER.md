@@ -25697,18 +25697,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-27 — dual-model consensus merge threw when topology proposal RequiredControls was null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `FindingIacStubGenerator` enrichment upsert dropped `ProposedEvidenceJson` (`[JsonIgnore]` envelope column) via clone/serialize and full enrichment merge replace; fixed clone carry-forward, enrichment JSON envelope fields, and `AgentResultEnrichmentMerger` base-column preservation; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`; 88 scoped Application.Tests.Agents tests passed.
-- **hunts:** 17
-- **bugs-found:** 17
-- **last-bug:** 2026-09-26 — dual-model consensus left dangling topology relationships; IaC stubs for non-emission findings
 2026-09-26 thorough hunt (hit): proved `TopologyProposalConsensusMerger` kept relationships whose endpoints were dropped by service intersection (dual-model consensus runs after structural post-process); fixed by pruning relationships to intersected endpoint keys; regression `Merge_prunes_relationships_when_intersected_services_no_longer_declares_both_endpoints`; proved `FindingIacStubGenerator` generated stubs for prose-only findings re-hydrated in `Findings` on enrichment read; fixed with `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs`; 87 scoped Application.Tests.Agents tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded application-agents; cheap-disproved consensus merge reintroducing structurally dropped services; seeded dual-model post-merge post-processor and emission-gate IaC stub candidates; 86 scoped Application.Tests.Agents tests passed.
@@ -25750,9 +25747,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [ ] (candidate) `AgentResultRegionMismatchEnricher.ResolveDefaultRegion` — multiple user-supplied `region:` constraints select the first value without an explicit precedence or conflict result, which could validate recommendations against a non-authoritative region; confirm whether repeated constraints are supported and which region should win before promoting
 - [ ] (candidate) `AgentConfidenceCalibrator.BuildIsotonicKnots` — persisted calibration rows with non-finite raw confidence or semantic scores could create non-finite knots and calibrated output; confirm repository/API validation rejects `NaN` and infinities before attempting a repro
-- [ ] (candidate) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution; confirm configuration can produce this drift through a supported path before promoting
+- [x] (invalid) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution — invalid: `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects every stored or catalog allowlist entry that is absent from the alias registry before the resolver receives it
 
-2026-10-02 seed hunt (seed-only): reseeded application-agents; reviewed region-constraint precedence, calibration sample finiteness, and allowlist/alias-registry drift candidates; no new hunt-ready defect was established.
+2026-10-02 thorough hunt (dry): cheap-disproved alias-registry drift because `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects unsupported entries; region-constraint precedence and non-finite calibration samples remain candidates pending supported-input evidence; no hunt-ready defect remained.
 
 2026-09-26 thorough hunt (hit): cheap-disproved null AddedServices without structural post-processor; proved null Warnings NRE on region mismatch append; 90 scoped Application.Tests.Agents tests passed.
 
