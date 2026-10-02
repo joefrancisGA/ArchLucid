@@ -72,7 +72,7 @@ export function applyFindingsSavedViewFilters(
     source.nlFacets !== null &&
     typeof source.nlFacets === "object" &&
     !Array.isArray(source.nlFacets)
-      ? (source.nlFacets as FindingsNaturalLanguageFacets)
+      ? normalizeFindingsNaturalLanguageFacets(source.nlFacets as Record<string, unknown>)
       : {};
 
   return {
@@ -81,5 +81,30 @@ export function applyFindingsSavedViewFilters(
     nlFacets,
     groupByResource: source.groupByResource === true,
     scopedRunId: typeof source.scopedRunId === "string" ? source.scopedRunId : null,
+  };
+}
+
+function normalizeFindingsNaturalLanguageFacets(
+  value: Record<string, unknown>,
+): FindingsNaturalLanguageFacets {
+  const hasKnownFacet = "severity" in value || "status" in value || "titleKeywords" in value;
+
+  if (!hasKnownFacet) {
+    return {};
+  }
+
+  const severity = value.severity;
+  const status = value.status;
+  const titleKeywords = value.titleKeywords;
+
+  return {
+    severity:
+      severity === "critical" || severity === "high" || severity === "medium" || severity === "low"
+        ? severity
+        : null,
+    status: status === "open" || status === "disposed" ? status : null,
+    titleKeywords: Array.isArray(titleKeywords)
+      ? titleKeywords.filter((keyword): keyword is string => typeof keyword === "string")
+      : [],
   };
 }

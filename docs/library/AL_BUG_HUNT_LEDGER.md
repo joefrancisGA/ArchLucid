@@ -26923,11 +26923,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 19
-- **bugs-found:** 18
+- **hunts:** 20
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-02
-- **last-bug:** 2026-10-02 — malformed saved-view filters threw while loading an operator findings view
+- **last-bug:** 2026-10-02 — malformed nested saved-view facets threw while building findings navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26990,8 +26990,11 @@ ABQ-09 churn hotspot.
 
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is always `null`, so a buyer-polished tenant findings queue cannot render its approval-status banner even when an approval record exists — cheap-disproof 2026-10-02 thorough hunt: this queue client receives no approval provenance in its props or queue-mode data contract; adjacent governance surfaces source showcase provenance independently, so no reachable completed-approval input exists in this path.
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — an operator saved view with persisted `payload.filters` set to `null`, an array, or an object with malformed `nlFacets` was cast directly to `FindingsSavedViewFilters`; loading the view threw or passed malformed facets into queue state instead of falling back safely; fixed runtime normalization in `applyFindingsSavedViewFilters`; regressions `falls back to empty findings filters when persisted filters are null`, `falls back to empty findings filters when persisted filters are an array`, and `drops malformed natural-language facets from persisted filters`.
+- [x] (proven) `applyFindingsSavedViewFilters` — an object-shaped `nlFacets` with invalid nested values such as `titleKeywords: null` passed through the outer object guard; saved-view navigation then called `.map` on the invalid value and threw; fixed by normalizing severity, status, and title-keyword element types; regression `does not throw when persisted natural-language facet fields have invalid types`.
 
 2026-10-02 thorough hunt (hit): proved malformed operator saved-view filter payloads could throw during findings queue navigation; normalized object/string/boolean/facet fields before applying filters; 3 focused saved-view tests passed, with 2 pre-existing focused queue-suite failures unrelated to this change.
+
+2026-10-02 seed hunt (seed→hit): reseeded ui-governance-findings-queue; proved nested malformed natural-language facet values could still throw after outer saved-view payload normalization; 4 focused saved-view tests passed.
 
 2026-10-02 seed hunt (seed-only): reread `GovernanceFindingsQueueClient.tsx` and its focused tests; existing scoped Vitest failures were React external-store/update-depth and workspace-label baseline failures, not source-tied repros; retained two mechanism-backed candidates and found no hunt-ready row to prove.
 
