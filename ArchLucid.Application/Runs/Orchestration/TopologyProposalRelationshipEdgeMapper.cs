@@ -59,11 +59,17 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         foreach (GraphNode node in topologyNodes)
         {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
         }
 
         foreach (GraphNode node in topologyNodes)
         {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeTerraformSyntheticLabelResolutionFallback(
                 endpointKeyToNodeId,
                 node.Label,
@@ -74,6 +80,9 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         foreach (GraphNode node in topologyNodes)
         {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             TopologyProposalTerraformSourceIdHeuristics.PreferCategorizedSyntheticAlias(
                 endpointKeyToNodeId,
                 node.Label,

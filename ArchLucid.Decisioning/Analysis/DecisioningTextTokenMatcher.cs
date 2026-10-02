@@ -141,12 +141,6 @@ internal static class DecisioningTextTokenMatcher
             return false;
         }
 
-        if (normalized.Contains("non-private", StringComparison.Ordinal)
-            || normalized.Contains("non private", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
         return true;
     }
 
