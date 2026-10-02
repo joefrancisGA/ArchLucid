@@ -4484,9 +4484,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-02
 - **last-bug:** 2026-10-02 — triple-scoped table primary-key mutation bypassed ARCH006 scope binding
 - **related-pd-tb:** none
@@ -4500,7 +4500,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-02 seed hunt (seed-only): re-read the analyzer and focused tests; identified the production `QueryUnbufferedAsync` call as an uncovered Dapper method shape, but its current `AuditEvents` SQL is tenant/workspace/project scoped; 19 focused analyzer tests passed and no candidate was promoted.
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` omits Dapper `QueryUnbufferedAsync`, which is reachable in `DapperAuditRepository.StreamFilteredExportAsync`; the current `dbo.AuditEvents` query is scope-bound, so an unscoped sibling or future edit could bypass ARCH006 and needs a concrete unscoped repro before promotion.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` omits Dapper `QueryUnbufferedAsync` — cheap-disproof 2026-10-02 thorough hunt: the only reachable production call, `DapperAuditRepository.StreamFilteredExportAsync`, uses a query with `TenantId`, `WorkspaceId`, and `ProjectId` predicates; no current unscoped SQL path produced a failing analyzer repro.
+
+2026-10-02 thorough hunt (dry): cheap-disproved the `QueryUnbufferedAsync` coverage candidate because its only reachable production SQL is already scope-bound; 19 focused analyzer tests passed.
 
 - [x] (proven) Analyzer missed Dapper `QueryAsync` on tenant tables — **hit 2026-08-24:** `TryGetSqlArgument` always used `Arguments[0]` (connection) instead of the `sql`/`command` parameter; regression in `ARCH006_reports_unscoped_static_sql_on_scoped_table`
 - [x] (proven) Interpolated SQL treated as scoped when tenant predicate only appeared in a comment — **hit 2026-08-24:** predicate regex matched `/* TenantId = @TenantId ... */`; regression in `Tenant_id_predicate_in_sql_comment_does_not_bind_runs`
