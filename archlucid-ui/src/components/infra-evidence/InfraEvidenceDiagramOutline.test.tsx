@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
+import * as graphViewModelExport from "@/lib/graph-view-model-export";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 vi.mock("@/lib/security-declared-connection-api", () => ({
@@ -478,6 +479,30 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(detailPanel).toBeInTheDocument();
     expect(within(detailPanel).getByText("Probable")).toBeInTheDocument();
     expect(within(detailPanel).getByText(/Authorization from managed identity and RBAC/)).toBeInTheDocument();
+  });
+
+  it("downloads the structured node and edge lists as JSON", () => {
+    const downloadSpy = vi.spyOn(graphViewModelExport, "downloadBrowserTextFile").mockImplementation(() => {});
+
+    render(<InfraEvidenceDiagramOutline outline={outline} />);
+
+    fireEvent.click(screen.getByTestId("infra-diagrams-download-nodes-json"));
+    fireEvent.click(screen.getByTestId("infra-diagrams-download-edges-json"));
+
+    expect(downloadSpy).toHaveBeenNthCalledWith(
+      1,
+      expect.stringMatching(/^infra-diagram-nodes-.*\.json$/u),
+      expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.nodes.v1"'),
+      "application/json;charset=utf-8",
+    );
+    expect(downloadSpy).toHaveBeenNthCalledWith(
+      2,
+      expect.stringMatching(/^infra-diagram-edges-.*\.json$/u),
+      expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.edges.v1"'),
+      "application/json;charset=utf-8",
+    );
+
+    downloadSpy.mockRestore();
   });
 
   it("sorts edge rows when a column heading is clicked", () => {

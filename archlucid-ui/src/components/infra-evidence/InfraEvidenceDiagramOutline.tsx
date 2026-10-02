@@ -31,6 +31,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR,
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_KEY,
@@ -168,6 +169,22 @@ function writeOutlineSectionOpenToSessionStorage(storageKey: string, open: boole
   } catch {
     // Session storage may be unavailable in private mode.
   }
+}
+
+function downloadDiagramOutlineJson(
+  kind: "nodes" | "edges",
+  rows: readonly unknown[],
+): void {
+  const payload = {
+    exportKind: `ArchLucid.InfraEvidenceDiagram.${kind}.v1`,
+    [kind]: rows,
+  };
+
+  downloadBrowserTextFile(
+    `infra-diagram-${kind}-${safeGraphExportFilenameSegment(new Date().toISOString())}.json`,
+    `${JSON.stringify(payload, null, 2)}\n`,
+    "application/json;charset=utf-8",
+  );
 }
 
 function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props: {
@@ -494,6 +511,31 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700"
     >
       <div className="flex flex-col gap-4 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Download the structured evidence behind this diagram.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="infra-diagrams-download-nodes-json"
+              onClick={() => downloadDiagramOutlineJson("nodes", outline.nodes)}
+            >
+              Download nodes JSON
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="infra-diagrams-download-edges-json"
+              onClick={() => downloadDiagramOutlineJson("edges", outline.edges)}
+            >
+              Download edges JSON
+            </Button>
+          </div>
+        </div>
         <div>
           <button
             type="button"

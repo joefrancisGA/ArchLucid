@@ -523,6 +523,8 @@ function readNodeToken(
       metadata.unresolvedRelationshipDetails.length > 0
         ? metadata.unresolvedRelationshipDetails
         : undefined,
+    questionableReason: metadata.questionableReason,
+    questionableAction: metadata.questionableAction,
   };
 }
 
@@ -566,6 +568,18 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, unresolvedRelationshipDetails: node.unresolvedRelationshipDetails });
+    }
+
+    if (existing.questionableReason == null && node.questionableReason != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, questionableReason: node.questionableReason });
+    }
+
+    if (existing.questionableAction == null && node.questionableAction != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, questionableAction: node.questionableAction });
     }
 
     return;
