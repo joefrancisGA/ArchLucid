@@ -9739,10 +9739,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-26 — UI `isSafeReturnPath` omitted residual `%2e` encoded-dot guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -9751,7 +9751,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `isAnonymousMarketingProxyPathNormalized` treats every `v1/marketing/quick-scan/` and `v1/marketing/trust-center/` descendant as anonymous; a newly added protected descendant could therefore bypass the BFF mutation gate and server-bearer attachment, reachable through the catch-all `/api/proxy/[...path]` route and requiring a concrete protected descendant to promote.
+- [x] (valid-no-repro) `isAnonymousMarketingProxyPathNormalized` treats every `v1/marketing/quick-scan/` and `v1/marketing/trust-center/` descendant as anonymous; the current OpenAPI catalog contains only the anonymous quick-scan/status/sample and trust-center evidence-pack descendants, and the UI proxy callers match that set. No concrete protected descendant exists to drive a failing repro; this remains process risk when a new marketing endpoint ships without an allowlist update.
 - [x] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path - invalid: server bearer stripped on allowlisted marketing paths; cookies are not copied upstream
 - [x] (candidate) Return-destination helper accepts an external URL that bypasses host-gate - invalid: `isSafeReturnPath` rejects external URLs; host-gate runs on next navigation
 - [x] (proven) Anonymous marketing proxy path can reach a mutating operator API route via literal `..` segments - fixed: reject `..`/`.` proxy segments before upstream fetch
@@ -9786,6 +9786,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `getEffectiveBrowserProxyScopeHeaders` / `mergeRegistrationScopeForProxy` — stale `archlucid_operator_scope_v1` beat post-registration `archlucid_last_registration` when unsigned after `clearOidcSession()` — **hit 2026-09-25 seed hunt (seed→hit):** signup verify and onboarding trial-status polls sent prior-tenant scope headers; fixed by preferring registration scope before operator storage when unsigned; regression `getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned`
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy; proved stale BFF cookie blocked anonymous health/trial-status GETs and registration scope lost to stale operator scope after sign-out; 25 scoped auth/proxy tests passed.
+
+2026-10-02 thorough hunt (dry): cheap-disproved the only open candidate because the generated OpenAPI route catalog and UI callers contain no protected quick-scan or trust-center descendant; 218 scoped auth/proxy tests passed, with 3 unrelated baseline failures in auth-domain/help/authority seam tests.
 
 - [x] (proven) `POST /api/auth/bff-session/refresh` — rejected refresh (`invalid_grant`) returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** stale expired session cookie persisted and kept blocking proxy reads until explicit DELETE; fixed with `buildBffSessionClearCookieHeaders` on rejection path; regression `clears BFF session cookies when the refresh token is rejected`
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
