@@ -8518,3 +8518,4 @@
 {"at":"2026-10-02T23:17:03.8902976Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx"]}
 {"at":"2026-10-02T23:19:52.2414263Z","zoneId":"application-agents","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/"]}
 {"at":"2026-10-02T23:26:41.0399708Z","zoneId":"application-agents","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/"]}
+{"at":"2026-10-02T23:32:20.9838076Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx","archlucid-ui/src/components/governance/findings/GovernanceFindingsSavedViewsBar.tsx","archlucid-ui/src/components/governance/findings/GovernanceFindingsSavedViewsBar.test.tsx"]}
