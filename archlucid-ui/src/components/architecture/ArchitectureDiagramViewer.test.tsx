@@ -234,6 +234,44 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Node A')).toBeInTheDocument();
   });
 
+  it('shows the questionable explanation when a focused node carries policy attention', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60">',
+      '  <g class="node" id="node-vm" transform="translate(10,10)"><title>avd01-nprod-0</title><rect class="node-card-questionable" width="80" height="30"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vm["avd01-nprod-0"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [{
+            id: 'vm',
+            label: 'avd01-nprod-0',
+            resourceType: 'Microsoft.Compute/virtualMachines',
+            resourceGroup: 'rg-avd',
+            questionableReason: 'Named like an AVD host and not registered',
+            questionableAction: 'Register or retire the VM',
+          }],
+          edges: [],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-vm')!);
+
+    expect(host.querySelector('.node-card-questionable')).toBeInTheDocument();
+    expect(await screen.findByTestId('infra-diagrams-questionable-panel')).toHaveTextContent(
+      'Named like an AVD host and not registered',
+    );
+    expect(screen.getByTestId('infra-diagrams-questionable-panel')).toHaveTextContent(
+      'Register or retire the VM',
+    );
+  });
+
   it('dims unrelated forest ink without changing the camera viewBox', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

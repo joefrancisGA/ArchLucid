@@ -4,7 +4,7 @@ import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse
 export function resolveInfraEvidenceDiagramOutlineResourceName(
   node: InfraEvidenceMermaidOutlineNode,
 ): string {
-  const label = node.label.trim();
+  const label = node.label.split(" · ", 1)[0]?.trim() ?? "";
 
   if (label.length === 0) {
     return node.id;

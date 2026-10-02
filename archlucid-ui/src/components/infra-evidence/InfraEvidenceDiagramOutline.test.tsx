@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
+import * as graphViewModelExport from "@/lib/graph-view-model-export";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 vi.mock("@/lib/security-declared-connection-api", () => ({
@@ -480,6 +481,30 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(detailPanel).getByText(/Authorization from managed identity and RBAC/)).toBeInTheDocument();
   });
 
+  it("downloads the structured node and edge lists as JSON", () => {
+    const downloadSpy = vi.spyOn(graphViewModelExport, "downloadBrowserTextFile").mockImplementation(() => {});
+
+    render(<InfraEvidenceDiagramOutline outline={outline} />);
+
+    fireEvent.click(screen.getByTestId("infra-diagrams-download-nodes-json"));
+    fireEvent.click(screen.getByTestId("infra-diagrams-download-edges-json"));
+
+    expect(downloadSpy).toHaveBeenNthCalledWith(
+      1,
+      expect.stringMatching(/^infra-diagram-nodes-.*\.json$/u),
+      expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.nodes.v1"'),
+      "application/json;charset=utf-8",
+    );
+    expect(downloadSpy).toHaveBeenNthCalledWith(
+      2,
+      expect.stringMatching(/^infra-diagram-edges-.*\.json$/u),
+      expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.edges.v1"'),
+      "application/json;charset=utf-8",
+    );
+
+    downloadSpy.mockRestore();
+  });
+
   it("sorts edge rows when a column heading is clicked", () => {
     const sortableOutline: InfraEvidenceMermaidOutline = {
       nodes: [
@@ -619,6 +644,30 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(
       within(screen.getByTestId("infra-diagrams-unknown-nodes-list")).getByText("Route table hop unresolved"),
     ).toBeTruthy();
+  });
+
+  it("puts orphaned-node problems in a separate Problem column", () => {
+    const orphanedOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_orphan",
+          label: "bastion-01 (Bastionhosts) · missing a required link: required subnet no longer exists",
+          resourceType: "Microsoft.Network/bastionHosts",
+          resourceGroup: "rg-network",
+          connectionState: "Orphaned",
+        },
+      ],
+      edges: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={orphanedOutline} defaultNodesOpen={true} />);
+
+    const section = screen.getByTestId("infra-diagrams-orphaned-nodes-list");
+    expect(within(section).getByRole("columnheader", { name: "Problem" })).toBeInTheDocument();
+    expect(within(section).getByText("bastion-01")).toBeInTheDocument();
+    expect(within(section).getByText(/missing a required link: required subnet no longer exists/u)).toBeInTheDocument();
+    expect(within(section).getByText(/Bastion/u)).toBeInTheDocument();
+    expect(within(section).queryByText(/bastion-01 .*missing a required link/u)).toBeNull();
   });
 
   it("does not show questions notice for unconnected shared-service types", () => {

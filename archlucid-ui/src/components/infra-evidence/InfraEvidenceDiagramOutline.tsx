@@ -31,6 +31,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR,
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_KEY,
@@ -85,6 +86,16 @@ function resolveUnknownNodeReason(node: InfraEvidenceMermaidOutlineNode): string
 
   if (details.length > 0) {
     return details.join(" ");
+  }
+
+  const separatorIndex = node.label.indexOf(" · ");
+
+  if (separatorIndex >= 0) {
+    const problem = node.label.slice(separatorIndex + 3).trim();
+
+    if (problem.length > 0) {
+      return problem;
+    }
   }
 
   return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;
@@ -170,6 +181,22 @@ function writeOutlineSectionOpenToSessionStorage(storageKey: string, open: boole
   }
 }
 
+function downloadDiagramOutlineJson(
+  kind: "nodes" | "edges",
+  rows: readonly unknown[],
+): void {
+  const payload = {
+    exportKind: `ArchLucid.InfraEvidenceDiagram.${kind}.v1`,
+    [kind]: rows,
+  };
+
+  downloadBrowserTextFile(
+    `infra-diagram-${kind}-${safeGraphExportFilenameSegment(new Date().toISOString())}.json`,
+    `${JSON.stringify(payload, null, 2)}\n`,
+    "application/json;charset=utf-8",
+  );
+}
+
 function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props: {
   readonly column: TColumn;
   readonly label: string;
@@ -213,7 +240,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly sectionLabel: string;
   readonly sectionTestId: string;
-  readonly showUnknownReason?: boolean;
+  readonly showProblem?: boolean;
   readonly nodeSortKey: InfraEvidenceDiagramOutlineNodeSortKey;
   readonly nodeSortDir: "asc" | "desc";
   readonly onSort: (column: InfraEvidenceDiagramOutlineNodeSortKey) => void;
@@ -224,7 +251,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
     nodes,
     sectionLabel,
     sectionTestId,
-    showUnknownReason = false,
+    showProblem = false,
     nodeSortKey,
     nodeSortDir,
     onSort,
@@ -269,9 +296,9 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 onSort={onSort}
                 resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
               />
-              {showUnknownReason ? (
+              {showProblem ? (
                 <th className="px-3 py-2 font-medium" scope="col">
-                  Reason
+                  Problem
                 </th>
               ) : null}
               {showNeighborhoodActions ? (
@@ -291,7 +318,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
                   {formatOutlineCell(node.resourceGroup)}
                 </td>
-                {showUnknownReason ? (
+                {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
                     {resolveUnknownNodeReason(node)}
                   </td>
@@ -494,6 +521,31 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700"
     >
       <div className="flex flex-col gap-4 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Download the structured evidence behind this diagram.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="infra-diagrams-download-nodes-json"
+              onClick={() => downloadDiagramOutlineJson("nodes", outline.nodes)}
+            >
+              Download nodes JSON
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="infra-diagrams-download-edges-json"
+              onClick={() => downloadDiagramOutlineJson("edges", outline.edges)}
+            >
+              Download edges JSON
+            </Button>
+          </div>
+        </div>
         <div>
           <button
             type="button"
@@ -542,7 +594,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     nodes={nodes}
                     sectionLabel={resolveOutlineConnectionStateSectionLabel(state)}
                     sectionTestId={`infra-diagrams-${state.toLowerCase()}-nodes-list`}
-                    showUnknownReason={state === "Unknown"}
+                    showProblem={state === "Orphaned" || state === "Unknown"}
                     nodeSortKey={nodeSortKey}
                     nodeSortDir={nodeSortDir}
                     onSort={handleNodeSort}
