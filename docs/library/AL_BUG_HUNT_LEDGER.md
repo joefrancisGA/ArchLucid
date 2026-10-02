@@ -3110,10 +3110,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -10897,6 +10897,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-27 seed hunt #26 (seed→hit): reseeded application-analysis; proved `AgentResultDeltaMateriality.HasMaterialChanges` ignored `LeftExists`/`RightExists` flips without list/confidence deltas, so `ReplayComparisonInterpretationDiffSlice` synergy notes claimed "Neither agent outputs nor manifest changed materially" when an agent type appeared on only one run; fixed presence check in shared materiality helper; regression `BuildAsync_when_agent_presence_differs_without_list_deltas_adds_material_agent_interpretation_note`; 19 picker-filter tests + 10 `EndToEndReplayComparisonServiceRunDiffTests` passed.
 
 - [x] (proven) `ReplayComparisonInterpretationDiffSlice` / `AgentResultDeltaMateriality` — agent presence-only deltas treated as non-material in synergy interpretation notes — **hit 2026-09-27 seed hunt #26:** `HasMaterialChanges` omitted `LeftExists` vs `RightExists`; fixed in `AgentResultDeltaMateriality.cs`; regression in `EndToEndReplayComparisonServiceRunDiffTests`.
+
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — the sealed-manifest hash guard covers only the primary `RunId`, while `IncludeAgentResultCompare` loads a separate `CompareRunId` without an equivalent sealed-manifest check (reachable input: analysis request with `IncludeAgentResultCompare=true` and a compare run id; needs confirmation that compare-run data is required to be sealed before inclusion).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` directly without proving that the comparison manifest belongs to the current scoped tenant/run lineage (reachable input: caller-supplied compare manifest version on an analysis request; needs a concrete cross-run/tenant lookup path and wrong-result repro).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — a supplied `PreloadedRunDetail.Manifest` is accepted after validating only `PreloadedRunDetail.Run.RunId`, so a stale preloaded detail could carry a manifest from another run into the report (reachable input: internal export/analysis caller supplying a preloaded detail; needs proof that such preloaded details can be assembled with mismatched manifest provenance).
+
+2026-10-02 seed hunt (seed-only): reseeded architecture-analysis and compare-quality orchestration paths; 19 picker-scoped tests passed with analyzers disabled; no candidate met the failing-repro bar.
 
 2026-09-12 seed hunt #2259 (seed-only): reseeded application-analysis with `-Hint application analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.
