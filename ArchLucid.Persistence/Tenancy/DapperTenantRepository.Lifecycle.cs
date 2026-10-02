@@ -155,6 +155,36 @@ public sealed partial class DapperTenantRepository
     }
 
 
+    public async Task<bool> TrySuspendTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET SuspendedUtc = SYSUTCDATETIME()
+                           WHERE Id = @Id
+                             AND SuspendedUtc IS NULL
+                             AND OffboardedUtc IS NULL;
+                           """;
+
+        int affected = 0;
+
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection catalog = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            affected = await catalog.ExecuteAsync(new CommandDefinition(sql, new
+            {
+                Id = tenantId
+            }, cancellationToken: ct)).ConfigureAwait(false);
+        }
+
+        await using SqlConnection tenant = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        int tenantAffected = await tenant.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            Id = tenantId
+        }, cancellationToken: ct)).ConfigureAwait(false);
+
+        return affected > 0 || tenantAffected > 0;
+    }
+
     /// <inheritdoc />
     public async Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {

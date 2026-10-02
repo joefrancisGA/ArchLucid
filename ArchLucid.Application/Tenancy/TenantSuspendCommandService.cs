@@ -37,7 +37,10 @@ public sealed class TenantSuspendCommandService(
         if (tenant.SuspendedUtc is not null)
             return TenantSuspendOutcome.AlreadyInDesiredState;
 
-        await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
+        bool suspended = await _tenantRepository.TrySuspendTenantAsync(tenantId, cancellationToken);
+
+        if (!suspended)
+            return TenantSuspendOutcome.AlreadyInDesiredState;
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantSuspended,

@@ -25894,13 +25894,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 32
-- **bugs-found:** 21
+- **hunts:** 33
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-02
-- **last-bug:** 2026-09-26 — `TrialLimitGate` reported 0 days remaining for Expired/ReadOnly lifecycle writes while trial-status API showed days until next phase
+- **last-bug:** 2026-10-02 — concurrent tenant suspend requests duplicated `TenantSuspended` audit events
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-02 thorough hunt (hit): reproduced duplicate `TenantSuspended` audit events under concurrent suspend requests; shipped atomic repository transition semantics and the 128-test scoped tenancy suite passed.
 
 ### Hypotheses
 
@@ -26000,7 +26002,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-04 thorough hunt #709: proved offboarded-trial purge bypass; cheap-disproved link-entra partial-bind rollback as documented idempotent retry.
 
-- [ ] (candidate) `TenantSuspendCommandService.TrySuspendAsync` — two concurrent admin suspend requests can both observe `SuspendedUtc == null`, invoke the repository suspend, and append duplicate `TenantSuspended` platform-audit events before either read sees the persisted state (reachable input: concurrent `POST /v1/admin/tenants/{id}/suspend` requests; needs an atomic repository outcome or a failing concurrency repro).
+- [x] (proven) `TenantSuspendCommandService.TrySuspendAsync` — two concurrent admin suspend requests both observed `SuspendedUtc == null`, invoked the non-atomic repository suspend, and appended duplicate `TenantSuspended` platform-audit events — **hit 2026-10-02 thorough hunt:** added atomic `TrySuspendTenantAsync` compare-and-set semantics across SQL, in-memory, and caching repositories; regression `TrySuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner`.
 - [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — a scheduler retry for a `Deleted` tenant with no remaining purge rows returns `false` after a successful no-op purge and may repeatedly report failure (reachable input: an already-deleted lifecycle row whose hard-purge target tables are empty; needs confirmation that `RowsDeleted == 0` is not the repository’s idempotent-success signal).
 - [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — an active migration with a null maintenance message returns a snapshot with no operator-facing message rather than the migration fallback copy used by the start/verification workflow (reachable input: migration records permit nullable `MaintenanceMessage`; needs a confirmed consumer contract requiring a non-null status message).
 

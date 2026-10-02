@@ -16,6 +16,12 @@ public interface ITenantLifecycleRepository
     Task SuspendTenantAsync(Guid tenantId, CancellationToken ct);
 
     /// <summary>
+    ///     Suspends an active tenant atomically.
+    /// </summary>
+    /// <returns><c>true</c> only when this call changed the tenant to suspended; otherwise <c>false</c>.</returns>
+    Task<bool> TrySuspendTenantAsync(Guid tenantId, CancellationToken ct);
+
+    /// <summary>
     ///     Clears <c>SuspendedUtc</c> when the tenant is not in erasure quarantine.
     ///     Returns <see langword="false" /> when the tenant is missing or <c>OffboardedUtc</c> is set.
     /// </summary>
