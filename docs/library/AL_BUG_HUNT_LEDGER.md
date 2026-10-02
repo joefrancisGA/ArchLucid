@@ -9912,6 +9912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-02 thorough hunt (dry): cheap-disproved the unconfigured-guard cancellation candidate because the guard intentionally throws a deterministic configuration error before any cancellable operation; the focused suite passed 575 tests with analyzers disabled.
+
 2026-10-02 seed hunt (seed-only): re-read the selected safety and prompt-injection sources; seeded a cancellation-contract candidate for the unconfigured content-safety guard; 575 focused tests passed with analyzers disabled and no candidate was promoted.
 
 2026-10-02 thorough hunt (dry): invalidated the `AppendQuarantinedSection` callback candidate because every production caller escapes customer content before writing it; 575 focused tests passed with analyzers disabled and no failing repro was found.
@@ -10790,7 +10792,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure; reachable when a request is canceled while content safety is enabled but no implementation is registered, with a possible cancellation-contract mismatch.
+- [x] (valid-no-repro) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — cheap-disproof 2026-10-02 thorough hunt: the guard intentionally throws a deterministic configuration error before any cancellable operation; no cancellation-contract failure was reproduced.
 - [x] (invalid) `CustomerContentPromptDelimiters.AppendQuarantinedSection` writes callback content directly between the begin/end markers — cheap-disproof 2026-10-02 thorough hunt: every production caller escapes customer content before writing it, so the callback-level concern has no reachable untrusted-input path.
 - [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` returns an allowed result after `IPromptRedactor.RedactAlways` without proving that every harmful category is covered by the deny-list — cheap-disproof 2026-10-02 thorough hunt: the existing fail-open scrub/audit coverage showed the intended degraded boundary and no failing repro for an uncovered denial category.
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` trims tag keys but wraps only tag values — cheap-disproof 2026-10-02 thorough hunt: `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` documents that tag keys are not production prompt inputs.
