@@ -395,6 +395,52 @@ public sealed class StoredProcedureRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_primary_key_delete_on_triple_scoped_table()
+    {
+        const string executeAsyncStub = """
+
+namespace Dapper
+{
+    public static partial class SqlMapper
+    {
+        public static System.Threading.Tasks.Task<int> ExecuteAsync(
+            System.Data.IDbConnection cnn,
+            string sql,
+            object? param = null) =>
+            throw null!;
+    }
+}
+""";
+
+        const string testCode = SharedStubs + executeAsyncStub +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class RunsRepository
+{
+    public System.Threading.Tasks.Task DeleteAsync(IDbConnection connection, int runId)
+    {
+        return SqlMapper.ExecuteAsync(
+            connection,
+            "DELETE FROM dbo.Runs WHERE RunId = @runId");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(79, 16, 81, 57)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006a_reports_unanalyzable_sql_for_string_format_table_reference()
     {
         const string testCode = SharedStubs +

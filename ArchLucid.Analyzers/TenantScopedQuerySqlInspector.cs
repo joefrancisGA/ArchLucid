@@ -129,12 +129,6 @@ internal static class TenantScopedQuerySqlInspector
         if (MergeIncludesTenantIdOnClause(scrubbed, normalizedTableName))
             return true;
 
-        if (IsPrimaryKeyScopedMutation(scrubbed))
-            return true;
-
-        if (IsSingleSurrogateKeyRead(scrubbed))
-            return true;
-
         if (requiresTripleScope)
         {
             if (HasTripleScopePredicate(scrubbed))
@@ -145,6 +139,12 @@ internal static class TenantScopedQuerySqlInspector
 
             return false;
         }
+
+        if (IsPrimaryKeyScopedMutation(scrubbed))
+            return true;
+
+        if (IsSingleSurrogateKeyRead(scrubbed))
+            return true;
 
         return HasTenantIdScopePredicate(scrubbed) || HasTripleScopePredicate(scrubbed);
     }
