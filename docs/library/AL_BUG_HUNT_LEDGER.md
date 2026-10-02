@@ -10790,12 +10790,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
+2026-10-02 seed hunt (seed-only): re-read selected safety and prompt-injection sources; seeded a sanitizer-reentrancy candidate for repeated in-place sanitization; 575 focused tests passed with analyzers disabled and no candidate promoted.
+
 2026-09-12 seed hunt #2136 (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
 
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` mutates evidence and request objects in place, so repeated sanitization of the same objects may nest `<untrusted_input>` wrappers and grow prompt content; reachable when a reused evidence/request object crosses the sanitizer boundary more than once.
 - [x] (valid-no-repro) `NullContentSafetyGuard.CheckInputAsync` and `CheckOutputAsync` ignore an already-canceled token and return allowed — cheap-disproof 2026-10-02 thorough hunt: the guard is an intentional disabled-content-safety pass-through and focused tests establish allowed/no-category behavior; no cancellation-contract failure was reproduced.
 - [x] (valid-no-repro) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — cheap-disproof 2026-10-02 thorough hunt: the guard intentionally throws a deterministic configuration error before any cancellable operation; no cancellation-contract failure was reproduced.
 - [x] (invalid) `CustomerContentPromptDelimiters.AppendQuarantinedSection` writes callback content directly between the begin/end markers — cheap-disproof 2026-10-02 thorough hunt: every production caller escapes customer content before writing it, so the callback-level concern has no reachable untrusted-input path.
