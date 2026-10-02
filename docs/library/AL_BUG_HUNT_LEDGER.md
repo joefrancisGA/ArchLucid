@@ -25894,9 +25894,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-02
 - **last-bug:** 2026-10-02 — concurrent tenant suspend requests duplicated `TenantSuspended` audit events
 - **related-pd-tb:** none
@@ -26003,10 +26003,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-04 thorough hunt #709: proved offboarded-trial purge bypass; cheap-disproved link-entra partial-bind rollback as documented idempotent retry.
 
 - [x] (proven) `TenantSuspendCommandService.TrySuspendAsync` — two concurrent admin suspend requests both observed `SuspendedUtc == null`, invoked the non-atomic repository suspend, and appended duplicate `TenantSuspended` platform-audit events — **hit 2026-10-02 thorough hunt:** added atomic `TrySuspendTenantAsync` compare-and-set semantics across SQL, in-memory, and caching repositories; regression `TrySuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner`.
-- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — a scheduler retry for a `Deleted` tenant with no remaining purge rows returns `false` after a successful no-op purge and may repeatedly report failure (reachable input: an already-deleted lifecycle row whose hard-purge target tables are empty; needs confirmation that `RowsDeleted == 0` is not the repository’s idempotent-success signal).
-- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — an active migration with a null maintenance message returns a snapshot with no operator-facing message rather than the migration fallback copy used by the start/verification workflow (reachable input: migration records permit nullable `MaintenanceMessage`; needs a confirmed consumer contract requiring a non-null status message).
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — a scheduler retry for a `Deleted` tenant with no remaining purge rows returns `false` after a successful no-op purge and may repeatedly report failure — cheap-disproof 2026-10-02 thorough hunt: the host scheduler ignores the engine boolean and treats any non-throwing invocation as success; the deleted retry is reached from the repository’s lifecycle automation query, but no caller exposes a repeated-failure outcome.
+- [x] (invalid) `TenantMigrationStatusService.GetForTenantAsync` — an active migration with a null maintenance message returns a snapshot with no operator-facing message rather than the migration fallback copy used by the start/verification workflow — cheap-disproof 2026-10-02 thorough hunt: `MaintenanceMessage` is `NOT NULL` in all migration schemas and `TenantCatalogMigrationOrchestrator.StartAsync` always writes `TenantMigrationMaintenanceMessages.DefaultSuspendMessage`; no supported nullable persisted input exists.
 
 2026-10-02 seed hunt (seed-only): reseeded application-tenancy-lifecycle from tenancy, trial, suspend, and migration paths; 127 scoped tenancy tests passed with analyzers disabled; no candidate met the failing-repro bar.
+
+2026-10-02 thorough hunt (dry): cheap-disproved the deleted-tenant retry boolean because the production scheduler ignores the return value and only treats exceptions as tenant failures; invalidated the null maintenance-message candidate because the database column is `NOT NULL` and the migration start path supplies the default. The scoped test filter was blocked during build by unrelated pre-existing ARCH006/ARCH006a analyzer errors in `ArchLucid.Persistence`; no failing repro was run because no hunt-ready candidate remained.
 
 ---
 
