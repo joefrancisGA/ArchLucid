@@ -9912,6 +9912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-02 thorough hunt (dry): cheap-disproved degraded-fallback deny-list incompleteness with the existing fail-open scrub/audit coverage and found no failing repro; invalidated the tag-key candidate because the focused test documents no production prompt-key reachability; 575 focused tests passed with analyzers disabled.
+
 2026-10-02 seed hunt (seed-only): re-read the selected safety and prompt-injection sources; seeded degraded-fallback deny-list coverage and unwrapped tag-key candidates; 575 focused tests passed with analyzers disabled and no candidate was promoted.
 
 2026-10-02 thorough hunt (dry): cheap-disproved the Unicode format-control candidate because preserved format characters do not break the `<untrusted_input>` or customer-content delimiters; cheap-disproved the streaming-buffer candidate because buffering is the intentional pre-yield output-safety boundary and the focused suite covers blocked output; 575 focused tests passed with analyzers disabled.
@@ -10782,8 +10784,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` returns an allowed result after `IPromptRedactor.RedactAlways` without proving that every harmful category is covered by the deny-list; reachable when the content-safety circuit is open and fail-open mode processes arbitrary input or output text.
-- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeTagMap` trims tag keys but wraps only tag values; reachable from untrusted Azure tag maps if a caller renders keys as prompt labels, allowing a key to carry prompt-delimiter or instruction text.
+- [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` returns an allowed result after `IPromptRedactor.RedactAlways` without proving that every harmful category is covered by the deny-list — cheap-disproof 2026-10-02 thorough hunt: the existing fail-open scrub/audit coverage showed the intended degraded boundary and no failing repro for an uncovered denial category.
+- [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` trims tag keys but wraps only tag values — cheap-disproof 2026-10-02 thorough hunt: `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` documents that tag keys are not production prompt inputs.
 - [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.StripControlChars` preserves Unicode format and bidirectional-control characters — cheap-disproof 2026-10-02 thorough hunt: preserved format characters do not break the `<untrusted_input>` or customer-content delimiters, so no prompt-field escape or failing repro was demonstrated.
 - [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` buffers every completion chunk before output safety evaluation — cheap-disproof 2026-10-02 thorough hunt: pre-yield buffering is the intentional output-safety boundary and the focused blocked-output tests cover the required behavior; no failing resource-safety repro was demonstrated.
 - [x] (valid-no-repro) Content safety guard maps a blocked category to allow on SDK failure — intentional fail-open when `FailClosedOnSdkError=false` (`AzureContentSafetyGuardSdkFailureTests`).
