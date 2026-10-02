@@ -1,14 +1,4 @@
-﻿{"at":"2026-09-02T05:27:28.9519125Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-02T05:35:40.4987327Z","zoneId":"ui-marketing-surfaces","outcome":"hit"}
-{"at":"2026-09-02T05:44:59.3923415Z","zoneId":"application-analysis","outcome":"hit"}
-{"at":"2026-09-02T05:55:50.8013139Z","zoneId":"decisioning","outcome":"hit"}
-{"at":"2026-09-02T06:04:25.5934291Z","zoneId":"finding-disposition","outcome":"seed-only"}
-{"at":"2026-09-02T06:12:30.2536667Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
-{"at":"2026-09-02T06:20:05.4124331Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-02T06:26:42.6451498Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
-{"at":"2026-09-02T06:35:09.8782497Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
-{"at":"2026-09-02T06:42:09.7884061Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-02T06:51:59.4832996Z","zoneId":"host-core-jobs","outcome":"hit"}
+﻿{"at":"2026-09-02T06:51:59.4832996Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-09-02T06:56:32.6407276Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-09-02T07:04:16.2824063Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-09-02T07:24:23.8557633Z","zoneId":"context-ingestion","outcome":"hit"}
@@ -8488,5 +8478,7 @@
 {"at":"2026-10-01T13:57:37.8906882Z","zoneId":"itsm-inbound-webhooks","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs","ArchLucid.Application/Integrations/Itsm/","ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
 {"at":"2026-10-01T14:03:48.221686177Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-02T05:19:10.5968681Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-02T05:41:37.7589185Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.cs","ArchLucid.Api/Controllers/Tenancy/"]}
-{"at":"2026-10-02T05:46:45.7778713Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-02T05:39:55.5990326Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.cs","ArchLucid.Api/Controllers/Tenancy/"]}
+{"at":"2026-10-02T06:46:49.9692684Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-02T06:47:02.0919231Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-02T06:50:23.9010798Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"],"kind":"seed hunt"}

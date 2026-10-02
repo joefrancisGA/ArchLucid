@@ -9910,8 +9910,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
-- [ ] (candidate) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` / `ContentSafetyEnforcingAgentCompletionClient` — when the content-safety circuit is open with `FailClosedOnSdkError=false`, the guard redacts the original prompt only into a local `scrubbed` value, returns an allow-only `ContentSafetyResult`, and the enforcing client forwards the original prompt to the LLM (reachable through the registered completion-client safety decorator; concrete input: a prompt containing a deny-list secret while the circuit is open; wrong outcome: the model receives the unredacted secret despite the degraded-path warning and audit counts). Not promoted to hunt-ready in this seed run because the current guard contract has no sanitized-text channel and no integration repro was added.
-
 2026-10-01 seed hunt (seed-only): repeated the selected safety and prompt-injection source review; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): repeated source-level reseed of the safety and prompt-injection sanitizer scope; the exact picker filter passed 573 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -13357,8 +13355,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 459
-- **last-hunt:** 2026-10-01
+- **hunts:** 460
+- **last-hunt:** 2026-10-02
 - **bugs-found:** 3502
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
@@ -13366,6 +13364,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** no
 
 2026-10-01 seed hunt (seed-only): inspected ArchLucid.Core source despite the picker path containing only this ledger; the exact `FullyQualifiedName~ArchLucid.Core` filter passed all 7,163 tests. No new reachable mechanism-backed candidate was found or promoted.
+
+2026-10-02 seed hunt (seed-only): re-read the picked zone and its existing test context; the configured path remains only this ledger, with no source-backed hunt-ready candidate or promotable row. No product hypothesis was invented, and no bug or fix was recorded.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than ArchLucid.Core source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
@@ -24096,7 +24096,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-01 seed hunt (seed-only): inspected the Governance/Tenancy controller scope despite the picker path containing only this ledger; the exact filter built and ran 154 tests (137 passed, 17 SQL-backed integration cases unavailable on this Linux VM). The two unit failures came from default-Moq repositories returning null from `ListWorkspacesAsync`; both production fallback implementations return non-null lists, so no reachable mechanism-backed candidate was promoted.
 
-2026-10-02 seed hunt (seed-only): reseeded api-governance-tenancy-controllers; no production change or new reachable mechanism-backed candidate was promoted.
+2026-10-02 seed hunt (seed-only): re-read the Governance/Tenancy controller partials and existing scope, validation, ETag, and sealed-manifest regressions; the picker still exposes only this ledger path, and no new reachable mechanism-backed candidate could be promoted without inventing a product hypothesis. No production files changed.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
