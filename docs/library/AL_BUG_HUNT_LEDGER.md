@@ -4488,7 +4488,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-02
@@ -4551,7 +4551,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
 - **hunts:** 46
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
@@ -25618,11 +25618,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` / `PreCommitSupplementalFindingsAppender` — technology ledger rows persist canonical `N` run ids (`TechnologyLedgerRunCommandService`) but checklist and gate-parity loader queried `GetByRunIdAsync` with the caller's dashed `D` route id, skipping assumed-technology and technology-consistency supplemental findings — **hit 2026-09-28 seed hunt (seed→hit):** `TechnologyLedgerRunIdKey` canonicalizes before ledger reads; regression `BuildAsync_marks_not_ready_when_assumed_technology_rows_use_canonical_n_run_id_and_checklist_uses_d_format`.
 
-- [ ] (candidate) `GovernanceStickinessController.EnsureBulkDispositionSealedManifestAllowedAsync` — missing finding-inspect rows are skipped before the bulk disposition facade runs, so a deleted or stale finding id could bypass the sealed-manifest guard if the facade accepts that id as a no-op or recreates it (reachable input: `POST /v1/governance/findings/bulk-disposition` with a finding id that disappears between read and mutation; needs a concrete facade outcome and failing repro).
+- [x] (valid-no-repro) `GovernanceStickinessController.EnsureBulkDispositionSealedManifestAllowedAsync` — missing finding-inspect rows are skipped before the bulk disposition facade runs, so a deleted or stale finding id could bypass the sealed-manifest guard — cheap-disproof 2026-10-02 thorough hunt: the facade re-reads every normalized id through `RequireFindingInspectInScopeAsync` before mutation and throws for an out-of-scope/missing id; existing `RecordBulkDispositionAsync_throws_when_any_finding_id_is_out_of_scope` covers the reachable race outcome.
 - [ ] (candidate) `GovernanceStickinessController.EnsureRegistersSealedManifestAllowedAsync` — register reads validate the latest committed run for the requested project but may not guard an older run that still supplies register data during projection lag (reachable input: project-scoped risk/decision register request while latest-run resolution and register projection disagree; needs proof that the reader can return an older unsealed run).
-- [ ] (candidate) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — a whitespace-only `ArchitectureRequestId` with a non-empty execute governance snapshot returns no baseline-drift item instead of the missing-request block (reachable input: persisted run row with whitespace request id and an execute snapshot; needs confirmation that this shape can be produced by a supported execute path).
+- [x] (invalid) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — a whitespace-only `ArchitectureRequestId` with a non-empty execute governance snapshot returns no baseline-drift item instead of the missing-request block — cheap-disproof 2026-10-02 thorough hunt: all supported run-creation paths copy a validated `ArchitectureRequest.RequestId`; no supported writer produces whitespace-only ids, so the candidate lacks reachable input.
 
 2026-10-02 seed hunt (seed-only): reseeded governance stickiness controllers and pre-finalize checklist paths; 207 scoped governance API tests passed with analyzers disabled; no candidate met the failing-repro bar.
+
+2026-10-02 thorough hunt (dry): cheap-disproved the bulk sealed-manifest bypass because the facade revalidates every finding id before mutation; invalidated the whitespace request-id candidate because supported run writers copy validated request ids. The latest-run register candidate remains a candidate pending proof that register readers can return older unsealed data; no failing repro was attempted.
 
 2026-09-28 seed hunt (seed→hit): reseeded api-governance-stickiness; proved dashed-vs-canonical technology-ledger run id mismatch on pre-finalize checklist; 273 scoped stickiness/posture/checklist tests passed.
 
