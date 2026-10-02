@@ -646,6 +646,30 @@ describe("InfraEvidenceDiagramOutline", () => {
     ).toBeTruthy();
   });
 
+  it("puts orphaned-node problems in a separate Problem column", () => {
+    const orphanedOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_orphan",
+          label: "bastion-01 (Bastionhosts) · missing a required link: required subnet no longer exists",
+          resourceType: "Microsoft.Network/bastionHosts",
+          resourceGroup: "rg-network",
+          connectionState: "Orphaned",
+        },
+      ],
+      edges: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={orphanedOutline} defaultNodesOpen={true} />);
+
+    const section = screen.getByTestId("infra-diagrams-orphaned-nodes-list");
+    expect(within(section).getByRole("columnheader", { name: "Problem" })).toBeInTheDocument();
+    expect(within(section).getByText("bastion-01")).toBeInTheDocument();
+    expect(within(section).getByText(/missing a required link: required subnet no longer exists/u)).toBeInTheDocument();
+    expect(within(section).getByText(/Bastion/u)).toBeInTheDocument();
+    expect(within(section).queryByText(/bastion-01 .*missing a required link/u)).toBeNull();
+  });
+
   it("does not show questions notice for unconnected shared-service types", () => {
     const workspaceOutline: InfraEvidenceMermaidOutline = {
       nodes: [

@@ -88,6 +88,16 @@ function resolveUnknownNodeReason(node: InfraEvidenceMermaidOutlineNode): string
     return details.join(" ");
   }
 
+  const separatorIndex = node.label.indexOf(" · ");
+
+  if (separatorIndex >= 0) {
+    const problem = node.label.slice(separatorIndex + 3).trim();
+
+    if (problem.length > 0) {
+      return problem;
+    }
+  }
+
   return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;
 }
 
@@ -230,7 +240,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly sectionLabel: string;
   readonly sectionTestId: string;
-  readonly showUnknownReason?: boolean;
+  readonly showProblem?: boolean;
   readonly nodeSortKey: InfraEvidenceDiagramOutlineNodeSortKey;
   readonly nodeSortDir: "asc" | "desc";
   readonly onSort: (column: InfraEvidenceDiagramOutlineNodeSortKey) => void;
@@ -241,7 +251,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
     nodes,
     sectionLabel,
     sectionTestId,
-    showUnknownReason = false,
+    showProblem = false,
     nodeSortKey,
     nodeSortDir,
     onSort,
@@ -286,9 +296,9 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 onSort={onSort}
                 resolveAriaSort={sortDirectionForInfraEvidenceDiagramOutlineNodeColumn}
               />
-              {showUnknownReason ? (
+              {showProblem ? (
                 <th className="px-3 py-2 font-medium" scope="col">
-                  Reason
+                  Problem
                 </th>
               ) : null}
               {showNeighborhoodActions ? (
@@ -308,7 +318,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
                   {formatOutlineCell(node.resourceGroup)}
                 </td>
-                {showUnknownReason ? (
+                {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
                     {resolveUnknownNodeReason(node)}
                   </td>
@@ -584,7 +594,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     nodes={nodes}
                     sectionLabel={resolveOutlineConnectionStateSectionLabel(state)}
                     sectionTestId={`infra-diagrams-${state.toLowerCase()}-nodes-list`}
-                    showUnknownReason={state === "Unknown"}
+                    showProblem={state === "Orphaned" || state === "Unknown"}
                     nodeSortKey={nodeSortKey}
                     nodeSortDir={nodeSortDir}
                     onSort={handleNodeSort}
