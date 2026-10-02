@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-02 seed hunt (hit): `tenant-scoped-analyzer` — ARCH006a missed a reachable non-constant local SQL initializer when the Dapper SQL argument was only the local variable reference; the analyzer inspected `sql` but not its initializer, so `dbo.Runs` produced no warning. Added initializer-aware diagnostic text candidates and regression `ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table`; 19 scoped tests passed.
+
 ## Zone: topology-proposal-merge
 
 2026-09-30 seed hunt (seed→hit): uncategorized inventory node indexed before a same-label Data node claimed `ds-{label}` via the omit-category both-prefix registration; `PreferCategorizedSyntheticAlias` restores the categorized node's primary prefix after indexing. Regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`. 1588 scoped topology-proposal-merge tests passed.

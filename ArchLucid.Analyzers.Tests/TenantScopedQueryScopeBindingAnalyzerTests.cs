@@ -286,6 +286,36 @@ public sealed class LocalVariableRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class DynamicLocalRunsRepository
+{
+    public void Load(IDbConnection connection, string filterColumn)
+    {
+        string sql = "SELECT RunId FROM dbo.Runs WHERE " + filterColumn + " IS NULL";
+        _ = SqlMapper.Query<int>(connection, sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(69, 13, 69, 50)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_static_readonly_field()
     {
         const string testCode = SharedStubs +
