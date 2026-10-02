@@ -16,7 +16,9 @@ public sealed partial class PolicyPacksController
     private async Task<IActionResult?> EnsurePolicyPackMutationSealedManifestAllowedAsync(
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext? scope = _scopeContextProvider.GetCurrentScope();
+        if (scope is null)
+            return null;
 
         try
         {
@@ -50,7 +52,9 @@ public sealed partial class PolicyPacksController
         if (!Guid.TryParse(runId, out Guid runGuid) || runGuid == Guid.Empty)
             return null;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext? scope = _scopeContextProvider.GetCurrentScope();
+        if (scope is null)
+            return null;
 
         try
         {
