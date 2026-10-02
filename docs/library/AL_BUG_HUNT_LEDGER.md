@@ -5262,7 +5262,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -26919,7 +26919,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **hunts:** 17
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-10-02
 - **last-bug:** 2026-09-26 — desk-continuity architecture scope survived explicit clear when URL never had architectureId=
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26980,6 +26980,11 @@ ABQ-09 churn hotspot.
 2026-09-08 seed hunt #1336 (hit): reseeded ui-governance-findings-queue; proved clear review scope dropped active filters; 16 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 2026-09-08 thorough hunt #1298 (hit): proved architecture-scoped pick-review stale filter carryover; 11 scoped saved-view/clear-all/pick-review unit tests passed.
 2026-09-07 seed hunt #1290 (seed→hit): reseeded `onPickReviewForTriage` architecture-scope merge hypothesis; 5 scoped pick-review / saved-view unit tests passed.
+
+- (candidate) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is always `null`, so a buyer-polished tenant findings queue cannot render its approval-status banner even when an approval record exists; candidate input is a completed governance approval represented by the approval/provenance data available to adjacent governance surfaces. Reachability from this client’s queue data contract is not established yet.
+- (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — an operator saved view with persisted `payload.filters` set to `null`, an array, or an object with malformed `nlFacets` is cast directly to `FindingsSavedViewFilters`; candidate input is malformed saved-view JSON returned by the operator saved-views API, with the wrong outcome being a throw or corrupted filter navigation instead of a safe fallback. API reachability and current helper behavior still need a focused repro.
+
+2026-10-02 seed hunt (seed-only): reread `GovernanceFindingsQueueClient.tsx` and its focused tests; existing scoped Vitest failures were React external-store/update-depth and workspace-label baseline failures, not source-tied repros; retained two mechanism-backed candidates and found no hunt-ready row to prove.
 
 ---
 
