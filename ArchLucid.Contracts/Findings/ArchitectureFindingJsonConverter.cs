@@ -260,6 +260,9 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (element.ValueKind == JsonValueKind.String &&
             Enum.TryParse(element.GetString(), ignoreCase: true, out FindingClassification parsed))
         {
+            if (!Enum.IsDefined(parsed))
+                throw new JsonException($"Unknown finding classification value '{element.GetString()}'.");
+
             classification = parsed;
             return true;
         }

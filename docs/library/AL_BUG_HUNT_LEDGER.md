@@ -21097,11 +21097,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 34
-- **bugs-found:** 30
+- **hunts:** 35
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — string numeric treatment ordinal silently accepted
+- **last-bug:** 2026-10-03 — string numeric classification ordinal silently accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21113,6 +21113,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-03 seed hunt (seed→hit): proved `ArchitectureFindingJsonConverter.TryReadFindingTreatment` accepted out-of-range numeric strings such as `"99"` through `Enum.TryParse`, producing an undefined `FindingTreatment` value; fixed by throwing when the parsed treatment is not defined; regression `Deserialize_string_numeric_treatment_out_of_range_throws`. The Contracts suite passed 517/517.
 
+2026-10-03 seed hunt (seed→hit): proved `ArchitectureFindingJsonConverter.TryReadFindingClassification` accepted out-of-range numeric strings such as `"99"` through `Enum.TryParse`, producing an undefined `FindingClassification` value; fixed by throwing when the parsed classification is not defined; regression `Deserialize_string_numeric_classification_out_of_range_throws`. The Contracts suite passed 518/518.
+
 ### Hypotheses
 
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
@@ -21120,6 +21122,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without an invariant — **cheap-disproof 2026-10-03 thorough hunt:** `ListAsync` derives `IsExpired` directly from each record's `ExpirationUtc` using the same current timestamp; no disagreement path exists in the application mapping.
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` — numeric string severity such as `"99"` bypassed the numeric ordinal guard and produced an undefined `FindingSeverity` value — **hit 2026-10-03 seed hunt:** agent-result JSON can carry severity strings into the converter, and `Enum.TryParse` succeeded without `Enum.IsDefined`; fixed by requiring defined enum values; regression `Deserialize_string_numeric_severity_out_of_range_throws`.
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingTreatment` — numeric string treatment such as `"99"` bypassed the numeric ordinal guard and produced an undefined `FindingTreatment` value — **hit 2026-10-03 seed hunt:** agent-result architecture-finding JSON can carry treatment strings into the converter, and `Enum.TryParse` accepted the numeric string without `Enum.IsDefined`; fixed by throwing for undefined parsed values; regression `Deserialize_string_numeric_treatment_out_of_range_throws`.
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingClassification` — numeric string classification such as `"99"` bypassed the numeric ordinal guard and produced an undefined `FindingClassification` value — **hit 2026-10-03 seed hunt:** agent-result architecture-finding JSON can carry classification strings into the converter, and `Enum.TryParse` accepted the numeric string without `Enum.IsDefined`; fixed by throwing for undefined parsed values; regression `Deserialize_string_numeric_classification_out_of_range_throws`.
 2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
