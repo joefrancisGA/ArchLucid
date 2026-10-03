@@ -4995,7 +4995,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -5008,6 +5008,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): reread the selected inspect SQL, repository mapping, and enum-normalization paths; no new hunt-ready defect was proven. Added two candidates for unnormalized persisted metadata fields; the scoped test build was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
 ### Hypotheses
+
+- (candidate) `FindingInspectReadSql.FollowUpBatch` — trace-rule rows are ordered only by `tra.SortOrder`; persisted ties could make `ReadSingleOrDefaultAsync<string>()` return nondeterministic rule text for the same inspect request. Reachability is the SQL-selected `FindingTraceRulesApplied` rows associated with an inspected finding.
+- (candidate) `FindingInspectReadSql.FollowUpBatch` — related-node rows are ordered only by `frn.SortOrder`; persisted ties could reorder evidence items between identical inspect reads. Reachability is the SQL-selected `FindingRelatedNodes` rows associated with an inspected finding.
 
 - (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ModelDeploymentName` and `PromptTemplateVersion` are copied without the display-text normalization used for `MuteReason`, `ReasoningTrace`, and `AssignedToUserId`; a persisted value containing a zero-width/control character could reach the inspect response as misleading metadata. Reachability is the SQL-selected `FindingRecords` fields and the finding-inspect API response.
 - (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ReasoningTraceDigestSha256` is copied without shape or display normalization while the trace text is normalized; a malformed persisted digest could be presented as a valid-looking evidence fingerprint. Reachability is the SQL-selected `FindingRecords.ReasoningTraceDigestSha256` field and the inspect response.
@@ -5494,6 +5497,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read inspect SQL joins, mapper enum handling, Dapper row loading, payload/rule fallback, disposition projection, and all focused tests; no new hunt-ready row met the same-run repro bar. Scoped test execution was blocked by unrelated repository-wide ARCH006/ARCH006a analyzer errors before tests ran.
 
 2026-10-03 seed hunt (seed-only): re-read the inspect row projection and current focused candidates for duplicate semantic-support overlays, non-UTC `DateTime` kinds, and stored finding-id padding; no reachable wrong outcome met the hunt-ready bar. No code changes.
+
+2026-10-03 seed hunt (seed-only): re-read the selected inspect SQL, mapper, repository, and focused tests; no new hunt-ready defect was proven. Added two bounded tie-order candidates for trace rules and related-node evidence; the local focused build remained blocked by unrelated ARCH006/ARCH006a analyzer errors.
 
 2026-10-03 seed hunt (seed-only): re-read the selected inspect SQL, mapper, and repository paths; no new hunt-ready row met the reachable-input and wrong-outcome bar. Added two bounded duplicate-join candidates; 419 focused tests passed with unrelated analyzers disabled.
 
