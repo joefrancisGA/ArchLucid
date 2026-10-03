@@ -7192,7 +7192,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -7204,6 +7204,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [ ] (candidate) `Program.Main` — Kestrel `AddServerHeader` stays at the host default while the API host sets it false before listen — input is `GET /health/live` on the worker pipeline (`UseArchLucidWorkerPipeline` maps that route anonymously); a response `Server` header would disclose the Kestrel version. Not proven this run: `WebApplicationFactory` uses TestServer, which does not exercise Kestrel's server header.
+- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — input is SQL storage whose schema bootstrap blocks or throws; `/health/live` is not mapped until bootstrap returns, so a readiness probe during startup sees a dead port rather than a not-ready health response.
+
 - [x] (proven) Worker host starts without a tenant-scope constraint on background jobs — **valid-no-repro:** background loops push `AmbientScopeContext` per job; `HttpScopeContextProvider` is stateless (not a Program.cs gap)
 - [x] (invalid) Composition registers a singleton that caches the first request's tenant — `HttpScopeContextProvider` reads ambient/HTTP per call; no cached tenant state
 - [x] (proven) Startup succeeds when a required hosted service failed to resolve — **hit 2026-08-24:** `DevelopmentCatalogResetService` required `ISchemaBootstrapper` while InMemory worker dev hosts skipped SQL registration; stub `InMemoryDevelopmentCatalogResetService` for non-SQL storage
@@ -7214,6 +7217,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Production InMemory storage and Prometheus without scrape credentials — `ValidateOrThrow` rejects via `CollectEphemeralStorageDisallowedInProductionLike` and `ObservabilityRules.CollectPrometheus`; regressions in `Worker_host_fails_fast_when_production_uses_in_memory_storage` and `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials`
 - [x] (proven) Simulator mode `MaxCompletionTokens` bypassed pre-Build validation — **hit 2026-08-25:** `AgentExecutionRules.Collect` only range-checked `AzureOpenAI:MaxCompletionTokens` in Real mode, so Simulator with `-1` passed `ValidateOrThrow` but failed `AzureOpenAiOptionsValidator` at `Build()`; moved token cap validation before the Real-mode early return; regressions `CollectErrors_rejects_negative_max_completion_tokens_in_simulator_mode`, `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`
 - [x] (invalid) `ConfigurationValidationHostedService` can fail after `ValidateOrThrow` passed — `CriticalConfigurationValidator` checks connection string, Real-mode Azure OpenAI, and production demo flags only; all three are also enforced by `ArchLucidConfigurationRules.CollectErrors`, so a passing pre-Build validation cannot fail the narrower hosted validator on the same configuration snapshot
+
+2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` against the API host startup sequence and `UseArchLucidWorkerPipeline`. No hunt-ready row. Left two candidates: Kestrel `Server` header on `GET /health/live`, and schema bootstrap running before `/health/live` is mapped.
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` and worker startup/composition boundaries; no new reachable mechanism-backed candidate emerged. The focused test build was blocked by pre-existing `CS8999` raw-string whitespace diagnostics in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs`; no test execution was claimed.
 
