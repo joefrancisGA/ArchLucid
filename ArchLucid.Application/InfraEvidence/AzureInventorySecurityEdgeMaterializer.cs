@@ -347,7 +347,7 @@ public static class AzureInventorySecurityEdgeMaterializer
                     ? null
                     : row.IntegrationRuntimeName.Trim(),
                 HostInKeyVault = string.IsNullOrWhiteSpace(targetHost)
-                    && !string.IsNullOrWhiteSpace(row.KeyVaultResourceId),
+                    && (row.HostInKeyVault || !string.IsNullOrWhiteSpace(row.KeyVaultResourceId)),
                 KeyVaultResourceId = string.IsNullOrWhiteSpace(row.KeyVaultResourceId)
                     ? null
                     : ArmResourceIdNormalizer.Normalize(row.KeyVaultResourceId),

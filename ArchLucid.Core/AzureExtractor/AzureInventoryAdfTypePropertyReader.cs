@@ -39,7 +39,8 @@ public static class AzureInventoryAdfTypePropertyReader
         if (value.ValueKind is JsonValueKind.Object
             && value.TryGetProperty("type", out JsonElement secureTypeElement)
             && secureTypeElement.ValueKind is JsonValueKind.String
-            && secureTypeElement.GetString()?.Equals("SecureString", StringComparison.OrdinalIgnoreCase) == true)
+            && (secureTypeElement.GetString()?.Equals("SecureString", StringComparison.OrdinalIgnoreCase) == true
+                || secureTypeElement.GetString()?.Equals("AzureKeyVaultSecret", StringComparison.OrdinalIgnoreCase) == true))
         {
             return null;
         }
