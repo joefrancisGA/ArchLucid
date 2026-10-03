@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 thorough hunt (dry): `host-core-coordination` — cheap-disproved all five picker candidates: empty `Guid` values still enter manifest validation, `ConflictException` is sealed, the review payload is produced from the same scope as the outbox row, the empty-run-id path is not a production enqueue path, and unknown work types dead-letter at the configured retry ceiling; scoped coordination/outbox tests passed.
+
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
