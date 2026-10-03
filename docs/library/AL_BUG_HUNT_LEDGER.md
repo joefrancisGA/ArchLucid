@@ -27247,10 +27247,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 30
-- **bugs-found:** 19
+- **hunts:** 31
 - **bugs-found:** 20
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — whitespace source architecture query suppressed nested-route fallback
 - **related-pd-tb:** none
@@ -27259,6 +27258,8 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-03 seed hunt (seed-only): re-read the selected reviews/new wizard hooks and path switcher; no hunt-ready row was promoted; seeded whitespace source-architecture fallback, step URL clamping, and query-prefill retry candidates; the scoped run reported 111 passed and 71 pre-existing failures across 182 tests.
 
 2026-10-03 thorough hunt (hit): `useGuidedIntakeWizard` used `trim() ?? nestedRouteId`, so a reachable whitespace-only `sourceArchitectureId` query value became `""` and suppressed the nested architecture route fallback; fixed by using the trimmed query ID only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`; 5 focused wizard-hook tests passed.
+
+2026-10-03 thorough hunt (dry): cheap-disproved out-of-range `step` URL normalization because `useNewRunWizardSteps` clamps the rendered state correctly and no canonical-query contract requires rewriting the deep link; query-prefill retry was disproved because the example effect checks full-wizard mode and step 2 before marking its run-once ref, while accelerator/preset effects are immediately applicable; 5 focused wizard-hook tests passed.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
