@@ -9944,6 +9944,47 @@ export interface components {
             sharedDependencyNodeId?: null | string;
             status?: string;
         };
+        SecureNowQuestionDispositionReopenApiRequest: {
+            questionKey?: string;
+            reason?: string;
+            resourceId?: string;
+            subscriptionId?: string;
+        };
+        SecureNowQuestionDispositionWriteApiRequest: {
+            answerCode?: null | string;
+            answerText?: null | string;
+            evidenceFingerprint?: string;
+            /** Format: date-time */
+            expirationUtc?: null | string;
+            questionKey?: string;
+            reason?: string;
+            resourceId?: string;
+            scopeKind?: string;
+            source?: string;
+            subscriptionId?: string;
+        };
+        SecureNowQuestionResponse: {
+            answerCode?: null | string;
+            answerCodes?: string[];
+            answerText?: null | string;
+            /** Format: uuid */
+            dispositionId?: null | string;
+            evidenceFingerprint?: string;
+            /** Format: date-time */
+            expirationUtc?: null | string;
+            isExpired?: boolean;
+            questionKey?: string;
+            questionText?: string;
+            reason?: null | string;
+            resourceId?: string;
+            scopeKind?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            source?: string;
+            sourceLine?: string;
+            status?: string;
+            subscriptionId?: string;
+        };
         SecurityAssessmentPublicationRequest: {
             assessmentCode?: string;
             assessorDisplayName?: null | string;
