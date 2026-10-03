@@ -14,6 +14,8 @@
 
 2026-10-03 seed hunt (seed-only): `core-configuration-summary` — re-read the unchanged resolver, JSON scanner, and sensitive-path matcher; no mechanism-backed reachable candidate emerged; isolated configuration resolver tests passed 844/844.
 
+2026-10-03 seed hunt (seed-only): `core-configuration-summary` — repeated the unchanged configuration redaction review; no reachable wrong outcome emerged; isolated configuration resolver tests passed 844/844.
+
 2026-10-02 seed hunt (hit): `tenant-scoped-analyzer` — ARCH006a missed a reachable non-constant local SQL initializer when the Dapper SQL argument was only the local variable reference; the analyzer inspected `sql` but not its initializer, so `dbo.Runs` produced no warning. Added initializer-aware diagnostic text candidates and regression `ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table`; 19 scoped tests passed.
 
 ## Zone: topology-proposal-merge
