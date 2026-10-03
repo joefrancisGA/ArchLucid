@@ -83,7 +83,7 @@ public sealed class ManifestGovernanceMerger
             AddRequiredControlIfMissing(manifest, ControlPrivateNetworking, output);
 
         if (request.RequiredCapabilities.Any(c =>
-                c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
+                DecisioningTextTokenMatcher.ContainsPattern(c, "managed identity")))
             AddRequiredControlIfMissing(manifest, ControlManagedIdentity, output);
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))

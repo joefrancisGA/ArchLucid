@@ -12,12 +12,47 @@ internal static class DecisioningTextTokenMatcher
             return false;
         }
 
-        if (pattern.Contains(' ', StringComparison.Ordinal) || pattern.Contains('$', StringComparison.Ordinal))
+        if (pattern.Contains('$', StringComparison.Ordinal))
         {
             return haystack.Contains(pattern, StringComparison.Ordinal);
         }
 
+        if (pattern.Contains(' ', StringComparison.Ordinal))
+        {
+            return ContainsStandalonePhrase(haystack, pattern);
+        }
+
         return ContainsStandaloneToken(haystack, pattern);
+    }
+
+    private static bool ContainsStandalonePhrase(string haystack, string phrase)
+    {
+        int index = 0;
+
+        while (index < haystack.Length)
+        {
+            index = haystack.IndexOf(phrase, index, StringComparison.Ordinal);
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            int afterPhrase = index + phrase.Length;
+            bool hasBoundaryBefore = index == 0 || !char.IsLetterOrDigit(haystack[index - 1]);
+            bool hasBoundaryAfter = afterPhrase >= haystack.Length || !char.IsLetterOrDigit(haystack[afterPhrase]);
+
+            if (hasBoundaryBefore
+                && hasBoundaryAfter
+                && !IsNegatedNonPrefix(haystack, index))
+            {
+                return true;
+            }
+
+            index++;
+        }
+
+        return false;
     }
 
     internal static bool ContainsStandaloneToken(string haystack, string token)
