@@ -3441,7 +3441,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **hunts:** 25
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-11 — signup readiness hint mislabeled fractional team size and overlong industry Other optional-field failures
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
@@ -4995,7 +4995,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -5022,6 +5022,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspect*` `AND (r.ArchivedUtc IS NULL)` serves older active run when newest rerun is archived — **cheap-disproof 2026-09-07 hunt #1233:** intentional soft-archive parity with list/run surfaces; archived runs remain in DB but drop out of active inspect selection
 - [x] (proven) Corrupt non-empty `PayloadJson` returned `TypedPayload: null` indistinguishable from a missing payload column — **hit 2026-09-07 hunt #1238:** `TryParsePayloadJson` swallowed `JsonException`; `FindingRecords.PayloadJson` has no ISJSON guard unlike `DecisioningTraces.AppliedRuleIdsJson`; fixed with `ResolveTypedPayloadForInspect` metadata fallback when the column is non-empty but invalid JSON; regressions in `ResolveTypedPayloadForInspect_falls_back_to_metadata_when_payload_json_is_corrupt` and related core tests.
 - [x] (invalid) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — **cheap-disproof 2026-09-07 hunt #1238:** `docs/library/EXPLAINABILITY.md` and #667 fix require first applied rule id from `DecisioningTraces` when present; per-finding trace text is the fallback when JSON is absent.
+- (candidate) `NormalizeInspectText` rejects a substantive persisted inspect field when the text contains a Unicode format/control character — a `FindingRecords.Title`, `Rationale`, `ReasoningTrace`, `MuteReason`, or `AssignedToUserId` value such as `TLS\u200B` is selected by `FindingInspectReadSql` and then normalized to null instead of preserving the visible text; reachability is the SQL-backed FindingRecords fields mapped by `DapperFindingInspectReadRepository.MapInspectResponse`, but the selected zone does not establish that such stored values are produced by a real caller.
+- (candidate) The `AgentExecutionTraces` left join is scoped by `TraceId` and `RunId` but not tenant/workspace/project — a reused trace identity in a persisted FindingRecords row could project another scope's `modelAlias`; the selected SQL shows the missing predicates, but the selected files do not establish that trace identifiers can collide across scopes.
+- (candidate) `BuildMetadataTypedPayload` tests raw `title is not null` rather than normalized title when deciding whether to emit `whyThisMatters` — metadata-only inspect for a whitespace-only title plus a rationale can emit a rationale-derived field while `title` is null; the input is reachable through the selected SQL's `fr.Title`/`fr.Rationale` columns, but the contract does not yet show this is an incorrect response.
 
 2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
 
@@ -5476,6 +5479,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingInsightDensityColumnCodec.FromClassificationStorage` / `FromTreatmentStorage` — unchecked TINYINT-to-enum casts returned undefined ordinals (for example `99`) so `ResolveInspectClassification` / `ResolveInspectTreatment` preferred corrupt relational storage over typed-payload fallback — **hit 2026-09-26 seed hunt (seed→hit):** `Enum.IsDefined` guard on storage decode; regressions `FromClassificationStorage_returns_null_for_undefined_storage_byte`, `ResolveInspectClassification_falls_back_to_typed_payload_when_storage_byte_is_undefined`, and `ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_byte_is_undefined`.
 
 2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+2026-10-03 seed hunt (seed-only): reseeded finding-inspect-sql from the selected SQL, mapper, and repository paths; no hunt-ready row met the reachable-input bar. Added three candidates for embedded format/control characters in substantive stored text, cross-scope trace identity reuse, and normalized-title handling in metadata fallback. No code changes.
 
 ---
 
