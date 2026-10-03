@@ -8729,3 +8729,4 @@
 {"at":"2026-10-03T17:22:04.3503380Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs","ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
 {"at":"2026-10-03T17:25:37.1139306Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-03T17:28:19.7805989Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
+{"at":"2026-10-03T17:30:32.8547474Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs"]}

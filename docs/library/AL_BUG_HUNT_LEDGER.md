@@ -6075,13 +6075,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 36
+- **hunts:** 37
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — not-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` actionable-finding filtering and recommendation assembly; no new reachable mechanism-backed candidate emerged; 40 focused Alternatives/ProposedChange tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded architecture-recommendation; proved `ArchitectureRecommendationTradeOffBuilder` treated `ReviewConclusion.NotApplicable` like actionable findings (`!= Pass`) so Security/Cost trade-offs attached when only Security had a recommendation; aligned trade-off gating with engine Fail/Indeterminate filter; regression `BuildRecommendations_skips_security_cost_trade_off_when_cost_finding_is_not_applicable`; 14 scoped Alternatives/ProposedChange tests and 35 total ArchitectureRecommendation tests passed.
 
