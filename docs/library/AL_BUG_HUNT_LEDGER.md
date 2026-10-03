@@ -25527,11 +25527,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 23
-- **bugs-found:** 14
+- **hunts:** 24
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-02
-- **last-bug:** 2026-10-03 — simulation sealed-manifest guard preempted missing-run semantics
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — forbidden policy-pack assignment mapped to HTTP 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25565,6 +25565,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — `isOrganizationRequired: true` on inactive platform pack bypassed `IsGloballyActiveAsync` gate symmetric with #1225 toggle path — **hit 2026-09-08 hunt #1312:** assign-create path force-enabled org-required rows on catalog-inactive platform packs; fixed by rejecting before `TryAssignAsync`; regression `TryAssignAsync_returns_pack_not_found_when_organization_required_on_inactive_platform_pack`
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin could assign Tenant/Workspace-scoped rows without tenant-admin JWT — **hit 2026-09-08 hunt #1312:** only org-required was gated in #1205; fixed by requiring tenant administrator for non-Project `scopeLevel`; regressions `TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`, `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
 - [x] (proven) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack returned HTTP 404 instead of 409 symmetric with org-required disable (#1206) — **hit 2026-09-08 hunt #1312:** workflow mapped inactive enable to `NotFound`; fixed with `PlatformPackInactive` → HTTP 409; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
+- [x] (proven) `PolicyPackHttpResultMapper.MapAssign` — the assign facade's `Forbidden` outcome was missing from the controller result switch, so authorization denials threw `InvalidOperationException` and surfaced as HTTP 500 — **hit 2026-10-03 seed hunt:** map forbidden assignment outcomes to HTTP 403 Problem Details; regressions `Assign_returns_forbidden_when_organization_required_without_tenant_administrator` and `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
@@ -25587,6 +25588,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): reread policy-pack controller construction, catalog reads, effective reads, simulation, result mapping, and simulation facade paths; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
 
 2026-10-03 seed hunt (seed-only): reread policy-pack CRUD, assignment, catalog mutation, controller reads, and simulation paths after the latest guard fixes; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
+
+2026-10-03 seed hunt (hit): proved the policy-pack assign controller dropped the facade's Forbidden outcome and threw HTTP 500; mapped authorization denials to HTTP 403 Problem Details; 76 focused controller tests passed.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
