@@ -68,4 +68,30 @@ public sealed class AzureInventoryDependencyObservationParserTests
         row.EventCount.Should().Be(12);
         row.TargetCatalog.Should().Be("ArchLucid");
     }
+
+    [Fact]
+    public void TryParse_rejects_negative_event_count()
+    {
+        string json = """
+                      {
+                        "sourcePrincipalId": "11111111-1111-1111-1111-111111111111",
+                        "targetHost": "prodsql.database.windows.net",
+                        "observationKind": "sqlDependency",
+                        "operationClass": "read",
+                        "eventCount": -1,
+                        "collectionStatus": "Succeeded"
+                      }
+                      """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        bool parsed = AzureInventoryDependencyObservationParser.TryParse(
+            document.RootElement,
+            out AzureInventoryDependencyObservationRow? row,
+            out string? errorMessage);
+
+        parsed.Should().BeFalse();
+        row.Should().BeNull();
+        errorMessage.Should().Contain("eventCount");
+    }
 }

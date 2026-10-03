@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const intakeStepSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { pathname: "/architecture/reviews/new", query: "" };
 
   return {
     state,
@@ -29,6 +29,7 @@ const intakeStepSearchParamsHarness = vi.hoisted(() => {
       }
     },
     reset(): void {
+      state.pathname = "/architecture/reviews/new";
       state.query = "";
     },
   };
@@ -49,7 +50,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/new",
+  usePathname: () => intakeStepSearchParamsHarness.state.pathname,
   useSearchParams: () => new URLSearchParams(intakeStepSearchParamsHarness.state.query),
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
 }));
@@ -165,5 +166,17 @@ describe("useGuidedIntakeWizard intakeStep URL sync", () => {
     rerender();
 
     expect(result.current.step).toBe(0);
+  });
+
+  it("falls back to the nested architecture id when sourceArchitectureId is blank", () => {
+    intakeStepSearchParamsHarness.state.pathname =
+      "/architecture/architectures/architecture-123/reviews/new";
+    intakeStepSearchParamsHarness.state.query = "sourceArchitectureId=%20";
+
+    const { result } = renderHook(() => useGuidedIntakeWizard(), {
+      wrapper: IntakeStepSearchParamsRerenderHost,
+    });
+
+    expect(result.current.sourceArchitectureId).toBe("architecture-123");
   });
 });

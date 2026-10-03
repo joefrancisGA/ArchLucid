@@ -482,7 +482,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     const activeMatch = hub.auditLineageLink.matches.find(
-      (match) => match.controlId === resolvedControlId,
+      (match) =>
+        match.assessmentId === resolvedAssessmentId
+        && match.auditEvidenceSnapshotId === resolvedAuditSnapshotId
+        && match.controlId === resolvedControlId,
     );
     const labelParts = activeMatch != null
       ? [activeMatch.controlNumber, activeMatch.controlTitle]
@@ -1788,7 +1791,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <section className={cnCard} aria-label="Additional audit controls">
                     <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Other linked controls</h2>
                     <ul className="m-0 list-disc space-y-2 pl-5 text-sm">
-                      {resolvedAuditLineage.matches.slice(1).map((match: CloudResourceAuditLineageMatch) => (
+                      {resolvedAuditLineage.matches
+                        .filter(
+                          (match: CloudResourceAuditLineageMatch) =>
+                            match.assessmentId !== resolvedAuditLineage.assessmentId
+                            || match.auditEvidenceSnapshotId !== resolvedAuditLineage.auditEvidenceSnapshotId
+                            || match.controlId !== resolvedAuditLineage.controlId,
+                        )
+                        .map((match: CloudResourceAuditLineageMatch) => (
                         <li key={`${match.controlId}-${match.auditEvidenceSnapshotId}`}>
                           <div className="flex flex-wrap items-center gap-2">
                             <Link
