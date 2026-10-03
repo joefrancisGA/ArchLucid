@@ -1,4 +1,3 @@
-{"at":"2026-09-03T19:27:22.9524363Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-03T19:32:33.4826968Z","zoneId":"notifications-pipeline","outcome":"hit"}
 {"at":"2026-09-03T19:35:54.8328056Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-03T19:39:57.5351663Z","zoneId":"notifications-pipeline","outcome":"hit"}
@@ -8598,4 +8597,5 @@
 {"at":"2026-10-03T19:21:10.0907477Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
 {"at":"2026-10-03T19:23:12.4755346Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
 {"at":"2026-10-03T19:24:28.8243902Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
-{"at":"2026-10-03T19:26:15.4664440Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
+{"at":"2026-10-03T19:26:15.466444Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
+{"at":"2026-10-03T19:27:48.1268737Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}

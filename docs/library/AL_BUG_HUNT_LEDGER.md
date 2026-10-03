@@ -4,6 +4,8 @@
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
 
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook and existing-test review after the selector-safe navigation fix; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client/hook branches and existing webhook settings tests; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
@@ -6219,7 +6221,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
