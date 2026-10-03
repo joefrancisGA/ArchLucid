@@ -24154,8 +24154,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 292
-- **last-hunt:** 2026-10-02
+- **hunts:** 293
+- **last-hunt:** 2026-10-03
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
@@ -24165,6 +24165,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-01 seed hunt (seed-only): inspected the Governance/Tenancy controller scope despite the picker path containing only this ledger; the exact filter built and ran 154 tests (137 passed, 17 SQL-backed integration cases unavailable on this Linux VM). The two unit failures came from default-Moq repositories returning null from `ListWorkspacesAsync`; both production fallback implementations return non-null lists, so no reachable mechanism-backed candidate was promoted.
 
 2026-10-02 seed hunt (seed-only): re-read the Governance/Tenancy controller partials and existing scope, validation, ETag, and sealed-manifest regressions; the picker still exposes only this ledger path, and no new reachable mechanism-backed candidate could be promoted without inventing a product hypothesis. No production files changed.
+
+2026-10-03 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; no source-level candidate could meet the reachability bar. The focused filter ran 154 tests: 137 passed and 17 SQL-backed/default-double environment failures; no production files changed.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
