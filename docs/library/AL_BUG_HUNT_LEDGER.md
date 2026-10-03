@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — the declared Integration readiness follow-up was filtered out because its administration href was treated as forbidden in the shared “Where to go next” filter; preserved explicitly curated administration follow-ups for this integration strip and aligned accessible-name regressions. 58 focused webhook tests passed.
+
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
@@ -6809,8 +6811,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 32
-- **bugs-found:** 22
+- **hunts:** 33
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
@@ -6831,6 +6833,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2173 (seed-only): reseeded ui-webhooks-settings with `-Hint webhooks -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
 
 - (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
 - (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.

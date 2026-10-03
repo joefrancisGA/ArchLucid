@@ -76,6 +76,7 @@ import {
   webhooksEnableConfirmDescription,
 } from "@/lib/webhooks-page-copy";
 import { WEBHOOKS_INTEGRATION_SOURCES } from "@/lib/webhooks-integration-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
@@ -137,10 +138,13 @@ describe("WebhooksIntegrationPage", () => {
     const sources = screen.getByTestId("webhooks-integration-sources");
 
     for (const link of WEBHOOKS_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expect(within(sources).getByRole("link", { name: formatHelpFollowUpLinkAccessibleName(link.href, link.label) }))
+        .toHaveAttribute("href", link.href);
     }
 
-    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    const readinessLinks = within(sources).getAllByRole("link", {
+      name: formatHelpFollowUpLinkAccessibleName(INTEGRATIONS_READINESS_PATH, "Integration readiness"),
+    });
     expect(readinessLinks).toHaveLength(1);
     expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });

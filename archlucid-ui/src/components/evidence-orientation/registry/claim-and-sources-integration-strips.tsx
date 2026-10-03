@@ -240,6 +240,7 @@ export function WebhooksIntegrationEvidenceOrientationStrip(): React.JSX.Element
       sources={WEBHOOKS_INTEGRATION_SOURCES}
       sourcesHeadingId="where-to-go-next"
       sourcesMaxLinks={WEBHOOKS_INTEGRATION_SOURCES.length}
+      preserveAdminFollowUps
     />
   );
 }
