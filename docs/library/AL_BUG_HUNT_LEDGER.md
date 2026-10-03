@@ -23679,13 +23679,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — `ArchitectureKnowledgeModelGraphProjector` emitted duplicate edge identifiers for different edge types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 thorough hunt (dry): rechecked the two picker candidates for artifact ContentHash whitespace and padded AgentExecutionTraceId precedence; no failing repro emerged; 47 Provenance tests passed, while KnowledgeGraph had 357 passed and 3 pre-existing unrelated failures after rebuild.
 
 2026-10-03 thorough hunt (dry): cheap-disproved both open candidate lenses because neither had been promoted to hunt-ready with a concrete wrong outcome; no failing-repro attempt was supported; 357 KnowledgeGraph tests ran with 3 pre-existing failures and 47 Provenance tests passed.
 
