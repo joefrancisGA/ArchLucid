@@ -26694,7 +26694,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -26705,6 +26705,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering repeated pre-acquire validation, dynamic lease-option changes, renewal-scope admission races, release-result handling, and renewal cancellation/disposal ordering.
 
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five additional candidates covering post-resume eligibility, selective prep snapshot drift, drain admission races, immediate renewal behavior, and cancellation disposal.
+
+2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering no-op renewal configuration drift, lease-release observability, cancellation-token propagation, shutdown admission races, and repeated eligibility reads.
 
 ### Hypotheses
 
@@ -26718,6 +26720,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — the drain check can pass before shutdown begins and still admit a lease while the repository acquisition is in flight; reachable when `IWorkerHostDrainGate` enters draining during `TryAcquireOrRenewAsync`.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — immediate renewal before the first timer wait can cancel a newly acquired execute on a transient first heartbeat failure even though the lease duration still covers the batch; reachable when the first renewal repository call fails transiently.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — cancellation of the loop can race with a renewal failure that cancels the execute token, leaving disposal classified as clean while the execute cancellation is not surfaced to its caller; reachable when renewal failure and scope disposal overlap.
+- (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — disabling ownership through `IOptionsMonitor` during an active execute turns a renewal call into a silent no-op while the previously acquired lease remains live; reachable when `Enabled` changes after acquisition but before a heartbeat.
+- (candidate) `ArchitectureRunExecuteOrchestrator` — a failed lease release is not represented in execute outcome or audit state because `ReleaseAsync` returns no status to the orchestrator; reachable when the repository cannot delete the holder’s lease row during finalization.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — pre-acquire validation calls use the request cancellation token, so caller cancellation during the final ownership check can bypass the normal lease cleanup path while earlier validation already performed live reads; reachable when cancellation lands between selective validations.
+- (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — shutdown can begin after the drain check and before repository acquisition, admitting new ownership during host drain; reachable when `TryAcquireOrRenewAsync` is delayed while the drain gate flips.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the duplicated full-execute eligibility check can cause an extra scope/repository read and a second refusal for a state transition that occurred after the first check; reachable when a run changes status between the two identical calls.
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
 - [x] (invalid) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path — no shipped background execute path; `ArchitectureRunCommandService.ExecuteRunAsync` delegates solely to `ArchitectureRunExecuteOrchestrator` (API-sync per `ASYNC_ORCHESTRATION_FIRST_FORCE.md`).
