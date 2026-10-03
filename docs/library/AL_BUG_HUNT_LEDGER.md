@@ -3904,7 +3904,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -3918,6 +3918,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — the first chosen row for a role is an agent-proposed cold-start row while a later chosen row is an authoritative user/evidence row with the same provider family and technology name — `FirstOrDefault` evaluates only the non-authoritative row and can admit a candidate that the later authoritative row should suppress; reachability is the same persisted per-run ledger row list returned by `GetByRunIdAsync`.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its seeder tests; no single candidate met the full hunt-ready bar for a failing repro because the ledger contract does not establish that multiple `Chosen` rows for one role are a supported persisted state; retained two concrete multiple-chosen-row candidates; 72 scoped TechnologyLedger tests passed.
+
+2026-10-03 seed hunt (seed-only): repeated the multiple-`Chosen` row review; the persisted ledger contract still does not establish that state as supported, so no candidate met the hunt-ready bar; 72 scoped TechnologyLedger tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its topology seeder reachability; multiple `Chosen` rows remain an unsupported persisted-state assumption, so the two existing concrete candidates remain `(candidate)` rather than hunt-ready; 72 scoped TechnologyLedger tests passed.
 
