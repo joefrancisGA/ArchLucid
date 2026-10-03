@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `host-core-jobs` — repeated the selected queue receive, cancellation, retry, and hosted-loop review; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
+
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — repeated the queue processor, job runner, and leader-elected hosted-loop review; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
