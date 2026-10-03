@@ -5787,9 +5787,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
@@ -26151,11 +26151,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-03 seed hunt (seed-only): reseeded coordination failure, retry, and manifest-read paths from the current source; no candidate met the hunt-ready bar in this pass.
 
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — a second `GetRunDetailAsync` read may return a same-ID manifest whose content changed after the validated manifest read; reachable through a concurrent run-detail update during post-commit materialization.
-- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — an exception from `onRetryScheduledAsync` after backoff persistence may fault the worker even though the entry is already safely scheduled; reachable through processor retry instrumentation callbacks.
-- [ ] (candidate) `OutboxProcessorRetryCalculator.RetryDelayAfterFailure` — a persisted negative or extreme `AttemptCount` may produce a non-monotonic or overflowed delay before clamping; reachable through malformed recoverable-outbox attempt data.
-- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — a partially completed parallel batch returns only the dequeued count after cancellation, without reporting which entries completed; reachable through host shutdown cancellation during concurrent outbox processing.
-- [ ] (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — a destination policy dead-letter path records the row directly instead of using the shared dead-letter callback, which may diverge from common dead-letter instrumentation; reachable through a persisted export destination SAS URL rejected at processing time.
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — the manifest is sealed and immutable before post-commit processing; same-ID content mutation is not a reachable production input, and current tests cover differing manifest IDs.
+- [x] (valid-no-repro) `RecoverableOutboxFailureHandler.HandleAsync` — all current processor retry callbacks are completed-task instrumentation hooks; no reachable callback failure exists in the picked source path.
+- [x] (invalid) `OutboxProcessorRetryCalculator.RetryDelayAfterFailure` — malformed negative/extreme attempt counts are not emitted by the recoverable-outbox persistence path, and the calculator clamps ordinary overflow to its configured cap.
+- [x] (valid-no-repro) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — returning the number dequeued is the method contract; cancellation propagates rather than claiming successful completion, while each entry remains independently leased/processed.
+- [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy dead-letter handling deliberately performs the required audit and metric calls; existing destination-policy tests cover the observable behavior.
+
+2026-10-03 thorough hunt (dry): cheap-disproved all five coordination candidates; no reachable wrong outcome remained for a failing repro.
 
 2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox could index a different golden manifest than the sealed-hash guard validated; 29 scoped coordination processor tests passed.
 
