@@ -6247,6 +6247,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
+2026-10-03 seed hunt (seed-only): re-read the CLI tenant-isolation command/runner report and offline/live isolation boundaries; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-10-03 seed hunt (seed-only): repeated the CLI tenant-isolation command/runner review; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-10-03 seed hunt (seed-only): repeated the CLI tenant-isolation command/runner review; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
