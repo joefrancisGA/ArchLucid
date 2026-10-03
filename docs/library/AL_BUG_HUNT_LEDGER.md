@@ -6988,7 +6988,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-09-27
@@ -26110,6 +26110,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): re-read governance drift, checklist, and policy-pack paths after the candidate cleanup; no new hunt-ready row or candidate was found.
 
 2026-10-03 seed hunt (seed-only): re-read finalize readiness, pre-finalize checklist, and policy-pack dry-run paths; invalid-run and missing-run branches are rejected by the API before readiness evaluation, and no new hunt-ready row or candidate was found.
+
+2026-10-03 seed hunt (seed-only): re-read checklist fallback, governance decision aggregation, and effective policy snapshot paths; explicit fallback statuses and validated policy-pack dimensions yielded no new hunt-ready row or candidate.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
