@@ -27922,6 +27922,8 @@ ABQ-09 churn hotspot.
 
 2026-09-07 seed hunt #1291 (seed→hit): reseeded advisory-scans TOC/omit mismatch; 17 scoped claim-discipline and advisory-scans unit tests passed.
 
+2026-10-03 thorough hunt (dry): `securenow-question-queue` — cheap-disproved the empty-`AzureResourceId` candidate because inventory resource identifiers are non-nullable at the model and database boundary; the scoped test project could not compile because of unrelated pre-existing ARCH006/ARCH006a analyzer errors across Persistence.
+
 ## Zone: securenow-question-queue
 
 - **id:** securenow-question-queue
@@ -27930,9 +27932,9 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -27946,7 +27948,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
-- [ ] (candidate) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` can both reach the unknown-evidence path with the same empty resource identity, so the emitted set collapses to one question; input is reachable from nullable Azure inventory resource identifiers.
+- [x] (invalid) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` cannot reach the persisted inventory path: `AzureInventoryResourceRecord.AzureResourceId` is non-nullable and `dbo.AzureInventoryResources.AzureResourceId` is `NOT NULL`; the scoped candidate is retired without a repro.
 - [x] (proven) `SecureNowQuestionCompiler` inferred-connection projection — a proposed record with an empty `FromArmId` and a populated `ToArmId` selected the empty string instead of the usable endpoint, producing an unaddressable question identity; fixed with whitespace-aware endpoint fallback; regression `Inferred_question_uses_the_populated_endpoint_when_the_source_arm_id_is_blank`
 
 ## Zone: infra-evidence-diagrams
