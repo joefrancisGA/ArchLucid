@@ -27285,9 +27285,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 20
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — whitespace source architecture query suppressed nested-route fallback
 - **related-pd-tb:** none
@@ -27298,6 +27298,11 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-03 thorough hunt (hit): `useGuidedIntakeWizard` used `trim() ?? nestedRouteId`, so a reachable whitespace-only `sourceArchitectureId` query value became `""` and suppressed the nested architecture route fallback; fixed by using the trimmed query ID only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`; 5 focused wizard-hook tests passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved out-of-range `step` URL normalization because `useNewRunWizardSteps` clamps the rendered state correctly and no canonical-query contract requires rewriting the deep link; query-prefill retry was disproved because the example effect checks full-wizard mode and step 2 before marking its run-once ref, while accelerator/preset effects are immediately applicable; 5 focused wizard-hook tests passed.
+
+- [x] (valid-no-repro) `useNewRunWizardSteps` — an out-of-range `step` query remains non-canonical in the URL after rendering clamps it — **cheap-disproof 2026-10-03 thorough hunt:** `useWizardStepNavigation.goToStep` clamps every parsed URL value before rendering; no canonical-query contract requires rewriting the deep link; focused step-sync tests passed.
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — an example/preset query is consumed before the wizard reaches its required step — **cheap-disproof 2026-10-03 thorough hunt:** the example effect marks its ref only after `wizardMode === "full"` and `stepIndex === 2`; accelerator/preset effects independently guard invalid or baseline paths; focused prefill tests passed.
+
+2026-10-03 thorough hunt (dry): repeated cheap-disproof of the two review-intake URL/prefill candidates; 3 focused hook tests passed. The broader example/preset integration tests had 3 harness/assertion failures (stale “Evidence” label and missing mocked App Router).
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
