@@ -32,7 +32,13 @@ public sealed class BillingCheckoutFacade(
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.RequestBodyRequired };
         }
 
-        BillingCheckoutTier tier = ParseCheckoutTier(body.TargetTier);
+        if (!TryParseCheckoutTier(body.TargetTier, out BillingCheckoutTier tier))
+        {
+            IBillingProvider badTierProvider = _billingProviderRegistry.ResolveActiveProvider();
+            ArchLucidInstrumentation.RecordBillingCheckout(badTierProvider.ProviderName, "unknown", "validation_failed");
+            return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.RequestBodyRequired };
+        }
+
         BillingSubscriptionSnapshot? existingSubscription = await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
 
         if (existingSubscription is not null && BlocksNewCheckout(existingSubscription.Status))
@@ -116,13 +122,27 @@ public sealed class BillingCheckoutFacade(
     private async Task LogBillingAuditAsync(string eventType, string actorUserName, ScopeContext scope, string dataJson, CancellationToken cancellationToken) =>
         await _auditService.LogAsync(new AuditEvent { EventType = eventType, ActorUserId = actorUserName, ActorUserName = actorUserName, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, DataJson = dataJson }, cancellationToken);
 
-    private static BillingCheckoutTier ParseCheckoutTier(string? label) => string.IsNullOrWhiteSpace(label) ? BillingCheckoutTier.Team : label.Trim() switch
+    private static bool TryParseCheckoutTier(string? label, out BillingCheckoutTier tier)
     {
-        "Architect" => BillingCheckoutTier.Architect,
-        "Pro" => BillingCheckoutTier.Pro,
-        "Enterprise" => BillingCheckoutTier.Enterprise,
-        _ => BillingCheckoutTier.Team,
-    };
+        switch (label?.Trim())
+        {
+            case "Team":
+                tier = BillingCheckoutTier.Team;
+                return true;
+            case "Architect":
+                tier = BillingCheckoutTier.Architect;
+                return true;
+            case "Pro":
+                tier = BillingCheckoutTier.Pro;
+                return true;
+            case "Enterprise":
+                tier = BillingCheckoutTier.Enterprise;
+                return true;
+            default:
+                tier = default;
+                return false;
+        }
+    }
 
     private static bool BlocksNewCheckout(string status) =>
         string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase)
