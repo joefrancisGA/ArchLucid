@@ -75,6 +75,29 @@ function findNodeIdByLabel(nodes: readonly ArchitectureDiagramNode[], label: str
   return match?.id ?? null;
 }
 
+function mergeEndpointLabels(
+  parts: readonly string[],
+  nodes: readonly ArchitectureDiagramNode[],
+): readonly string[] {
+  const merged: string[] = [];
+
+  for (let index = 0; index < parts.length; index += 1) {
+    let current = parts[index]!;
+
+    while (
+      index + 1 < parts.length
+      && findNodeIdByLabel(nodes, `${current} to ${parts[index + 1]!}`) !== null
+    ) {
+      current = `${current} to ${parts[index + 1]!}`;
+      index += 1;
+    }
+
+    merged.push(current);
+  }
+
+  return merged;
+}
+
 type ParsedFlowEndpoint = {
   readonly sourceId: string;
   readonly targetId: string;
@@ -85,7 +108,10 @@ function parseFlowEndpoints(
   text: string,
   nodes: readonly ArchitectureDiagramNode[],
 ): readonly ParsedFlowEndpoint[] {
-  const parts = text.split(FLOW_SPLIT_PATTERN).map((part) => part.trim()).filter((part) => part.length > 0);
+  const parts = mergeEndpointLabels(
+    text.split(FLOW_SPLIT_PATTERN).map((part) => part.trim()).filter((part) => part.length > 0),
+    nodes,
+  );
 
   if (parts.length < 2) {
     return [];

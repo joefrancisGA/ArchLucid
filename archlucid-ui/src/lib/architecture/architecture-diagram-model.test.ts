@@ -41,4 +41,43 @@ describe("buildArchitectureDiagramModel", () => {
       }),
     ]);
   });
+
+  it("preserves endpoint labels that contain the word 'to' before an arrow", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Order to Cash", detail: null, provenance: "asserted" },
+              { label: "Billing", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Order to Cash -> Billing", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Order to Cash -> Billing",
+      },
+      "Payments",
+    );
+
+    expect(model.edges).toEqual([
+      expect.objectContaining({
+        sourceId: "system_order_to_cash",
+        targetId: "system_billing",
+      }),
+    ]);
+  });
 });
