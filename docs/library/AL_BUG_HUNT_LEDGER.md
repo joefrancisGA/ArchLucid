@@ -21077,7 +21077,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -21085,7 +21085,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-03 seed hunt (seed-only): re-read the newly changed SecureNow question-disposition DTOs and existing converter/round-trip coverage; no contract-only wrong outcome reached the hunt-ready bar. The scoped Contracts suite passed 515/515. Seeded nullable-expiration response parity, answer-field shape parity, and derived-expiry consistency as candidates for later cross-layer proof.
+
 ### Hypotheses
+
+- [ ] (candidate) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime`, so an unbounded disposition may round-trip as a default timestamp; reachable input: an API write omitting `expirationUtc`.
+- [ ] (candidate) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied without a contract-level shape; reachable input: a SecureNow question-disposition write payload with either answer representation.
+- [ ] (candidate) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without a contract invariant tying them together; reachable input: a persisted disposition returned after expiration evaluation.
 2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
