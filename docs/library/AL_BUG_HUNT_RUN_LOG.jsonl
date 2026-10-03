@@ -8655,3 +8655,4 @@
 {"at":"2026-10-03T08:43:29.3808463Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
 {"at":"2026-10-03T08:45:24.9242088Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
 {"at":"2026-10-03T12:18:01.0112179Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/"]}
+{"at":"2026-10-03T12:23:20.4612550Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/,ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs"]}

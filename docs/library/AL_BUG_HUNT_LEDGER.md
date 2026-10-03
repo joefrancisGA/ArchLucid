@@ -23603,13 +23603,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — exec digest and sibling dispatchers used padded OperatorBaseUrl for logo URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): reseeded notifications-pipeline across digest subscription CRUD/attempts, webhook delivery, and email dispatch; no hunt-ready defect survived cheap-disproof. Scoped Application notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured. Seeded retry-idempotency, webhook DNS-rebind, and duplicate digest-id query candidates for later proof.
 
 2026-09-27 seed hunt #52 (seed→hit): reseeded notifications-pipeline after #51 summary logo fix; proved `ExecDigestEmailDispatcher`, `RecurrenceCompletionEmailDispatcher`, `FindingRemediationAssignmentEmailDispatcher`, and `TrialLifecycleEmailDispatcher` still passed padded `OperatorBaseUrl` into branding/operator links (`TrimEnd('/')` only); fixed with `Trim().TrimEnd('/')` parity and `EmailBrandingUrls.TryBuildLogoImageUrl` leading-whitespace trim; regressions `ExecDigestEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url` and `TryBuildLogoImageUrl_trims_leading_and_trailing_whitespace_on_base`; 141 scoped Application notifications/digest tests passed.
 
@@ -23670,6 +23672,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2344 (seed-only): reseeded notifications-pipeline; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `DigestSubscriptionsController.Create` / `DigestSubscriptionFacade.CreateAsync` — a client retry after a successful POST or an audit failure creates a second subscription because each call assigns a fresh `Guid.NewGuid()` and no request idempotency key or destination uniqueness contract is visible; reachable input: repeated operator `POST /v1/digest-subscriptions` requests with the same body.
+- [ ] (candidate) `MultiRecipientEmailDispatch.TrySendToMailboxesAsync` — a successful provider send followed by `TryRecordSentAsync` returning `false` reports `false` even though mail was delivered; reachable input: concurrent retry workers racing on the same tenant/mailbox ledger key, where one worker wins the sent-ledger insert after both observe no record.
+- [ ] (candidate) `ChatOpsWebhookDeliveryService.DeliverAsync` — persisted digest webhook destinations are posted without a delivery-time DNS/connect revalidation after create-time SSRF validation; reachable input: an operator-created Slack or Teams digest subscription whose hostname resolves to a public address during creation and a private address when a later digest is delivered.
+- [ ] (candidate) `DigestSubscriptionsController.TryParseDigestIds` / `DigestSubscriptionFacade.ListAttemptsByDigestIdsAsync` — duplicate digest IDs are accepted up to the raw query-item limit and sent to the repository even though response items are deduplicated; reachable input: repeated GUIDs in `GET /v1/digest-subscriptions/digests/attempts?digestIds=...`, with possible unnecessary query amplification.
 
 - [x] (invalid) Dispatcher sends to recipients outside the tenant membership list — no membership-validation locus in zone; callers supply mailboxes
 - [x] (invalid) Template render includes another user's email in the body — zone Razor models carry URLs/metadata only, no cross-user mailbox fields
