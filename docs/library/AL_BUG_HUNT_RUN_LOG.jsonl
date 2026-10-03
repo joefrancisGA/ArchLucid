@@ -8624,3 +8624,4 @@
 {"at":"2026-10-03T06:59:56.0523626Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}
 {"at":"2026-10-03T07:02:17.9344082Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}
 {"at":"2026-10-03T07:04:32.5142992Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/,ArchLucid.Provenance/)"]}
+{"at":"2026-10-03T07:06:42.7495420Z","zoneId":"ui-auth-proxy","outcome":"dry","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}

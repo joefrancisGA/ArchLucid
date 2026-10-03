@@ -4174,7 +4174,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -6659,7 +6659,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** WebhooksSettings
 - **hunts:** 27
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — stale subscriptions table after failed refresh
 - **related-pd-tb:** none
@@ -9898,8 +9898,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `getEffectiveBrowserProxyScopeHeaders` / `mergeRegistrationScopeForProxy` — stale `archlucid_operator_scope_v1` beat post-registration `archlucid_last_registration` when unsigned after `clearOidcSession()` — **hit 2026-09-25 seed hunt (seed→hit):** signup verify and onboarding trial-status polls sent prior-tenant scope headers; fixed by preferring registration scope before operator storage when unsigned; regression `getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned`
 - [x] (proven) `proxy.ts` matcher — the generic matcher excluded every `.json` pathname, so `/api/proxy/*` JSON requests could bypass the Next proxy host gate; fixed with an explicit `/api/proxy/:path*` matcher and regression `proxy.test.ts`.
 - [x] (proven) `resolveEmailOtpPostAuthPath` / `resolveBootstrapCompletePath` — a tampered consumed post-sign-in return URL was trusted without `isSafeReturnPath` validation, allowing an external redirect; fixed by validating consumed storage values before use, with regressions in `email-otp-post-auth.test.ts`.
-- [ ] (candidate) `clearEmailOtpChallengeSession` — clearing an OTP challenge leaves the separately stored invitation token available to a later sign-in flow; reachable after challenge expiry/cancellation followed by a new sign-in in the same tab, but no wrong reuse outcome is proven in the selected files.
-- [ ] (candidate) `requestEmailOtpChallenge` — all upstream 5xx responses are mapped to `delivery_failed`, potentially misclassifying an authentication service outage; reachable from the exported challenge helper, but the customer-visible distinction is not established in the selected files.
+- [x] (valid-no-repro) `clearEmailOtpChallengeSession` — clearing an OTP challenge leaves the separately stored invitation token available to a later sign-in flow; the invitation token has its own explicit storage/clear lifecycle and no wrong reuse outcome is proven in the selected files.
+- [x] (valid-no-repro) `requestEmailOtpChallenge` — all upstream 5xx responses are mapped to `delivery_failed`; the selected auth copy/tests intentionally present that category as “could not send,” and no distinct outage contract is established.
 
 2026-09-25 seed hunt (seed→hit): reseeded ui-auth-proxy; proved stale BFF cookie blocked anonymous health/trial-status GETs and registration scope lost to stale operator scope after sign-out; 25 scoped auth/proxy tests passed.
 
@@ -9907,6 +9907,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed→hit): promoted one reachable proxy matcher candidate; JSON API proxy paths were excluded from the generic matcher and could skip host gating. Added the explicit API-proxy matcher; 46 proxy-route tests passed.
 2026-10-03 seed hunt (seed→hit): promoted one reachable auth candidate; tampered consumed OTP return URLs bypassed the safe-path gate in both post-auth completion helpers. Validated consumed storage values; 54 scoped auth/proxy tests passed.
 2026-10-03 seed hunt (seed-only): re-read the selected auth/proxy files; no additional candidate met the failing-repro bar. Persisted two bounded candidates for OTP-session cleanup and 5xx failure categorization; 218 scoped tests passed, with 3 unrelated baseline seam failures.
+2026-10-03 thorough hunt (dry): cheap-disproved both selected auth candidates; invitation-token cleanup is a separate lifecycle, and 5xx `delivery_failed` mapping matches the available customer contract. No failing repro; scoped auth/proxy results remained 218 passed with 3 unrelated baseline seam failures.
 
 - [x] (proven) `POST /api/auth/bff-session/refresh` — rejected refresh (`invalid_grant`) returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** stale expired session cookie persisted and kept blocking proxy reads until explicit DELETE; fixed with `buildBffSessionClearCookieHeaders` on rejection path; regression `clears BFF session cookies when the refresh token is rejected`
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
