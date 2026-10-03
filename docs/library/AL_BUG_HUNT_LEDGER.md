@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `host-core-jobs` — reviewed `JobRunTelemetry` cancellation, exception, exit-class, and metric recording paths; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
+
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — reviewed durable enqueue notification failure handling and terminal-state reads; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — reviewed in-memory queue capacity/retry state transitions and stale-running watchdog reclaim/notification handling; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
