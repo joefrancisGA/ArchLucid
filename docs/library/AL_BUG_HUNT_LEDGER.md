@@ -6972,13 +6972,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — OIDC/SAML discovery reported success for invisible-only issuer entity IDs that activation rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 thorough hunt (dry): re-checked the four candidate-only rows against the selected controller/service paths; none was promoted to hunt-ready and no failing repro was supported; 40 IdentityProviderActivationService tests passed with analyzers disabled.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the four candidate-only rows as not promoted hunt-ready claims in the selected paths; no failing-repro attempt was supported; 40 IdentityProviderActivationService tests passed with analyzers disabled.
 
