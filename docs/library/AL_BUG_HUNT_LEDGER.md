@@ -11630,6 +11630,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; cheap-disproved both non-GUID receipt-gate candidates from the `ArchitectureRun.RunId` and pilot summary 32-character hex contracts; 22 scoped BuyerProofPack/BoardPack tests passed.
 2026-10-03 seed hunt (seed-only): re-read buyer-proof ZIP assembly, board-pack quarter windows, commit guards, receipt gates, and focused tests; no additional reachable wrong outcome or bounded candidate emerged. The scoped BuyerProofPack/BoardPack tests passed 22/22 with unrelated analyzers disabled.
+2026-10-03 seed hunt (seed-only): repeated the selected buyer-proof and board-pack review after the prior reseed; no new reachable wrong outcome or bounded candidate emerged. The scoped BuyerProofPack/BoardPack tests passed 22/22 with unrelated analyzers disabled.
 
 2026-10-03 seed hunt (seed-only): re-read the pilot value report cap, findings-snapshot selection, and audit export paths; no candidate met the same-run repro bar. The cap-selection candidate needs a runnable scoped test, but the Application test build was blocked by pre-existing repository-wide ARCH006/ARCH006a analyzer errors. Added three reachable candidates for the next hunt.
 
