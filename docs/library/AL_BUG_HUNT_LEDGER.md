@@ -27987,6 +27987,8 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a valid JSON local-storage record with missing cache arrays caused `getActiveArchitectureDiagramVersion` to throw while opening a diagram; added cache-shape validation and a malformed-cache regression. 3 focused storage tests passed.
 
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved the accessible text alternative retained an edge to a removed inferred node even though Mermaid rendering suppressed it; filtered edges with missing active endpoints and added a regression. 9 focused architecture diagram tests passed.
+
 ## Zone: ui-architecture-diagram
 
 - **id:** ui-architecture-diagram
@@ -27995,8 +27997,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
@@ -28007,3 +28009,4 @@ ABQ-09 churn hotspot.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
+- [x] (proven) `architectureDiagramModelToTextAlternative` — an edge whose source or target node was removed remained in the accessible text alternative while Mermaid omitted it; now only edges with active endpoints are rendered; regression `omits edges connected to removed nodes from the text alternative`.

@@ -96,6 +96,45 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(mermaid).not.toContain("subgraph trustBoundary");
   });
 
+  it("omits edges connected to removed nodes from the text alternative", () => {
+    const removedNodeModel: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "removed_system",
+          label: "Removed system",
+          kind: "system",
+          provenance: "inferred",
+          removed: true,
+          accepted: false,
+        },
+        {
+          id: "active_system",
+          label: "Active system",
+          kind: "system",
+          provenance: "asserted",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [
+        {
+          id: "edge_removed",
+          sourceId: "removed_system",
+          targetId: "active_system",
+          label: "old flow",
+          provenance: "inferred",
+          removed: false,
+        },
+      ],
+      trustBoundaryLabels: [],
+    };
+
+    const alternative = architectureDiagramModelToTextAlternative(removedNodeModel);
+
+    expect(alternative).not.toContain("removed_system");
+    expect(alternative).not.toContain("old flow");
+  });
+
   it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {
     const longLabel =
       "Azure Kubernetes Service (AKS) Cluster with extended operations and governance description";

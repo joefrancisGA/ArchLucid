@@ -114,8 +114,10 @@ export function architectureDiagramModelToMermaid(
 
 export function architectureDiagramModelToTextAlternative(model: ArchitectureDiagramModel): string {
   const activeNodes = model.nodes.filter((node) => !node.removed);
-  const activeEdges = model.edges.filter((edge) => !edge.removed);
   const nodeLabelById = new Map(activeNodes.map((node) => [node.id, node.label]));
+  const activeEdges = model.edges.filter(
+    (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  );
   const nodeLines = activeNodes.map((node) => {
     const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
 
