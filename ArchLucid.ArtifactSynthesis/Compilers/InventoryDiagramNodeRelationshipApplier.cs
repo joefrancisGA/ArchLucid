@@ -231,8 +231,6 @@ internal static class InventoryDiagramNodeRelationshipApplier
         {
             Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(
                 new GraphSnapshot { Nodes = topologyNodes.ToList(), Edges = graphEdges.ToList() });
-            string routeTableArmId = ArmResourceIdNormalizer.Normalize(
-                DiagramAstGraphNodeClassifier.ReadArmId(graphNode));
 
             foreach (GraphEdge effectiveRouteEdge in graphEdges.Where(edge =>
                          string.Equals(
