@@ -67,9 +67,11 @@ describe("InfraEvidenceDiagramLegend", () => {
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).toBeInTheDocument();
-    expect(screen.getByTestId("infra-evidence-diagram-legend-private-endpoint")).toHaveTextContent(
-      "Private endpoint",
-    );
+    const privateEndpointLegend = screen.getByTestId("infra-evidence-diagram-legend-private-endpoint");
+    expect(privateEndpointLegend).toHaveTextContent("Private endpoint");
+    expect(screen.getByTestId("infra-evidence-private-endpoint-access-glyph")).toBeInTheDocument();
+    expect(privateEndpointLegend.querySelector(".private-endpoint-lock")).toBeInTheDocument();
+    expect(privateEndpointLegend.querySelector(".private-endpoint-arrow")).toBeInTheDocument();
   });
 
   it("detects declared edges from mermaid dashed arrows", () => {
