@@ -8685,3 +8685,4 @@
 {"at":"2026-10-03T14:26:53.2635692Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-03T14:30:27.3961809Z","zoneId":"ui-review-intake-wizards","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-03T14:34:47.1031812Z","zoneId":"tenant-scoped-analyzer","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs"]}
+{"at":"2026-10-03T14:38:57.9058969Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
