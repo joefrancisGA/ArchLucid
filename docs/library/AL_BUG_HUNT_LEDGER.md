@@ -26136,7 +26136,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26150,6 +26150,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-02 seed hunt (hit): proved cross-scope output caching on effective policy-pack reads; 1 focused regression test passed after removing the shared anonymous cache policy. The full controller filter had 55 passing and 17 unrelated baseline failures from null test scopes.
 
 ### Hypotheses
+
+- [ ] (candidate) `PolicyPacksController.Simulate` — an OpenAPI `runId` containing surrounding whitespace is validated using its trimmed GUID but the original string is forwarded to `SimulateAsync`; verify whether any downstream caller observes the untrimmed identifier rather than the workflow's current trim.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — an OpenAPI `runIds` array mixing blank entries with valid GUIDs is accepted, then blanks are silently removed before `RequestedRunCount`; verify whether the endpoint contract requires one result/count slot per submitted array item.
 
 - [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` — catalog demote lacked promote symmetry scope binding — **hit 2026-09-07 (#1170):** promote requires source pack in caller `(tenant, workspace, project)` scope; demote accepted any catalog entry id under tenant admin auth and demoted globally; fixed by resolving `SourcePolicyPackId` and applying `IsPackVisibleInScope` before mutation (`TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope`, `DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope`)
 - [x] (proven) `PolicyPacksController.Assign` / `SetAssignmentOrganizationRequired` — project admin could create or toggle org-required assignment locks without tenant/workspace admin role — **hit 2026-09-07 (#1205):** `PolicyPackMutationAuthority` allows SCIM `ProjectAdmin`; org-required locks are organization-governance tier (`AssignPolicyPackRequest` documents workspace-admin disable/archive lockout); fixed by requiring `AdminAuthority` on `SetAssignmentOrganizationRequired` and rejecting `Assign` with `isOrganizationRequired` when `ICallerRoleAccessor.IsTenantAdministrator()` is false (`TryAssignAsync_returns_forbidden_when_organization_required_without_tenant_administrator`, `Assign_returns_forbidden_when_organization_required_without_tenant_administrator`, `HandleRequirementAsync_project_admin_succeeds_policy_pack_mutation_without_tenant_admin_jwt`)
@@ -26199,6 +26202,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): reread policy-pack CRUD, assignment, catalog mutation, controller reads, and simulation paths after the latest guard fixes; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
 
 2026-10-03 seed hunt (hit): proved the policy-pack assign controller dropped the facade's Forbidden outcome and threw HTTP 500; mapped authorization denials to HTTP 403 Problem Details; 76 focused controller tests passed.
+
+2026-10-03 seed hunt (seed-only): reread policy-pack simulation, validation, catalog-read, and result-mapping paths; no new hunt-ready defect was proven. Added two reachable candidates for a future falsification pass; the scoped test filter was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
