@@ -3688,7 +3688,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-28
@@ -25579,6 +25579,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (hit): proved redundant controller simulation guards changed missing-run 404/summary semantics to HTTP 409; removed the controller precheck and retained service-level fail-closed checks; 58 focused controller tests passed.
 
 2026-10-03 seed hunt (seed-only): reread all policy-pack controller partials after the simulation guard removal; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
+
+2026-10-03 seed hunt (seed-only): reread policy-pack catalog, effective, version, simulation, and HTTP-result paths; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
