@@ -50,6 +50,7 @@ internal static class InventoryDiagramPeelBudgetApplier
                 graph,
                 alwaysDisposeTypes,
                 allowCrossResourceGroupVnetPlacement: IsVnetPrimaryMode(mode));
+        DiagramAstCompileOptions? analysisCompileOptions = WithOrphanAnalysisGraph(compileOptions, graph);
         List<string> alwaysDisposedArmTypes = includeNeverShowArmTypes
             ? []
             : graph.Nodes
@@ -63,7 +64,7 @@ internal static class InventoryDiagramPeelBudgetApplier
         PeelCompileResult initial = CompileOnce(
             workingGraph,
             mode,
-            compileOptions,
+            analysisCompileOptions,
             graphCompiler,
             diagramRenderer,
             complexityAnalyzer,
@@ -100,7 +101,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             PeelCompileResult peeled = CompileOnce(
                 filteredGraph,
                 mode,
-                compileOptions,
+                analysisCompileOptions,
                 graphCompiler,
                 diagramRenderer,
                 complexityAnalyzer,
@@ -129,7 +130,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             PeelCompileResult backbone = CompileOnce(
                 backboneGraph,
                 mode,
-                CreateBackboneKeepCompileOptions(compileOptions),
+                CreateBackboneKeepCompileOptions(analysisCompileOptions),
                 graphCompiler,
                 diagramRenderer,
                 complexityAnalyzer,
@@ -152,7 +153,7 @@ internal static class InventoryDiagramPeelBudgetApplier
             PeelCompileResult mapped = CompileOnce(
                 mapGraph,
                 mode,
-                CreateResourceGroupMapCompileOptions(compileOptions),
+                CreateResourceGroupMapCompileOptions(analysisCompileOptions),
                 graphCompiler,
                 diagramRenderer,
                 complexityAnalyzer,
@@ -218,7 +219,14 @@ internal static class InventoryDiagramPeelBudgetApplier
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
             HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToResourceGroupMap = true,
+            IncludePrivateEndpointNodes = compileOptions?.IncludePrivateEndpointNodes ?? false,
+            IncludeRecoveryServices = compileOptions?.IncludeRecoveryServices ?? false,
+            IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
             IncludeAvdAssets = compileOptions?.IncludeAvdAssets ?? false,
+            RecoveryServicesCollectionIncomplete = compileOptions?.RecoveryServicesCollectionIncomplete ?? false,
+            QuestionableNodes = compileOptions?.QuestionableNodes,
+            AssignedPolicyPackRuleKeys = compileOptions?.AssignedPolicyPackRuleKeys,
+            OrphanAnalysisGraph = compileOptions?.OrphanAnalysisGraph,
         };
     }
 
@@ -232,7 +240,38 @@ internal static class InventoryDiagramPeelBudgetApplier
             NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
             HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
             CollapseToBackboneKeep = true,
+            IncludePrivateEndpointNodes = compileOptions?.IncludePrivateEndpointNodes ?? false,
+            IncludeRecoveryServices = compileOptions?.IncludeRecoveryServices ?? false,
+            IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
             IncludeAvdAssets = compileOptions?.IncludeAvdAssets ?? false,
+            RecoveryServicesCollectionIncomplete = compileOptions?.RecoveryServicesCollectionIncomplete ?? false,
+            QuestionableNodes = compileOptions?.QuestionableNodes,
+            AssignedPolicyPackRuleKeys = compileOptions?.AssignedPolicyPackRuleKeys,
+            OrphanAnalysisGraph = compileOptions?.OrphanAnalysisGraph,
+        };
+    }
+
+    private static DiagramAstCompileOptions? WithOrphanAnalysisGraph(
+        DiagramAstCompileOptions? compileOptions,
+        GraphSnapshot analysisGraph)
+    {
+        return new DiagramAstCompileOptions
+        {
+            ResourceGroupName = compileOptions?.ResourceGroupName,
+            SelectedNodeIds = compileOptions?.SelectedNodeIds,
+            NeighborhoodSeedNodeId = compileOptions?.NeighborhoodSeedNodeId,
+            NeighborhoodDepth = compileOptions?.NeighborhoodDepth ?? 2,
+            CollapseToResourceGroupMap = compileOptions?.CollapseToResourceGroupMap ?? false,
+            CollapseToBackboneKeep = compileOptions?.CollapseToBackboneKeep ?? false,
+            HiddenExecutiveTierKeys = compileOptions?.HiddenExecutiveTierKeys,
+            IncludePrivateEndpointNodes = compileOptions?.IncludePrivateEndpointNodes ?? false,
+            IncludeRecoveryServices = compileOptions?.IncludeRecoveryServices ?? false,
+            IncludeAvdAssets = compileOptions?.IncludeAvdAssets ?? false,
+            IncludeCrossGroupFanOut = compileOptions?.IncludeCrossGroupFanOut ?? false,
+            RecoveryServicesCollectionIncomplete = compileOptions?.RecoveryServicesCollectionIncomplete ?? false,
+            QuestionableNodes = compileOptions?.QuestionableNodes,
+            AssignedPolicyPackRuleKeys = compileOptions?.AssignedPolicyPackRuleKeys,
+            OrphanAnalysisGraph = analysisGraph,
         };
     }
 }

@@ -1,4 +1,4 @@
-> **Scope:** Paste-ready GPT-5.6 Luna prompts for one SecureNow question queue on the diagrams workbench. Internal engineering only. Prompts only — do not implement from this index.
+> **Scope:** Paste-ready GPT-5.6 Luna prompts for one SecureNow question queue on the diagrams workbench. Internal engineering only. Prompts only — do not implement from this index. **SN-QQ-07** is a load-failure prompt. **SN-QQ-08** maps the questions controller. Neither adds a question source.
 > **Paste-ready files:** [`.cursor/prompts/securenow-question-queue-00-index.md`](../../.cursor/prompts/securenow-question-queue-00-index.md)
 
 # SecureNow question queue — Luna prompts
@@ -17,9 +17,11 @@ Paste **one** prompt per Luna session. Run them in order. Do not implement from 
 | **SN-QQ-04** | [securenow-question-queue-04-outline-column.md](../../.cursor/prompts/securenow-question-queue-04-outline-column.md) | SN-QQ-03 | Outline button opens that same drawer |
 | **SN-QQ-05** | [securenow-question-queue-05-pack-questions.md](../../.cursor/prompts/securenow-question-queue-05-pack-questions.md) | SN-QQ-02 | Pack `elicitationQuestions` enter the same queue with no node |
 | **SN-QQ-06** | [securenow-question-queue-06-assertions.md](../../.cursor/prompts/securenow-question-queue-06-assertions.md) | SN-QQ-01, SN-QQ-02 | Asserting answers become expiring `HumanAssertion`. Ignore does not change the diagram |
+| **SN-QQ-07** | [securenow-question-queue-07-load-failure.md](../../.cursor/prompts/securenow-question-queue-07-load-failure.md) | SN-QQ-03 | A failed load shows the API reason. A GET does not use the governance save copy |
+| **SN-QQ-08** | [securenow-question-queue-08-capability-map.md](../../.cursor/prompts/securenow-question-queue-08-capability-map.md) | SN-QQ-07 | Map the questions controller. `productLine` stays `both` |
 | **SN-QQ-HOLD** | [securenow-question-queue-hold.md](../../.cursor/prompts/securenow-question-queue-hold.md) | — | Forbidden scope |
 
-**SN-QQ-05** can follow **SN-QQ-02** before the drawer exists. **SN-QQ-03** and **SN-QQ-04** stay in order. **SN-QQ-06** follows the store and the compiler. It can land before the drawer.
+**SN-QQ-05** can follow **SN-QQ-02** before the drawer exists. **SN-QQ-03** and **SN-QQ-04** stay in order. **SN-QQ-06** follows the store and the compiler. It can land before the drawer. **SN-QQ-07** follows the mounted queue. Run it on its own. It does not rebuild SN-QQ-01 through SN-QQ-06. **SN-QQ-08** follows that banner. It adds one OP-01 map row and does not change the controller, the middleware, or the queue UI.
 
 ## Settled reading
 
@@ -44,3 +46,4 @@ Paste **one** prompt per Luna session. Run them in order. Do not implement from 
 - SQL row-level security. [ADR 0037](adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) stands
 - Hiding a diagrams workspace tab behind More
 - Re-running NR-01 through NR-16, SN-RT-12, or SN-RT-13 as greenfield
+- Turning a failed question-list GET into an empty queue so the banner disappears

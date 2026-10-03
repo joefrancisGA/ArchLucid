@@ -477,6 +477,21 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     () => sortInfraEvidenceDiagramOutlineEdges(outline.edges, outline.nodes, edgeSortKey, edgeSortDir),
     [edgeSortDir, edgeSortKey, outline.edges, outline.nodes],
   );
+  const edgeRowsBySource = useMemo(() => {
+    const sourceOrder: readonly InfraEvidenceDiagramOutlineEdgeSource[] = [
+      "probable",
+      "observed",
+      "declared",
+      "inferred",
+    ];
+
+    return sourceOrder
+      .map((source) => ({
+        source,
+        rows: edgeRows.filter((edge) => edge.source === source),
+      }))
+      .filter((group) => group.rows.length > 0);
+  }, [edgeRows]);
   const unknownNodes = stateRows.get("Unknown") ?? [];
   const showEdgesSection = outline.edges.length > 0;
   const showLedgerSection = (outline.ledgerDrops?.length ?? 0) > 0;
@@ -708,8 +723,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       />
                     </tr>
                   </thead>
-                  <tbody>
-                    {edgeRows.map((edge, index) => {
+                  {edgeRowsBySource.map((group) => (
+                    <tbody key={group.source} data-testid={`infra-diagrams-edge-source-${group.source}`}>
+                      <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
+                        <th className="px-3 py-2 text-left font-medium" colSpan={4} scope="rowgroup">
+                          {formatOutlineEdgeSource(group.source)} edges ({group.rows.length})
+                        </th>
+                      </tr>
+                      {group.rows.map((edge, index) => {
                       const fromNode = outline.nodes.find((node) => node.id === edge.from);
                       const toNode = outline.nodes.find((node) => node.id === edge.to);
                       const toDisplay = resolveInfraEvidenceOutlineEdgeToDisplay({
@@ -768,8 +789,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                           <td className="px-3 py-2">{toDisplay}</td>
                         </tr>
                       );
-                    })}
-                  </tbody>
+                      })}
+                    </tbody>
+                  ))}
                 </table>
                 {edgeRows.length === 0 ? (
                   <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

@@ -1,13 +1,8 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 
-export const metadata: Metadata = {
-  title: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
-};
-
-/** SecureNow drift workbench — snapshot compare, change rows, advisory Terraform export. */
-export default function SecureNowInfrastructureDriftPage() {
-  return <DriftWorkbenchClient />;
+/** Preserve the previous SecureNow URL while the canonical route reflects the page name. */
+export default function SecureNowInfrastructureDriftLegacyPage() {
+  redirect(SECURENOW_INFRASTRUCTURE_DRIFT_PATH);
 }

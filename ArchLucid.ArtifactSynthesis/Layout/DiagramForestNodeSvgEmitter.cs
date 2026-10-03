@@ -60,6 +60,7 @@ public static class DiagramForestNodeSvgEmitter
 
         double textBlockHeight = (metrics.NameLines.Count * options.LineHeight)
             + (metrics.DataFlowTypeLine is null ? 0 : options.LineHeight)
+            + (metrics.DataFlowDetailLines.Count * options.LineHeight)
             + (metrics.ConsumerStatusLine is null ? 0 : options.LineHeight)
             + (metrics.ResourceGroupLines.Count * options.LineHeight);
         double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
@@ -145,6 +146,23 @@ public static class DiagramForestNodeSvgEmitter
                 new XAttribute("font-family", "system-ui,sans-serif"),
                 new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
                 Escape(metrics.DataFlowTypeLine)));
+            linesAfterName++;
+        }
+
+        foreach (string detailLine in metrics.DataFlowDetailLines)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline + (linesAfterName * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape(detailLine)));
             linesAfterName++;
         }
 

@@ -7,8 +7,11 @@ export const SECURENOW_INFRASTRUCTURE_PATH = "/infrastructure" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH = "/governance/infrastructure/drift";
 
-/** SecureNow shell — drift workbench (Infrastructure URL namespace). */
-export const SECURENOW_INFRASTRUCTURE_DRIFT_PATH = "/infrastructure/drift" as const;
+/** SecureNow shell — snapshots and drift workbench (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_DRIFT_PATH = "/infrastructure/snapshots-drift" as const;
+
+/** Legacy SecureNow drift URL retained as a redirect for bookmarked links. */
+export const SECURENOW_INFRASTRUCTURE_DRIFT_LEGACY_PATH = "/infrastructure/drift" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH = "/governance/infrastructure/diagrams";
 

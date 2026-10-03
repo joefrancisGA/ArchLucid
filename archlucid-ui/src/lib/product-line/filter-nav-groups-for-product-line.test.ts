@@ -89,7 +89,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(infrastructureLinks.map((link) => link.href)).toEqual([
       "/infrastructure/resources",
       "/infrastructure/extract-upload",
-      "/infrastructure/drift",
+      "/infrastructure/snapshots-drift",
       "/infrastructure/declared-connections",
       "/infrastructure/diagrams",
       "/infrastructure/diagram-reconcile",

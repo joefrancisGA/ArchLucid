@@ -212,7 +212,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramNodeRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
         InventoryDiagramParentAttachmentApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramOrphanedStateApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramOrphanedStateApplier.Apply(
+            ast,
+            graph,
+            nodeIdMap,
+            options.OrphanAnalysisGraph);
         if (isDataFlowMode)
         {
             InventoryDiagramDataFlowTraversalHopApplier.Apply(ast, graph, nodeIdMap, includedEdges);
@@ -349,9 +353,39 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     out string? linkedServiceType)
                     ? linkedServiceType
                     : null,
+            ExternalFactoryName = isOverflow
+                ? null
+                : ReadNodeProperty(
+                    node,
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalFactoryNamePropertyKey),
+            ExternalTargetHost = isOverflow
+                ? null
+                : ReadNodeProperty(
+                    node,
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalTargetHostPropertyKey),
+            ExternalIntegrationRuntime = isOverflow
+                ? null
+                : ReadNodeProperty(
+                    node,
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalIntegrationRuntimePropertyKey),
+            ExternalHostInKeyVault = !isOverflow
+                && string.Equals(
+                    ReadNodeProperty(
+                        node,
+                        AzureInventoryAdfExternalSourceNodeFactory.ExternalHostInKeyVaultPropertyKey),
+                    "true",
+                    StringComparison.OrdinalIgnoreCase),
             ArmResourceGroup = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             IsExecutiveOverflow = isOverflow,
         };
+    }
+
+    private static string? ReadNodeProperty(GraphNode node, string propertyKey)
+    {
+        return node.Properties.TryGetValue(propertyKey, out string? value)
+            && !string.IsNullOrWhiteSpace(value)
+            ? value
+            : null;
     }
 
     private static void AddDropGateRows(

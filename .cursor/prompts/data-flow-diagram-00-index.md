@@ -9,12 +9,17 @@
      canvas painted. DFV-05 puts that type back. DFV-06 through DFV-10
      make the painted cards readable: who uses a store, what a card is,
      which factory an ADF link belongs to, where a MySQL host lives,
-     and what a network hop is for.
+     and what a network hop is for. A later look still shows generic
+     source cards, few connectors, a tall top-to-bottom canvas, and
+     long runs of the same card. DFV-11 through DFV-17 save the link
+     identity, collapse a shared host, wrap the columns, roll up
+     repeated cards, read app settings and uploaded config, summarize
+     the stages, and filter edges by evidence.
      Do not implement from this index. -->
 
-# Data flow diagram — Luna prompt set (DFV-01–DFV-10)
+# Data flow diagram — Luna prompt set (DFV-01–DFV-17)
 
-**Do not implement from this index.** Paste **one** numbered `.cursor/prompts/data-flow-diagram-0N-*.md` file per GPT-5.6 Luna session.
+**Do not implement from this index.** Paste **one** numbered `.cursor/prompts/data-flow-diagram-*.md` file per GPT-5.6 Luna session.
 
 Canonical wave doc: [`docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md`](../../docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md).
 
@@ -34,14 +39,21 @@ Canonical wave doc: [`docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md`](../.
 | **ADF identity** | The external-node hydrator labels a linked service with its name and drops type, host, and factory. | The card keeps the name and adds the connector, factory, host, or `Host in Key Vault`. | **DFV-08** |
 | **MySQL host** | `AzureMySql` reads `server` only. A host inside `connectionString`, or a Key Vault reference, never resolves. | The parser takes the host from `Server=` and discards the rest. A Key Vault reference is labeled, not guessed. | **DFV-09** |
 | **Network hop caption** | Firewalls, NAT gateways, and application gateways sit in Application with the subnet edges filtered off. | The hop card shows the cited path it already has, or `No cited path`. VNets and subnets stay off Data flow. | **DFV-10** |
+| **Link identity saved** | The linked-service type and host exist only while the capture is materialized. The graph rebuilds each external card with a null type and a null host, so it stays a generic topology card. | A new capture stores type, host, factory, runtime, and the Key Vault flag, and the graph node gets them back. Resource count stays the same. | **DFV-11** |
+| **One card per host** | The same SFTP or HTTP host is one card per factory. A saved host that names a snapshot resource still sits on an external card. | One card per external host, with an edge from each factory. A matching host connects to the storage account or database and the extra card is gone. | **DFV-12** |
+| **Left to right** | Each stage is one tall stack, so the canvas reads top to bottom. | A stage wider than 12 cards wraps into sub-columns. Connected cards sit above a `Not connected` group. Edges still leave on the right and enter on the left. | **DFV-13** |
+| **Repeated cards** | Dozens of storage accounts with the same connections are dozens of cards. | More than three same-type, same-neighbor cards become one card. Click lists the members. PNG export lists them under the legend. | **DFV-14** |
+| **App and config evidence** | App-setting collection reads Container Apps only. A confirmed upload is labelled `Confirmed connection`. Every lonely store says `No consumer found`. | Function Apps and App Services contribute host edges. A file confirmation says `From config`. A snapshot with no such evidence says `No evidence checked`. | **DFV-15** |
+| **Stage summary** | The reviewer counts the columns by eye. | One line above the stages gives the counts, including how many storage cards are used. | **DFV-16** |
+| **Evidence filters** | Declared, guessed, and confirmed edges are one picture. | Four checkboxes, on by default, hide Observed, App settings, From config, or Inferred edges. Cards stay. | **DFV-17** |
 
 ## What this set does not change
 
-Keep the evidence catalog. Do not put diagnostic settings, NIC, VNet, or private-endpoint attachment edges on Data Flow. Do not remove unconnected resources. Do not redo AZI-01–AZI-04 or DFV-05. Do not borrow a Databricks workspace icon for access connectors, or a storage-account icon for Azure Table Storage. Do not download another icon pack. Do not add a click-through detail panel or a second diagram mode in DFV-06 through DFV-10. NR-12 already explains Unknown in the outline.
+Keep the evidence catalog's exclusions. Do not put diagnostic settings, NIC, VNet, or private-endpoint attachment edges on Data Flow. Do not remove unconnected resources. Do not redo AZI-01–AZI-04 or DFV-05. Do not borrow a Databricks workspace icon for access connectors, or a storage-account icon for Azure Table Storage. Do not download another icon pack. Do not add a click-through detail panel or a second diagram mode in DFV-06 through DFV-10. DFV-14 lists members in the existing card focus and in the PNG. DFV-17 adds checkboxes on the data-flow toolbar. Neither one hides a workspace tab. NR-12 already explains Unknown in the outline.
 
 ## Run order
 
-**01–05 are on `master`.** Next: **06 → owner look**, then **07**, **08**, **09**, **10**. **09** can run before **08**; the host it finds shows up on the card after **08**. Do not run two of these in one session.
+**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07; the host it finds is stored by **11** and painted by **08**. Then **12**, **13**, **14**, **15**, **10**, **16**, **17**. **10** can run any time after 07. The recommended look puts it after the new edges exist. Do not run two of these in one session.
 
 Each implementation prompt ends **before commit**. The owner looks, then says whether to commit.
 
@@ -59,3 +71,10 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 08 | `data-flow-diagram-08-adf-card-identity.md` | `dfv/08-adf-card-identity` |
 | 09 | `data-flow-diagram-09-mysql-host.md` | `dfv/09-mysql-host` |
 | 10 | `data-flow-diagram-10-network-hop-caption.md` | `dfv/10-network-hop-caption` |
+| 11 | `data-flow-diagram-11-persist-linked-service-identity.md` | `dfv/11-persist-linked-service-identity` |
+| 12 | `data-flow-diagram-12-same-host-cards.md` | `dfv/12-same-host-cards` |
+| 13 | `data-flow-diagram-13-left-to-right-columns.md` | `dfv/13-left-to-right-columns` |
+| 14 | `data-flow-diagram-14-rollup-repeated-cards.md` | `dfv/14-rollup-repeated-cards` |
+| 15 | `data-flow-diagram-15-app-and-config-evidence.md` | `dfv/15-app-and-config-evidence` |
+| 16 | `data-flow-diagram-16-stage-summary.md` | `dfv/16-stage-summary` |
+| 17 | `data-flow-diagram-17-evidence-filters.md` | `dfv/17-evidence-filters` |

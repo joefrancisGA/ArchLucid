@@ -257,7 +257,10 @@ public sealed class AzureInventorySnapshotMaterializer(
                     securityEdges.Relationships,
                     visibleArmIds);
 
-            byte[] contentHash = ComputeContentHash(resources, visibleRelationships);
+            byte[] contentHash = ComputeContentHash(
+                resources,
+                visibleRelationships,
+                securityEdges.AdfExternalSources);
             AzureInventoryCaptureStatus status = resources.Count == 0
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
@@ -296,6 +299,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Resources = resources,
                     Properties = properties,
                     Relationships = visibleRelationships,
+                    AdfExternalSources = securityEdges.AdfExternalSources,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
                     Diagnostics = diagnostics,
@@ -340,7 +344,8 @@ public sealed class AzureInventorySnapshotMaterializer(
 
     private static byte[] ComputeContentHash(
         IReadOnlyList<AzureInventoryResourceRecord> resources,
-        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships)
+        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships,
+        IReadOnlyList<AzureInventoryAdfExternalSourceWrite> adfExternalSources)
     {
         StringBuilder builder = new();
 
@@ -363,6 +368,25 @@ public sealed class AzureInventorySnapshotMaterializer(
                 .Append(relationship.RelationshipType)
                 .Append('|')
                 .Append((int)relationship.ProvenanceKind)
+                .Append(';');
+        }
+
+        foreach (AzureInventoryAdfExternalSourceWrite source in adfExternalSources
+                     .OrderBy(source => source.ExternalNodeKey, StringComparer.Ordinal))
+        {
+            builder.Append(source.ExternalNodeKey)
+                .Append('|')
+                .Append(source.LinkedServiceType)
+                .Append('|')
+                .Append(source.TargetHost)
+                .Append('|')
+                .Append(source.FactoryResourceId)
+                .Append('|')
+                .Append(source.IntegrationRuntimeName)
+                .Append('|')
+                .Append(source.HostInKeyVault)
+                .Append('|')
+                .Append(source.KeyVaultResourceId)
                 .Append(';');
         }
 

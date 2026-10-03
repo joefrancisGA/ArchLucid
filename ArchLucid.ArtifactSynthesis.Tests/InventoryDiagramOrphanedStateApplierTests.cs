@@ -35,7 +35,40 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
     private const string GatewayArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a";
 
+    private const string BastionArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/bastionHosts/bastion-a";
+
+    private const string SubnetArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/subnets/AzureBastionSubnet";
+
     private readonly DiagramAstFromGraphCompiler compiler = new();
+
+    [Fact]
+    public void Compile_peeled_bastion_subnet_uses_the_pre_peel_analysis_graph()
+    {
+        GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
+        GraphNode subnet = CreateTopologyNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets");
+        GraphSnapshot analysisGraph = CreateGraph(
+            [bastion, subnet],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "bastion-subnet",
+                    FromNodeId = bastion.NodeId,
+                    ToNodeId = subnet.NodeId,
+                    EdgeType = "bastionToSubnet",
+                },
+            ]);
+
+        DiagramAst ast = compiler.Compile(
+            CreateGraph([bastion]),
+            DiagramMode.FullSubscription,
+            new DiagramAstCompileOptions { OrphanAnalysisGraph = analysisGraph });
+
+        DiagramNode result = ast.Nodes.Should().ContainSingle(node => node.ArmResourceId == BastionArmId).Subject;
+        result.ConnectionState.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        result.ConnectionStateMessage.Should().NotContain("no longer exists");
+    }
 
     [Fact]
     public void Compile_restore_point_collection_with_missing_vm_is_orphaned_and_names_vm()
@@ -192,7 +225,12 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         return CreateGraph([gateway, connection]);
     }
 
-    private static GraphSnapshot CreateGraph(IReadOnlyList<GraphNode> nodes)
+    private static GraphSnapshot CreateGraph(IReadOnlyList<GraphNode> nodes) =>
+        CreateGraph(nodes, []);
+
+    private static GraphSnapshot CreateGraph(
+        IReadOnlyList<GraphNode> nodes,
+        IReadOnlyList<GraphEdge> edges)
     {
         return new GraphSnapshot
         {
@@ -201,7 +239,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
             RunId = Guid.Empty,
             CreatedUtc = DateTime.UtcNow,
             Nodes = nodes.ToList(),
-            Edges = [],
+            Edges = edges.ToList(),
         };
     }
 

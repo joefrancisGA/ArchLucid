@@ -149,6 +149,116 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
         }
     }
 
+    [Fact]
+    public void Plan_wraps_large_stage_into_subcolumns_before_next_stage()
+    {
+        DiagramAst ast = BuildDataFlowRoutingAst();
+        ast.Nodes.RemoveAll(node => string.Equals(node.NodeId, "storage-node", StringComparison.Ordinal));
+        ast.Nodes.AddRange(Enumerable.Range(0, 30).Select(index => new DiagramNode
+        {
+            NodeId = $"storage-{index}",
+            Label = $"storage-{index}",
+            NodeType = "TopologyResource",
+            ArmResourceType = "Microsoft.Storage/storageAccounts",
+            SubgraphId = "data-flow-stage-storage",
+            OrderKey = index,
+        }));
+        ast.Subgraphs.Add(new DiagramSubgraph
+        {
+            SubgraphId = "data-flow-stage-transform",
+            Label = "Transform",
+            OrderKey = 3,
+        });
+        ast.Nodes.Add(new DiagramNode
+        {
+            NodeId = "transform-node",
+            Label = "transform",
+            NodeType = "TopologyResource",
+            ArmResourceType = "Microsoft.DataFactory/factories",
+            SubgraphId = "data-flow-stage-transform",
+            OrderKey = 0,
+        });
+
+        DiagramForestLayoutOptions options = new();
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(ast.Nodes, options);
+        DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
+            ast.Nodes,
+            ast.Subgraphs,
+            options,
+            labelContext,
+            ast.Edges);
+
+        List<DiagramForestDataFlowColumnLayout.ColumnInfo> storageColumns = layout.Columns
+            .Where(column => string.Equals(column.Label, "Storage", StringComparison.Ordinal))
+            .ToList();
+        storageColumns.Should().HaveCount(3);
+        storageColumns.Select(column => layout.Placements.Count(placement =>
+                placement.ColumnIndex == column.ColumnIndex))
+            .Should()
+            .OnlyContain(count => count <= DiagramForestDataFlowColumnLayout.MaxCardsPerDataFlowSubcolumn);
+
+        DiagramForestDataFlowColumnLayout.ColumnInfo transformColumn = layout.Columns.Single(column =>
+            string.Equals(column.Label, "Transform", StringComparison.Ordinal));
+        transformColumn.LeftX.Should().BeGreaterThan(storageColumns[^1].LeftX + storageColumns[^1].Width);
+    }
+
+    [Fact]
+    public void Render_data_flow_marks_unconnected_cards_after_connected_cards()
+    {
+        DiagramAst ast = BuildDataFlowRoutingAst();
+        ast.Nodes.AddRange(
+        [
+            new DiagramNode
+            {
+                NodeId = "storage-unconnected",
+                Label = "storage-unconnected",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                SubgraphId = "data-flow-stage-storage",
+                OrderKey = 0,
+            },
+            new DiagramNode
+            {
+                NodeId = "storage-connected",
+                Label = "storage-connected",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                SubgraphId = "data-flow-stage-storage",
+                OrderKey = 1,
+            },
+        ]);
+        ast.Edges.Add(new DiagramEdge
+        {
+            FromNodeId = "source-node",
+            ToNodeId = "storage-connected",
+            Label = "flows",
+        });
+
+        DiagramForestLayoutOptions options = new();
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
+            ast.Nodes,
+            options,
+            ast.Edges,
+            isDataFlow: true);
+        DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
+            ast.Nodes,
+            ast.Subgraphs,
+            options,
+            labelContext,
+            ast.Edges);
+        DiagramForestDataFlowColumnLayout.NodePlacement connected = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "storage-connected", StringComparison.Ordinal));
+        DiagramForestDataFlowColumnLayout.NodePlacement unconnected = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "storage-unconnected", StringComparison.Ordinal));
+
+        connected.Y.Should().BeLessThan(unconnected.Y);
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().NotBeNull();
+        CountOccurrences(result.Svg!, "Not connected").Should().Be(1);
+    }
+
     private static DiagramForestDataFlowColumnLayout.Result BuildThreeColumnLayout(DiagramForestLayoutOptions options)
     {
         DiagramAst ast = BuildDataFlowRoutingAst();
@@ -355,5 +465,19 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
         }
 
         return segments;
+    }
+
+    private static int CountOccurrences(string value, string search)
+    {
+        int count = 0;
+        int offset = 0;
+
+        while ((offset = value.IndexOf(search, offset, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            offset += search.Length;
+        }
+
+        return count;
     }
 }

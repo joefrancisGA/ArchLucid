@@ -140,7 +140,7 @@ async function forward(
     }
 
     if (!res.ok) {
-      logUpstreamNonSuccess(method, pathForLog, res.status, correlationId);
+      await logUpstreamNonSuccess(method, pathForLog, res.status, correlationId, res);
     }
 
     return appendProxyBffSlideCookieHeaders(
@@ -211,7 +211,7 @@ async function forward(
   }
 
   if (!res.ok) {
-    logUpstreamNonSuccess(method, pathForLog, res.status, correlationId);
+    await logUpstreamNonSuccess(method, pathForLog, res.status, correlationId, res);
   }
 
   if (traceInteractiveReadHang) {

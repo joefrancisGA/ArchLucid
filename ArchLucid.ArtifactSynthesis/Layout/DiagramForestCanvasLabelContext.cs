@@ -80,6 +80,9 @@ public sealed class DiagramForestCanvasLabelContext
         string? dataFlowTypeLine = _isDataFlow
             ? DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node)
             : null;
+        IReadOnlyList<string> dataFlowDetailLines = _isDataFlow
+            ? BuildDataFlowDetailLines(node, dataFlowTypeLine)
+            : [];
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
             || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)
@@ -96,6 +99,9 @@ public sealed class DiagramForestCanvasLabelContext
             .Max();
         longestLineChars = Math.Max(longestLineChars, consumerStatusLine?.Length ?? 0);
         longestLineChars = Math.Max(longestLineChars, dataFlowTypeLine?.Length ?? 0);
+        longestLineChars = Math.Max(
+            longestLineChars,
+            dataFlowDetailLines.Select(line => line.Length).DefaultIfEmpty(0).Max());
         double privateEndpointIndicatorWidth = node.HasPrivateEndpointAccess
             ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
             : 0.0d;
@@ -133,6 +139,7 @@ public sealed class DiagramForestCanvasLabelContext
             Height: height,
             NameLines: nameLines,
             DataFlowTypeLine: dataFlowTypeLine,
+            DataFlowDetailLines: dataFlowDetailLines,
             ConsumerStatusLine: consumerStatusLine,
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,
@@ -142,6 +149,44 @@ public sealed class DiagramForestCanvasLabelContext
             NsgInboundRuleChips: node.NsgInboundRuleChips,
             IsQuestionable: node.QuestionableAttention is not null,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
+    }
+
+    private static IReadOnlyList<string> BuildDataFlowDetailLines(
+        DiagramNode node,
+        string? dataFlowTypeLine)
+    {
+        if (string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
+        {
+            return [];
+        }
+
+        List<string> lines = [];
+
+        if (string.IsNullOrWhiteSpace(dataFlowTypeLine))
+        {
+            lines.Add($"{node.ExternalLinkedServiceType.Trim()} link");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalFactoryName))
+        {
+            lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalTargetHost))
+        {
+            lines.Add(node.ExternalTargetHost.Trim());
+        }
+        else if (node.ExternalHostInKeyVault)
+        {
+            lines.Add("Host in Key Vault");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
+        {
+            lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
+        }
+
+        return lines;
     }
 
     private static IReadOnlyDictionary<string, string> BuildConsumerStatusByNodeId(

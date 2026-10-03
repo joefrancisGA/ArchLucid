@@ -58,6 +58,7 @@ public static class AzureInventoryAdfLinkedServiceParser
             TargetResourceId = TryReadBoundedString(element, "targetResourceId", MaxIdentifierLength),
             TargetHost = TryReadBoundedString(element, "targetHost", MaxHostLength),
             KeyVaultResourceId = TryReadBoundedString(element, "keyVaultResourceId", MaxIdentifierLength),
+            HostInKeyVault = TryReadBoolean(element, "hostInKeyVault"),
             IntegrationRuntimeName = TryReadBoundedString(element, "integrationRuntimeName", MaxNameLength),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
@@ -93,5 +94,11 @@ public static class AzureInventoryAdfLinkedServiceParser
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+    }
+
+    private static bool TryReadBoolean(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out JsonElement value)
+            && value.ValueKind is JsonValueKind.True;
     }
 }

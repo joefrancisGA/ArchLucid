@@ -135,6 +135,7 @@ public static class AzureInventoryVisibleSnapshotProjection
                 .Where(tag => visibleResourceRowIds.Contains(tag.ResourceRowId))
                 .ToList(),
             Relationships = visibleRelationships,
+            AdfExternalSources = snapshot.AdfExternalSources,
             RoleAssignments = snapshot.RoleAssignments,
             Diagnostics = snapshot.Diagnostics,
             DefenderSummaries = snapshot.DefenderSummaries,

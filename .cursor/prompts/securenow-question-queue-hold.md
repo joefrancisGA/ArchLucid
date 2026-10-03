@@ -8,7 +8,7 @@
 
 ## Stop
 
-Do not build any of the following while implementing SN-QQ-01 through SN-QQ-06:
+Do not build any of the following while implementing SN-QQ-01 through SN-QQ-08:
 
 - One question per "Missing a required link" row, or a question that only asks the reader to confirm a fact the outline already states.
 - A second questionnaire panel, a second count, or a sentence that no inference questions remain.
@@ -21,5 +21,6 @@ Do not build any of the following while implementing SN-QQ-01 through SN-QQ-06:
 - A general diagram rule that a virtual machine whose name starts with `AVD` is questionable. That predicate stays in the UHG pack.
 - SQL row-level security, a second API host, or a hidden diagrams workspace tab.
 - Flow logs, metrics, or a new collector.
+- A catch that turns a failed question-list GET into an empty queue so the banner disappears.
 
 If the session is about to do one of these, stop and report which line it hit.

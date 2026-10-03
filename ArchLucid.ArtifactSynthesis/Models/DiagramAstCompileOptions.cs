@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Persistence.Graph;
+
 namespace ArchLucid.ArtifactSynthesis.Models;
 
 public sealed class DiagramAstCompileOptions
@@ -108,6 +110,15 @@ public sealed class DiagramAstCompileOptions
 
     /// <summary>Published policy-pack compliance rule keys active for this diagram render.</summary>
     public IReadOnlyCollection<string>? AssignedPolicyPackRuleKeys
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    /// Original inventory graph used for existence analysis when the display graph has peeled nodes.
+    /// </summary>
+    public GraphSnapshot? OrphanAnalysisGraph
     {
         get;
         init;

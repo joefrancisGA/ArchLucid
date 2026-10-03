@@ -41,7 +41,11 @@ function snapshotBasePath(snapshotId: string): string {
 export async function listOperatorInferredConnections(
   snapshotId: string,
 ): Promise<OperatorInferredConnectionRow[]> {
-  const raw = await proxyJsonGet<Record<string, unknown>[]>(snapshotBasePath(snapshotId));
+  const raw = await proxyJsonGet<unknown>(snapshotBasePath(snapshotId));
+  if (!Array.isArray(raw)) {
+    throw new Error("SecureNow inferred connections response was invalid.");
+  }
+
   return raw.map((row) => mapRow(row));
 }
 

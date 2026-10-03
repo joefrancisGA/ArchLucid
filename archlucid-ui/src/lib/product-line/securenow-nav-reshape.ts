@@ -44,6 +44,7 @@ import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
 import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
 import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
 export const SECURENOW_INTEGRATION_NAV_GROUP_ID = "operate-integration" as const;
@@ -208,6 +209,9 @@ function remapSecureNowInfrastructureNavLink(link: NavLinkItem): NavLinkItem {
   return {
     ...link,
     href: remappedHref,
+    ...(link.href === GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH
+      ? { label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL }
+      : {}),
   };
 }
 

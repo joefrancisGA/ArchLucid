@@ -12,7 +12,7 @@ export const SECURENOW_UI_RATE_ROUTES: readonly SecureNowUiRateRouteEntry[] = [
   { slug: "compliance-standards-and-rules", href: "/compliance/standards-and-rules", section: "operator" },
   { slug: "compliance-findings", href: "/compliance/findings", section: "operator" },
   { slug: "compliance-audit-evidence", href: "/compliance/audit-evidence", section: "operator" },
-  { slug: "infrastructure-drift", href: "/infrastructure/drift", section: "operator" },
+  { slug: "infrastructure-snapshots-drift", href: "/infrastructure/snapshots-drift", section: "operator" },
   { slug: "infrastructure-diagrams", href: "/infrastructure/diagrams", section: "operator" },
   { slug: "infrastructure-diagram-reconcile", href: "/infrastructure/diagram-reconcile", section: "operator" },
   { slug: "infrastructure-terraform", href: "/infrastructure/terraform", section: "operator" },

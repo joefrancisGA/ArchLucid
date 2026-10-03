@@ -109,7 +109,7 @@ export async function forwardMutatingWithBody(
   }
 
   if (!res.ok) {
-    logUpstreamNonSuccess(method, pathForLog, res.status, correlationId);
+    await logUpstreamNonSuccess(method, pathForLog, res.status, correlationId, res);
   }
 
   return passThrough(res);

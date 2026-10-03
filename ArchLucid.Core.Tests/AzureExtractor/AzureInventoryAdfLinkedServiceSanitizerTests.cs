@@ -41,6 +41,90 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
     }
 
     [Fact]
+    public void TrySanitizeFromArmResource_extracts_mysql_host_from_connection_string_without_retaining_it()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/MySqlLS",
+              "name": "MySqlLS",
+              "properties": {
+                "type": "AzureMySql",
+                "typeProperties": {
+                  "connectionString": "Server=mysql-edw.mysql.database.azure.com,3306;Database=app;Pwd=secret"
+                }
+              }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(
+                FactoryId,
+                linkedService,
+                out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetHost.Should().Be("mysql-edw.mysql.database.azure.com");
+        row.HostInKeyVault.Should().BeFalse();
+        row.ToString().Should().NotContain("Pwd");
+        row.ToString().Should().NotContain("secret");
+    }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_marks_mysql_key_vault_server_without_guessing_a_host()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/MySqlSecretLS",
+              "name": "MySqlSecretLS",
+              "properties": {
+                "type": "AzureMySql",
+                "typeProperties": {
+                  "server": { "type": "AzureKeyVaultSecret", "store": { "referenceName": "kv1" }, "secretName": "mysql-host" }
+                }
+              }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(
+                FactoryId,
+                linkedService,
+                out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetHost.Should().BeNull();
+        row.HostInKeyVault.Should().BeTrue();
+        row.ToString().Should().NotContain("mysql-host");
+    }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_does_not_read_sql_connection_string()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/SqlLS",
+              "name": "SqlLS",
+              "properties": {
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                  "connectionString": "Server=sql1.database.windows.net;Pwd=secret"
+                }
+              }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(
+                FactoryId,
+                linkedService,
+                out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetHost.Should().BeNull();
+        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved);
+    }
+
+    [Fact]
     public void TrySanitizeFromArmResource_extracts_rest_service_host()
     {
         JsonElement linkedService = JsonDocument.Parse(

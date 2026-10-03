@@ -217,6 +217,48 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 }
             }
 
+            if (writeRequest.AdfExternalSources.Count > 0)
+            {
+                const string insertExternalSource = """
+                                                    INSERT INTO dbo.AzureInventoryAdfExternalSources
+                                                    (
+                                                        ExternalSourceRowId, SnapshotId, TenantId, ExternalNodeKey,
+                                                        LinkedServiceName, LinkedServiceType, TargetHost, FactoryResourceId,
+                                                        IntegrationRuntimeName, HostInKeyVault, KeyVaultResourceId
+                                                    )
+                                                    VALUES
+                                                    (
+                                                        @ExternalSourceRowId, @SnapshotId, @TenantId, @ExternalNodeKey,
+                                                        @LinkedServiceName, @LinkedServiceType, @TargetHost, @FactoryResourceId,
+                                                        @IntegrationRuntimeName, @HostInKeyVault, @KeyVaultResourceId
+                                                    );
+                                                    """;
+
+                foreach (AzureInventoryAdfExternalSourceWrite source in writeRequest.AdfExternalSources)
+                {
+                    await sqlConn.ExecuteAsync(
+                        new CommandDefinition(
+                            insertExternalSource,
+                            new
+                            {
+                                ExternalSourceRowId = Guid.NewGuid(),
+                                SnapshotId = snapshotId,
+                                scope.TenantId,
+                                source.ExternalNodeKey,
+                                source.LinkedServiceName,
+                                source.LinkedServiceType,
+                                source.TargetHost,
+                                source.FactoryResourceId,
+                                source.IntegrationRuntimeName,
+                                source.HostInKeyVault,
+                                source.KeyVaultResourceId,
+                            },
+                            transaction: tx,
+                            commandTimeout: DapperCommandTimeoutSeconds.Report,
+                            cancellationToken: cancellationToken));
+                }
+            }
+
             if (writeRequest.RoleAssignments.Count > 0)
             {
                 const string insertRoleAssignment = """

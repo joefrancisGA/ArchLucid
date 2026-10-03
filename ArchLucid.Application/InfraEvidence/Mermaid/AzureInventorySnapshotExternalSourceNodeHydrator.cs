@@ -15,7 +15,8 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
         List<GraphNode> nodes,
         HashSet<string> seenNodeIds,
         Dictionary<string, string> nodeIdByArmId,
-        IEnumerable<AzureInventoryResourceRelationshipReadModel> relationships)
+        IEnumerable<AzureInventoryResourceRelationshipReadModel> relationships,
+        IReadOnlyList<AzureInventoryAdfExternalSourceReadModel> externalSources)
     {
         ArgumentNullException.ThrowIfNull(nodes);
         ArgumentNullException.ThrowIfNull(seenNodeIds);
@@ -24,8 +25,18 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
 
         foreach (AzureInventoryResourceRelationshipReadModel relationship in relationships)
         {
-            EnsureExternalSourceNode(relationship.FromAzureResourceId, nodes, seenNodeIds, nodeIdByArmId);
-            EnsureExternalSourceNode(relationship.ToAzureResourceId, nodes, seenNodeIds, nodeIdByArmId);
+            EnsureExternalSourceNode(
+                relationship.FromAzureResourceId,
+                nodes,
+                seenNodeIds,
+                nodeIdByArmId,
+                externalSources);
+            EnsureExternalSourceNode(
+                relationship.ToAzureResourceId,
+                nodes,
+                seenNodeIds,
+                nodeIdByArmId,
+                externalSources);
         }
     }
 
@@ -33,7 +44,8 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
         string? armId,
         List<GraphNode> nodes,
         HashSet<string> seenNodeIds,
-        Dictionary<string, string> nodeIdByArmId)
+        Dictionary<string, string> nodeIdByArmId,
+        IReadOnlyList<AzureInventoryAdfExternalSourceReadModel> externalSources)
     {
         if (string.IsNullOrWhiteSpace(armId))
         {
@@ -58,9 +70,54 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
 
         GraphNode externalNode = AzureInventoryAdfExternalSourceNodeFactory.CreateGraphNode(
             normalized,
-            linkedServiceName,
-            linkedServiceType: null,
-            targetHost: null);
+            externalSources
+                .FirstOrDefault(source =>
+                    string.Equals(source.ExternalNodeKey, normalized, StringComparison.OrdinalIgnoreCase))
+                is { } source
+                ? source.LinkedServiceName
+                : linkedServiceName,
+            externalSources
+                .FirstOrDefault(source =>
+                    string.Equals(source.ExternalNodeKey, normalized, StringComparison.OrdinalIgnoreCase))
+                is { } typedSource
+                ? typedSource.LinkedServiceType
+                : null,
+            externalSources
+                .FirstOrDefault(source =>
+                    string.Equals(source.ExternalNodeKey, normalized, StringComparison.OrdinalIgnoreCase))
+                is { } hostedSource
+                ? hostedSource.TargetHost
+                : null);
+
+        AzureInventoryAdfExternalSourceReadModel? persistedSource = externalSources
+            .FirstOrDefault(source =>
+                string.Equals(source.ExternalNodeKey, normalized, StringComparison.OrdinalIgnoreCase));
+
+        if (persistedSource is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(persistedSource.FactoryResourceId))
+            {
+                externalNode.Properties[AzureInventoryAdfExternalSourceNodeFactory.ExternalFactoryNamePropertyKey] =
+                    ExtractArmResourceName(persistedSource.FactoryResourceId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(persistedSource.IntegrationRuntimeName))
+            {
+                externalNode.Properties[AzureInventoryAdfExternalSourceNodeFactory.ExternalIntegrationRuntimePropertyKey] =
+                    persistedSource.IntegrationRuntimeName;
+            }
+
+            if (persistedSource.HostInKeyVault)
+            {
+                externalNode.Properties[AzureInventoryAdfExternalSourceNodeFactory.ExternalHostInKeyVaultPropertyKey] = "true";
+            }
+
+            if (!string.IsNullOrWhiteSpace(persistedSource.KeyVaultResourceId))
+            {
+                externalNode.Properties["arm.externalKeyVaultResourceId"] =
+                    persistedSource.KeyVaultResourceId;
+            }
+        }
 
         if (seenNodeIds.Add(externalNode.NodeId))
         {
@@ -68,5 +125,13 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
         }
 
         nodeIdByArmId[normalized] = externalNode.NodeId;
+    }
+
+    private static string ExtractArmResourceName(string armResourceId)
+    {
+        int separator = armResourceId.LastIndexOf('/');
+        return separator >= 0 && separator < armResourceId.Length - 1
+            ? armResourceId[(separator + 1)..]
+            : armResourceId;
     }
 }

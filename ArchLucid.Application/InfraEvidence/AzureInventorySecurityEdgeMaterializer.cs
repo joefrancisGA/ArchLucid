@@ -86,6 +86,7 @@ public static class AzureInventorySecurityEdgeMaterializer
             recoveryServicesProtectedItems ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        List<AzureInventoryAdfExternalSourceWrite> adfExternalSources = [];
         List<string> warnings = [];
         HashSet<string> relationshipKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> inventoriedArmIds = AzureInventoryEventHubVisibleEndpointResolver.BuildInventoriedArmIds(
@@ -195,6 +196,8 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationshipKeys,
             directionalFactoryTargetPairs,
             warnings);
+
+        AddAdfExternalSources(adfRows, adfExternalSources);
 
         AzureInventoryAdfTriggerEdgeMapper.MapTriggers(
             adfTriggerRows,
@@ -306,8 +309,68 @@ public static class AzureInventorySecurityEdgeMaterializer
         return new AzureInventorySecurityEdgeMaterializeResult
         {
             Relationships = relationships,
+            AdfExternalSources = adfExternalSources,
             CompletenessWarnings = warnings,
         };
+    }
+
+    private static void AddAdfExternalSources(
+        IReadOnlyList<AzureInventoryAdfLinkedServiceRow> rows,
+        List<AzureInventoryAdfExternalSourceWrite> externalSources)
+    {
+        HashSet<string> seenNodeKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryAdfLinkedServiceRow row in rows)
+        {
+            if (!AzureInventoryAdfExternalSourceNodeFactory.ShouldMaterializeExternalTarget(row)
+                || !AzureInventoryAdfExternalSourceNodeFactory.TryResolveExternalTargetArmId(
+                    row,
+                    out string externalNodeKey)
+                || !seenNodeKeys.Add(externalNodeKey)
+                || string.IsNullOrWhiteSpace(row.LinkedServiceType))
+            {
+                continue;
+            }
+
+            string? targetHost = IsSafeHost(row.TargetHost)
+                ? row.TargetHost!.Trim()
+                : null;
+
+            externalSources.Add(new AzureInventoryAdfExternalSourceWrite
+            {
+                ExternalNodeKey = externalNodeKey,
+                LinkedServiceName = row.LinkedServiceName.Trim(),
+                LinkedServiceType = row.LinkedServiceType.Trim(),
+                TargetHost = targetHost,
+                FactoryResourceId = ArmResourceIdNormalizer.Normalize(row.FactoryResourceId),
+                IntegrationRuntimeName = string.IsNullOrWhiteSpace(row.IntegrationRuntimeName)
+                    ? null
+                    : row.IntegrationRuntimeName.Trim(),
+                HostInKeyVault = string.IsNullOrWhiteSpace(targetHost)
+                    && (row.HostInKeyVault || !string.IsNullOrWhiteSpace(row.KeyVaultResourceId)),
+                KeyVaultResourceId = string.IsNullOrWhiteSpace(row.KeyVaultResourceId)
+                    ? null
+                    : ArmResourceIdNormalizer.Normalize(row.KeyVaultResourceId),
+            });
+        }
+    }
+
+    private static bool IsSafeHost(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        string normalized = value.Trim();
+
+        return !normalized.Any(char.IsWhiteSpace)
+            && !normalized.Contains(';', StringComparison.Ordinal)
+            && !normalized.Contains("password", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Contains("pwd", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Contains("accountkey", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Contains("sharedaccesssignature", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Contains("secret", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AddObservedParentChild(

@@ -18,6 +18,35 @@ import {
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+function PrivateEndpointAccessGlyph(): React.JSX.Element {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-4 w-5 shrink-0"
+      data-testid="infra-evidence-private-endpoint-access-glyph"
+      viewBox="0 0 20 12"
+    >
+      <title>Private endpoint access</title>
+      <g className="private-endpoint-access" fill="none">
+        <g className="private-endpoint-lock" transform="scale(0.667)">
+          <rect x="3.5" y="6.5" width="5" height="4.5" rx="0.8" fill="#0f766e" />
+          <path
+            d="M4 6.5V4.8C4 3.25 5.2 2 6.75 2S9.5 3.25 9.5 4.8V6.5"
+            stroke="#0f766e"
+            strokeLinecap="round"
+            strokeWidth="1.4"
+          />
+        </g>
+        <path
+          className="private-endpoint-arrow"
+          d="M10 3 L16 6 L10 9 z"
+          fill="#0f766e"
+        />
+      </g>
+    </svg>
+  );
+}
+
 export type InfraEvidenceDiagramLegendProps = {
   readonly outline: InfraEvidenceMermaidOutline | null;
   readonly mermaidSource?: string | null;
@@ -53,6 +82,13 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {hasProbable ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</li> : null}
               {hasInferred ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</li> : null}
             </ul>
+            <div
+              className={cn("flex items-center gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-evidence-diagram-legend-private-endpoint"
+            >
+              <PrivateEndpointAccessGlyph />
+              <span>Private endpoint</span>
+            </div>
             {hasInferred ? (
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}
