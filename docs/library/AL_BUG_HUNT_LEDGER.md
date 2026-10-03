@@ -27928,7 +27928,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -27964,11 +27964,13 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (hit): Mermaid preview accepted recovery-services, cross-group fan-out, and AVD display flags but forwarded only private-endpoint visibility to mode rendering; preview responses ignored reachable requested display options; focused service regression passed.
 2026-10-03 seed hunt (hit): diagram outline retained a selected declared/inventory edge detail panel after the incoming outline changed; cleared selection and related connection state on outline changes; 22 outline tests passed.
+2026-10-03 seed hunt (hit): diagram workbench initialized mode from the URL only once, so browser navigation or an external search-param update left the mode picker and render state stale; resynchronized selected mode with URL changes; workbench tests passed apart from one unrelated snapshot-label fixture failure.
 
 ### Hypotheses
 
 - [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
 - [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
+- [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
 
 ## Zone: ui-architecture-diagram
 
