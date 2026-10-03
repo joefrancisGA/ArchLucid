@@ -94,12 +94,27 @@ export function SecureNowQuestionQueue(
     setLoading(true);
     setError(null);
     try {
-      const [nextQuestions, nextConnections] = await Promise.all([
+      const [questionsResult, connectionsResult] = await Promise.allSettled([
         listSecureNowQuestions(snapshotId),
         listOperatorInferredConnections(snapshotId),
       ]);
-      setQuestions(nextQuestions);
-      setInferredConnections(nextConnections);
+      if (questionsResult.status === "rejected") {
+        throw questionsResult.reason;
+      }
+
+      setQuestions(questionsResult.value);
+      if (connectionsResult.status === "fulfilled") {
+        setInferredConnections(connectionsResult.value);
+      } else {
+        setInferredConnections([]);
+        setError(
+          operatorInferredConnectionPanelErrorFromUnknown(
+            connectionsResult.reason,
+            "Could not load inferred connections.",
+            "load",
+          ),
+        );
+      }
       setCurrentIndex(0);
       setSelectedAnswer(null);
       setReason("");
