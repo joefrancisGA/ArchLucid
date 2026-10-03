@@ -1,6 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable generated-content data-flow row whose endpoint label contained the word `to` was split inside the endpoint token, so the diagram silently dropped the flow edge; constrained the textual delimiter to a word boundary and added a regression. 1 repro test failed before the fix; 6 scoped architecture diagram test files passed after it.
+2026-10-03 seed hunt (seed→hit): `host-composition` — proved a null `Email:Provider` configuration caused `IEmailProvider` resolution to throw `NullReferenceException` at composition time; normalized the provider before dispatch and added `TransactionalEmailRegistrationTests.RegisterTransactionalEmailServices_null_provider_configuration_falls_back_to_noop`; 406 scoped host-composition tests passed.
 
 2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read the selected diagram model, generated-content parser, SVG/neighborhood helpers, and architecture diagram tests; no new defect met the repro bar. Seeded five reachable candidates for follow-up.
 
@@ -24180,11 +24181,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 49
-- **bugs-found:** 28
+- **hunts:** 50
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — null Redis configuration caused an unclassified startup exception
+- **last-bug:** 2026-10-03 — null `Email:Provider` configuration caused an unclassified composition exception
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
