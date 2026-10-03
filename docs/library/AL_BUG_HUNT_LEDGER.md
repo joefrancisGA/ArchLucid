@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `application-pilots` — reread buyer-proof, board-pack, receipt-gate, and delta paths; existing non-GUID receipt, filename, partial-window, malformed-JSON, and degraded-summary candidates remain reachable lenses, but no row met the failing-repro bar in this pass. The scoped test build was blocked by existing `ARCH006` / `ARCH006a` analyzer errors in `ArchLucid.Persistence`.
+
 2026-10-03 seed hunt (seed→hit): `cli-draft-new` — prompted intent text was checked before trimming, so whitespace-padded input shorter than the documented 100-character minimum could proceed to draft creation; trimmed prompted input before validation and added a regression. 1 repro test failed before the fix; 16 focused CLI core tests passed after it.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable dependency-neighborhood seed URL with casing/whitespace differing from outline endpoint ids focused only the seed and omitted its one-hop neighbors; normalized seed comparisons and added a regression. 1 repro test failed before the fix; 21 scoped architecture diagram tests passed after it.
@@ -4066,7 +4068,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
