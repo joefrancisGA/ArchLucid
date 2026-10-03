@@ -27355,13 +27355,15 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — tab switch retained terraform-only technical disclosure URL key
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained row-key candidates, added architecture-finding pagination routing and trailing-resource-title candidates; 49 scoped ResourceHubClient tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient`; no hunt-ready row was promoted; retained RBAC/network relationship key-collision candidates and seeded resource-title fallback and audit-control identity candidates; 49 scoped ResourceHubClient tests passed.
 
@@ -27456,6 +27458,8 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `ResourceHubClient` network relationships table — two captured relationships with the same `fromAzureResourceId` and `toAzureResourceId` but different `relationshipType` values — the React key omits relationship type, so one relationship row may be reused or omitted; input is reachable from `hub.networkRelationships`.
 - [ ] (candidate) `ResourceHubClient.resourceTitle` — a captured `currentConfiguration.azureResourceId` ending in `/` — `.split("/").pop()` yields an empty string and `??` prevents fallback to the external resource id, so the page title can render blank; input is reachable from the captured resource-hub API payload.
 - [ ] (candidate) `ResourceHubClient.resolvedAuditLineage` — two audit matches share a `controlId` but differ by assessment or evidence snapshot — `.find()` selects the first match for the URL-selected control, so the audit label can identify the wrong assessment lineage; input is reachable from `hub.auditLineageLink.matches`.
+- [ ] (candidate) `ResourceHubClient` architecture findings stream pagination link — `architectureReviewFindings.hasMore` with more than one returned item — the shared “more” link always targets the operational remediation workbench, so architecture-review findings can be routed to the wrong workflow; input is reachable from `hub.architectureReviewFindings`.
+- [ ] (candidate) `ResourceHubClient.resourceTitle` external-resource fallback — a hub with no configuration and an `externalResourceId` ending in `/` — `.split("/").pop()` yields an empty string before the `?? cloudResourceId` fallback, so the resource hub title can render blank; input is reachable from the captured hub API response.
 
 ---
 
