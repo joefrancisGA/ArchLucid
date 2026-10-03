@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `host-core-jobs` — rechecked the selected job/offload contracts with no code changes; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
+
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — reviewed `ArchLucidJobsOffload` configuration-list matching and registration boundary; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — reviewed `JobRunTelemetry` cancellation, exception, exit-class, and metric recording paths; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
