@@ -280,4 +280,73 @@ public sealed class TenantLlmCostTopRunRankerTests
 
         rows.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable()
+    {
+        Guid runId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            WorkspaceId = Guid.Parse("11111111-2222-3333-4444-555555555555"),
+            ProjectId = Guid.Parse("66666666-7777-8888-9999-000000000000"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(static service => service.ListRunsInScopeKeysetAsync(
+                It.IsAny<ScopeContext>(),
+                null,
+                null,
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+            [
+                new RunSummaryDto
+                {
+                    RunId = runId,
+                    ProjectId = "reasoning-project",
+                    CreatedUtc = DateTime.UtcNow,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+            ],
+            false));
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(
+                    StringComparer.OrdinalIgnoreCase)
+                {
+                    [runId.ToString("N")] =
+                    [
+                        new AgentExecutionTraceLlmCostSlice
+                        {
+                            ReasoningTokenCount = 300,
+                            ModelDeploymentName = "unpriced-reasoning-model",
+                        },
+                    ],
+                });
+
+        TenantLlmCostTopRunRanker ranker = new(
+            scopeProvider.Object,
+            authority.Object,
+            traces.Object,
+            Mock.Of<ILlmCostEstimator>());
+
+        IReadOnlyList<ArchLucid.Contracts.Billing.LlmCostTopRunRowResponse> rows =
+            await ranker.RankAsync(maxRunsToScan: 5, take: 1);
+
+        rows.Should().ContainSingle();
+        rows[0].RunId.Should().Be(runId.ToString("N"));
+        rows[0].LlmCallCount.Should().Be(1);
+        rows[0].EstimatedCostUsd.Should().Be(0m);
+    }
 }

@@ -57,6 +57,32 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_prompted_intent_text_validates_length_after_trim()
+    {
+        DraftNewCommandOptions options = new();
+        bool clientCreated = false;
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            PromptRequiredAsync = (_, _, _) =>
+                Task.FromResult<string?>($" {new string('x', 99)} "),
+            CreateApiClient = (_, _) =>
+            {
+                clientCreated = true;
+                return CreateDraftFlowClient();
+            },
+        };
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.UsageError);
+        clientCreated.Should().BeFalse();
+        error.ToString().Should().Contain("at least 100 characters after trim");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_connection_failure_returns_operation_failed()
     {
         DraftNewCommandOptions options = new()

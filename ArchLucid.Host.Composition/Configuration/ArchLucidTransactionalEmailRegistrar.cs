@@ -52,7 +52,7 @@ internal static class ArchLucidTransactionalEmailRegistrar
         {
             IOptionsMonitor<EmailNotificationOptions> monitor = sp.GetRequiredService<IOptionsMonitor<EmailNotificationOptions>>();
             EmailNotificationOptions opts = monitor.CurrentValue;
-            string provider = opts.Provider.Trim();
+            string provider = opts.Provider?.Trim() ?? string.Empty;
 
             if (string.Equals(provider, EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
 

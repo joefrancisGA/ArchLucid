@@ -83,7 +83,8 @@ public sealed class TenantLlmCostTopRunRanker(
         AgentExecutionTraceRunLlmCostSummary aggregate =
             AgentExecutionTraceRunLlmCostAggregator.Compute(slices, _costEstimator);
 
-        if (aggregate.PromptTokens + aggregate.CompletionTokens <= 0 && aggregate.EstimatedCostUsd is null or <= 0m)
+        if (aggregate.PromptTokens + aggregate.CompletionTokens + aggregate.ReasoningTokens <= 0
+            && (aggregate.EstimatedCostUsd is null or <= 0m))
             return null;
 
         return new LlmCostTopRunRowResponse

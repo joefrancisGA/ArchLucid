@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach } from "vitest";
 
 import {
   appendArchitectureDiagramVersion,
+  getActiveArchitectureDiagramVersion,
   readArchitectureDiagramCache,
   shouldRegenerateArchitectureDiagram,
 } from "@/lib/architecture/architecture-diagram-storage";
@@ -48,5 +49,17 @@ describe("architecture diagram storage", () => {
 
     expect(cache?.versions).toHaveLength(2);
     expect(cache?.versions[1]?.source).toBe("user-edit");
+  });
+
+  it("ignores valid JSON cache records with an invalid shape", () => {
+    window.localStorage.setItem(
+      "archlucid_architecture_diagram_v1_run-corrupt",
+      JSON.stringify({ runId: "run-corrupt" }),
+    );
+
+    const cache = readArchitectureDiagramCache("run-corrupt");
+
+    expect(() => getActiveArchitectureDiagramVersion(cache)).not.toThrow();
+    expect(getActiveArchitectureDiagramVersion(cache)).toBeNull();
   });
 });

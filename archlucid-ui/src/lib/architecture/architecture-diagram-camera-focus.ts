@@ -10,14 +10,15 @@ export function resolveDiagramCameraFocusNodeIds(
     return [];
   }
 
+  const normalizedSeed = normalizeDiagramFocusToken(seed);
   const nodeIds = new Set<string>([seed]);
 
   for (const edge of outline.edges) {
-    if (edge.from === seed) {
+    if (normalizeDiagramFocusToken(edge.from) === normalizedSeed) {
       nodeIds.add(edge.to);
     }
 
-    if (edge.to === seed) {
+    if (normalizeDiagramFocusToken(edge.to) === normalizedSeed) {
       nodeIds.add(edge.from);
     }
   }

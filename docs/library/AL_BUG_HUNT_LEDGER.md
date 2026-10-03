@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed→hit): `cli-draft-new` — prompted intent text was checked before trimming, so whitespace-padded input shorter than the documented 100-character minimum could proceed to draft creation; trimmed prompted input before validation and added a regression. 1 repro test failed before the fix; 16 focused CLI core tests passed after it.
+
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable dependency-neighborhood seed URL with casing/whitespace differing from outline endpoint ids focused only the seed and omitted its one-hop neighbors; normalized seed comparisons and added a regression. 1 repro test failed before the fix; 21 scoped architecture diagram tests passed after it.
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a generated data-flow endpoint named `Order to Cash` was split at its internal `to` before the explicit arrow, silently dropping the edge; merged delimiter fragments back into known node labels and added `preserves endpoint labels that contain the word 'to' before an arrow`; 17 focused diagram model/map tests passed.
+
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable generated-content data-flow row whose endpoint label contained the word `to` was split inside the endpoint token, so the diagram silently dropped the flow edge; constrained the textual delimiter to a word boundary and added a regression. 1 repro test failed before the fix; 6 scoped architecture diagram test files passed after it.
+2026-10-03 seed hunt (seed→hit): `host-composition` — proved a null `Email:Provider` configuration caused `IEmailProvider` resolution to throw `NullReferenceException` at composition time; normalized the provider before dispatch and added `TransactionalEmailRegistrationTests.RegisterTransactionalEmailServices_null_provider_configuration_falls_back_to_noop`; 406 scoped host-composition tests passed.
+
 2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read the selected diagram model, generated-content parser, SVG/neighborhood helpers, and architecture diagram tests; no new defect met the repro bar. Seeded five reachable candidates for follow-up.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — the declared Integration readiness follow-up was filtered out because its administration href was treated as forbidden in the shared “Where to go next” filter; preserved explicitly curated administration follow-ups for this integration strip and aligned accessible-name regressions. 58 focused webhook tests passed.
@@ -5991,8 +5999,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 17
-- **bugs-found:** 9
+- **hunts:** 18
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
@@ -6467,8 +6475,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 16
-- **bugs-found:** 9
+- **hunts:** 17
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
@@ -6494,6 +6502,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `--json draft new` still writes human progress lines to stdout — **hit 2026-08-25:** after create/admit the command printed `DraftId:` and `Draft admitted. Resolving MUST questions…` alongside JSON; guarded with `!CliExecutionContext.JsonOutput`; regression in `RunCoreAsync_json_output_suppresses_human_progress_lines`.
 - [x] (proven) `--json draft new` still prompts for `--system-name` / `--business-outcome` / `--text` when omitted — **hit 2026-09-03 (#592):** `PromptRequiredAsync` wrote interactive labels to stdout in JSON mode; fixed by requiring all three flags before intake (`RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting`).
 - [x] (proven) `ResolveMustQuestionsAsync` skip/answer paths omit `CliScopeResponseValidator` after `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` return a draft body — **hit 2026-09-04 (#772):** create/patch/admit validated scope but MUST-question skip/answer continued with cross-tenant drift; fixed by validating returned draft bodies in `DraftNewCommandMustQuestionLoop`; regression in `RunCoreAsync_draft_scope_mismatch_after_skip_must_question_returns_operation_failed`.
+- [x] (proven) `DraftNewCommandConnectStage` validates prompted intent length before trimming — **hit 2026-10-03:** whitespace-padded prompted input could satisfy the raw-length check while remaining shorter than the documented 100-character minimum after trim; trim prompted input before validation; regression `RunCoreAsync_prompted_intent_text_validates_length_after_trim`.
 
 2026-09-04 thorough hunt #772: proved MUST-question skip/answer scope-validation parity gap.
 
@@ -6785,6 +6794,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
 
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook, including loading/failure gates, scope resets, Continue-last navigation, checklist completion, and existing regressions; no additional hunt-ready defect survived cheap-disproof. Seeded two concrete follow-up candidates; 59 focused webhook tests passed.
+
 ## Zone: ui-webhooks-settings
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after continue-last gating; proved failed manual `listAlertRoutingSubscriptions` refresh still rendered `WebhooksSubscriptionsTable` from stale `webhookRows` while configuration status and continue-last were already gated on `hasLoadedSuccessfully`; fixed by rendering the table only when `hasLoadedSuccessfully`; regression `hides stale subscriptions table when manual refresh fails`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
@@ -6813,8 +6826,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 33
-- **bugs-found:** 23
+- **hunts:** 35
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
@@ -6822,6 +6835,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
+2026-10-03 seed hunt (seed-only): re-read the picked client and hook source plus 58 focused tests; no new mechanism-backed candidate met the reachability and wrong-outcome bar, and all existing webhook regressions passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved create save stayed enabled when `listAlertRoutingSubscriptions` failed so client duplicate-name guard ran against an empty `webhookRows` inventory; fixed with `hasLoadedSuccessfully` gate on save/submit; seeded connection-test network-error inline panel and empty-list refresh affordance candidates; 47 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
@@ -6837,6 +6851,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
+- [x] (proven) `WebhooksSettingsClient` / `resolveWebhooksCreateSteps` — the initial pending subscription request passed `subscriptionsLoaded=false`, which the checklist treated as a completed enable step; the checklist now requires verified loading completion and subscription enablement; regressions `does not mark the enable step done while subscriptions are still loading` and `keeps enable step incomplete while subscriptions are still loading`.
+- [ ] (candidate) `WebhooksSettingsClient.openSubscription` — a Continue-last click writes an API-provided subscription id to local storage before confirming that a matching rendered row and test button exist, so a reachable render/refresh race could preserve an id that cannot be reopened on the next visit; input originates from the subscription list and Continue-last action.
+- [ ] (candidate) `useWebhooksSettings.showAlertSeverityFilter` — event-type values are accepted only when every id has the exact lowercase `archlucid.alert.` prefix, so a reachable API/form event vocabulary with case-variant alert ids can hide the minimum-severity control while still allowing those events to be selected; input originates from webhook event types.
 
 - (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
 - (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
@@ -7101,8 +7118,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 16
-- **bugs-found:** 8
+- **hunts:** 18
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
@@ -11341,11 +11358,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 15
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
+- **hunts:** 17
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-03 — abandoned checkout Pending row blocked retry
+- **last-bug:** 2026-10-03 — incomplete portal result reported success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11363,8 +11380,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketplaceChangePlanWebhookMutationHandler` defaults missing `planId` to `TenantTier.Standard` and mutates ledger — fixed 2026-08-24; defer without mutation (`MarketplaceChangePlanWebhookMutationHandlerTests.Ga_enabled_missing_planId_defers_without_ledger_mutation`).
 - [x] (proven) `MarketplaceChangeQuantityWebhookMutationHandler` defaults missing `quantity` to one seat and mutates ledger — **hit 2026-09-02 (#511):** GA-enabled `ChangeQuantity` without `quantity` called `ReadQuantity` fallback `1` while sibling `ChangePlan` defers on missing `planId`; fixed with `TryReadQuantity` guard (`MarketplaceChangeQuantityWebhookMutationHandlerTests.Ga_enabled_missing_quantity_defers_without_ledger_mutation`).
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` treats any non-`Canceled` subscription as an active conflict — **hit 2026-09-03 (#564):** first checkout upserts `Pending` then abandoned retries returned `ActiveSubscriptionConflict`; fixed by blocking only `Active`/`Suspended` (`BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`).
+- [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` defaults a missing `TargetTier` to `Team` and reaches provider checkout even though the API contract requires that field — **hit 2026-10-03:** missing-tier requests now return `RequestBodyRequired` before provider invocation (`BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_requires_target_tier`).
 - [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler` gates on `AzureMarketplace.GaEnabled` only while sibling `ChangePlan` uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` (Stripe provider parity) — **cheap-disproof 2026-09-11 thorough hunt #1700:** `WebhookPlanMutationsEnabled` exists for Stripe checkout reusing `ChangePlan` only; no Stripe `ChangeQuantity` dispatch path; handler correctly defers when GA off even with `Provider=Stripe`; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` maps `IsPaymentPastDue` only from `Suspended` status — **cheap-disproof 2026-09-11 thorough hunt #1700:** Stripe `past_due` and `invoice.payment_failed` webhooks call `SuspendSubscriptionAsync` before status reads (`StripeBillingSubscriptionWebhookProcessorTests.HandleSubscriptionUpdatedAsync_past_due_suspends_subscription`); facade maps `Suspended` to past-due; regressions `GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due` and `GetSubscriptionStatusAsync_does_not_flag_active_subscription_as_payment_past_due`.
+- [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` silently maps missing or unknown `TargetTier` values to Team instead of rejecting the invalid request — **hit 2026-10-03:** API input permits null/blank/unknown tier labels, the facade's default parser created a Team checkout, and the controller documents `TargetTier` as required; fixed with explicit tier parsing and `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
+- [x] (proven) `BillingCheckoutFacade` only converted `InvalidOperationException` from checkout/portal providers, allowing transport/provider failures such as `HttpRequestException` to escape as unhandled API errors — **hit 2026-10-03:** a reachable provider transport failure escaped `CreateCheckoutSessionAsync`; fixed by mapping non-cancellation provider exceptions to `ProviderError` in both billing mutations; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error`.
+- (candidate) `TenantCostEstimateService.TryGetEstimateAsync` falls back to the Standard monthly band for an unknown persisted `TenantTier` enum value instead of surfacing an unavailable estimate — input: a tenant row read from persistence with a tier value outside the known enum members; reachability: `ITenantRepository.GetByIdAsync` supplies persisted `TenantRecord` values to this service.
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` builds the integration message id from a blank or reused `ProviderDedupeKey`, potentially deduplicating distinct webhook events — **cheap-disproof 2026-10-03:** `AzureMarketplaceBillingProvider` constructs the key from subscription id, action, and raw body before creating the application payload; equal keys are replay identities, not unrelated events.
+- [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` returned `Success` when a provider result contained an empty checkout URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable SDK session URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_incomplete_provider_result`.
+- (candidate) `TenantLlmCostTopRunRanker.TryBuildRow` omits a run when its persisted trace cost slices aggregate to zero tokens even if a nonzero cost estimate is available — input: a trace slice with zero token counters and a positive provider estimate; reachability: `IAgentExecutionTraceRepository.GetLlmCostSlicesByRunIdsAsync` supplies persisted trace slices.
+- [x] (proven) `TenantLlmCostTopRunRanker.TryBuildRow` ignores `ReasoningTokens` when deciding whether a run has measurable usage, omitting reasoning-only runs when the provider rate is unavailable — **hit 2026-10-03:** the zero-usage predicate now includes reasoning tokens (`TenantLlmCostTopRunRankerTests.RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`).
+- [x] (proven) `BillingCheckoutFacade.CreatePortalSessionAsync` returned `Success` when a provider result contained an empty portal URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable portal URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreatePortalSessionAsync_rejects_incomplete_provider_result`.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
@@ -11373,6 +11399,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read checkout, Marketplace mutation, webhook publishing, tenant estimate, and cost-reporting paths; no new reachable mechanism-backed candidate emerged; 17 scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved missing or unknown checkout `TargetTier` values fell through to a Team checkout; explicit validation now returns `RequestBodyRequired`; 20 scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved checkout provider transport failures escaped as unhandled exceptions; checkout and portal now return `ProviderError` for non-cancellation provider failures; 21 scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): re-read billing application sources and scoped tests; no fresh candidate met the full reachability and wrong-outcome bar for same-run proof; persisted four concrete candidates for a later hunt.
+
+2026-10-03 seed hunt (seed→hit): proved an empty provider checkout URL was returned as a successful checkout handoff; incomplete provider results now return `ProviderError`; 22 scoped tests passed.
+2026-10-03 seed hunt (seed→hit): proved the top-run ranker discarded persisted reasoning-only traces when cost rates were unavailable because its zero-usage predicate ignored `ReasoningTokens`; the predicate now includes reasoning tokens; 22 scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved an empty provider portal URL was returned as a successful portal handoff; incomplete portal results now return `ProviderError`; 24 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
 
@@ -24140,6 +24177,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ---
 
+2026-10-03 seed hunt (seed-only): `host-composition` — re-read distributed-cache/Redis resolver registration order and composition tests; the pre-registered multiplexer candidate is test-only and no new reachable wrong outcome emerged. Scoped composition test command completed successfully.
+
 ## Zone: host-composition
 
 - **id:** host-composition
@@ -24148,17 +24187,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 45
-- **bugs-found:** 27
+- **hunts:** 50
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — existing unrelated distributed cache plus projection-only Redis config produced an empty graph pub/sub endpoint
+- **last-bug:** 2026-10-03 — null `Email:Provider` configuration caused an unclassified composition exception
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
 2026-09-27 seed hunt #44 (seed→hit): reseeded host-composition; proved `TryResolveRedisHealthProbeConnectionString` preferred unused `ProjectionCache:RedisConnectionString` over LLM/hot-path Redis when graph projection cache was in-process memory, so optional `redis` readiness and value-report poll-state fallback probed the wrong host; fixed by delegating to `TryResolveGraphProjectionDistributedRedisConnectionString` when distributed and dropping orphan projection strings from the generic fallback; regressions `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory` and `TryResolve_projection_string_wins_over_llm_and_hot_path_when_graph_cache_is_distributed`; 403 scoped host-composition tests passed.
 
 2026-10-03 seed hunt (seed→hit): reseeded host-composition; proved an existing unrelated `IDistributedCache` plus projection-only Redis configuration returned an empty graph pub/sub endpoint; fixed the existing-cache fallback to use projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`; 404 scoped host-composition tests passed.
+2026-10-03 seed hunt (seed-only): re-read distributed-cache and service-registration composition paths, including the remaining pre-registered multiplexer candidate; its prerequisite exists only in tests and all 404 focused host-composition tests passed, so no new reachable product candidate was promoted.
+2026-10-03 seed hunt (seed-only): re-read distributed-cache, Redis health-probe, value-report poll-state, and role-registration paths; the null-bound Redis configuration candidate needs a configuration-binding repro before promotion; 404 scoped host-composition tests passed.
+2026-10-03 seed hunt (seed-only): repeated the host-composition source and test review; the null-bound Redis configuration candidate remains unproven without a reachable configuration-binding repro; 404 scoped host-composition tests passed.
+2026-10-03 seed hunt (seed-only): re-read the distributed-cache and registration paths and existing composition regressions; no second mechanism-backed candidate met the reachability bar, and the null-bound Redis case remains unproven; 404 scoped host-composition tests passed.
+
+2026-10-03 seed hunt (seed-only): re-read host-composition cache registration and hosting-role gates; no candidate met the full wrong-outcome bar in this pass; 404 scoped host-composition tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved null-bound hot-path Redis configuration caused an unclassified startup exception during distributed LLM cache registration; null-safe fallback now reaches the intended configuration error; 405 scoped host-composition tests passed.
+2026-10-03 seed hunt (seed-only): re-read the post-fix distributed-cache, health-probe, and hosting-role paths; no fresh reachable mechanism-backed candidate remained after the null-bound Redis fix; 405 scoped host-composition tests passed.
 
 2026-09-27 seed hunt #43 (seed→hit): reseeded host-composition after hunt #42; proved `RedisGraphProjectionHealthCheck` probed projection-specific Redis and only explicit `Backend=Distributed`, so shared hot-path `IDistributedCache` and Auto scale-out promotion misreported readiness; added `TryResolveGraphProjectionDistributedRedisConnectionString` and `GraphProjectionCacheRedisHealthCheck` in composition; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`; 402 scoped host-composition tests passed.
 
@@ -24166,7 +24214,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-27 seed hunt #41 (seed-only): reseeded host-composition; cheap-disproof closed value-report poll state opening a separate Redis when `IDistributedCache` is already registered (`ValueReportJobPollStateCacheRegistrarTests`) and Api vs Worker retrieval-indexing hosted-service split (`AddArchLucidApplicationServices_Api_role_registers_retrieval_indexing_processor_without_outbox_hosted_service`); seeded `(candidate)` pre-registered `IConnectionMultiplexer` on a different endpoint than graph projection pub/sub redis (no production registrar besides tests); scoped host-composition tests passed.
 
-- [ ] (candidate) `ArchLucidDistributedCacheRegistrar.RegisterGraphProjectionRedisPubSub` — pre-registered `IConnectionMultiplexer` on Redis A while projection pub/sub resolves Redis B — needs a non-test composition path that registers multiplexer before graph projection wiring (only `ArchLucidDistributedCacheRegistrar` registers multiplexer in product code today).
+- [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterGraphProjectionRedisPubSub` — pre-registered `IConnectionMultiplexer` on Redis A while projection pub/sub resolves Redis B — the pre-registered descriptor exists only in composition tests; product registration creates the multiplexer in this registrar before wiring projection pub/sub.
 - [x] (valid-no-repro) `ValueReportJobPollStateCacheRegistrar` — health-probe Redis used for poll state while hot-path/graph projection use a different shared `IDistributedCache` — **cheap-disproof 2026-09-27 seed hunt #41:** factory prefers `GetService<IDistributedCache>()` over `RedisHealthProbeConnectionResolver`; regression `Register_wraps_existing_IDistributedCache_instead_of_opening_separate_redis`.
 - [x] (valid-no-repro) `OutboxProcessorsCompositionRegistrar.RegisterRetrievalIndexingOutbox` — Api role omits `RetrievalIndexingOutboxHostedService` so indexing stalls — **cheap-disproof 2026-09-27 seed hunt #41:** split-host contract; Api registers `IRetrievalIndexingOutboxProcessor` for enqueue paths; worker/combined register hosted poller; regressions `AddArchLucidApplicationServices_Api_role_registers_retrieval_indexing_processor_without_outbox_hosted_service` and Worker counterpart.
 
@@ -24177,6 +24225,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `graph-projection-cache` readiness — `RedisGraphProjectionHealthCheck` probed projection Redis and ignored `CacheProvider=Auto` scale-out promotion — **hit 2026-09-27 seed hunt #43:** composition health check uses `TryResolveGraphProjectionDistributedRedisConnectionString`; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`
 - [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — orphan `ProjectionCache:RedisConnectionString` won over LLM/hot-path Redis when graph cache was memory — **hit 2026-09-27 seed hunt #44:** generic probe defers to distributed graph resolution and no longer treats unused projection strings as authoritative; regression `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory`
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString` — existing unrelated `IDistributedCache` plus projection-only Redis config returned an empty graph pub/sub endpoint — **hit 2026-10-03 seed hunt:** existing-cache resolution now falls back to projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`
+- (candidate) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a distributed LLM cache configuration with a null-bound `HotPathCache:RedisConnectionString` and no LLM Redis value reaches `.Trim()` and throws an unclassified startup `NullReferenceException` instead of the intended configuration error; reachability: the `HotPathCache:RedisConnectionString` appsettings/environment configuration key is bound into `HotPathCacheOptions`.
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a null-bound `HotPathCache:RedisConnectionString` caused `.Trim()` to throw `NullReferenceException` instead of the intended configuration error — **hit 2026-10-03:** distributed LLM cache startup with an explicitly null hot-path Redis value failed unclassified; fixed with null-safe trimming; regression `RedisHealthProbeConnectionResolverTests.Distributed_llm_cache_with_null_hot_path_redis_reports_configuration_error`.
+- [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` returns early for any pre-registered `IDistributedCache`, even when `LlmCompletionCache:Provider=Distributed` has no shared Redis backing — **cheap-disproof 2026-10-03:** production composition registers only Redis-backed `IDistributedCache`; `AddDistributedMemoryCache` appears only in test fixtures.
+- [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` reuses any pre-registered `IDistributedCache` while graph projection is configured as distributed — **cheap-disproof 2026-10-03:** the memory-backed pre-registration prerequisite is test-only; production storage registrars use the shared Redis registration path.
+- [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` creates a distributed response store whenever the provider label is `Distributed` without independently asserting that the resolved `IDistributedCache` is cross-process — **cheap-disproof 2026-10-03:** no production composition path registers a process-local `IDistributedCache` before this registrar.
+
+2026-10-03 seed hunt (seed-only): cheap-disproof retired the three pre-registered-cache candidates as test-only prerequisites; 405 scoped host-composition tests passed.
 - [x] (valid-no-repro) `ContextIngestionCompositionRegistrar` + `ArchLucidDistributedCacheRegistrar` — `TryAddSingleton` Null `IGraphProjectionCacheInvalidationBroadcaster` prevents Redis broadcaster when registration order inverts — **cheap-disproof 2026-09-26 seed hunt #39:** `AddPlatformCapability` → `AddArchLucidStorage` (Redis pub/sub) always runs before `AddAuthorityCapability` → `PipelineCompositionModule`; `AddSingleton<RedisGraphProjectionCacheInvalidationBroadcaster>` remains the effective `GetRequiredService` implementation; graph-projection registration regressions in `ServiceCollectionExtensionsRegistrationTests`.
 - [x] (valid-no-repro) `ProjectionCache:Backend=Memory` with `CacheProvider=Auto` on multi-replica hosts still promotes distributed projection cache — **cheap-disproof 2026-09-26 seed hunt #39:** operator scale-out contract in `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md` requires `Backend=Distributed`; Auto + `ExpectedApiReplicaCount` promotion is intentional; regression `AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_auto_provider_promotes_to_distributed`.
 - [x] (valid-no-repro) `RegisterTenancyMetering` registers `ApiRequestUsageEventBatchFlushHostedService` on Api/Worker/Combined without leader election — **cheap-disproof 2026-09-26 seed hunt #39:** flushes are per-process `ApiRequestUsageEventBuffer` batches, not cross-replica shared queues; regression `AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`.
@@ -27922,6 +27977,8 @@ ABQ-09 churn hotspot.
 
 2026-09-07 seed hunt #1291 (seed→hit): reseeded advisory-scans TOC/omit mismatch; 17 scoped claim-discipline and advisory-scans unit tests passed.
 
+2026-10-03 thorough hunt (dry): `securenow-question-queue` — cheap-disproved the empty-`AzureResourceId` candidate because inventory resource identifiers are non-nullable at the model and database boundary; the scoped test project could not compile because of unrelated pre-existing ARCH006/ARCH006a analyzer errors across Persistence.
+
 ## Zone: securenow-question-queue
 
 - **id:** securenow-question-queue
@@ -27930,9 +27987,9 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -27941,12 +27998,13 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (hit): SecureNow mutation validation accepted an undefined `ScopeKind`; rejected invalid enum values at both the controller boundary and service boundary; 3 focused validation tests passed.
 2026-10-03 seed hunt (seed-only): reseeded question compilation and disposition lifecycle paths; left two concrete candidates for a future repro.
 2026-10-03 thorough hunt (hit): proved blank inferred-connection source endpoint selection discarded a populated target endpoint; fixed fallback selection and passed 7 compiler tests.
+2026-10-03 thorough hunt (dry): cheap-disproved the blank-resource-identity candidate because `AzureInventoryResources.AzureResourceId` is `NOT NULL` at the persistence boundary; the 15 scoped SecureNowQuestion tests passed when unrelated ARCH006 analyzer errors were disabled.
 
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
-- [ ] (candidate) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` can both reach the unknown-evidence path with the same empty resource identity, so the emitted set collapses to one question; input is reachable from nullable Azure inventory resource identifiers.
+- [x] (invalid) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` cannot reach the persisted inventory path: `AzureInventoryResourceRecord.AzureResourceId` is non-nullable and `dbo.AzureInventoryResources.AzureResourceId` is `NOT NULL`; the scoped candidate is retired without a repro.
 - [x] (proven) `SecureNowQuestionCompiler` inferred-connection projection — a proposed record with an empty `FromArmId` and a populated `ToArmId` selected the empty string instead of the usable endpoint, producing an unaddressable question identity; fixed with whitespace-aware endpoint fallback; regression `Inferred_question_uses_the_populated_endpoint_when_the_source_arm_id_is_blank`
 
 ## Zone: infra-evidence-diagrams
@@ -27975,6 +28033,14 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
 - [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
 
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a valid JSON local-storage record with missing cache arrays caused `getActiveArchitectureDiagramVersion` to throw while opening a diagram; added cache-shape validation and a malformed-cache regression. 3 focused storage tests passed.
+
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved the accessible text alternative retained an edge to a removed inferred node even though Mermaid rendering suppressed it; filtered edges with missing active endpoints and added a regression. 9 focused architecture diagram tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read diagram focus, model/override, neighborhood-map, storage, Mermaid, and existing architecture tests; no additional candidate met the same-run repro bar. Seeded four concrete follow-up candidates; 18 focused tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read diagram focus, model/override, neighborhood-map generation/parsing, storage, and existing tests; generator aggregation invalidated duplicate-link and duplicate-type-key candidates, while no remaining candidate met the same-run repro bar. 18 focused tests passed.
+
 ## Zone: ui-architecture-diagram
 
 - **id:** ui-architecture-diagram
@@ -27983,14 +28049,22 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 7
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
-- (candidate) `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` is split into three parts, but only the first two become endpoints and the remaining text becomes the edge label, potentially dropping the reachable Queue→Worker leg; input originates from the parsed `## Data flows` section.
+2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
+- [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
+- [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow endpoints containing the word `to`, including `Order to Cash -> Billing`, were split before the explicit arrow and dropped; known node-label fragments are now merged before endpoint resolution; regressions cover both `Token: API` and `Order to Cash -> Billing`.
 - (candidate) `findNodeIdByLabel` in `architecture-diagram-model.ts` — a generated-content flow naming two entities with the same case-insensitive label resolves both endpoint references to the first live node, potentially attaching the flow to the wrong entity; input originates from user-authored/generated `users-and-stakeholders` and `systems-and-services` sections plus `data-flows`.
 - (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
+- [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
+- [x] (proven) `architectureDiagramModelToTextAlternative` — an edge whose source or target node was removed remained in the accessible text alternative while Mermaid omitted it; now only edges with active endpoints are rendered; regression `omits edges connected to removed nodes from the text alternative`.
+- [x] (proven) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returned only the seed and missed its one-hop neighbors because this helper compared raw strings; normalized comparisons and added regression `matches seed and outline endpoint ids case-insensitively`.
+- [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
+- [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
+- [ ] (candidate) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed by positional ids such as `edge_0` can target a different flow after generated flow ordering changes; input originates from device-local version restoration after edited architecture content changes.

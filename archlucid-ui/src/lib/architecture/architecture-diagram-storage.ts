@@ -12,6 +12,47 @@ function storageKey(runId: string): string {
   return `${STORAGE_PREFIX}${runId.trim()}`;
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isStoredVersion(value: unknown): boolean {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.versionId === "string" &&
+    typeof value.savedAtUtc === "string" &&
+    (value.source === "generated" || value.source === "user-edit" || value.source === "regenerated") &&
+    typeof value.mermaidSource === "string" &&
+    typeof value.contentFingerprint === "string" &&
+    typeof value.label === "string"
+  );
+}
+
+function isStoredOverride(value: unknown): boolean {
+  return isObject(value) && typeof value.id === "string";
+}
+
+function isArchitectureDiagramCacheRecord(value: unknown): value is ArchitectureDiagramCacheRecord {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.runId === "string" &&
+    typeof value.contentFingerprint === "string" &&
+    typeof value.activeVersionId === "string" &&
+    Array.isArray(value.versions) &&
+    value.versions.every(isStoredVersion) &&
+    Array.isArray(value.nodeOverrides) &&
+    value.nodeOverrides.every(isStoredOverride) &&
+    Array.isArray(value.edgeOverrides) &&
+    value.edgeOverrides.every(isStoredOverride)
+  );
+}
+
 function tryPersistArchitectureDiagramCache(record: ArchitectureDiagramCacheRecord): boolean {
   if (typeof window === "undefined") {
     return true;
@@ -52,9 +93,9 @@ export function readArchitectureDiagramCache(runId: string): ArchitectureDiagram
       return null;
     }
 
-    const parsed = JSON.parse(raw) as ArchitectureDiagramCacheRecord;
+    const parsed: unknown = JSON.parse(raw);
 
-    if (parsed.runId !== trimmedRunId) {
+    if (!isArchitectureDiagramCacheRecord(parsed) || parsed.runId !== trimmedRunId) {
       return null;
     }
 

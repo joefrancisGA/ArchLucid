@@ -25,14 +25,22 @@ public sealed class BillingCheckoutFacade(
     {
         ArgumentNullException.ThrowIfNull(body);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        if (string.IsNullOrWhiteSpace(body.ReturnUrl) || string.IsNullOrWhiteSpace(body.CancelUrl))
+        if (string.IsNullOrWhiteSpace(body.ReturnUrl)
+            || string.IsNullOrWhiteSpace(body.CancelUrl)
+            || string.IsNullOrWhiteSpace(body.TargetTier))
         {
             IBillingProvider badReqProvider = _billingProviderRegistry.ResolveActiveProvider();
             ArchLucidInstrumentation.RecordBillingCheckout(badReqProvider.ProviderName, "unknown", "validation_failed");
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.RequestBodyRequired };
         }
 
-        BillingCheckoutTier tier = ParseCheckoutTier(body.TargetTier);
+        if (!TryParseCheckoutTier(body.TargetTier, out BillingCheckoutTier tier))
+        {
+            IBillingProvider badTierProvider = _billingProviderRegistry.ResolveActiveProvider();
+            ArchLucidInstrumentation.RecordBillingCheckout(badTierProvider.ProviderName, "unknown", "validation_failed");
+            return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.RequestBodyRequired };
+        }
+
         BillingSubscriptionSnapshot? existingSubscription = await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
 
         if (existingSubscription is not null && BlocksNewCheckout(existingSubscription.Status))
@@ -58,11 +66,15 @@ public sealed class BillingCheckoutFacade(
                 ReturnUrl = body.ReturnUrl.Trim(),
                 CancelUrl = body.CancelUrl.Trim(),
             }, cancellationToken);
+            if (string.IsNullOrWhiteSpace(result.CheckoutUrl)
+                || string.IsNullOrWhiteSpace(result.ProviderSessionId))
+                throw new InvalidOperationException("Billing provider returned an incomplete checkout session.");
+
             ArchLucidInstrumentation.RecordBillingCheckout(provider.ProviderName, tier.ToString(), "session_created");
             await LogBillingAuditAsync(AuditEventTypes.BillingCheckoutCompleted, actorUserName, scope, JsonSerializer.Serialize(new { provider = provider.ProviderName, tier = tier.ToString(), providerSessionId = result.ProviderSessionId }), cancellationToken);
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.Success, Checkout = result };
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             ArchLucidInstrumentation.RecordBillingCheckout(provider.ProviderName, tier.ToString(), "provider_error");
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.ProviderError, ErrorMessage = ex.Message };
@@ -80,10 +92,14 @@ public sealed class BillingCheckoutFacade(
         try
         {
             BillingPortalResult result = await provider.CreateBillingPortalSessionAsync(new BillingPortalRequest { TenantId = scope.TenantId, ReturnUrl = body.ReturnUrl.Trim() }, cancellationToken);
+            if (string.IsNullOrWhiteSpace(result.PortalUrl)
+                || string.IsNullOrWhiteSpace(result.ProviderSessionId))
+                throw new InvalidOperationException("Billing provider returned an incomplete portal session.");
+
             await LogBillingAuditAsync(AuditEventTypes.BillingPortalCompleted, actorUserName, scope, JsonSerializer.Serialize(new { provider = provider.ProviderName, providerSessionId = result.ProviderSessionId }), cancellationToken);
             return new BillingPortalSessionResult { Outcome = BillingCheckoutValidationOutcome.Success, Portal = result };
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return new BillingPortalSessionResult { Outcome = BillingCheckoutValidationOutcome.ProviderError, ErrorMessage = ex.Message };
         }
@@ -116,13 +132,27 @@ public sealed class BillingCheckoutFacade(
     private async Task LogBillingAuditAsync(string eventType, string actorUserName, ScopeContext scope, string dataJson, CancellationToken cancellationToken) =>
         await _auditService.LogAsync(new AuditEvent { EventType = eventType, ActorUserId = actorUserName, ActorUserName = actorUserName, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, DataJson = dataJson }, cancellationToken);
 
-    private static BillingCheckoutTier ParseCheckoutTier(string? label) => string.IsNullOrWhiteSpace(label) ? BillingCheckoutTier.Team : label.Trim() switch
+    private static bool TryParseCheckoutTier(string? label, out BillingCheckoutTier tier)
     {
-        "Architect" => BillingCheckoutTier.Architect,
-        "Pro" => BillingCheckoutTier.Pro,
-        "Enterprise" => BillingCheckoutTier.Enterprise,
-        _ => BillingCheckoutTier.Team,
-    };
+        switch (label?.Trim())
+        {
+            case "Team":
+                tier = BillingCheckoutTier.Team;
+                return true;
+            case "Architect":
+                tier = BillingCheckoutTier.Architect;
+                return true;
+            case "Pro":
+                tier = BillingCheckoutTier.Pro;
+                return true;
+            case "Enterprise":
+                tier = BillingCheckoutTier.Enterprise;
+                return true;
+            default:
+                tier = default;
+                return false;
+        }
+    }
 
     private static bool BlocksNewCheckout(string status) =>
         string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase)
