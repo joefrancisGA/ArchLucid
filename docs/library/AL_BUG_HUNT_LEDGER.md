@@ -3244,7 +3244,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -25577,6 +25577,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): reread policy-pack mutation, simulation, catalog-read, and CRUD paths; seeded the missing/inaccessible simulation-run guard precedence candidate; 56 focused controller tests passed.
 
 2026-10-03 thorough hunt (hit): proved redundant controller simulation guards changed missing-run 404/summary semantics to HTTP 409; removed the controller precheck and retained service-level fail-closed checks; 58 focused controller tests passed.
+
+2026-10-03 seed hunt (seed-only): reread all policy-pack controller partials after the simulation guard removal; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
