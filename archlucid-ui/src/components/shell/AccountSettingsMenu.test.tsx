@@ -45,6 +45,7 @@ describe("AccountSettingsMenu", () => {
     routing.pathname = "/";
     routing.searchParams = new URLSearchParams();
     routing.replace.mockClear();
+    window.history.replaceState(null, "", "/");
   });
 
   it("exposes user-scoped settings without consulting authority rank", () => {
@@ -110,11 +111,11 @@ describe("AccountSettingsMenu", () => {
 
     openMenu();
 
-    expect(routing.replace).toHaveBeenCalledWith("/?accountMenuOpen=1", { scroll: false });
+    expect(window.location.search).toBe("?accountMenuOpen=1");
 
     fireEvent.keyDown(document, { key: "Escape" });
 
-    expect(routing.replace).toHaveBeenLastCalledWith("/", { scroll: false });
+    expect(window.location.search).toBe("");
   });
 
   it("exposes the preferences tooltip and toggles from F outside editable fields", () => {
