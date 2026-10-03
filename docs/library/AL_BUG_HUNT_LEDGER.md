@@ -3912,6 +3912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its callers; duplicate-chosen and provider/name merge scenarios were not reachable through a production caller in this repository, so no candidate or hunt-ready row was added. No test execution was claimed.
+
 2026-10-03 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproved the stale same-family distinct-ref and cloud-neutral chosen templates against existing merge-policy regressions; seeded one multiple-chosen-row candidate; 72 scoped TechnologyLedger tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its duplicate/provider-family/locked-choice gates; no new reachable mechanism-backed candidate emerged; 72 scoped TechnologyLedger tests passed.
@@ -4697,6 +4699,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after LTRIM/RTRIM edge parity; proved `RunListQueryParameters` bound `@NormalizedArchitectureRequestId` / `@NormalizedSystemName` via `Normalize*` alone while InMemory paths use `RequireArchitectureRequestId` / `RequireSystemName` (Unicode trim) first, so tab-prefixed seeks missed active-run / existence / workspace collision SQL matches that InMemory counted; fixed parameter builders to require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`; 158 scoped zone tests passed (1 SQL integration skipped).
 
