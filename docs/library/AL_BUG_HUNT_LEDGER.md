@@ -10208,7 +10208,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -27759,6 +27759,7 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): re-read the findings queue client, queue mode, synopsis, facets, route boundary, and focused tests; no new hunt-ready row or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): repeated the findings queue source and focused-test review; no new hunt-ready row or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (hit): proved `clearFacetFilters` encoded the pathname as a query key when composing URL helpers; preserved unrelated run/search scope and passed 7 focused URL-sync and saved-view tests.
+2026-10-03 seed hunt (seed-only): repeated the queue review after the picker’s code-churn signal; no new hunt-ready row or bounded candidate emerged. No code changes.
 
 ---
 
