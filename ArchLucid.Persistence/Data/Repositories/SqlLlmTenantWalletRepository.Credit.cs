@@ -85,20 +85,28 @@ public sealed partial class SqlLlmTenantWalletRepository
                                       (@TenantId, @EntryType, @AmountUsd, @BalanceAfterUsd, @StripePaymentIntentId, @CorrelationId);
                                   """;
 
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    ledger,
-                    new
-                    {
-                        TenantId = tenantId,
-                        EntryType = LlmTenantWalletLedgerEntryTypes.Refill,
-                        AmountUsd = amountUsd,
-                        BalanceAfterUsd = balanceAfter,
-                        StripePaymentIntentId = stripePaymentIntentId,
-                        CorrelationId = correlationId,
-                    },
-                    transaction: transaction,
-                    cancellationToken: cancellationToken)).ConfigureAwait(false);
+            try
+            {
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        ledger,
+                        new
+                        {
+                            TenantId = tenantId,
+                            EntryType = LlmTenantWalletLedgerEntryTypes.Refill,
+                            AmountUsd = amountUsd,
+                            BalanceAfterUsd = balanceAfter,
+                            StripePaymentIntentId = stripePaymentIntentId,
+                            CorrelationId = correlationId,
+                        },
+                        transaction: transaction,
+                        cancellationToken: cancellationToken)).ConfigureAwait(false);
+            }
+            catch (SqlException ex) when (ex.Number is 2601 or 2627)
+            {
+                transaction.Rollback();
+                return LlmTenantWalletCreditResult.Duplicate();
+            }
 
             transaction.Commit();
 

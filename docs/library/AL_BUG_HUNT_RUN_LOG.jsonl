@@ -8785,3 +8785,4 @@
 {"at":"2026-10-03T18:58:27.6190560Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-03T19:01:05.0027717Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-03T19:02:19.1164842Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
+{"at":"2026-10-03T19:06:01.1216371Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.Credit.cs","ArchLucid.Persistence/Migrations/406_LlmTenantWalletLedger_StripePaymentIntent_Unique.sql"]}

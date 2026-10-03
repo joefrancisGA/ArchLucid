@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 thorough hunt (hit): `llm-wallet` — proved concurrent Stripe payment-intent credits could both pass the pre-transaction ledger check because the SQL ledger lacked a unique payment-intent constraint; added a filtered unique index, duplicate-key rollback/`Duplicate` handling, rollback migration, and schema-script parity; wallet tests passed and four idempotency surfaces were validated.
+
 2026-10-03 seed hunt (seed-only): `retrieval` — repeated the unchanged retrieval/indexing review and scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `retrieval` — re-read tenant/workspace/project filtering, scope validation, embedding metadata, document removal, and search fallback paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
