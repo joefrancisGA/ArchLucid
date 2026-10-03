@@ -3877,7 +3877,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-28
@@ -11560,6 +11560,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PilotSponsorMaterialFindingsResolver.Resolve` — equal maximum severity with agent over-count keeps agent material — **cheap-disproof 2026-10-03 thorough hunt:** the `agentFindings.Count > snapshot.Count` branch uses `>=` max-severity preference and returns persisted narrative findings on the equal-rank case.
 - [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating link usability — **cheap-disproof 2026-10-03 thorough hunt:** public pilot controllers derive the base URL from `Request.Scheme` and `Request.Host.Value`; arbitrary external base URLs do not reach this builder through the live route.
 - [x] (valid-no-repro) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — future manifest metadata inflates time-to-commit — **cheap-disproof 2026-10-03 thorough hunt:** the completed-UTC preference and future-timestamp regression already close this path.
+
+2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; no candidate met the same-run repro bar. Seeded two reachable receipt-gate candidates; 22 scoped BuyerProofPack/BoardPack tests passed.
+- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a non-GUID `runId` skips `ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync` while still allowing a committed proof ZIP; input is the string run identifier accepted by the buyer-proof route and needs proof that persisted production run ids can be non-GUID.
+- (candidate) `BoardPackPdfBuilder.BuildPdfAsync` — a non-GUID `ExecDigestComposition.LatestCommittedRunIdHex` skips `BoardPackSealedExportReceiptGuard` while still rendering the board pack; input is the digest’s persisted latest-run identifier and needs proof of a reachable non-GUID run id.
 
 ---
 
