@@ -69,7 +69,21 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>ADF or Synapse connector type for a synthetic external linked-service node.</summary>
+    public string? ExternalLinkedServiceType
+    {
+        get;
+        set;
+    }
+
     public string? ArmResourceGroup
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Shows the resource-group name in the painted card when it crossed a VNet boundary.</summary>
+    public bool IncludeResourceGroupInCaption
     {
         get;
         set;
@@ -123,6 +137,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Optional policy-pack explanation for a resource requiring human review.</summary>
+    public DiagramQuestionableAttention? QuestionableAttention
+    {
+        get;
+        set;
+    }
+
     /// <summary>Partially unresolved relationships that do not orphan the resource (e.g. workflow actions).</summary>
     public List<string> UnresolvedRelationshipDetails
     {
@@ -139,6 +160,13 @@ public class DiagramNode
 
     /// <summary>Cited traversal-hop evidence shown on data-flow canvases (NR-07).</summary>
     public List<string> DataFlowTraversalHopEvidenceDetails
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Inbound allow-rule chips painted on the visible NSG owner (NR-13).</summary>
+    public List<DiagramNsgInboundRuleChip> NsgInboundRuleChips
     {
         get;
         set;

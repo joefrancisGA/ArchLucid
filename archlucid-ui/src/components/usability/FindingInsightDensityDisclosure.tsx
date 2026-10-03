@@ -23,11 +23,7 @@ export type FindingInsightDensityDisclosureProps = {
 export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisclosureProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseFindingInsightDensityOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingInsightDensityOpen"),
-    ),
+    parseFindingInsightDensityOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

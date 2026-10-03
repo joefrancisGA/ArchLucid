@@ -17,6 +17,7 @@ import {
   queryInventoryDiagramResourceGroupFrameElements,
   resolveMermaidInkViewBox,
   resolveMermaidNodeUnionViewBox,
+  resolveMermaidViewportDefaultZoom,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
 
@@ -535,10 +536,77 @@ describe("help-mermaid", () => {
     expect(baseFit).not.toBeNull();
     expect(baseFit?.inkMeasured).toBe(true);
     expect(baseFit?.fitScale).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
+    expect(baseFit?.rawScale).toBeLessThan(MERMAID_VIEWPORT_MIN_FIT_SCALE);
     expect(baseFit?.overflows).toBe(true);
-    expect(Number(svg.getAttribute("height"))).toBeGreaterThan(360);
     expect(svg.style.maxWidth).toBe("none");
 
+    svg.remove();
+  });
+
+  it("uses the architecture minimum or width fit for an overflow plate", () => {
+    expect(
+      resolveMermaidViewportDefaultZoom({
+        baseWidthPx: 3000,
+        baseHeightPx: 2000,
+        inkMeasured: true,
+        rawScale: 0.3,
+        widthScale: 0.5,
+        fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
+        overflows: true,
+      }, 0.6),
+    ).toBe(0.6);
+    expect(
+      resolveMermaidViewportDefaultZoom({
+        baseWidthPx: 1600,
+        baseHeightPx: 900,
+        inkMeasured: true,
+        rawScale: 0.3,
+        widthScale: 0.8,
+        fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
+        overflows: true,
+      }, 0.6),
+    ).toBe(0.8);
+    expect(
+      resolveMermaidViewportDefaultZoom({
+        baseWidthPx: 1600,
+        baseHeightPx: 900,
+        inkMeasured: true,
+        rawScale: 0.7,
+        widthScale: 0.9,
+        fitScale: 0.7,
+        overflows: true,
+      }, 0.6),
+    ).toBe(0.7);
+    expect(
+      resolveMermaidViewportDefaultZoom({
+        baseWidthPx: 3000,
+        baseHeightPx: 2000,
+        inkMeasured: true,
+        rawScale: 0.3,
+        widthScale: 0.5,
+        fitScale: MERMAID_VIEWPORT_MIN_FIT_SCALE,
+        overflows: true,
+      }),
+    ).toBe(MERMAID_VIEWPORT_MIN_FIT_SCALE);
+  });
+
+  it("reports width-only scale separately from contain scale", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("width", "1000");
+    rect.setAttribute("height", "2000");
+    group.appendChild(rect);
+    svg.appendChild(group);
+    document.body.appendChild(svg);
+
+    (group as SVGGraphicsElement).getBBox = () =>
+      ({ x: 0, y: 0, width: 1000, height: 2000, top: 0, right: 1000, bottom: 2000, left: 0, toJSON: () => ({}) }) as DOMRect;
+
+    const baseFit = fitMermaidSvgElementToViewport(svg, 600, 400);
+
+    expect(baseFit?.widthScale).toBeCloseTo(576 / 1024);
+    expect(baseFit?.rawScale).toBeCloseTo(376 / 2024);
     svg.remove();
   });
 
@@ -699,22 +767,40 @@ describe("help-mermaid", () => {
   it("treats a large unmeasured viewport as unpainted ink", () => {
     expect(
       isMermaidViewportPaintTooSmall(
-        { baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false },
+        { baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false, rawScale: 1, widthScale: 1, fitScale: 1, overflows: false },
         1,
       ),
     ).toBe(true);
     expect(
-      mermaidViewportFitNeedsRetry({ baseWidthPx: 800, baseHeightPx: 240, inkMeasured: false }),
+      mermaidViewportFitNeedsRetry({
+        baseWidthPx: 800,
+        baseHeightPx: 240,
+        inkMeasured: false,
+        rawScale: 1,
+        widthScale: 1,
+        fitScale: 1,
+        overflows: false,
+      }),
     ).toBe(true);
   });
 
   it("treats tiny fitted ink height as unpainted", () => {
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20, inkMeasured: true }, 1)).toBe(true);
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 15, inkMeasured: true }, 1.5)).toBe(true);
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 20, inkMeasured: true }, 1.5)).toBe(false);
-    expect(isMermaidViewportPaintTooSmall({ baseWidthPx: 100, baseHeightPx: 24, inkMeasured: true }, 1)).toBe(false);
+    const fit = (baseWidthPx: number, baseHeightPx: number) => ({
+      baseWidthPx,
+      baseHeightPx,
+      inkMeasured: true,
+      rawScale: 1,
+      widthScale: 1,
+      fitScale: 1,
+      overflows: false,
+    });
+
+    expect(isMermaidViewportPaintTooSmall(fit(100, 20), 1)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall(fit(100, 15), 1.5)).toBe(true);
+    expect(isMermaidViewportPaintTooSmall(fit(100, 20), 1.5)).toBe(false);
+    expect(isMermaidViewportPaintTooSmall(fit(100, 24), 1)).toBe(false);
     expect(
-      mermaidViewportFitNeedsRetry({ baseWidthPx: 100, baseHeightPx: 24, inkMeasured: true }),
+      mermaidViewportFitNeedsRetry(fit(100, 24)),
     ).toBe(false);
   });
 });

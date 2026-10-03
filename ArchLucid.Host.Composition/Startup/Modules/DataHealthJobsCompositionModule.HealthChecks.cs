@@ -2,6 +2,7 @@ using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Composition.Health;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
@@ -62,8 +63,8 @@ partial class DataHealthJobsCompositionModule
                 AzureSqlReadReplicaHealthCheck.RegistrationName,
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
-            .AddCheck<RedisGraphProjectionHealthCheck>(
-                RedisGraphProjectionHealthCheck.RegistrationName,
+            .AddCheck<GraphProjectionCacheRedisHealthCheck>(
+                GraphProjectionCacheRedisHealthCheck.RegistrationName,
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
             .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])

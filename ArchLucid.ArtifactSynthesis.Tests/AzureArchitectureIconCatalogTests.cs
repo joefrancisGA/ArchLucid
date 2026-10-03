@@ -79,6 +79,94 @@ public sealed class AzureArchitectureIconCatalogTests
     }
 
     [Fact]
+    public void Catalog_contains_linked_service_fallback_marks()
+    {
+        AzureArchitectureIconCatalog catalog = AzureArchitectureIconCatalog.Load();
+
+        catalog.FindByFile("Svg/resource-linked.svg")!.Service.Should().Be("Resource Linked");
+        catalog.FindByFile("Svg/data-lake-storage-gen1.svg")!.Service.Should().Be("Data Lake Storage Gen1");
+    }
+
+    [Theory]
+    [InlineData("AzureBlobStorage", "Svg/storage-account.svg")]
+    [InlineData("AzureMySql", "Svg/mysql.svg")]
+    [InlineData("Sftp", "Svg/resource-linked.svg")]
+    public void Resolver_maps_external_linked_service_type_to_expected_icon(
+        string linkedServiceType,
+        string expectedFile)
+    {
+        AzureArchitectureIconCatalogEntry? icon = DiagramInventoryAzureIconResolver.Resolve(
+            new DiagramNode
+            {
+                NodeId = "external",
+                Label = linkedServiceType,
+                NodeType = "TopologyResource",
+                ExternalLinkedServiceType = linkedServiceType,
+            });
+
+        icon.Should().NotBeNull();
+        icon!.File.Should().Be(expectedFile);
+    }
+
+    [Fact]
+    public void Resolver_keeps_unmapped_access_connector_on_pictogram_fallback()
+    {
+        DiagramInventoryAzureIconResolver.Resolve(
+            new DiagramNode
+            {
+                NodeId = "access-connector",
+                Label = "unity-catalog-access-connector",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Databricks/accessConnectors",
+            })
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Renderer_emits_linked_service_icons_and_keeps_access_connector_pictogram()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "blob-linked-service",
+                    Label = "azureblob",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "AzureBlobStorage",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "sftp-linked-service",
+                    Label = "sftp_ahcccs",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "Sftp",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "access-connector",
+                    Label = "unity-catalog-access-connector",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Databricks/accessConnectors",
+                    OrderKey = 2,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(ast);
+
+        result.Succeeded.Should().BeTrue();
+        result.Svg.Should().Contain("data-file=\"Svg/storage-account.svg\"");
+        result.Svg.Should().Contain("data-file=\"Svg/resource-linked.svg\"");
+        result.Svg.Should().Contain("class=\"pictogram\"");
+    }
+
+    [Fact]
     public void Catalog_resolves_network_services_from_official_svg_pack()
     {
         AzureArchitectureIconCatalog catalog = AzureArchitectureIconCatalog.Load();

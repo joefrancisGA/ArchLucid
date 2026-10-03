@@ -33,11 +33,7 @@ export function SponsorRehearsalPreviewPanel(
   const collapsedByDefault = props.collapsedByDefault !== false;
   const pathname = usePathname() ?? "/";
   const [panelOpen, setPanelOpenState] = useState(() =>
-    parseSponsorRehearsalPreviewOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("sponsorRehearsalPreviewOpen"),
-    ),
+    parseSponsorRehearsalPreviewOpenFromSearch(null),
   );
   const panelOpenRef = useRef(panelOpen);
   panelOpenRef.current = panelOpen;

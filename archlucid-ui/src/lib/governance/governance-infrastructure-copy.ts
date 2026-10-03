@@ -53,6 +53,11 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW = "Advanced operatio
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD =
   "Grounded Q&A over structured inventory rows with citation-backed answers. Use canned prompts or your own question when citations and insufficient-evidence outcomes are acceptable." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_ASK_DRAWER_LEAD =
+  "Ask grounded questions without leaving this workbench. Answers use the inventory snapshot in scope on this page." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_DRAWER_FULL_PAGE_ACTION = "Open full Ask page" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE =
   "Answers cite structured inventory rows only — not sealed review records or official assurance materials." as const;
 
@@ -168,9 +173,6 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagr
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
   "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden." as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE =
-  "Diagram exports are advisory inventory reconstructions — confirm snapshot and subscription scope before sealed-record citations." as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE = "Inventory diagrams unavailable" as const;
@@ -241,6 +243,30 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_NODES_SEED_HINT =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL = "Nodes" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL = "Edges" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
+  "Connected on the diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
+  "In use off the diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
+  "Missing a required link" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
+  "Stands alone" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION =
+  "Needs evidence" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL =
+  "No cited connection, and this type is not on the shared-service list." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL =
+  "Dropped imports" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL =
+  "Unattached NSG" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
   "Pick a starting resource before rendering" as const;
@@ -775,8 +801,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
   {
     href: GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
     label: GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE,
-    summary:
-      "Declare ConnectsTo or DependsOn edges between resources when config files or tribal knowledge are not ingested.",
+    summary: "Declare edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,

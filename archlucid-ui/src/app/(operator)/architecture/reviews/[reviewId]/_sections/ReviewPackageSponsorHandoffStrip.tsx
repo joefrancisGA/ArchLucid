@@ -72,11 +72,7 @@ export function ReviewPackageSponsorHandoffStrip(
   const lowExtractionConfidenceCount = Math.max(0, Math.trunc(props.lowExtractionConfidenceCount ?? 0));
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
-    parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("reviewPackageSponsorHandoffMoreExportsOpen"),
-    ),
+    parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(null),
   );
   const moreExportsOpenRef = useRef(moreExportsOpen);
   moreExportsOpenRef.current = moreExportsOpen;

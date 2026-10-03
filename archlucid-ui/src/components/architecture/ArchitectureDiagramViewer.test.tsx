@@ -234,6 +234,135 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByText('Node A')).toBeInTheDocument();
   });
 
+  it('shows the questionable explanation when a focused node carries policy attention', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60">',
+      '  <g class="node" id="node-vm" transform="translate(10,10)"><title>avd01-nprod-0</title><rect class="node-card-questionable" width="80" height="30"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vm["avd01-nprod-0"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [{
+            id: 'vm',
+            label: 'avd01-nprod-0',
+            resourceType: 'Microsoft.Compute/virtualMachines',
+            resourceGroup: 'rg-avd',
+            questionableReason: 'Named like an AVD host and not registered',
+            questionableAction: 'Register or retire the VM',
+          }],
+          edges: [],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-vm')!);
+
+    expect(host.querySelector('.node-card-questionable')).toBeInTheDocument();
+    expect(await screen.findByTestId('infra-diagrams-questionable-panel')).toHaveTextContent(
+      'Named like an AVD host and not registered',
+    );
+    expect(screen.getByTestId('infra-diagrams-questionable-panel')).toHaveTextContent(
+      'Register or retire the VM',
+    );
+  });
+
+  it('dims unrelated forest ink without changing the camera viewBox', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="vnet-frame" data-frame-id="vnet-vnet-a"><title>vnet-a</title><rect x="0" y="0" width="120" height="100"/></g>',
+      '  <g class="node" id="node-vault" transform="translate(10,20)"><title>vault</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="node" id="node-vm" transform="translate(60,20)"><title>vm</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="node" id="node-other" transform="translate(160,20)"><title>other</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="edge" data-from="vault" data-to="vm"><title>used by</title><path d="M50 30L60 30"/></g>',
+      '  <g class="edge" data-from="other" data-to="outside"><title>used by</title><path d="M200 30L220 30"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [],
+          edges: [{ from: 'vault', to: 'vm', label: 'used by', source: 'observed', declaredConnectionId: null }],
+        }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    const viewBox = host.querySelector('svg')?.getAttribute('viewBox');
+
+    fireEvent.click(host.querySelector('#node-vault')!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'Showing connections for vault.',
+      );
+      expect(host.querySelector('#node-other')).toHaveClass('diagram-click-dim');
+    });
+    expect(host.querySelector('svg')?.getAttribute('viewBox')).toBe(viewBox);
+
+    fireEvent.keyDown(screen.getByTestId('architecture-diagram-viewport'), { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByTestId('diagram-click-focus-status')).toBeNull();
+      expect(host.querySelector('#node-other')).not.toHaveClass('diagram-click-dim');
+    });
+  });
+
+  it('focuses the named partner when a long-edge stub is clicked', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-vault" transform="translate(10,20)"><title>vault</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="node" id="node-vm" transform="translate(60,20)"><title>vm</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="node" id="node-other" transform="translate(160,20)"><title>other</title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="edge-stub" data-from="vault" data-to="vm" data-focus-node="vm"><title>used by → vm</title><text>→ vm</text></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [],
+          edges: [{ from: 'vault', to: 'vm', label: 'used by', source: 'observed', declaredConnectionId: null }],
+        }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    const viewBox = host.querySelector('svg')?.getAttribute('viewBox');
+    const stub = host.querySelector('g.edge-stub text');
+    expect(stub).not.toBeNull();
+
+    fireEvent.click(stub!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'Showing connections for vm.',
+      );
+      expect(host.querySelector('#node-vm')).not.toHaveClass('diagram-click-dim');
+      expect(host.querySelector('#node-other')).toHaveClass('diagram-click-dim');
+    });
+    expect(host.querySelector('svg')?.getAttribute('viewBox')).toBe(viewBox);
+
+    fireEvent.click(stub!);
+    await waitFor(() => {
+      expect(screen.queryByTestId('diagram-click-focus-status')).toBeNull();
+      expect(host.querySelector('#node-other')).not.toHaveClass('diagram-click-dim');
+    });
+  });
+
   it('scopes host CSS to card bodies so forest accents and pictograms keep baked fills', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
@@ -345,6 +474,10 @@ describe('ArchitectureDiagramViewer', () => {
       baseWidthPx: 10,
       baseHeightPx: 10,
       inkMeasured: true,
+      rawScale: 1,
+      widthScale: 1,
+      fitScale: 1,
+      overflows: false,
     });
 
     render(
@@ -375,6 +508,10 @@ describe('ArchitectureDiagramViewer', () => {
       baseWidthPx: 800,
       baseHeightPx: 240,
       inkMeasured: false,
+      rawScale: 1,
+      widthScale: 1,
+      fitScale: 1,
+      overflows: false,
     });
 
     render(
@@ -653,7 +790,7 @@ describe('ArchitectureDiagramViewer', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(60);
     });
 
     rerender(
@@ -701,7 +838,7 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
-  it('defaults zoom below 100 percent when measured ink overflows the viewport', async () => {
+  it('defaults zoom at the 60 percent floor when measured ink overflows the viewport', async () => {
     const largeSvg =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 2000">' +
       '<g class="node"><rect width="3000" height="2000" fill="#eee"/><text class="nodeLabel">Forest</text></g>' +
@@ -751,8 +888,7 @@ describe('ArchitectureDiagramViewer', () => {
         (screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL) as HTMLInputElement).value,
       );
 
-      expect(zoomValue).toBeLessThan(100);
-      expect(zoomValue).toBeGreaterThan(0);
+      expect(zoomValue).toBe(60);
     });
   });
 
@@ -803,7 +939,7 @@ describe('ArchitectureDiagramViewer', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(30);
+      expect(screen.getByLabelText(ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL)).toHaveValue(60);
     });
 
     rerender(

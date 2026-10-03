@@ -30,6 +30,7 @@ import {
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 
 export type OidcPkceFlow = "primary" | "google";
 
@@ -41,30 +42,6 @@ type StoredPkceState = {
 };
 
 const EXPIRY_SKEW_MS = 60_000;
-
-function resolveExpiresInSeconds(expiresIn: number | undefined): number {
-  const defaultExpiresInSec = 3600;
-
-  if (expiresIn === undefined) {
-    return defaultExpiresInSec;
-  }
-
-  const numericExpiresIn = Number(expiresIn);
-
-  if (!Number.isFinite(numericExpiresIn)) {
-    return defaultExpiresInSec;
-  }
-
-  if (numericExpiresIn === 0) {
-    return 0;
-  }
-
-  if (numericExpiresIn < 0) {
-    return defaultExpiresInSec;
-  }
-
-  return Math.trunc(numericExpiresIn);
-}
 
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
@@ -203,6 +180,12 @@ export function storePkceState(
   sessionStorage.setItem(keys.nonceKey, nonce);
 }
 
+export function clearPkceState(flow: OidcPkceFlow = "primary"): void {
+  const keys = pkceStorageKeys(flow);
+
+  removeOidcKeys([keys.stateKey, keys.codeVerifierKey, keys.nonceKey]);
+}
+
 export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceState, "flow"> | null {
   return readPkceStateForFlow(flow);
 }
@@ -235,6 +218,10 @@ export function storePostSignInReturnUrl(url: string): void {
   if (isSafeReturnPath(url)) {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, url);
   }
+}
+
+export function clearPostSignInReturnUrl(): void {
+  sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 }
 
 /**

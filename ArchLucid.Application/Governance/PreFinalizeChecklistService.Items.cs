@@ -86,6 +86,7 @@ public sealed partial class PreFinalizeChecklistService
         }
 
         IReadOnlyList<Finding> activeHighSeverityFindings = findings
+            .Where(finding => !IsSupplementalEvidenceLinkageFinding(finding))
             .Where(finding =>
                 (finding.Severity == FindingSeverity.Critical
                     && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
@@ -260,5 +261,15 @@ public sealed partial class PreFinalizeChecklistService
             Status = PreFinalizeChecklistItemStatus.Clear,
             Count = 0,
         };
+    }
+
+    private static bool IsSupplementalEvidenceLinkageFinding(Finding finding)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (string.Equals(finding.FindingType, "EvidenceLinkage", StringComparison.Ordinal))
+            return true;
+
+        return finding.FindingId.StartsWith("evidence-linkage-", StringComparison.Ordinal);
     }
 }

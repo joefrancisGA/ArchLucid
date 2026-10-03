@@ -111,8 +111,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
-        if (snapshot.CoverageAssignments.Count > 0
-            && !CoverageAssignmentsMatch(snapshot.CoverageAssignments, currentResolution.CoverageAssignments))
+        if (!CoverageAssignmentsMatch(snapshot.CoverageAssignments, currentResolution.CoverageAssignments))
         {
             items.Add(new PreFinalizeChecklistItem
             {
@@ -138,8 +137,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
-        if (snapshot.NotAssessedQualityDimensions.Count > 0
-            && !NotAssessedQualityDimensionsMatch(
+        if (!NotAssessedQualityDimensionsMatch(
                 snapshot.NotAssessedQualityDimensions,
                 currentResolution.NotAssessedQualityDimensions))
         {

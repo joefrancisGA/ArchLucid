@@ -168,6 +168,60 @@ describe("iana-time-zone-preference", () => {
     });
   });
 
+  it("migrates the legacy implicit UTC cache to Eastern for a non-explicit account", async () => {
+    writeStoredIanaTimeZonePreference("UTC");
+    apiGetMock.mockResolvedValue({
+      appearancePreference: "system",
+      appearancePreferenceIsExplicit: false,
+      cloudPlatformScope: {
+        "evidence-only": true,
+        azure: true,
+        aws: true,
+        gcp: true,
+      },
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
+      sampleReviewsOnOverviewEnabled: true,
+      sampleReviewsOnOverviewIsExplicit: false,
+      ianaTimeZoneId: "America/New_York",
+      ianaTimeZoneIsExplicit: false,
+    });
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    const synced = await syncIanaTimeZonePreferenceFromServer();
+
+    expect(synced).toBe("America/New_York");
+    expect(window.localStorage.getItem("archlucid.iana-time-zone-preference.v1")).toBe("America/New_York");
+    expect(apiPutJsonMock).not.toHaveBeenCalled();
+  });
+
+  it("preserves explicit UTC on the account", async () => {
+    writeStoredIanaTimeZonePreference("UTC");
+    apiGetMock.mockResolvedValue({
+      appearancePreference: "system",
+      appearancePreferenceIsExplicit: false,
+      cloudPlatformScope: {
+        "evidence-only": true,
+        azure: true,
+        aws: true,
+        gcp: true,
+      },
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
+      sampleReviewsOnOverviewEnabled: true,
+      sampleReviewsOnOverviewIsExplicit: false,
+      ianaTimeZoneId: "UTC",
+      ianaTimeZoneIsExplicit: true,
+    });
+
+    const synced = await syncIanaTimeZonePreferenceFromServer();
+
+    expect(synced).toBe("UTC");
+    expect(apiPutJsonMock).not.toHaveBeenCalled();
+  });
+
   it("marks user persist intent only around user-initiated persists", async () => {
     apiPutJsonMock.mockResolvedValue(undefined);
 

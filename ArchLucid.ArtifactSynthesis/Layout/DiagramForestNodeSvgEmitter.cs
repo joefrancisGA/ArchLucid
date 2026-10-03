@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security;
 using System.Xml.Linq;
 
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -28,13 +29,20 @@ public static class DiagramForestNodeSvgEmitter
             svgNamespace + "g",
             new XAttribute("class", "node"),
             new XAttribute("id", $"node-{nodeId}"));
-        group.Add(new XElement(svgNamespace + "title", Escape(accessibilityTitle)));
+        string? questionableTitle = metrics.IsQuestionable
+            ? $"{accessibilityTitle} — Questionable; select the resource for the reason and recommended action"
+            : null;
+        group.Add(new XElement(
+            svgNamespace + "title",
+            Escape(questionableTitle ?? accessibilityTitle)));
         group.Add(new XElement(
             svgNamespace + "rect",
-            new XAttribute("class", "node-card"),
+            new XAttribute("class", metrics.IsQuestionable ? "node-card node-card-questionable" : "node-card"),
             new XAttribute("width", Format(width)),
             new XAttribute("height", Format(height)),
-            new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeFill),
+            new XAttribute(
+                "fill",
+                metrics.IsQuestionable ? "#FDE68A" : ArchitectureDiagramMermaidPalette.LightNodeFill),
             new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightNodeBorder),
             new XAttribute("stroke-width", "1.5"),
             new XAttribute("rx", "6"),
@@ -51,6 +59,8 @@ public static class DiagramForestNodeSvgEmitter
             new XAttribute("pointer-events", "none")));
 
         double textBlockHeight = (metrics.NameLines.Count * options.LineHeight)
+            + (metrics.DataFlowTypeLine is null ? 0 : options.LineHeight)
+            + (metrics.ConsumerStatusLine is null ? 0 : options.LineHeight)
             + (metrics.ResourceGroupLines.Count * options.LineHeight);
         double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
         double contentTop = (height - contentHeight) / 2.0;
@@ -120,9 +130,45 @@ public static class DiagramForestNodeSvgEmitter
 
         group.Add(text);
 
+        int linesAfterName = metrics.NameLines.Count;
+        if (metrics.DataFlowTypeLine is not null)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline + (linesAfterName * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape(metrics.DataFlowTypeLine)));
+            linesAfterName++;
+        }
+
+        if (metrics.ConsumerStatusLine is not null)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline + (linesAfterName * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-weight", "400"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape(metrics.ConsumerStatusLine)));
+            linesAfterName++;
+        }
+
         if (metrics.ResourceGroupLines.Count > 0)
         {
-            double resourceGroupTextY = firstLineBaseline + (metrics.NameLines.Count * options.LineHeight);
+            double resourceGroupTextY = firstLineBaseline
+                + (linesAfterName * options.LineHeight);
             XElement resourceGroupText = new(
                 svgNamespace + "text",
                 new XAttribute("x", Format(textX)),
@@ -152,7 +198,73 @@ public static class DiagramForestNodeSvgEmitter
             group.Add(resourceGroupText);
         }
 
+        if (metrics.IsQuestionable)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline
+                        + (linesAfterName * options.LineHeight)
+                        + (metrics.ResourceGroupLines.Count * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "10"),
+                new XAttribute("font-weight", "700"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", "#92400E"),
+                Escape("Questionable")));
+        }
+
+        if (metrics.NsgInboundRuleChips.Count > 0)
+        {
+            double chipY = height - options.NodePaddingY - options.LineHeight;
+            double chipX = textX;
+            foreach (DiagramNsgInboundRuleChip chip in metrics.NsgInboundRuleChips)
+            {
+                group.Add(EmitNsgRuleChip(svgNamespace, chip, chipX, chipY));
+                chipX += EstimateChipWidth(chip.Text) + 4.0d;
+            }
+        }
+
         return group;
+    }
+
+    private static XElement EmitNsgRuleChip(
+        XNamespace svgNamespace,
+        DiagramNsgInboundRuleChip chip,
+        double x,
+        double y)
+    {
+        double chipWidth = EstimateChipWidth(chip.Text);
+        XElement chipGroup = new(
+            svgNamespace + "g",
+            new XAttribute("class", chip.IsRisky ? "nsg-rule-chip-risk" : "nsg-rule-chip"));
+        chipGroup.Add(new XElement(
+            svgNamespace + "rect",
+            new XAttribute("x", Format(x)),
+            new XAttribute("y", Format(y - 10.0d)),
+            new XAttribute("width", Format(chipWidth)),
+            new XAttribute("height", "14"),
+            new XAttribute("rx", "3"),
+            new XAttribute("fill", chip.IsRisky ? "#fee2e2" : "#e2e8f0"),
+            new XAttribute("stroke", chip.IsRisky ? "#dc2626" : "#64748b"),
+            new XAttribute("stroke-width", "1")));
+        chipGroup.Add(new XElement(
+            svgNamespace + "text",
+            new XAttribute("x", Format(x + 4.0d)),
+            new XAttribute("y", Format(y)),
+            new XAttribute("font-size", "9"),
+            new XAttribute("font-family", "system-ui,sans-serif"),
+            new XAttribute("fill", chip.IsRisky ? "#991b1b" : "#334155"),
+            Escape(chip.Text)));
+
+        return chipGroup;
+    }
+
+    private static double EstimateChipWidth(string text)
+    {
+        return Math.Max(36.0d, text.Length * 5.5d + 8.0d);
     }
 
     private static string Escape(string value)

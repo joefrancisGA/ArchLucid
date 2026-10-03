@@ -11,7 +11,6 @@ public static class DiagramViewPlanValidator
         "executive",
         "network",
         "identity",
-        "data",
         "dataFlow",
         "dataArchitecture",
         "avd",

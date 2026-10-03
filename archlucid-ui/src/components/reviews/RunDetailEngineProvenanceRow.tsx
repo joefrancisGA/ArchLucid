@@ -39,11 +39,7 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   const { provenance } = props;
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseRunEngineProvenanceOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runEngineProvenanceOpen"),
-    ),
+    parseRunEngineProvenanceOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

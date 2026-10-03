@@ -20,6 +20,14 @@ function isUsableSeeItPayload(p: DemoCommitPagePreviewResponse): boolean {
   if (isWeakPlaceholderRunId(p.run?.runId))
     return false;
 
+  if (
+    p.manifest === null ||
+    typeof p.manifest !== "object" ||
+    typeof p.manifest.manifestId !== "string" ||
+    p.manifest.manifestId.trim().length === 0
+  )
+    return false;
+
   const re = p.runExplanation;
 
   if (re === null || re === undefined)

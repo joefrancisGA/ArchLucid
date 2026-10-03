@@ -85,6 +85,13 @@ describe("HelpGovernanceInfrastructureDriftGuideView", () => {
       GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL,
     );
     expect(document.getElementById("reading-the-drift-table")).toHaveTextContent("Reading the drift table");
+    expect(document.getElementById("inventory-resources-excluded-from-views")).toHaveTextContent(
+      "Resources excluded from inventory views",
+    );
+
+    const neverShowCatalog = screen.getByTestId("help-azure-inventory-never-show-catalog");
+    expect(within(neverShowCatalog).getByText("Microsoft.Network/dnszones")).toBeInTheDocument();
+    expect(within(neverShowCatalog).getByText("Microsoft.Web/serverFarms")).toBeInTheDocument();
 
     const tileItems = screen.getByTestId("help-governance-infrastructure-drift-tile-items");
     for (const item of GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TILE_ITEMS) {

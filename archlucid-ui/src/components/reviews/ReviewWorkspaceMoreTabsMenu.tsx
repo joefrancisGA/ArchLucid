@@ -30,11 +30,7 @@ export type ReviewWorkspaceMoreTabsMenuProps = {
 export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuProps): React.JSX.Element | null {
   const pathname = usePathname() ?? "";
   const [open, setOpenState] = useState(() =>
-    parseReviewWorkspaceMoreTabsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("reviewMoreTabsOpen"),
-    ),
+    parseReviewWorkspaceMoreTabsOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

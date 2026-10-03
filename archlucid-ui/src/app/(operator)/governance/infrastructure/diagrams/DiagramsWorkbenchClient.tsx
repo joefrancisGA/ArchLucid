@@ -142,7 +142,8 @@ import {
   isInfraEvidenceResourceGroupMapMermaid,
   parseInfraDiagramsResourceGroupName,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   infraDiagramsResourceIdDisclosureHrefFromSearch,
@@ -171,7 +172,6 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
@@ -279,8 +279,6 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 
 function infraDiagramModeJobCaption(mode: string): string | null {
   switch (mode) {
-    case "data":
-      return "This view filters the infrastructure forest to data resources.";
     case "dataArchitecture":
       return "This diagram shows what stores data.";
     case "dataFlow":
@@ -296,25 +294,19 @@ function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Elem
       ? {
           boxes: "Boxes are resources on a declared path.",
           connectors: "Connectors are declared pipeline wiring.",
-          evidence: "configuration, not observed traffic.",
+          evidence: "Configuration, not observed traffic.",
         }
       : mode === "dataArchitecture"
         ? {
             boxes: "Boxes are data stores.",
             connectors: "Connectors are declared repository relationships.",
-            evidence: "configuration from inventory.",
+            evidence: "Configuration from inventory.",
           }
-        : mode === "data"
-          ? {
-              boxes: "Boxes are data resources in the infrastructure forest.",
-              connectors: "Connectors are the infrastructure relationships already drawn.",
-              evidence: "configuration from inventory.",
-            }
-          : {
-              boxes: "Boxes are Azure resources in this view.",
-              connectors: "Connectors are relationships already present in inventory.",
-              evidence: "configuration from inventory.",
-            };
+        : {
+            boxes: "Boxes are Azure resources in this view.",
+            connectors: "Connectors are relationships already present in inventory.",
+            evidence: "Configuration from inventory.",
+          };
 
   return (
     <section className="space-y-1" aria-label="How to read this diagram" data-testid="infra-diagrams-legend">
@@ -780,7 +772,7 @@ export function DiagramsWorkbenchClient() {
 
     const presentation = parseInfraDiagramsDataFlowCaptionPresentation(mermaidSource);
 
-    if (presentation.honestyCaptions.length === 0 && presentation.metadataComments.length === 0) {
+    if (presentation.honestyCaptions.length === 0) {
       return null;
     }
 
@@ -1705,8 +1697,6 @@ export function DiagramsWorkbenchClient() {
         navHref={pathname}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="infra-diagrams-claim-discipline"
         titleTestId="infra-diagrams-page-title"
         metadata={<DiagramsBreadcrumb />}
       />
@@ -1839,6 +1829,9 @@ export function DiagramsWorkbenchClient() {
               )}
             >
               <div className="grid min-w-0 gap-2">
+                <Label htmlFor="infra-diagrams-subscription-picker">
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
+                </Label>
                 <select
                   id="infra-diagrams-subscription-picker"
                   className="w-full bg-transparent px-3 py-2"
@@ -1957,6 +1950,9 @@ export function DiagramsWorkbenchClient() {
               )}
             >
               <div className="flex min-w-0 flex-col gap-1">
+                <label className={OPERATOR_FORM_FIELD_LABEL_CLASS} htmlFor="infra-diagrams-subscription-picker">
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_LABEL}
+                </label>
                 <select
                   id="infra-diagrams-subscription-picker"
                   className="w-full bg-transparent px-3 py-2"
@@ -2091,7 +2087,7 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
-          <p className={cn("m-0 font-bold", OPERATOR_TYPOGRAPHY.body)}>Display options</p>
+          <p className={cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-bold")}>Display options</p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
@@ -2132,6 +2128,22 @@ export function DiagramsWorkbenchClient() {
                 onCheckedChange={handleShowAvdAssetsToggle}
               />
               <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
+            </label>
+          ) : null}
+          {diagramWalkthrough != null ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={includeNeverShow}
+                data-testid="infra-diagrams-include-never-show"
+                aria-label={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+                disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
+                onCheckedChange={(checked) => {
+                  handleIncludeNeverShowChange(checked === true);
+                }}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>
+                {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
+              </span>
             </label>
           ) : null}
         </div>
@@ -2438,7 +2450,7 @@ export function DiagramsWorkbenchClient() {
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
             data-testid="infra-diagrams-open-ask"
-            href={buildInfrastructureAskHref({
+            href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
               snapshotId: selectedSnapshotId,
               seedNodeId:
@@ -2566,25 +2578,6 @@ export function DiagramsWorkbenchClient() {
               >
                 {diagramWalkthrough}
               </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeNeverShow ? "secondary" : "outline"}
-                  aria-pressed={includeNeverShow}
-                  aria-busy={loadingRender}
-                  data-testid="infra-diagrams-include-never-show"
-                  disabled={selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing}
-                  onClick={() => {
-                    handleIncludeNeverShowChange(!includeNeverShow);
-                  }}
-                >
-                  {loadingRender ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : null}
-                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL}
-                </Button>
-              </div>
               {!includeNeverShow && alwaysExcludedCollapseEntries.length > 0 ? (
                 <div
                   className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
@@ -2614,6 +2607,7 @@ export function DiagramsWorkbenchClient() {
             cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
+            outline={visibleMermaidOutline}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
@@ -2633,7 +2627,7 @@ export function DiagramsWorkbenchClient() {
       ) : renderResult?.status === "Failed" ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE}
-          description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY}
+          description={renderResult.failureReason?.trim() || GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY}
           testId="infra-diagrams-render-failed"
           footer={
             <Button type="button" size="sm" variant="primary" onClick={handleRenderRetry}>

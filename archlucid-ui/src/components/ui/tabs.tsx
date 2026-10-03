@@ -86,8 +86,7 @@ export function Tabs(props: TabsProps): ReactElement {
   const onValueChange = props.onValueChange;
   const syncUrlParam = props.syncUrlParam;
   const isControlled = props.value !== undefined;
-  const urlDefault = props.syncUrlParam ? readUrlTabValue(props.syncUrlParam) : null;
-  const initialValue = props.defaultValue ?? urlDefault ?? "";
+  const initialValue = props.defaultValue ?? "";
 
   const [uncontrolledValue, setUncontrolledValue] = useState(initialValue);
   const activeValue = isControlled ? (props.value ?? "") : uncontrolledValue;

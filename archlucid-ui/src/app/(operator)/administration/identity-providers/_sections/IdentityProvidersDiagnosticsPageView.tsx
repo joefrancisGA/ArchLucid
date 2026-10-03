@@ -97,25 +97,13 @@ export function IdentityProvidersDiagnosticsPageView(
     props.model.oidcDiagnosticsLoaded || props.model.samlOperationalHealthLoaded;
   const collapseHealthIntoProtocol = bothIdentityProviderProbesNotApplicable(props.model.identityProviderDiagnostics);
   const [protocolDetailsOpen, setProtocolDetailsOpenState] = useState(() =>
-    parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("identityProvidersDiagnosticsProtocolOpen"),
-    ),
+    parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(null),
   );
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
-    parseIdentityProvidersTechnicalDetailsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("identityProvidersTechnicalDetailsOpen"),
-    ),
+    parseIdentityProvidersTechnicalDetailsOpenFromSearch(null),
   );
   const [customerToolsOpen, setCustomerToolsOpenState] = useState(() =>
-    parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("identityProvidersDiagnosticsCustomerToolsOpen"),
-    ),
+    parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(null),
   );
   const protocolDetailsOpenRef = useRef(protocolDetailsOpen);
   protocolDetailsOpenRef.current = protocolDetailsOpen;

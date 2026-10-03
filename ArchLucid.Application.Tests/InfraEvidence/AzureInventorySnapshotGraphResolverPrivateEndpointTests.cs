@@ -101,6 +101,61 @@ public sealed class AzureInventorySnapshotGraphResolverPrivateEndpointTests
         ast.Nodes.Should().NotContain(node => node.Label == "pe-sql");
     }
 
+    [Fact]
+    public async Task TryResolveGraphAsync_connects_hidden_private_endpoint_target_to_vnet_without_membership()
+    {
+        Guid peRow = Guid.Parse("33333333-1111-4000-8000-000000000001");
+        Guid vnetRow = Guid.Parse("33333333-1111-4000-8000-000000000002");
+        Guid keyVaultRow = Guid.Parse("33333333-1111-4000-8000-000000000003");
+        const string peArmId =
+            "/subscriptions/sub/resourceGroups/pe-rg/providers/Microsoft.Network/privateEndpoints/pe-kv";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/network-rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/network-rg/providers/Microsoft.Network/virtualNetworks/vnet-a/subnets/private";
+        const string keyVaultArmId =
+            "/subscriptions/sub/resourceGroups/data-rg/providers/Microsoft.KeyVault/vaults/kv-a";
+
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot(
+            [
+                CreateResource(peRow, peArmId, "Microsoft.Network/privateEndpoints"),
+                CreateResource(vnetRow, vnetArmId, "Microsoft.Network/virtualNetworks"),
+                CreateResource(keyVaultRow, keyVaultArmId, "Microsoft.KeyVault/vaults"),
+            ],
+            [],
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = peArmId,
+                    ToAzureResourceId = subnetArmId,
+                    RelationshipType = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPeSubnet,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = peArmId,
+                    ToAzureResourceId = keyVaultArmId,
+                    RelationshipType = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                },
+            ]);
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(snapshot);
+
+        result.Succeeded.Should().BeTrue();
+        DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(result.Graph!, DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().NotContain(node => node.Label == "pe-kv");
+        ast.Edges.Should().Contain(edge =>
+            edge.Label == "private endpoint"
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryPrivateEndpoint);
+        ast.Edges.Should().NotContain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryPeSubnet
+            && edge.FromNodeId.Contains("kv-a", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static async Task<AzureInventorySnapshotGraphResolveResult> ResolveAsync(
         AzureInventorySnapshotDetailReadModel snapshot)
     {

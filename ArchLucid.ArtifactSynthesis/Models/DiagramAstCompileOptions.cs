@@ -96,4 +96,20 @@ public sealed class DiagramAstCompileOptions
         get;
         init;
     }
+
+    /// <summary>
+    /// Policy-pack supplied attention records keyed by graph node id. The compiler does not infer policy findings.
+    /// </summary>
+    public IReadOnlyDictionary<string, DiagramQuestionableAttention>? QuestionableNodes
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Published policy-pack compliance rule keys active for this diagram render.</summary>
+    public IReadOnlyCollection<string>? AssignedPolicyPackRuleKeys
+    {
+        get;
+        init;
+    }
 }

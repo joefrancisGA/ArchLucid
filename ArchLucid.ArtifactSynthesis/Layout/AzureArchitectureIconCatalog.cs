@@ -113,6 +113,17 @@ public sealed class AzureArchitectureIconCatalog
         return defaultMatches.Count == 1 ? defaultMatches[0] : null;
     }
 
+    public AzureArchitectureIconCatalogEntry? FindByFile(string file)
+    {
+        if (string.IsNullOrWhiteSpace(file))
+        {
+            return null;
+        }
+
+        return entries.SingleOrDefault(entry =>
+            string.Equals(entry.File, file.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
     private sealed class AzureArchitectureIconManifest
     {
         public List<AzureArchitectureIconManifestEntry>? Icons { get; set; }

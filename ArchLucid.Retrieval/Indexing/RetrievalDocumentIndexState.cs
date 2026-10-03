@@ -26,4 +26,10 @@ public sealed class RetrievalDocumentIndexState
         get;
         set;
     }
+
+    public int IndexedChunkCount
+    {
+        get;
+        set;
+    }
 }

@@ -192,4 +192,30 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
         report.SupportRatio.Should().Be(1.0);
         report.UnsupportedIds.Should().NotContain("claim:citation-fidelity");
     }
+
+    [Fact]
+    public void Evaluate_does_not_count_substring_inside_unrelated_evidence_token_as_support()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "important deployment context",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"port context","evidenceRefs":["pattern-a"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:citation-fidelity");
+    }
 }

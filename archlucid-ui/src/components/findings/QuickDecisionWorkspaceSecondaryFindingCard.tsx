@@ -65,11 +65,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   };
   const pathname = usePathname() ?? "/";
   const [cardOpen, setCardOpenState] = useState(() => {
-    const fromUrl = parseQuickDecisionSecondaryFindingFindingIdFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("quickDecisionSecondaryFindingFindingId"),
-    );
+    const fromUrl = parseQuickDecisionSecondaryFindingFindingIdFromSearch(null);
 
     return fromUrl === finding.findingId;
   });

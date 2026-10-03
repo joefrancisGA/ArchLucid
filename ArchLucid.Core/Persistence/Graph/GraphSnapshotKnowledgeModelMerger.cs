@@ -13,7 +13,7 @@ public static class GraphSnapshotKnowledgeModelMerger
         ArgumentNullException.ThrowIfNull(modelGraph);
 
         HashSet<string> modelNodeIds = modelGraph.Nodes
-            .Select(static node => node.NodeId)
+            .Select(static node => NormalizeNodeId(node.NodeId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
@@ -21,22 +21,24 @@ public static class GraphSnapshotKnowledgeModelMerger
 
         foreach (GraphNode contextNode in contextGraph.Nodes)
         {
-            if (mergedNodeIds.Contains(contextNode.NodeId))
+            string normalizedNodeId = NormalizeNodeId(contextNode.NodeId);
+
+            if (mergedNodeIds.Contains(normalizedNodeId))
                 continue;
 
-            mergedNodeIds.Add(contextNode.NodeId);
+            mergedNodeIds.Add(normalizedNodeId);
             mergedNodes.Add(contextNode);
         }
 
         HashSet<string> edgeKeys = modelGraph.Edges
-            .Select(static edge => $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}")
+            .Select(static edge => BuildEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphEdge> mergedEdges = [.. modelGraph.Edges];
 
         foreach (GraphEdge contextEdge in contextGraph.Edges)
         {
-            string key = $"{contextEdge.FromNodeId}|{contextEdge.ToNodeId}|{contextEdge.EdgeType}";
+            string key = BuildEdgeKey(contextEdge.FromNodeId, contextEdge.ToNodeId, contextEdge.EdgeType);
 
             if (edgeKeys.Contains(key))
                 continue;
@@ -58,4 +60,9 @@ public static class GraphSnapshotKnowledgeModelMerger
             Warnings = warnings,
         };
     }
+
+    private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+
+    private static string BuildEdgeKey(string fromNodeId, string toNodeId, string edgeType)
+        => $"{NormalizeNodeId(fromNodeId)}|{NormalizeNodeId(toNodeId)}|{edgeType.Trim()}";
 }

@@ -36,7 +36,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
@@ -47,16 +46,14 @@ describe("DiagramsWorkbenchClient working mode", () => {
     searchParams = new URLSearchParams();
   });
 
-  it("renders skip link, claim discipline, and breadcrumb without header controls", () => {
+  it("renders skip link and breadcrumb without header controls", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("infra-diagrams-claim-discipline")).toHaveTextContent(
-      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("infra-diagrams-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-scope-status")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();

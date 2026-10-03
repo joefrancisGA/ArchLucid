@@ -156,6 +156,56 @@ public sealed class GovernanceMutationCorrectionsControllerTests
     }
 
     [Fact]
+    public async Task RecordGovernanceMutationCorrection_returns_conflict_when_zero_width_prefixed_run_id_has_sealed_manifest_hash_drift()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string prefixedRunId = $"\u200B{runId:D}";
+        const string storedHash = "stored-manifest-hash";
+        const string computedHash = "recomputed-manifest-hash";
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = storedHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new(MockBehavior.Strict);
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(computedHash);
+
+        Mock<IGovernanceMutationCorrectionService> mutationCorrections = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            mutationCorrections.Object,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.RecordGovernanceMutationCorrection(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-1",
+                RunId = prefixedRunId,
+                Rationale = ValidRationale,
+            },
+            CancellationToken.None);
+
+        ObjectResult conflict = result.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        conflict.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Type.Should().Be(ProblemTypes.Conflict);
+        mutationCorrections.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordGovernanceMutationCorrection_returns_conflict_when_padded_run_id_has_sealed_manifest_hash_drift()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

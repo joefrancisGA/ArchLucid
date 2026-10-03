@@ -14,7 +14,7 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
-import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import type { DriftSnapshotsTableFilterState } from "@/lib/infra-evidence/infra-evidence-drift-snapshots-table-filter";
 import { cn } from "@/lib/utils";
 import {
@@ -67,27 +67,39 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
 
   if (loading && snapshots.length === 0) {
     return (
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-        {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL}
-      </p>
+      <div className="space-y-1">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL}
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Loading means snapshot records are being retrieved; it does not indicate Azure resource health.
+        </p>
+      </div>
     );
   }
 
   return (
-    <EnterpriseTable ariaLabel={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL}>
-      <DriftSnapshotsTableHead
-        tableFilterState={tableFilterState}
-        hasActiveFilters={hasActiveFilters}
-        onSortColumn={onSortColumn}
-        onTableFiltersChange={onTableFiltersChange}
-        onClearFilters={onClearFilters}
-      />
-      <EnterpriseTableBody data-testid="infra-drift-snapshots-body">
+    <div className="space-y-2">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        Selecting a row changes the page context only; it does not modify the snapshot. Capture status describes snapshot capture, not Azure resource health. Relationship counts are relationships captured in this snapshot, not changes between snapshots. Delete removes the stored snapshot record from ArchLucid; it does not delete Azure resources.
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        Subscription identifies the captured inventory scope. Captured is when the inventory was recorded. Resources is the number of resource records in the snapshot.
+      </p>
+      <EnterpriseTable ariaLabel={GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL}>
+        <DriftSnapshotsTableHead
+          tableFilterState={tableFilterState}
+          hasActiveFilters={hasActiveFilters}
+          onSortColumn={onSortColumn}
+          onTableFiltersChange={onTableFiltersChange}
+          onClearFilters={onClearFilters}
+        />
+        <EnterpriseTableBody data-testid="infra-drift-snapshots-body">
         {snapshots.map((snapshot) => {
           const isSelected = selectedSnapshotId === snapshot.snapshotId;
           const isFocused = focusedSnapshotId === snapshot.snapshotId;
           const subscriptionLabel = formatSubscriptionCell(snapshot);
-          const captureStatus = resolveInfraEvidenceSnapshotCaptureStatusPresentation(snapshot.captureStatus);
+          const captureStatus = infraEvidenceSnapshotCaptureStatusTagProps(snapshot.captureStatus);
           const deleteAriaLabel = formatGovernanceInfrastructureDriftDeleteSnapshotAriaLabel(subscriptionLabel);
 
           return (
@@ -120,8 +132,7 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
                 <div className="flex flex-wrap items-center gap-2">
                   <span>{subscriptionLabel}</span>
                   <StatusTag
-                    kind={captureStatus.kind}
-                    label={captureStatus.label}
+                    {...captureStatus}
                     data-testid={`infra-drift-snapshot-capture-status-${snapshot.snapshotId}`}
                   />
                 </div>
@@ -180,7 +191,8 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
             </EnterpriseTableRow>
           );
         })}
-      </EnterpriseTableBody>
-    </EnterpriseTable>
+        </EnterpriseTableBody>
+      </EnterpriseTable>
+    </div>
   );
 }

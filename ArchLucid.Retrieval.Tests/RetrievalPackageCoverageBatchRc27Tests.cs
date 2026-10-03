@@ -107,18 +107,21 @@ public sealed class RetrievalPackageCoverageBatchRc27Tests
                 {
                     CorpusKind = "fresh",
                     DocumentCount = 10,
+                    ChunkCount = 42,
                     LastIndexedUtc = now.AddHours(-1),
                 },
                 new RetrievalCorpusFreshnessSummary
                 {
                     CorpusKind = "stale",
                     DocumentCount = 4,
+                    ChunkCount = 8,
                     LastIndexedUtc = now.AddHours(-25),
                 },
                 new RetrievalCorpusFreshnessSummary
                 {
                     CorpusKind = "never",
                     DocumentCount = 0,
+                    ChunkCount = 0,
                     LastIndexedUtc = null,
                 },
             ]);
@@ -136,7 +139,7 @@ public sealed class RetrievalPackageCoverageBatchRc27Tests
 
         AdminRagCorpusHealthItem fresh = response.Corpora.Single(c => c.CorpusKind == "fresh");
         fresh.IsStale.Should().BeFalse();
-        fresh.ChunkCount.Should().Be(10);
+        fresh.ChunkCount.Should().Be(42);
         fresh.EmbeddingDimension.Should().Be(32);
 
         AdminRagCorpusHealthItem stale = response.Corpora.Single(c => c.CorpusKind == "stale");

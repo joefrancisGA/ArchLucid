@@ -17,7 +17,6 @@ public sealed partial class PolicyPacksController
 {
     /// <summary>Returns each applicable enabled assignment as a separate resolved pack (no merge).</summary>
     [HttpGet("effective")]
-    [OutputCache(PolicyName = "ImmutableShort")]
     [ProducesResponseType(typeof(EffectivePolicyPackSet), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffective(CancellationToken ct = default)
@@ -44,7 +43,6 @@ public sealed partial class PolicyPacksController
 
     /// <summary>Returns the single merged effective policy pack content document.</summary>
     [HttpGet("effective-content")]
-    [OutputCache(PolicyName = "ImmutableShort")]
     [ProducesResponseType(typeof(PolicyPackContentDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffectiveContent(CancellationToken ct = default)

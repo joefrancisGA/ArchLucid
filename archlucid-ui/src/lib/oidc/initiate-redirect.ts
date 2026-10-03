@@ -8,7 +8,12 @@ import { buildAuthorizeUrl } from "@/lib/oidc/build-authorize-url";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { createPkcePair, randomOpaqueState } from "@/lib/oidc/pkce";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
-import { storePkceState, storePostSignInReturnUrl } from "@/lib/oidc/session";
+import {
+  clearPkceState,
+  clearPostSignInReturnUrl,
+  storePkceState,
+  storePostSignInReturnUrl,
+} from "@/lib/oidc/session";
 
 /**
  * Builds the IdP authorization URL and navigates the browser to it.
@@ -32,7 +37,15 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     storePostSignInReturnUrl(returnUrl);
   }
 
-  const doc = await loadDiscoveryDocument(authority);
+  let doc;
+
+  try {
+    doc = await loadDiscoveryDocument(authority);
+  } catch (error) {
+    clearPkceState("primary");
+    clearPostSignInReturnUrl();
+    throw error;
+  }
   const url = buildAuthorizeUrl({
     doc,
     clientId,
@@ -77,7 +90,15 @@ export async function initiateSupplementalOidcRedirect(
     storePostSignInReturnUrl(returnUrl);
   }
 
-  const doc = await loadDiscoveryDocument(authority);
+  let doc;
+
+  try {
+    doc = await loadDiscoveryDocument(authority);
+  } catch (error) {
+    clearPkceState("google");
+    clearPostSignInReturnUrl();
+    throw error;
+  }
   const url = buildAuthorizeUrl({
     doc,
     clientId,

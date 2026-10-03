@@ -135,6 +135,12 @@ Use the dedicated in-app guide for role requirements, scopes, setup, and verific
 
 That guide is driven by the same permission contract as hosted Tier 2 validation and customer onboarding templates. Do **not** assign Owner, Contributor, User Access Administrator, or broad directory roles for the Azure connection.
 
+## Azure inventory visibility {#azure-inventory-visibility}
+
+Azure inventory captures more resource types than ArchLucid lists in resource explorers, attested counts, drift comparison, and default inventory diagrams. Monitoring dashboards, Log Analytics workspaces, DNS zones, companion child records, and similar types are omitted so topology views stay readable and portal totals are not argued against Azure Resource Graph.
+
+The full catalog of omitted ARM types, last-segment rules, and SQL database names is documented in **[Drift & snapshots — Resources excluded from inventory views](/help/governance-infrastructure-drift#inventory-resources-excluded-from-views)**.
+
 ## Related topics {#related-topics}
 
 - **[Security and trust](/help/security-trust)** — assurance ladder, data handling, and diligence materials.

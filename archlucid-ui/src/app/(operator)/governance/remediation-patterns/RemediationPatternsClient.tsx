@@ -309,10 +309,25 @@ function VersionHistoryTable(props: {
       <EnterpriseTable ariaLabel="Remediation pattern version history">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Version</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Version</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The recorded version of this pattern.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Author</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Author</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Who recorded this pattern version.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Updated</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                When this pattern version was last recorded.
+              </span>
+            </EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -931,11 +946,36 @@ export function RemediationPatternsClient() {
             <EnterpriseTable ariaLabel="Remediation patterns">
               <EnterpriseTableHead>
                 <EnterpriseTableRow>
-                  <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Attention</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Approved version</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Key</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The stable identifier for this pattern. The key stays with the pattern.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Name</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The display name recorded for this pattern.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Status</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Whether this pattern is ready or still needs attention.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Attention</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Why this pattern needs attention, or that it does not.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Approved version</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The version currently approved for use. It may differ from a later draft.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                 </EnterpriseTableRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>

@@ -330,4 +330,578 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         recommendations.Should().HaveCount(2);
         recommendations.Should().OnlyContain(recommendation => recommendation.TradeOffs.Count == 0);
     }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["not-reliability pilot scope"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Reliability with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_no_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["no reliability stretch goals"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Reliability with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_not_cost()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            ["not-cost recovery program"]);
+
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+
+        reliabilityRecommendation.TradeOffs.Should().ContainSingle();
+        reliabilityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Reliability and Cost with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_non_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["Non-Reliability pilot scope"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Reliability with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_non_cost()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            ["Non-Cost recovery program"]);
+
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+
+        reliabilityRecommendation.TradeOffs.Should().ContainSingle();
+        reliabilityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Reliability and Cost with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_prefers_availability_first_when_priority_explicitly_names_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["Reliability-first recovery objectives"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Prioritize availability-first with explicit compensating controls.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_uses_integration_proposed_change_for_third_party_gap()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-int",
+            Dimension = QualityDimension.Integration,
+            Title = "Third-party webhook retries are undocumented",
+            Rationale = "No failure handling recorded.",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "Medium",
+        };
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [finding],
+            ["Integration"]).Single();
+
+        recommendation.ProposedChange.Should().Contain("external interfaces");
+        recommendation.ProposedChange.Should().Contain("authentication");
+        recommendation.ProposedChange.Should().NotContain("Address finding:");
+    }
+
+    [Fact]
+    public void Build_uses_generic_reliability_change_when_title_omits_recovery()
+    {
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-rel-generic",
+            Dimension = QualityDimension.Reliability,
+            Title = "Single-region deployment lacks documented failover",
+            Rationale = "No secondary region recorded.",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        string proposedChange = ArchitectureRecommendationProposedChange.Build(finding);
+
+        proposedChange.Should().Contain("Resolve the reliability gap");
+        proposedChange.Should().Contain("Single-region deployment lacks documented failover");
+        proposedChange.Should().NotContain("stated RTO");
+    }
+
+    [Fact]
+    public void BuildRecommendations_uses_privacy_compliance_proposed_change_for_residency_gap()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-privacy",
+            Dimension = QualityDimension.PrivacyCompliance,
+            Title = "Data residency obligations are undocumented",
+            Rationale = "No jurisdiction controls recorded.",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "Medium",
+        };
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [finding],
+            ["PrivacyCompliance"]).Single();
+
+        recommendation.ProposedChange.Should().Contain("compliance obligations");
+        recommendation.ProposedChange.Should().Contain("jurisdiction");
+        recommendation.ProposedChange.Should().NotContain("Address finding:");
+    }
+
+    [Fact]
+    public void BuildRecommendations_prefers_recovery_first_when_priority_explicitly_names_reliability()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            ["Reliability-first spend guardrails"]);
+
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+
+        reliabilityRecommendation.TradeOffs.Should().ContainSingle();
+        reliabilityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Prioritize recovery-first over cost-first.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_reliability_cost_trade_off_when_priority_mentions_no_cost()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            ["no-cost recovery program"]);
+
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+
+        reliabilityRecommendation.TradeOffs.Should().ContainSingle();
+        reliabilityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Reliability and Cost with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_security_reliability_trade_off_stays_on_security_when_reliability_is_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, securityFinding],
+            ["Security", "Reliability"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        reliabilityRecommendation.TradeOffs.Should().BeEmpty();
+        securityRecommendation.TradeOffs[0].CompetingPositions.Should().Contain("Security-first");
+    }
+
+    [Fact]
+    public void Build_cost_title_without_ceiling_uses_generic_cost_change()
+    {
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-cost-generic",
+            Dimension = QualityDimension.Cost,
+            Title = "Unmapped spend drivers exceed forecast",
+            Rationale = "Forecast variance is unexplained.",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        string proposedChange = ArchitectureRecommendationProposedChange.Build(finding);
+
+        proposedChange.Should().Contain("Address the cost exposure");
+        proposedChange.Should().Contain("Unmapped spend drivers exceed forecast");
+        proposedChange.Should().NotContain("monthly ceiling");
+    }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_security()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["not-security pilot scope"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Reliability with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_does_not_treat_unreliability_priority_as_reliability_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, reliabilityFinding],
+            ["Reduce unreliability exposure in legacy batch jobs"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Reliability with explicit human approval.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_security_cost_trade_off_stays_on_security_when_cost_is_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [costFinding, securityFinding],
+            ["Security", "Cost"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+        ArchitectureRecommendation costRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Cost.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        costRecommendation.TradeOffs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_reliability_cost_trade_off_stays_on_reliability_when_cost_is_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding reliabilityFinding = new()
+        {
+            FindingId = "f-rel",
+            Dimension = QualityDimension.Reliability,
+            Title = "Stated recovery objective may not be achievable",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [costFinding, reliabilityFinding],
+            ["Reliability", "Cost"]);
+
+        ArchitectureRecommendation reliabilityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString());
+        ArchitectureRecommendation costRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Cost.ToString());
+
+        reliabilityRecommendation.TradeOffs.Should().ContainSingle();
+        costRecommendation.TradeOffs.Should().BeEmpty();
+        reliabilityRecommendation.TradeOffs[0].CompetingPositions.Should().Contain("Recovery-first");
+    }
 }

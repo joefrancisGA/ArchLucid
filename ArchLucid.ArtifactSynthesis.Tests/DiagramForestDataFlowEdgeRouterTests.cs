@@ -107,6 +107,48 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
             .BeTrue();
     }
 
+    [Fact]
+    public void TryRoute_skipped_columns_uses_source_and_target_gutters_around_other_cards()
+    {
+        DiagramAst ast = BuildDenseDataFlowRoutingAst();
+        DiagramForestLayoutOptions options = new();
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(ast.Nodes, options);
+        DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
+            ast.Nodes,
+            ast.Subgraphs,
+            options,
+            labelContext);
+        DiagramForestDataFlowColumnLayout.NodePlacement source = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "source-middle", StringComparison.Ordinal));
+        DiagramForestDataFlowColumnLayout.NodePlacement storage = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "storage-node", StringComparison.Ordinal));
+        List<DiagramResourceGroupPacker.NodePlacementBounds> bounds = layout.Placements
+            .Select(placement => new DiagramResourceGroupPacker.NodePlacementBounds(
+                placement.Node,
+                placement.X,
+                placement.Y,
+                placement.Width,
+                placement.Height,
+                FrameCellId: null))
+            .ToList();
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult? route = DiagramForestDataFlowEdgeRouter.TryRoute(
+            source,
+            storage,
+            layout.Columns,
+            bounds,
+            source.Node.NodeId,
+            storage.Node.NodeId,
+            options);
+
+        route.Should().NotBeNull();
+        foreach (DiagramForestDataFlowColumnLayout.NodePlacement other in layout.Placements.Where(placement =>
+                     placement.Node.NodeId is not "source-middle" and not "storage-node"))
+        {
+            PathInteriorMustNotIntersectRect(route!, other, inflateBy: 1.0d).Should().BeTrue();
+        }
+    }
+
     private static DiagramForestDataFlowColumnLayout.Result BuildThreeColumnLayout(DiagramForestLayoutOptions options)
     {
         DiagramAst ast = BuildDataFlowRoutingAst();
@@ -191,6 +233,33 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
                 },
             ],
         };
+    }
+
+    private static DiagramAst BuildDenseDataFlowRoutingAst()
+    {
+        DiagramAst ast = BuildDataFlowRoutingAst();
+        ast.Nodes.AddRange(
+        [
+            new DiagramNode
+            {
+                NodeId = "source-middle",
+                Label = "source-middle",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                SubgraphId = "data-flow-stage-source",
+                OrderKey = 1,
+            },
+            new DiagramNode
+            {
+                NodeId = "source-bottom",
+                Label = "source-with-a-long-name-to-widen-the-column",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                SubgraphId = "data-flow-stage-source",
+                OrderKey = 2,
+            },
+        ]);
+        return ast;
     }
 
     private static bool PathInteriorMustNotIntersectRect(

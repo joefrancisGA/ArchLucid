@@ -112,4 +112,15 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
     expect(result.current.activeTab).toBe("findings");
   });
+
+  it("hydrates the initial active tab from a findings deep link", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=findings");
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+  });
 });

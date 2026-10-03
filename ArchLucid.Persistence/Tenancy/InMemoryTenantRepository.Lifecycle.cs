@@ -121,6 +121,26 @@ public sealed partial class InMemoryTenantRepository
         return Task.CompletedTask;
     }
 
+    public Task<bool> TrySuspendTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing)
+                || existing.OffboardedUtc is not null
+                || existing.SuspendedUtc is not null)
+            {
+                return Task.FromResult(false);
+            }
+
+            _byId[tenantId] = TenantRepositoryCore.CopyTenant(
+                existing,
+                suspendedUtcOverride: TimeProvider.System.GetUtcNow());
+            return Task.FromResult(true);
+        }
+    }
+
 
     /// <inheritdoc />
     public Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct)

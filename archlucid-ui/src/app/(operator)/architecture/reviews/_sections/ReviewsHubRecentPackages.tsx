@@ -89,13 +89,48 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
     <EnterpriseTableHead>
       <EnterpriseTableHeadRow>
         <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Evidence</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Status</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The current workflow state recorded for this review.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Last updated</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            When this review was last changed in ArchLucid.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Findings</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Findings recorded in this package, not necessarily findings currently open.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Risks</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Warnings recorded in this review package.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">
+          <span>Evidence</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Evidence items recorded in the package, not evidence currently available from Azure.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Approval</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            The package’s recorded governance outcome, not a new approval action.
+          </span>
+        </EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Action</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            These links open existing review context; they do not finalize or reopen the package.
+          </span>
+        </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );

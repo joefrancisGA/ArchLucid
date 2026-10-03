@@ -1,5 +1,9 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
+import { SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export const EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH = "/administration/extract-upload" as const;
 
@@ -18,6 +22,20 @@ export const EXTRACT_UPLOAD_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections", href: "/integrations/cloud-connections" },
   { label: "Connect Azure help", href: inAppHelpHref("cloud-connections-azure") },
 ] as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_SECURENOW_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
+  { label: "Findings", href: SECURENOW_FINDINGS_PATH },
+  { label: "Audit evidence", href: SECURENOW_AUDIT_EVIDENCE_PATH },
+  { label: "Cloud connections", href: "/integrations/cloud-connections" },
+  { label: "Connect Azure help", href: inAppHelpHref("cloud-connections-azure") },
+] as const;
+
+export function extractUploadSettingsSources(productLineId: ProductLineId = "architecture"): readonly EvidenceSourceLink[] {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_SETTINGS_SECURENOW_SOURCES
+    : EXTRACT_UPLOAD_SETTINGS_SOURCES;
+}
 
 /** Orientation-strip Sources — same follow-ups as operator Sources. */
 export const EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =

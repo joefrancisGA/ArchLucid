@@ -23,11 +23,7 @@ import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/
 export function RunsRowBaselineMenu(props: { runId: string }) {
   const pathname = usePathname() ?? "/";
   const [openRunId, setOpenRunIdState] = useState(() =>
-    parseRunsRowBaselineMenuRunIdFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM),
-    ),
+    parseRunsRowBaselineMenuRunIdFromSearch(null),
   );
   const openRunIdRef = useRef(openRunId);
   openRunIdRef.current = openRunId;

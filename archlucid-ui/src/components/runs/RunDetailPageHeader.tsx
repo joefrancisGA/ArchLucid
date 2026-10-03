@@ -58,11 +58,7 @@ function BuyerSponsorBriefExports({
 }) {
   const pathname = usePathname() ?? "/";
   const [sponsorBriefExportsOpen, setSponsorBriefExportsOpenState] = useState(() =>
-    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
-    ),
+    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(null),
   );
 
   const syncSponsorBriefExportsOpenToUrl = useCallback(

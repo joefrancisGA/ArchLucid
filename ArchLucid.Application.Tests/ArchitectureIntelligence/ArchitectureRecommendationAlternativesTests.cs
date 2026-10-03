@@ -81,6 +81,67 @@ public sealed class ArchitectureRecommendationAlternativesTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void Build_cost_title_without_ceiling_returns_default_paths()
+    {
+        IReadOnlyList<RecommendationAlternative> alternatives =
+            ArchitectureRecommendationAlternatives.Build(CreateFinding(
+                QualityDimension.Cost,
+                "Unmapped spend drivers exceed forecast"));
+
+        alternatives.Should().HaveCount(2);
+        alternatives[0].Path.Should().Contain("exception");
+        alternatives[1].Path.Should().Contain("additional evidence");
+        alternatives.Select(option => option.Path).Should().NotContain(path =>
+            path.Contains("spend caps", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Build_reliability_title_without_recovery_returns_default_paths()
+    {
+        IReadOnlyList<RecommendationAlternative> alternatives =
+            ArchitectureRecommendationAlternatives.Build(CreateFinding(
+                QualityDimension.Reliability,
+                "Single-region deployment lacks documented failover"));
+
+        alternatives.Should().HaveCount(2);
+        alternatives[0].Path.Should().Contain("exception");
+        alternatives[1].Path.Should().Contain("additional evidence");
+        alternatives.Select(option => option.Path).Should().NotContain(path =>
+            path.Contains("warm standby", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("chaos", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Build_returns_integration_default_paths()
+    {
+        IReadOnlyList<RecommendationAlternative> alternatives =
+            ArchitectureRecommendationAlternatives.Build(CreateFinding(
+                QualityDimension.Integration,
+                "Third-party webhook retries are undocumented"));
+
+        alternatives.Should().HaveCount(2);
+        alternatives[0].Path.Should().Contain("exception");
+        alternatives[1].Path.Should().Contain("additional evidence");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Build_returns_privacy_compliance_default_paths()
+    {
+        IReadOnlyList<RecommendationAlternative> alternatives =
+            ArchitectureRecommendationAlternatives.Build(CreateFinding(
+                QualityDimension.PrivacyCompliance,
+                "Data residency obligations are undocumented"));
+
+        alternatives.Should().HaveCount(2);
+        alternatives[0].Path.Should().Contain("exception");
+        alternatives[1].Path.Should().Contain("additional evidence");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void Build_returns_default_paths_for_other_dimensions()
     {
         IReadOnlyList<RecommendationAlternative> alternatives =

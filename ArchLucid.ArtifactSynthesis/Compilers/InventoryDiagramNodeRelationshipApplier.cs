@@ -297,8 +297,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
         IReadOnlyList<AzureInventoryNsgSecurityRule> rules = AzureInventoryNsgSecurityRuleParser.Parse(properties);
         Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(graph);
         Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(graphNode);
-        int emittedEdgeCount = 0;
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
+        HashSet<string> ownerDiagramNodeIds = new(StringComparer.Ordinal);
 
         foreach (AzureInventoryNsgAssociation association in associations)
         {
@@ -312,28 +312,33 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 nicOwnerArmIdByNicArmId,
                 subnetOwnerArmIds);
 
-            if (endpointArmIds.Count == 0)
-            {
-                continue;
-            }
-
             foreach (string endpointArmId in endpointArmIds)
             {
-                if (!armIdToDiagramNodeId.TryGetValue(endpointArmId, out string? endpointDiagramNodeId))
+                if (armIdToDiagramNodeId.TryGetValue(endpointArmId, out string? endpointDiagramNodeId))
                 {
-                    continue;
+                    ownerDiagramNodeIds.Add(endpointDiagramNodeId);
                 }
-
-                // The rule payload remains on the graph for the effective-rule reducer.
-                // A self-loop obscures that policy is attached to this visible owner.
-                emittedEdgeCount++;
             }
         }
 
-        if (emittedEdgeCount == 0)
+        if (ownerDiagramNodeIds.Count == 0)
         {
-            nsgNode.IsUnresolvedPolicyOutlineOnly = true;
-            return false;
+            ast.LedgerDrops.Add(new DiagramMermaidLedgerDrop
+            {
+                Reason = "nsg-unattached",
+                FromNodeId = nsgNode.NodeId,
+                ToNodeId = null,
+            });
+            removedDiagramNodeIds.Add(nsgNode.NodeId);
+            return true;
+        }
+
+        if (chips.Count > 0)
+        {
+            foreach (DiagramNode owner in ast.Nodes.Where(node => ownerDiagramNodeIds.Contains(node.NodeId)))
+            {
+                owner.NsgInboundRuleChips = chips.ToList();
+            }
         }
 
         removedDiagramNodeIds.Add(nsgNode.NodeId);

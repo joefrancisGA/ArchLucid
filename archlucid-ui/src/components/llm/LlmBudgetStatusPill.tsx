@@ -54,11 +54,7 @@ export function LlmBudgetStatusPill() {
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [open, setOpenState] = useState(() =>
-    parseLlmBudgetStatusPillOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("llmBudgetOpen"),
-    ),
+    parseLlmBudgetStatusPillOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

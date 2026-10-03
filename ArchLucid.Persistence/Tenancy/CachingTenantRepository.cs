@@ -117,6 +117,17 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
     }
 
     /// <inheritdoc />
+    public async Task<bool> TrySuspendTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        bool suspended = await _inner.TrySuspendTenantAsync(tenantId, ct);
+
+        if (suspended)
+            await InvalidateAsync(tenantId, ct);
+
+        return suspended;
+    }
+
+    /// <inheritdoc />
     public async Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
         bool cleared = await _inner.TryUnsuspendTenantAsync(tenantId, ct);

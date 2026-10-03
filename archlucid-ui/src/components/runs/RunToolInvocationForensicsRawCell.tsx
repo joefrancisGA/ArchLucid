@@ -66,11 +66,7 @@ function RawField(props: { readonly label: string; readonly value: string | null
 export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForensicsRawCellProps) {
   const pathname = usePathname() ?? "/";
   const [openTraceId, setOpenTraceIdState] = useState(() =>
-    parseRunToolInvocationForensicsTraceIdFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM),
-    ),
+    parseRunToolInvocationForensicsTraceIdFromSearch(null),
   );
   const openTraceIdRef = useRef(openTraceId);
   openTraceIdRef.current = openTraceId;

@@ -1,3 +1,4 @@
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 import { applyBffCsrfHeader, readBffCsrfTokenFromDocument } from "@/lib/proxy/bff-session-csrf-client";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
@@ -21,30 +22,6 @@ function buildBffMutationHeaders(): Headers {
   applyBffCsrfHeader(headers);
 
   return headers;
-}
-
-function resolveExpiresInSeconds(expiresIn: number | undefined): number {
-  const defaultExpiresInSec = 3600;
-
-  if (expiresIn === undefined) {
-    return defaultExpiresInSec;
-  }
-
-  const numericExpiresIn = Number(expiresIn);
-
-  if (!Number.isFinite(numericExpiresIn)) {
-    return defaultExpiresInSec;
-  }
-
-  if (numericExpiresIn === 0) {
-    return 0;
-  }
-
-  if (numericExpiresIn < 0) {
-    return defaultExpiresInSec;
-  }
-
-  return Math.trunc(numericExpiresIn);
 }
 
 /** LK-06 P2: mirror OIDC token material into the HttpOnly BFF cookie (no sessionStorage tokens). */

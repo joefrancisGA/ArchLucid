@@ -71,7 +71,7 @@ Scoped compile check for agents: `.\scripts\ci\agent-compile-check.ps1` (see `.c
 
 ## Cursor Cloud specific instructions
 
-Cursor Cloud Agent VMs are **Linux**. **`pwsh` is not preinstalled**; `python3` and `dotnet` usually are. Repo scripts and Pester suites expect PowerShell 7 + Pester 5 (same band as CI `azure-extractor-pester` in `.github/workflows/ci.yml`).
+Cursor Cloud Agent VMs are **Linux**. **`python3` is preinstalled**. The base image does not include the .NET SDK or PowerShell. **`scripts/cloud-agent-install.sh`** (Cloud Agent `install`) installs the SDK pinned in **`global.json`**, Node.js 22 under **`/usr/local`**, PowerShell 7 + Pester 5, restores and Debug-builds **`ArchLucid.Api`**, and runs **`npm ci`** in **`archlucid-ui`**. **`scripts/cloud-agent-start.sh`** (Cloud Agent `start`) launches the API on port **5128** with **`ArchLucid__StorageProvider=InMemory`** (no SQL) and the Next.js dev server on port **3000**. Open the UI at **`http://localhost:3000`**. Next.js blocks dev assets when the browser host is **`127.0.0.1`**. Repo scripts and Pester suites expect PowerShell 7 + Pester 5 (same band as CI `azure-extractor-pester` in `.github/workflows/ci.yml`). The manual steps below are what that install script runs when a tool is missing.
 
 **One-time per VM (user prefix, no root):**
 

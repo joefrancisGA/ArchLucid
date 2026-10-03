@@ -7,6 +7,7 @@ import {
   replaceMermaidForeignObjectLabelsWithSvgText,
   sanitizeArchitectureDiagramSvg,
 } from "@/lib/architecture/architecture-diagram-svg";
+import { parseDiagramNeighborhoodMap } from "@/lib/architecture/architecture-diagram-neighborhood-map";
 
 const LABELED_FOREIGN_OBJECT_SVG = [
   '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">',
@@ -52,6 +53,36 @@ describe("architecture-diagram-svg", () => {
     expect(sanitized).not.toContain("foreignObject");
     expect(sanitized).not.toContain("<script");
     expect(sanitized).not.toContain("alert(1)");
+  });
+
+  it("preserves neighborhood metadata for the subscription map parser", () => {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',
+      '  <metadata id="diagram-neighborhoods">',
+      '    <neighborhood id="vnet:app" kind="vnet" title="app-vnet" resource-count="2">',
+      '      <member id="vm-a"/>',
+      '      <frame id="vnet-app"/>',
+      '      <type name="virtualMachines" count="1"/>',
+      "    </neighborhood>",
+      '    <link from="vnet:app" to="other-resource-groups" count="3"/>',
+      "  </metadata>",
+      "</svg>",
+    ].join("");
+
+    const sanitized = sanitizeArchitectureDiagramSvg(svg);
+    const parsed = parseDiagramNeighborhoodMap(svg);
+
+    expect(sanitized).toMatch(/<metadata id="diagram-neighborhoods">\s*<\/metadata>/u);
+    expect(parsed?.neighborhoods[0]).toMatchObject({
+      id: "vnet:app",
+      title: "app-vnet",
+      memberIds: ["vm-a"],
+      frameIds: ["vnet-app"],
+      types: [{ name: "virtualMachines", count: 1 }],
+    });
+    expect(parsed?.links).toEqual([
+      { from: "vnet:app", to: "other-resource-groups", count: 3 },
+    ]);
   });
 
   it("paints SVG text that only had fill none so labels are not invisible", () => {

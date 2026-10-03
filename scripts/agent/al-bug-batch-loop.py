@@ -173,14 +173,9 @@ def hunt_zone(zone: dict) -> HuntResult:
         return HuntResult(zone_id, "dry", "zone paths missing on disk")
 
     if zone.get("seedHunt"):
-        candidates = zone.get("candidateHypotheses") or []
-        if candidates:
-            evaluated = [
-                EvaluatedRow(c, "invalid", "Template candidate retired during seed pass.")
-                for c in candidates
-            ]
-            return HuntResult(zone_id, "seed-only", "seed hunt promoted/retired candidates", evaluated)
-        return HuntResult(zone_id, "seed-only", "seed hunt; no open rows after file read")
+        # This runner does not read source or author hypotheses. Retiring
+        # stored candidates here deletes the lens a full /al-bug seed hunt needs.
+        return HuntResult(zone_id, "seed-only", "seed hunt; batch runner does not author hypotheses")
 
     hunt_ready = zone.get("huntReadyHypotheses") or []
     if not hunt_ready:
@@ -242,7 +237,18 @@ def update_zone_ledger(content: str, result: HuntResult) -> str:
 
     def set_field(field: str, value: str) -> None:
         nonlocal block
-        block = re.sub(rf"(- \*\*{re.escape(field)}:\*\* ).*", rf"\1{value}", block, count=1)
+        pattern = rf"(- \*\*{re.escape(field)}:\*\* ).*"
+        if re.search(pattern, block):
+            block = re.sub(pattern, rf"\g<1>{value}", block, count=1)
+            return
+
+        # Some older ledger zones omit last-hunt entirely. Without a persisted
+        # timestamp, the picker treats them as never hunted and counts all
+        # recent commits as churn on every subsequent batch run.
+        anchor = re.search(r"(- \*\*hunts:\*\* \d+\n)", block)
+        if not anchor:
+            raise RuntimeError(f"missing field {field} and hunts anchor for {result.zone_id}")
+        block = block[:anchor.end()] + f"- **{field}:** {value}\n" + block[anchor.end():]
 
     bump("hunts")
     set_field("last-hunt", TODAY)

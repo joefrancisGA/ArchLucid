@@ -21,8 +21,14 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         if (chosen is null)
             return candidate;
 
-        if (chosen.IsLocked)
+        if (chosen.IsLocked
+            && IsAuthoritativeChosenSource(chosen.Source)
+            && HasSubstantiveEvidenceRef(chosen.EvidenceRef)
+            && SharesProviderFamilyGate(chosen.ProviderFamily, candidate.ProviderFamily)
+            && TechnologyNamesMatch(chosen.TechnologyName, candidate.TechnologyName))
+        {
             return null;
+        }
 
         if (SharesProviderFamilyGate(chosen.ProviderFamily, candidate.ProviderFamily))
         {

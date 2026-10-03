@@ -20,11 +20,7 @@ export type RunDetailFindingsListViewToggleProps = {
 export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListViewToggleProps): ReactElement {
   const pathname = usePathname() ?? "";
   const readActiveView = (): ReviewFindingsListViewKind => {
-    const fromUrl = parseReviewFindingsListViewFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("findingsListView"),
-    );
+    const fromUrl = parseReviewFindingsListViewFromSearch(null);
 
     return fromUrl ?? defaultReviewFindingsListView(props.workingMode);
   };

@@ -12,6 +12,15 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly seedNodeId?: string | null;
   /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
   readonly outlineOnlyOnCanvas?: boolean;
+  readonly unresolvedRelationshipDetails?: readonly string[];
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
+};
+
+export type InfraEvidenceMermaidLedgerDrop = {
+  readonly reason: string;
+  readonly from: string;
+  readonly to: string | null;
 };
 
 export type InfraEvidenceDiagramOutlineEdgeSource =
@@ -42,6 +51,7 @@ export type InfraEvidenceMermaidOutline = {
     readonly from: string;
     readonly to: string;
   }[];
+  readonly ledgerDrops?: readonly InfraEvidenceMermaidLedgerDrop[];
 };
 
 const NODE_WITH_LABEL =
@@ -158,11 +168,12 @@ const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\
 const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
 
 const OUTLINE_METADATA_TOKEN =
-  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only|al-unresolved|al-questionable-reason|al-questionable-action)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+
+const LEDGER_DROP_COMMENT = /^%%\s+al-ledger-drop\s+(\S+)\s+(\S+)\s+(\S+)/u;
 
 const EDGE_OUTLINE_METADATA_TOKEN =
   /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
-const DROP_GATE_ROW = /^%%\s+al-ledger-drop\s+(\S+)\s+(\S+)\s+(\S+)$/u;
 
 type OutlineNodeMetadata = {
   readonly resourceType: string | null;
@@ -170,6 +181,9 @@ type OutlineNodeMetadata = {
   readonly connectionState: InfraEvidenceMermaidOutlineNode["connectionState"];
   readonly seedNodeId: string | null;
   readonly outlineOnlyOnCanvas: boolean;
+  readonly unresolvedRelationshipDetails: readonly string[];
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
 };
 
 type OutlineEdgeMetadata = {
@@ -205,6 +219,9 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
   let connectionState: InfraEvidenceMermaidOutlineNode["connectionState"] = null;
   let seedNodeId: string | null = null;
   let outlineOnlyOnCanvas = false;
+  let questionableReason: string | null = null;
+  let questionableAction: string | null = null;
+  const unresolvedRelationshipDetails: string[] = [];
 
   for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
     const key = match[1];
@@ -240,13 +257,41 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     if (key === "al-outline-only" && (value === "true" || value === "1")) {
       outlineOnlyOnCanvas = true;
     }
+
+    if (key === "al-questionable-reason") {
+      questionableReason = value;
+    }
+
+    if (key === "al-questionable-action") {
+      questionableAction = value;
+    }
+
+    if (key === "al-unresolved") {
+      unresolvedRelationshipDetails.push(value);
+    }
   }
 
-  return { resourceType, resourceGroup, connectionState, seedNodeId, outlineOnlyOnCanvas };
+  return {
+    resourceType,
+    resourceGroup,
+    connectionState,
+    seedNodeId,
+    outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails,
+    ...(questionableReason === null ? {} : { questionableReason }),
+    ...(questionableAction === null ? {} : { questionableAction }),
+  };
 }
 
 function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
-  return { resourceType: null, resourceGroup: null, connectionState: null, seedNodeId: null, outlineOnlyOnCanvas: false };
+  return {
+    resourceType: null,
+    resourceGroup: null,
+    connectionState: null,
+    seedNodeId: null,
+    outlineOnlyOnCanvas: false,
+    unresolvedRelationshipDetails: [],
+  };
 }
 
 function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
@@ -405,6 +450,12 @@ function mergeOutlineNodeMetadata(
     connectionState: preferred.connectionState ?? fallback.connectionState,
     seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
     outlineOnlyOnCanvas: preferred.outlineOnlyOnCanvas || fallback.outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails:
+      preferred.unresolvedRelationshipDetails.length > 0
+        ? preferred.unresolvedRelationshipDetails
+        : fallback.unresolvedRelationshipDetails,
+    questionableReason: preferred.questionableReason ?? fallback.questionableReason,
+    questionableAction: preferred.questionableAction ?? fallback.questionableAction,
   };
 }
 
@@ -423,6 +474,12 @@ function withPrecedingMetadata(
     connectionState: node.connectionState ?? preceding.connectionState,
     seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
     outlineOnlyOnCanvas: node.outlineOnlyOnCanvas === true || preceding.outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails:
+      preceding.unresolvedRelationshipDetails.length > 0
+        ? preceding.unresolvedRelationshipDetails
+        : node.unresolvedRelationshipDetails,
+    questionableReason: node.questionableReason ?? preceding.questionableReason,
+    questionableAction: node.questionableAction ?? preceding.questionableAction,
   };
 }
 
@@ -467,6 +524,12 @@ function readNodeToken(
     connectionState: metadata.connectionState,
     seedNodeId: metadata.seedNodeId,
     outlineOnlyOnCanvas: metadata.outlineOnlyOnCanvas ? true : undefined,
+    unresolvedRelationshipDetails:
+      metadata.unresolvedRelationshipDetails.length > 0
+        ? metadata.unresolvedRelationshipDetails
+        : undefined,
+    questionableReason: metadata.questionableReason,
+    questionableAction: metadata.questionableAction,
   };
 }
 
@@ -503,6 +566,25 @@ function upsertNode(
       const next = nodeMap.get(node.id)!;
 
       nodeMap.set(node.id, { ...next, outlineOnlyOnCanvas: true });
+    }
+
+    if ((existing.unresolvedRelationshipDetails?.length ?? 0) === 0
+      && (node.unresolvedRelationshipDetails?.length ?? 0) > 0) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, unresolvedRelationshipDetails: node.unresolvedRelationshipDetails });
+    }
+
+    if (existing.questionableReason == null && node.questionableReason != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, questionableReason: node.questionableReason });
+    }
+
+    if (existing.questionableAction == null && node.questionableAction != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, questionableAction: node.questionableAction });
     }
 
     return;
@@ -605,6 +687,7 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
   const dropGateRows: InfraEvidenceMermaidOutline["dropGateRows"][number][] = [];
+  const ledgerDrops: InfraEvidenceMermaidLedgerDrop[] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
   let pendingEdgeMetadata: OutlineEdgeMetadata = emptyOutlineEdgeMetadata();
@@ -635,13 +718,21 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     // Own-line comments: mermaid.js only strips %% at line start. Inventory metadata
     // is emitted that way so the diagram parses; attach tokens to the next node.
     if (line.startsWith("%%")) {
-      const dropGateMatch = DROP_GATE_ROW.exec(line);
+      const ledgerMatch = LEDGER_DROP_COMMENT.exec(line);
 
-      if (dropGateMatch != null) {
+      if (ledgerMatch != null) {
+        const reason = ledgerMatch[1];
+        const from = ledgerMatch[2];
+        const toRaw = ledgerMatch[3];
+        ledgerDrops.push({
+          reason,
+          from,
+          to: toRaw === "_" ? null : toRaw,
+        });
         dropGateRows.push({
-          reason: dropGateMatch[1],
-          from: dropGateMatch[2],
-          to: dropGateMatch[3],
+          reason,
+          from,
+          to: toRaw,
         });
         continue;
       }
@@ -746,5 +837,6 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
     nodes: [...nodeMap.values()],
     edges,
     dropGateRows,
+    ledgerDrops,
   };
 }

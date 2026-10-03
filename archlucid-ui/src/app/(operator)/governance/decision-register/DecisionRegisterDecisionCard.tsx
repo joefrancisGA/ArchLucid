@@ -66,11 +66,21 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
       <CardContent>
         <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
           <div>
-            <dt className="text-al-text-secondary">Category</dt>
+            <dt className="text-al-text-secondary">
+              <span>Category</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The recorded category of this decision.
+              </span>
+            </dt>
             <dd className="m-0 font-medium text-al-text-primary">{decision.category || " — "}</dd>
           </div>
           <div>
-            <dt className="text-al-text-secondary">Review</dt>
+            <dt className="text-al-text-secondary">
+              <span>Review</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Open the review that recorded this decision.
+              </span>
+            </dt>
             <dd className="m-0">
               <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${decision.runId}`}>
                 Open review
@@ -78,7 +88,12 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             </dd>
           </div>
           <div>
-            <dt className="text-al-text-secondary">Recorded date</dt>
+            <dt className="text-al-text-secondary">
+              <span>Recorded date</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                When this decision was recorded. Opening the card does not record a new decision.
+              </span>
+            </dt>
             <dd className="m-0 font-medium text-al-text-primary">{formatRecordedAt(decision.recordedAtUtc)}</dd>
           </div>
           <div>

@@ -174,6 +174,12 @@ public sealed class RemediationInstanceRecord
         init;
     }
 
+    public DateTime? ChangeImplementedUtc
+    {
+        get;
+        init;
+    }
+
     public DateTime? VerifiedUtc
     {
         get;

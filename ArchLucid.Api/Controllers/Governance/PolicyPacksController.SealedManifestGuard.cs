@@ -1,10 +1,8 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +14,9 @@ public sealed partial class PolicyPacksController
     private async Task<IActionResult?> EnsurePolicyPackMutationSealedManifestAllowedAsync(
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext? scope = _scopeContextProvider.GetCurrentScope();
+        if (scope is null)
+            return null;
 
         try
         {
@@ -43,49 +43,4 @@ public sealed partial class PolicyPacksController
     private IActionResult MapPolicyPackSealedManifestConflict(ConflictException ex) =>
         PolicyPackSealedManifestConflictMapping.MapPolicyPackSealedManifestConflict(this, ex);
 
-    private async Task<IActionResult?> EnsurePolicyPackSimulateRunSealedManifestAllowedAsync(
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParse(runId, out Guid runGuid) || runGuid == Guid.Empty)
-            return null;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        try
-        {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runGuid,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapPolicyPackSealedManifestConflict(ex);
-        }
-
-        return null;
-    }
-
-    private async Task<IActionResult?> EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync(
-        IEnumerable<string> runIds,
-        CancellationToken cancellationToken)
-    {
-        foreach (string runId in runIds)
-        {
-            if (string.IsNullOrWhiteSpace(runId))
-                continue;
-
-            IActionResult? guardResult = await EnsurePolicyPackSimulateRunSealedManifestAllowedAsync(
-                runId.Trim(),
-                cancellationToken);
-
-            if (guardResult is not null)
-                return guardResult;
-        }
-
-        return null;
-    }
 }

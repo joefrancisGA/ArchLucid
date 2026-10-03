@@ -1,7 +1,8 @@
 export const INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX =
   "Declared pipeline wiring, not observed traffic.";
 
-const INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN = /(?:^|\s)al-(?:type|rg|seed)=/u;
+const INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN =
+  /(?:^|\s)al-(?:type|rg|seed|provenance|inference|declared-id|state|outline-only)=/u;
 
 /** True when a Mermaid comment line carries inventory node metadata rather than buyer-facing caption copy. */
 export function isInfraEvidenceMermaidMetadataComment(line: string): boolean {

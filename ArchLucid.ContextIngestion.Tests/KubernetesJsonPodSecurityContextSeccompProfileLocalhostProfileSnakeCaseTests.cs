@@ -27,7 +27,7 @@ public sealed class KubernetesJsonPodSecurityContextSeccompProfileLocalhostProfi
                           "template": {
                             "spec": {
                               "security_context": {
-                                "seccomp_profile": {{ "localhost_profile": "profiles/audit.json" }}
+                                "seccomp_profile": { "localhost_profile": "profiles/audit.json" }
                               },
                               "containers": [ { "name": "app", "image": "nginx" } ]
                             }

@@ -30,6 +30,38 @@ public sealed class MermaidDiagramStructuralValidatorTests
     }
 
     [Fact]
+    public void TryValidate_accepts_labeled_dotted_derived_edges()
+    {
+        const string mermaid = """
+            flowchart TD
+                n_vm["vm-bam-dev-01"]
+                n_nic["vm-bam-dev-01-nic-01"]
+                n_vm -.->|"Derived · via NIC: vm-bam-dev-01-nic-01 (NIC vm-bam-dev-01-nic-01)"| n_nic
+            """;
+
+        bool valid = validator.TryValidate(mermaid, out IReadOnlyList<string> errors);
+
+        valid.Should().BeTrue();
+        errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryValidate_rejects_unknown_edge_syntax()
+    {
+        const string mermaid = """
+            flowchart TD
+                n_a["a"]
+                n_b["b"]
+                n_a ??? n_b
+            """;
+
+        bool valid = validator.TryValidate(mermaid, out IReadOnlyList<string> errors);
+
+        valid.Should().BeFalse();
+        errors.Should().ContainSingle(error => error.Contains("Unrecognized Mermaid line", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void TryValidate_accepts_compiled_executive_owner_shape()
     {
         DiagramAstFromGraphCompiler compiler = new();

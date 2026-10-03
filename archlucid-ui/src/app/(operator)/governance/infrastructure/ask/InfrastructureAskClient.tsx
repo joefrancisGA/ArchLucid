@@ -135,7 +135,14 @@ function buildInfraAskTurnId(index: number): string {
   return `infra-ask-turn-${index + 1}`;
 }
 
-export function InfrastructureAskClient() {
+export type InfrastructureAskPresentation = "page" | "drawer";
+
+export type InfrastructureAskClientProps = {
+  readonly presentation?: InfrastructureAskPresentation;
+};
+
+export function InfrastructureAskClient({ presentation = "page" }: InfrastructureAskClientProps) {
+  const drawerPresentation = presentation === "drawer";
   const buyerPolishedShell = useProductionEvalChrome();
   const workingDeskChrome = useProductionDeskChrome();
   const { productLine } = useProductLine();
@@ -919,37 +926,13 @@ export function InfrastructureAskClient() {
     </div>
   ) : null;
 
-  return (
-    <OperatorPageContainer
-      variant="full"
-      className="py-4"
-      data-testid="infra-ask-page"
-    >
-      <a
-        href={`#${GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
-        {GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL}
-      </a>
-
-      <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_ASK_PATH}
-        eyebrow={buyerPolishedShell ? undefined : GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW}
-        title={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE}
-        subtitle={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD}
-        claimDiscipline={
-          buyerPolishedShell || workingDeskChrome ? GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE : undefined
-        }
-        claimDisciplineTestId="infra-ask-claim-discipline"
-        titleTestId="infra-ask-page-title"
-        breadcrumb={<InfrastructureAskBreadcrumb />}
-        actions={headerActions}
-      />
-
-
+  const askBody = (
       <main
         id={GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID}
-        className={cn("flex w-full flex-col gap-4", buyerPolishedShell || workingDeskChrome ? "scroll-mt-24" : undefined)}
+        className={cn(
+          "flex w-full flex-col gap-4",
+          !drawerPresentation && (buyerPolishedShell || workingDeskChrome) ? "scroll-mt-24" : undefined,
+        )}
         data-testid="infra-ask-primary-content"
       >
 
@@ -999,7 +982,7 @@ export function InfrastructureAskClient() {
               </div>
             ) : null}
           </div>
-          {scopeBackLinks.length > 0 ? (
+          {!drawerPresentation && scopeBackLinks.length > 0 ? (
             <nav aria-label={GOVERNANCE_INFRASTRUCTURE_ASK_SCOPE_BACK_LINKS_LABEL} className="mt-3">
               <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {GOVERNANCE_INFRASTRUCTURE_ASK_SCOPE_BACK_LINKS_LABEL}
@@ -1137,8 +1120,42 @@ export function InfrastructureAskClient() {
 
       {transcriptRegion}
 
-        {buyerPolishedShell ? <InfrastructureAskClaimOrientationStrip /> : null}
+        {buyerPolishedShell && !drawerPresentation ? <InfrastructureAskClaimOrientationStrip /> : null}
       </main>
+  );
+
+  if (drawerPresentation) {
+    return askBody;
+  }
+
+  return (
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="infra-ask-page"
+    >
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL}
+      </a>
+
+      <OperatorPageHeader
+        navHref={GOVERNANCE_INFRASTRUCTURE_ASK_PATH}
+        eyebrow={buyerPolishedShell ? undefined : GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW}
+        title={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD}
+        claimDiscipline={
+          buyerPolishedShell || workingDeskChrome ? GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE : undefined
+        }
+        claimDisciplineTestId="infra-ask-claim-discipline"
+        titleTestId="infra-ask-page-title"
+        breadcrumb={<InfrastructureAskBreadcrumb />}
+        actions={headerActions}
+      />
+
+      {askBody}
     </OperatorPageContainer>
   );
 }

@@ -39,6 +39,12 @@ public interface IRemediationInstanceService
         string correlationId,
         CancellationToken cancellationToken = default);
 
+    Task<RemediationInstanceOperationResult> AttestChangeImplementedAsync(
+        ScopeContext scope,
+        Guid instanceId,
+        string actorKey,
+        CancellationToken cancellationToken = default);
+
     Task<RemediationInstanceOperationResult> VerifyAsync(
         ScopeContext scope,
         Guid instanceId,

@@ -82,6 +82,37 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_derived_controller_when_only_inherited_action_is_allow_anonymous()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class SharedController : ControllerBase
+    {
+        [AllowAnonymous]
+        public IActionResult Get() => Ok();
+    }
+
+    public sealed class DerivedController : SharedController
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_when_controller_has_Authorize()
     {
         const string testCode = AspNetCoreStubs +

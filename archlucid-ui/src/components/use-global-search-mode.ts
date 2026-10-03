@@ -67,7 +67,7 @@ export function useGlobalSearchMode() {
     return "";
   }, [routeLocalSearchMode]);
 
-  const [routeLocalSearchQuery, setRouteLocalSearchQuery] = useState(() => readRouteLocalSearchQuery());
+  const [routeLocalSearchQuery, setRouteLocalSearchQuery] = useState("");
 
   useEffect(() => {
     const syncRouteLocalSearchQueryFromUrl = (): void => {
