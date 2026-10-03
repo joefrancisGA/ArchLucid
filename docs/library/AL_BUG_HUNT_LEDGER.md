@@ -11634,7 +11634,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -19028,7 +19028,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
 - **hunts:** 16
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-11 — at-sign-delimited resource tokens under-penalized duplication parity
 - **related-pd-tb:** none
@@ -26792,11 +26792,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-03 thorough hunt (dry): cheap-disproved all five coordination candidates; no reachable wrong outcome remained for a failing repro.
 
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — `Guid.Empty` is accepted by the nullable `RunId` pattern and may dispatch a run-scoped work type without manifest validation; reachable through a malformed persisted post-commit outbox row.
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessReviewCompletedEventAsync` — payload `ProjectId` overrides the outbox entry project without an equality check; reachable through persisted post-commit payload JSON created by an enqueue caller.
-- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — only an exact `ConflictException` gets immediate dead-letter treatment, so a derived or wrapped permanent conflict may consume all retry attempts; reachable through sealed-manifest guard exception propagation.
-- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — an empty outbox `RunId` skips the SQL snapshot/outbox run-id consistency check and sealed-manifest guard; reachable through a persisted graph outbox row with an empty run id.
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor.DispatchWorkTypeAsync` — unknown persisted work types retry until dead-letter rather than being marked permanently invalid immediately; reachable through forward-incompatible or corrupted outbox work-type values.
+2026-10-03 thorough hunt (dry): repeated all five candidate cheap-disproof checks; empty run ids fail closed or are unreachable from production enqueue paths, `ConflictException` matching covers derived exceptions, and unknown work types follow the configured retry/dead-letter contract. The scoped test build was blocked by unrelated ARCH006/ARCH006a analyzer errors before tests ran.
+
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — `Guid.Empty` is accepted by the nullable `RunId` pattern and may dispatch a run-scoped work type without manifest validation; the empty run-id lookup returns no manifest detail and marks the row processed before dispatch, so no failing repro remains.
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.ProcessReviewCompletedEventAsync` — payload `ProjectId` overrides the outbox entry project without an equality check; current enqueue construction serializes the same scoped project into the payload, so the mismatched-project prerequisite is not reachable through the production enqueue path.
+- [x] (valid-no-repro) `RecoverableOutboxFailureHandler.HandleAsync` — only an exact `ConflictException` gets immediate dead-letter treatment; the `is ConflictException` pattern includes derived exceptions, and no wrapped permanent conflict path exists in the selected processors.
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — an empty outbox `RunId` skips the SQL snapshot/outbox run-id consistency check and sealed-manifest guard; production graph enqueue persists the non-empty snapshot run id, so the empty-run prerequisite requires out-of-band row corruption.
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.DispatchWorkTypeAsync` — unknown persisted work types retry until dead-letter rather than being marked permanently invalid immediately; the shared retry contract intentionally dead-letters after the configured ceiling, with no reachable immediate-invalid contract in this path.
 
 2026-10-03 seed hunt (seed-only): reread coordination dispatch, scope, conflict, and identity paths; no candidate met the hunt-ready bar in this pass.
 
