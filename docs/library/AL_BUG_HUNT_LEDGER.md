@@ -26093,11 +26093,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 34
-- **bugs-found:** 27
+- **hunts:** 35
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — empty execute not-assessed baseline skipped quality-dimension drift
+- **last-bug:** 2026-10-03 — promotion validation rejected equivalent dashed and canonical-N GUID run IDs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26162,6 +26162,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-26 thorough hunt (hit): proved governance dry-run undefined numeric minimum severity bypass and execute-baseline compliance-rule-key drift gaps; cheap-disproved lineage promotions-on-unsealed-manifest; 25 targeted + 736 scoped PolicyPack/Governance Application tests passed (4 unrelated bundled-pack/audit demo failures on VM).
 
+2026-10-03 seed hunt (seed→hit): proved promotion validation compared manifest and caller GUID run IDs as ordinal strings, rejecting equivalent dashed versus canonical-N formats; fixed with semantic GUID comparison and regression `PromoteAsync_accepts_equivalent_guid_run_id_formats`.
+
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after compliance-key drift fix; proved `PreFinalizeExecuteBaselineDriftEvaluator` ignored execute-time `CoverageAssignments` when pack-assignment hash unchanged (e.g. coverage acknowledgement or selection state drift); fixed with canonical coverage snapshot hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`; 8 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `CoverageAssignments` not compared before finalize — **hit 2026-09-26 seed hunt:** finalize `ResolveAsync` omits run coverage acknowledgements while execute snapshot freezes coverage rows; fixed with `HashCoverageAssignments` parity when execute captured coverage; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`.
@@ -26175,6 +26177,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — empty execute-time `NotAssessedQualityDimensions` skipped finalize comparison — **hit 2026-10-03 seed hunt:** the `Count > 0` guard allowed newly uncovered quality dimensions to pass finalize; fixed by always comparing the canonical snapshot hashes; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
+- [x] (proven) `GovernanceWorkflowPromoteValidateStage` — manifest run-id validation rejected equivalent GUID formatting — **hit 2026-10-03 seed hunt:** persisted manifests use canonical `"N"` GUIDs while callers can provide dashed `"D"` GUIDs; ordinal string comparison raised `GoldenManifestVersionNotFoundException` for the same run; fixed with `SameArchitectureRunKey` semantic GUID comparison; regression `PromoteAsync_accepts_equivalent_guid_run_id_formats`.
 - [x] (valid-no-repro) `GovernanceDigestDecisionNeededComposer.IsHighSeverity` — persisted `ArchitectureRiskRegisterEntry.Severity` values such as `not-critical` or `highly-relevant` are classified as high severity by substring matching — **cheap-disproof 2026-10-03 thorough hunt:** `ArchitectureRiskRegisterReader` projects the persisted finding severity value, whose application callers derive from the defined `FindingSeverity` enum; no accepted reachable severity vocabulary produces those strings.
 - [x] (valid-no-repro) `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName` — persisted platform-default `PolicyPack.Name` values with casing different from the bundled display-name constants are not recognized by the cloud baseline applicator — **cheap-disproof 2026-10-03 thorough hunt:** platform-default names come from embedded bundled manifest metadata during seeding, and no in-scope rename path mutates their casing; exact ordinal matching is intentional.
 

@@ -84,7 +84,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
         if (manifest is null)
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
-        if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+        if (!SameArchitectureRunKey(manifest.RunId, runId))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         if (!await _environmentCatalogService
