@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { resolveEmailOtpPostAuthPath } from "@/lib/auth/email-otp-post-auth";
+import {
+  resolveBootstrapCompletePath,
+  resolveEmailOtpPostAuthPath,
+} from "@/lib/auth/email-otp-post-auth";
+import { consumePostSignInReturnUrl } from "@/lib/oidc/session";
 
 vi.mock("@/lib/oidc/session", () => ({
   consumePostSignInReturnUrl: vi.fn(() => "/saved-return"),
@@ -13,6 +17,18 @@ describe("resolveEmailOtpPostAuthPath", () => {
 
   it("rejects open redirects for Complete", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
+  });
+
+  it("rejects an unsafe consumed return URL", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("https://evil.example");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/");
+  });
+
+  it("rejects an unsafe consumed return URL when completing bootstrap", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("https://evil.example");
+
+    expect(resolveBootstrapCompletePath("https://evil.example")).toBe("/");
   });
 
   it("routes AcceptInvitation to bootstrap", () => {
