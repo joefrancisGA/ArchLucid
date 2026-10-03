@@ -92,6 +92,10 @@ public sealed class BillingCheckoutFacade(
         try
         {
             BillingPortalResult result = await provider.CreateBillingPortalSessionAsync(new BillingPortalRequest { TenantId = scope.TenantId, ReturnUrl = body.ReturnUrl.Trim() }, cancellationToken);
+            if (string.IsNullOrWhiteSpace(result.PortalUrl)
+                || string.IsNullOrWhiteSpace(result.ProviderSessionId))
+                throw new InvalidOperationException("Billing provider returned an incomplete portal session.");
+
             await LogBillingAuditAsync(AuditEventTypes.BillingPortalCompleted, actorUserName, scope, JsonSerializer.Serialize(new { provider = provider.ProviderName, providerSessionId = result.ProviderSessionId }), cancellationToken);
             return new BillingPortalSessionResult { Outcome = BillingCheckoutValidationOutcome.Success, Portal = result };
         }

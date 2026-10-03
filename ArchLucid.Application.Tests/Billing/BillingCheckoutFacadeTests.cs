@@ -215,6 +215,46 @@ public sealed class BillingCheckoutFacadeTests
     }
 
     [SkippableFact]
+    public async Task CreatePortalSessionAsync_rejects_incomplete_provider_result()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateBillingPortalSessionAsync(It.IsAny<BillingPortalRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingPortalResult
+            {
+                PortalUrl = string.Empty,
+                ProviderSessionId = "bps_incomplete",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingPortalSessionResult result = await sut.CreatePortalSessionAsync(
+            new BillingPortalPostBody { ReturnUrl = "https://app.example.com/return" },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ProviderError);
+        result.ErrorMessage.Should().Contain("incomplete");
+    }
+
+    [SkippableFact]
     public async Task CreateCheckoutSessionAsync_blocks_when_active_subscription_exists()
     {
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

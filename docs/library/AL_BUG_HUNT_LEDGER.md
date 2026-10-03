@@ -7109,8 +7109,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 17
-- **bugs-found:** 9
+- **hunts:** 18
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
@@ -11353,7 +11353,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — incomplete checkout result reported success
+- **last-bug:** 2026-10-03 — incomplete portal result reported success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11377,10 +11377,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` silently maps missing or unknown `TargetTier` values to Team instead of rejecting the invalid request — **hit 2026-10-03:** API input permits null/blank/unknown tier labels, the facade's default parser created a Team checkout, and the controller documents `TargetTier` as required; fixed with explicit tier parsing and `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
 - [x] (proven) `BillingCheckoutFacade` only converted `InvalidOperationException` from checkout/portal providers, allowing transport/provider failures such as `HttpRequestException` to escape as unhandled API errors — **hit 2026-10-03:** a reachable provider transport failure escaped `CreateCheckoutSessionAsync`; fixed by mapping non-cancellation provider exceptions to `ProviderError` in both billing mutations; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error`.
 - (candidate) `TenantCostEstimateService.TryGetEstimateAsync` falls back to the Standard monthly band for an unknown persisted `TenantTier` enum value instead of surfacing an unavailable estimate — input: a tenant row read from persistence with a tier value outside the known enum members; reachability: `ITenantRepository.GetByIdAsync` supplies persisted `TenantRecord` values to this service.
-- (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` builds the integration message id from a blank or reused `ProviderDedupeKey`, potentially deduplicating distinct webhook events — input: a provider webhook payload whose resolved dedupe key is missing or reused; reachability: `MarketplaceWebhookReceivedIntegrationPayload` is created from inbound marketplace webhook processing.
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` builds the integration message id from a blank or reused `ProviderDedupeKey`, potentially deduplicating distinct webhook events — **cheap-disproof 2026-10-03:** `AzureMarketplaceBillingProvider` constructs the key from subscription id, action, and raw body before creating the application payload; equal keys are replay identities, not unrelated events.
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` returned `Success` when a provider result contained an empty checkout URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable SDK session URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_incomplete_provider_result`.
 - (candidate) `TenantLlmCostTopRunRanker.TryBuildRow` omits a run when its persisted trace cost slices aggregate to zero tokens even if a nonzero cost estimate is available — input: a trace slice with zero token counters and a positive provider estimate; reachability: `IAgentExecutionTraceRepository.GetLlmCostSlicesByRunIdsAsync` supplies persisted trace slices.
 - [x] (proven) `TenantLlmCostTopRunRanker.TryBuildRow` ignores `ReasoningTokens` when deciding whether a run has measurable usage, omitting reasoning-only runs when the provider rate is unavailable — **hit 2026-10-03:** the zero-usage predicate now includes reasoning tokens (`TenantLlmCostTopRunRankerTests.RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`).
+- [x] (proven) `BillingCheckoutFacade.CreatePortalSessionAsync` returned `Success` when a provider result contained an empty portal URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable portal URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreatePortalSessionAsync_rejects_incomplete_provider_result`.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
@@ -11398,6 +11399,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed→hit): proved an empty provider checkout URL was returned as a successful checkout handoff; incomplete provider results now return `ProviderError`; 22 scoped tests passed.
 2026-10-03 seed hunt (seed→hit): proved the top-run ranker discarded persisted reasoning-only traces when cost rates were unavailable because its zero-usage predicate ignored `ReasoningTokens`; the predicate now includes reasoning tokens; 22 scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved an empty provider portal URL was returned as a successful portal handoff; incomplete portal results now return `ProviderError`; 24 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
 
