@@ -26012,10 +26012,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — dual-model consensus merge threw when topology proposal RequiredControls was null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26063,6 +26063,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [ ] (candidate) `AgentResultRegionMismatchEnricher.ResolveDefaultRegion` — multiple user-supplied `region:` constraints select the first value without an explicit precedence or conflict result, which could validate recommendations against a non-authoritative region; confirm whether repeated constraints are supported and which region should win before promoting
 - [ ] (candidate) `AgentConfidenceCalibrator.BuildIsotonicKnots` — persisted calibration rows with non-finite raw confidence or semantic scores could create non-finite knots and calibrated output; confirm repository/API validation rejects `NaN` and infinities before attempting a repro
 - [x] (invalid) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution — invalid: `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects every stored or catalog allowlist entry that is absent from the alias registry before the resolver receives it
+
+2026-10-03 thorough hunt (dry): cheap-disproved the repeated `region:` constraint candidate because no repository contract defines repeated-region precedence or treats the first value as authoritative; cheap-disproved the non-finite calibration candidate because the selected path exposes no supported API/config input for `NaN` or infinity and persistence stores `FLOAT NOT NULL`; no hunt-ready defect remained. The scoped `Application.Tests.Agents` run was attempted but blocked by the unrelated existing `CS8999` raw-string error in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs`.
 
 2026-10-02 thorough hunt (dry): cheap-disproved alias-registry drift because `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects unsupported entries; region-constraint precedence and non-finite calibration samples remain candidates pending supported-input evidence; no hunt-ready defect remained.
 
