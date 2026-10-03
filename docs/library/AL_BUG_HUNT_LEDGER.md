@@ -18355,13 +18355,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — ADF dataset location mapped fileName as the container/filesystem
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 thorough hunt (dry): cheap-disproved the three ADF reseed candidates; the selected source and focused tests provide no reachable schema evidence that `container` and `fileSystem` coexist with type-specific precedence, that location `fileName` should lose to top-level `folderPath`, or that the deliberate 260-character bound is incorrect; no failing repro was warranted.
 
 2026-10-03 seed hunt (seed-only): re-read the ADF extractor helpers and focused tests after the container fallback fix; no second hunt-ready row was promoted; seeded candidate-level checks for alternate location fields, folder-path precedence, and bounded dataset metadata; no additional production fix or repro was attempted.
 
@@ -18601,9 +18603,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureInventoryRestorePointCollectionSourceParser` — flattened `source.id` property values serialized as package JSON reference blobs (`{"id":"..."}`) were normalized wholesale because the parser only called `ArmResourceIdNormalizer.Normalize` on the raw string — **hit 2026-09-26 seed hunt #31:** NR-03 restore point collection parent resolution dropped protected VM/VMSS sources when `source.id` carried JSON `GetRawText()`; fixed with `TryResolveArmReferenceValue` parity to access connector / network connection parsers; regression `Parse_reads_arm_id_from_json_reference_on_source_id_property`.
 - [x] (proven) `AzureInventoryAdfDatasetLocationExtractor` — `location.fileName` was selected before `location.container` for `ContainerOrFilesystem`, so an ADF dataset payload containing both fields reported the filename as its container — **hit 2026-10-03 seed hunt:** fixed the location fallback order; regression `Extract_prefers_container_over_file_name_for_blob_location`.
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser.NormalizeArmId` — explicit flattened `nextHopArmId` suffix values storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` — **cheap-disproof 2026-10-02:** package `ReadProperties` preserves route JSON as one `routes` property rather than producing flattened suffix keys, and all production consumers normalize resolved next-hop ids before lookup; no reachable package input reaches the suspected explicit-key branch.
-- [ ] (candidate) `AzureInventoryAdfDatasetLocationExtractor` — an ADF location object supplies both `container` and `fileSystem` for a dataset type whose canonical field is `fileSystem` — the fixed fallback still prefers `container`, so the normalized `ContainerOrFilesystem` value could identify the wrong storage scope; input is reachable from an ADF dataset `typeProperties.location` payload.
-- [ ] (candidate) `AzureInventoryAdfDatasetLocationExtractor` — `typeProperties.location.fileName` and top-level `typeProperties.folderPath` are both present — location-level `fileName` wins before the top-level folder path, so the extracted `FolderPath` could contain a filename rather than its directory; input is reachable from an ADF dataset location payload.
-- [ ] (candidate) `AzureInventoryAdfDatasetParser` — a reachable ADF dataset has a `folderPath`, `tableName`, or `schemaName` longer than the shared 260-character bound — parser truncation can make two distinct dataset locations serialize identically; input is reachable from normalized `adf-datasets.json` companion rows.
+- [x] (invalid) `AzureInventoryAdfDatasetLocationExtractor` — an ADF location object supplies both `container` and `fileSystem` for a dataset type whose canonical field is `fileSystem` — **cheap-disproof 2026-10-03:** the selected extractor source and focused tests contain no reachable schema evidence for both fields or type-specific precedence; no hunt-ready wrong outcome established.
+- [x] (invalid) `AzureInventoryAdfDatasetLocationExtractor` — `typeProperties.location.fileName` and top-level `typeProperties.folderPath` are both present — **cheap-disproof 2026-10-03:** the selected source and tests do not establish that this combination is a reachable ADF shape or that top-level `folderPath` must override location-level `fileName`; no hunt-ready wrong outcome established.
+- [x] (invalid) `AzureInventoryAdfDatasetParser` — a reachable ADF dataset has a `folderPath`, `tableName`, or `schemaName` longer than the shared 260-character bound — **cheap-disproof 2026-10-03:** the 260-character truncation is an explicit parser bound, and the selected source/tests show no requirement that these fields remain collision-free beyond it; no hunt-ready wrong outcome established.
 
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
