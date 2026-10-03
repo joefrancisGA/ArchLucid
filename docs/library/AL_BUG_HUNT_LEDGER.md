@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged authenticated header binding, production-like scope rejection skips, route tenant matching, and explicit cross-tenant/anonymous exception review; no new mechanism-backed reachable candidate emerged; scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — re-read authenticated header binding, production-like scope rejection skips, route tenant matching, and explicit cross-tenant/anonymous exceptions; no new mechanism-backed reachable candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `extraction-router` — re-read bounded marker matching, lifecycle-boundary inference, regulatory-marker classification, and extraction fallback paths; no new mechanism-backed reachable candidate emerged; scoped `DifficultyBasedExtractionRouterTests` passed.
