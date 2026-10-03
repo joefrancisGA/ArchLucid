@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read continue-from-existing-run cache manifests, pin scopes, and cache-hit finalization; no reachable wrong outcome emerged; 62 picker-scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — rechecked pinned expiry and deferred invalidation behavior; no reachable wrong outcome emerged; 62 picker-scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache pin/coalescing, invalidation/tombstones, and manifest hashing paths; no mechanism-backed reachable candidate emerged; 62 picker-scoped tests passed.
