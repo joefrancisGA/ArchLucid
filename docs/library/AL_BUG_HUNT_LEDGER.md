@@ -25941,15 +25941,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-02 — concurrent tenant suspend requests duplicated `TenantSuspended` audit events
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 2026-10-02 thorough hunt (hit): reproduced duplicate `TenantSuspended` audit events under concurrent suspend requests; shipped atomic repository transition semantics and the 128-test scoped tenancy suite passed.
+
+2026-10-03 seed hunt (seed-only): re-read tenancy suspend, trial lifecycle, and catalog migration paths; retained two cross-boundary concurrency candidates requiring repository-level proof. 128 focused tenancy tests passed.
 
 ### Hypotheses
 
@@ -25995,6 +25997,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TrialLimitGate` / `TenantTrialFacade.LinkEntraAsync` — whitespace-only `TrialStatus` bypasses trial write limits and Converted-or-commercial link-entra guard like empty commercial rows — **cheap-disproof 2026-09-26 seed hunt:** same unreachable-writer class as unrecognized lifecycle labels (#1705); lifecycle SQL hooks emit canonical non-whitespace labels; facade status API already treats whitespace as commercial display-only.
 - [x] (valid-no-repro) `TenantMigrationProjectionRefreshService.RefreshAsync` — retrieval outbox drainer batches are not filtered to the migrating `tenantId` — **cheap-disproof 2026-09-26 seed hunt:** operator fan-out step intentionally runs shared `IRetrievalIndexingOutboxProcessor` dequeue; tenant-scoped hot-path cache keys and policy-pack invalidation still target the migration triple; parity with #1859 optional drainer contract.
 - [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status retry path re-invokes hard purge without a separate `LegalHoldUntilUtc` guard inside the branch — **cheap-disproof 2026-09-26 seed hunt:** active legal hold short-circuits before the `Deleted` retry block on every scheduler tick; `Deleted` is only recorded after ExportOnly policy timers and the same pre-check.
+- [ ] (candidate) `TenantSuspendCommandService.TryUnsuspendAsync` — maps an atomic repository transition miss to `InErasureQuarantine` without re-reading tenant state; reachable concurrent admin unsuspend after another request already cleared `SuspendedUtc` needs repository-level proof that the miss can represent an already-unsuspended tenant.
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — checks active migration before inserting a new record, so concurrent migration starts can both pass the check and create overlapping active migrations; reachable concurrent tenant migration requests need proof of repository uniqueness/transaction behavior.
 
 - [x] (proven) `TrialSeatAccountant` / `TenantTrialSeatPolicy` vs `TryClaimTrialSeatAsync` — legacy lowercase/padded `active` `TrialStatus` rows were seat-metered in application policy but repository seat claim/increment used Ordinal `Active` and silently no-oped — **hit 2026-09-26 seed hunt:** parity with #1248/#808 lifecycle casing fixes; `EqualsStatus` read guards and CI-trim SQL bumps in `DapperTenantRepository.TrialSeats` + `InMemoryTenantRepository.TrialSeats`; regression `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap`.
 
