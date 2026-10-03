@@ -11349,8 +11349,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 16
-- **bugs-found:** 8
+- **hunts:** 17
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — billing transport failure escaped as an unhandled exception
@@ -11375,6 +11375,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` maps `IsPaymentPastDue` only from `Suspended` status — **cheap-disproof 2026-09-11 thorough hunt #1700:** Stripe `past_due` and `invoice.payment_failed` webhooks call `SuspendSubscriptionAsync` before status reads (`StripeBillingSubscriptionWebhookProcessorTests.HandleSubscriptionUpdatedAsync_past_due_suspends_subscription`); facade maps `Suspended` to past-due; regressions `GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due` and `GetSubscriptionStatusAsync_does_not_flag_active_subscription_as_payment_past_due`.
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` silently maps missing or unknown `TargetTier` values to Team instead of rejecting the invalid request — **hit 2026-10-03:** API input permits null/blank/unknown tier labels, the facade's default parser created a Team checkout, and the controller documents `TargetTier` as required; fixed with explicit tier parsing and `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
 - [x] (proven) `BillingCheckoutFacade` only converted `InvalidOperationException` from checkout/portal providers, allowing transport/provider failures such as `HttpRequestException` to escape as unhandled API errors — **hit 2026-10-03:** a reachable provider transport failure escaped `CreateCheckoutSessionAsync`; fixed by mapping non-cancellation provider exceptions to `ProviderError` in both billing mutations; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error`.
+- (candidate) `TenantCostEstimateService.TryGetEstimateAsync` falls back to the Standard monthly band for an unknown persisted `TenantTier` enum value instead of surfacing an unavailable estimate — input: a tenant row read from persistence with a tier value outside the known enum members; reachability: `ITenantRepository.GetByIdAsync` supplies persisted `TenantRecord` values to this service.
+- (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` builds the integration message id from a blank or reused `ProviderDedupeKey`, potentially deduplicating distinct webhook events — input: a provider webhook payload whose resolved dedupe key is missing or reused; reachability: `MarketplaceWebhookReceivedIntegrationPayload` is created from inbound marketplace webhook processing.
+- (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` returns `Success` when a provider result contains an empty checkout URL or provider session id — input: a reachable provider response with a missing Stripe session URL or id; reachability: the Stripe provider maps nullable SDK fields to empty strings before returning `BillingCheckoutResult`.
+- (candidate) `TenantLlmCostTopRunRanker.TryBuildRow` omits a run when its persisted trace cost slices aggregate to zero tokens even if a nonzero cost estimate is available — input: a trace slice with zero token counters and a positive provider estimate; reachability: `IAgentExecutionTraceRepository.GetLlmCostSlicesByRunIdsAsync` supplies persisted trace slices.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
@@ -11387,6 +11391,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed→hit): proved missing or unknown checkout `TargetTier` values fell through to a Team checkout; explicit validation now returns `RequestBodyRequired`; 20 scoped tests passed.
 
 2026-10-03 seed hunt (seed→hit): proved checkout provider transport failures escaped as unhandled exceptions; checkout and portal now return `ProviderError` for non-cancellation provider failures; 21 scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): re-read billing application sources and scoped tests; no fresh candidate met the full reachability and wrong-outcome bar for same-run proof; persisted four concrete candidates for a later hunt.
 
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
 
