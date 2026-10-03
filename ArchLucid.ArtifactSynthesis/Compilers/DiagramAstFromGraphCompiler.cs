@@ -212,7 +212,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramNodeRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
         InventoryDiagramParentAttachmentApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramOrphanedStateApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramOrphanedStateApplier.Apply(
+            ast,
+            graph,
+            nodeIdMap,
+            options.OrphanAnalysisGraph);
         if (isDataFlowMode)
         {
             InventoryDiagramDataFlowTraversalHopApplier.Apply(ast, graph, nodeIdMap, includedEdges);

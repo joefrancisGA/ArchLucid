@@ -107,7 +107,12 @@ public static class InventoryDiagramOrphanedStateClassifier
             || armResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase)
             || armResourceType.Contains("virtualNetworkGateways", StringComparison.OrdinalIgnoreCase))
         {
-            return TryClassifyOrphanedSubnetDependentResource(properties, armIdToGraphNode, armResourceType);
+            return TryClassifyOrphanedSubnetDependentResource(
+                graphNode,
+                graph,
+                properties,
+                armIdToGraphNode,
+                armResourceType);
         }
 
         if (armResourceType.Contains("loadBalancers", StringComparison.OrdinalIgnoreCase))
@@ -420,6 +425,8 @@ public static class InventoryDiagramOrphanedStateClassifier
     }
 
     private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedSubnetDependentResource(
+        GraphNode graphNode,
+        GraphSnapshot graph,
         IReadOnlyDictionary<string, string> properties,
         IReadOnlyDictionary<string, GraphNode> armIdToGraphNode,
         string armResourceType)
@@ -447,6 +454,13 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         if (string.IsNullOrWhiteSpace(subnetArmId)
+            && HasSubnetEdge(graphNode, graph)
+            )
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(subnetArmId)
             && (armResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase)
                 || armResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase)))
         {
@@ -454,6 +468,29 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         return null;
+    }
+
+    private static bool HasSubnetEdge(GraphNode graphNode, GraphSnapshot graph)
+    {
+        Dictionary<string, GraphNode> nodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        return graph.Edges.Any(edge =>
+        {
+            string? otherNodeId = edge.FromNodeId == graphNode.NodeId
+                ? edge.ToNodeId
+                : edge.ToNodeId == graphNode.NodeId
+                    ? edge.FromNodeId
+                    : null;
+
+            return otherNodeId is not null
+                && nodesById.TryGetValue(otherNodeId, out GraphNode? otherNode)
+                && string.Equals(
+                    ReadArmType(otherNode),
+                    "Microsoft.Network/virtualNetworks/subnets",
+                    StringComparison.OrdinalIgnoreCase);
+        });
     }
 
     private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedLoadBalancer(
