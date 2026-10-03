@@ -43,6 +43,9 @@ export type OperatorScopeRecord = {
   projectLabel: string;
 };
 
+let cachedOperatorScopeRaw: string | null | undefined;
+let cachedOperatorScopeSnapshot: OperatorScopeRecord | null = null;
+
 function isNonEmptyId(value: string | undefined | null): boolean {
   return value !== null && value !== undefined && value.trim().length > 0;
 }
@@ -54,11 +57,19 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw === cachedOperatorScopeRaw) {
+      return cachedOperatorScopeSnapshot;
+    }
+
+    cachedOperatorScopeRaw = raw;
+
     if (raw === null || raw.length === 0) {
+      cachedOperatorScopeSnapshot = null;
       return null;
     }
     const parsed = JSON.parse(raw) as unknown;
     if (parsed === null || typeof parsed !== "object" || !("tenantId" in parsed)) {
+      cachedOperatorScopeSnapshot = null;
       return null;
     }
     const row = parsed as Record<string, unknown>;
@@ -67,22 +78,26 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
       || typeof row.workspaceId !== "string"
       || typeof row.projectId !== "string"
     ) {
+      cachedOperatorScopeSnapshot = null;
       return null;
     }
     const tenantId = row.tenantId;
     const workspaceId = row.workspaceId;
     const projectId = row.projectId;
     if (!isNonEmptyId(tenantId) || !isNonEmptyId(workspaceId) || !isNonEmptyId(projectId)) {
+      cachedOperatorScopeSnapshot = null;
       return null;
     }
-    return {
+    cachedOperatorScopeSnapshot = {
       tenantId: tenantId.trim(),
       workspaceId: workspaceId.trim(),
       projectId: projectId.trim(),
       workspaceLabel: typeof row.workspaceLabel === "string" ? row.workspaceLabel.trim() : "",
       projectLabel: typeof row.projectLabel === "string" ? row.projectLabel.trim() : "",
     };
+    return cachedOperatorScopeSnapshot;
   } catch {
+    cachedOperatorScopeSnapshot = null;
     return null;
   }
 }

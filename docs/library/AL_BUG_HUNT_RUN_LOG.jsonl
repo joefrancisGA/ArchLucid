@@ -8670,3 +8670,4 @@
 {"at":"2026-10-03T23:01:24.9527390Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-03T23:05:56.1398865Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-03T23:09:03.7795230Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow"}
+{"at":"2026-10-03T23:12:15.3432784Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/","archlucid-ui/src/lib/operator/operator-scope-storage.ts"]}

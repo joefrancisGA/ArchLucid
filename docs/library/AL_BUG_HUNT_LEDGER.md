@@ -27739,11 +27739,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 22
-- **bugs-found:** 20
+- **hunts:** 23
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — clearing findings facet filters encoded the pathname as a query key and corrupted preserved URL state
+- **last-bug:** 2026-10-03 — persisted operator scope snapshot caused React useSyncExternalStore rerender loop
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27831,6 +27831,8 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): re-read bulk selection, URL synchronization, filtering, and assigned-to-me sorting after candidate retirement; no new reachable wrong outcome or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read queue filtering, saved-view navigation, bulk selection, grouped disclosure, virtualization, row mapping, and focused tests; no new hunt-ready row met the same-run repro bar. Seeded resource-disclosure revalidation and saved-view navigation-order candidates; focused suite had 22 passing and 11 pre-existing harness/fixture failures.
 2026-10-03 seed hunt (seed-only): re-read grouped disclosure state, queue filtering, saved-view navigation, and focused tests; the resource-disclosure candidate remains bounded but not yet repro-ready, and the saved-view ordering candidate lacks a deterministic failing route-transition repro. Focused suite had 13 passing and 11 pre-existing harness/fixture failures; no code changes.
+
+- [x] (proven) `useOperatorScopeRecord` — `readOperatorScopeFromStorage` returned a newly allocated object on every `useSyncExternalStore` snapshot read when a persisted operator scope existed, causing React's maximum-update-depth loop and preventing the governance findings queue from rendering; fixed with a raw-storage-keyed stable snapshot cache; regression `does not rerender forever when a persisted operator scope exists`.
 
 ---
 
