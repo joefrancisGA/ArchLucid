@@ -25884,13 +25884,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 31
-- **bugs-found:** 26
+- **hunts:** 32
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — pre-finalize checklist kept evidence-linkage gaps Advisory when linkage engine was enforcing (parity gap vs pre-commit gate after #1418 tech-consistency fix)
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — empty execute not-assessed baseline skipped quality-dimension drift
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
+
+2026-10-03 seed hunt (hit): promoted the empty not-assessed baseline candidate; `PreFinalizeExecuteBaselineDriftEvaluator` compared `NotAssessedQualityDimensions` only when the execute snapshot list was non-empty, so newly uncovered dimensions at finalize could pass without a blocking drift item. Fixed by comparing empty and non-empty snapshots symmetrically; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`; 12 focused tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
@@ -25952,6 +25954,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after conflict-count drift fix; proved execute snapshot `NotAssessedQualityDimensions` not compared when dimension/reason rows drifted without pack-hash change; fixed with canonical hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`; cheap-disproved `FocusedPilotModeEnabled` drift as covered by `ArchitectureRunIdempotencyHashing.FingerprintRequest` policy-reference fingerprint; 10 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — empty execute-time `NotAssessedQualityDimensions` skipped finalize comparison — **hit 2026-10-03 seed hunt:** the `Count > 0` guard allowed newly uncovered quality dimensions to pass finalize; fixed by always comparing the canonical snapshot hashes; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
 
 2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
