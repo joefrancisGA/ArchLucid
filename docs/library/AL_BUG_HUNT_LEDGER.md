@@ -24212,13 +24212,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read AWS pagination/token handling, GCP project-scoped asset paging, and Azure ARM next-link validators; no new reachable mechanism-backed candidate emerged; 98 Azure extractor tests and 78 AWS/GCP application tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read AWS Resource Explorer, GCP Asset Inventory, Azure ARM pagination/next-link validation, and cloud extractor packaging boundaries; no new reachable mechanism-backed candidate emerged; 98 Azure extractor tests and 78 AWS/GCP application tests passed.
 
