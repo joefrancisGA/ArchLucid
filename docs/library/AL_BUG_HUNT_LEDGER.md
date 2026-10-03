@@ -26885,7 +26885,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-23
@@ -27937,11 +27937,14 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (hit): inventory questions disappeared when the optional inferred-connection request failed; preserved question results while surfacing the secondary load error; `SecureNowQuestionQueue` regression passed.
 2026-10-03 seed hunt (hit): SecureNow mutation validation accepted an undefined `ScopeKind`; rejected invalid enum values at both the controller boundary and service boundary; 3 focused validation tests passed.
+2026-10-03 seed hunt (seed-only): reseeded question compilation and disposition lifecycle paths; left two concrete candidates for a future repro.
 
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
+- [ ] (candidate) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` can both reach the unknown-evidence path with the same empty resource identity, so the emitted set collapses to one question; input is reachable from nullable Azure inventory resource identifiers.
+- [ ] (candidate) `SecureNowQuestionCompiler` inferred-connection projection — a proposed record with an empty `FromArmId` and a populated `ToArmId` selects the empty string instead of the usable endpoint, producing an unaddressable question identity; input is reachable from persisted optional inferred-connection endpoint fields.
 
 ## Zone: infra-evidence-diagrams
 
