@@ -11380,6 +11380,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` builds the integration message id from a blank or reused `ProviderDedupeKey`, potentially deduplicating distinct webhook events — input: a provider webhook payload whose resolved dedupe key is missing or reused; reachability: `MarketplaceWebhookReceivedIntegrationPayload` is created from inbound marketplace webhook processing.
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` returned `Success` when a provider result contained an empty checkout URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable SDK session URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_incomplete_provider_result`.
 - (candidate) `TenantLlmCostTopRunRanker.TryBuildRow` omits a run when its persisted trace cost slices aggregate to zero tokens even if a nonzero cost estimate is available — input: a trace slice with zero token counters and a positive provider estimate; reachability: `IAgentExecutionTraceRepository.GetLlmCostSlicesByRunIdsAsync` supplies persisted trace slices.
+- [x] (proven) `TenantLlmCostTopRunRanker.TryBuildRow` ignores `ReasoningTokens` when deciding whether a run has measurable usage, omitting reasoning-only runs when the provider rate is unavailable — **hit 2026-10-03:** the zero-usage predicate now includes reasoning tokens (`TenantLlmCostTopRunRankerTests.RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`).
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
@@ -11396,6 +11397,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read billing application sources and scoped tests; no fresh candidate met the full reachability and wrong-outcome bar for same-run proof; persisted four concrete candidates for a later hunt.
 
 2026-10-03 seed hunt (seed→hit): proved an empty provider checkout URL was returned as a successful checkout handoff; incomplete provider results now return `ProviderError`; 22 scoped tests passed.
+2026-10-03 seed hunt (seed→hit): proved the top-run ranker discarded persisted reasoning-only traces when cost rates were unavailable because its zero-usage predicate ignored `ReasoningTokens`; the predicate now includes reasoning tokens; 22 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
 
