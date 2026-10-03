@@ -34133,6 +34133,145 @@
         },
         "type": "object"
       },
+      "SecureNowQuestionDispositionReopenApiRequest": {
+        "properties": {
+          "questionKey": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowQuestionDispositionWriteApiRequest": {
+        "properties": {
+          "answerCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "answerText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidenceFingerprint": {
+            "type": "string"
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "scopeKind": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowQuestionResponse": {
+        "properties": {
+          "answerCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "answerCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "answerText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "dispositionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidenceFingerprint": {
+            "type": "string"
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isExpired": {
+            "type": "boolean"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "questionText": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "scopeKind": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "sourceLine": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityAssessmentPublicationRequest": {
         "properties": {
           "assessmentCode": {
@@ -48306,6 +48445,9 @@
     },
     {
       "name": "InfraEvidenceOperatorInferredConnections"
+    },
+    {
+      "name": "InfraEvidenceSecureNowQuestions"
     },
     {
       "name": "InfraEvidenceSnapshots"

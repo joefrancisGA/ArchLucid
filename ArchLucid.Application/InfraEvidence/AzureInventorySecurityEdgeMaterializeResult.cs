@@ -10,6 +10,12 @@ public sealed class AzureInventorySecurityEdgeMaterializeResult
         init;
     } = [];
 
+    public IReadOnlyList<AzureInventoryAdfExternalSourceWrite> AdfExternalSources
+    {
+        get;
+        init;
+    } = [];
+
     public IReadOnlyList<string> CompletenessWarnings
     {
         get;

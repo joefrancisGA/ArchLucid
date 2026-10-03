@@ -27,6 +27,12 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             }
         }
 
+        foreach (DiagramDropGateRow row in ast.DropGateRows)
+        {
+            sb.AppendLine(
+                $"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {EscapeCommentToken(row.FromNodeId)} {EscapeCommentToken(row.ToNodeId)}");
+        }
+
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
         {
             sb.AppendLine($"    %% {InventoryDiagramResourceGroupMapBuilder.ViewMarker}");
@@ -204,6 +210,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         return "\"" + trimmed.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
+    }
+
+    private static string EscapeCommentToken(string value)
+    {
+        return value.Replace(' ', '_').Replace('\r', '_').Replace('\n', '_');
     }
 
     private static void AppendLedgerDrops(DiagramAst ast, StringBuilder sb)

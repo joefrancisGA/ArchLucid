@@ -330,6 +330,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                              AND SnapshotId = @SnapshotId;
                                            """;
 
+        const string deleteExternalSourcesSql = """
+                                                DELETE FROM dbo.AzureInventoryAdfExternalSources
+                                                WHERE TenantId = @TenantId
+                                                  AND SnapshotId = @SnapshotId;
+                                                """;
+
         const string deleteResourcesSql = """
                                           DELETE FROM dbo.AzureInventoryResources
                                           WHERE TenantId = @TenantId
@@ -398,6 +404,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             clearCloudResourceIdentitySnapshotPointersSql,
             deleteTagsSql,
             deletePropertiesSql,
+            deleteExternalSourcesSql,
             deleteResourcesSql,
             deleteRelationshipsSql,
             deleteIdentitiesSql,
