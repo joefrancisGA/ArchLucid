@@ -24214,7 +24214,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
 - **hunts:** 66
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
@@ -24229,6 +24229,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (seed-only): re-read AWS Resource Explorer, GCP Asset Inventory, Azure ARM pagination/next-link validation, and cloud extractor packaging boundaries; no new reachable mechanism-backed candidate emerged; 98 Azure extractor tests and 78 AWS/GCP application tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read AWS and GCP page collectors plus Azure ARM resource merging after recent pagination-guard changes; no hunt-ready row met the reachable wrong-outcome and mechanism bar. Retained three candidates: duplicate normalized Azure resource IDs in `MergeByResourceId`, duplicate AWS resources across Resource Explorer pages, and duplicate GCP resources across Asset Inventory pages. No scoped test execution was claimed.
+
+2026-10-03 thorough hunt (dry): cheap-disproved none of the three candidate rows into a reachable hunt-ready claim; no provider payload or caller contract established duplicate Azure IDs or duplicate AWS/GCP page results. The scoped Azure extractor test build was blocked before execution by pre-existing `CS8999` raw-string indentation in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs`; no failing repro or product fix was claimed.
 
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
