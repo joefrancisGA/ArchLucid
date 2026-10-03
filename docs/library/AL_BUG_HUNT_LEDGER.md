@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 thorough hunt (hit): `core-explanation-json` — out-of-range whole-number strings such as `"1e20"` passed finite/integer checks and converted to `int.MaxValue`, turning malformed persisted explanation counts into valid-looking counts. Added explicit `int.MaxValue` bounds for string and numeric floating-point paths; regression `FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing`; 41 scoped `RunExplanation` tests passed.
+
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — `WebhooksIntegrationEvidenceOrientationStrip` exposed five follow-up links, but the shared job-context cap truncated integration pages to three, dropping the reachable “How alerts work” link and failing the buyer-polished regression. Added an explicit source-list cap override and configured the webhook strip to retain all five links; isolated regression passed.
 
 2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload` materialization and JSON/null-document boundaries; no new mechanism-backed reachable candidate emerged; 28 picker-scoped payload tests passed.
