@@ -87,22 +87,24 @@ public sealed class SecureNowQuestionDispositionServiceTests
         rows[0].SubscriptionId.Should().Be("sub-1");
     }
 
-    [Fact]
-    public async Task Foreign_snapshot_cannot_read_or_write()
-    {
-        InMemoryDispositionRepository repository = new();
-        SecureNowQuestionDispositionService sut = CreateSut(repository, snapshotOwned: false);
+[Fact]
+public async Task Foreign_snapshot_cannot_read_or_write()
+{
+    InMemoryDispositionRepository repository = new();
+    SecureNowQuestionDispositionService sut = CreateSut(repository, snapshotOwned: false);
 
-        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
-            Scope,
-            SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource"),
-            "actor");
+    SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+        Scope,
+        SnapshotId,
+        CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource"),
+        "actor");
+    IReadOnlyList<SecureNowQuestionDispositionRecord> rows = await sut.ListAsync(Scope, SnapshotId);
 
-        result.Succeeded.Should().BeFalse();
-        result.ErrorMessage.Should().Be("Snapshot was not found.");
-        repository.Rows.Should().BeEmpty();
-    }
+    result.Succeeded.Should().BeFalse();
+    result.ErrorMessage.Should().Be("Snapshot was not found.");
+    repository.Rows.Should().BeEmpty();
+    rows.Should().BeEmpty();
+}
 
     [Fact]
     public async Task Ignore_requires_reason_and_expiration_cannot_exceed_ninety_days()

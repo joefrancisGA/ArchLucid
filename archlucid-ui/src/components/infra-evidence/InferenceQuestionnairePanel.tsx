@@ -136,22 +136,13 @@ export function InferenceQuestionnairePanel(
     } finally {
       setSubmitting(false);
     }
-  }, [choice, currentItem, loadItems, proposedItems.length, selectedCatalog, snapshotId]);
-
-  if (
-    proposedItems.length === 0
-    && !hasHumanConfirmed
-    && panelError == null
-    && skippedConnectionIds.size === 0
-    && items.length === 0
-  ) {
-    return null;
-  }
+  }, [choice, currentItem, loadItems, selectedCatalog, snapshotId]);
 
   const showEmptyRemainCaption = currentItem == null && panelError?.kind !== "load";
 
   return (
     <section
+      id="infra-diagrams-questionnaire"
       className="rounded-md border border-al-border bg-al-surface p-4"
       data-testid="inference-questionnaire-panel"
       aria-label="Inference questionnaire"
@@ -159,6 +150,9 @@ export function InferenceQuestionnairePanel(
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Inference questionnaire</h2>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            SecureNow asks for human context only when inventory evidence cannot establish a relationship.
+          </p>
           {hasHumanConfirmed ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -262,6 +256,10 @@ export function InferenceQuestionnairePanel(
               Continue
             </Button>
           </>
+        ) : loading ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Checking this snapshot for unanswered questions…
+          </p>
         ) : showEmptyRemainCaption ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             No proposed questionnaire items remain for this snapshot.

@@ -25,7 +25,7 @@ internal static class AzureInventorySnapshotHiddenHopComposer
         Dictionary<string, string> nicOwners = BuildNicOwners(edges, nodesById);
 
         AddNicOwnerEdges(edges, edgeKeys, nicOwners);
-        AddPrivateEndpointPlacementEdges(edges, edgeKeys, nicOwners);
+        AddPrivateEndpointPlacementEdges(nodes, edges, edgeKeys);
     }
 
     private static Dictionary<string, string> BuildNicOwners(
@@ -75,10 +75,13 @@ internal static class AzureInventorySnapshotHiddenHopComposer
     }
 
     private static void AddPrivateEndpointPlacementEdges(
+        IReadOnlyList<GraphNode> nodes,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys,
-        IReadOnlyDictionary<string, string> nicOwners)
+        HashSet<string> edgeKeys)
     {
+        Dictionary<string, GraphNode> nodesById = nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
         List<GraphEdge> targetEdges = edges
             .Where(IsPrivateEndpointTargetEdge)
             .ToList();
@@ -89,10 +92,13 @@ internal static class AzureInventorySnapshotHiddenHopComposer
                          string.Equals(edge.FromNodeId, targetEdge.FromNodeId, StringComparison.Ordinal)
                          && IsPrivateEndpointPlacementEdge(edge)))
             {
-                string placementNodeId = ResolvePlacementNodeId(placementEdge.ToNodeId, nicOwners);
+                string? vnetNodeId = ResolvePrivateEndpointVnetNodeId(
+                    placementEdge.ToNodeId,
+                    nodesById,
+                    edges);
 
-                if (string.IsNullOrWhiteSpace(placementNodeId)
-                    || string.Equals(targetEdge.ToNodeId, placementNodeId, StringComparison.Ordinal))
+                if (string.IsNullOrWhiteSpace(vnetNodeId)
+                    || string.Equals(targetEdge.ToNodeId, vnetNodeId, StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -101,22 +107,66 @@ internal static class AzureInventorySnapshotHiddenHopComposer
                     edges,
                     edgeKeys,
                     targetEdge.ToNodeId,
-                    placementNodeId,
-                    AzureInventoryRelationshipAssociationTypes.PeToSubnet,
-                    GraphEdgeInferenceSources.InventoryPeSubnet,
-                    label: "in",
+                    vnetNodeId,
+                    GraphEdgeTypes.ConnectsTo,
+                    GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                    label: "private endpoint",
                     provenanceKind: ProvenanceKind.DerivedFact.ToString());
             }
         }
     }
 
-    private static string ResolvePlacementNodeId(
-        string nodeId,
-        IReadOnlyDictionary<string, string> nicOwners)
+    private static string? ResolvePrivateEndpointVnetNodeId(
+        string placementNodeId,
+        IReadOnlyDictionary<string, GraphNode> nodesById,
+        IReadOnlyList<GraphEdge> edges)
     {
-        return nicOwners.TryGetValue(nodeId, out string? ownerNodeId)
-            ? ownerNodeId
-            : nodeId;
+        if (!nodesById.TryGetValue(placementNodeId, out GraphNode? placementNode))
+        {
+            return null;
+        }
+
+        string armId = placementNode.Properties.TryGetValue("arm.id", out string? value)
+            ? value
+            : string.Empty;
+
+        if (armId.Contains("/virtualNetworks/", StringComparison.OrdinalIgnoreCase)
+            && !armId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+        {
+            return placementNodeId;
+        }
+
+        foreach (GraphNode candidate in nodesById.Values)
+        {
+            string candidateArmId = candidate.Properties.TryGetValue("arm.id", out string? candidateValue)
+                ? candidateValue
+                : string.Empty;
+
+            if (candidateArmId.Contains("/virtualNetworks/", StringComparison.OrdinalIgnoreCase)
+                && !candidateArmId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase)
+                && ArmResourceIdNormalizer.IsDescendantOf(armId, candidateArmId))
+            {
+                return candidate.NodeId;
+            }
+        }
+
+        foreach (GraphEdge edge in edges)
+        {
+            if (!string.Equals(edge.FromNodeId, placementNodeId, StringComparison.Ordinal)
+                || !IsNicToSubnetEdge(edge)
+                || !nodesById.ContainsKey(edge.ToNodeId))
+            {
+                continue;
+            }
+
+            string? vnetNodeId = ResolvePrivateEndpointVnetNodeId(edge.ToNodeId, nodesById, edges);
+            if (!string.IsNullOrWhiteSpace(vnetNodeId))
+            {
+                return vnetNodeId;
+            }
+        }
+
+        return null;
     }
 
     private static bool IsVmToNicEdge(GraphEdge edge)

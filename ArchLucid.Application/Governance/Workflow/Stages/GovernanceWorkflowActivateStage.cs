@@ -87,7 +87,7 @@ public sealed class GovernanceWorkflowActivateStage(
         if (manifest is null)
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
-        if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+        if (!GovernanceRunIdNormalizer.AreEquivalent(manifest.RunId, runId))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         IReadOnlyList<GovernanceEnvironmentActivation> existing = await _activationRepo.GetByEnvironmentAsync(environment, cancellationToken);

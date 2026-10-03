@@ -62,13 +62,28 @@ export function RiskExceptionsTable({
     <EnterpriseTable ariaLabel="Risk exceptions">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Finding ID</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The finding this exception covers.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Owner</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The person recorded for the exception, not necessarily the current finding owner.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Rationale</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Why coverage was requested for this finding. View full rationale reveals the complete recorded explanation.
+            </span>
+          </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Status</span>
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              Active means the exception currently covers the finding.
+              Status describes exception coverage, not finding workflow status.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
@@ -76,8 +91,16 @@ export function RiskExceptionsTable({
             <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
               After this time the exception no longer covers the finding.
             </span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The exception stops covering the finding after this time.
+            </span>
           </EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Actions</span>
+            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Renew opens the exception record for a new coverage date and rationale. Revoke ends coverage. Neither remediates the finding.
+            </span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>

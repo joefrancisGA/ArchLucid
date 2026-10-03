@@ -38,12 +38,35 @@ export function GovernanceConflictsTable(props: GovernanceConflictsTableProps) {
     <EnterpriseTable ariaLabel="Policy pack conflict resolution" className={OPERATOR_TYPOGRAPHY.body}>
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell className={planningThTdCls}>Governance item</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell className={planningThTdCls}>Conflict</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell className={planningThTdCls}>Winning pack</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell className={planningThTdCls}>Why it won</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell className={planningThTdCls}>
-            {props.canEditPolicyPacks ? "Edit losing assignment" : "Losing packs"}
+            <span>Governance item</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The governance item the packs disagree about.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>
+            <span>Conflict</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              How the packs differ for this item.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>
+            <span>Winning pack</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The pack recorded as taking precedence for this item.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>
+            <span>Why it won</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The recorded reason that pack took precedence.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={planningThTdCls}>
+            <span>{props.canEditPolicyPacks ? "Edit losing assignment" : "Losing packs"}</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Open the recorded conflict. It does not change which pack wins.
+            </span>
           </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>

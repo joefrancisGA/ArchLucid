@@ -88,20 +88,12 @@ export function RunDetailSubmittedArchitectureSection(
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [sectionOpen, setSectionOpenState] = useState(() =>
-    parseSubmittedArchitectureOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("submittedArchitectureOpen"),
-    ),
+    parseSubmittedArchitectureOpenFromSearch(null),
   );
   const sectionOpenRef = useRef(sectionOpen);
   sectionOpenRef.current = sectionOpen;
   const [fullDescriptionOpen, setFullDescriptionOpenState] = useState(() =>
-    parseSubmittedArchitectureFullDescriptionOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("submittedArchitectureFullDescriptionOpen"),
-    ),
+    parseSubmittedArchitectureFullDescriptionOpenFromSearch(null),
   );
   const fullDescriptionOpenRef = useRef(fullDescriptionOpen);
   fullDescriptionOpenRef.current = fullDescriptionOpen;

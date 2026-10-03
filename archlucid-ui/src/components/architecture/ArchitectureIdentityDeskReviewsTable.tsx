@@ -94,16 +94,41 @@ export function ArchitectureIdentityDeskReviewsTable(
       <EnterpriseTable ariaLabel="Architecture reviews" data-testid="architecture-identity-reviews-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Started</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Review</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Open the review recorded for this architecture.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Started</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              When this review was started.
+            </span>
+          </EnterpriseTableHeaderCell>
           {showInFlightStatusColumn ? (
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Status</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Whether this review still has work in progress.
+              </span>
+            </EnterpriseTableHeaderCell>
           ) : null}
           {isWorkingMode ? (
-            <EnterpriseTableHeaderCell className="text-right">Actions</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className="text-right">
+              <span>Actions</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Finalize this review record when it is ready. Finalizing does not change Azure.
+              </span>
+            </EnterpriseTableHeaderCell>
           ) : null}
           {isWorkingMode ? (
-            <EnterpriseTableHeaderCell className="text-right">Pin</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className="text-right">
+              <span>Pin</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Keep this review pinned on the desk. Pinning does not change the review.
+              </span>
+            </EnterpriseTableHeaderCell>
           ) : null}
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>

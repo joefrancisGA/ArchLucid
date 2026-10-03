@@ -66,10 +66,10 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
         string? stateFromIncident = null;
 
         if (ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "sys_id", out JsonElement sid))
-            externalKey = sid.GetString();
+            externalKey = ReadStringToken(sid);
 
         if (externalKey is null && ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "sysId", out JsonElement sid2))
-            externalKey = sid2.GetString();
+            externalKey = ReadStringToken(sid2);
 
         if (ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(root, "state", out JsonElement st))
             stateFromState = ItsmInboundJsonElementReader.ReadStringOrRawText(st);
@@ -91,6 +91,9 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
 
         return !string.IsNullOrWhiteSpace(externalKey);
     }
+
+    private static string? ReadStringToken(JsonElement value) =>
+        value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 
     private static string? ResolveAlternateStatusValue(string? stateFromState, string? stateFromIncident, string? selectedStatusValue)
     {

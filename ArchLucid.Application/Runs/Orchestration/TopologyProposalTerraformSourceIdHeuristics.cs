@@ -74,6 +74,27 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             nodeId);
     }
 
+    internal static void PreferCategorizedSyntheticAlias(
+        Dictionary<string, string> aliasToNodeId,
+        string? label,
+        string? category,
+        string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(label) || string.IsNullOrWhiteSpace(category))
+            return;
+
+        string? primaryKey = IsDatastoreCategory(category)
+            ? TopologyProposalRelationshipEndpointIndex.BuildSyntheticDatastoreNodeId(label)
+            : TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(label);
+
+        if (primaryKey is null)
+            return;
+
+        // An inventoried node that omits category registers both prefixes first.
+        // The categorized node's own prefix must still win.
+        aliasToNodeId[primaryKey] = nodeId;
+    }
+
     internal static void AddGraphNodeTerraformSyntheticLabelResolutionFallback(
         Dictionary<string, string> aliasToNodeId,
         string? label,

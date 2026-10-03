@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import {
   buildBffSessionClearCookieHeaders,
   buildBffSessionCookieHeaders,
@@ -17,14 +18,7 @@ type BffSessionPostBody = {
 };
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
-  const defaultExpiresInSec = 3600;
-  const numericExpiresIn = expiresIn === undefined ? defaultExpiresInSec : Number(expiresIn);
-  const expiresInSec =
-    Number.isFinite(numericExpiresIn) && numericExpiresIn > 0
-      ? Math.trunc(numericExpiresIn)
-      : defaultExpiresInSec;
-
-  return Date.now() + expiresInSec * 1000;
+  return Date.now() + resolveExpiresInSeconds(expiresIn) * 1000;
 }
 
 /** Issues the HttpOnly BFF session cookie after browser sign-in (ADR 0059 P1 / LK-05). */

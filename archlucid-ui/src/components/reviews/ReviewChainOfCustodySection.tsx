@@ -70,11 +70,7 @@ export function ReviewChainOfCustodySection({
       : "Default policy pack";
   const pathname = usePathname() ?? "/";
   const [openSectionKey, setOpenSectionKeyState] = useState(() =>
-    parseReviewChainOfCustodySectionKeyFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM),
-    ),
+    parseReviewChainOfCustodySectionKeyFromSearch(null),
   );
   const openSectionKeyRef = useRef(openSectionKey);
   openSectionKeyRef.current = openSectionKey;

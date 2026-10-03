@@ -47,16 +47,19 @@ export function PlanningPageClient(props: PlanningPageClientProps) {
       return;
     }
 
-    setSelectedThemeId((prev) => {
-      if (prev === null) {
-        return null;
-      }
+    const themeIdFromUrl = parsePlanningThemeIdFromSearch(searchParams.get("theme"));
 
-      const stillThere = loaded.themes.some((t) => t.themeId === prev);
+    if (themeIdFromUrl === null) {
+      return;
+    }
 
-      return stillThere ? prev : null;
-    });
-  }, [loaded]);
+    const stillThere = loaded.themes.some((theme) => theme.themeId === themeIdFromUrl);
+
+    if (!stillThere) {
+      router.replace(planningThemeHrefFromSearch(searchParams.toString(), null), { scroll: false });
+      setSelectedThemeId(null);
+    }
+  }, [loaded, router, searchParams]);
 
   const model: PlanningPageViewModel = useMemo(() => {
     const load = async (): Promise<void> => {

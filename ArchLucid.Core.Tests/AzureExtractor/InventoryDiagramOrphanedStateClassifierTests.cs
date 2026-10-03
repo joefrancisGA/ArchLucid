@@ -73,6 +73,24 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
     }
 
     [Fact]
+    public void Classify_operational_insights_workspace_without_edges_is_unconnected()
+    {
+        GraphNode workspace = CreateTopologyNode(
+            "law-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/law",
+            "Microsoft.OperationalInsights/workspaces");
+
+        GraphSnapshot graph = CreateGraph([workspace], []);
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            workspace,
+            graph,
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Unconnected);
+    }
+
+    [Fact]
     public void Classify_workflow_with_deleted_target_marks_action_unresolved_and_keeps_workflow_unconnected()
     {
         GraphNode workflow = CreateTopologyNode(

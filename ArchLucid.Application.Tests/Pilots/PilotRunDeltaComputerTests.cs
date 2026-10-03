@@ -248,6 +248,21 @@ public sealed class PilotRunDeltaComputerTests
     }
 
     [SkippableFact]
+    public async Task ComputeAsync_WhenManifestTimestampIsFutureDated_UsesCompletedUtcForTimeToCommit()
+    {
+        Guid runGuid = Guid.Parse("eeeeeeee-1111-2222-3333-555555555555");
+        ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
+        detail.Manifest!.Metadata!.CreatedUtc = detail.Run.CompletedUtc!.Value.AddDays(30);
+
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
+
+        PilotRunDeltas result = await sut.ComputeAsync(detail);
+
+        result.TimeToCommittedManifest.Should().Be(detail.Run.CompletedUtc - detail.Run.CreatedUtc);
+        result.ManifestCommittedUtc.Should().Be(detail.Run.CompletedUtc);
+    }
+
+    [SkippableFact]
     public async Task ComputeAsync_NullDetail_Throws()
     {
         PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
@@ -1383,6 +1398,262 @@ public sealed class PilotRunDeltaComputerTests
             .Should()
             .BeEquivalentTo(["snapshot-governed", "snapshot-advisory"]);
         deltas.TopFindingId.Should().Be("snapshot-governed");
+        deltas.TopFindingSeverity.Should().Be("Critical");
+    }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenAgentOverCountsAdvisoryWithEqualGovernedCoverage_UsesSnapshotSeverityBuckets()
+    {
+        Guid runGuid = Guid.Parse("78787878-2222-3333-4444-555555555555");
+        Guid findingsSnapshotId = Guid.Parse("89898989-2222-3333-4444-555555555555");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-agent-advisory-inflation-equal-governed",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = created.AddMinutes(12),
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        List<ArchitectureFinding> agentFindings =
+        [
+            new ArchitectureFinding
+            {
+                FindingId = "agent-governed-1",
+                Severity = FindingSeverity.Warning,
+                Message = "governed warning",
+                PolicyRuleId = "rule-1",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "agent-governed-2",
+                Severity = FindingSeverity.Warning,
+                Message = "governed warning",
+                PolicyRuleId = "rule-2",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "agent-info-1",
+                Severity = FindingSeverity.Info,
+                Message = "noise",
+                EnforcementTier = FindingEnforcementTier.Advisory,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "agent-info-2",
+                Severity = FindingSeverity.Info,
+                Message = "noise",
+                EnforcementTier = FindingEnforcementTier.Advisory,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "agent-info-3",
+                Severity = FindingSeverity.Info,
+                Message = "noise",
+                EnforcementTier = FindingEnforcementTier.Advisory,
+            },
+        ];
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = new GoldenManifest
+            {
+                RunId = run.RunId,
+                SystemName = "ArchLucid",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created.AddMinutes(12) },
+                Governance = new ManifestGovernance(),
+            },
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-agent",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings = agentFindings,
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "snapshot-governed-1",
+                        Severity = FindingSeverity.Warning,
+                        EngineType = "security",
+                        Category = "security",
+                        PolicyRuleId = "rule-1",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                    new Finding
+                    {
+                        FindingId = "snapshot-governed-2",
+                        Severity = FindingSeverity.Warning,
+                        EngineType = "security",
+                        Category = "security",
+                        PolicyRuleId = "rule-2",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                ],
+            });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            Mock.Of<IFindingEvidenceChainService>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(2);
+        deltas.FindingsBySeverity.Should().ContainSingle(static p => p.Key == "Warning" && p.Value == 2);
+        deltas.GovernedFindingCoverage.GovernedCount.Should().Be(2);
+        deltas.SponsorNarrativeFindings.Should().HaveCount(2);
+        deltas.TopFindingId.Should().Be("snapshot-governed-1");
+    }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenAgentHasHigherSeverityGovernedFinding_KeepsAgentBucketsDespiteSnapshotGovernedCount()
+    {
+        Guid runGuid = Guid.Parse("90909090-2222-3333-4444-555555555555");
+        Guid findingsSnapshotId = Guid.Parse("91919191-2222-3333-4444-555555555555");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-agent-critical-not-in-snapshot",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = created.AddMinutes(12),
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        List<ArchitectureFinding> agentFindings =
+        [
+            new ArchitectureFinding
+            {
+                FindingId = "agent-critical",
+                Severity = FindingSeverity.Critical,
+                Message = "new critical",
+                PolicyRuleId = "rule-critical",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "agent-info-1",
+                Severity = FindingSeverity.Info,
+                Message = "noise",
+                EnforcementTier = FindingEnforcementTier.Advisory,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "agent-info-2",
+                Severity = FindingSeverity.Info,
+                Message = "noise",
+                EnforcementTier = FindingEnforcementTier.Advisory,
+            },
+        ];
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = new GoldenManifest
+            {
+                RunId = run.RunId,
+                SystemName = "ArchLucid",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created.AddMinutes(12) },
+                Governance = new ManifestGovernance(),
+            },
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-agent",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings = agentFindings,
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "snapshot-warning-1",
+                        Severity = FindingSeverity.Warning,
+                        EngineType = "security",
+                        Category = "security",
+                        PolicyRuleId = "rule-1",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                    new Finding
+                    {
+                        FindingId = "snapshot-warning-2",
+                        Severity = FindingSeverity.Warning,
+                        EngineType = "security",
+                        Category = "security",
+                        PolicyRuleId = "rule-2",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                ],
+            });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            Mock.Of<IFindingEvidenceChainService>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(3);
+        deltas.FindingsBySeverity.Should().Contain(static p => p.Key == "Critical" && p.Value == 1);
+        deltas.TopFindingId.Should().Be("agent-critical");
         deltas.TopFindingSeverity.Should().Be("Critical");
     }
 }

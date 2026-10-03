@@ -35,6 +35,17 @@ describe("InfraEvidenceDiagramOutlineNodeLabel", () => {
     expect(screen.queryByText("core-vnet (Virtual network)")).toBeNull();
   });
 
+  it("strips the problem suffix from the node name", () => {
+    render(
+      <InfraEvidenceDiagramOutlineNodeLabel
+        node={node({ label: "core-vnet (Virtual network) · missing a required link" })}
+      />,
+    );
+
+    expect(screen.getByText("core-vnet")).toBeTruthy();
+    expect(screen.queryByText(/missing a required link/u)).toBeNull();
+  });
+
   it("lowercases mixed-case resource names for display", () => {
     render(<InfraEvidenceDiagramOutlineNodeLabel node={node({ label: "Core-VNet" })} />);
 

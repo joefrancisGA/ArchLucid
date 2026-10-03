@@ -70,14 +70,23 @@ public sealed partial class PilotRunDeltaComputer
             }
         }
 
-        if (preferSnapshotMaterialFindings && !findingsFromSnapshot && snapshotSeverityBuckets is not null)
+        bool agentMaxSeverityOutranksSnapshot = false;
+
+        if (persistedFindingsSnapshot?.Findings is { Count: > 0 } outrankFindings)
+            agentMaxSeverityOutranksSnapshot = ResolveMaxSeverityRank(detail) > ResolveMaxSeverityRank(outrankFindings);
+
+        if (preferSnapshotMaterialFindings
+            && !findingsFromSnapshot
+            && snapshotSeverityBuckets is not null
+            && !agentMaxSeverityOutranksSnapshot)
             findings = snapshotSeverityBuckets;
 
         ArchitectureFinding? topAgentFinding = SelectTopSeverityFinding(detail);
         string? topFindingId = topAgentFinding?.FindingId;
         string? topFindingSeverity = topAgentFinding?.Severity.ToString();
 
-        if ((findingsFromSnapshot || preferSnapshotMaterialFindings)
+        if (!agentMaxSeverityOutranksSnapshot
+            && (findingsFromSnapshot || preferSnapshotMaterialFindings)
             && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
         {
             Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(snapshotTopCandidates);
@@ -227,6 +236,17 @@ public sealed partial class PilotRunDeltaComputer
 
         if (snapshotTotal < agentTotal)
         {
+            GovernedFindingCoverageMetric agentCoverage = AggregateGovernedFindingCoverage(detail);
+            GovernedFindingCoverageMetric snapshotCoverage = AggregateGovernedFindingCoverage(snapshotFindingsList);
+
+            if (snapshotCoverage.IsAvailable
+                && agentCoverage.IsAvailable
+                && snapshotTotal > 0
+                && snapshotCoverage.GovernedCount == agentCoverage.GovernedCount)
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -271,13 +291,7 @@ public sealed partial class PilotRunDeltaComputer
         DateTime? manifestUtc = manifest?.Metadata?.CreatedUtc;
         DateTime? completedUtc = run.CompletedUtc;
 
-        if (completedUtc is null)
-            return manifestUtc;
-
-        if (manifestUtc is null)
-            return completedUtc;
-
-        return completedUtc > manifestUtc ? completedUtc : manifestUtc;
+        return completedUtc ?? manifestUtc;
     }
 
     /// <summary>

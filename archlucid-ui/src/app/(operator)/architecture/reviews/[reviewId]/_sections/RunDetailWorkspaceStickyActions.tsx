@@ -47,11 +47,7 @@ export function RunDetailWorkspaceStickyActions(
 ): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
   const [technicalDetailOpen, setTechnicalDetailOpenState] = useState(() =>
-    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("runDetailStickyActionsTechnicalDetailOpen"),
-    ),
+    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(null),
   );
   const technicalDetailOpenRef = useRef(technicalDetailOpen);
   technicalDetailOpenRef.current = technicalDetailOpen;

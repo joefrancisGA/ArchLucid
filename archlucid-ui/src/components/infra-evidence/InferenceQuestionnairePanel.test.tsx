@@ -70,6 +70,20 @@ describe("InferenceQuestionnairePanel", () => {
     expect(screen.getByTestId("inference-questionnaire-submit")).toBeEnabled();
   });
 
+  it("keeps the questionnaire entry point visible when no questions are available", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      cap: 50,
+      capReached: false,
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByTestId("inference-questionnaire-panel")).toBeInTheDocument();
+    expect(screen.getByText("No proposed questionnaire items remain for this snapshot.")).toBeInTheDocument();
+  });
+
   it("calls confirm when yes is submitted", async () => {
     render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
 

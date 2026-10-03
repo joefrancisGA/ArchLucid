@@ -19,7 +19,11 @@ public sealed class InMemoryRetrievalDocumentIndexCatalog : IRetrievalDocumentIn
         }
     }
 
-    public void RecordIndexed(RetrievalDocument document, string chunkingFingerprint, DateTimeOffset indexedUtc)
+    public void RecordIndexed(
+        RetrievalDocument document,
+        string chunkingFingerprint,
+        DateTimeOffset indexedUtc,
+        int indexedChunkCount)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -34,6 +38,7 @@ public sealed class InMemoryRetrievalDocumentIndexCatalog : IRetrievalDocumentIn
                 ChunkingFingerprint = chunkingFingerprint,
                 CorpusKind = document.CorpusKind.ToString(),
                 LastIndexedUtc = indexedUtc,
+                IndexedChunkCount = Math.Max(0, indexedChunkCount),
             };
         }
     }
@@ -48,6 +53,7 @@ public sealed class InMemoryRetrievalDocumentIndexCatalog : IRetrievalDocumentIn
                 {
                     CorpusKind = string.IsNullOrWhiteSpace(group.Key) ? "Unknown" : group.Key,
                     DocumentCount = group.Count(),
+                    ChunkCount = group.Sum(static state => state.IndexedChunkCount),
                     LastIndexedUtc = group.Max(static state => state.LastIndexedUtc),
                 })
                 .OrderBy(static summary => summary.CorpusKind, StringComparer.OrdinalIgnoreCase)

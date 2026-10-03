@@ -4010,7 +4010,7 @@ jobs:
       - name: Download base branch coverage metrics (optional)
         continue-on-error: true
         if: steps.gate.outputs.post == 'true'
-        uses: dawidd6/action-download-artifact@v24
+        uses: dawidd6/action-download-artifact@v27
         with:
           github_token: ${{ github.token }}
           workflow: ci.yml

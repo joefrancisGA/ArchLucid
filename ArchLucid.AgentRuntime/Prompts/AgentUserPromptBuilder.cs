@@ -16,9 +16,9 @@ public static class AgentUserPromptBuilder
     /// <summary>Run id, task id, and agent type label lines.</summary>
     public static void AppendRunHeader(StringBuilder sb, string runId, string taskId, string agentTypeLabel)
     {
-        sb.AppendLine($"RunId: {runId}");
-        sb.AppendLine($"TaskId: {taskId}");
-        sb.AppendLine($"AgentType: {agentTypeLabel}");
+        sb.AppendLine($"RunId: {AgentRunHeaderPromptSanitizer.SanitizeHeaderIdentifier(runId)}");
+        sb.AppendLine($"TaskId: {AgentRunHeaderPromptSanitizer.SanitizeHeaderIdentifier(taskId)}");
+        sb.AppendLine($"AgentType: {AgentRunHeaderPromptSanitizer.SanitizeHostListEntry(agentTypeLabel)}");
         sb.AppendLine();
     }
 
@@ -160,14 +160,14 @@ public static class AgentUserPromptBuilder
         sb.AppendLine("Allowed Tools:");
         foreach (string tool in task.AllowedTools)
 
-            sb.AppendLine($"- {tool}");
+            sb.AppendLine($"- {AgentRunHeaderPromptSanitizer.SanitizeHostListEntry(tool)}");
 
         sb.AppendLine();
 
         sb.AppendLine("Allowed Sources:");
         foreach (string source in task.AllowedSources)
 
-            sb.AppendLine($"- {source}");
+            sb.AppendLine($"- {AgentRunHeaderPromptSanitizer.SanitizeHostListEntry(source)}");
 
         sb.AppendLine();
     }

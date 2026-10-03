@@ -124,14 +124,54 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
     <EnterpriseTable ariaLabel="Architecture review recurrence schedules">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Scope / Review</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Recurrence</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Name</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The name recorded for this review schedule.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Scope / Review</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The review or scope this schedule applies to.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Cadence</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              How often this review is scheduled.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Next run</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The scheduled time for the next review run.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Last run</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The most recent completed review run.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Status</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Whether this schedule is currently active.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Recurrence</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The recorded repeat rule for this schedule.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>
+            <span>Actions</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              Open or change this schedule record. It does not start an Azure capture.
+            </span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>

@@ -573,12 +573,42 @@ export function DeclaredConnectionsWorkbenchClient() {
             <EnterpriseTable ariaLabel="Declared connections">
               <EnterpriseTableHead>
                 <EnterpriseTableRow>
-                  <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Type</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>From</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The starting resource in this declared connection.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>To</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The destination resource in this declared connection.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Type</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The kind of connection a person declared. Inventory alone did not prove it.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Status</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Whether this declaration is active, near expiry, expired, or revoked.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Expires</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      When this declaration stops covering the connection.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Actions</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Open or change this declaration record. It does not change Azure resources.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                 </EnterpriseTableRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>

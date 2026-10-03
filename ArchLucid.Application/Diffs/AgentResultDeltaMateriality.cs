@@ -9,6 +9,9 @@ public static class AgentResultDeltaMateriality
     {
         ArgumentNullException.ThrowIfNull(delta);
 
+        if (delta.LeftExists != delta.RightExists)
+            return true;
+
         if (delta.AddedClaims.Count > 0 || delta.RemovedClaims.Count > 0 ||
             delta.AddedFindings.Count > 0 || delta.RemovedFindings.Count > 0 ||
             delta.AddedRequiredControls.Count > 0 || delta.RemovedRequiredControls.Count > 0 ||

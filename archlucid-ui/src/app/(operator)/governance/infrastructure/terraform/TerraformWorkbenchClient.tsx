@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -28,7 +28,8 @@ import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/
 import {
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   formatAzureResourceTypeForDisplay,
@@ -120,6 +121,7 @@ export function TerraformWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const scopePickerRef = useRef<HTMLInputElement | null>(null);
   const terraformPath = useMemo(
@@ -351,13 +353,13 @@ export function TerraformWorkbenchClient() {
       return null;
     }
 
-    return buildInfrastructureAskHref({
+    return buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
       cloudResourceId: urlCloudResourceId,
       snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
       hubTab: "terraform",
       ...mergeInfrastructureAskAuditScope(auditScope),
     });
-  }, [auditScope, resolvedSnapshotId, urlCloudResourceId]);
+  }, [auditScope, pathname, resolvedSnapshotId, searchParams, urlCloudResourceId]);
 
   const driftWorkbenchHref = useMemo(() => {
     if (urlCloudResourceId.length === 0) {

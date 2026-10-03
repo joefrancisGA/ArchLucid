@@ -432,6 +432,27 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_readonly_key_config_is_only_zero_width_space_returns_invalid_key()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "reader-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "\u200B"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("Invalid API key");
+    }
+
+    [SkippableFact]
     public async Task When_admin_key_config_has_utf8_bom_prefix_still_authenticates()
     {
         DefaultHttpContext http = new();
@@ -442,6 +463,27 @@ public sealed class ApiKeyAuthenticationHandlerTests
             {
                 ["Authentication:ApiKey:Enabled"] = "true",
                 ["Authentication:ApiKey:AdminKey"] = "\uFEFFsecret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_zero_width_space_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u200Bret-admin"
             },
             http,
             env);

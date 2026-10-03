@@ -90,7 +90,7 @@ public sealed class TopologyAntiPatternFindingEngine : IFindingEngine
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "public")
                && (DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "sql")
-                   || label.Contains("storage", StringComparison.Ordinal)
-                   || label.Contains("blob", StringComparison.Ordinal));
+                   || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(label)
+                   || TopologyDatastoreLabelHeuristic.ContainsAffirmativeBlobKeyword(label));
     }
 }

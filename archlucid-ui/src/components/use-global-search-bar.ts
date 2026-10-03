@@ -42,7 +42,7 @@ export function useGlobalSearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
-  const [open, setOpenState] = useState(() => readGlobalSearchOpenFromWindow());
+  const [open, setOpenState] = useState(false);
   const openRef = useRef(open);
   openRef.current = open;
 

@@ -55,6 +55,8 @@
     { "category": "compute", "service": "Container Instances", "armTypes": ["Microsoft.ContainerInstance/containerGroups"], "file": "Svg/container-instance.svg" },
     { "category": "web", "service": "App Service Certificates", "armTypes": ["Microsoft.Web/certificates"], "file": "Svg/app-service-certificate.svg" },
     { "category": "web", "service": "SignalR", "armTypes": ["Microsoft.SignalRService/SignalR"], "file": "Svg/signalr.svg" },
-    { "category": "general", "service": "Resource Groups", "armTypes": ["Microsoft.Resources/resourceGroups"], "file": "Svg/resource-groups.svg" }
+    { "category": "general", "service": "Resource Groups", "armTypes": ["Microsoft.Resources/resourceGroups"], "file": "Svg/resource-groups.svg" },
+    { "category": "general", "service": "Resource Linked", "armTypes": [], "file": "Svg/resource-linked.svg" },
+    { "category": "storage", "service": "Data Lake Storage Gen1", "armTypes": [], "file": "Svg/data-lake-storage-gen1.svg" }
   ]
 }

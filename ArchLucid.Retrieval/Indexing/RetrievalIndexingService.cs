@@ -87,12 +87,6 @@ public sealed class RetrievalIndexingService(
             if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
                 && !string.Equals(prior.ChunkingFingerprint, fingerprint, StringComparison.OrdinalIgnoreCase))
             {
-                await _vectorIndex.RemoveChunksForDocumentAsync(
-                    doc.DocumentId,
-                    doc.TenantId,
-                    doc.WorkspaceId,
-                    doc.ProjectId,
-                    ct).ConfigureAwait(false);
                 ArchLucidInstrumentation.RecordRetrievalIndexChunkingFingerprintInvalidated();
             }
 
@@ -110,7 +104,7 @@ public sealed class RetrievalIndexingService(
                         ct).ConfigureAwait(false);
                 }
 
-                _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+                _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: 0);
                 ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
 
                 continue;
@@ -128,11 +122,20 @@ public sealed class RetrievalIndexingService(
 
 
         List<RetrievalChunk> chunks = [];
-        List<(RetrievalDocument Doc, string Fingerprint)> pendingCatalogRecords = [];
 
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
             ct.ThrowIfCancellationRequested();
+
+            if (_indexCatalog.TryGet(doc.DocumentId, out _))
+            {
+                await _vectorIndex.RemoveChunksForDocumentAsync(
+                    doc.DocumentId,
+                    doc.TenantId,
+                    doc.WorkspaceId,
+                    doc.ProjectId,
+                    ct).ConfigureAwait(false);
+            }
 
             List<float[]> embeddings = [];
 
@@ -183,16 +186,14 @@ public sealed class RetrievalIndexingService(
                 ChunkingFingerprint = fingerprint,
                 LastIndexedUtc = indexedUtc.UtcDateTime,
             }));
-
-            pendingCatalogRecords.Add((doc, fingerprint));
         }
 
         if (chunks.Count > 0)
             await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
 
-        foreach ((RetrievalDocument doc, string fingerprint) in pendingCatalogRecords)
+        foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
-            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: split.Count);
             ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
         }
     }

@@ -47,6 +47,7 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
                            SELECT *
                            FROM dbo.SecureNowQuestionDispositions
                            WHERE TenantId = @TenantId
+                             AND IdentityHashSha256 = @IdentityHashSha256
                              AND SubscriptionId = @SubscriptionId
                              AND ResourceId = @ResourceId
                              AND QuestionKey = @QuestionKey;

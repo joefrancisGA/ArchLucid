@@ -1137,6 +1137,7 @@ function Read-AlBugHuntLedger {
             HitRate24h             = 0.0
             ThoroughHunts          = 0
             SeedOnly24h            = 0
+            SeedOnlySaturated      = $false
             EscalatedFiles         = @()
         }
 
@@ -1274,6 +1275,10 @@ function Get-ZoneScoreBreakdown {
         [void]$why.Add('hit-rate cooldown')
     }
 
+    if ($Zone.PSObject.Properties.Name -contains 'SeedOnlySaturated' -and $Zone.SeedOnlySaturated) {
+        [void]$why.Add('seed-only saturation (24h)')
+    }
+
     if ($Zone.CooledByClass) {
         [void]$why.Add('defect-class saturation cooldown')
     }
@@ -1333,6 +1338,8 @@ function Set-ZoneComputedFields {
         $runStats = Get-ZoneRunLogHitStats -ZoneId $zone.Id -RunLogEntries $RunLogEntries -NowUtc $NowUtc
         $zone.ThoroughHunts = Get-ThoroughHuntCount -ZoneId $zone.Id -RunLogEntries $RunLogEntries
         $zone.SeedOnly24h = Get-SeedOnlyHuntCount24h -ZoneId $zone.Id -RunLogEntries $RunLogEntries -NowUtc $NowUtc
+        # Eight matches the hit-rate cooldown band. Repeated seed-only runs are not evidence of a fresh defect.
+        $zone.SeedOnlySaturated = ([int]$zone.SeedOnly24h -ge 8)
         $zone.Hits7d = $runStats.hits7d
         $zone.HitRate24h = $runStats.hitRate24h
         $zone.CooledByHitRate = [bool]$runStats.cooledByRate
@@ -1379,12 +1386,24 @@ function Get-EligibleZones {
     param($Zones)
 
     $hasOpen = @($Zones | Where-Object { $_.Status -eq 'open' -or $_.Status -eq 'unseeded' }).Count -gt 0
+    $hasUnsaturatedOpen = @(
+        $Zones | Where-Object {
+            ($_.Status -eq 'open' -or $_.Status -eq 'unseeded') -and
+            -not [bool]$_.SeedOnlySaturated
+        }
+    ).Count -gt 0
     $eligible = New-Object System.Collections.ArrayList
 
     foreach ($zone in $Zones) {
         $effectiveStatus = $zone.Status
 
         if ($zone.CooledByHitRate -and $zone.Status -ne 'exhausted') {
+            $effectiveStatus = 'cooling'
+        }
+
+        # A seed-only streak yields to any open zone that has not saturated.
+        # When every open zone is saturated, keep them eligible.
+        if ($zone.SeedOnlySaturated -and $hasUnsaturatedOpen -and $zone.Status -ne 'exhausted') {
             $effectiveStatus = 'cooling'
         }
 
@@ -1774,10 +1793,11 @@ function ConvertTo-PickResult {
             meanHuntsPerBug        = 0.0
             exploreBonus           = 0.0
             thoroughHunts          = 0
-        seedOnly24h            = 0
-        openCandidateCount     = 0
-        candidateSpam          = $false
-        consecutiveDryHunts    = 0
+            seedOnly24h            = 0
+            seedOnlySaturated      = $false
+            openCandidateCount     = 0
+            candidateSpam          = $false
+            consecutiveDryHunts    = 0
             lastHunt               = 'never'
             exhausted              = $true
             reopened               = $false
@@ -1833,6 +1853,7 @@ function ConvertTo-PickResult {
         exploreBonus           = $Zone.ExploreBonus
         thoroughHunts          = if ($Zone.PSObject.Properties.Name -contains 'ThoroughHunts') { [int]$Zone.ThoroughHunts } else { 0 }
         seedOnly24h            = if ($Zone.PSObject.Properties.Name -contains 'SeedOnly24h') { [int]$Zone.SeedOnly24h } else { 0 }
+        seedOnlySaturated      = if ($Zone.PSObject.Properties.Name -contains 'SeedOnlySaturated') { [bool]$Zone.SeedOnlySaturated } else { $false }
         openCandidateCount     = $openCandidateCount
         candidateSpam          = [bool]$candidateSpam
         consecutiveDryHunts    = $Zone.ConsecutiveDryHunts

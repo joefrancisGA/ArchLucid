@@ -23,15 +23,15 @@ internal static class TopologyDatastoreLabelHeuristic
 
         string combined = BuildCombinedLabel(node);
 
-        return combined.Contains("keyvault", StringComparison.Ordinal)
-            || combined.Contains("key-vault", StringComparison.Ordinal)
+        return ContainsAffirmativeDelimiterToken(combined, "keyvault")
+            || DecisioningTextTokenMatcher.ContainsPattern(combined, "key-vault")
             || DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeStorageKeyword(combined)
             || ContainsAffirmativeSecretKeyword(combined)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal);
+            || ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || ContainsAffirmativeDelimiterToken(combined, "mysql")
+            || ContainsAffirmativeDelimiterToken(combined, "redis");
     }
 
     public static bool IsSkuRpoDatastoreTopologyNode(GraphNode node)
@@ -50,11 +50,11 @@ internal static class TopologyDatastoreLabelHeuristic
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeStorageKeyword(combined)
-            || combined.Contains("database", StringComparison.Ordinal)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
+            || ContainsAffirmativeDatabaseKeyword(combined)
+            || ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || ContainsAffirmativeDelimiterToken(combined, "redis")
+            || ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || ContainsAffirmativeDelimiterToken(combined, "mysql")
             || IndicatesDatastoreCluster(combined);
     }
 
@@ -87,21 +87,30 @@ internal static class TopologyDatastoreLabelHeuristic
         }
 
         return DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
-            || combined.Contains("database", StringComparison.Ordinal)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
+            || ContainsAffirmativeDatabaseKeyword(combined)
+            || ContainsAffirmativeDelimiterToken(combined, "cosmos")
+            || ContainsAffirmativeDelimiterToken(combined, "redis")
+            || ContainsAffirmativeDelimiterToken(combined, "postgres")
+            || ContainsAffirmativeDelimiterToken(combined, "mysql")
             || ContainsAffirmativeStorageKeyword(combined);
     }
 
-    private static bool ContainsAffirmativeStorageKeyword(string text)
+    internal static bool ContainsAffirmativeDatabaseKeyword(string text) =>
+        ContainsAffirmativeDelimiterToken(text, "database");
+
+    internal static bool ContainsAffirmativeStorageKeyword(string text) =>
+        ContainsAffirmativeDelimiterToken(text, "storage");
+
+    internal static bool ContainsAffirmativeBlobKeyword(string text) =>
+        ContainsAffirmativeDelimiterToken(text, "blob");
+
+    internal static bool ContainsAffirmativeDelimiterToken(string text, string token)
     {
         string[] parts = text.Split(['/', '.', '_', ':', ' ', '-'], StringSplitOptions.RemoveEmptyEntries);
 
         for (int index = 0; index < parts.Length; index++)
         {
-            if (!parts[index].Equals("storage", StringComparison.Ordinal))
+            if (!parts[index].Equals(token, StringComparison.Ordinal))
             {
                 continue;
             }

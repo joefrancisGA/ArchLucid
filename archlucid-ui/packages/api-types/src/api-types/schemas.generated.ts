@@ -5604,6 +5604,7 @@ export interface components {
             collapseReport?: null | components["schemas"]["InfraEvidenceMermaidCollapseReport"];
             completenessSummary?: null | components["schemas"]["InfraEvidenceMermaidCompletenessSummary"];
             completenessWarnings?: string[];
+            failureReason?: null | string;
             fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
             fallbackKey?: null | string;
             identityDiagramHints?: null | components["schemas"]["InfraEvidenceMermaidIdentityDiagramHints"];
@@ -8509,7 +8510,7 @@ export interface components {
             inventorySnapshotId?: string;
         };
         /** @enum {string} */
-        RemediationInstanceStatus: "Classified" | "PreflightPassed" | "PreflightBlocked" | "Approved" | "WaveAssigned" | "Executed" | "Verified" | "VerificationFailed" | "Closed";
+        RemediationInstanceStatus: "Classified" | "PreflightPassed" | "PreflightBlocked" | "Approved" | "WaveAssigned" | "Executed" | "Verified" | "VerificationFailed" | "Closed" | "ChangeImplemented";
         RemediationInstanceSummary: {
             automationLevel?: components["schemas"]["RemediationAutomationLevel"];
             /** Format: uuid */
@@ -9943,6 +9944,47 @@ export interface components {
             separationDimension?: null | string;
             sharedDependencyNodeId?: null | string;
             status?: string;
+        };
+        SecureNowQuestionDispositionReopenApiRequest: {
+            questionKey?: string;
+            reason?: string;
+            resourceId?: string;
+            subscriptionId?: string;
+        };
+        SecureNowQuestionDispositionWriteApiRequest: {
+            answerCode?: null | string;
+            answerText?: null | string;
+            evidenceFingerprint?: string;
+            /** Format: date-time */
+            expirationUtc?: null | string;
+            questionKey?: string;
+            reason?: string;
+            resourceId?: string;
+            scopeKind?: string;
+            source?: string;
+            subscriptionId?: string;
+        };
+        SecureNowQuestionResponse: {
+            answerCode?: null | string;
+            answerCodes?: string[];
+            answerText?: null | string;
+            /** Format: uuid */
+            dispositionId?: null | string;
+            evidenceFingerprint?: string;
+            /** Format: date-time */
+            expirationUtc?: null | string;
+            isExpired?: boolean;
+            questionKey?: string;
+            questionText?: string;
+            reason?: null | string;
+            resourceId?: string;
+            scopeKind?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            source?: string;
+            sourceLine?: string;
+            status?: string;
+            subscriptionId?: string;
         };
         SecurityAssessmentPublicationRequest: {
             assessmentCode?: string;

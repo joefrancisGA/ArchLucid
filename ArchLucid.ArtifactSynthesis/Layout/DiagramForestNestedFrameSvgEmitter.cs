@@ -7,14 +7,15 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 /// <summary>Paints VNet and subnet frames beneath resource-group frames.</summary>
 public static class DiagramForestNestedFrameSvgEmitter
 {
-    public const double VnetCaptionFontSize = 11.0d;
+    public const double VnetCaptionFontSize = 14.0d;
     public const double CaptionIconGap = 4.0d;
 
     private static readonly AzureArchitectureIconCatalog IconCatalog = AzureArchitectureIconCatalog.Load();
 
     public static XElement EmitLayer(
         XNamespace svgNamespace,
-        IReadOnlyList<DiagramForestNestedFrameBounds> frames)
+        IReadOnlyList<DiagramForestNestedFrameBounds> frames,
+        bool vnetPrimary = false)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(frames);
@@ -35,8 +36,8 @@ public static class DiagramForestNestedFrameSvgEmitter
                     new XAttribute("width", Format(frame.Width)),
                     new XAttribute("height", Format(frame.Height)),
                     new XAttribute("fill", "none"),
-                    new XAttribute("stroke", ResolveStroke(frame.Kind)),
-                    new XAttribute("stroke-width", ResolveStrokeWidth(frame.Kind)),
+                    new XAttribute("stroke", ResolveStroke(frame.Kind, vnetPrimary)),
+                    new XAttribute("stroke-width", ResolveStrokeWidth(frame.Kind, vnetPrimary)),
                     new XAttribute("rx", frame.Kind == "subscription" ? "12" : frame.Kind == "vnet" ? "7" : "5"),
                     new XAttribute("pointer-events", "none")),
                 EmitCaption(svgNamespace, frame)));
@@ -61,7 +62,7 @@ public static class DiagramForestNestedFrameSvgEmitter
         XElement group = new(svgNamespace + "g", new XAttribute("class", $"{frame.Kind}-frame-caption"));
         if (icon is not null)
         {
-            double labelWidth = Math.Max(24.0d, frame.Label.Length * 6.6d);
+            double labelWidth = Math.Max(24.0d, frame.Label.Length * fontSize * 0.6d);
             double haloWidth = fontSize + CaptionIconGap + labelWidth + 8.0d;
             group.Add(new XElement(
                 svgNamespace + "rect",
@@ -87,7 +88,7 @@ public static class DiagramForestNestedFrameSvgEmitter
             new XAttribute("y", Format(frame.Y + 13.0d)),
             new XAttribute("font-size", Format(fontSize)),
             new XAttribute("font-weight", isVnet ? "700" : "600"),
-            new XAttribute("fill", "#64748b"),
+            new XAttribute("fill", isVnet ? "#334155" : "#64748b"),
             new XAttribute("pointer-events", "none"),
             SecurityElement.Escape(frame.Label) ?? string.Empty));
         return group;
@@ -98,22 +99,22 @@ public static class DiagramForestNestedFrameSvgEmitter
         return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
 
-    private static string ResolveStroke(string kind)
+    private static string ResolveStroke(string kind, bool vnetPrimary)
     {
         return kind switch
         {
             "subscription" => "#475569",
-            "vnet" => "#94a3b8",
+            "vnet" => vnetPrimary ? "#334155" : "#94a3b8",
             _ => "#cbd5e1",
         };
     }
 
-    private static string ResolveStrokeWidth(string kind)
+    private static string ResolveStrokeWidth(string kind, bool vnetPrimary)
     {
         return kind switch
         {
             "subscription" => "2.5",
-            "vnet" => "1.5",
+            "vnet" => vnetPrimary ? "2.5" : "1.5",
             _ => "1",
         };
     }

@@ -7,7 +7,8 @@ internal static class InventoryDiagramGraphPeelFilter
 {
     public static GraphSnapshot Filter(
         GraphSnapshot graph,
-        IReadOnlySet<string> excludedArmResourceTypes)
+        IReadOnlySet<string> excludedArmResourceTypes,
+        bool allowCrossResourceGroupVnetPlacement = false)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(excludedArmResourceTypes);
@@ -18,7 +19,10 @@ internal static class InventoryDiagramGraphPeelFilter
         }
 
         IReadOnlyList<GraphEdge> projectedEdges =
-            DiagramHiddenSubnetVnetPlacementProjector.Project(graph, excludedArmResourceTypes);
+            DiagramHiddenSubnetVnetPlacementProjector.Project(
+                graph,
+                excludedArmResourceTypes,
+                allowCrossResourceGroupVnetPlacement);
 
         List<GraphNode> keptNodes = graph.Nodes
             .Where(node =>

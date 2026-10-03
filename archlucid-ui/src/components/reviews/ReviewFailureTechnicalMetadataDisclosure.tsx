@@ -35,11 +35,7 @@ export function ReviewFailureTechnicalMetadataDisclosure(
 ): ReactElement | null {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseReviewFailureTechnicalMetadataOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("reviewFailureTechnicalMetadataOpen"),
-    ),
+    parseReviewFailureTechnicalMetadataOpenFromSearch(null),
   );
   const openRef = useRef(open);
   openRef.current = open;

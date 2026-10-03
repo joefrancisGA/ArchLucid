@@ -31,6 +31,10 @@ export type ArchitectureDiagramViewportControlsProps = {
   readonly resetZoomLabel: string;
   readonly fitInViewLabel: string;
   readonly viewportHint: string;
+  readonly surfaceToggle?: {
+    readonly label: string;
+    readonly onClick: () => void;
+  };
   readonly layout?: ArchitectureDiagramViewportControlsLayout;
   readonly fullscreenAction?: ArchitectureDiagramViewportFullscreenAction;
 };
@@ -126,6 +130,11 @@ export function ArchitectureDiagramViewportControls(
         >
           {props.fitInViewLabel}
         </Button>
+        {props.surfaceToggle != null ? (
+          <Button type="button" variant="outline" size="sm" data-testid="architecture-diagram-surface-toggle" onClick={props.surfaceToggle.onClick}>
+            {props.surfaceToggle.label}
+          </Button>
+        ) : null}
         {props.fullscreenAction != null ? (
           <Button type="button" variant="outline" size="sm" onClick={props.fullscreenAction.onClick}>
             {props.fullscreenAction.label}

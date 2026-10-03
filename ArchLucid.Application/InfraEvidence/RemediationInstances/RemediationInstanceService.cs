@@ -412,6 +412,49 @@ public sealed class RemediationInstanceService(
         return Succeeded(instanceId, RemediationInstanceStatus.Executed);
     }
 
+    public async Task<RemediationInstanceOperationResult> AttestChangeImplementedAsync(
+        ScopeContext scope,
+        Guid instanceId,
+        string actorKey,
+        CancellationToken cancellationToken = default)
+    {
+        RemediationInstanceRecord? instance = await RequireInstance(scope, instanceId, cancellationToken);
+
+        if (instance is null)
+            return Failed("Remediation instance was not found.");
+
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
+
+        if (instance.Status != RemediationInstanceStatus.Executed)
+            return Failed("Only executed instances may attest that the change was implemented.");
+
+        if (string.IsNullOrWhiteSpace(actorKey))
+            return Failed("ActorKey is required.");
+
+        if (!RemediationInstanceGuard.CanTransition(
+                instance.Status,
+                RemediationInstanceStatus.ChangeImplemented,
+                out string? transitionError))
+        {
+            return Failed(transitionError ?? "Invalid remediation instance transition.");
+        }
+
+        DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+        RemediationInstanceRecord updated = CloneInstance(
+            instance,
+            status: RemediationInstanceStatus.ChangeImplemented,
+            changeImplementedUtc: utcNow,
+            updatedUtc: utcNow);
+
+        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+
+        return Succeeded(instanceId, RemediationInstanceStatus.ChangeImplemented);
+    }
+
     public async Task<RemediationInstanceOperationResult> VerifyAsync(
         ScopeContext scope,
         Guid instanceId,
@@ -430,11 +473,20 @@ public sealed class RemediationInstanceService(
         if (sealedManifestFailure is not null)
             return sealedManifestFailure;
 
-        if (instance.Status != RemediationInstanceStatus.Executed)
-            return Failed("Only executed instances may be verified.");
+        if (instance.Status != RemediationInstanceStatus.ChangeImplemented)
+            return Failed("Only change-implemented instances may be verified.");
 
         if (instance.ExecutionSnapshotId is null)
             return Failed("Execution snapshot is required before verification.");
+
+        if (instance.ChangeImplementedUtc is null)
+            return Failed("Change implementation attestation time is required before verification.");
+
+        AzureInventorySnapshotDetailReadModel? executionSnapshot =
+            await snapshotRepository.TryGetSnapshotDetailAsync(scope, instance.ExecutionSnapshotId.Value, cancellationToken);
+
+        if (executionSnapshot is null)
+            return Failed("Execution inventory snapshot was not found.");
 
         RemediationPatternVersionRecord? version = await LoadFrozenVersionAsync(scope.TenantId, instance, cancellationToken);
 
@@ -464,6 +516,7 @@ public sealed class RemediationInstanceService(
 
             pathVerificationContext = new RemediationPathVerificationContext
             {
+                PathAnalysisCompleted = false,
                 SourcePathCanonicalHash = Convert.FromHexString(pathNarrative.CanonicalHopHashHex),
                 VerificationSnapshotPaths = verificationPaths,
             };
@@ -474,8 +527,10 @@ public sealed class RemediationInstanceService(
             content!,
             verificationSnapshot,
             instance.ExecutionSnapshotId.Value,
+            executionSnapshot.Header.CapturedUtc,
             pathNarrative,
-            pathVerificationContext);
+            pathVerificationContext,
+            changeImplementedUtc: instance.ChangeImplementedUtc);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
@@ -656,6 +711,7 @@ public sealed class RemediationInstanceService(
         string? approvedByActorKey = null,
         DateTime? approvedUtc = null,
         DateTime? executedUtc = null,
+        DateTime? changeImplementedUtc = null,
         DateTime? verifiedUtc = null,
         DateTime? closedUtc = null,
         DateTime? updatedUtc = null) =>
@@ -689,6 +745,7 @@ public sealed class RemediationInstanceService(
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
             ApprovedUtc = approvedUtc ?? source.ApprovedUtc,
             ExecutedUtc = executedUtc ?? source.ExecutedUtc,
+            ChangeImplementedUtc = changeImplementedUtc ?? source.ChangeImplementedUtc,
             VerifiedUtc = verifiedUtc ?? source.VerifiedUtc,
             ClosedUtc = closedUtc ?? source.ClosedUtc,
         };
@@ -713,6 +770,7 @@ public sealed class RemediationInstanceService(
             UpdatedUtc = source.UpdatedUtc,
             ApprovedUtc = source.ApprovedUtc,
             ExecutedUtc = source.ExecutedUtc,
+            ChangeImplementedUtc = source.ChangeImplementedUtc,
             VerifiedUtc = source.VerifiedUtc,
             ClosedUtc = source.ClosedUtc,
         };

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
@@ -78,12 +79,11 @@ public sealed class ManifestGovernanceMerger
         ArgumentNullException.ThrowIfNull(validResults);
         ArgumentNullException.ThrowIfNull(output);
 
-        if (request.RequiredCapabilities.Any(c =>
-                c.Contains("private", StringComparison.OrdinalIgnoreCase)))
+        if (request.RequiredCapabilities.Any(DecisioningTextTokenMatcher.ContainsAffirmativePrivateKeyword))
             AddRequiredControlIfMissing(manifest, ControlPrivateNetworking, output);
 
         if (request.RequiredCapabilities.Any(c =>
-                c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
+                DecisioningTextTokenMatcher.ContainsPattern(c, "managed identity")))
             AddRequiredControlIfMissing(manifest, ControlManagedIdentity, output);
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))

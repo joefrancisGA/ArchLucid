@@ -36,9 +36,7 @@ type UsabilityFeedbackWidgetProps = {
 export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
   const pathname = usePathname() ?? "/";
   const [internalOpen, setInternalOpenState] = useState(() =>
-    parseUsabilityFeedbackOpenFromSearch(
-      typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("usabilityFeedbackOpen"),
-    ),
+    parseUsabilityFeedbackOpenFromSearch(null),
   );
   const internalOpenRef = useRef(internalOpen);
   internalOpenRef.current = internalOpen;

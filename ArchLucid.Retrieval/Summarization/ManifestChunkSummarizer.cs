@@ -44,7 +44,11 @@ public sealed class ManifestChunkSummarizer(
             .ToList();
 
         if (remainingCandidates.Count == 0)
-            return hits;
+        {
+            TrimHitsToSafeTokenLimit(mutableHits, options.SafeTokenLimit);
+
+            return mutableHits;
+        }
 
         int maxConcurrent = Math.Clamp(options.MaxConcurrentSummaries, 1, 32);
 
@@ -103,7 +107,33 @@ public sealed class ManifestChunkSummarizer(
                 .ToList();
         }
 
+        TrimHitsToSafeTokenLimit(mutableHits, options.SafeTokenLimit);
+
         return mutableHits;
+    }
+
+    /// <summary>
+    ///     Drops lowest-scoring hits when summarization did not shrink text enough to meet the budget.
+    /// </summary>
+    internal static void TrimHitsToSafeTokenLimit(List<RetrievalHit> hits, int safeTokenLimit)
+    {
+        ArgumentNullException.ThrowIfNull(hits);
+
+        if (safeTokenLimit < 1)
+            return;
+
+        while (hits.Count > 0 && EstimateTotalTokens(hits) > safeTokenLimit)
+        {
+            int lowestIndex = 0;
+
+            for (int i = 1; i < hits.Count; i++)
+            {
+                if (hits[i].Score < hits[lowestIndex].Score)
+                    lowestIndex = i;
+            }
+
+            hits.RemoveAt(lowestIndex);
+        }
     }
 
     /// <summary>

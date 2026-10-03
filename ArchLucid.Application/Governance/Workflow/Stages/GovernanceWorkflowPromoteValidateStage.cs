@@ -84,7 +84,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
         if (manifest is null)
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
-        if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+        if (!GovernanceRunIdNormalizer.AreEquivalent(manifest.RunId, runId))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         if (!await _environmentCatalogService
@@ -151,13 +151,6 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
         };
     }
 
-    private static bool SameArchitectureRunKey(string left, string right)
-    {
-        if (Guid.TryParse(left, out Guid leftGuid) && Guid.TryParse(right, out Guid rightGuid))
-            return leftGuid == rightGuid;
-        return string.Equals(left, right, StringComparison.Ordinal);
-    }
-
     private void ThrowIfProdApprovalChainInvalid(
         GovernanceApprovalRequest? approvalRequest,
         string approvalRequestId,
@@ -217,7 +210,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
             throw new InvalidOperationException(OpaqueProdApprovalMismatch);
         }
 
-        if (!SameArchitectureRunKey(approvalRequest.RunId, runId))
+        if (!GovernanceRunIdNormalizer.AreEquivalent(approvalRequest.RunId, runId))
         {
             if (verbosePromotionValidationErrors)
             {

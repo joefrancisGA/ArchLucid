@@ -133,7 +133,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             SnapshotJson(request, requestFingerprintHex: null, governanceAssignmentsHashHex: executeHash),
             CancellationToken.None);
 
-        items.Should().BeEmpty();
+        items.Should().NotContain(item => item.ItemId == "policy-pack-changed-since-execute");
     }
 
     [Fact]
@@ -213,6 +213,53 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
 
         PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
             policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "coverage-assignments-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_coverage_is_added_after_execute_from_an_empty_snapshot()
+    {
+        ArchitectureRequest request = CreateRequest();
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(
+                TestScope.TenantId,
+                TestScope.WorkspaceId,
+                TestScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new PolicyPackAssignment
+                {
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    PolicyPackId = PackId,
+                    PolicyPackVersion = "2.0.0",
+                    ScopeLevel = GovernanceScopeLevel.Project,
+                    IsEnabled = false,
+                }
+            ]);
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            GovernanceAssignmentsHashHex = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([]),
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: assignments.Object);
 
         IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
             TestScope,
@@ -314,6 +361,47 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             && item.Count == 1);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+            CoverageAssignments =
+            [
+                new CommittedCoverageAssignmentSnapshot
+                {
+                    PolicyPackId = PackId,
+                    PolicyPackVersion = "2.0.0",
+                    CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+                    SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+                    QualityDimension = QualityDimension.Security.ToString(),
+                    EvaluationVersion = EffectiveGovernanceSnapshotBuilder.ExecuteScopeEvaluationVersion,
+                }
+            ],
+        });
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: SetupPackAssignment("2.0.0").Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().ContainSingle(item =>
+            item.ItemId == "not-assessed-quality-dimensions-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
     private static ArchitectureRequest CreateRequest(string description = "Design the order service.") =>
         new()
         {
@@ -340,7 +428,21 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
             CloudProvider = request.CloudProvider.ToString(),
             RequestFingerprintHex = requestFingerprintHex
                 ?? Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
-            GovernanceAssignmentsHashHex = governanceAssignmentsHashHex
+            GovernanceAssignmentsHashHex = governanceAssignmentsHashHex,
+            CoverageAssignments = governanceAssignmentsHashHex is null
+                ? []
+                :
+                [
+                    new CommittedCoverageAssignmentSnapshot
+                    {
+                        PolicyPackId = PackId,
+                        PolicyPackVersion = "2.0.0",
+                        CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+                        SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+                        QualityDimension = QualityDimension.Security.ToString(),
+                        EvaluationVersion = EffectiveGovernanceSnapshotBuilder.ExecuteScopeEvaluationVersion,
+                    }
+                ]
         });
 
     private static Mock<IPolicyPackAssignmentRepository> SetupPackAssignment(string version)

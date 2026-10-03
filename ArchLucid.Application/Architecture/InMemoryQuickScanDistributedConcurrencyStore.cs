@@ -91,6 +91,14 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
                 return Task.FromResult(QuickScanConcurrencyPromoteResult.NotYet());
             }
 
+            bool earlierEntryWaiting = _queue.Values.Any(entry =>
+                entry.Status == QueueRowStatus.Waiting
+                && entry.EnqueuedUtc < row.EnqueuedUtc);
+            if (earlierEntryWaiting)
+            {
+                return Task.FromResult(QuickScanConcurrencyPromoteResult.NotYet());
+            }
+
             InsertLease(
                 request.LeaseId,
                 request.QueueEntryId,

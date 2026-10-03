@@ -33,9 +33,12 @@ public sealed class SecureNowProductBoundaryTests
 
         foreach (string protectedNamespace in SecureNowImplementationNamespaces)
         {
-            applicationTypes.Should().Contain(type => type.Namespace == protectedNamespace
-                || type.Namespace?.StartsWith(protectedNamespace + ".", StringComparison.Ordinal) == true,
-                "remove or update obsolete boundary entries when a SecureNow namespace moves: {0}", protectedNamespace);
+            applicationTypes.Should().Contain(
+                type => type.Namespace == protectedNamespace
+                    || (type.Namespace != null
+                        && type.Namespace.StartsWith(protectedNamespace + ".", StringComparison.Ordinal)),
+                "remove or update obsolete boundary entries when a SecureNow namespace moves: {0}",
+                protectedNamespace);
 
             ProductCapabilityMapApplicationNamespaceEntry? owner = map.ApplicationNamespaces
                 .Where(entry => protectedNamespace == entry.NamespacePrefix

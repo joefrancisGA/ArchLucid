@@ -1,5 +1,5 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
-import { toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
+import { isUtcIanaTimeZoneId, toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 import { delayForWarmupRetry, WARMUP_MAX_ATTEMPTS } from "@/lib/warmup-retry";
 
 export const IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY = "archlucid.iana-time-zone-preference.v1";
@@ -144,26 +144,35 @@ export async function syncIanaTimeZonePreferenceFromServer(): Promise<string | n
     const remote = await getUserPreferences();
     const localTimeZoneId = readStoredIanaTimeZonePreference();
     const normalizedRemote = normalizeIanaTimeZonePreference(remote.ianaTimeZoneId);
+    // UTC was the implicit client default before the product default moved to Eastern.
+    // Do not promote that legacy cache value to an explicit account preference.
+    const localTimeZoneToSync =
+      !remote.ianaTimeZoneIsExplicit && !isUserPersistIntentActive() && isUtcIanaTimeZoneId(localTimeZoneId)
+        ? DEFAULT_IANA_TIME_ZONE_ID
+        : localTimeZoneId;
 
     if (
       !remote.ianaTimeZoneIsExplicit
-      && localTimeZoneId !== normalizedRemote
+      && localTimeZoneToSync !== normalizedRemote
       && !isUserPersistIntentActive()
     ) {
-      const synced = await persistIanaTimeZonePreferenceToServer(localTimeZoneId);
+      const synced = await persistIanaTimeZonePreferenceToServer(localTimeZoneToSync);
 
       if (!synced) {
         return null;
       }
 
-      persistIanaTimeZonePreferenceLocally(localTimeZoneId);
+      persistIanaTimeZonePreferenceLocally(localTimeZoneToSync);
 
-      return localTimeZoneId;
+      return localTimeZoneToSync;
     }
 
-    persistIanaTimeZonePreferenceLocally(normalizedRemote);
+    const shouldUseRemoteValue = remote.ianaTimeZoneIsExplicit || isUserPersistIntentActive();
+    const resolvedTimeZoneId = shouldUseRemoteValue ? normalizedRemote : localTimeZoneToSync;
 
-    return normalizedRemote;
+    persistIanaTimeZonePreferenceLocally(resolvedTimeZoneId);
+
+    return resolvedTimeZoneId;
   }
   catch {
     return null;

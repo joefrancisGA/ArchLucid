@@ -88,7 +88,12 @@ export function GovernanceFindingsQueueTableHead(props: {
                 Findings need action. Decisions record what was decided.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Record summary</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Record summary</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                A short description of the finding or recorded decision.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Review</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -166,7 +171,12 @@ export function GovernanceFindingsQueueTableHead(props: {
           </>
         ) : (
           <>
-            <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS}>Risk</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS}>
+              <span>Risk</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The finding title shown in this queue.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Source review</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -179,7 +189,12 @@ export function GovernanceFindingsQueueTableHead(props: {
                 How serious this finding is recorded as.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Owner</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The person recorded as responsible for this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Age</span>
@@ -202,7 +217,12 @@ export function GovernanceFindingsQueueTableHead(props: {
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
           </>
         )}
-        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Actions</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Open this finding or its source review.
+          </span>
+        </EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );

@@ -62,11 +62,49 @@ export function applyFindingsSavedViewFilters(
   readonly groupByResource: boolean;
   readonly scopedRunId: string | null;
 } {
+  const source =
+    filters !== null &&
+    typeof filters === "object" &&
+    !Array.isArray(filters)
+      ? (filters as Record<string, unknown>)
+      : {};
+  const nlFacets =
+    source.nlFacets !== null &&
+    typeof source.nlFacets === "object" &&
+    !Array.isArray(source.nlFacets)
+      ? normalizeFindingsNaturalLanguageFacets(source.nlFacets as Record<string, unknown>)
+      : {};
+
   return {
-    registerFilter: (filters.registerFilter ?? "all") as RiskRegisterFilter,
-    jobView: (filters.jobView ?? DEFAULT_FINDING_JOB_VIEW) as FindingJobView,
-    nlFacets: (filters.nlFacets ?? {}) as FindingsNaturalLanguageFacets,
-    groupByResource: filters.groupByResource === true,
-    scopedRunId: filters.scopedRunId ?? null,
+    registerFilter: (typeof source.registerFilter === "string" ? source.registerFilter : "all") as RiskRegisterFilter,
+    jobView: (typeof source.jobView === "string" ? source.jobView : DEFAULT_FINDING_JOB_VIEW) as FindingJobView,
+    nlFacets,
+    groupByResource: source.groupByResource === true,
+    scopedRunId: typeof source.scopedRunId === "string" ? source.scopedRunId : null,
+  };
+}
+
+function normalizeFindingsNaturalLanguageFacets(
+  value: Record<string, unknown>,
+): FindingsNaturalLanguageFacets {
+  const hasKnownFacet = "severity" in value || "status" in value || "titleKeywords" in value;
+
+  if (!hasKnownFacet) {
+    return {};
+  }
+
+  const severity = value.severity;
+  const status = value.status;
+  const titleKeywords = value.titleKeywords;
+
+  return {
+    severity:
+      severity === "critical" || severity === "high" || severity === "medium" || severity === "low"
+        ? severity
+        : null,
+    status: status === "open" || status === "disposed" ? status : null,
+    titleKeywords: Array.isArray(titleKeywords)
+      ? titleKeywords.filter((keyword): keyword is string => typeof keyword === "string")
+      : [],
   };
 }

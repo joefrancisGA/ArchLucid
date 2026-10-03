@@ -56,11 +56,7 @@ type OperatorShellTopBarMoreMenuProps = {
 export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuProps): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const [open, setOpenState] = useState(() =>
-    parseShellTopBarMoreOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("shellMoreOpen"),
-    ),
+    parseShellTopBarMoreOpenFromSearch(null),
   );
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const openRef = useRef(open);

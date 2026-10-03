@@ -99,6 +99,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid) && _runExecuteOwnershipLeaseService.IsEnabled)
             {
                 await EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(runId, cancellationToken).ConfigureAwait(false);
+                await EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(runId, cancellationToken).ConfigureAwait(false);
 
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
@@ -190,6 +191,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
             await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
             await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
+            await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
             await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
             using CancellationTokenSource executeCancellation =

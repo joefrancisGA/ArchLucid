@@ -77,7 +77,9 @@ public sealed class ExecDigestEmailDispatcher(
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
-        string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
+        string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
+            ? null
+            : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
         ExecDigestEmailModel model = new()
         {
             ProductName = productName,

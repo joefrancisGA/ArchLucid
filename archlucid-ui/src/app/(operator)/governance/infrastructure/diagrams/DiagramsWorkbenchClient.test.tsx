@@ -310,6 +310,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     const subscriptionPicker = await screen.findByTestId("infra-diagrams-subscription-picker");
+    expect(screen.getByText("Subscription")).toBeInTheDocument();
     const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
 
     expect(subscriptionPicker).toHaveValue("");
@@ -443,7 +444,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByText("Advisory export")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
+      "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full&tab=diagram&infrastructureAskOpen=1",
     );
     expect(screen.queryByTestId("infra-diagrams-render-status-strip")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
@@ -473,6 +474,7 @@ describe("DiagramsWorkbenchClient", () => {
       fallbackKey: query.fallbackKey ?? null,
       status: "Failed",
       mermaid: null,
+      failureReason: "Simulated render failure.",
       metrics: null,
       fallbackArtifacts: [],
     }));
@@ -487,6 +489,8 @@ describe("DiagramsWorkbenchClient", () => {
       expect(strip).toHaveTextContent("Render failed");
       expect(strip).not.toHaveTextContent("subgraphs");
     });
+    expect(screen.getByTestId("infra-diagrams-render-failed")).toHaveTextContent("Simulated render failure.");
+    expect(screen.queryByText("This view is too large to read.")).not.toBeInTheDocument();
   });
 
   it("shows resource scope banner and scoped Ask link when cloudResourceId is in the URL", async () => {
@@ -525,7 +529,7 @@ describe("DiagramsWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
+      "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&tab=diagram&infrastructureAskOpen=1",
     );
   });
 
@@ -572,7 +576,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}&tab=diagram`,
+      `/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}&tab=diagram&infrastructureAskOpen=1`,
     );
   });
 
@@ -1382,7 +1386,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-walkthrough")).toHaveTextContent("2 connected components");
-    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).not.toBeChecked();
     expect(screen.getByTestId("infra-diagrams-always-excluded-panel")).toHaveTextContent("dnszones");
 
     await openDiagramOutlineNodes();
@@ -1433,7 +1437,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     await screen.findByTestId("infra-diagrams-walkthrough");
-    expect(screen.getByTestId("infra-diagrams-include-never-show")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("infra-diagrams-include-never-show")).toBeChecked();
     expect(screen.queryByTestId("infra-diagrams-always-excluded-panel")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
       "11111111-1111-1111-1111-111111111111",

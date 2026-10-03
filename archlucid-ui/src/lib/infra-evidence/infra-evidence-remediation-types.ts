@@ -7,6 +7,7 @@ export type RemediationInstanceStatus =
   | "Approved"
   | "WaveAssigned"
   | "Executed"
+  | "ChangeImplemented"
   | "Verified"
   | "VerificationFailed"
   | "Closed";
@@ -16,7 +17,9 @@ export type RemediationWorkbenchColumn =
   | "preflight"
   | "approved"
   | "executed"
+  | "implemented"
   | "verified"
+  | "verification-failed"
   | "closed";
 
 export type RemediationInstanceSummary = {
@@ -111,7 +114,24 @@ export const REMEDIATION_WORKBENCH_COLUMNS: readonly {
   { id: "draft", label: "Draft" },
   { id: "preflight", label: "Preflight" },
   { id: "approved", label: "Approved" },
-  { id: "executed", label: "Executed" },
-  { id: "verified", label: "Verified" },
+  { id: "executed", label: "Advisory generated" },
+  { id: "implemented", label: "Change implemented" },
+  { id: "verified", label: "Change verified" },
+  { id: "verification-failed", label: "Verification failed" },
   { id: "closed", label: "Closed" },
 ];
+
+export function remediationInstanceStatusLabel(status: RemediationInstanceStatus): string {
+  switch (status) {
+    case "Executed":
+      return "Advisory generated";
+    case "ChangeImplemented":
+      return "Change implemented";
+    case "Verified":
+      return "Change verified";
+    case "VerificationFailed":
+      return "Verification failed";
+    default:
+      return status;
+  }
+}

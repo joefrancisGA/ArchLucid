@@ -31,11 +31,7 @@ export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactEle
   const { mode, mounted, setAndPersist } = useWorkspaceMode();
   const pathname = usePathname() ?? "";
   const [dialogOpen, setDialogOpenState] = useState(() =>
-    parseWorkspaceModeSwitchConfirmOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("workspaceSwitchConfirm"),
-    ),
+    parseWorkspaceModeSwitchConfirmOpenFromSearch(null),
   );
   const dialogOpenRef = useRef(dialogOpen);
   dialogOpenRef.current = dialogOpen;

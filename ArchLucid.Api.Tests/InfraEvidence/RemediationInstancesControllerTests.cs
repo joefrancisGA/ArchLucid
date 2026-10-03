@@ -152,6 +152,34 @@ public sealed class RemediationInstancesControllerTests
         payload.Blockers.Should().ContainSingle();
     }
 
+    [Fact]
+    public async Task AttestChangeImplemented_maps_success_without_a_request_body()
+    {
+        Guid instanceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        Mock<IRemediationInstanceService> instanceService = new();
+        instanceService
+            .Setup(service => service.AttestChangeImplementedAsync(
+                Scope,
+                instanceId,
+                "actor",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RemediationInstanceOperationResult
+            {
+                Succeeded = true,
+                InstanceId = instanceId,
+                Status = RemediationInstanceStatus.ChangeImplemented,
+            });
+
+        RemediationInstancesController controller = CreateController(instanceService: instanceService.Object);
+
+        IActionResult result = await controller.AttestChangeImplemented(instanceId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        RemediationInstanceOperationResult payload =
+            ok.Value.Should().BeOfType<RemediationInstanceOperationResult>().Subject;
+        payload.Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
+    }
+
     private static RemediationInstancesController CreateController(
         IRemediationInstanceService? instanceService = null,
         IRemediationInstanceQueryService? queryService = null)

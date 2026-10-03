@@ -319,6 +319,106 @@ public sealed class DecisionEngineV2Tests
     }
 
     [Fact]
+    public async Task ResolveAsync_security_node_does_not_promote_private_endpoints_when_strengthen_mentions_non_private()
+    {
+        List<AgentTask> tasks =
+        [
+            new()
+            {
+                TaskId = "T1",
+                RunId = "RUN-SEC-NEG",
+                AgentType = AgentType.Topology,
+                Status = AgentTaskStatus.Completed,
+            },
+        ];
+
+        List<AgentResult> results =
+        [
+            new()
+            {
+                RunId = "RUN-SEC-NEG",
+                TaskId = "T1",
+                AgentType = AgentType.Topology,
+                Confidence = 0.7,
+                ResultId = "r",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+        ];
+
+        List<AgentEvaluation> evals =
+        [
+            new()
+            {
+                RunId = "RUN-SEC-NEG",
+                TargetAgentTaskId = "T1",
+                EvaluationType = "strengthen",
+                ConfidenceDelta = 0.2,
+                Rationale = "Accept non-private connectivity for this dev slice.",
+            },
+        ];
+
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
+            "RUN-SEC-NEG",
+            new ArchitectureRequest { RequestId = "R", SystemName = "S", Description = "d" },
+            tasks,
+            results,
+            evals);
+
+        DecisionNode security = decisions.Single(d => d.Topic == "SecurityControlPromotion");
+        security.Rationale.Should().Be("No control promotion");
+    }
+
+    [Fact]
+    public async Task ResolveAsync_security_node_promotes_private_endpoints_when_rationale_prohibits_non_private_fallback()
+    {
+        List<AgentTask> tasks =
+        [
+            new()
+            {
+                TaskId = "T1",
+                RunId = "RUN-SEC-MIXED",
+                AgentType = AgentType.Topology,
+                Status = AgentTaskStatus.Completed,
+            },
+        ];
+
+        List<AgentResult> results =
+        [
+            new()
+            {
+                RunId = "RUN-SEC-MIXED",
+                TaskId = "T1",
+                AgentType = AgentType.Topology,
+                Confidence = 0.7,
+                ResultId = "r",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+        ];
+
+        List<AgentEvaluation> evals =
+        [
+            new()
+            {
+                RunId = "RUN-SEC-MIXED",
+                TargetAgentTaskId = "T1",
+                EvaluationType = "strengthen",
+                ConfidenceDelta = 0.2,
+                Rationale = "Prefer private endpoints; non-private connectivity is prohibited.",
+            },
+        ];
+
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
+            "RUN-SEC-MIXED",
+            new ArchitectureRequest { RequestId = "R", SystemName = "S", Description = "d" },
+            tasks,
+            results,
+            evals);
+
+        DecisionNode security = decisions.Single(d => d.Topic == "SecurityControlPromotion");
+        security.Rationale.Should().Contain("Private Endpoints");
+    }
+
+    [Fact]
     public async Task ResolveAsync_complexity_prefers_reduce_when_caution_present()
     {
         List<AgentTask> tasks =

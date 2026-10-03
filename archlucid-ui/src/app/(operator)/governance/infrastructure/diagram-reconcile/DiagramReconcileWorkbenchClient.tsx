@@ -84,7 +84,8 @@ import {
 import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAM_RECONCILE_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   infraDiagramReconcileResourceIdDisclosureHrefFromSearch,
@@ -162,6 +163,8 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
 ];
 
 function buildDiagramReconcileCorrespondenceAskHref(
+  pathname: string,
+  currentSearch: string,
   row: DiagramInfrastructureCorrespondenceRow,
   snapshotId: string,
   runId: string,
@@ -177,7 +180,7 @@ function buildDiagramReconcileCorrespondenceAskHref(
       : undefined
   );
 
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -1380,12 +1383,42 @@ export function DiagramReconcileWorkbenchClient() {
           <EnterpriseTable ariaLabel="Diagram reconciliation correspondence rows">
             <EnterpriseTableHead>
               <EnterpriseTableRow>
-                <EnterpriseTableHeaderCell>Match</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Diagram</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>ARM id</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Explanation</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Match</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How this diagram item lines up with an inventory resource.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Confidence</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How strongly the recorded correspondence supports this match. It is not a percentage.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Diagram</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The diagram item in this correspondence row.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>ARM id</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The Azure resource identifier recorded for this match.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Explanation</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded reason for this correspondence.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Actions</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Record correspondence work. It does not change the diagram or Azure.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>
@@ -1469,6 +1502,8 @@ export function DiagramReconcileWorkbenchClient() {
                         <Button asChild variant="outline" size="sm">
                           <Link
                             href={buildDiagramReconcileCorrespondenceAskHref(
+                              pathname,
+                              searchParams.toString(),
                               row,
                               selectedSnapshotId,
                               runId,

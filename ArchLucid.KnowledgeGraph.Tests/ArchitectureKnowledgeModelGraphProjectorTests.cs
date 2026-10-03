@@ -278,4 +278,51 @@ public sealed class ArchitectureKnowledgeModelGraphProjectorTests
       && edge.ToNodeId == "akm:trust-1"
       && edge.EdgeType == GraphEdgeTypes.RelatesTo);
   }
+
+  [Fact]
+  public void Project_assigns_unique_edge_ids_when_same_endpoints_have_different_edge_types()
+  {
+    ArchitectureKnowledgeModel model = new()
+    {
+      ModelId = "model-edge-id-types",
+      TenantId = Guid.NewGuid().ToString("D"),
+      RunId = Guid.NewGuid().ToString("D"),
+      Elements =
+      [
+        new ArchitectureModelElement
+        {
+          ElementId = "source-1",
+          Kind = ArchitectureElementKind.DataFlow,
+          Name = "Data flow source",
+          RelatedElementIds = ["target-1"],
+        },
+        new ArchitectureModelElement
+        {
+          ElementId = "SOURCE-1",
+          Kind = ArchitectureElementKind.Interface,
+          Name = "Interface source",
+          RelatedElementIds = ["target-1"],
+        },
+        new ArchitectureModelElement
+        {
+          ElementId = "target-1",
+          Kind = ArchitectureElementKind.Component,
+          Name = "Target",
+        },
+      ],
+    };
+
+    ContextSnapshot context = new()
+    {
+      SnapshotId = Guid.NewGuid(),
+      RunId = Guid.NewGuid(),
+      ProjectId = "project",
+      CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+    };
+
+    GraphSnapshot snapshot = new ArchitectureKnowledgeModelGraphProjector().Project(model, context, context.RunId);
+
+    snapshot.Edges.Should().HaveCount(2);
+    snapshot.Edges.Select(edge => edge.EdgeId).Should().OnlyHaveUniqueItems();
+  }
 }

@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-03 (added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -60,7 +60,9 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
+| P1 | **SN-QQ-01–06** + hold | Subscription question queue | **Backlog** (prompts only) | L | One queue for diagram evidence, inference items, and pack questions. Hero only when the open count is greater than zero. Ignore expires and reopens when the evidence fingerprint changes. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
 | P1 | **AX-DC-01–08** | Executive / Identity / Data diagram **consumption** | **Backlog** (prompts only) | L | Authorization endpoints, Probable/Inferred strokes, completeness warnings, edge inspector, hosted vs Tier-1 honesty. Hold: [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md`](../library/AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md). |
+| P1 | **DCU-01–05** | Diagram consumption UX (read, filter, share) | **Backlog** (prompts only) | M | Connector click opens the existing evidence panel, one stroke legend, evidence-family chips, PNG reading strip, node connection hint. Hold: [`.cursor/prompts/diagram-consumption-ux-06-hold.md`](../../.cursor/prompts/diagram-consumption-ux-06-hold.md). |
 | P1 | **SH-02–SH-06**, **SH-11–SH-25** | Help articles + search still Architecture-job mismatched | **Partial** | M–L | Resolver pattern from **SH-01** exists; article bodies and some Learn-more maps may still teach first architecture review. Index: [securenow-help-00-index.md](../../.cursor/prompts/securenow-help-00-index.md). |
 | P2 | **IE-RF** | Relationship-first topology (network associations) | **Backlog** | L | Catalog-driven associations; complements diagrams — see [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 7. |
 | P2 | **Extractor parity** | Cost, Advisor, orphans, NIC/PE inventory depth | **Backlog** | M | Same extractor discipline; SecureNow inventory workbenches consume output. |
@@ -94,6 +96,9 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Data flow compile | [securenow-data-flow-00-index.md](../../.cursor/prompts/securenow-data-flow-00-index.md) | **SN-DF-01–SN-DF-09** | [`SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md) |
 | Probable evidence | [securenow-probable-evidence-00-index.md](../../.cursor/prompts/securenow-probable-evidence-00-index.md) | **SN-PE-01–SN-PE-HOLD** | [`SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) |
 | Runtime connections | [securenow-runtime-connection-00-index.md](../../.cursor/prompts/securenow-runtime-connection-00-index.md) | **SN-RT-01–SN-RT-13** | [`SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) |
+| Verification honesty | [securenow-verification-00-index.md](../../.cursor/prompts/securenow-verification-00-index.md) | **SN-VF-01–SN-VF-05** | [`SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md) |
+| Question queue | [securenow-question-queue-00-index.md](../../.cursor/prompts/securenow-question-queue-00-index.md) | **SN-QQ-01–SN-QQ-06** + hold | [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md) |
+| Diagram consumption UX | [diagram-consumption-ux-00-index.md](../../.cursor/prompts/diagram-consumption-ux-00-index.md) | **DCU-01–DCU-05** + hold | [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md) |
 
 ---
 
@@ -206,6 +211,32 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | SN-RT-13 | E | Questionnaire UI (Yes/No/Skip) | **Shipped** |
 | SN-RT-14 | D/E | OP-01 map row for operator-inferred connections controller | **Shipped** |
 | SN-RT-HOLD | — | Secret persistence, auto-answer, merge observed into May access | **Hold** |
+
+### SN-VF — Verification honesty (**SN-VF-01–SN-VF-05**)
+
+Prompts only. Run in order. Settled scope: [`OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md`](OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md) Part 2, act-now list. Index: [`../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md).
+
+| ID | Title | Status |
+|----|-------|--------|
+| SN-VF-01 | Chronology and `Succeeded` capture | **Prompts** |
+| SN-VF-02 | Path absence requires completed analysis | **Prompts** |
+| SN-VF-03 | Substantive postcondition required | **Prompts** |
+| SN-VF-04 | Attested `ChangeImplemented` | **Prompts** |
+| SN-VF-05 | Workbench labels and Close affordance | **Prompts** |
+
+### SN-QQ — Subscription question queue (**SN-QQ-01–SN-QQ-06**)
+
+Prompts only. Run in order. Settled scope: [`../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). NR-12 still shows why an Unknown resource is unknown. NR-16 still paints the yellow card. This wave is the answer surface.
+
+| ID | Title | Status |
+|----|-------|--------|
+| SN-QQ-01 | Disposition store and API across snapshots | **Prompts** |
+| SN-QQ-02 | Emit a question only when the answer changes the next action | **Prompts** |
+| SN-QQ-03 | Hero and one-at-a-time drawer | **Prompts** |
+| SN-QQ-04 | Outline Answer / Review shortcut | **Prompts** |
+| SN-QQ-05 | Pack questions, including questions with no node | **Prompts** |
+| SN-QQ-06 | Expiring HumanAssertion; ignore does not change the diagram | **Prompts** |
+| SN-QQ-HOLD | Stop list | **Hold** |
 
 ---
 

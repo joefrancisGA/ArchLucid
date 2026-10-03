@@ -9,22 +9,30 @@ public sealed class DiagramForestCanvasLabelContext
     private readonly IReadOnlyList<string> _peerResourceGroupNames;
     private readonly DiagramForestLayoutOptions _options;
     private readonly HashSet<string> _suppressResourceGroupCaptionNodeIds;
+    private readonly bool _isDataFlow;
+    private readonly IReadOnlyDictionary<string, string> _consumerStatusByNodeId;
 
     private DiagramForestCanvasLabelContext(
         IReadOnlyList<string> peerResourceNames,
         IReadOnlyList<string> peerResourceGroupNames,
         DiagramForestLayoutOptions options,
-        HashSet<string> suppressResourceGroupCaptionNodeIds)
+        HashSet<string> suppressResourceGroupCaptionNodeIds,
+        bool isDataFlow,
+        IReadOnlyDictionary<string, string> consumerStatusByNodeId)
     {
         _peerResourceNames = peerResourceNames;
         _peerResourceGroupNames = peerResourceGroupNames;
         _options = options;
         _suppressResourceGroupCaptionNodeIds = suppressResourceGroupCaptionNodeIds;
+        _isDataFlow = isDataFlow;
+        _consumerStatusByNodeId = consumerStatusByNodeId;
     }
 
     public static DiagramForestCanvasLabelContext Create(
         IReadOnlyList<DiagramNode> nodes,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        IReadOnlyList<DiagramEdge>? visibleEdges = null,
+        bool isDataFlow = false)
     {
         ArgumentNullException.ThrowIfNull(nodes);
         ArgumentNullException.ThrowIfNull(options);
@@ -43,12 +51,18 @@ public sealed class DiagramForestCanvasLabelContext
             .ToList();
         HashSet<string> suppressResourceGroupCaptionNodeIds =
             DiagramResourceGroupPacker.ResolveNodesWithSuppressedCaption(nodes);
+        IReadOnlyDictionary<string, string> consumerStatusByNodeId =
+            isDataFlow
+                ? BuildConsumerStatusByNodeId(nodes, visibleEdges ?? [])
+                : new Dictionary<string, string>(StringComparer.Ordinal);
 
         return new DiagramForestCanvasLabelContext(
             peerResourceNames,
             peerResourceGroupNames,
             options,
-            suppressResourceGroupCaptionNodeIds);
+            suppressResourceGroupCaptionNodeIds,
+            isDataFlow,
+            consumerStatusByNodeId);
     }
 
     public DiagramForestNodeMetrics Measure(DiagramNode node)
@@ -62,6 +76,13 @@ public sealed class DiagramForestCanvasLabelContext
             _peerResourceNames,
             _options,
             textColumnMaxWidth);
+        _consumerStatusByNodeId.TryGetValue(node.NodeId, out string? consumerStatusLine);
+        string? dataFlowTypeLine = _isDataFlow
+            ? DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node)
+            : null;
+        IReadOnlyList<string> dataFlowDetailLines = _isDataFlow
+            ? BuildDataFlowDetailLines(node, dataFlowTypeLine)
+            : [];
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
             || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)
@@ -76,6 +97,11 @@ public sealed class DiagramForestCanvasLabelContext
             .Select(line => line.Length)
             .DefaultIfEmpty(0)
             .Max();
+        longestLineChars = Math.Max(longestLineChars, consumerStatusLine?.Length ?? 0);
+        longestLineChars = Math.Max(longestLineChars, dataFlowTypeLine?.Length ?? 0);
+        longestLineChars = Math.Max(
+            longestLineChars,
+            dataFlowDetailLines.Select(line => line.Length).DefaultIfEmpty(0).Max());
         double privateEndpointIndicatorWidth = node.HasPrivateEndpointAccess
             ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
             : 0.0d;
@@ -96,20 +122,143 @@ public sealed class DiagramForestCanvasLabelContext
                 + _options.NodePaddingX,
             _options.MinNodeWidth,
             _options.MaxNodeWidth);
-        int textLineCount = nameLines.Count + resourceGroupLines.Count;
+        int textLineCount = nameLines.Count
+            + (dataFlowTypeLine is null ? 0 : 1)
+            + (consumerStatusLine is null ? 0 : 1)
+            + resourceGroupLines.Count
+            + (node.QuestionableAttention is null ? 0 : 1);
         double textBlockHeight = textLineCount * _options.LineHeight;
+        double chipBandHeight = node.NsgInboundRuleChips.Count > 0
+            ? _options.LineHeight + 4.0d
+            : 0.0d;
         double height = (_options.NodePaddingY * 2)
-            + Math.Max(_options.PictogramSize, textBlockHeight);
+            + Math.Max(_options.PictogramSize, textBlockHeight + chipBandHeight);
 
         return new DiagramForestNodeMetrics(
             Width: width,
             Height: height,
             NameLines: nameLines,
+            DataFlowTypeLine: dataFlowTypeLine,
+            DataFlowDetailLines: dataFlowDetailLines,
+            ConsumerStatusLine: consumerStatusLine,
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,
             PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),
             AzureIcon: DiagramInventoryAzureIconResolver.Resolve(node),
             HasPrivateEndpointAccess: node.HasPrivateEndpointAccess,
+            NsgInboundRuleChips: node.NsgInboundRuleChips,
+            IsQuestionable: node.QuestionableAttention is not null,
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
+    }
+
+    private static IReadOnlyList<string> BuildDataFlowDetailLines(
+        DiagramNode node,
+        string? dataFlowTypeLine)
+    {
+        if (string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
+        {
+            return [];
+        }
+
+        List<string> lines = [];
+
+        if (string.IsNullOrWhiteSpace(dataFlowTypeLine))
+        {
+            lines.Add($"{node.ExternalLinkedServiceType.Trim()} link");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalFactoryName))
+        {
+            lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalTargetHost))
+        {
+            lines.Add(node.ExternalTargetHost.Trim());
+        }
+        else if (node.ExternalHostInKeyVault)
+        {
+            lines.Add("Host in Key Vault");
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
+        {
+            lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
+        }
+
+        return lines;
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildConsumerStatusByNodeId(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> visibleEdges)
+    {
+        HashSet<string> visibleNodeIds = nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+        Dictionary<string, HashSet<string>> consumerIdsByNodeId = new(StringComparer.Ordinal);
+
+        foreach (DiagramEdge edge in visibleEdges)
+        {
+            if (edge.IsLayoutOnly
+                || !visibleNodeIds.Contains(edge.FromNodeId)
+                || !visibleNodeIds.Contains(edge.ToNodeId)
+                || string.Equals(edge.FromNodeId, edge.ToNodeId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            AddConsumer(consumerIdsByNodeId, edge.FromNodeId, edge.ToNodeId);
+            AddConsumer(consumerIdsByNodeId, edge.ToNodeId, edge.FromNodeId);
+        }
+
+        Dictionary<string, string> result = new(StringComparer.Ordinal);
+
+        foreach (DiagramNode node in nodes)
+        {
+            if (!IsConsumerStatusResource(node.ArmResourceType))
+            {
+                continue;
+            }
+
+            int count = consumerIdsByNodeId.TryGetValue(node.NodeId, out HashSet<string>? consumerIds)
+                ? consumerIds.Count
+                : 0;
+            result[node.NodeId] = count == 0
+                ? "No consumer found"
+                : $"Used by {count}";
+        }
+
+        return result;
+    }
+
+    private static void AddConsumer(
+        Dictionary<string, HashSet<string>> consumerIdsByNodeId,
+        string nodeId,
+        string consumerId)
+    {
+        if (!consumerIdsByNodeId.TryGetValue(nodeId, out HashSet<string>? consumerIds))
+        {
+            consumerIds = new HashSet<string>(StringComparer.Ordinal);
+            consumerIdsByNodeId[nodeId] = consumerIds;
+        }
+
+        consumerIds.Add(consumerId);
+    }
+
+    private static bool IsConsumerStatusResource(string? armResourceType)
+    {
+        return armResourceType is not null
+            && (armResourceType.Equals("Microsoft.Storage/storageAccounts", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.Sql/servers", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.Sql/servers/databases", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.Sql/managedInstances", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.DBforMySQL/servers", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.DBforMySQL/flexibleServers", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.DBforPostgreSQL/servers", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.DBforPostgreSQL/flexibleServers", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.DocumentDB/databaseAccounts", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.Cache/Redis", StringComparison.OrdinalIgnoreCase)
+                || armResourceType.Equals("Microsoft.Cache/redis", StringComparison.OrdinalIgnoreCase));
     }
 }

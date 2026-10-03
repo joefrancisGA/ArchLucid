@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -30,8 +30,8 @@ import {
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
 import {
-  buildInfrastructureAskHref,
   buildResourceHubExplorerHref,
   buildResourceHubOverviewHref,
   parseResourceExplorerCloudResourceIdFromSearch,
@@ -130,6 +130,7 @@ export function ResourcesExplorerClient() {
   const { productLine } = useProductLine();
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const urlNamePrefix = parseResourceExplorerNamePrefixFromSearch(
     searchParams.get(RESOURCE_EXPLORER_NAME_PREFIX_PARAM),
@@ -698,7 +699,7 @@ export function ResourcesExplorerClient() {
                   ) : null}
                   <Button asChild size="sm" variant="outline">
                     <Link
-                      href={buildInfrastructureAskHref({
+                      href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
                         cloudResourceId: row.cloudResourceId,
                         workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
                         snapshotId: urlSnapshotId.length > 0 ? urlSnapshotId : undefined,

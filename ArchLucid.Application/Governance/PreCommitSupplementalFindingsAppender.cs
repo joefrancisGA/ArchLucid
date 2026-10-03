@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Configuration;
@@ -34,8 +35,10 @@ internal static class PreCommitSupplementalFindingsAppender
         ArgumentNullException.ThrowIfNull(findingEvidenceLinkageFindingEngine);
         ArgumentNullException.ThrowIfNull(linkageOptions);
 
+        string ledgerRunId = TechnologyLedgerRunIdKey.Canonicalize(runId);
+
         await AppendTechnologyConsistencyFindingsAsync(
-            runId,
+            ledgerRunId,
             scope,
             findings,
             technologyLedgerRepository,
@@ -44,7 +47,7 @@ internal static class PreCommitSupplementalFindingsAppender
             cancellationToken).ConfigureAwait(false);
 
         AppendEvidenceLinkageFindings(
-            runId,
+            ledgerRunId,
             findings,
             findingEvidenceLinkageFindingEngine,
             linkageOptions);

@@ -43,13 +43,65 @@ public sealed class PreFinalizeChecklistServiceTests
     };
 
     [Fact]
+    public async Task BuildAsync_marks_not_ready_when_assumed_technology_rows_use_canonical_n_run_id_and_checklist_uses_d_format()
+    {
+        Guid runKey = Guid.NewGuid();
+        string dashedRunId = runKey.ToString("D");
+        string canonicalRunId = runKey.ToString("N");
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                LegacyRunStatus = "ReadyForCommit",
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = canonicalRunId,
+                Status = TechnologyLedgerStatus.Assumed,
+                TechnologyName = "Azure SQL",
+                Role = TechnologyLedgerRole.CloudPlatform,
+                ProviderFamily = CloudProvider.Azure,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs,
+            ledger: ledgerRepository);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(dashedRunId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "technology-baseline-assumed"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
     public async Task BuildAsync_marks_not_ready_when_assumed_technology_rows_exist()
     {
-        string runId = Guid.NewGuid().ToString("D");
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        string canonicalRunId = runKey.ToString("N");
 
         Mock<ITechnologyLedgerRepository> ledger = new();
         ledger
-            .Setup(l => l.GetByRunIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+            .Setup(l => l.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([
                 new TechnologyLedgerEntry
                 {
@@ -101,7 +153,7 @@ public sealed class PreFinalizeChecklistServiceTests
 
         Mock<IFindingEvidenceLinkageFindingEngine> linkage = new();
         linkage
-            .Setup(e => e.Evaluate(runId, It.IsAny<IReadOnlyList<Finding>>()))
+            .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
             .Returns([new Finding { FindingId = "gap-1", Severity = FindingSeverity.Warning }]);
 
         PreFinalizeChecklistService sut = CreateSut(
@@ -729,7 +781,7 @@ public sealed class PreFinalizeChecklistServiceTests
         PreFinalizeChecklistItem linkageItem = result.Items.Should().ContainSingle(item =>
             item.ItemId == "evidence-linkage-gaps").Subject;
         linkageItem.Status.Should().Be(PreFinalizeChecklistItemStatus.Blocking);
-        linkageItem.Count.Should().BeGreaterThan(0);
+        linkageItem.Count.Should().Be(1, "supplemental linkage findings must not inflate checklist gap count");
     }
 
     [Fact]

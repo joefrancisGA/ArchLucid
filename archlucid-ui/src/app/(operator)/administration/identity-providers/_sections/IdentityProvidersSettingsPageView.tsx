@@ -53,11 +53,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
   const { model } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [relatedSurfacesOpen, setRelatedSurfacesOpenState] = useState(() =>
-    parseIdentityProvidersRelatedSurfacesOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("identityProvidersRelatedSurfacesOpen"),
-    ),
+    parseIdentityProvidersRelatedSurfacesOpenFromSearch(null),
   );
   const relatedSurfacesOpenRef = useRef(relatedSurfacesOpen);
   relatedSurfacesOpenRef.current = relatedSurfacesOpen;

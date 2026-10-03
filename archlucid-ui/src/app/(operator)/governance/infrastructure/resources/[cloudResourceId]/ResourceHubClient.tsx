@@ -81,8 +81,8 @@ import {
   formatInfraEvidenceRemediationApiError,
   matchOperationalFinding,
 } from "@/lib/infra-evidence/infra-evidence-remediation-api";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
 import {
-  buildInfrastructureAskHref,
   parseResourceHubQueryValueFromSearch,
   parseResourceHubTabFromSearch,
   resolveInfrastructureAskAuditContext,
@@ -163,6 +163,12 @@ type ResourceHubClientProps = {
   readonly cloudResourceId: string;
 };
 
+type ResourceHubExplorerWorkQueue = ReturnType<typeof parseResourceExplorerWorkQueueFromSearch>;
+
+function infrastructureAskWorkQueueForExplorer(explorerWorkQueue: ResourceHubExplorerWorkQueue) {
+  return explorerWorkQueue !== "all" ? explorerWorkQueue : undefined;
+}
+
 function buildHubDriftChangeWorkbenchHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -174,57 +180,71 @@ function buildHubDriftChangeWorkbenchHref(
 }
 
 function buildHubDriftChangeAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
   change: CloudResourceInventoryChangeSummary,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId,
     runId: runId.length > 0 ? runId : undefined,
     diffId: change.diffId,
     hubTab: "drift",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
 
 function buildHubFindingAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
   findingId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     findingId,
     hubTab: "findings",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
 
 function buildHubRemediationAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
   instanceId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     instanceId,
     hubTab: "remediation",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
 
 function buildHubAuditLineageAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
@@ -233,8 +253,9 @@ function buildHubAuditLineageAskHref(
     readonly auditEvidenceSnapshotId: string;
     readonly controlId: string;
   },
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
@@ -242,6 +263,7 @@ function buildHubAuditLineageAskHref(
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
     hubTab: "audit",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
   });
 }
 
@@ -284,18 +306,22 @@ function buildHubScopedTabHref(
 }
 
 function buildHubDiagramCorrespondenceAskHref(
+  pathname: string,
+  currentSearch: string,
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
   correspondenceId: string,
   auditContext: InfrastructureAskAuditContext = {},
+  explorerWorkQueue: ResourceHubExplorerWorkQueue = "all",
 ): string {
-  return buildInfrastructureAskHref({
+  return buildInfrastructureAskHandoffHref(pathname, currentSearch, {
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId,
     hubTab: "diagram",
+    workQueue: infrastructureAskWorkQueueForExplorer(explorerWorkQueue),
     ...auditContext,
   });
 }
@@ -308,6 +334,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const infrastructureAskHandoffSearch = searchParams.toString();
   const activeTab = parseResourceHubTabFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
@@ -743,6 +770,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           aria-label="Resource identifiers"
           data-testid="infra-resource-hub-identifier-strip"
         >
+          <p className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.helper)}>
+            These identifiers locate the resource in captured inventory; they are not editable Azure settings.
+          </p>
           <dl className="m-0 grid gap-2 text-sm md:grid-cols-2">
             <div>
               <dt className="font-medium">{GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL}</dt>
@@ -814,17 +844,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       ) : null}
 
       {loadError != null ? (
-        <EnterpriseCompactEmptyState
-          role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-resource-hub-load-error"
-          footer={
-            <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
-              Retry
-            </Button>
-          }
-        />
+        <>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            This page could not load captured evidence. It does not prove the Azure resource is unavailable.
+          </p>
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-resource-hub-load-error"
+            footer={
+              <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
+                Retry
+              </Button>
+            }
+          />
+        </>
       ) : null}
 
       {loading && hub == null ? (
@@ -850,14 +885,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               ))}
             </EnterpriseTabsList>
             {loading ? (
-              <p
-                className={cn("m-0 inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
-                role="status"
-                data-testid="infra-resource-hub-refreshing"
-              >
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Refreshing…
-              </p>
+              <div className="space-y-1">
+                <p
+                  className={cn("m-0 inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
+                  role="status"
+                  data-testid="infra-resource-hub-refreshing"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Refreshing…
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Refreshing reloads the evidence hub; it does not recapture Azure inventory.
+                </p>
+              </div>
             ) : null}
             {auditScopeActive ? (
               <InfraEvidenceAuditScopeChip
@@ -869,6 +909,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </div>
 
           <EnterpriseTabsContent value="overview" className="mt-4 space-y-4">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Overview combines the selected resource&apos;s captured configuration, findings, and recent changes.
+            </p>
             {hub.auditLineageLink.available !== true ? (
               <InfraAuditLineageUnavailableBanner
                 degradedReason={hub.auditLineageLink.degradedReason}
@@ -880,13 +923,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                 Open Infrastructure Ask with this resource and snapshot context prefilled.
               </p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                Ask starts with this resource and snapshot context; it does not broaden the evidence scope automatically.
+              </p>
               <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-open-ask">
                 <Link
-                  href={buildInfrastructureAskHref({
+                  href={buildInfrastructureAskHandoffHref(pathname, infrastructureAskHandoffSearch, {
                     cloudResourceId,
                     snapshotId: resolvedSnapshotId,
                     runId,
                     hubTab: "overview",
+                    workQueue: infrastructureAskWorkQueueForExplorer(workQueue),
                     ...askAuditContext,
                   })}
                 >
@@ -899,6 +946,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Open in workbench</h2>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                 Cross-workbench exits for this resource without re-filtering manually.
+              </p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                These links carry the current resource context into another workbench.
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <Link
@@ -964,36 +1014,66 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
             <section className={cnCard}>
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Current configuration</h2>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                These values come from the selected snapshot. They are not a live Azure read.
+              </p>
               {hub.currentConfiguration == null ? (
-                <EnterpriseCompactEmptyState
-                  title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
-                  description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
-                  testId="infra-resource-hub-config-empty"
-                />
+                <>
+                  <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                    No configuration was captured for this resource in the selected snapshot.
+                  </p>
+                  <EnterpriseCompactEmptyState
+                    title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
+                    description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
+                    testId="infra-resource-hub-config-empty"
+                  />
+                </>
               ) : (
                 <>
                   <dl className="grid gap-2 text-sm md:grid-cols-3">
                     <div>
                       <dt className="font-medium">Resource type</dt>
+                      <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        The Azure type recorded for this resource.
+                      </dd>
                       <dd>{hub.currentConfiguration.resourceType}</dd>
                     </div>
                     <div>
                       <dt className="font-medium">Resource group</dt>
+                      <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        The group recorded as containing this resource.
+                      </dd>
                       <dd>{hub.currentConfiguration.resourceGroup ?? "—"}</dd>
                     </div>
                     <div>
                       <dt className="font-medium">Region</dt>
+                      <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        The Azure region recorded for this resource.
+                      </dd>
                       <dd>{hub.currentConfiguration.region ?? "—"}</dd>
                     </div>
                   </dl>
                   {Object.keys(hub.currentConfiguration.properties).length > 0 ? (
                     <div className="mt-4">
                       <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Properties</h3>
+                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                        Configuration keys and values recorded in the snapshot.
+                      </p>
                       <EnterpriseTable ariaLabel="Resource properties">
                         <EnterpriseTableHead>
                           <EnterpriseTableRow>
-                            <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                            <EnterpriseTableHeaderCell>Value</EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Key</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The configuration property name recorded in the snapshot.
+                              </span>
+                            </EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Value</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The configuration value recorded for this property.
+                              </span>
+                            </EnterpriseTableHeaderCell>
                           </EnterpriseTableRow>
                         </EnterpriseTableHead>
                         <EnterpriseTableBody>
@@ -1012,11 +1092,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {Object.keys(hub.currentConfiguration.tags).length > 0 ? (
                     <div className="mt-4">
                       <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Tags</h3>
+                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                        Tags recorded on this resource in the snapshot.
+                      </p>
                       <EnterpriseTable ariaLabel="Resource tags">
                         <EnterpriseTableHead>
                           <EnterpriseTableRow>
-                            <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                            <EnterpriseTableHeaderCell>Value</EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Key</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The tag name recorded on the resource.
+                              </span>
+                            </EnterpriseTableHeaderCell>
+                            <EnterpriseTableHeaderCell>
+                              <span>Value</span>
+                              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                                The tag value recorded for this resource.
+                              </span>
+                            </EnterpriseTableHeaderCell>
                           </EnterpriseTableRow>
                         </EnterpriseTableHead>
                         <EnterpriseTableBody>
@@ -1030,7 +1123,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTable>
                     </div>
                   ) : (
-                    <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>No tags captured.</p>
+                    <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                      No tags were captured for this resource in the selected snapshot.
+                    </p>
                   )}
                 </>
               )}
@@ -1042,12 +1137,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {hub.rbacAssignments.length > 0 ? (
                   <div className="mb-4">
                     <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>RBAC assignments</h3>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      Principal is the identity granted the role. Role is the role recorded in the snapshot. Scope is where that role applies.
+                    </p>
                     <EnterpriseTable ariaLabel="RBAC assignments">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
-                          <EnterpriseTableHeaderCell>Principal</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Principal</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The identity granted this role.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Role</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The role recorded in the snapshot.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Scope</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              Where that role applies.
+                            </span>
+                          </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
@@ -1062,17 +1175,32 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </EnterpriseTable>
                   </div>
                 ) : (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No RBAC assignments captured.</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    No RBAC assignment was captured for this resource in the selected snapshot.
+                  </p>
                 )}
                 {hub.networkRelationships.length > 0 ? (
                   <div className="mb-4">
                     <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Network relationships</h3>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      Type is the kind of network relationship recorded between the two resources.
+                    </p>
                     <EnterpriseTable ariaLabel="Network relationships">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
                           <EnterpriseTableHeaderCell>Type</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>From</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The source resource in the captured relationship.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>To</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The destination resource in the captured relationship.
+                            </span>
+                          </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
@@ -1087,16 +1215,31 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </EnterpriseTable>
                   </div>
                 ) : (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No network relationships captured.</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    No network relationship was captured for this resource in the selected snapshot.
+                  </p>
                 )}
                 {hub.evidencePointers.length > 0 ? (
                   <div>
                     <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Evidence pointers</h3>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      A pointer to captured evidence. It does not open Azure.
+                    </p>
                     <EnterpriseTable ariaLabel="Evidence pointers">
                       <EnterpriseTableHead>
                         <EnterpriseTableRow>
-                          <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-                          <EnterpriseTableHeaderCell>Path</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Kind</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              The type of captured evidence referenced by this pointer.
+                            </span>
+                          </EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>
+                            <span>Path</span>
+                            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                              Where the captured evidence is located in the evidence package.
+                            </span>
+                          </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>
                       </EnterpriseTableHead>
                       <EnterpriseTableBody>
@@ -1110,7 +1253,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </EnterpriseTable>
                   </div>
                 ) : (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No evidence pointers linked.</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    No captured evidence pointer is linked to this resource.
+                  </p>
                 )}
               </section>
             ) : null}
@@ -1120,13 +1265,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Recent changes</h2>
                   {hub.recentChanges.length > 5 ? (
-                    <Link
-                      className={OPERATOR_LINK.inline}
-                      href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext, workQueue)}
-                      data-testid="infra-resource-hub-overview-view-all-drift"
-                    >
-                      View all {hub.recentChanges.length} in Drift
-                    </Link>
+                    <div className="flex flex-col items-end gap-1">
+                      <Link
+                        className={OPERATOR_LINK.inline}
+                        href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext, workQueue)}
+                        data-testid="infra-resource-hub-overview-view-all-drift"
+                      >
+                        View all {hub.recentChanges.length} in Drift
+                      </Link>
+                      <span className={cn("text-right", OPERATOR_TYPOGRAPHY.helper)}>
+                        Opens all captured changes for this resource in the selected snapshot context.
+                      </span>
+                    </div>
                   ) : null}
                 </div>
                 <ResourceHubDriftChangesTable
@@ -1138,7 +1288,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   buildChangeWorkbenchHref={(change) =>
                     buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                   buildChangeAskHref={(change) =>
-                    buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
+                    buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
                   testIdPrefix="infra-resource-hub-drift"
                 />
               </section>
@@ -1166,7 +1316,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 buildChangeWorkbenchHref={(change) =>
                   buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                 buildChangeAskHref={(change) =>
-                  buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
+                  buildHubDriftChangeAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext, workQueue)}
                 testIdPrefix="infra-resource-hub-drift-tab"
               />
             ) : (
@@ -1181,6 +1331,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseTabsContent value="diagram" className="mt-4 space-y-3">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Review diagram correspondence and open inventory diagram or reconciliation workbenches.
+            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              This compares diagram correspondence with captured inventory; it does not redraw Azure.
             </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <Link
@@ -1225,7 +1378,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     label={hub.diagramCorrespondence.confidenceBand}
                   />
                 </div>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Match kind describes how the captured resource and diagram item correspond. Confidence band describes the evidence strength for that correspondence.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{hub.diagramCorrespondence.explainText}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  This explanation describes the recorded correspondence result, not observed runtime traffic.
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Reconciliation records correspondence work; it does not change the diagram or Azure.
+                </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-reconcile">
                     <Link
@@ -1248,11 +1410,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-ask">
                     <Link
                       href={buildHubDiagramCorrespondenceAskHref(
+                        pathname,
+                        infrastructureAskHandoffSearch,
                         cloudResourceId,
                         resolvedSnapshotId,
                         runId,
                         hub.diagramCorrespondence.correspondenceId,
                         askAuditContext,
+                        workQueue,
                       )}
                     >
                       Ask about this correspondence
@@ -1261,17 +1426,28 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </div>
               </section>
             ) : (
-              <EnterpriseCompactEmptyState
-                title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE}
-                description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
-                testId="infra-resource-hub-diagram-empty"
-              />
+              <>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  No correspondence was recorded for this resource in the selected snapshot.
+                </p>
+                <EnterpriseCompactEmptyState
+                  title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_TITLE}
+                  description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DIAGRAM_EMPTY_BODY}
+                  testId="infra-resource-hub-diagram-empty"
+                />
+              </>
             )}
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="terraform" className="mt-4 space-y-3">
             <section className={cnCard}>
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                This mapping is advisory. Exporting it does not apply Terraform.
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Not mapped means no Terraform address was captured; it does not mean the resource is unmanaged in Azure.
+              </p>
               <dl className="grid gap-2 text-sm">
                 {buyerPolishedShell ? (
                   <CollapsibleSection
@@ -1288,11 +1464,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 ) : (
                   <div>
                     <dt className="font-medium">Terraform address</dt>
+                  <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    The advisory address used to identify this resource in Terraform.
+                  </dd>
                     <dd className="font-mono text-xs">{hub.terraformAddress ?? "Not mapped"}</dd>
                   </div>
                 )}
                 <div>
                   <dt className="font-medium">Generation method</dt>
+                  <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                    How this Terraform mapping was produced from captured evidence.
+                  </dd>
                   <dd>{hub.terraformGenerationMethod ?? "—"}</dd>
                 </div>
               </dl>
@@ -1337,6 +1519,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </Link>
                   ) : null}
                 </div>
+                <p className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.helper)}>
+                  This list is limited to findings linked to this resource.
+                </p>
                 {stream.items.length === 0 ? (
                   <EnterpriseCompactEmptyState
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE}
@@ -1347,10 +1532,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <EnterpriseTable ariaLabel={`${stream.streamLabel} findings`}>
                     <EnterpriseTableHead>
                       <EnterpriseTableRow>
-                        <EnterpriseTableHeaderCell>Title</EnterpriseTableHeaderCell>
-                        <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-                        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Title</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            The finding name recorded for this resource.
+                          </span>
+                        </EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Severity</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            How serious this finding is recorded as.
+                          </span>
+                        </EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Status</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            Where this finding is in its recorded review workflow.
+                          </span>
+                        </EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>
+                          <span>Actions</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            Open the finding or start the available remediation workflow.
+                          </span>
+                        </EnterpriseTableHeaderCell>
                       </EnterpriseTableRow>
                     </EnterpriseTableHead>
                     <EnterpriseTableBody>
@@ -1429,7 +1634,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
+                                    href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
                                     data-testid={`infra-resource-hub-finding-ask-${item.id}`}
                                   >
                                     Ask
@@ -1439,7 +1644,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             ) : (
                               <Button asChild size="sm" variant="outline">
                                 <Link
-                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
+                                  href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
                                   data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
                                 >
                                   Ask
@@ -1483,9 +1688,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <EnterpriseTable ariaLabel="Remediation instances">
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>
-                    <EnterpriseTableHeaderCell>Pattern</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Pattern</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        The remediation pattern associated with this instance.
+                      </span>
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Status</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        The recorded state of this remediation instance. It does not change Azure.
+                      </span>
+                    </EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>
+                      <span>Actions</span>
+                      <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                        Open the remediation workbench or ask about this instance.
+                      </span>
+                    </EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
@@ -1513,7 +1733,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           </Button>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext)}
+                              href={buildHubRemediationAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext, workQueue)}
                               data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
                             >
                               Ask
@@ -1534,6 +1754,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   AE-10 chain of custody for {resolvedAuditLineage.label}.
                 </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  This lineage connects the resource evidence to the selected assessment context.
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Ask uses the selected control and resource evidence as context; it does not query Azure live.
+                </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                   <Link
                     className={OPERATOR_LINK.inline}
@@ -1548,11 +1774,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                   <Link
                     className={OPERATOR_LINK.inline}
-                    href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
+                    href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
-                    })}
+                    }, workQueue)}
                     data-testid="infra-resource-hub-audit-ask"
                   >
                     Ask about this control
@@ -1577,11 +1803,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </Link>
                             <Link
                               className="text-sm text-al-link hover:underline"
-                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
+                              href={buildHubAuditLineageAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, {
                                 assessmentId: match.assessmentId,
                                 auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
                                 controlId: match.controlId,
-                              })}
+                              }, workQueue)}
                               data-testid={`infra-resource-hub-audit-ask-${match.controlId}`}
                             >
                               Ask
@@ -1598,6 +1824,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 className={cnCardDashed}
                 data-testid="infra-resource-hub-audit-degraded"
               >
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  No audit evidence snapshot currently references this resource; this is not evidence that the control is absent.
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {hub.auditLineageLink.degradedReason ??
                     "No audit evidence snapshot rows reference this cloud resource yet."}

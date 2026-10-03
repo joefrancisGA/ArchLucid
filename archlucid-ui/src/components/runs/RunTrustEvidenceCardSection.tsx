@@ -49,20 +49,12 @@ export function RunTrustEvidenceCardSection(props: {
   const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle, approvalBlocked } = props;
   const pathname = usePathname() ?? "/";
   const [fieldsOpen, setFieldsOpenState] = useState(() =>
-    parseTrustEvidenceFieldsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("trustEvidenceFieldsOpen"),
-    ),
+    parseTrustEvidenceFieldsOpenFromSearch(null),
   );
   const fieldsOpenRef = useRef(fieldsOpen);
   fieldsOpenRef.current = fieldsOpen;
   const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseTrustEvidenceTechOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("trustEvidenceTechOpen"),
-    ),
+    parseTrustEvidenceTechOpenFromSearch(null),
   );
   const technicalOpenRef = useRef(technicalOpen);
   technicalOpenRef.current = technicalOpen;

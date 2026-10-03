@@ -18,6 +18,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         options ??= new DiagramAstCompileOptions();
 
+        IReadOnlyDictionary<string, DiagramQuestionableAttention> policyQuestionableNodes =
+            options.AssignedPolicyPackRuleKeys is { Count: > 0 }
+                ? InventoryDiagramQuestionableAttentionResolver.Resolve(
+                    graph,
+                    options.AssignedPolicyPackRuleKeys)
+                : new Dictionary<string, DiagramQuestionableAttention>(StringComparer.Ordinal);
+
         bool isDataFlowMode = mode == DiagramMode.DataFlow;
         bool isDataArchitectureMode = mode == DiagramMode.DataArchitecture;
         bool isSecureNowDataMode = isDataFlowMode || isDataArchitectureMode;
@@ -128,7 +135,18 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             string mermaidNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
             nodeIdMap[node.NodeId] = mermaidNodeId;
 
-            ast.Nodes.Add(BuildDiagramNode(node, mermaidNodeId, subgraphs, mode, order++));
+            DiagramNode diagramNode = BuildDiagramNode(node, mermaidNodeId, subgraphs, mode, order++);
+
+            if (policyQuestionableNodes.TryGetValue(node.NodeId, out DiagramQuestionableAttention? policyAttention))
+            {
+                diagramNode.QuestionableAttention = policyAttention;
+            }
+            else if (options.QuestionableNodes?.TryGetValue(node.NodeId, out DiagramQuestionableAttention? attention) == true)
+            {
+                diagramNode.QuestionableAttention = attention;
+            }
+
+            ast.Nodes.Add(diagramNode);
         }
 
         foreach (GraphEdge edge in includedEdges)
@@ -324,9 +342,46 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             SeedNodeId = isOverflow ? null : node.NodeId,
             ArmResourceType = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmType(node),
             ArmResourceKind = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadKind(node),
+            ExternalLinkedServiceType = isOverflow
+                ? null
+                : node.Properties.TryGetValue(
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalLinkedServiceTypePropertyKey,
+                    out string? linkedServiceType)
+                    ? linkedServiceType
+                    : null,
+            ExternalFactoryName = isOverflow
+                ? null
+                : ReadNodeProperty(
+                    node,
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalFactoryNamePropertyKey),
+            ExternalTargetHost = isOverflow
+                ? null
+                : ReadNodeProperty(
+                    node,
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalTargetHostPropertyKey),
+            ExternalIntegrationRuntime = isOverflow
+                ? null
+                : ReadNodeProperty(
+                    node,
+                    AzureInventoryAdfExternalSourceNodeFactory.ExternalIntegrationRuntimePropertyKey),
+            ExternalHostInKeyVault = !isOverflow
+                && string.Equals(
+                    ReadNodeProperty(
+                        node,
+                        AzureInventoryAdfExternalSourceNodeFactory.ExternalHostInKeyVaultPropertyKey),
+                    "true",
+                    StringComparison.OrdinalIgnoreCase),
             ArmResourceGroup = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadResourceGroup(node),
             IsExecutiveOverflow = isOverflow,
         };
+    }
+
+    private static string? ReadNodeProperty(GraphNode node, string propertyKey)
+    {
+        return node.Properties.TryGetValue(propertyKey, out string? value)
+            && !string.IsNullOrWhiteSpace(value)
+            ? value
+            : null;
     }
 
     private static void AddDropGateRows(

@@ -43,9 +43,10 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
         return Ok(questions.Select(MapQuestion).ToList());
     }
 
-    [HttpPost("answer")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs answer via IAuditService.")]
+[HttpPost("answer")]
+[ProducesResponseType(typeof(SecureNowQuestionDispositionResponse), StatusCodes.Status200OK)]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+[MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs answer via IAuditService.")]
     public async Task<IActionResult> Answer(
         Guid snapshotId,
         [FromBody] SecureNowQuestionDispositionWriteApiRequest? request,
@@ -136,7 +137,8 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
     {
         mapped = null;
         error = null;
-        if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source))
+if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source)
+    || !Enum.IsDefined(source))
         {
             error = "Source is invalid.";
             return false;

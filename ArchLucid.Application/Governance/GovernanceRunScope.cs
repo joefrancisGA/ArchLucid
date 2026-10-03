@@ -22,7 +22,7 @@ public static class GovernanceRunScope
         if (string.IsNullOrWhiteSpace(runId))
             throw new ArgumentException("Run id is required.");
 
-        runId = runId.Trim();
+        runId = GovernanceRunIdNormalizer.Normalize(runId);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
             throw new ArgumentException($"Run id '{runId}' is not valid.");
@@ -56,7 +56,7 @@ public static class GovernanceRunScope
             };
         }
 
-        runId = runId.Trim();
+        runId = GovernanceRunIdNormalizer.Normalize(runId);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
@@ -93,26 +93,4 @@ public static class GovernanceRunScope
 
         return new GovernanceRunScopeResolution { Succeeded = true, NormalizedRunId = runId };
     }
-}
-
-/// <summary>Outcome of <see cref="GovernanceRunScope.TryResolveScopedRunIdAsync"/>.</summary>
-public sealed record GovernanceRunScopeResolution
-{
-    public bool Succeeded { get; init; }
-
-    public string? NormalizedRunId { get; init; }
-
-    public string? ErrorCode { get; init; }
-
-    public string? Message { get; init; }
-}
-
-/// <summary>Problem type URIs returned in governance batch-review item results.</summary>
-internal static class GovernanceFacadeProblemCodes
-{
-    public const string ValidationFailed = "https://archlucid.example.org/errors#validation-failed";
-    public const string RunNotFound = "https://archlucid.example.org/errors#run-not-found";
-    public const string ResourceNotFound = "https://archlucid.example.org/errors#resource-not-found";
-    public const string GovernanceSelfApproval = "https://archlucid.example.org/errors#governance-self-approval";
-    public const string Conflict = "https://archlucid.example.org/errors#conflict";
 }

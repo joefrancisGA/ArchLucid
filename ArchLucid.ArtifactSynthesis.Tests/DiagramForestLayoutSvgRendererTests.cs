@@ -19,6 +19,251 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Render_data_flow_shows_human_type_captions_without_changing_other_modes()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "logic-connection",
+                    Label = "office365",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/connections",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "access-connector",
+                    Label = "unity-catalog-access-connector",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Databricks/accessConnectors",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "fabric",
+                    Label = "hihapfabriccapchynprd",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Fabric/capacities",
+                    OrderKey = 2,
+                },
+                new DiagramNode
+                {
+                    NodeId = "function",
+                    Label = "function-app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    ArmResourceKind = "functionapp",
+                    OrderKey = 3,
+                },
+                new DiagramNode
+                {
+                    NodeId = "mysql-link",
+                    Label = "azuremysql1",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "AzureMySql",
+                    OrderKey = 4,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult dataFlowResult = renderer.Render(ast);
+
+        dataFlowResult.Succeeded.Should().BeTrue(dataFlowResult.Error);
+        dataFlowResult.Svg.Should().Contain("Logic App connection");
+        dataFlowResult.Svg.Should().Contain("Access connector");
+        dataFlowResult.Svg.Should().Contain("Fabric capacity");
+        dataFlowResult.Svg.Should().Contain("Function App");
+        dataFlowResult.Svg.Should().Contain("MySQL link");
+        dataFlowResult.Svg.Should().NotContain("Topology resource");
+        XDocument.Parse(dataFlowResult.Svg!)
+            .Descendants()
+            .Where(element => element.Name.LocalName == "text")
+            .Select(element => element.Value)
+            .Should()
+            .NotContain("App Service");
+
+        ast.Title = "Azure inventory (FullSubscription)";
+        DiagramForestLayoutResult fullSubscriptionResult = renderer.Render(ast);
+
+        fullSubscriptionResult.Succeeded.Should().BeTrue(fullSubscriptionResult.Error);
+        List<string> fullSubscriptionText = XDocument.Parse(fullSubscriptionResult.Svg!)
+            .Descendants()
+            .Where(element => element.Name.LocalName == "text")
+            .Select(element => element.Value)
+            .ToList();
+        fullSubscriptionText.Should().NotContain("Logic App connection");
+        fullSubscriptionText.Should().NotContain("Access connector");
+        fullSubscriptionText.Should().NotContain("MySQL link");
+    }
+
+    [Fact]
+    public void Render_data_flow_shows_adf_link_identity_lines()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "sftp-link",
+                    Label = "hsag_sftp",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "Sftp",
+                    ExternalFactoryName = "adf-edw-hi-dev",
+                    ExternalTargetHost = "files.partner.example",
+                    ExternalIntegrationRuntime = "selfHostedIr",
+                    SubgraphId = "source",
+                },
+                new DiagramNode
+                {
+                    NodeId = "mysql-keyvault-link",
+                    Label = "azuremysql1",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "AzureMySql",
+                    ExternalFactoryName = "adf-edw-hi-tst",
+                    ExternalHostInKeyVault = true,
+                    SubgraphId = "source",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("SFTP link");
+        result.Svg.Should().Contain("Factory adf-edw-hi-dev");
+        result.Svg.Should().Contain("files.partner.example");
+        result.Svg.Should().Contain("Runtime selfHostedIr");
+        result.Svg.Should().Contain("MySQL link");
+        result.Svg.Should().Contain("Factory adf-edw-hi-tst");
+        result.Svg.Should().Contain("Host in Key Vault");
+        result.Svg.Should().NotContain("connectionString");
+    }
+
+    [Fact]
+    public void Render_data_flow_shows_consumer_status_for_data_stores_only()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "storage-used",
+                    Label = "storage-used",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "storage",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage-empty",
+                    Label = "storage-empty",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "storage",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "app",
+                    Label = "app",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    SubgraphId = "application",
+                    OrderKey = 2,
+                },
+                new DiagramNode
+                {
+                    NodeId = "factory",
+                    Label = "factory",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DataFactory/factories",
+                    SubgraphId = "ingestion",
+                    OrderKey = 3,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "storage-used",
+                    ToNodeId = "app",
+                    Label = "uses",
+                },
+                new DiagramEdge
+                {
+                    FromNodeId = "storage-used",
+                    ToNodeId = "factory",
+                    Label = "uses",
+                },
+            ],
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "storage",
+                    Label = "Storage",
+                    OrderKey = 0,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "application",
+                    Label = "Application",
+                    OrderKey = 1,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "ingestion",
+                    Label = "Ingestion",
+                    OrderKey = 2,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult dataFlowResult = renderer.Render(ast);
+
+        dataFlowResult.Succeeded.Should().BeTrue(dataFlowResult.Error);
+        dataFlowResult.Svg.Should().Contain("Used by 2");
+        dataFlowResult.Svg.Should().Contain("No consumer found");
+
+        ast.Title = "Azure inventory (FullSubscription)";
+        DiagramForestLayoutResult fullSubscriptionResult = renderer.Render(ast);
+
+        fullSubscriptionResult.Succeeded.Should().BeTrue(fullSubscriptionResult.Error);
+        fullSubscriptionResult.Svg.Should().NotContain("Used by 2");
+        fullSubscriptionResult.Svg.Should().NotContain("No consumer found");
+    }
+
+    [Fact]
+    public void Resolve_row_width_limit_keeps_three_cell_floor_and_scales_large_plates()
+    {
+        DiagramForestLayoutOptions options = new()
+        {
+            MaxNodeWidth = 280,
+            ComponentHorizontalGap = 48,
+            ComponentVerticalGap = 40,
+            PlateTargetAspect = 1.6d,
+        };
+
+        DiagramForestLayoutSvgRenderer.ResolveRowWidthLimit(
+            [(280d, 200d)],
+            options).Should().Be(840d);
+
+        double expected = Math.Sqrt(12 * (280d + 48d) * (200d + 40d) * 1.6d);
+        DiagramForestLayoutSvgRenderer.ResolveRowWidthLimit(
+            Enumerable.Repeat((280d, 200d), 12),
+            options).Should().BeApproximately(expected, 0.001d);
+    }
+
+    [Fact]
     public void Render_network_inventory_adds_vnet_frame_without_subscription_frame()
     {
         DiagramAst ast = new()
@@ -756,5 +1001,88 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .ContainSingle()
             .Which.Should()
             .Be("4 3");
+    }
+
+    [Fact]
+    public void Render_same_label_component_draws_every_connector()
+    {
+        const string sharedLabel = "likely · Likely connected to";
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-source", Label = "Source", OrderKey = 0 },
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-ingestion", Label = "Ingestion", OrderKey = 1 },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "sftp-a",
+                    Label = "sftp_ahcccs",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    ArmResourceGroup = "rg-data",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "sftp-b",
+                    Label = "hsag_sftp",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    ArmResourceGroup = "rg-data",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "adf",
+                    Label = "adf-factory",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DataFactory/factories",
+                    SubgraphId = "data-flow-stage-ingestion",
+                    ArmResourceGroup = "rg-data",
+                    OrderKey = 2,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "sftp-a",
+                    ToNodeId = "adf",
+                    Label = sharedLabel,
+                    ProvenanceKind = "DeterministicInference",
+                },
+                new DiagramEdge
+                {
+                    FromNodeId = "sftp-b",
+                    ToNodeId = "adf",
+                    Label = sharedLabel,
+                    ProvenanceKind = "DeterministicInference",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+        XDocument document = XDocument.Parse(result.Svg!);
+        List<XElement> paths = document.Descendants()
+            .Where(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal))
+            .ToList();
+
+        result.Succeeded.Should().BeTrue();
+        paths.Should().HaveCount(2);
+        paths.Should().OnlyContain(path =>
+            string.Equals((string?)path.Attribute("vector-effect"), "non-scaling-stroke", StringComparison.Ordinal));
+        paths.Select(path => (string?)path.Parent?.Attribute("data-from"))
+            .Should()
+            .OnlyHaveUniqueItems();
+        paths.Select(path => (string?)path.Parent?.Attribute("data-to"))
+            .Distinct()
+            .Should()
+            .ContainSingle();
     }
 }

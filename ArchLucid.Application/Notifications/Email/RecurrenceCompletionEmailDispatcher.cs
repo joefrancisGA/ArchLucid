@@ -76,7 +76,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
 
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
             ? null
-            : emailOptions.OperatorBaseUrl.TrimEnd('/');
+            : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
 
         string runHex = triggeredRunId.ToString("N");
         string runDetailUrl = operatorBase is null

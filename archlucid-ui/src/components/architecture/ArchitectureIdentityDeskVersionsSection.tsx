@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -47,9 +48,24 @@ export function ArchitectureIdentityDeskVersionsSection(
         <EnterpriseTable ariaLabel="Architecture versions" data-testid="architecture-identity-versions-table">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Version</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Version</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The recorded architecture version number.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Created</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  When this architecture version was recorded.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Review</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The review linked to this architecture version.
+                </span>
+              </EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>

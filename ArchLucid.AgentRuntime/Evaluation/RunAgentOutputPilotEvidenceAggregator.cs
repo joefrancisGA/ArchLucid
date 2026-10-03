@@ -94,7 +94,8 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
 
         foreach (AgentExecutionTrace trace in tracesForEvaluation)
         {
-            AgentResult? matchingResult = agentResults.FirstOrDefault(r => r.TaskId == trace.TaskId);
+            AgentResult? matchingResult = agentResults.FirstOrDefault(r =>
+                string.Equals(r.TaskId, trace.TaskId, StringComparison.OrdinalIgnoreCase));
 
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
                 await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
@@ -113,7 +114,10 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                         hostAgentExecutionMode: hostAgentExecutionMode)
                     .ConfigureAwait(false);
 
-            if (evaluated is { GateOutcome: AgentOutputQualityGateOutcome.Rejected })
+            if (evaluated is
+                {
+                    GateOutcome: AgentOutputQualityGateOutcome.Rejected or AgentOutputQualityGateOutcome.Warned
+                })
                 return true;
         }
 

@@ -80,7 +80,8 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM,
   infraDriftChangeIdentifiersDisclosureHrefFromSearch,
@@ -168,7 +169,7 @@ import {
   type DriftLastComparisonSelection,
 } from "@/lib/infra-evidence/infra-evidence-drift-last-comparison-storage";
 import { partitionInfraEvidenceLaterSnapshotsForAnchor } from "@/lib/infra-evidence/infra-evidence-drift-later-snapshots";
-import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -1464,8 +1465,7 @@ export function DriftWorkbenchClient() {
                     <>
                       {" "}
                       <StatusTag
-                        kind={resolveInfraEvidenceSnapshotCaptureStatusPresentation(selectedSnapshot.captureStatus).kind}
-                        label={resolveInfraEvidenceSnapshotCaptureStatusPresentation(selectedSnapshot.captureStatus).label}
+                        {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)}
                         data-testid="infra-drift-selected-snapshot-capture-status"
                       />
                     </>
@@ -1587,7 +1587,7 @@ export function DriftWorkbenchClient() {
               {selectedDiffId.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-drift-open-ask">
                   <Link
-                    href={buildInfrastructureAskHref({
+                    href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
                       cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                       snapshotId: selectedSnapshotId,
                       diffId: selectedDiffId,

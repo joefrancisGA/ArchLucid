@@ -34,15 +34,9 @@ export function useAppShellState() {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
   const { isWorkingMode } = useWorkspaceMode();
-  const [helpGuidesOpen, setHelpGuidesOpenState] = useState(() =>
-    parseHelpPanelOpenFromSearch(readCommittedSearchParams().get("help")),
-  );
-  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>(() =>
-    parseHelpPanelTabFromSearch(readCommittedSearchParams().get("helpTab")) ?? "guides",
-  );
-  const [helpDocSearchOpen, setHelpDocSearchOpenState] = useState(() =>
-    parseHelpDocSearchOpenFromSearch(readCommittedSearchParams().get("helpSearchOpen")),
-  );
+  const [helpGuidesOpen, setHelpGuidesOpenState] = useState(false);
+  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
+  const [helpDocSearchOpen, setHelpDocSearchOpenState] = useState(false);
   const helpDocSearchOpenRef = useRef(helpDocSearchOpen);
   helpDocSearchOpenRef.current = helpDocSearchOpen;
 

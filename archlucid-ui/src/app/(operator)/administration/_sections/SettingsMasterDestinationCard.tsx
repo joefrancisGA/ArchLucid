@@ -30,11 +30,7 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
   const pathname = usePathname() ?? "/administration/settings";
   const [metaOpen, setMetaOpenState] = useState(
     () =>
-      parseSettingsDestinationMetaDestinationIdFromSearch(
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get("settingsDestinationMetaDestinationId"),
-      ) === destination.id,
+      parseSettingsDestinationMetaDestinationIdFromSearch(null) === destination.id,
   );
   const metaOpenRef = useRef(metaOpen);
   metaOpenRef.current = metaOpen;

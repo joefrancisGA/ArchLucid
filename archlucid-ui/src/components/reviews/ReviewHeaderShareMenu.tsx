@@ -42,11 +42,7 @@ export type ReviewHeaderShareMenuProps = {
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [open, setOpenState] = useState(() =>
-    parseReviewHeaderShareMenuOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("shareMenuOpen"),
-    ),
+    parseReviewHeaderShareMenuOpenFromSearch(null),
   );
   const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
 

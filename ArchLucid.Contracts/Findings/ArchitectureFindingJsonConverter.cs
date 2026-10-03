@@ -384,7 +384,8 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed)
+            && Enum.IsDefined(parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

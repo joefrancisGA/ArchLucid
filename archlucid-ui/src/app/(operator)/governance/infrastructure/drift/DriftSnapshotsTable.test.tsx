@@ -63,6 +63,16 @@ describe("DriftSnapshotsTable", () => {
       "dateTime",
       "2026-09-01T12:00:00.000Z",
     );
+    expect(screen.getByTestId("infra-drift-snapshot-captured-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "9/1/2026, 8:00 AM EDT",
+    );
+    expect(screen.queryByText("The Azure subscription captured by this snapshot.")).not.toBeInTheDocument();
+    expect(screen.queryByText("When this snapshot was taken.")).not.toBeInTheDocument();
+    expect(screen.queryByText("How many resources this snapshot recorded.")).not.toBeInTheDocument();
+    expect(screen.queryByText("How many relationships this snapshot recorded.")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Select chooses this snapshot for the page. Delete removes the snapshot record. Neither action changes Azure."),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Dev")).toBeInTheDocument();
   });
 
@@ -78,6 +88,34 @@ describe("DriftSnapshotsTable", () => {
 
     expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
       "Blocked",
+    );
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "title",
+      "Inventory capture failed.",
+    );
+  });
+
+  it("renders the API string status instead of treating every capture as blocked", () => {
+    render(
+      <DriftSnapshotsTable
+        snapshots={[
+          snapshot({ captureStatus: "Succeeded" }),
+          snapshot({
+            snapshotId: "22222222-2222-2222-2222-222222222222",
+            captureStatus: "Pending",
+          }),
+        ]}
+        selectedSnapshotId=""
+        focusedSnapshotId=""
+        {...tableProps}
+      />,
+    );
+
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Ready",
+    );
+    expect(screen.getByTestId("infra-drift-snapshot-capture-status-22222222-2222-2222-2222-222222222222")).toHaveTextContent(
+      "In progress",
     );
   });
 

@@ -38,6 +38,7 @@ export function proxy(request: NextRequest) {
 /** Routes that pass through this proxy (host gate + authority, artifact, and comparison flows). */
 export const config = {
   matcher: [
+    "/api/proxy/:path*",
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|json)$).*)",
   ],
 };

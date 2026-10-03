@@ -63,11 +63,22 @@ describe("resolveInfraDiagramsDensityCoachPresentation", () => {
     expect(presentation?.body).toContain("omits those types when it saves the snapshot");
   });
 
-  it("returns too-large copy for partitioned full subscription", () => {
+  it("does not return too-large copy for a failed render", () => {
     const presentation = resolveInfraDiagramsDensityCoachPresentation({
       ...readableFullSubscriptionPartition,
       renderStatus: "Failed",
       paintDiagramCanvas: false,
+    });
+
+    expect(presentation).toBeNull();
+  });
+
+  it("returns too-large copy for a partitioned full subscription", () => {
+    const presentation = resolveInfraDiagramsDensityCoachPresentation({
+      ...readableFullSubscriptionPartition,
+      renderStatus: "Partitioned",
+      paintDiagramCanvas: false,
+      nodeCount: 401,
     });
 
     expect(presentation?.variant).toBe("too-large");

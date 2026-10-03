@@ -21,6 +21,24 @@ namespace ArchLucid.ContextIngestion.Tests;
 [Trait("Suite", "ContextIngestion")]
 public sealed class AuditManualEvidenceSubmissionServiceTests
 {
+    private static ScopeContext CreateProjectScope(Guid tenantId) =>
+        new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+    private static AuditAssessmentRecord CreateAssessment(Guid tenantId, ScopeContext scope, Guid assessmentId, Guid frameworkId) =>
+        new()
+        {
+            AssessmentId = assessmentId,
+            TenantId = tenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            FrameworkId = frameworkId,
+        };
+
     [Fact]
     public async Task TrySubmitAsync_agent_actor_cannot_insert_policy_row()
     {
@@ -30,7 +48,8 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         Guid requirementId = Guid.NewGuid();
 
         InMemoryAuditManualEvidenceRepository repository = new();
-        TestScopeContextProvider scopeProvider = new(new ScopeContext { TenantId = tenantId });
+        ScopeContext scope = CreateProjectScope(tenantId);
+        TestScopeContextProvider scopeProvider = new(scope);
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActorId()).Returns("agent:loop-runner");
         actor.Setup(context => context.GetActor()).Returns("agent:loop-runner");
@@ -48,12 +67,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
                     ManualEvidenceAllowed = true,
                 },
             ],
-            assessment: new AuditAssessmentRecord
-            {
-                AssessmentId = assessmentId,
-                TenantId = tenantId,
-                FrameworkId = Guid.NewGuid(),
-            });
+            assessment: CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid()));
 
         AuditManualEvidenceSubmitResult result = await service.TrySubmitAsync(new AuditManualEvidenceSubmitRequest
         {
@@ -79,7 +93,8 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         Guid requirementId = Guid.NewGuid();
 
         InMemoryAuditManualEvidenceRepository repository = new();
-        TestScopeContextProvider scopeProvider = new(new ScopeContext { TenantId = tenantId });
+        ScopeContext scope = CreateProjectScope(tenantId);
+        TestScopeContextProvider scopeProvider = new(scope);
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActorId()).Returns("jwt:tenant:user");
         actor.Setup(context => context.GetActor()).Returns("reviewer@example.com");
@@ -98,12 +113,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
                     ManualEvidenceAllowed = true,
                 },
             ],
-            assessment: new AuditAssessmentRecord
-            {
-                AssessmentId = assessmentId,
-                TenantId = tenantId,
-                FrameworkId = Guid.NewGuid(),
-            });
+            assessment: CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid()));
 
         AuditManualEvidenceSubmitResult result = await service.TrySubmitAsync(new AuditManualEvidenceSubmitRequest
         {
@@ -250,7 +260,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AuditHybridEvidenceQueryService>.Instance);
 
-        ScopeContext scope = new() { TenantId = tenantId };
+        ScopeContext scope = CreateProjectScope(tenantId);
 
         AuditHybridControlEvidenceRecord? hybrid = await hybridService.TryGetControlEvidenceSourcesAsync(
             scope,

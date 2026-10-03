@@ -6,6 +6,12 @@ namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
 
 public sealed class RemediationPathVerificationContext
 {
+    public bool PathAnalysisCompleted
+    {
+        get;
+        init;
+    }
+
     public byte[] SourcePathCanonicalHash
     {
         get;

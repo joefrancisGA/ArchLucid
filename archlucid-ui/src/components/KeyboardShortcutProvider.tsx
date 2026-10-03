@@ -34,11 +34,7 @@ export function KeyboardShortcutProvider({ children, onHelpRequested }: Keyboard
   const pathname = usePathname() ?? "/";
   const { isWorkingMode } = useWorkspaceMode();
   const [helpOpen, setHelpOpenState] = useState(() =>
-    parseKeyboardShortcutsOpenFromSearch(
-      typeof window === "undefined"
-        ? null
-        : new URLSearchParams(window.location.search).get("shortcutsOpen"),
-    ),
+    parseKeyboardShortcutsOpenFromSearch(null),
   );
   const helpOpenRef = useRef(helpOpen);
   helpOpenRef.current = helpOpen;

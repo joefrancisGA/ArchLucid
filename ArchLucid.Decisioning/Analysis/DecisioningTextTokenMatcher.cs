@@ -12,12 +12,47 @@ internal static class DecisioningTextTokenMatcher
             return false;
         }
 
-        if (pattern.Contains(' ', StringComparison.Ordinal) || pattern.Contains('$', StringComparison.Ordinal))
+        if (pattern.Contains('$', StringComparison.Ordinal))
         {
             return haystack.Contains(pattern, StringComparison.Ordinal);
         }
 
+        if (pattern.Contains(' ', StringComparison.Ordinal))
+        {
+            return ContainsStandalonePhrase(haystack, pattern);
+        }
+
         return ContainsStandaloneToken(haystack, pattern);
+    }
+
+    private static bool ContainsStandalonePhrase(string haystack, string phrase)
+    {
+        int index = 0;
+
+        while (index < haystack.Length)
+        {
+            index = haystack.IndexOf(phrase, index, StringComparison.Ordinal);
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            int afterPhrase = index + phrase.Length;
+            bool hasBoundaryBefore = index == 0 || !char.IsLetterOrDigit(haystack[index - 1]);
+            bool hasBoundaryAfter = afterPhrase >= haystack.Length || !char.IsLetterOrDigit(haystack[afterPhrase]);
+
+            if (hasBoundaryBefore
+                && hasBoundaryAfter
+                && !IsNegatedNonPrefix(haystack, index))
+            {
+                return true;
+            }
+
+            index++;
+        }
+
+        return false;
     }
 
     internal static bool ContainsStandaloneToken(string haystack, string token)
@@ -125,6 +160,23 @@ internal static class DecisioningTextTokenMatcher
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
         return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+';
+    }
+
+    internal static bool ContainsAffirmativePrivateKeyword(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        string normalized = text.ToLowerInvariant();
+
+        if (!ContainsStandaloneToken(normalized, "private"))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool IsNegatedNonPrefix(string haystack, int tokenIndex)

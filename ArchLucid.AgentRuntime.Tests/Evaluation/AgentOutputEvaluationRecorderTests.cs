@@ -34,7 +34,9 @@ public sealed class AgentOutputEvaluationRecorderTests
         ILogger<AgentOutputEvaluationRecorder> logger,
         AgentOutputQualityGateOptions? gateOptions = null,
         double? embeddingFaithfulnessCosine = null,
-        IAgentEvidencePackageRepository? evidencePackageRepository = null)
+        IAgentEvidencePackageRepository? evidencePackageRepository = null,
+        IAgentResultRepository? agentResultRepository = null,
+        IAgentOutputEvaluationRepository? outputEvaluationRepository = null)
     {
         AgentOutputQualityGateOptions opts = gateOptions ?? new AgentOutputQualityGateOptions { Enabled = false };
 
@@ -85,7 +87,8 @@ public sealed class AgentOutputEvaluationRecorderTests
         Mock<IOptionsMonitor<AgentExecutionOptions>> agentExecutionOptions = new();
         agentExecutionOptions.Setup(o => o.CurrentValue).Returns(new AgentExecutionOptions { Mode = "Simulator" });
 
-        InMemoryAgentResultRepository agentResults = new(new InMemoryAgentResultEnrichmentRepository());
+        IAgentResultRepository agentResults =
+            agentResultRepository ?? new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository());
 
         Mock<IAgentConfidenceCalibrationService> confidenceCalibration = new();
         confidenceCalibration
@@ -111,9 +114,65 @@ public sealed class AgentOutputEvaluationRecorderTests
             llmFaithfulness.Object,
             llmFaithfulnessOptions.Object,
             auditService.Object,
-            new NoOpAgentOutputEvaluationRepository(),
+            outputEvaluationRepository ?? new NoOpAgentOutputEvaluationRepository(),
             agentExecutionOptions.Object,
             logger);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_matches_agent_result_task_ids_case_insensitively()
+    {
+        InMemoryAgentExecutionTraceRepository traceRepository = new();
+        Mock<IAgentResultRepository> resultRepository = new();
+        CapturingAgentOutputEvaluationRepository evaluationRepository = new();
+
+        const string runId = "run-task-id-case";
+        const string json =
+            """
+            {"resultId":"result-json","taskId":"task-json","runId":"run-task-id-case","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-task-id-case",
+                RunId = runId,
+                TaskId = "Task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = json
+            },
+            CancellationToken.None);
+
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .ReturnsAsync(
+            [
+                new AgentResult
+                {
+                    ResultId = "result-task-id-case",
+                    RunId = runId,
+                    TaskId = "task-1",
+                    AgentType = AgentType.Topology,
+                    PromptVariantKey = "variant-a"
+                }
+            ]);
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            traceRepository,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            agentResultRepository: resultRepository.Object,
+            outputEvaluationRepository: evaluationRepository);
+
+        await sut.EvaluateAndRecordMetricsAsync(runId, CancellationToken.None);
+
+        evaluationRepository.Rows.Should().ContainSingle();
+        evaluationRepository.Rows[0].ResultId.Should().Be("result-task-id-case");
     }
 
     private sealed class FixedScopeProvider : IScopeContextProvider
@@ -483,6 +542,18 @@ public sealed class AgentOutputEvaluationRecorderTests
     private sealed class EmptyReferenceCatalog : IAgentOutputReferenceCaseCatalog
     {
         public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases => [];
+    }
+
+    private sealed class CapturingAgentOutputEvaluationRepository : IAgentOutputEvaluationRepository
+    {
+        public List<AgentOutputEvaluationInsert> Rows { get; } = [];
+
+        public Task AppendAsync(AgentOutputEvaluationInsert row, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            Rows.Add(row);
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class CollectingLogger : ILogger<AgentOutputEvaluationRecorder>

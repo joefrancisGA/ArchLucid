@@ -27,7 +27,7 @@ public sealed class KubernetesJsonPodSecurityContextSeccompProfileTypeSnakeCaseT
                           "template": {
                             "spec": {
                               "security_context": {
-                                "seccomp_profile": {{ "type": "RuntimeDefault" }}
+                                "seccomp_profile": { "type": "RuntimeDefault" }
                               },
                               "containers": [ { "name": "app", "image": "nginx" } ]
                             }
@@ -40,6 +40,6 @@ public sealed class KubernetesJsonPodSecurityContextSeccompProfileTypeSnakeCaseT
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         CanonicalObject deployment = result.Should().ContainSingle().Subject;
-        deployment.Properties["k8s.seccompprofiletype"].Should().Be("RuntimeDefault");
+        deployment.Properties["k8s.seccompprofiletype"].Should().Be("runtimedefault");
     }
 }

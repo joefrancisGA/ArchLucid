@@ -90,7 +90,14 @@ export async function fetchShowcasePayload(
       return { kind: "bad_json" };
     }
 
-    if (payload == null || typeof payload !== "object" || payload.run == null || payload.manifest == null) {
+    if (
+      payload == null ||
+      typeof payload !== "object" ||
+      payload.run == null ||
+      typeof payload.run.runId !== "string" ||
+      payload.run.runId.trim().length === 0 ||
+      payload.manifest == null
+    ) {
       return { kind: "invalid" };
     }
 
@@ -98,7 +105,11 @@ export async function fetchShowcasePayload(
       return { kind: "invalid" };
     }
 
-    if (!Array.isArray(payload.artifacts) || !Array.isArray(payload.pipelineTimeline)) {
+    if (
+      !Array.isArray(payload.artifacts) ||
+      !Array.isArray(payload.pipelineTimeline) ||
+      payload.pipelineTimeline.some((event) => event === null || typeof event !== "object" || Array.isArray(event))
+    ) {
       return { kind: "invalid" };
     }
 
