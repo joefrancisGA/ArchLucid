@@ -24212,13 +24212,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 thorough hunt (dry): cheap-disproved all three duplicate-resource candidates because live ARM/AWS/GCP provider reachability was not established; existing merger/collector tests covered pagination and scope guards. 98 Azure extractor tests and 78 AWS/GCP application tests passed; no failing repro.
 
 2026-10-03 seed hunt (seed-only): re-read Azure type-list and child-resource pagination, AWS IAM role ARN validation, and GCP service-account project matching; no new reachable mechanism-backed candidate emerged; 98 Azure extractor tests and 78 AWS/GCP application tests passed.
 
@@ -24236,9 +24238,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `HostedAzureArmResourceRecordMerger.MergeByResourceId` — duplicate `indexResources` IDs that differ only by case or surrounding whitespace cause `ToDictionary` to throw before typed records merge; input is a subscription ARM inventory response containing repeated resource IDs. Reachability from the live ARM response is not established in this seed pass.
-- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — the collector appends resources from every page without ARN deduplication; input is a Resource Explorer response that repeats an ARN across page boundaries, potentially producing duplicate inventory rows downstream. The provider’s duplicate-page behavior is not established in this seed pass.
-- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — the collector appends every raw page result without asset-name deduplication; input is an Asset Inventory stream that repeats a resource name across pages, potentially producing duplicate inventory rows downstream. The provider’s duplicate-page behavior is not established in this seed pass.
+- [x] (valid-no-repro) `HostedAzureArmResourceRecordMerger.MergeByResourceId` — duplicate `indexResources` IDs that differ only by case or surrounding whitespace could throw before typed records merge — **cheap-disproof 2026-10-03 thorough hunt:** typed enrichment is downstream of ARM list responses, but no live ARM response or provider contract establishes duplicate resource IDs across the index page; no failing repro.
+- [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — pages are appended without ARN deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Resource Explorer provider behavior or reachable fixture establishes duplicate ARNs across pages; collector pagination/loop guards passed existing tests; no failing repro.
+- [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — pages are appended without asset-name deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Asset Inventory provider behavior or reachable fixture establishes duplicate asset names across pages; raw-page pagination tests passed; no failing repro.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
