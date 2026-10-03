@@ -97,7 +97,7 @@ internal static class ArchLucidDistributedCacheRegistrar
         bool distributedCacheAlreadyRegistered)
     {
         if (distributedCacheAlreadyRegistered)
-            return ResolveAlreadyRegisteredDistributedCacheRedisConnectionString(llm, hotPath);
+        return ResolveAlreadyRegisteredDistributedCacheRedisConnectionString(llm, hotPath, kgRedis);
 
         if (!string.IsNullOrEmpty(kgRedis))
             return kgRedis;
@@ -107,7 +107,8 @@ internal static class ArchLucidDistributedCacheRegistrar
 
     private static string ResolveAlreadyRegisteredDistributedCacheRedisConnectionString(
         LlmCompletionResponseCacheOptions llm,
-        HotPathCacheOptions hotPath)
+        HotPathCacheOptions hotPath,
+        string? kgRedis)
     {
         if (hotPath.Enabled)
         {
@@ -118,17 +119,21 @@ internal static class ArchLucidDistributedCacheRegistrar
                 return hotPath.RedisConnectionString.Trim();
         }
 
-        return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath);
+        return ResolveLlmOrHotPathRedisConnectionString(llm, hotPath, kgRedis);
     }
 
     private static string ResolveLlmOrHotPathRedisConnectionString(
         LlmCompletionResponseCacheOptions llm,
-        HotPathCacheOptions hotPath)
+        HotPathCacheOptions hotPath,
+        string? kgRedis = null)
     {
         if (!string.IsNullOrWhiteSpace(llm.RedisConnectionString))
             return llm.RedisConnectionString.Trim();
 
-        return hotPath.RedisConnectionString.Trim();
+        if (!string.IsNullOrWhiteSpace(hotPath.RedisConnectionString))
+            return hotPath.RedisConnectionString.Trim();
+
+        return kgRedis?.Trim() ?? string.Empty;
     }
 
     public static void RegisterHostLeaderLeaseInfrastructure(IServiceCollection services)
