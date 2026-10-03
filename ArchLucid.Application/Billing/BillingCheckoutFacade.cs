@@ -66,6 +66,10 @@ public sealed class BillingCheckoutFacade(
                 ReturnUrl = body.ReturnUrl.Trim(),
                 CancelUrl = body.CancelUrl.Trim(),
             }, cancellationToken);
+            if (string.IsNullOrWhiteSpace(result.CheckoutUrl)
+                || string.IsNullOrWhiteSpace(result.ProviderSessionId))
+                throw new InvalidOperationException("Billing provider returned an incomplete checkout session.");
+
             ArchLucidInstrumentation.RecordBillingCheckout(provider.ProviderName, tier.ToString(), "session_created");
             await LogBillingAuditAsync(AuditEventTypes.BillingCheckoutCompleted, actorUserName, scope, JsonSerializer.Serialize(new { provider = provider.ProviderName, tier = tier.ToString(), providerSessionId = result.ProviderSessionId }), cancellationToken);
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.Success, Checkout = result };
