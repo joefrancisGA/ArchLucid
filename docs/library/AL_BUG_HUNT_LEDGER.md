@@ -6535,7 +6535,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -6546,6 +6546,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-01 seed hunt (seed-only): inspected the DOCX, inventory, icon-catalog, and Mermaid artifact paths; the exact picker filter ran 639 tests with 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped, while focused DOCX (11/11) and inventory-generator (5/5) tests passed; no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- (candidate) `DefaultApplyOrderRoots` — the plain `infra/terraform` leaf is a prefix of other Terraform roots; a report consumer using prefix matching could attribute the APIM consumption root to `infra/terraform-*` instead of the exact path, producing incorrect deployment-evidence ordering. Reachability is the returned list consumed by `DeploymentEvidenceReportMarkdown`.
+- (candidate) `DefaultApplyOrderRoots` — metadata-only composition entries are represented as ordinary strings alongside applyable leaves; a Markdown report consumer that omits the annotations could describe metadata roots as executable deployment steps. Reachability is the list iteration in `DeploymentEvidenceReportMarkdown`.
 
 - [x] (proven) Deployment evidence listed `terraform-pilot` before composition roots — fixed by reordering to hosted validate/apply sequence (composition, leaves, orchestrator legacy, pilot default profile).
 - [x] (proven) Deployment evidence omitted `infra/terraform-pilot` while listing other metadata-only composition roots — fixed by adding pilot as the first expected apply-order entry.
@@ -6615,6 +6618,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #734: seeded four drift/doc-scope candidates; cheap-disproved all; added apply-saas.ps1 sync regression tests. No hunt-ready rows; seed-only.
 
 2026-10-03 seed hunt (seed-only): re-read the static apply-order list and focused synchronization tests; no new hunt-ready row met the reachable-input bar. Added two candidates for generated-Markdown relative-link rooting and downstream interpretation of metadata-only roots. No code changes.
+
+2026-10-03 seed hunt (seed-only): re-read `DeploymentEvidenceTerraformReference` and its synchronization tests; no new hunt-ready defect was proven. Added two candidates for exact-root prefix interpretation and metadata-root rendering; the scoped test build was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
 ---
 

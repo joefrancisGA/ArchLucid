@@ -8658,3 +8658,4 @@
 {"at":"2026-10-03T22:39:34.8651283Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow","paths":["ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs"]}
 
 {"at":"2026-10-03T22:38:57.9155075Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs)"]}
+{"at":"2026-10-03T22:43:19.8751996Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs"]}
