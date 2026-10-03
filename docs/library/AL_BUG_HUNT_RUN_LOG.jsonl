@@ -8719,3 +8719,4 @@
 {"at":"2026-10-03T16:34:03.3092773Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-03T16:38:11.4831556Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs"]}
 {"at":"2026-10-03T16:42:26.1806599Z","zoneId":"application-billing-logic","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
+{"at":"2026-10-03T16:45:54.7045515Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs","ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}

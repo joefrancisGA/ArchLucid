@@ -6239,13 +6239,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — offline replay ignored HTTP status in `observedOutcome` when `observedStatusCode` omitted
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-03 seed hunt (seed-only): re-read the CLI command/runner report and offline/live isolation boundaries; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded cli-tenant-isolation (`TenantIsolationNegativeTestLiveRunner` / `Aggregator` / facade `Runner`); no new hunt-ready rows; cheap-disproof reaffirmed run-list probe uses `take=RunPagination.MaxTake` on every cursor page (not legacy `limit=200`); regression `RunLiveAsync_RunListProbeUsesMaxTakeOnInitialAndCursorPages`; 36 scoped TenantIsolationNegativeTestRunner tests passed.
 
