@@ -8678,3 +8678,4 @@
 {"at":"2026-10-03T23:34:54.1087263Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Pilots/)"]}
 {"at":"2026-10-03T23:36:36.2244791Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/DraftNewCommand.cs)"]}
 {"at":"2026-10-03T23:37:31.3992943Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-03T23:41:55.7258685Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs,ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs,ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs)"]}

@@ -3510,7 +3510,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -3554,6 +3554,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1950 (seed-only): reseeded commit-output-integrity after master merge churn; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
 
 2026-10-03 seed hunt (seed-only): re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, `AgentExecutionTraceLatestPerTaskSelector`, and focused tests; all visible mechanisms were already closed or contractually intentional, with no new reachable candidate meeting the hunt-ready bar. No code changes.
+
+2026-10-03 seed hunt (seed-only): repeated the integrity-source and focused-test review; no new reachable mechanism emerged beyond the closed selector rank, task-key, and quality-gate policy rows. No code changes.
 
 ### Hypotheses
 
