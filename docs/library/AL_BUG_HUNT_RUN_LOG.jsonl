@@ -8659,5 +8659,5 @@
 
 {"at":"2026-10-03T22:38:57.9155075Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs)"]}
 {"at":"2026-10-03T22:43:19.8751996Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs"]}
-
 {"at":"2026-10-03T22:44:20.5700446Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs)"]}
+{"at":"2026-10-03T22:47:30.1277753Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs,ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs,ArchLucid.Persistence/Sql/FindingInspectReadSql.cs"]}

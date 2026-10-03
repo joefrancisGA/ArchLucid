@@ -4995,7 +4995,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -5005,7 +5005,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-12 seed hunt #2085 (seed-only): reseeded finding-inspect-sql; no new hunt-ready rows
 
+2026-10-03 seed hunt (seed-only): reread the selected inspect SQL, repository mapping, and enum-normalization paths; no new hunt-ready defect was proven. Added two candidates for unnormalized persisted metadata fields; the scoped test build was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
+
 ### Hypotheses
+
+- (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ModelDeploymentName` and `PromptTemplateVersion` are copied without the display-text normalization used for `MuteReason`, `ReasoningTrace`, and `AssignedToUserId`; a persisted value containing a zero-width/control character could reach the inspect response as misleading metadata. Reachability is the SQL-selected `FindingRecords` fields and the finding-inspect API response.
+- (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ReasoningTraceDigestSha256` is copied without shape or display normalization while the trace text is normalized; a malformed persisted digest could be presented as a valid-looking evidence fingerprint. Reachability is the SQL-selected `FindingRecords.ReasoningTraceDigestSha256` field and the inspect response.
 
 - [x] Inspect read returns a finding whose tenant does not match the request scope Î“Ã‡Ã¶ fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
 - [x] Mapper drops evidence fields so inspect shows success with empty trail Î“Ã‡Ã¶ retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
