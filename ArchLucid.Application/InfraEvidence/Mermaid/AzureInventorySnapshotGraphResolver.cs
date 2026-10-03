@@ -160,12 +160,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 fromArmId,
                 nodes,
                 seenNodeIds,
-                nodeIdByArmId);
+                nodeIdByArmId,
+                graphSnapshot.AdfExternalSources);
             AzureInventorySnapshotExternalSourceNodeHydrator.EnsureExternalSourceNode(
                 toArmId,
                 nodes,
                 seenNodeIds,
-                nodeIdByArmId);
+                nodeIdByArmId,
+                graphSnapshot.AdfExternalSources);
 
             if (!AzureInventoryArmEndpointNodeResolver.TryResolveExactOrAncestorNodeId(
                     nodeIdByArmId,

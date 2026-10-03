@@ -87,6 +87,7 @@ public static class OperatorInferredConnectionSnapshotMerger
             Properties = snapshot.Properties,
             Tags = snapshot.Tags,
             Relationships = mergedRelationships,
+            AdfExternalSources = snapshot.AdfExternalSources,
             RoleAssignments = snapshot.RoleAssignments,
             Diagnostics = snapshot.Diagnostics,
             DefenderSummaries = snapshot.DefenderSummaries,

@@ -77,6 +77,20 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 new { scope.TenantId, SnapshotId = snapshotId },
                 cancellationToken: cancellationToken));
 
+        const string externalSourcesSql = """
+                                          SELECT ExternalNodeKey, LinkedServiceName, LinkedServiceType, TargetHost,
+                                                 FactoryResourceId, IntegrationRuntimeName, HostInKeyVault, KeyVaultResourceId
+                                          FROM dbo.AzureInventoryAdfExternalSources
+                                          WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+                                          """;
+
+        IEnumerable<AzureInventoryAdfExternalSourceReadModel> externalSources =
+            await conn.QueryAsync<AzureInventoryAdfExternalSourceReadModel>(
+                new CommandDefinition(
+                    externalSourcesSql,
+                    new { scope.TenantId, SnapshotId = snapshotId },
+                    cancellationToken: cancellationToken));
+
         const string roleAssignmentsSql = """
                                           SELECT Scope, PrincipalId, RoleDefinitionId
                                           FROM dbo.AzureInventoryRoleAssignments
@@ -132,6 +146,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     InferenceSource = r.InferenceSource,
                 })
                 .ToList(),
+            AdfExternalSources = externalSources.ToList(),
             RoleAssignments = roleAssignments.ToList(),
             Diagnostics = diagnostics.ToList(),
             DefenderSummaries = defenderSummaries.ToList(),
