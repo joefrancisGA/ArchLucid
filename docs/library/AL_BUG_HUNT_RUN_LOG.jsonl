@@ -8649,3 +8649,4 @@
 {"at":"2026-10-03T22:05:47.6164113Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
 {"at":"2026-10-03T22:08:39.0172361Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
 {"at":"2026-10-03T22:12:01.7522290Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs,ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs,ArchLucid.Persistence/Sql/FindingInspectReadSql.cs)"]}
+{"at":"2026-10-03T22:15:19.1476664Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs)"]}

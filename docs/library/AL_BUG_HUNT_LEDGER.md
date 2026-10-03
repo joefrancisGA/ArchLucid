@@ -6526,10 +6526,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6591,6 +6591,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Annotated composition/pilot/orchestrator evidence lines carry trailing whitespace that corrupts path extraction — **cheap-disproof 2026-09-11 seed hunt #1779:** plain-leaf guard `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths` plus em-dash split on annotated lines; all twenty paths trim-clean.
 - [x] (valid-no-repro) `infra/terraform-private` is not the first hosted leaf after composition roots — **cheap-disproof 2026-09-11 seed hunt #1779:** first leaf after composition is private per `$foundationWaveLeaves`; regression `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence`.
 - [x] (invalid) Evidence omits `infra/terraform-servicebus` from hosted wave leaves — **cheap-disproof 2026-09-11 seed hunt #1779:** servicebus listed between cosmos and logicapps; on-disk directory exists per `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk`.
+- (candidate) `DocumentationRelativePath` is a repo-relative path emitted for deployment evidence, but the selected source does not show whether generated Markdown is rooted at the repository; a report rendered from another artifact directory could link to a non-existent `docs/library/REFERENCE_SAAS_STACK_ORDER.md`. Reachability is the `DocumentationRelativePath` constant consumed by the evidence report, but the selected zone does not establish the report output base.
+- (candidate) `DefaultApplyOrderRoots` labels composition roots and the pilot profile as “no Azure apply” while exposing them in an apply-order list; a downstream deployment-evidence consumer could treat every returned line as an executable apply root and misstate the default profile. Reachability is the returned list consumed by the CLI evidence report, but the selected files do not establish a consumer that executes or describes these lines incorrectly.
 
 2026-09-11 seed hunt #1779 (seed-only): reseeded cli-terraform-evidence after #1768; cheap-disproof closed annotated-line whitespace, private-first leaf, and servicebus omission candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
 
@@ -6602,6 +6604,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-04 seed hunt #734: seeded four drift/doc-scope candidates; cheap-disproved all; added apply-saas.ps1 sync regression tests. No hunt-ready rows; seed-only.
+
+2026-10-03 seed hunt (seed-only): re-read the static apply-order list and focused synchronization tests; no new hunt-ready row met the reachable-input bar. Added two candidates for generated-Markdown relative-link rooting and downstream interpretation of metadata-only roots. No code changes.
 
 ---
 
