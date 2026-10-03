@@ -101,6 +101,51 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_data_flow_shows_adf_link_identity_lines()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "sftp-link",
+                    Label = "hsag_sftp",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "Sftp",
+                    ExternalFactoryName = "adf-edw-hi-dev",
+                    ExternalTargetHost = "files.partner.example",
+                    ExternalIntegrationRuntime = "selfHostedIr",
+                    SubgraphId = "source",
+                },
+                new DiagramNode
+                {
+                    NodeId = "mysql-keyvault-link",
+                    Label = "azuremysql1",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "AzureMySql",
+                    ExternalFactoryName = "adf-edw-hi-tst",
+                    ExternalHostInKeyVault = true,
+                    SubgraphId = "source",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("SFTP link");
+        result.Svg.Should().Contain("Factory adf-edw-hi-dev");
+        result.Svg.Should().Contain("files.partner.example");
+        result.Svg.Should().Contain("Runtime selfHostedIr");
+        result.Svg.Should().Contain("MySQL link");
+        result.Svg.Should().Contain("Factory adf-edw-hi-tst");
+        result.Svg.Should().Contain("Host in Key Vault");
+        result.Svg.Should().NotContain("connectionString");
+    }
+
+    [Fact]
     public void Render_data_flow_shows_consumer_status_for_data_stores_only()
     {
         DiagramAst ast = new()

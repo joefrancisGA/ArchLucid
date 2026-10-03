@@ -18,6 +18,12 @@ public static class AzureInventoryAdfExternalSourceNodeFactory
 
     public const string ExternalTargetHostPropertyKey = "arm.externalTargetHost";
 
+    public const string ExternalFactoryNamePropertyKey = "arm.externalFactoryName";
+
+    public const string ExternalIntegrationRuntimePropertyKey = "arm.externalIntegrationRuntime";
+
+    public const string ExternalHostInKeyVaultPropertyKey = "arm.externalHostInKeyVault";
+
     public static string BuildNodeKey(string factoryResourceId, string linkedServiceName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(factoryResourceId);

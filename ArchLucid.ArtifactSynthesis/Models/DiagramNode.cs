@@ -76,6 +76,30 @@ public class DiagramNode
         set;
     }
 
+    public string? ExternalFactoryName
+    {
+        get;
+        set;
+    }
+
+    public string? ExternalTargetHost
+    {
+        get;
+        set;
+    }
+
+    public string? ExternalIntegrationRuntime
+    {
+        get;
+        set;
+    }
+
+    public bool ExternalHostInKeyVault
+    {
+        get;
+        set;
+    }
+
     public string? ArmResourceGroup
     {
         get;
