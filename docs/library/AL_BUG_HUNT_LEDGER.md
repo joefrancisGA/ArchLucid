@@ -20934,7 +20934,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -23430,7 +23430,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 29
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — `GraphSnapshotExtensions` neighbor traversal missed nodes when edge endpoints differed from `NodeId` only by surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23459,6 +23459,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-12 seed hunt #2254 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge graph`; no new hunt-ready rows.
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
+2026-10-03 seed hunt (seed-only): re-read the selected KnowledgeGraph/Provenance files; no reachable wrong outcome met the failing-repro bar. Scoped tests reported 354 passed with 3 pre-existing KnowledgeGraph failures.
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
 
 
@@ -23474,6 +23475,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) WAF alignment flag omitted when associated-findings property keys use PascalCase — **hit 2026-08-21:** `GraphMaterializationStages` read `associatedFindings` / `findings` from raw `CanonicalObject.Properties` with case-sensitive `TryGetValue` instead of the normalized node bag via `GraphNodePropertyReader`
 - [x] (proven) Topology sensitivity misclassified when property keys use PascalCase on a case-sensitive bag — **hit 2026-08-23:** `TopologySensitivityClassifier` used case-sensitive `TryGetValue` for `topologySensitivity`, `category`, `publicNetworkAccess`, and `resourceType` instead of `GraphNodePropertyReader`
 - [x] (proven) Graph→finding provenance edge omitted when `RelatedNodeIds` casing differs from graph `NodeId` — **hit 2026-09-02:** `ProvenanceBuilder` used ordinal `graphNodeIds` and `nodeMap` keys, so `InfluencedByGraphNode` was skipped when findings referenced the same node with different casing; fixed with `StringComparer.OrdinalIgnoreCase` (`Build_links_graph_influence_when_related_node_id_differs_only_by_case`)
+- [ ] (candidate) `InMemoryGraphSnapshotRepository.ListIndexedEdgesAsync` — indexed edges are returned by snapshot ID without a scope parameter or local scope check; a caller supplying another tenant's persisted snapshot ID could receive edge metadata, but caller authorization/reachability is outside the selected files.
 - [x] (proven) `KnowledgeGraphService.BuildSnapshotAsync` truncation dropped valid edges when endpoint casing differed from kept node ids — **hit 2026-09-04 (#713):** `kept` used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; edges with `FromNodeId`/`ToNodeId` casing variants were removed during `MaxNodes` truncation; fixed with `OrdinalIgnoreCase` on `kept`; regression `BuildSnapshotAsync_TruncationRetainsEdgesWhenEndpointCasingDiffersFromKeptNodeId`
 - [x] (proven) `ProvenanceBuilder` — duplicate `ContributedToArtifact` edges when `ContributingDecisionIds` casing variants reference the same decision — **hit 2026-09-08 seed hunt #1353:** `Distinct(StringComparer.Ordinal)` kept `dec-1` and `DEC-1` while `nodeMap` resolves both; fixed with `OrdinalIgnoreCase` dedup matching `AppliedRuleIds`; regression `Build_deduplicates_contributing_decision_ids_when_casing_differs_only`
 - [x] (proven) κ→Γ projector dropped RELATES edges when `RelatedElementIds` casing differed from canonical `ElementId` — **hit 2026-09-07 (#1180):** `ArchitectureKnowledgeModelGraphProjector` indexed node ids with `StringComparer.Ordinal` while `GraphValidator` and inferrers treat ids case-insensitively; `RelatedElementIds` with casing variants failed `nodeIds.Contains` and omitted edges; fixed with `OrdinalIgnoreCase` canonical id map; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_case`
