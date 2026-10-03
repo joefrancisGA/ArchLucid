@@ -2870,7 +2870,7 @@
 - **hunts:** 1594
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 971
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-09-30 — omitted-category node stole categorized ds- alias
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26102,6 +26102,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-03 seed hunt (seed-only): re-read policy-pack and governance coverage paths; no new hunt-ready row was proven. Seeded candidates for raw severity substring classification in `GovernanceDigestDecisionNeededComposer.IsHighSeverity` and case-sensitive bundled-pack name matching in `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName`; 746 scoped tests passed with 4 unrelated baseline failures.
 
+2026-10-03 thorough hunt (dry): cheap-disproved the severity-substring candidate because the risk-register reader receives the persisted finding severity contract, and the bundled-pack casing candidate because embedded seed metadata supplies the exact immutable display names; 746 scoped tests passed with 4 unrelated baseline failures.
+
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
 2026-09-13 seed hunt #2446 (seed-only): reseeded application-governance-policy; no new hunt-ready rows.
@@ -26164,8 +26166,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — empty execute-time `NotAssessedQualityDimensions` skipped finalize comparison — **hit 2026-10-03 seed hunt:** the `Count > 0` guard allowed newly uncovered quality dimensions to pass finalize; fixed by always comparing the canonical snapshot hashes; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.IsHighSeverity` — persisted `ArchitectureRiskRegisterEntry.Severity` values such as `not-critical` or `highly-relevant` are classified as high severity by substring matching; caller/value provenance and the accepted severity vocabulary need confirmation before a repro.
-- [ ] (candidate) `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName` — persisted platform-default `PolicyPack.Name` values with casing different from the bundled display-name constants are not recognized by the cloud baseline applicator; seeder/name immutability and intended case sensitivity need confirmation before a repro.
+- [x] (valid-no-repro) `GovernanceDigestDecisionNeededComposer.IsHighSeverity` — persisted `ArchitectureRiskRegisterEntry.Severity` values such as `not-critical` or `highly-relevant` are classified as high severity by substring matching — **cheap-disproof 2026-10-03 thorough hunt:** `ArchitectureRiskRegisterReader` projects the persisted finding severity value, whose application callers derive from the defined `FindingSeverity` enum; no accepted reachable severity vocabulary produces those strings.
+- [x] (valid-no-repro) `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName` — persisted platform-default `PolicyPack.Name` values with casing different from the bundled display-name constants are not recognized by the cloud baseline applicator — **cheap-disproof 2026-10-03 thorough hunt:** platform-default names come from embedded bundled manifest metadata during seeding, and no in-scope rename path mutates their casing; exact ordinal matching is intentional.
 
 2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
 

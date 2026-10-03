@@ -8663,3 +8663,4 @@
 {"at":"2026-10-03T12:36:16.9076639Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
 {"at":"2026-10-03T12:40:15.4259227Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/"]}
 {"at":"2026-10-03T12:44:10.7078866Z","zoneId":"application-governance-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
+{"at":"2026-10-03T12:46:27.1016727Z","zoneId":"application-governance-policy","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
