@@ -26138,6 +26138,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~PolicyPacksController
 - **hunts:** 25
 - **bugs-found:** 15
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — forbidden policy-pack assignment mapped to HTTP 500
@@ -26178,6 +26179,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin could assign Tenant/Workspace-scoped rows without tenant-admin JWT — **hit 2026-09-08 hunt #1312:** only org-required was gated in #1205; fixed by requiring tenant administrator for non-Project `scopeLevel`; regressions `TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`, `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
 - [x] (proven) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack returned HTTP 404 instead of 409 symmetric with org-required disable (#1206) — **hit 2026-09-08 hunt #1312:** workflow mapped inactive enable to `NotFound`; fixed with `PlatformPackInactive` → HTTP 409; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
 - [x] (proven) `PolicyPackHttpResultMapper.MapAssign` — the assign facade's `Forbidden` outcome was missing from the controller result switch, so authorization denials threw `InvalidOperationException` and surfaced as HTTP 500 — **hit 2026-10-03 seed hunt:** map forbidden assignment outcomes to HTTP 403 Problem Details; regressions `Assign_returns_forbidden_when_organization_required_without_tenant_administrator` and `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
+- [x] (proven) `PolicyPacksController.Simulate` — validation parsed `request.RunId.Trim()` but forwarded the original padded value to the simulation facade, so valid whitespace-padded run IDs could fail downstream lookup despite passing controller validation — **hit 2026-10-03 seed hunt:** forward the canonical trimmed run ID; regression `Simulate_forwards_canonical_run_id_to_facade`
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
@@ -26204,6 +26206,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (hit): proved the policy-pack assign controller dropped the facade's Forbidden outcome and threw HTTP 500; mapped authorization denials to HTTP 403 Problem Details; 76 focused controller tests passed.
 
 2026-10-03 seed hunt (seed-only): reread policy-pack simulation, validation, catalog-read, and result-mapping paths; no new hunt-ready defect was proven. Added two reachable candidates for a future falsification pass; the scoped test filter was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
+
+2026-10-03 seed hunt (seed→hit): proved `PolicyPacksController.Simulate` accepted whitespace-padded GUID run IDs but forwarded the untrimmed value to the facade; canonicalized the forwarded ID; 5 focused controller tests passed.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
