@@ -24226,7 +24226,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-03 seed hunt (seed-only): re-read AWS Resource Explorer, GCP Asset Inventory, Azure ARM pagination/next-link validation, and cloud extractor packaging boundaries; no new reachable mechanism-backed candidate emerged; 98 Azure extractor tests and 78 AWS/GCP application tests passed.
 
+2026-10-03 seed hunt (seed-only): re-read AWS and GCP page collectors plus Azure ARM resource merging after recent pagination-guard changes; no hunt-ready row met the reachable wrong-outcome and mechanism bar. Retained three candidates: duplicate normalized Azure resource IDs in `MergeByResourceId`, duplicate AWS resources across Resource Explorer pages, and duplicate GCP resources across Asset Inventory pages. No scoped test execution was claimed.
+
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
+
+### Hypotheses
+
+- [ ] (candidate) `HostedAzureArmResourceRecordMerger.MergeByResourceId` — duplicate `indexResources` IDs that differ only by case or surrounding whitespace cause `ToDictionary` to throw before typed records merge; input is a subscription ARM inventory response containing repeated resource IDs. Reachability from the live ARM response is not established in this seed pass.
+- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — the collector appends resources from every page without ARN deduplication; input is a Resource Explorer response that repeats an ARN across page boundaries, potentially producing duplicate inventory rows downstream. The provider’s duplicate-page behavior is not established in this seed pass.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — the collector appends every raw page result without asset-name deduplication; input is an Asset Inventory stream that repeats a resource name across pages, potentially producing duplicate inventory rows downstream. The provider’s duplicate-page behavior is not established in this seed pass.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
