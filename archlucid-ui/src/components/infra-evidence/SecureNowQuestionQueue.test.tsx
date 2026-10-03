@@ -85,6 +85,27 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("No proposed questionnaire items remain for this snapshot.")).not.toBeInTheDocument();
   });
 
+  it("shows the API load failure and API recovery copy when questions cannot be loaded", async () => {
+    mocks.listQuestions.mockRejectedValue({
+      message: "Invalid object name 'dbo.SecureNowQuestionDispositions'.",
+      problem: null,
+      correlationId: "corr-123",
+      httpStatus: 500,
+      retryAfterSeconds: null,
+    });
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+
+    expect(
+      await screen.findByText("Invalid object name 'dbo.SecureNowQuestionDispositions'."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Could not load SecureNow questions.")).not.toBeInTheDocument();
+    expect(screen.queryByText("The governance change did not save.")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Retry the action, then open troubleshooting if the error repeats."),
+    ).toBeInTheDocument();
+  });
+
   it("advances NotSure without persisting an answer", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
 
