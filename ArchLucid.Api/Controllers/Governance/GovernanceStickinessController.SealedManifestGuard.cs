@@ -167,4 +167,24 @@ public sealed partial class GovernanceStickinessController
 
         return null;
     }
+
+    private async Task<IActionResult?> EnsureRegisterRunsSealedManifestAllowedAsync(
+        IEnumerable<Guid?> runIds,
+        CancellationToken cancellationToken)
+    {
+        foreach (Guid runId in runIds
+                     .Where(static runId => runId is { } value && value != Guid.Empty)
+                     .Select(static runId => runId!.Value)
+                     .Distinct())
+        {
+            IActionResult? guardResult =
+                await EnsureGovernanceDispositionRunSealedManifestAllowedAsync(runId, cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (guardResult is not null)
+                return guardResult;
+        }
+
+        return null;
+    }
 }

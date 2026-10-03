@@ -50,6 +50,13 @@ public sealed partial class GovernanceStickinessController
                 assignedToMe,
                 cancellationToken);
 
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                response.Entries.Select(static entry => entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
             return Ok(response);
         }
         catch (ConflictException ex)
@@ -218,6 +225,15 @@ public sealed partial class GovernanceStickinessController
             GovernanceFindingsRegistersBundleResponse body =
                 await _facade.GetFindingsRegistersBundleAsync(projectId, maxRows, cancellationToken);
 
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                body.RiskRegister.Entries
+                    .Select(static entry => entry.RunId)
+                    .Concat(body.DecisionRegister.Decisions.Select(static entry => (Guid?)entry.RunId)),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
             return Ok(body);
         }
         catch (ConflictException ex)
@@ -287,6 +303,13 @@ public sealed partial class GovernanceStickinessController
                 maxRows,
                 filters,
                 cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                response.Decisions.Select(static entry => (Guid?)entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
 
             return Ok(response);
         }
