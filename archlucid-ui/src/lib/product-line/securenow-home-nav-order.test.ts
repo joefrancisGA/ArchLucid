@@ -32,7 +32,7 @@ describe("SecureNow home destination order", () => {
     });
     const driftLink = rows
       .flatMap((row) => row.visibleLinks)
-      .find((link) => link.href === "/infrastructure/drift");
+      .find((link) => link.href === "/infrastructure/snapshots-drift");
 
     expect(driftLink?.label).toBe(SECURENOW_INFRASTRUCTURE_DRIFT_LABEL);
   });
