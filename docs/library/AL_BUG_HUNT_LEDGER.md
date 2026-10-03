@@ -5485,6 +5485,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingInsightDensityColumnCodec.FromClassificationStorage` / `FromTreatmentStorage` — unchecked TINYINT-to-enum casts returned undefined ordinals (for example `99`) so `ResolveInspectClassification` / `ResolveInspectTreatment` preferred corrupt relational storage over typed-payload fallback — **hit 2026-09-26 seed hunt (seed→hit):** `Enum.IsDefined` guard on storage decode; regressions `FromClassificationStorage_returns_null_for_undefined_storage_byte`, `ResolveInspectClassification_falls_back_to_typed_payload_when_storage_byte_is_undefined`, and `ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_byte_is_undefined`.
 - (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — the semantic-support overlay is a direct `LEFT JOIN`; if persisted duplicate rows share the same scoped snapshot/finding key, Dapper `QuerySingleOrDefaultAsync<MainRow>` can fail instead of returning the inspect response. Reachable input: repeated overlay persistence for one finding/snapshot in the inspect read path.
 - (candidate) `FindingInspectReadRepositoryCore.ToUtcDateTimeOffset` — `DateTime.SpecifyKind(..., Utc)` relabels a non-UTC database timestamp instead of converting its wall-clock value; a reachable SQL date-time value with `DateTimeKind.Local` could shift remediation/revisit semantics when displayed. Reachable input: persisted `RemediationDueUtc` or `RevisitDueUtc` returned by the SQL driver.
+- (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — duplicate `DecisioningTraces` rows for the same `DecisionTraceId` and scoped run could multiply the main row and make Dapper `QuerySingleOrDefaultAsync<MainRow>` throw instead of returning inspect data. Reachable input: repeated decision-trace persistence for a run selected by the inspect SQL.
+- (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — duplicate `AgentExecutionTraces` rows for the same `TraceId` and `RunId` could multiply the main row despite the left join and make the inspect read fail. Reachable input: repeated agent-execution-trace persistence for a finding's selected run.
 
 2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
@@ -5492,6 +5494,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read inspect SQL joins, mapper enum handling, Dapper row loading, payload/rule fallback, disposition projection, and all focused tests; no new hunt-ready row met the same-run repro bar. Scoped test execution was blocked by unrelated repository-wide ARCH006/ARCH006a analyzer errors before tests ran.
 
 2026-10-03 seed hunt (seed-only): re-read the inspect row projection and current focused candidates for duplicate semantic-support overlays, non-UTC `DateTime` kinds, and stored finding-id padding; no reachable wrong outcome met the hunt-ready bar. No code changes.
+
+2026-10-03 seed hunt (seed-only): re-read the selected inspect SQL, mapper, and repository paths; no new hunt-ready row met the reachable-input and wrong-outcome bar. Added two bounded duplicate-join candidates; 419 focused tests passed with unrelated analyzers disabled.
 
 ---
 
