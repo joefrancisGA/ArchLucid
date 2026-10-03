@@ -26694,7 +26694,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -26711,6 +26711,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused drain/release tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering renewal option snapshots, drain/release phase ordering, idempotent lease acquisition, cancellation during release, and duplicate pre-acquire reads.
 
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering repeated dynamic enable checks, disabled-release cleanup, first-heartbeat semantics, renewal interval clamping, and lease holder identity.
+
+2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; existing candidate rows remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
 
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; existing candidate rows remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
 
