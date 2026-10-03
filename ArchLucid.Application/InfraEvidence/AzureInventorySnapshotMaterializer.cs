@@ -299,7 +299,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Resources = resources,
                     Properties = properties,
                     Relationships = visibleRelationships,
-                    AdfExternalSources = securityEdges.AdafExternalSources,
+                    AdfExternalSources = securityEdges.AdfExternalSources,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
                     Diagnostics = diagnostics,

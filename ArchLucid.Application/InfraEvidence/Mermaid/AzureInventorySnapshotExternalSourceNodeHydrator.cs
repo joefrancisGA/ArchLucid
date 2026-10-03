@@ -129,7 +129,7 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
 
     private static string ExtractArmResourceName(string armResourceId)
     {
-        int separator = armResourceId.LastIndexOf('/', StringComparison.Ordinal);
+        int separator = armResourceId.LastIndexOf('/');
         return separator >= 0 && separator < armResourceId.Length - 1
             ? armResourceId[(separator + 1)..]
             : armResourceId;
