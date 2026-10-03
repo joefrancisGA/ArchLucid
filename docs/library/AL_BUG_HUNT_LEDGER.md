@@ -23567,8 +23567,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 28
-- **last-hunt:** 2026-10-01
+- **hunts:** 29
+- **last-hunt:** 2026-10-03
 - **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-01 — incomplete data-flow traversal path preserved a direct source-to-target bridge
@@ -23618,6 +23618,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — unresolved-issue bullets omitted `IssueType` and `SupportingFindingIds` present in `unresolved-issues.json` — **hit 2026-09-11 hunt #1707 (seed→hit):** fixed with issue type prefix and supporting-finding suffix; regression `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_issue_type_and_supporting_finding_ids_matching_unresolved_issues_json`
 
 2026-10-01 seed hunt (seed→hit): promoted and proved incomplete data-flow traversal path bridging in `InventoryDiagramDataFlowTraversalHopProjector`; fixed partial-path selection; 7 focused traversal tests passed. The full picker filter then reported 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+2026-10-03 seed hunt (seed-only): re-read recent AVD boundary/view-filter and diagram caption changes; no mechanism-backed reachable candidate survived cheap-disproof. Targeted issue-metadata parity regression passed; full focused filter reported 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
