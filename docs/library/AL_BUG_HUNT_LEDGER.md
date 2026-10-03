@@ -24029,10 +24029,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 48
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-26 — security-trust publication audit field surrogate guard gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24167,6 +24167,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunsController.PostFindingFeedback` — `Comment` omitted invalid-Unicode surrogate guard present on sibling `PutAssumptionAcknowledgement` and `CustomRolesAdminController` create/update — **hit 2026-09-12 hunt #1994 (seed→hit):** reject lone surrogates before persistence; regression `PostFindingFeedback_returns_bad_request_when_comment_contains_invalid_surrogate`.
 
 2026-09-12 seed hunt #1994 (seed→hit): reseeded api-authority-admin-controllers; proved finding-feedback comment surrogate guard gap; 1 scoped `RunsControllerTests` passed.
+
+- [ ] (candidate) `SupportBundleController.DownloadSupportBundle` — emits `SupportBundleDownloaded` audit events without tenant/workspace/project scope fields and assembles the bundle without an ambient scope argument; reachable authenticated ExecuteAuthority support-bundle downloads can be unattributed or cross-tenant if the assembler reads tenant data, pending proof of its data scope and audit contract.
+
+2026-10-03 seed hunt (seed-only): re-read Authority/Admin controller policy, scope, input, and audit boundaries; seeded the support-bundle scope/audit attribution candidate. 14 focused controller tests passed; 5 SQL-backed integration tests were blocked because no SQL Server was available.
 
 ---
 

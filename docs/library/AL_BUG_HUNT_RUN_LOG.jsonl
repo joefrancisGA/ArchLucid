@@ -8545,3 +8545,4 @@
 {"at":"2026-10-03T01:42:09.7073024Z","zoneId":"api-governance-stickiness","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/,ArchLucid.Application/Governance/"]}
 {"at":"2026-10-03T01:44:54.9819623Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
 {"at":"2026-10-03T01:48:01.0352632Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs,ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs"]}
+{"at":"2026-10-03T01:53:33.2977857Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/,ArchLucid.Api/Controllers/Admin/"]}
