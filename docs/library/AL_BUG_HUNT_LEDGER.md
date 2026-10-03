@@ -3904,7 +3904,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -3922,6 +3922,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): repeated the multiple-`Chosen` row review; the persisted ledger contract still does not establish that state as supported, so no candidate met the hunt-ready bar; 72 scoped TechnologyLedger tests passed.
 
 2026-10-03 seed hunt (seed-only): repeated the merge-policy review for duplicate chosen rows and provider-family/name collisions; no new reachable mechanism-backed candidate emerged; 72 scoped TechnologyLedger tests passed.
+
+2026-10-03 seed hunt (seed-only): repeated the selected TechnologyLedger merge-policy review; no new reachable mechanism-backed candidate emerged; 72 scoped TechnologyLedger tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its topology seeder reachability; multiple `Chosen` rows remain an unsupported persisted-state assumption, so the two existing concrete candidates remain `(candidate)` rather than hunt-ready; 72 scoped TechnologyLedger tests passed.
 
