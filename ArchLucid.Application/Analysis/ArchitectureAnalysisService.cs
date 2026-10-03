@@ -158,6 +158,13 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             else
             {
+                await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    request.CompareRunId,
+                    scope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    cancellationToken);
+
                 IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results ?? await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
                 report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, request.CompareRunId, rightResults);
