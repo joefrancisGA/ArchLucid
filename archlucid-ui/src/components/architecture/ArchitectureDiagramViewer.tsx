@@ -445,7 +445,7 @@ function renderDiagramViewportControls(
 }
 
 const MERMAID_SVG_HOST_CLASSNAME = cn(
-  'mx-auto block w-fit max-w-full min-w-0 text-neutral-900 dark:text-neutral-100',
+  'mx-auto block w-max max-w-none min-w-full text-neutral-900 dark:text-neutral-100',
   '[&_svg]:block [&_svg]:overflow-visible',
   // Only text without baked SVG fills inherit currentColor; forest captions/legend keep their fills.
   '[&_svg_text:not([fill])]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
