@@ -239,7 +239,7 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
             ast.Nodes,
             options,
             ast.Edges,
-            IsDataFlow: true);
+            isDataFlow: true);
         DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
             ast.Nodes,
             ast.Subgraphs,
