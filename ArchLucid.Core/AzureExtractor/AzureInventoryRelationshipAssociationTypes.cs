@@ -106,6 +106,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string FirewallToSubnet = "firewallToSubnet";
 
+    public const string BastionToSubnet = "bastionToSubnet";
+
     public const string FrontDoorToOrigin = "frontDoorToOrigin";
 
     public const string ContainerAppToEnv = "containerAppToEnv";
@@ -173,6 +175,7 @@ public static class AzureInventoryRelationshipAssociationTypes
         Inferred(ServiceBusMayReceive, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.ServiceBusQueue, "MAY_ACCESS", "inventory-service-bus-may-receive", ProvenanceKind.DerivedFact),
         Observed(NatGatewayToSubnet, AzureInventoryRelationshipArmKind.NatGateway, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nat-gateway-subnet"),
         Observed(FirewallToSubnet, AzureInventoryRelationshipArmKind.AzureFirewall, AzureInventoryRelationshipArmKind.Subnet, "PROTECTS", "inventory-firewall-subnet"),
+        Observed(BastionToSubnet, AzureInventoryRelationshipArmKind.BastionHost, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-bastion-subnet"),
         Observed(FrontDoorToOrigin, AzureInventoryRelationshipArmKind.FrontDoor, AzureInventoryRelationshipArmKind.BackendPoolMember, "CONNECTS_TO", "inventory-front-door-origin"),
         Observed(ContainerAppToEnv, AzureInventoryRelationshipArmKind.ContainerApp, AzureInventoryRelationshipArmKind.ContainerAppEnvironment, "CONNECTS_TO", "inventory-container-app-env"),
         Observed(PeDnsZoneGroup, AzureInventoryRelationshipArmKind.PrivateEndpoint, AzureInventoryRelationshipArmKind.PrivateDnsZone, "CONNECTS_TO", "inventory-pe-dns-zone-group"),

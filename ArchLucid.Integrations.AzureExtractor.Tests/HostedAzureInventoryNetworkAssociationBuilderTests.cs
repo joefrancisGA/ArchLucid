@@ -54,6 +54,31 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_bastion_to_subnet_row()
+    {
+        HostedAzureArmResourceRecord bastion = new(
+            ResourceType: "Microsoft.Network/bastionHosts",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/bastionHosts/bastion1",
+            Name: "bastion1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["ipConfiguration.subnet.id"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureBastionSubnet",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([bastion]);
+
+        Assert.Contains(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.BastionToSubnet
+                   && row.FromResourceId == bastion.ResourceId);
+    }
+
+    [Fact]
     public void Build_emits_vm_to_nic_and_two_nic_to_subnet_rows_for_multi_ipconfig_nic()
     {
         HostedAzureArmResourceRecord vm = new(
