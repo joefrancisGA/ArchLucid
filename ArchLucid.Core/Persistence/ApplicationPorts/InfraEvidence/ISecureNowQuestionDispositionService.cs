@@ -4,6 +4,11 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ISecureNowQuestionDispositionService
 {
+    Task<IReadOnlyList<SecureNowQuestionRecord>> ListQuestionsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<SecureNowQuestionDispositionRecord>> ListAsync(
         ScopeContext scope,
         Guid snapshotId,

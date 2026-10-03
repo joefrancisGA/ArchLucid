@@ -29,15 +29,18 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
     IActorContext actorContext) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<SecureNowQuestionDispositionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<SecureNowQuestionResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(Guid snapshotId, CancellationToken cancellationToken = default)
     {
         if (snapshotId == Guid.Empty)
             return this.BadRequestProblem("SnapshotId is required.", ProblemTypes.ValidationFailed);
 
-        IReadOnlyList<SecureNowQuestionDispositionRecord> records =
-            await dispositionService.ListAsync(scopeProvider.GetCurrentScope(), snapshotId, cancellationToken);
-        return Ok(records.Select(Map).ToList());
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await dispositionService.ListQuestionsAsync(
+                scopeProvider.GetCurrentScope(),
+                snapshotId,
+                cancellationToken);
+        return Ok(questions.Select(MapQuestion).ToList());
     }
 
 [HttpPost("answer")]
@@ -190,5 +193,27 @@ if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source)
                     Reason = entry.Reason,
                 })
                 .ToList(),
+        };
+
+    private static SecureNowQuestionResponse MapQuestion(SecureNowQuestionRecord question) =>
+        new()
+        {
+            DispositionId = question.DispositionId,
+            SnapshotId = question.SnapshotId,
+            SubscriptionId = question.SubscriptionId,
+            ResourceId = question.ResourceId,
+            QuestionKey = question.QuestionKey,
+            Source = question.Source.ToString(),
+            ScopeKind = question.ScopeKind.ToString(),
+            Status = question.Status.ToString(),
+            QuestionText = question.QuestionText,
+            SourceLine = question.SourceLine,
+            AnswerCodes = question.AnswerCodes,
+            EvidenceFingerprint = question.EvidenceFingerprint,
+            ExpirationUtc = question.ExpirationUtc,
+            IsExpired = question.IsExpired,
+            AnswerCode = question.AnswerCode,
+            AnswerText = question.AnswerText,
+            Reason = question.Reason,
         };
 }
