@@ -156,6 +156,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 policyNode,
                 graphNode,
                 graph.Nodes,
+                graph.Edges,
                 armIdToDiagramNodeId,
                 removedDiagramNodeIds,
                 emitPolicyEdges);
@@ -181,6 +182,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         DiagramNode routeTableNode,
         GraphNode graphNode,
         IReadOnlyList<GraphNode> topologyNodes,
+        IReadOnlyList<GraphEdge> graphEdges,
         IReadOnlyDictionary<string, string> armIdToDiagramNodeId,
         ISet<string> removedDiagramNodeIds,
         bool emitPolicyEdges)
@@ -222,6 +224,53 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 }
 
                 emittedEdgeCount++;
+            }
+        }
+
+        if (emitPolicyEdges)
+        {
+            Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(
+                new GraphSnapshot { Nodes = topologyNodes.ToList(), Edges = graphEdges.ToList() });
+
+            foreach (GraphEdge effectiveRouteEdge in graphEdges.Where(edge =>
+                         string.Equals(
+                             edge.InferenceSource,
+                             GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                             StringComparison.OrdinalIgnoreCase)
+                         && string.Equals(edge.ToNodeId, graphNode.NodeId, StringComparison.Ordinal)))
+            {
+                if (!nicOwnerArmIdByNicArmId.TryGetValue(
+                        ArmResourceIdNormalizer.Normalize(
+                            topologyNodes.FirstOrDefault(node => node.NodeId == effectiveRouteEdge.FromNodeId)
+                                is GraphNode nic
+                                ? DiagramAstGraphNodeClassifier.ReadArmId(nic)
+                                : string.Empty),
+                        out string? ownerArmId)
+                    || !armIdToDiagramNodeId.TryGetValue(ownerArmId, out string? ownerDiagramNodeId))
+                {
+                    continue;
+                }
+
+                foreach (AzureInventoryRouteTableRoute route in routes)
+                {
+                    string? nextHopArmId = AzureInventoryRouteTableNextHopResolver.Resolve(route, topologyNodes);
+
+                    if (string.IsNullOrWhiteSpace(nextHopArmId)
+                        || !armIdToDiagramNodeId.TryGetValue(nextHopArmId, out string? nextHopDiagramNodeId))
+                    {
+                        continue;
+                    }
+
+                    ast.Edges.Add(new DiagramEdge
+                    {
+                        FromNodeId = ownerDiagramNodeId,
+                        ToNodeId = nextHopDiagramNodeId,
+                        Label = "effective route reachability",
+                        ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
+                        InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                    });
+                    emittedEdgeCount++;
+                }
             }
         }
 

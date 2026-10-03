@@ -106,6 +106,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ISecurityAssetAssertionRepository, NoOpSecurityAssetAssertionRepository>();
         services.AddSingleton<ISecurityDeclaredConnectionRepository, NoOpSecurityDeclaredConnectionRepository>();
         services.AddSingleton<IOperatorInferredConnectionRepository, NoOpOperatorInferredConnectionRepository>();
+        services.AddSingleton<ISecureNowQuestionDispositionRepository, NoOpSecureNowQuestionDispositionRepository>();
         services.AddSingleton<IRemediationPatternRepository, NoOpRemediationPatternRepository>();
         services.AddSingleton<IRemediationPatternMatchRepository, NoOpRemediationPatternMatchRepository>();
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();

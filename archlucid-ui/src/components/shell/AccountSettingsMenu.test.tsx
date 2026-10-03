@@ -45,6 +45,7 @@ describe("AccountSettingsMenu", () => {
     routing.pathname = "/";
     routing.searchParams = new URLSearchParams();
     routing.replace.mockClear();
+    window.history.replaceState(null, "", "/");
   });
 
   it("exposes user-scoped settings without consulting authority rank", () => {
@@ -110,11 +111,41 @@ describe("AccountSettingsMenu", () => {
 
     openMenu();
 
-    expect(routing.replace).toHaveBeenCalledWith("/?accountMenuOpen=1", { scroll: false });
+    expect(window.location.search).toBe("?accountMenuOpen=1");
 
     fireEvent.keyDown(document, { key: "Escape" });
 
-    expect(routing.replace).toHaveBeenLastCalledWith("/", { scroll: false });
+    expect(window.location.search).toBe("");
+  });
+
+  it("exposes the preferences tooltip and toggles from F outside editable fields", () => {
+    render(<AccountSettingsMenu />);
+
+    const trigger = screen.getByTestId("account-settings-menu-trigger");
+    expect(trigger).toHaveAttribute("aria-label", "Your account settings");
+    expect(trigger).toHaveAttribute("title", "Open preferences (F)");
+    expect(trigger).toHaveAttribute("aria-keyshortcuts", "F");
+
+    fireEvent.keyDown(window, { key: "f" });
+    expect(screen.getByTestId("account-settings-menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "f" });
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+
+  it("does not toggle from F while focus is in an editable field", () => {
+    render(
+      <>
+        <AccountSettingsMenu />
+        <input aria-label="Search" />
+      </>,
+    );
+
+    const input = screen.getByRole("textbox", { name: "Search" });
+    input.focus();
+    fireEvent.keyDown(input, { key: "f" });
+
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
   });
 });
 

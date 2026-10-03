@@ -8,7 +8,7 @@ export type InfraEvidenceMermaidOutlineNode = {
   readonly label: string;
   readonly resourceType: string | null;
   readonly resourceGroup: string | null;
-  readonly connectionState: "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | null;
+  readonly connectionState?: "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | null;
   readonly seedNodeId?: string | null;
   /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
   readonly outlineOnlyOnCanvas?: boolean;
@@ -46,6 +46,11 @@ export type InfraEvidenceMermaidOutlineEdge = {
 export type InfraEvidenceMermaidOutline = {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly edges: readonly InfraEvidenceMermaidOutlineEdge[];
+  readonly dropGateRows?: readonly {
+    readonly reason: string;
+    readonly from: string;
+    readonly to: string;
+  }[];
   readonly ledgerDrops?: readonly InfraEvidenceMermaidLedgerDrop[];
 };
 
@@ -681,6 +686,7 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
+  const dropGateRows: InfraEvidenceMermaidOutline["dropGateRows"][number][] = [];
   const ledgerDrops: InfraEvidenceMermaidLedgerDrop[] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
@@ -715,11 +721,20 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
       const ledgerMatch = LEDGER_DROP_COMMENT.exec(line);
 
       if (ledgerMatch != null) {
+        const reason = ledgerMatch[1];
+        const from = ledgerMatch[2];
+        const toRaw = ledgerMatch[3];
         ledgerDrops.push({
-          reason: ledgerMatch[1],
-          from: ledgerMatch[2],
-          to: ledgerMatch[3] === "_" ? null : ledgerMatch[3],
+          reason,
+          from,
+          to: toRaw === "_" ? null : toRaw,
         });
+        dropGateRows.push({
+          reason,
+          from,
+          to: toRaw,
+        });
+        continue;
       }
 
       pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
@@ -821,6 +836,7 @@ export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceM
   return {
     nodes: [...nodeMap.values()],
     edges,
+    dropGateRows,
     ledgerDrops,
   };
 }
