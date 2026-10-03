@@ -3888,13 +3888,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproved the stale same-family distinct-ref and cloud-neutral chosen templates against existing merge-policy regressions; seeded one multiple-chosen-row candidate; 72 scoped TechnologyLedger tests passed.
+
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `existingRows` containing multiple `Chosen` entries for the candidate role with the matching authoritative row after the first entry — `FirstOrDefault` examines only one chosen row, so a later matching chosen technology may be missed and the agent candidate may be inserted; reachability is the seeder's repository-provided full `GetByRunIdAsync` row list.
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed duplicate-display-name topology batch `(candidate)` — `TechnologyLedgerTopologyProposalMapper` keys `EvidenceRef` by `ServiceId` slug so distinct ids stay distinct; regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`; no new hunt-ready rows; 59 scoped TechnologyLedger tests passed.
 

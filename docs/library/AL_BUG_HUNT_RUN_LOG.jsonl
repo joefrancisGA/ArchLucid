@@ -8633,3 +8633,4 @@
 {"at":"2026-10-03T07:18:40.3744914Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}
 {"at":"2026-10-03T07:21:18.0188044Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/,ArchLucid.Provenance/)"]}
 {"at":"2026-10-03T07:26:31.1450316Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Composition/"]}
+{"at":"2026-10-03T07:30:00.7523496Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
