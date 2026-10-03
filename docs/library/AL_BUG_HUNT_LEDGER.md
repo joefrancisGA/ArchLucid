@@ -21027,9 +21027,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — semanticSupportBand out-of-range ordinal silently ignored
 - **related-pd-tb:** none
@@ -23481,7 +23481,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) WAF alignment flag omitted when associated-findings property keys use PascalCase — **hit 2026-08-21:** `GraphMaterializationStages` read `associatedFindings` / `findings` from raw `CanonicalObject.Properties` with case-sensitive `TryGetValue` instead of the normalized node bag via `GraphNodePropertyReader`
 - [x] (proven) Topology sensitivity misclassified when property keys use PascalCase on a case-sensitive bag — **hit 2026-08-23:** `TopologySensitivityClassifier` used case-sensitive `TryGetValue` for `topologySensitivity`, `category`, `publicNetworkAccess`, and `resourceType` instead of `GraphNodePropertyReader`
 - [x] (proven) Graph→finding provenance edge omitted when `RelatedNodeIds` casing differs from graph `NodeId` — **hit 2026-09-02:** `ProvenanceBuilder` used ordinal `graphNodeIds` and `nodeMap` keys, so `InfluencedByGraphNode` was skipped when findings referenced the same node with different casing; fixed with `StringComparer.OrdinalIgnoreCase` (`Build_links_graph_influence_when_related_node_id_differs_only_by_case`)
-- [ ] (candidate) `InMemoryGraphSnapshotRepository.ListIndexedEdgesAsync` — indexed edges are returned by snapshot ID without a scope parameter or local scope check; a caller supplying another tenant's persisted snapshot ID could receive edge metadata, but caller authorization/reachability is outside the selected files.
+- [x] (invalid) `InMemoryGraphSnapshotRepository.ListIndexedEdgesAsync` — indexed edges are returned by snapshot ID without a scope parameter or local scope check; the method is not part of `IGraphSnapshotRepository` and has no production caller in the selected graph/provenance surfaces, so no reachable tenant-boundary input exists.
+
+2026-10-03 thorough hunt (dry): cheap-disproved the indexed-edge scope candidate because `ListIndexedEdgesAsync` is an in-memory-only helper absent from the repository contract and has no selected-zone production caller; its four focused repository tests passed.
 - [x] (proven) `KnowledgeGraphService.BuildSnapshotAsync` truncation dropped valid edges when endpoint casing differed from kept node ids — **hit 2026-09-04 (#713):** `kept` used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; edges with `FromNodeId`/`ToNodeId` casing variants were removed during `MaxNodes` truncation; fixed with `OrdinalIgnoreCase` on `kept`; regression `BuildSnapshotAsync_TruncationRetainsEdgesWhenEndpointCasingDiffersFromKeptNodeId`
 - [x] (proven) `ProvenanceBuilder` — duplicate `ContributedToArtifact` edges when `ContributingDecisionIds` casing variants reference the same decision — **hit 2026-09-08 seed hunt #1353:** `Distinct(StringComparer.Ordinal)` kept `dec-1` and `DEC-1` while `nodeMap` resolves both; fixed with `OrdinalIgnoreCase` dedup matching `AppliedRuleIds`; regression `Build_deduplicates_contributing_decision_ids_when_casing_differs_only`
 - [x] (proven) κ→Γ projector dropped RELATES edges when `RelatedElementIds` casing differed from canonical `ElementId` — **hit 2026-09-07 (#1180):** `ArchitectureKnowledgeModelGraphProjector` indexed node ids with `StringComparer.Ordinal` while `GraphValidator` and inferrers treat ids case-insensitively; `RelatedElementIds` with casing variants failed `nodeIds.Contains` and omitted edges; fixed with `OrdinalIgnoreCase` canonical id map; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_case`
