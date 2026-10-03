@@ -17,6 +17,11 @@ import {
   dismissOperatorInferredConnection,
   listOperatorInferredConnections,
 } from "@/lib/infra-evidence/operator-inferred-connection-api";
+import {
+  operatorInferredConnectionPanelErrorFromUnknown,
+  operatorInferredConnectionPanelErrorRecoveryScenario,
+  type OperatorInferredConnectionPanelError,
+} from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
 import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
 import { cn } from "@/lib/utils";
 
@@ -79,7 +84,7 @@ export function SecureNowQuestionQueue(
   const [visitedQuestionKeys, setVisitedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -99,7 +104,13 @@ export function SecureNowQuestionQueue(
       setSelectedAnswer(null);
       setReason("");
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load SecureNow questions.");
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          loadError,
+          "Could not load SecureNow questions.",
+          "load",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -193,7 +204,13 @@ export function SecureNowQuestionQueue(
       setReason("");
       setDrawerAction("answer");
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Could not save the question update.");
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          submitError,
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
     } finally {
       setBusy(false);
     }
@@ -215,7 +232,10 @@ export function SecureNowQuestionQueue(
   return (
     <div className="space-y-3" data-testid="securenow-question-queue">
       {error != null ? (
-        <OperatorMutationInlineError message={error} recoveryScenario="governance-mutation" />
+        <OperatorMutationInlineError
+          message={error.message}
+          recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
+        />
       ) : null}
       {openQuestions.length > 0 ? (
         <section
