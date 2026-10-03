@@ -27946,6 +27946,7 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (hit): SecureNow mutation validation accepted an undefined `ScopeKind`; rejected invalid enum values at both the controller boundary and service boundary; 3 focused validation tests passed.
 2026-10-03 seed hunt (seed-only): reseeded question compilation and disposition lifecycle paths; left two concrete candidates for a future repro.
 2026-10-03 thorough hunt (hit): proved blank inferred-connection source endpoint selection discarded a populated target endpoint; fixed fallback selection and passed 7 compiler tests.
+2026-10-03 thorough hunt (dry): cheap-disproved the blank-resource-identity candidate because `AzureInventoryResources.AzureResourceId` is `NOT NULL` at the persistence boundary; the 15 scoped SecureNowQuestion tests passed when unrelated ARCH006 analyzer errors were disabled.
 
 ### Hypotheses
 
