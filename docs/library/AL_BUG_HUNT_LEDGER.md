@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client/hook branches and existing webhook settings tests; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
 2026-10-03 seed hunt (seed-only): `llm-wallet` — re-read wallet PUT/null handling, tenant state creation, optimistic row-version updates, refill/consume transactions, and existing wallet tests; no new hunt-ready repro was proven; 17 scoped wallet tests passed. Seeded one reachable candidate for clearing persisted Stripe payment identifiers.
 
 2026-10-03 thorough hunt (dry): `llm-wallet` — cheap-disproved the nullable Stripe identifier clearing candidate: the endpoint exposes partial-update fields, no in-repo caller uses null to clear a payment method, and the contract does not promise null-clearing semantics; 17 scoped wallet tests passed.
@@ -6799,7 +6801,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
