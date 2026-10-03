@@ -23437,13 +23437,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 31
-- **bugs-found:** 26
+- **hunts:** 32
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — `GraphSnapshotExtensions` neighbor traversal missed nodes when edge endpoints differed from `NodeId` only by surrounding whitespace
+- **last-bug:** 2026-10-03 — `ArchitectureKnowledgeModelGraphProjector` emitted duplicate edge identifiers for different edge types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 thorough hunt (hit): promoted the graph-projector edge-id candidate; failing repro exposed duplicate `EdgeId` values for different edge types, fixed the identifier to include `edgeType`; cheap-disproved the type-filter candidate; 357 KnowledgeGraph tests passed with 3 pre-existing failures and 47 Provenance tests passed.
 
 2026-10-03 seed hunt (seed-only): repeated knowledge-graph-provenance after candidate placement correction; confirmed the graph-projector edge-id and graph-query type-normalization rows remain candidates, with no same-run failing repro; 356 KnowledgeGraph tests passed with 3 pre-existing failures and 47 Provenance tests passed.
 
@@ -23480,8 +23482,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `ArchitectureKnowledgeModelGraphProjector.Project` — two reachable model elements produce the same canonical endpoints with different mapped edge types — `EdgeId` is always `${from}->${to}:RELATES` even when `EdgeType` is `ConnectsTo` or `Exposes`, so distinct graph edges can share an identifier; input is reachable from `model.Elements` and `RelatedElementIds`.
-- [ ] (candidate) `GraphSnapshotExtensions.GetNodesByType` / `GetEdgesByType` — persisted node or edge type values with surrounding whitespace — filters compare raw type strings without the trimming used for node-id traversal, so otherwise matching graph queries return no rows; input is reachable from `snapshot.Nodes`/`snapshot.Edges`.
+- [x] (proven) `ArchitectureKnowledgeModelGraphProjector.Project` — two reachable model elements produced the same canonical endpoints with different mapped edge types, but `EdgeId` was always `${from}->${to}:RELATES`; **hit 2026-10-03 thorough hunt:** distinct `ConnectsTo`/`Exposes` edges shared an identifier, so edge-index consumers could conflate them; fixed `EdgeId` to include the mapped edge type; regression `Project_assigns_unique_edge_ids_when_same_endpoints_have_different_edge_types`.
+- [x] (valid-no-repro) `GraphSnapshotExtensions.GetNodesByType` / `GetEdgesByType` — persisted node or edge type values with surrounding whitespace — **cheap-disproof 2026-10-03 thorough hunt:** these helpers have no selected-zone production callers, and selected graph builders emit canonical type constants; no reachable product input supported a failing repro.
 
 - [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
 - [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes

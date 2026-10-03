@@ -110,7 +110,7 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
 
                 edges.Add(new GraphEdge
                 {
-                    EdgeId = $"{resolvedFromNodeId}->{resolvedToNodeId}:RELATES",
+                    EdgeId = $"{resolvedFromNodeId}->{resolvedToNodeId}:{edgeType}",
                     FromNodeId = resolvedFromNodeId,
                     ToNodeId = resolvedToNodeId,
                     EdgeType = edgeType,
