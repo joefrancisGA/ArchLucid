@@ -4760,7 +4760,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 47
+- **hunts:** 46
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-27
@@ -24178,7 +24178,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 46
+- **hunts:** 48
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -24191,6 +24191,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (seed→hit): reseeded host-composition; proved an existing unrelated `IDistributedCache` plus projection-only Redis configuration returned an empty graph pub/sub endpoint; fixed the existing-cache fallback to use projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`; 404 scoped host-composition tests passed.
 2026-10-03 seed hunt (seed-only): re-read distributed-cache and service-registration composition paths, including the remaining pre-registered multiplexer candidate; its prerequisite exists only in tests and all 404 focused host-composition tests passed, so no new reachable product candidate was promoted.
 2026-10-03 seed hunt (seed-only): re-read distributed-cache, Redis health-probe, value-report poll-state, and role-registration paths; the null-bound Redis configuration candidate needs a configuration-binding repro before promotion; 404 scoped host-composition tests passed.
+2026-10-03 seed hunt (seed-only): repeated the host-composition source and test review; the null-bound Redis configuration candidate remains unproven without a reachable configuration-binding repro; 404 scoped host-composition tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read host-composition cache registration and hosting-role gates; no candidate met the full wrong-outcome bar in this pass; 404 scoped host-composition tests passed.
 
