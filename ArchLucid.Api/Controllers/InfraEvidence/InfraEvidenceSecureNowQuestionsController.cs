@@ -40,9 +40,10 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
         return Ok(records.Select(Map).ToList());
     }
 
-    [HttpPost("answer")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs answer via IAuditService.")]
+[HttpPost("answer")]
+[ProducesResponseType(typeof(SecureNowQuestionDispositionResponse), StatusCodes.Status200OK)]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+[MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs answer via IAuditService.")]
     public async Task<IActionResult> Answer(
         Guid snapshotId,
         [FromBody] SecureNowQuestionDispositionWriteApiRequest? request,
