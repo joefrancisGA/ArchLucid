@@ -5501,6 +5501,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read the selected inspect SQL, mapper, repository, and focused tests; no new hunt-ready defect was proven. Added two bounded tie-order candidates for trace rules and related-node evidence; the local focused build remained blocked by unrelated ARCH006/ARCH006a analyzer errors.
 
 2026-10-03 seed hunt (seed-only): re-read the selected inspect SQL, mapper, and repository paths; no new hunt-ready row met the reachable-input and wrong-outcome bar. Added two bounded duplicate-join candidates; 419 focused tests passed with unrelated analyzers disabled.
+2026-10-03 seed hunt (seed-only): re-read inspect SQL scope predicates, multi-result mapping, enum/payload normalization, and existing candidate rows; no additional hunt-ready input or wrong outcome emerged. The scoped Persistence build was blocked by unrelated ARCH006/ARCH006a analyzer errors before tests ran. No code changes.
 
 ---
 
