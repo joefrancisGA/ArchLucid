@@ -189,7 +189,8 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
         if (tokens.Count == 0)
             return false;
 
-        int matched = tokens.Count(token => blobLowercase.Contains(token, StringComparison.Ordinal));
+        HashSet<string> evidenceTokens = CollectTokens(blobLowercase).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int matched = tokens.Count(evidenceTokens.Contains);
         int minDistinct = Math.Max(1, options.MinDistinctOverlapTokens);
         double minDensity = Math.Clamp(options.MinOverlapDensityRatio, 0.0, 1.0);
         double density = matched / (double)tokens.Count;
@@ -234,7 +235,8 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
         if (tokens.Count == 0)
             return 0.0;
 
-        int matched = tokens.Count(token => blobLowercase.Contains(token, StringComparison.Ordinal));
+        HashSet<string> evidenceTokens = CollectTokens(blobLowercase).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int matched = tokens.Count(evidenceTokens.Contains);
 
         return matched / (double)tokens.Count;
     }

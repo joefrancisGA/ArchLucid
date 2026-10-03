@@ -11201,11 +11201,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 18
-- **bugs-found:** 12
+- **hunts:** 20
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — PilotStrict sponsor evidence gate ignored warned trace outcomes
+- **last-bug:** 2026-10-03 — faithfulness checker accepted substring-only evidence matches
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11243,9 +11243,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — a persisted trace and matching `AgentResult` whose `TaskId` differs only by case may fail to attach evaluation metrics; reachable through task IDs persisted by agent execution and result repositories.
 - [ ] (candidate) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — latest traces with task IDs that differ only by case may collide in the case-insensitive `ToDictionary` and abort confidence enrichment; reachable through persisted execution traces after retries/imports.
-- [ ] (candidate) `AgentResultEvidenceFaithfulnessChecker.MeetsOverlapThreshold` — substring token matching may mark a claim token as supported by a larger unrelated evidence token (for example `data` inside `metadata`); reachable through model-produced claims and ingested evidence-package text.
+- [x] (proven) `AgentResultEvidenceFaithfulnessChecker.MeetsOverlapThreshold` — substring token matching marked a claim token as supported by a larger unrelated evidence token (`port` inside `important`); fixed overlap scoring to compare normalized tokens, with regression `Evaluate_does_not_count_substring_inside_unrelated_evidence_token_as_support`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — required JSON-key checks are ordinal-case-sensitive although AgentResult deserialization is case-insensitive; reachable through configured reference-case keys and agent JSON property casing.
 - [ ] (candidate) `AgentOutputTraceFindingCitationCoverageApplicator.ShouldEvaluateFindingCitationCoverage` — a missing task execution mode combined with host mode `Real` evaluates citation coverage for an otherwise unclassified task; reachable through persisted AgentResult mode fields and the runtime execution-mode configuration.
+
+2026-10-03 thorough hunt (hit): `AgentResultEvidenceFaithfulnessChecker` counted substring containment as evidence support; a model-produced `port context` claim passed against `important deployment context`. Token-set overlap now prevents unrelated substring matches.
 
 ---
 
