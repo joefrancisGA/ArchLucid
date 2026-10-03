@@ -8560,3 +8560,4 @@
 {"at":"2026-10-03T04:19:13.5301449Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
 {"at":"2026-10-03T04:23:40.5372780Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/"]}
 {"at":"2026-10-03T04:26:13.4739291Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/"]}
+{"at":"2026-10-03T04:28:47.7282019Z","zoneId":"run-execute-ownership","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs","ArchLucid.Application/Runs/ExecuteOwnership/"]}
