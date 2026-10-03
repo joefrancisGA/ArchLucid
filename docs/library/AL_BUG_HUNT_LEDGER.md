@@ -3896,7 +3896,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -3912,6 +3912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its seeder tests; no single candidate met the full hunt-ready bar for a failing repro because the ledger contract does not establish that multiple `Chosen` rows for one role are a supported persisted state; retained two concrete multiple-chosen-row candidates; 72 scoped TechnologyLedger tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its topology seeder reachability; multiple `Chosen` rows remain an unsupported persisted-state assumption, so the two existing concrete candidates remain `(candidate)` rather than hunt-ready; 72 scoped TechnologyLedger tests passed.
+
+2026-10-03 seed hunt (seed-only): repeated the technology-ledger source and seeder test review; multiple `Chosen` rows remain an unsupported persisted-state assumption, so no candidate was promoted; 72 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge; cheap-disproof closed duplicate-display-name topology batch `(candidate)` — `TechnologyLedgerTopologyProposalMapper` keys `EvidenceRef` by `ServiceId` slug so distinct ids stay distinct; regression `MapCandidates_same_service_name_distinct_service_ids_both_survive_merge_policy`; no new hunt-ready rows; 59 scoped TechnologyLedger tests passed.
 
