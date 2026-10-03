@@ -3559,6 +3559,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): repeated the integrity-source and focused-test review; no new reachable mechanism emerged beyond the closed selector rank, task-key, and quality-gate policy rows. No code changes.
 
 2026-10-03 seed hunt (seed-only): repeated the focused selector and quality-gate review; all reachable input shapes remain covered by closed rows or intentional policy, with no new candidate. No code changes.
+2026-10-03 seed hunt (seed-only): repeated the selected commit-output integrity review; no new reachable wrong outcome or bounded candidate emerged. Application integrity tests passed 54/54 and Core selector tests passed 33/33 with unrelated analyzers disabled.
 
 2026-10-03 seed hunt (seed-only): repeated the selector, quality-rank, and commit-gate review; no new reachable mechanism or hunt-ready candidate emerged. No code changes.
 
