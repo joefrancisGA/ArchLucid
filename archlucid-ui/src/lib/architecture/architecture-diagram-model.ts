@@ -75,32 +75,49 @@ function findNodeIdByLabel(nodes: readonly ArchitectureDiagramNode[], label: str
   return match?.id ?? null;
 }
 
+type ParsedFlowEndpoint = {
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly label: string;
+};
+
 function parseFlowEndpoints(
   text: string,
   nodes: readonly ArchitectureDiagramNode[],
-): { readonly sourceId: string; readonly targetId: string; readonly label: string } | null {
+): readonly ParsedFlowEndpoint[] {
   const parts = text.split(FLOW_SPLIT_PATTERN).map((part) => part.trim()).filter((part) => part.length > 0);
 
   if (parts.length < 2) {
-    return null;
+    return [];
   }
 
-  const sourceLabel = parts[0] ?? "";
-  const targetLabel = parts[1] ?? "";
-  const sourceId = findNodeIdByLabel(nodes, sourceLabel);
-  const targetId = findNodeIdByLabel(nodes, targetLabel);
+  const nodeIds = parts.map((part) => findNodeIdByLabel(nodes, part));
+  const sourceId = nodeIds[0];
+  const targetId = nodeIds[1];
 
-  if (sourceId === null || targetId === null || sourceId === targetId) {
-    return null;
+  if (sourceId == null || targetId == null || sourceId === targetId) {
+    return [];
   }
 
-  const label = parts.slice(2).join(" ").trim();
+  let resolvedEndpointCount = 2;
+  while (
+    resolvedEndpointCount < nodeIds.length &&
+    nodeIds[resolvedEndpointCount] != null &&
+    nodeIds[resolvedEndpointCount] !== nodeIds[resolvedEndpointCount - 1]
+  ) {
+    resolvedEndpointCount += 1;
+  }
 
-  return {
-    sourceId,
-    targetId,
-    label,
-  };
+  const edges: ParsedFlowEndpoint[] = [];
+  for (let index = 0; index < resolvedEndpointCount - 1; index += 1) {
+    edges.push({
+      sourceId: nodeIds[index]!,
+      targetId: nodeIds[index + 1]!,
+      label: index === resolvedEndpointCount - 2 ? parts.slice(resolvedEndpointCount).join(" ").trim() : "",
+    });
+  }
+
+  return edges;
 }
 
 function addFlowEdges(
@@ -118,42 +135,34 @@ function addFlowEdges(
 
   for (const entity of flowSection.entities) {
     const combined = entity.detail !== null && entity.detail.length > 0 ? `${entity.label} -> ${entity.detail}` : entity.label;
-    const endpoints = parseFlowEndpoints(combined, nodes);
-
-    if (endpoints === null) {
-      continue;
+    for (const endpoints of parseFlowEndpoints(combined, nodes)) {
+      edges.push({
+        id: `edge_${edgeIndex}`,
+        sourceId: endpoints.sourceId,
+        targetId: endpoints.targetId,
+        label: endpoints.label.length > 0 ? endpoints.label : "data flow",
+        provenance: entity.provenance,
+        removed: false,
+      });
+      edgeIndex += 1;
     }
-
-    edges.push({
-      id: `edge_${edgeIndex}`,
-      sourceId: endpoints.sourceId,
-      targetId: endpoints.targetId,
-      label: endpoints.label.length > 0 ? endpoints.label : "data flow",
-      provenance: entity.provenance,
-      removed: false,
-    });
-    edgeIndex += 1;
   }
 
   if (flowSection.narrativeMarkdown !== null) {
     const lines = flowSection.narrativeMarkdown.split(/\r?\n/);
 
     for (const line of lines) {
-      const endpoints = parseFlowEndpoints(line, nodes);
-
-      if (endpoints === null) {
-        continue;
+      for (const endpoints of parseFlowEndpoints(line, nodes)) {
+        edges.push({
+          id: `edge_${edgeIndex}`,
+          sourceId: endpoints.sourceId,
+          targetId: endpoints.targetId,
+          label: endpoints.label.length > 0 ? endpoints.label : "data flow",
+          provenance: flowSection.provenance,
+          removed: false,
+        });
+        edgeIndex += 1;
       }
-
-      edges.push({
-        id: `edge_${edgeIndex}`,
-        sourceId: endpoints.sourceId,
-        targetId: endpoints.targetId,
-        label: endpoints.label.length > 0 ? endpoints.label : "data flow",
-        provenance: flowSection.provenance,
-        removed: false,
-      });
-      edgeIndex += 1;
     }
   }
 }

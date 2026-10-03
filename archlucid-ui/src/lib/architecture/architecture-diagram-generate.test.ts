@@ -56,4 +56,23 @@ Store associate -> Retail API`;
     expect(mermaid).toContain("inferred");
     expect(mermaid).toContain("inferredNode");
   });
+
+  it("creates each leg of a chained data-flow narrative", () => {
+    const source = `## Systems and services
+- Payment API
+- Queue
+- Worker
+## Users and stakeholders
+- Customer
+## Data flows
+Payment API -> Queue -> Worker`;
+
+    const result = generateArchitectureDiagram(source, "Payment API", assertions);
+
+    expect(result.model?.edges).toHaveLength(2);
+    expect(result.model?.edges.map((edge) => [edge.sourceId, edge.targetId])).toEqual([
+      ["system_payment_api", "system_queue"],
+      ["system_queue", "system_worker"],
+    ]);
+  });
 });
