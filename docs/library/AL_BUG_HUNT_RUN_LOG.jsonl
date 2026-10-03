@@ -8556,3 +8556,4 @@
 {"at":"2026-10-03T02:28:32.5439903Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
 {"at":"2026-10-03T02:33:07.2110874Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-03T02:43:03.4087795Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
+{"at":"2026-10-03T04:12:57.5520837Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/"]}

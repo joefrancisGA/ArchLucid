@@ -26871,13 +26871,15 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 20
-- **bugs-found:** 16
+- **hunts:** 21
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — create-home findings empty state ignored in-progress when analysisStagesComplete omitted
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — review-detail tab state ignored reactive reviewTab URL changes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (hit): promoted the review-detail URL synchronization candidate; `useReviewDetailWorkspaceTabs` passed an empty search-param set to initial tab resolution and had no reactive `useSearchParams` dependency, so soft navigation from Overview to Findings left the active panel stale. Fixed by consuming reactive search params and synchronizing `activeTab`; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts` (2 passed).
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-review-detail-workspace; proved `RunDetailCreateHomeActivityPanel` orientation links omitted `includeCreateIntent` on overview/findings/clarifications tabs; fixed create-home activity hrefs; seeded `resolveReviewWorkspaceLifecycle` treating any `manifestId` as finalized and `ArchitectureCreatedClarificationsPanel` create-home tab href parity candidates; 9 create-home activity band vitest tests passed.
 
@@ -26901,6 +26903,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunts #1381/#1383/#1387/#1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount` / `resolveRunDetailFindingsReviewed`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
 - [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` / `RunDetailPageViewShell` / `buildRunDetailOutcomeCards` — `RunDetailOutcomeCardsDeferred` received raw `findingCountDisplay` while tab badge and summary strip already fell back to detail snapshot triage counts when explanation deferred — **hit 2026-09-10 seed hunt #1524:** wire outcome cards through `resolveRunDetailOutcomeCardsFindingCountDisplay`; regression `run-detail-outcome-cards-finding-count.test.ts`
 - [x] (proven) `useReviewDetailWorkspaceTabs` — same-route `reviewTab` soft navigation desyncs tab strip/panel state — **hit 2026-09-26 seed hunt:** Next.js `<Link href="...?reviewTab=findings">` updated `useSearchParams` without `popstate` while `activeTab` stayed on prior tab; fixed by syncing `activeTab` when `searchParamTab` changes; regression `use-review-detail-workspace-tabs.url-sync.test.ts`
+- [x] (proven) `useReviewDetailWorkspaceTabs` — reactive `reviewTab` changes were not observed because the hook did not consume `useSearchParams` and resolved an empty query set — **hit 2026-10-03 seed hunt:** soft navigation left the Overview panel active after a Findings URL update; fixed by adding `useSearchParams` and a `searchParamTab` synchronization effect; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts`
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` — `legacyRunStatus === "Completed"` with `completedUtc == null` left `showProgressTracker` true and Do this next on "View assessment progress" while workspace status read review complete — **hit 2026-09-26 thorough hunt:** `completedUtc == null` gate ignored legacy completion; fixed via `deriveRunDetailProgressState` + `runCompleted` on page model (`treats legacy Completed runs without completedUtc as finished`, `surfaces finalize guidance for legacy Completed runs without completedUtc`)
 - [x] (proven) `resolveReviewPackageDoThisNext` — `useCreateHomeWorkspaceTabs` not applied to `buildReviewWorkspaceTabHref` deep links — **hit 2026-09-26 seed hunt:** create-home Do this next CTAs omitted `fromGeneration` + create intent; fixed via `workspaceTabHref` (`uses create-home activity tab href when assessment is in progress on create-home`, `preserves create-home intent on findings deep link from Do this next`)
 - [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` — `runCompleted` ORed `Boolean(manifestId)` while page model uses `runAnalysisComplete` only — demoted sponsor CTA showed while pipeline tracker still in-flight when `goldenManifestId` present but run not analysis-complete — **hit 2026-09-26 thorough hunt:** fixed via `shouldShowOverviewDemotedSponsorReportCta` + `m.runCompleted` (`does not show sponsor CTA while analysis is in flight even when goldenManifestId is set`)
