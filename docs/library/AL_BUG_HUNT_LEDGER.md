@@ -27985,6 +27985,8 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
 - [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
 
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a valid JSON local-storage record with missing cache arrays caused `getActiveArchitectureDiagramVersion` to throw while opening a diagram; added cache-shape validation and a malformed-cache regression. 3 focused storage tests passed.
+
 ## Zone: ui-architecture-diagram
 
 - **id:** ui-architecture-diagram
@@ -27993,8 +27995,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
@@ -28004,3 +28006,4 @@ ABQ-09 churn hotspot.
 - (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
+- [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
