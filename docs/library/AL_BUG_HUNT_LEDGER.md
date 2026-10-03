@@ -4057,7 +4057,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-09-30
@@ -26100,6 +26100,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-03 seed hunt (hit): promoted the empty not-assessed baseline candidate; `PreFinalizeExecuteBaselineDriftEvaluator` compared `NotAssessedQualityDimensions` only when the execute snapshot list was non-empty, so newly uncovered dimensions at finalize could pass without a blocking drift item. Fixed by comparing empty and non-empty snapshots symmetrically; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`; 12 focused tests passed.
 
+2026-10-03 seed hunt (seed-only): re-read policy-pack and governance coverage paths; no new hunt-ready row was proven. Seeded candidates for raw severity substring classification in `GovernanceDigestDecisionNeededComposer.IsHighSeverity` and case-sensitive bundled-pack name matching in `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName`; 746 scoped tests passed with 4 unrelated baseline failures.
+
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
 2026-09-13 seed hunt #2446 (seed-only): reseeded application-governance-policy; no new hunt-ready rows.
@@ -26162,6 +26164,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — empty execute-time `NotAssessedQualityDimensions` skipped finalize comparison — **hit 2026-10-03 seed hunt:** the `Count > 0` guard allowed newly uncovered quality dimensions to pass finalize; fixed by always comparing the canonical snapshot hashes; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.IsHighSeverity` — persisted `ArchitectureRiskRegisterEntry.Severity` values such as `not-critical` or `highly-relevant` are classified as high severity by substring matching; caller/value provenance and the accepted severity vocabulary need confirmation before a repro.
+- [ ] (candidate) `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName` — persisted platform-default `PolicyPack.Name` values with casing different from the bundled display-name constants are not recognized by the cloud baseline applicator; seeder/name immutability and intended case sensitivity need confirmation before a repro.
 
 2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
 
