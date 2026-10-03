@@ -6032,7 +6032,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -6541,6 +6541,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #772: proved MUST-question skip/answer scope-validation parity gap.
 
 2026-10-03 seed hunt (seed-only): re-read the selected command wrapper and focused core tests; no hunt-ready row met the reachable wrong-outcome bar. Seeded one cancellation-versus-argument-validation candidate. No code changes.
+
+2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and the focused core tests; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, and no second reachable mechanism was found in the selected wrapper. No code changes.
 
 ---
 
