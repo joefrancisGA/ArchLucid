@@ -27676,11 +27676,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 21
-- **bugs-found:** 19
+- **hunts:** 22
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-02
-- **last-bug:** 2026-10-02 — malformed nested saved-view facets threw while building findings navigation
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — clearing findings facet filters encoded the pathname as a query key and corrupted preserved URL state
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27744,6 +27744,7 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is always `null`, so a buyer-polished tenant findings queue cannot render its approval-status banner even when an approval record exists — cheap-disproof 2026-10-02 thorough hunt: this queue client receives no approval provenance in its props or queue-mode data contract; adjacent governance surfaces source showcase provenance independently, so no reachable completed-approval input exists in this path.
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — an operator saved view with persisted `payload.filters` set to `null`, an array, or an object with malformed `nlFacets` was cast directly to `FindingsSavedViewFilters`; loading the view threw or passed malformed facets into queue state instead of falling back safely; fixed runtime normalization in `applyFindingsSavedViewFilters`; regressions `falls back to empty findings filters when persisted filters are null`, `falls back to empty findings filters when persisted filters are an array`, and `drops malformed natural-language facets from persisted filters`.
 - [x] (proven) `applyFindingsSavedViewFilters` — an object-shaped `nlFacets` with invalid nested values such as `titleKeywords: null` passed through the outer object guard; saved-view navigation then called `.map` on the invalid value and threw; fixed by normalizing severity, status, and title-keyword element types; regression `does not throw when persisted natural-language facet fields have invalid types`.
+- [x] (proven) `useGovernanceFindingsQueueFacets.clearFacetFilters` — composed the full pathname returned by `governanceFindingsNlFacetsHrefFromSearch` as the `currentSearch` input to `reviewFindingsJobViewHrefFromSearch`; clearing facets with reachable `runId`/`q` scope encoded `/governance/findings?` as a query key and corrupted the final URL; fixed by extracting the cleared helper's query string before composing the job-view URL; regression `preserves unrelated URL scope when clearing facet filters`.
 
 2026-10-02 thorough hunt (hit): proved malformed operator saved-view filter payloads could throw during findings queue navigation; normalized object/string/boolean/facet fields before applying filters; 3 focused saved-view tests passed, with 2 pre-existing focused queue-suite failures unrelated to this change.
 
@@ -27757,6 +27758,7 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed-only): re-read the findings queue client, queue mode, synopsis, facets, route boundary, and focused tests; no new hunt-ready row or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): repeated the findings queue source and focused-test review; no new hunt-ready row or bounded candidate emerged. No code changes.
+2026-10-03 seed hunt (hit): proved `clearFacetFilters` encoded the pathname as a query key when composing URL helpers; preserved unrelated run/search scope and passed 7 focused URL-sync and saved-view tests.
 
 ---
 
