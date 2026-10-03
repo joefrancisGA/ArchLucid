@@ -25716,7 +25716,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26676,7 +26676,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **hunts:** 26
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — kill-switch during slow TryPromote still returned permit
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
@@ -27310,6 +27310,12 @@ ABQ-09 churn hotspot.
 ---
 
 ## Zone: ui-infra-resource-hub
+
+2026-10-03 seed hunt (seed-only): reseeded ui-infra-resource-hub; cheap-disproved the stale-resource-response candidate with the existing component lifecycle behavior; seeded RBAC and network relationship row-key collision candidates; 49 scoped ResourceHubClient tests passed.
+
+- [x] (valid-no-repro) `ResourceHubClient.loadHub` — a slower response for a previous `cloudResourceId` may overwrite a newer route's hub — **cheap-disproof 2026-10-03 seed hunt:** deferred-response repro passed with the newer hub title retained after the older request resolved; no production fix warranted.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments table — two captured assignments with the same `principalId` and `roleDefinitionId` but different `scope` values — the React key `${principalId}-${roleDefinitionId}` collides, so one scoped assignment may be reused or omitted in the rendered table; input is reachable from `hub.rbacAssignments`.
+- [ ] (candidate) `ResourceHubClient` network relationships table — two captured relationships with the same `fromAzureResourceId` and `toAzureResourceId` but different `relationshipType` values — the React key omits relationship type, so one relationship row may be reused or omitted; input is reachable from `hub.networkRelationships`.
 
 2026-09-27 seed hunt #24 (seed→hit): reseeded ui-infra-resource-hub; proved `sanitizeResourceHubQueryForTab` kept `infraResourceHubTechnicalKey=terraformAddress` when leaving the terraform tab, so tab-bar navigation carried a terraform-only disclosure key (and local open state) onto other hub tabs while `workQueue`/`runId` stayed intact; fixed by stripping terraform-only technical keys outside the terraform tab; regressions `clears terraform technical disclosure key when switching away from terraform tab`, `threads explorer workQueue when using G then E keyboard shortcut to return to explorer`, and `drops terraform-only technical disclosure key when leaving terraform tab`; 49 scoped ResourceHubClient tests passed.
 
