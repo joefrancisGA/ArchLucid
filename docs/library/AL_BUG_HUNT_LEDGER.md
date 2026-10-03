@@ -6157,10 +6157,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 30
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the selected extraction-router partial and existing bounded-marker regression context; no new reachable mechanism-backed candidate emerged; 29 focused DifficultyBasedExtractionRouter tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the router’s boundary-aware marker matching, lifecycle scope inference, provenance mapping, and extraction fallbacks against the focused tests. No new reachable mechanism-backed candidate emerged; no candidate or hunt-ready row was added. No test execution was claimed.
 
