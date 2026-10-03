@@ -7308,11 +7308,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 16
-- **bugs-found:** 6
+- **hunts:** 17
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-08-25 — Simulator mode skipped `MaxCompletionTokens` range check in `ValidateOrThrow`, deferring failure to `AzureOpenAiOptions` `ValidateOnStart` at `Build()`
+- **last-bug:** 2026-10-03 — Worker Kestrel left its default `Server` version header enabled on anonymous health endpoints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7320,7 +7320,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `Program.Main` — Kestrel `AddServerHeader` stays at the host default while the API host sets it false before listen — input is `GET /health/live` on the worker pipeline (`UseArchLucidWorkerPipeline` maps that route anonymously); a response `Server` header would disclose the Kestrel version. Not proven this run: `WebApplicationFactory` uses TestServer, which does not exercise Kestrel's server header.
+- [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — input is SQL storage whose schema bootstrap blocks or throws; `/health/live` is not mapped until bootstrap returns, so a readiness probe during startup sees a dead port rather than a not-ready health response.
 
 - [x] (proven) Worker host starts without a tenant-scope constraint on background jobs — **valid-no-repro:** background loops push `AmbientScopeContext` per job; `HttpScopeContextProvider` is stateless (not a Program.cs gap)
