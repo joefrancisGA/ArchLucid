@@ -55,7 +55,7 @@ internal static class DraftNewCommandConnectStage
             if (prompted is null)
                 return (null, CliExitCode.OperationFailed);
 
-            intent = prompted;
+            intent = prompted.Trim();
 
             if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
             {

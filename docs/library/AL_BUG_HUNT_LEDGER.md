@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed→hit): `cli-draft-new` — prompted intent text was checked before trimming, so whitespace-padded input shorter than the documented 100-character minimum could proceed to draft creation; trimmed prompted input before validation and added a regression. 1 repro test failed before the fix; 16 focused CLI core tests passed after it.
+
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable dependency-neighborhood seed URL with casing/whitespace differing from outline endpoint ids focused only the seed and omitted its one-hop neighbors; normalized seed comparisons and added a regression. 1 repro test failed before the fix; 21 scoped architecture diagram tests passed after it.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable generated-content data-flow row whose endpoint label contained the word `to` was split inside the endpoint token, so the diagram silently dropped the flow edge; constrained the textual delimiter to a word boundary and added a regression. 1 repro test failed before the fix; 6 scoped architecture diagram test files passed after it.
@@ -6472,8 +6474,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 16
-- **bugs-found:** 9
+- **hunts:** 17
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
@@ -6499,6 +6501,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `--json draft new` still writes human progress lines to stdout — **hit 2026-08-25:** after create/admit the command printed `DraftId:` and `Draft admitted. Resolving MUST questions…` alongside JSON; guarded with `!CliExecutionContext.JsonOutput`; regression in `RunCoreAsync_json_output_suppresses_human_progress_lines`.
 - [x] (proven) `--json draft new` still prompts for `--system-name` / `--business-outcome` / `--text` when omitted — **hit 2026-09-03 (#592):** `PromptRequiredAsync` wrote interactive labels to stdout in JSON mode; fixed by requiring all three flags before intake (`RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting`).
 - [x] (proven) `ResolveMustQuestionsAsync` skip/answer paths omit `CliScopeResponseValidator` after `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` return a draft body — **hit 2026-09-04 (#772):** create/patch/admit validated scope but MUST-question skip/answer continued with cross-tenant drift; fixed by validating returned draft bodies in `DraftNewCommandMustQuestionLoop`; regression in `RunCoreAsync_draft_scope_mismatch_after_skip_must_question_returns_operation_failed`.
+- [x] (proven) `DraftNewCommandConnectStage` validates prompted intent length before trimming — **hit 2026-10-03:** whitespace-padded prompted input could satisfy the raw-length check while remaining shorter than the documented 100-character minimum after trim; trim prompted input before validation; regression `RunCoreAsync_prompted_intent_text_validates_length_after_trim`.
 
 2026-09-04 thorough hunt #772: proved MUST-question skip/answer scope-validation parity gap.
 
