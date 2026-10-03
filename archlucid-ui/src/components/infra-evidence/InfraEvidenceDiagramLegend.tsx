@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Network } from "lucide-react";
 
 import { collectInfraEvidenceDiagramAccentKinds } from "@/lib/infra-evidence/collect-infra-evidence-diagram-accent-kinds";
 import {
@@ -53,6 +54,13 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {hasProbable ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</li> : null}
               {hasInferred ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</li> : null}
             </ul>
+            <div
+              className={cn("flex items-center gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-evidence-diagram-legend-private-endpoint"
+            >
+              <Network aria-hidden="true" className="h-4 w-4 shrink-0" />
+              <span>Private endpoint</span>
+            </div>
             {hasInferred ? (
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}

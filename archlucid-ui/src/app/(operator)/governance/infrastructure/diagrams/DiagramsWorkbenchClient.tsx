@@ -9,13 +9,12 @@ import { ArchitectureDiagramViewer } from "@/components/architecture/Architectur
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { InferenceQuestionnairePanel } from "@/components/infra-evidence/InferenceQuestionnairePanel";
+import { SecureNowQuestionQueue } from "@/components/infra-evidence/SecureNowQuestionQueue";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
 import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/OperatorInferredConnectionsPanel";
 import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -286,39 +285,6 @@ function infraDiagramModeJobCaption(mode: string): string | null {
     default:
       return null;
   }
-}
-
-function InfraDiagramLegend({ mode }: { readonly mode: string }): React.JSX.Element {
-  const content =
-    mode === "dataFlow"
-      ? {
-          boxes: "Boxes are resources on a declared path.",
-          connectors: "Connectors are declared pipeline wiring.",
-          evidence: "Configuration, not observed traffic.",
-        }
-      : mode === "dataArchitecture"
-        ? {
-            boxes: "Boxes are data stores.",
-            connectors: "Connectors are declared repository relationships.",
-            evidence: "Configuration from inventory.",
-          }
-        : {
-            boxes: "Boxes are Azure resources in this view.",
-            connectors: "Connectors are relationships already present in inventory.",
-            evidence: "Configuration from inventory.",
-          };
-
-  return (
-    <section className="space-y-1" aria-label="How to read this diagram" data-testid="infra-diagrams-legend">
-      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>How to read this diagram</h3>
-      <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-        <li><span className="font-medium">What the boxes are:</span> {content.boxes}</li>
-        <li><span className="font-medium">What the connectors are:</span> {content.connectors}</li>
-        <li><span className="font-medium">Evidence kind:</span> {content.evidence}</li>
-        <li><span className="font-medium">Relationship provenance:</span> Observed means inventory evidence; derived means an inferred connection. Neither claims observed traffic.</li>
-      </ul>
-    </section>
-  );
 }
 
 function FallbackCard(props: {
@@ -1728,7 +1694,7 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <InferenceQuestionnairePanel snapshotId={selectedSnapshotId} />
+        <SecureNowQuestionQueue snapshotId={selectedSnapshotId} />
       ) : null}
 
       {loadError != null
@@ -2568,7 +2534,6 @@ export function DiagramsWorkbenchClient() {
           {dataFlowCaptionPresentation != null ? (
             <InfraEvidenceDataFlowCaptionDisclosure presentation={dataFlowCaptionPresentation} />
           ) : null}
-          <InfraDiagramLegend mode={selectedMode} />
           {diagramWalkthrough != null ? (
             <div className="flex flex-col gap-2">
               <p

@@ -138,6 +138,34 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable).getByText("n_missing")).toBeTruthy();
   });
 
+  it("separates edge sources and lists probable edges before observed edges", () => {
+    const groupedOutline: InfraEvidenceMermaidOutline = {
+      ...outline,
+      edges: [
+        ...outline.edges,
+        {
+          from: "n_dst",
+          to: "n_src",
+          label: "May access",
+          source: "probable",
+          confidenceBand: "probable",
+          provenanceKind: "DerivedFact",
+          inferenceSource: "inventory-app-authorized-access",
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={groupedOutline} defaultEdgesOpen={true} />);
+
+    const probableGroup = screen.getByTestId("infra-diagrams-edge-source-probable");
+    const observedGroup = screen.getByTestId("infra-diagrams-edge-source-observed");
+
+    expect(within(probableGroup).getByText("Probable edges (1)")).toBeInTheDocument();
+    expect(within(observedGroup).getByText("Observed edges (1)")).toBeInTheDocument();
+    expect(probableGroup.compareDocumentPosition(observedGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("appends the To resource type when From and To share a name", () => {
     const privateEndpointOutline: InfraEvidenceMermaidOutline = {
       nodes: [
@@ -430,7 +458,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(screen.getByText("Connected on the diagram (201)")).toBeTruthy();
     expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
     expect(countNodeDataRows(nodesTable)).toBe(201);
-    expect(within(edgesTable).getAllByRole("row")).toHaveLength(202);
+    expect(within(edgesTable).getAllByRole("row")).toHaveLength(203);
     expect(screen.queryByTestId("infra-diagrams-outline-nodes-truncated")).toBeNull();
   });
 
@@ -575,21 +603,21 @@ describe("InfraEvidenceDiagramOutline", () => {
     });
     const toHeader = within(edgesTable).getByRole("button", { name: "Sort by To" });
 
-    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
+    expect(getFirstConnectedDataRow(edgesTable).textContent).toContain("alpha-node");
 
     fireEvent.click(fromHeader);
 
-    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("gamma-node");
+    expect(getFirstConnectedDataRow(edgesTable).textContent).toContain("gamma-node");
     expect(fromHeader).toHaveAttribute("aria-label", "Sort by From, descending");
 
     fireEvent.click(relationshipHeader);
 
-    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
+    expect(getFirstConnectedDataRow(edgesTable).textContent).toContain("alpha-node");
     expect(relationshipHeader).toHaveAttribute("aria-label", "Sort by Relationship, ascending");
 
     fireEvent.click(toHeader);
 
-    expect(within(edgesTable).getAllByRole("row")[1]?.textContent).toContain("alpha-node");
+    expect(getFirstConnectedDataRow(edgesTable).textContent).toContain("alpha-node");
     expect(toHeader).toHaveAttribute("aria-label", "Sort by To, ascending");
   });
 

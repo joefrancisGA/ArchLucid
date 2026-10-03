@@ -67,6 +67,9 @@ describe("InfraEvidenceDiagramLegend", () => {
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-diagram-legend-private-endpoint")).toHaveTextContent(
+      "Private endpoint",
+    );
   });
 
   it("detects declared edges from mermaid dashed arrows", () => {
