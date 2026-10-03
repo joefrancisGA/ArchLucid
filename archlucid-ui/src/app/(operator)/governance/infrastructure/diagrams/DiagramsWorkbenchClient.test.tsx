@@ -76,6 +76,10 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
   ),
 }));
 
+vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
+  SecureNowQuestionQueue: () => null,
+}));
+
 vi.mock("@/lib/use-nav-surface", () => ({
   useNavSurface: () => ({
     layerGuidance: {
