@@ -8692,3 +8692,4 @@
 {"at":"2026-10-03T14:56:15.3653894Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/Findings/ArchitectureFindingJsonConverter.cs"]}
 {"at":"2026-10-03T15:02:26.2944248Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/InventoryDiagramDataFlowTraversalHopProjector.cs"]}
 {"at":"2026-10-03T15:05:02.8972971Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/InventoryDiagramOrphanedStateClassifier.cs"]}
+{"at":"2026-10-03T15:09:41.1904111Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/InventoryDiagramOrphanedStateClassifier.cs"]}

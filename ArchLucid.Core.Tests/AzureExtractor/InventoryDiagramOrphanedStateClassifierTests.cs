@@ -195,6 +195,33 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
         result.MissingRequirementMessage.Should().Contain("lng-missing");
     }
 
+    [Fact]
+    public void Classify_numeric_unknown_evidence_currency_with_missing_endpoint_uses_current_fallback()
+    {
+        GraphNode gateway = CreateTopologyNode(
+            "gateway-node",
+            GatewayArmId,
+            "Microsoft.Network/virtualNetworkGateways");
+        GraphNode connection = CreateTopologyNode(
+            "connection-node",
+            ConnectionArmId,
+            "Microsoft.Network/connections");
+        connection.Properties[InventoryDiagramNodeRelationshipPropertyKeys.EvidenceCurrency] = "99";
+        connection.Properties[InventoryDiagramNodeRelationshipPropertyKeys.ConnectionEndpoint1ArmId] = GatewayArmId;
+        connection.Properties[InventoryDiagramNodeRelationshipPropertyKeys.ConnectionEndpoint2ArmId] =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-missing";
+
+        GraphSnapshot graph = CreateGraph([gateway, connection], []);
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            connection,
+            graph,
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().Contain("lng-missing");
+    }
+
     private static GraphSnapshot CreateGraph(
         IReadOnlyList<GraphNode> nodes,
         IReadOnlyList<GraphEdge> edges)
