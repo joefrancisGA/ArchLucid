@@ -11080,10 +11080,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — snapshot governed-count preference dropped agent Critical severity buckets and top finding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11191,6 +11191,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-09-12 seed hunt #1922 (seed-only): reseeded application-pilots; scoped pilot artifact tests passed; no new hunt-ready defect proven this pass.
+
+2026-10-03 seed hunt (seed-only): reread buyer-proof, sponsor-evidence, delta-selection, and committed-manifest paths; no candidate met the hunt-ready bar in this pass.
+
+- [ ] (candidate) `SponsorEvidencePackService.ResolveFindingsSnapshotAsync` — a repository failure is converted to an empty findings snapshot and the pack still returns, potentially presenting incomplete explainability as a successful sponsor pack; reachable through a tenant findings-snapshot read failure.
+- [ ] (candidate) `PilotRunDeltaComputer.ComputeAsync` — one failed parallel audit/evidence/artifact/savings lookup faults the whole delta instead of preserving independently resolved fields; reachable through a transient dependency failure during a buyer proof-pack request.
+- [ ] (candidate) `PilotSponsorMaterialFindingsResolver.Resolve` — when agent findings outnumber snapshot narrative findings but share the same maximum severity, the resolver keeps agent material rather than the persisted snapshot; reachable through agent-result advisory inflation on a committed run.
+- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating that generated report links are usable; reachable through the public proof-pack export base URL input.
+- [ ] (candidate) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — a future-dated manifest metadata timestamp can be selected over the completed run timestamp and inflate time-to-commit; reachable through persisted manifest metadata on a committed run.
+
 ---
 
 ## Zone: agent-runtime-evaluation
