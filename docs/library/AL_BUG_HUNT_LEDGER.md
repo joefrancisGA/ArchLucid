@@ -6154,7 +6154,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -6165,6 +6165,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read the router’s boundary-aware marker matching, lifecycle scope inference, provenance mapping, and extraction fallbacks against the focused tests. No new reachable mechanism-backed candidate emerged; no candidate or hunt-ready row was added. No test execution was claimed.
 
 2026-10-03 seed hunt (seed-only): repeated the boundary-aware marker, lifecycle, provenance, and fallback review after no production-path churn since the prior hunt; no new reachable mechanism-backed candidate emerged. No test execution was claimed.
+
+2026-10-03 seed hunt (seed-only): repeated the selected router-file review; all observed marker families and fallback branches remain covered by existing regressions, with no production-path churn or new reachable candidate. No test execution was claimed.
 
 2026-09-13 seed hunt #2266 (seed-only): reseeded extraction-router with `-Hint extraction`; no new hunt-ready rows.
 
