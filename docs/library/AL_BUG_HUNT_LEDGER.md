@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `core-requests-constraints` — re-read `RequestConstraintClassifier` and `RequestConstraintTokenMatcher`, including Unicode whitespace and compound-identifier boundaries; no new mechanism-backed reachable candidate emerged; 868 scoped request-constraint tests passed.
+
 2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload` collection materialization and its JSON/null-document tests; no new mechanism-backed reachable candidate emerged; 28 scoped payload tests passed.
 
 2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — repeated the unchanged payload normalization review; no reachable wrong outcome emerged; 28 scoped payload tests passed.
