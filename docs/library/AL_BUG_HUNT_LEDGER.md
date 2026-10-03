@@ -11226,9 +11226,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — snapshot governed-count preference dropped agent Critical severity buckets and top finding
 - **related-pd-tb:** none
@@ -11340,11 +11340,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): reread buyer-proof, sponsor-evidence, delta-selection, and committed-manifest paths; no candidate met the hunt-ready bar in this pass.
 
-- [ ] (candidate) `SponsorEvidencePackService.ResolveFindingsSnapshotAsync` — a repository failure is converted to an empty findings snapshot and the pack still returns, potentially presenting incomplete explainability as a successful sponsor pack; reachable through a tenant findings-snapshot read failure.
-- [ ] (candidate) `PilotRunDeltaComputer.ComputeAsync` — one failed parallel audit/evidence/artifact/savings lookup faults the whole delta instead of preserving independently resolved fields; reachable through a transient dependency failure during a buyer proof-pack request.
-- [ ] (candidate) `PilotSponsorMaterialFindingsResolver.Resolve` — when agent findings outnumber snapshot narrative findings but share the same maximum severity, the resolver keeps agent material rather than the persisted snapshot; reachable through agent-result advisory inflation on a committed run.
-- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating that generated report links are usable; reachable through the public proof-pack export base URL input.
-- [ ] (candidate) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — a future-dated manifest metadata timestamp can be selected over the completed run timestamp and inflate time-to-commit; reachable through persisted manifest metadata on a committed run.
+2026-10-03 thorough hunt (dry): cheap-disproved the five pilot candidates; snapshot and ancillary-store failures are intentionally degraded with warning/empty evidence behavior, snapshot material tie handling already prefers persisted narrative, proof-pack base URLs come from the request host rather than arbitrary caller input, and future manifest timestamps are already covered by the completed-UTC preference regression. No failing repro was warranted.
+
+- [x] (valid-no-repro) `SponsorEvidencePackService.ResolveFindingsSnapshotAsync` — a repository failure is converted to an empty findings snapshot — **cheap-disproof 2026-10-03 thorough hunt:** the pilot contract intentionally renders with an empty explainability snapshot while logging the unavailable store; missing ancillary data is represented by empty evidence rather than a false finding.
+- [x] (valid-no-repro) `PilotRunDeltaComputer.ComputeAsync` — one failed parallel lookup faults the whole delta — **cheap-disproof 2026-10-03 thorough hunt:** audit, trace, artifact, evidence-chain, and estimated-savings helpers each catch non-cancellation failures and return unresolved/empty values before `Task.WhenAll`.
+- [x] (valid-no-repro) `PilotSponsorMaterialFindingsResolver.Resolve` — equal maximum severity with agent over-count keeps agent material — **cheap-disproof 2026-10-03 thorough hunt:** the `agentFindings.Count > snapshot.Count` branch uses `>=` max-severity preference and returns persisted narrative findings on the equal-rank case.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating link usability — **cheap-disproof 2026-10-03 thorough hunt:** public pilot controllers derive the base URL from `Request.Scheme` and `Request.Host.Value`; arbitrary external base URLs do not reach this builder through the live route.
+- [x] (valid-no-repro) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — future manifest metadata inflates time-to-commit — **cheap-disproof 2026-10-03 thorough hunt:** the completed-UTC preference and future-timestamp regression already close this path.
 
 ---
 
