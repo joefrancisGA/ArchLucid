@@ -222,6 +222,50 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequestAsync_accepts_equivalent_guid_run_id_formats()
+    {
+        Guid architectureRunId = Guid.Parse("22222222-3333-4444-5555-666666666666");
+        string callerRunId = architectureRunId.ToString("D");
+        string persistedRunId = architectureRunId.ToString("N");
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(callerRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun
+                {
+                    RunId = persistedRunId,
+                    RequestId = "req-1",
+                    CurrentManifestVersion = "v1",
+                },
+                Manifest = new GoldenManifest
+                {
+                    RunId = persistedRunId,
+                    SystemName = "Sys",
+                    Services = [],
+                    Datastores = [],
+                    Relationships = [],
+                    Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+                },
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(runDetail: runDetail.Object);
+
+        GovernanceApprovalRequest request = await sut.SubmitApprovalRequestAsync(
+            callerRunId,
+            "v1",
+            "dev",
+            "test",
+            "operator",
+            requestedByActorKey: null,
+            requestComment: null,
+            dryRun: true);
+
+        request.RunId.Should().Be(persistedRunId);
+    }
+
+    [Fact]
     public async Task PromoteAsync_to_prod_without_approval_request_id_throws()
     {
         Mock<IRunDetailQueryService> runDetail = new();
