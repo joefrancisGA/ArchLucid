@@ -6520,7 +6520,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -6555,6 +6555,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read the selected command wrapper and focused core tests; no hunt-ready row met the reachable wrong-outcome bar. Seeded one cancellation-versus-argument-validation candidate. No code changes.
 
 2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and the focused core tests; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, and no second reachable mechanism was found in the selected wrapper. No code changes.
+
+2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and `DraftNewCommandCoreTests`; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, no second reachable mechanism was found in the selected wrapper, and all 16 focused tests passed.
 
 ---
 
