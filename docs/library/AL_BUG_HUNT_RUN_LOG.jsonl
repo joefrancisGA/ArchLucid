@@ -8673,3 +8673,4 @@
 {"at":"2026-10-03T23:12:15.3432784Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/","archlucid-ui/src/lib/operator/operator-scope-storage.ts"]}
 {"at":"2026-10-03T23:13:00.4892241Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-03T23:21:42.5371780Z","zoneId":"notifications-pipeline","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-03T23:26:23.0552015Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared"}

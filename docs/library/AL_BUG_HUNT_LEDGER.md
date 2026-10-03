@@ -11626,6 +11626,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `BoardPackPdfBuilder.BuildPdfAsync` — a non-GUID `ExecDigestComposition.LatestCommittedRunIdHex` skips `BoardPackSealedExportReceiptGuard`; the pilot summary contract documents a 32-character hex run id and existing digest tests emit `Guid.ToString("N")`, so the prerequisite is not reachable from the product path.
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; cheap-disproved both non-GUID receipt-gate candidates from the `ArchitectureRun.RunId` and pilot summary 32-character hex contracts; 22 scoped BuyerProofPack/BoardPack tests passed.
+2026-10-03 seed hunt (seed-only): re-read buyer-proof ZIP assembly, board-pack quarter windows, commit guards, receipt gates, and focused tests; no additional reachable wrong outcome or bounded candidate emerged. The scoped BuyerProofPack/BoardPack tests passed 22/22 with unrelated analyzers disabled.
 
 ---
 
