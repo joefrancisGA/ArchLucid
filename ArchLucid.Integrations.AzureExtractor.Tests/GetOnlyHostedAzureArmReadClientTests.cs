@@ -1309,6 +1309,61 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string crossCollectionNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/policyDefinitions?api-version=2021-06-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyAssignments/assign1",
+                                     "name": "assign1",
+                                     "properties": {
+                                       "scope": "/subscriptions/11111111-1111-1111-1111-111111111111",
+                                       "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/audit-storage"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_COLLECTION_LINK"
+                               }
+                               """.Replace("CROSS_COLLECTION_LINK", crossCollectionNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: policy assignment listing followed a different policy collection.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionPolicyAssignmentsAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListDiagnosticSettingsAsync_rejects_next_link_for_different_resource_id()
     {
         const string storageResourceId =

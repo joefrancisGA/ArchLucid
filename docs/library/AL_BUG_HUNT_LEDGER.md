@@ -23886,13 +23886,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 61
-- **bugs-found:** 31
+- **hunts:** 62
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — subscription role-eligibility list followed roleAssignments nextLink within same subscription
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
@@ -23962,6 +23964,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` follows repeating `NextToken` indefinitely — **hit 2026-08-25:** pagination loop had no visited-token guard or page cap; regression in `CollectAsync_throws_when_next_token_repeats`
 - [x] (proven) `HostedGcpExtractorClient.CollectZipAsync` validates service-account email project but not WIF provider path project; mismatched pool provider `projects/other-project/...` passes validation while Asset search scopes `projects/my-project` — **hit 2026-08-25:** added `GcpWorkloadIdentityPoolProvider.EnsureProjectMatches` dual-path guard vs `GcpServiceAccountEmail` (`GcpWorkloadIdentityPoolProviderTests`, `HostedGcpExtractorClientTests.CollectZipAsync_rejects_workload_identity_pool_provider_project_mismatch`).
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` follows ARM `nextLink` without validating subscription id — **hit 2026-08-26:** malicious or mis-issued `nextLink` to `/subscriptions/{other}/resources` pulled cross-subscription inventory; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsSubscription`; regression in `ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionPolicyAssignmentsAsync` follows a same-subscription `nextLink` into `policyDefinitions` — **hit 2026-10-03 seed hunt:** `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so a mis-issued ARM cursor crossed collections and could merge policy-definition rows into policy assignments; fixed with `EnsureTargetsArmRelativeListingPath` for subscription and management-group assignment paths; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`.
 - [x] (valid-no-repro) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) — **2026-09-08:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms existing `arn:aws-cn:*` branch; GovCloud parity already proven.
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — **2026-09-08:** 401/403/429 surface as HTTP exceptions to orchestration; no cross-tenant or inventory-corruption wrong outcome in extractor layer.
 - [x] (proven) GCP `HostedGcpExtractorClient.SearchResourcesAsync` used Google SDK async enumerator without explicit page cap — **hit 2026-09-08:** large projects could paginate unbounded vs AWS/Azure `MaxPaginationRequests = 64`; extracted `GcpAssetInventoryCollector` with raw-page guard; regression in `CollectFromRawPagesAsync_throws_after_max_pages`.
