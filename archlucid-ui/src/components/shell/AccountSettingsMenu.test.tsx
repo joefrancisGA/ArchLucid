@@ -122,6 +122,7 @@ describe("AccountSettingsMenu", () => {
 
     const trigger = screen.getByTestId("account-settings-menu-trigger");
     expect(trigger).toHaveAttribute("aria-label", "Your account settings");
+    expect(trigger).toHaveAttribute("title", "Open preferences (F)");
     expect(trigger).toHaveAttribute("aria-keyshortcuts", "F");
 
     fireEvent.keyDown(window, { key: "f" });

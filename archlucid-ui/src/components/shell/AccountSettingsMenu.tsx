@@ -16,7 +16,6 @@ import {
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
-import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { SELF_SETTINGS_DESTINATIONS } from "@/lib/self-settings-destinations";
@@ -270,34 +269,25 @@ export function AccountSettingsMenu(): React.JSX.Element {
 
   return (
     <>
-      <ToolbarHelpTooltip
-        content={ACCOUNT_SETTINGS_MENU_TOOLTIP}
+      <Button
+        ref={triggerRef}
+        type="button"
+        variant="outline"
+        size="sm"
+        className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
+        data-testid="account-settings-menu-trigger"
+        title={ACCOUNT_SETTINGS_MENU_TOOLTIP}
         aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
         aria-keyshortcuts="F"
+        aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
+        aria-haspopup="menu"
+        onClick={() => {
+          setOpen((current) => !current);
+        }}
       >
-        <span
-          className="inline-flex"
-          onClick={() => {
-            setOpen((current) => !current);
-          }}
-        >
-          <Button
-            ref={triggerRef}
-            type="button"
-            variant="outline"
-            size="sm"
-            className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
-            data-testid="account-settings-menu-trigger"
-            aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
-            aria-keyshortcuts="F"
-            aria-expanded={open}
-            aria-controls={open ? panelId : undefined}
-            aria-haspopup="menu"
-          >
-            <CircleUser className="size-[18px]" aria-hidden />
-          </Button>
-        </span>
-      </ToolbarHelpTooltip>
+        <CircleUser className="size-[18px]" aria-hidden />
+      </Button>
       {panel !== null && typeof document !== "undefined" ? createPortal(panel, document.body) : null}
     </>
   );
