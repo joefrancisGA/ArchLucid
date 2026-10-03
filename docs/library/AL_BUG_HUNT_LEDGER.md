@@ -6565,13 +6565,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — stale subscriptions table after failed refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved create save stayed enabled when `listAlertRoutingSubscriptions` failed so client duplicate-name guard ran against an empty `webhookRows` inventory; fixed with `hasLoadedSuccessfully` gate on save/submit; seeded connection-test network-error inline panel and empty-list refresh affordance candidates; 47 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
@@ -6585,6 +6587,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2173 (seed-only): reseeded ui-webhooks-settings with `-Hint webhooks -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
+- (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
+- (candidate) `WebhooksSettingsClient.openSubscription` — API subscription ID is interpolated into a CSS attribute selector without escaping; a selector-significant ID could throw on Continue-last action; reachable through a persisted API subscription ID.
+- (candidate) `WebhooksSettingsClient.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix requirement can hide severity configuration for mixed/case-variant event types; reachable through event-type values in the create form/API vocabulary.
+- (candidate) `useWebhooksSettingsMutations.executeToggle` — pending URL/dialog state may be reconstructed from stale toggle query params after scope change; reachable through an in-flight toggle plus scope navigation retaining `webhookEnableId`/`webhookDisableId`.
 
 - [x] Signing secret from a previous workspace remains visible after scope switch
 - [x] Save succeeds in the UI when the API returned 403 (retired: create throws on !ok; success callout only after await)
@@ -9660,7 +9668,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-01
@@ -18731,7 +18739,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
@@ -25884,13 +25892,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 31
-- **bugs-found:** 26
+- **hunts:** 32
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — pre-finalize checklist kept evidence-linkage gaps Advisory when linkage engine was enforcing (parity gap vs pre-commit gate after #1418 tech-consistency fix)
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — empty execute not-assessed baseline skipped quality-dimension drift
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
+
+2026-10-03 seed hunt (hit): promoted the empty not-assessed baseline candidate; `PreFinalizeExecuteBaselineDriftEvaluator` compared `NotAssessedQualityDimensions` only when the execute snapshot list was non-empty, so newly uncovered dimensions at finalize could pass without a blocking drift item. Fixed by comparing empty and non-empty snapshots symmetrically; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`; 12 focused tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
@@ -25952,6 +25962,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after conflict-count drift fix; proved execute snapshot `NotAssessedQualityDimensions` not compared when dimension/reason rows drifted without pack-hash change; fixed with canonical hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`; cheap-disproved `FocusedPilotModeEnabled` drift as covered by `ArchitectureRunIdempotencyHashing.FingerprintRequest` policy-reference fingerprint; 10 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
+- [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — empty execute-time `NotAssessedQualityDimensions` skipped finalize comparison — **hit 2026-10-03 seed hunt:** the `Count > 0` guard allowed newly uncovered quality dimensions to pass finalize; fixed by always comparing the canonical snapshot hashes; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
 
 2026-09-27 seed hunt (seed→hit): reseeded application-governance-policy; proved `PreCommitGateEvaluator.Evaluate` / `EvaluateForAssignment` honored undefined numeric `BlockCommitMinimumSeverity` ordinals (e.g. `99`) so `blockCommitOnCritical` assignments false-passed on Critical policy violations; fixed by coercing through `PreCommitGateThresholdParser.TryCoerceDefinedSeverityOrdinal` (parity with dry-run metadata path #1851); regression `Evaluate_blocks_critical_findings_when_minimum_severity_ordinal_is_undefined`; seeded evidence-linkage dry-run parity smoke as `(candidate)`; 740 scoped PolicyPack/Governance Application tests passed (4 pre-existing bundled-pack alignment failures on VM).
@@ -26683,7 +26694,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 24
+- **hunts:** 27
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -26691,7 +26702,36 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
+2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering repeated pre-acquire validation, dynamic lease-option changes, renewal-scope admission races, release-result handling, and renewal cancellation/disposal ordering.
+
+2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five additional candidates covering post-resume eligibility, selective prep snapshot drift, drain admission races, immediate renewal behavior, and cancellation disposal.
+
+2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering no-op renewal configuration drift, lease-release observability, cancellation-token propagation, shutdown admission races, and repeated eligibility reads.
+
+2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused drain/release tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering renewal option snapshots, drain/release phase ordering, idempotent lease acquisition, cancellation during release, and duplicate pre-acquire reads.
+
 ### Hypotheses
+
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads can reject a still-valid execute after an intermediate status/scope read changes, despite the first eligibility check admitting it; reachable when run state changes between the two full-execute checks.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations can observe inconsistent snapshots and reject a valid selective request after earlier checks passed; reachable when schedule or run status changes during the pre-acquire sequence.
+- (candidate) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — a dynamic options change between `AcquireAsync` and `BeginRenewalScope` can disable the renewal scope while the lease remains held; reachable when `RunExecuteOwnershipLeaseOptions.Enabled` changes during execute admission.
+- (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — release result is ignored, so an ownership-loss or repository failure can leave the orchestrator reporting successful completion without surfacing that cleanup failed; reachable when the lease repository returns an unsuccessful release during execute finalization.
+- (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal waits for a renewal task that may be blocked in a repository call despite cancellation, delaying release and extending the lease pin; reachable when renewal storage does not promptly honor the linked cancellation token.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunCoreInnerAsync` — after incomplete-pipeline resume, the reloaded run can lose deferred context or agent work before the final execute gate while the resume result remains authoritative; reachable when `TryResumeAsync` mutates the run before its reload.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — live forced-task re-resolution can use a later schedule snapshot than the run-status snapshot, leading to result deletion for tasks after a concurrent run-state transition; reachable between owned-core run reload and live task fetch.
+- (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — the drain check can pass before shutdown begins and still admit a lease while the repository acquisition is in flight; reachable when `IWorkerHostDrainGate` enters draining during `TryAcquireOrRenewAsync`.
+- (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — immediate renewal before the first timer wait can cancel a newly acquired execute on a transient first heartbeat failure even though the lease duration still covers the batch; reachable when the first renewal repository call fails transiently.
+- (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — cancellation of the loop can race with a renewal failure that cancels the execute token, leaving disposal classified as clean while the execute cancellation is not surfaced to its caller; reachable when renewal failure and scope disposal overlap.
+- (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — disabling ownership through `IOptionsMonitor` during an active execute turns a renewal call into a silent no-op while the previously acquired lease remains live; reachable when `Enabled` changes after acquisition but before a heartbeat.
+- (candidate) `ArchitectureRunExecuteOrchestrator` — a failed lease release is not represented in execute outcome or audit state because `ReleaseAsync` returns no status to the orchestrator; reachable when the repository cannot delete the holder’s lease row during finalization.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — pre-acquire validation calls use the request cancellation token, so caller cancellation during the final ownership check can bypass the normal lease cleanup path while earlier validation already performed live reads; reachable when cancellation lands between selective validations.
+- (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — shutdown can begin after the drain check and before repository acquisition, admitting new ownership during host drain; reachable when `TryAcquireOrRenewAsync` is delayed while the drain gate flips.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the duplicated full-execute eligibility check can cause an extra scope/repository read and a second refusal for a state transition that occurred after the first check; reachable when a run changes status between the two identical calls.
+- (candidate) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — heartbeat interval is derived from one options snapshot while lease duration may be changed dynamically afterward, allowing the first heartbeat to arrive after the newly configured lease has expired; reachable when options reload lowers lease duration during an active execute.
+- (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — shutdown release can return zero without distinguishing “nothing held” from a repository failure, so drain telemetry may report a clean zero-release outcome while leases remain; reachable when bulk release fails or returns an incomplete count.
+- (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — repeated acquisition for the same run/instance is treated as renewal and can extend an existing lease after a duplicate execute request reaches the same host; reachable through concurrent duplicate execute admission on one process instance.
+- (candidate) `ArchitectureRunExecuteOrchestrator` — release uses a non-cancellable token but the repository failure is not translated into execute failure, so a cancelled request can complete with a retained lease; reachable when release storage is unavailable after agent cancellation.
+- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the full-execute path performs two identical eligibility checks while selective execution performs a longer sequence, creating inconsistent admission semantics for equivalent run state transitions; reachable when authority completion changes between those reads.
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
 - [x] (invalid) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path — no shipped background execute path; `ArchitectureRunCommandService.ExecuteRunAsync` delegates solely to `ArchitectureRunExecuteOrchestrator` (API-sync per `ASYNC_ORCHESTRATION_FIRST_FORCE.md`).
@@ -26871,13 +26911,17 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 20
-- **bugs-found:** 16
+- **hunts:** 21
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — create-home findings empty state ignored in-progress when analysisStagesComplete omitted
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — review-detail tab state ignored reactive reviewTab URL changes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the review-detail route tree, page model, workspace presentation, findings workspace, and header state; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering remount restore guards, run-transition filter state, list-view state, persistence races, and same-document metadata URL synchronization.
+
+2026-10-03 seed hunt (hit): promoted the review-detail URL synchronization candidate; `useReviewDetailWorkspaceTabs` passed an empty search-param set to initial tab resolution and had no reactive `useSearchParams` dependency, so soft navigation from Overview to Findings left the active panel stale. Fixed by consuming reactive search params and synchronizing `activeTab`; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts` (2 passed).
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-review-detail-workspace; proved `RunDetailCreateHomeActivityPanel` orientation links omitted `includeCreateIntent` on overview/findings/clarifications tabs; fixed create-home activity hrefs; seeded `resolveReviewWorkspaceLifecycle` treating any `manifestId` as finalized and `ArchitectureCreatedClarificationsPanel` create-home tab href parity candidates; 9 create-home activity band vitest tests passed.
 
@@ -26893,6 +26937,12 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
 
+- (candidate) `RunDetailFindingsWorkspace` — the module-level `reviewFindingsLastVisitRestoredRunIds` set can suppress a later restore after the same run is remounted with findings query parameters removed; reachable by opening a run, navigating away and back, then returning without persisted findings filters in the URL.
+- (candidate) `RunDetailFindingsWorkspace` — classification-band state can remain on the prior run’s band during a client-side run transition until a URL event occurs because the initial state is not keyed by `runId`; reachable by switching between two review IDs with no classification-band query parameter.
+- (candidate) `RunDetailFindingsWorkspace` — list-view state can retain the prior run’s table/card preference during a client-side run transition before URL synchronization runs; reachable by switching review IDs with no `reviewFindingsListView` parameter.
+- (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
+- (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
+
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
 - [x] (proven) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — used `findingCountDisplay` from deferred explanation while findings list used detail snapshot on first paint — **hit 2026-09-07 (#1196):** tab badge stayed empty until explanation loaded even when triage-visible findings were already in run detail; fixed via `resolveRunDetailFindingsTabBadgeCount` fallback to detail triage counts (`falls back to detail snapshot triage counts when explanation count is deferred`)
 - [x] (proven) `useReviewDetailWorkspaceTabs` — legacy `archTab=` deep links ignored on initial hydration (popstate path only) — **hit 2026-09-07 (#1196):** initial tab resolution read only `reviewTab`; fixed via `resolveReviewWorkspaceTabFromSearchParams` and `resolveReviewDetailTabFromLocation` on first paint (`hydrates legacy archTab deep links on initial visit`, `maps legacy archTab params when reviewTab is absent`)
@@ -26901,6 +26951,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunts #1381/#1383/#1387/#1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount` / `resolveRunDetailFindingsReviewed`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
 - [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` / `RunDetailPageViewShell` / `buildRunDetailOutcomeCards` — `RunDetailOutcomeCardsDeferred` received raw `findingCountDisplay` while tab badge and summary strip already fell back to detail snapshot triage counts when explanation deferred — **hit 2026-09-10 seed hunt #1524:** wire outcome cards through `resolveRunDetailOutcomeCardsFindingCountDisplay`; regression `run-detail-outcome-cards-finding-count.test.ts`
 - [x] (proven) `useReviewDetailWorkspaceTabs` — same-route `reviewTab` soft navigation desyncs tab strip/panel state — **hit 2026-09-26 seed hunt:** Next.js `<Link href="...?reviewTab=findings">` updated `useSearchParams` without `popstate` while `activeTab` stayed on prior tab; fixed by syncing `activeTab` when `searchParamTab` changes; regression `use-review-detail-workspace-tabs.url-sync.test.ts`
+- [x] (proven) `useReviewDetailWorkspaceTabs` — reactive `reviewTab` changes were not observed because the hook did not consume `useSearchParams` and resolved an empty query set — **hit 2026-10-03 seed hunt:** soft navigation left the Overview panel active after a Findings URL update; fixed by adding `useSearchParams` and a `searchParamTab` synchronization effect; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts`
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` — `legacyRunStatus === "Completed"` with `completedUtc == null` left `showProgressTracker` true and Do this next on "View assessment progress" while workspace status read review complete — **hit 2026-09-26 thorough hunt:** `completedUtc == null` gate ignored legacy completion; fixed via `deriveRunDetailProgressState` + `runCompleted` on page model (`treats legacy Completed runs without completedUtc as finished`, `surfaces finalize guidance for legacy Completed runs without completedUtc`)
 - [x] (proven) `resolveReviewPackageDoThisNext` — `useCreateHomeWorkspaceTabs` not applied to `buildReviewWorkspaceTabHref` deep links — **hit 2026-09-26 seed hunt:** create-home Do this next CTAs omitted `fromGeneration` + create intent; fixed via `workspaceTabHref` (`uses create-home activity tab href when assessment is in progress on create-home`, `preserves create-home intent on findings deep link from Do this next`)
 - [x] (proven) `RunDetailTabbedWorkspaceOverviewShell` — `runCompleted` ORed `Boolean(manifestId)` while page model uses `runAnalysisComplete` only — demoted sponsor CTA showed while pipeline tracker still in-flight when `goldenManifestId` present but run not analysis-complete — **hit 2026-09-26 thorough hunt:** fixed via `shouldShowOverviewDemotedSponsorReportCta` + `m.runCompleted` (`does not show sponsor CTA while analysis is in flight even when goldenManifestId is set`)

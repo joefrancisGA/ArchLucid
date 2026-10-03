@@ -137,8 +137,7 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluator(
             });
         }
 
-        if (snapshot.NotAssessedQualityDimensions.Count > 0
-            && !NotAssessedQualityDimensionsMatch(
+        if (!NotAssessedQualityDimensionsMatch(
                 snapshot.NotAssessedQualityDimensions,
                 currentResolution.NotAssessedQualityDimensions))
         {

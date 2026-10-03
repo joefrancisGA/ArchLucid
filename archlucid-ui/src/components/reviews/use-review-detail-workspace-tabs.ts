@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
 import { useIncrementalReviewFindingsRefresh } from "@/hooks/use-incremental-review-findings-refresh";
@@ -79,6 +80,7 @@ export type UseReviewDetailWorkspaceTabsResult = {
 export function useReviewDetailWorkspaceTabs(
   props: ReviewDetailWorkspaceProps,
 ): UseReviewDetailWorkspaceTabsResult {
+  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const initialFindingId = null;
   const initialWorkbenchFocus = null;
@@ -104,7 +106,7 @@ export function useReviewDetailWorkspaceTabs(
   }, [isWorkingMode, lifecycle, props.tabLifecycle]);
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? resolveReviewWorkspaceTabFromSearchParams(new URLSearchParams(), resolved, lifecycle)
+      ? resolveReviewWorkspaceTabFromSearchParams(searchParams, resolved, lifecycle)
       : resolveReviewDetailTabFromLocation(null, null);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(null);
@@ -112,6 +114,10 @@ export function useReviewDetailWorkspaceTabs(
   workbenchFocusColumnRef.current = workbenchFocusColumn;
   const tabActivityAt = props.tabActivityAt ?? {};
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);
+
+  useEffect(() => {
+    setActiveTab((current) => (current === searchParamTab ? current : searchParamTab));
+  }, [searchParamTab]);
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
