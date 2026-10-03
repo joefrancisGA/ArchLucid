@@ -586,6 +586,12 @@ describe('ArchitectureDiagramViewer', () => {
     expect(viewport.className.split(/\s+/u)).not.toContain('overflow-auto');
     expect(camera.className.split(/\s+/u)).toContain('overflow-auto');
 
+    const svgHost = screen.getByTestId('architecture-diagram-svg-host');
+    expect(svgHost.className.split(/\s+/u)).toContain('w-max');
+    expect(svgHost.className.split(/\s+/u)).toContain('max-w-none');
+    expect(svgHost.className.split(/\s+/u)).not.toContain('max-w-full');
+    expect(svgHost.className.split(/\s+/u)).not.toContain('min-w-0');
+
     fireEvent.click(screen.getByRole('button', { name: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION }));
 
     await waitFor(() => {
