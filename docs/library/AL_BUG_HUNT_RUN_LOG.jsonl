@@ -8755,3 +8755,4 @@
 {"at":"2026-10-03T18:16:56.1064076Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-03T18:18:25.2444265Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-03T18:18:33.9643294Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-api","paths":["ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs","ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs","ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs"]}
+{"at":"2026-10-03T18:19:43.9552214Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
