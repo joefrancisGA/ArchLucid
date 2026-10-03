@@ -8649,3 +8649,4 @@
 {"at":"2026-10-03T08:23:40.1519079Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-03T08:26:05.5252300Z","zoneId":"tenant-scoped-analyzer","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs"]}
 {"at":"2026-10-03T08:30:29.8795907Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
+{"at":"2026-10-03T08:33:26.1894155Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
