@@ -25,7 +25,9 @@ public sealed class BillingCheckoutFacade(
     {
         ArgumentNullException.ThrowIfNull(body);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        if (string.IsNullOrWhiteSpace(body.ReturnUrl) || string.IsNullOrWhiteSpace(body.CancelUrl))
+        if (string.IsNullOrWhiteSpace(body.ReturnUrl)
+            || string.IsNullOrWhiteSpace(body.CancelUrl)
+            || string.IsNullOrWhiteSpace(body.TargetTier))
         {
             IBillingProvider badReqProvider = _billingProviderRegistry.ResolveActiveProvider();
             ArchLucidInstrumentation.RecordBillingCheckout(badReqProvider.ProviderName, "unknown", "validation_failed");

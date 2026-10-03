@@ -223,6 +223,45 @@ public sealed class BillingCheckoutFacadeTests
     }
 
     [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_requires_target_tier()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = null,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.RequestBodyRequired);
+        provider.Verify(
+            p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
