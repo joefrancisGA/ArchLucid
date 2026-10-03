@@ -11,7 +11,8 @@ internal static class InventoryDiagramOrphanedStateApplier
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
-        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        GraphSnapshot? analysisGraph = null)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graph);
@@ -22,6 +23,7 @@ internal static class InventoryDiagramOrphanedStateApplier
             return;
         }
 
+        GraphSnapshot classificationGraph = analysisGraph ?? graph;
         Dictionary<string, GraphNode> graphNodesById = graph.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
@@ -47,7 +49,7 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
                 graphNode,
-                graph,
+                classificationGraph,
                 hasCitedDiagramEdges);
 
             if (hasCitedDiagramEdges)
