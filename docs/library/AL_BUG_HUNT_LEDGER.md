@@ -3904,7 +3904,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 33
+- **hunts:** 32
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -5999,6 +5999,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and its alternatives/proposed-change paths; the exact focused filter passed 40 tests, and no new reachable mechanism-backed candidate was found or promoted.
 
+2026-10-03 seed hunt (seed-only): repeated the architecture-recommendation engine review; the exact focused filter passed 40 tests, and no new reachable mechanism-backed candidate was found or promoted.
+
 2026-09-28 seed hunt #69 (seed-only): reseeded architecture-recommendation; no new hunt-ready rows; cheap-disproof closed Cost titles without `ceiling` using generic proposed-change and default alternatives (#68 Reliability class), `not-security` negation on Security/Reliability trade-offs (#66 `not-reliability` class), `unreliability` mentions not counting as Reliability-first trade-off preferences, and Security/Cost plus Reliability/Cost trade-offs staying on the primary dimension recommendation when competing findings are listed first; regressions `Build_cost_title_without_ceiling_uses_generic_cost_change`, `Build_cost_title_without_ceiling_returns_default_paths`, `BuildRecommendations_balances_security_reliability_trade_off_when_priority_mentions_not_security`, `BuildRecommendations_does_not_treat_unreliability_priority_as_reliability_first`, `BuildRecommendations_security_cost_trade_off_stays_on_security_when_cost_is_first`, and `BuildRecommendations_reliability_cost_trade_off_stays_on_reliability_when_cost_is_first`; 40 scoped Alternatives/ProposedChange tests passed.
 
 - [x] (valid-no-repro) `ArchitectureRecommendationProposedChange.Build` — Cost titles without `ceiling` might still emit ceiling-specific copy — **cheap-disproof 2026-09-28 seed hunt #69:** generic cost exposure template; regression `Build_cost_title_without_ceiling_uses_generic_cost_change`
@@ -6063,7 +6065,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 32
+- **hunts:** 34
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
