@@ -6972,13 +6972,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — OIDC/SAML discovery reported success for invisible-only issuer entity IDs that activation rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read identity-provider activation and admin controller paths; no hunt-ready row was promoted; seeded concurrent-activation lost-update, unrestricted discovery URL, issuer URI authority, and post-upsert audit-failure candidates; 40 scoped activation tests passed after the analyzer-disabled retry.
 
 2026-09-27 seed hunt (seed→hit): proved OIDC discovery set `DiscoverySucceeded` from `IsNullOrWhiteSpace(issuer)` so invisible-only issuers (U+200B) succeeded while `IdentityProviderUriValidator` rejects them on activate; SAML entityID parity; shared HTTP(S)+substantive issuer check on discovery responses; regressions `DiscoverAsync_oidc_invisible_only_issuer_marks_discovery_failed` and `DiscoverAsync_saml_invisible_only_entity_id_marks_discovery_failed`; 47 scoped discovery+activation tests passed.
 
@@ -7095,6 +7097,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Invisible-only `IssuerUri` (`U+200B`) accepted as valid HTTP(S) URL — **cheap-disproof 2026-09-11 seed hunt #1738:** zero-width-only issuer fails substantive-text validation before upsert.
 
 2026-09-11 seed hunt #1738 (seed→hit): reseeded identity-provider-config after #1731; proved invisible-only and embedded format-character SSO wizard inputs across issuer URIs, actor/optional fields, and claim-mapping persistence; 43 scoped activation/controller/test-login tests passed.
+
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` read-then-upsert — two concurrent valid activation requests for the same tenant, one omitting an existing optional field while the other updates it — the later stale read can overwrite the other request's `MetadataXml` or `KeyVaultSecretName`; input is reachable from concurrent admin `POST /v1/admin/identity/activate` requests.
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — an admin-supplied absolute HTTP(S) `MetadataUrl` targeting an internal or loopback host — the controller forwards every HTTP(S) URL to discovery without a host/network boundary, so the API may perform an unintended internal fetch; input is reachable from the discover request body.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` / `IdentityProviderUriValidator` — an issuer URI with embedded userinfo or a fragment — HTTP(S) validation accepts it and activation persists it, potentially producing a non-canonical issuer that downstream OIDC/SAML consumers resolve differently; input is reachable from the activate request body.
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — configuration upsert succeeds but `IAuditService.LogAsync` fails — the endpoint returns an error after the tenant configuration is already active, so a retry can report failure while state has changed; input is reachable from a real activation request and an audit-service failure.
 
 ---
 
