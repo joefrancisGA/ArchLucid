@@ -24197,6 +24197,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (seed-only): re-read host-composition cache registration and hosting-role gates; no candidate met the full wrong-outcome bar in this pass; 404 scoped host-composition tests passed.
 
 2026-10-03 seed hunt (seed→hit): proved null-bound hot-path Redis configuration caused an unclassified startup exception during distributed LLM cache registration; null-safe fallback now reaches the intended configuration error; 405 scoped host-composition tests passed.
+2026-10-03 seed hunt (seed-only): re-read the post-fix distributed-cache, health-probe, and hosting-role paths; no fresh reachable mechanism-backed candidate remained after the null-bound Redis fix; 405 scoped host-composition tests passed.
 
 2026-09-27 seed hunt #43 (seed→hit): reseeded host-composition after hunt #42; proved `RedisGraphProjectionHealthCheck` probed projection-specific Redis and only explicit `Backend=Distributed`, so shared hot-path `IDistributedCache` and Auto scale-out promotion misreported readiness; added `TryResolveGraphProjectionDistributedRedisConnectionString` and `GraphProjectionCacheRedisHealthCheck` in composition; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`; 402 scoped host-composition tests passed.
 
