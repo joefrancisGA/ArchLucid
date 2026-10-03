@@ -8668,3 +8668,4 @@
 {"at":"2026-10-03T22:55:28.9541153Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs,ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs,ArchLucid.Persistence/Sql/FindingInspectReadSql.cs"]}
 {"at":"2026-10-03T22:54:40.2508211Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs)"]}
 {"at":"2026-10-03T23:01:24.9527390Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-10-03T23:05:56.1398865Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}

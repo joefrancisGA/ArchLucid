@@ -26731,7 +26731,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -26744,6 +26744,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (dry): cheap-disproved the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
 ### Hypotheses
+
+- (candidate) `RecoverableOutboxProcessorBase.OnProcessingFailedAsync` — after recording a dead letter, an `OnDeadLetterAsync` audit/metric hook can throw and abort the batch instead of isolating the already-classified failure; reachable when a coordination outbox entry exhausts retries while its dead-letter audit dependency fails.
+- (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — immediate destination-policy dead-letter branches perform audit and instrumentation before returning; an audit failure after `RecordDeadLetterAsync` could escape the processor and prevent later leased entries from being handled. Reachability is a persisted export outbox row with a rejected destination and an audit-service failure.
 
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` loads SQL with outbox `ScopeContext` but `CosmosGraphSnapshotRepository.SaveAsync` reads `IScopeContextProvider.GetCurrentScope()`; without `AmbientScopeContext.Push`, worker background drain tags Cosmos documents with dev-default tenant triple instead of the outbox entry scope — fixed 2026-08-20 (`CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_cosmos_save`)
 - [x] (invalid) Outbox processor pushes export blobs to a destination for the wrong tenant — `RunExportBlobPushOutboxProcessor` passes explicit `ScopeContext` into `IRunExportPackageBuilder.BuildAsync`; export path does not read ambient scope
@@ -26801,6 +26804,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.DispatchWorkTypeAsync` — unknown persisted work types retry until dead-letter rather than being marked permanently invalid immediately; the shared retry contract intentionally dead-letters after the configured ceiling, with no reachable immediate-invalid contract in this path.
 
 2026-10-03 seed hunt (seed-only): reread coordination dispatch, scope, conflict, and identity paths; no candidate met the hunt-ready bar in this pass.
+
+2026-10-03 seed hunt (seed-only): reread coordination batch isolation, retry calculation, options normalization, and export/retrieval processors; no new hunt-ready defect was proven. Added two candidates for failure-hook isolation and audit failure after dead-letter persistence; the focused test build was blocked by unrelated ARCH006/ARCH006a analyzer errors.
 
 2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox could index a different golden manifest than the sealed-hash guard validated; 29 scoped coordination processor tests passed.
 
