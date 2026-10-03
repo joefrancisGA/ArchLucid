@@ -28,8 +28,10 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const routerReplaceMock = vi.hoisted(() => vi.fn());
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: routerReplaceMock, back: vi.fn() }),
   usePathname: () => "/governance/findings",
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
@@ -111,5 +113,20 @@ describe("useGovernanceFindingsQueueFacets URL sync", () => {
     rerender();
 
     expect(result.current.jobView).toBe("ready-for-sponsor-packet");
+  });
+
+  it("preserves unrelated URL scope when clearing facet filters", () => {
+    searchParamsHarness.state.query = "runId=run-1&q=phi&severity=high";
+
+    const { result } = renderHook(() => useGovernanceFindingsQueueFacets("tenant"), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    result.current.clearFacetFilters();
+
+    expect(routerReplaceMock).toHaveBeenLastCalledWith(
+      "/governance/findings?runId=run-1&q=phi",
+      { scroll: false },
+    );
   });
 });
