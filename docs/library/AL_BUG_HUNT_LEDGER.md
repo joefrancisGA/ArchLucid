@@ -18355,13 +18355,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 32
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
-- **last-bug:** 2026-09-26 — Restore point collection source parser mishandled JSON reference on source.id
+- **hunts:** 33
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — ADF dataset location mapped fileName as the container/filesystem
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed→hit): proved `AzureInventoryAdfDatasetLocationExtractor` preferred `location.fileName` over `location.container` for `ContainerOrFilesystem`, causing an ADF dataset with both fields to report the filename as its container; fixed the fallback order and added `Extract_prefers_container_over_file_name_for_blob_location`; focused tests passed, and the full AzureExtractor scope passed 1399 tests with 1 unrelated pre-existing failure.
 
 2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; checked terminal/in-progress precedence, forward-compatible failure parsing, status coercion, and pipeline options; no new reachable mechanism-backed candidate survived review.
 
@@ -18595,6 +18597,7 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 seed hunt #29 (seed→hit): reseeded core-azure-extractor after access-connector JSON reference hit; proved public IP reference parser ignored JSON reference property values; seeded workflow action target JSON reference normalization candidate; 1395 scoped `AzureExtractor` tests passed.
 
 - [x] (proven) `AzureInventoryRestorePointCollectionSourceParser` — flattened `source.id` property values serialized as package JSON reference blobs (`{"id":"..."}`) were normalized wholesale because the parser only called `ArmResourceIdNormalizer.Normalize` on the raw string — **hit 2026-09-26 seed hunt #31:** NR-03 restore point collection parent resolution dropped protected VM/VMSS sources when `source.id` carried JSON `GetRawText()`; fixed with `TryResolveArmReferenceValue` parity to access connector / network connection parsers; regression `Parse_reads_arm_id_from_json_reference_on_source_id_property`.
+- [x] (proven) `AzureInventoryAdfDatasetLocationExtractor` — `location.fileName` was selected before `location.container` for `ContainerOrFilesystem`, so an ADF dataset payload containing both fields reported the filename as its container — **hit 2026-10-03 seed hunt:** fixed the location fallback order; regression `Extract_prefers_container_over_file_name_for_blob_location`.
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser.NormalizeArmId` — explicit flattened `nextHopArmId` suffix values storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` — **cheap-disproof 2026-10-02:** package `ReadProperties` preserves route JSON as one `routes` property rather than producing flattened suffix keys, and all production consumers normalize resolved next-hop ids before lookup; no reachable package input reaches the suspected explicit-key branch.
 
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.

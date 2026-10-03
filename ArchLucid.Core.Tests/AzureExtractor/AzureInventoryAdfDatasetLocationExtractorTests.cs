@@ -37,6 +37,35 @@ public sealed class AzureInventoryAdfDatasetLocationExtractorTests
         schemaName.Should().BeNull();
     }
 
+    [Fact]
+    public void Extract_prefers_container_over_file_name_for_blob_location()
+    {
+        JsonElement properties = Parse("""
+            {
+              "type": "AzureBlob",
+              "typeProperties": {
+                "location": {
+                  "container": "raw",
+                  "fileName": "data.csv"
+                }
+              }
+            }
+            """);
+
+        (
+            string? locationKind,
+            string? containerOrFilesystem,
+            string? folderPath,
+            string? tableName,
+            string? schemaName) = AzureInventoryAdfDatasetLocationExtractor.Extract(properties);
+
+        locationKind.Should().Be("AzureBlob");
+        containerOrFilesystem.Should().Be("raw");
+        folderPath.Should().Be("data.csv");
+        tableName.Should().BeNull();
+        schemaName.Should().BeNull();
+    }
+
     private static JsonElement Parse(string json)
     {
         using JsonDocument document = JsonDocument.Parse(json);
