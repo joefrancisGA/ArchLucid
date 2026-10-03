@@ -8680,3 +8680,4 @@
 {"at":"2026-10-03T13:56:45.6167623Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-03T14:01:06.536Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only"}
 {"at":"2026-10-03T14:05:34.6001135Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
+{"at":"2026-10-03T14:09:52.7572810Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}

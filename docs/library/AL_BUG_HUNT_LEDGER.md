@@ -27453,6 +27453,10 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `ResourceHubClient.resolvedAuditLineage` — duplicate `controlId` values across audit snapshots selected the first match regardless of the URL’s assessment/snapshot scope — **hit 2026-10-03 seed hunt:** exact audit identity matching now selects the requested lineage match; regression `uses the selected audit snapshot when duplicate control ids are linked`.
 
+2026-10-03 seed hunt (seed→hit): the audit tab rendered `matches.slice(1)` as “Other linked controls,” so selecting a later lineage match listed the active control as its own “other” entry and omitted the first linked control; fixed by filtering out the active assessment/snapshot/control identity; regression `lists every non-active audit control when a later match is selected`; 51 scoped ResourceHubClient tests passed.
+
+- [x] (proven) `ResourceHubClient` audit “Other linked controls” list — `matches.slice(1)` assumed the active lineage was always first, so a reachable URL selecting a later match displayed the active control as “other” and omitted the first non-active control — **hit 2026-10-03 seed hunt:** filter by the complete active lineage identity; regression `lists every non-active audit control when a later match is selected`.
+
 2026-09-27 seed hunt #24 (seed→hit): reseeded ui-infra-resource-hub; proved `sanitizeResourceHubQueryForTab` kept `infraResourceHubTechnicalKey=terraformAddress` when leaving the terraform tab, so tab-bar navigation carried a terraform-only disclosure key (and local open state) onto other hub tabs while `workQueue`/`runId` stayed intact; fixed by stripping terraform-only technical keys outside the terraform tab; regressions `clears terraform technical disclosure key when switching away from terraform tab`, `threads explorer workQueue when using G then E keyboard shortcut to return to explorer`, and `drops terraform-only technical disclosure key when leaving terraform tab`; 49 scoped ResourceHubClient tests passed.
 
 - **id:** ui-infra-resource-hub
@@ -27461,11 +27465,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 29
-- **bugs-found:** 17
+- **hunts:** 30
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — duplicate audit control IDs selected the wrong snapshot lineage
+- **last-bug:** 2026-10-03 — audit “Other linked controls” assumed the active match was first
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
