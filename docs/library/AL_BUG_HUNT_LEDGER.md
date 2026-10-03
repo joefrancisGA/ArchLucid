@@ -4079,15 +4079,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-02
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-10-02 seed hunt (seed-only): re-read the return-path guard and its HTTP callers; seeded an unbounded return-path resource-budget candidate; 136 focused AuthSignInReturnPathGuard tests passed with analyzers disabled and no candidate promoted.
+
+2026-10-03 thorough hunt (dry): attempted a bounded-input/resource-exhaustion repro for the eight-pass percent-decoding path; no measurable failing repro or correctness defect emerged. 136 focused AuthSignInReturnPathGuard tests passed with analyzers disabled; the candidate remains open.
 
 - [x] (proven) `AuthSignInReturnPathGuard.ContainsAtSignInPath` — accepted FULLWIDTH COMMERCIAL AT (`U+FF20`) and SMALL COMMERCIAL AT (`U+FE6B`) in the path portion — **hit 2026-09-26 seed hunt (seed→hit):** only ASCII `@` was checked; userinfo-shaped open redirects like `/user＠evil.example/phish` passed `TryNormalize`; fixed with `IsAtSignHomoglyph`; regression `TryNormalize_rejects_fullwidth_commercial_at_userinfo_homoglyphs`; mirrored in UI `isSafeReturnPath`.
 

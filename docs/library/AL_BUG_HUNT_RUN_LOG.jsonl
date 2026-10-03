@@ -8543,3 +8543,4 @@
 {"at":"2026-10-03T01:35:45.8980911Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/"]}
 {"at":"2026-10-03T01:39:01.7814731Z","zoneId":"llm-wallet","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/WalletController.cs,ArchLucid.Application/Budgeting/LlmTenantWalletService.cs,ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs"]}
 {"at":"2026-10-03T01:42:09.7073024Z","zoneId":"api-governance-stickiness","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/,ArchLucid.Application/Governance/"]}
+{"at":"2026-10-03T01:44:54.9819623Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
