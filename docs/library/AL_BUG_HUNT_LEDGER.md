@@ -6988,7 +6988,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-09-27
@@ -11418,11 +11418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 42
-- **bugs-found:** 33
+- **hunts:** 43
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — required `sql` capability was satisfied by unrelated `mysql` evidence
+- **last-bug:** 2026-10-03 — unmanaged identity capability triggered managed identity control
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11432,9 +11432,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed→hit): proved `RequiredCapabilityCoverageAnalyzer` used substring matching, so required `sql` was satisfied by a reachable `mysql` topology label; fixed capability matching with normalized token-boundary and phrase matching; regression `Analyze_does_not_treat_mysql_evidence_as_sql_capability`; focused analyzer tests passed 3/3 and the picker scope passed 1,271 tests with 14 unrelated baseline failures.
 
+2026-10-03 seed hunt (seed→hit): proved `ManifestGovernanceMerger.ApplyGovernanceDefaults` used substring matching, so reachable `unmanaged identity` capability text added the `Managed Identity` control; fixed the shared phrase matcher with standalone boundaries and wired the merger through it; regression `ApplyGovernanceDefaults_does_not_treat_unmanaged_identity_as_managed_identity`; focused phrase tests passed 3/3 and the picker scope passed 1,272 tests with 14 unrelated baseline failures.
+
 - [x] (proven) `TopologyDatastoreLabelHeuristic` raw keyvault substring checks — `non-keyvault-*` topology labels — **hit 2026-10-03 seed hunt:** `Contains("keyvault")` classified a reachable negated label as a regulated datastore; fixed with standalone-token matching for `keyvault` and pattern matching for `key-vault`; regression `IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_keyvault_label`.
 - [x] (valid-no-repro) `TopologyDatastoreLabelHeuristic` hyphenated `key-vault` pattern — `non-key-vault-*` topology labels — **cheap-disproof 2026-10-03 seed hunt:** `ContainsPattern("key-vault")` uses standalone-token matching, and `IsEmbeddedInCompoundIdentifier` plus `IsNegatedNonPrefix` rejects the `non-key-vault` compound; the focused repro passed without a production change.
 - [x] (proven) `RequiredCapabilityCoverageAnalyzer` substring-matches capability tokens — required `sql` with `mysql` topology evidence — **hit 2026-10-03 seed hunt:** `CapabilitySatisfied` matched either direction with `string.Contains`, so `mysql` satisfied `sql`; fixed with normalized token-boundary and phrase matching; regression `Analyze_does_not_treat_mysql_evidence_as_sql_capability`.
+- [x] (proven) `ManifestGovernanceMerger` substring-matches required capability phrases — reachable `unmanaged identity` request capability — **hit 2026-10-03 seed hunt:** `ApplyGovernanceDefaults` matched `managed identity` inside `unmanaged identity` and added a false required control; fixed with standalone phrase boundaries and `non-` negation handling; regression `ApplyGovernanceDefaults_does_not_treat_unmanaged_identity_as_managed_identity`.
 
 2026-09-27 seed hunt (seed→hit): reseeded decisioning after database/private keyword fixes; proved `TopologyDatastoreLabelHeuristic` / `SegmentationSemanticsPathAnalyzer` still bare-matched `postgres`, `mysql`, `redis`, and `cosmos` inside `non-postgres-*` style labels; consolidated delimiter-split affirmative matching in `ContainsAffirmativeDelimiterToken`; regressions `IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_postgres_label`, `IsSensitiveTarget_does_not_treat_non_postgres_label_as_datastore`, and `IsRegulatedDatastoreTopologyNode_still_matches_postgres_label`; 14 scoped SegmentationSemantics + TopologyDatastore tests passed.
 
@@ -26090,7 +26093,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26105,6 +26108,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (dry): cheap-disproved the severity-substring candidate because the risk-register reader receives the persisted finding severity contract, and the bundled-pack casing candidate because embedded seed metadata supplies the exact immutable display names; 746 scoped tests passed with 4 unrelated baseline failures.
 
 2026-10-03 seed hunt (seed-only): re-read governance drift, checklist, and policy-pack paths after the candidate cleanup; no new hunt-ready row or candidate was found.
+
+2026-10-03 seed hunt (seed-only): re-read finalize readiness, pre-finalize checklist, and policy-pack dry-run paths; invalid-run and missing-run branches are rejected by the API before readiness evaluation, and no new hunt-ready row or candidate was found.
+
+2026-10-03 seed hunt (seed-only): re-read checklist fallback, governance decision aggregation, and effective policy snapshot paths; explicit fallback statuses and validated policy-pack dimensions yielded no new hunt-ready row or candidate.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
