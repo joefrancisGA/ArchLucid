@@ -11465,7 +11465,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` when snapshot `GovernedCount` exceeds agent; regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 - [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate — **cheap-disproof 2026-09-26 thorough hunt:** bundle entry uses `RunExportSealedManifestHashGuard` per Wave-40; sponsor/first-value PDF paths invoked from the same service call nested builders that enforce sealed receipt verification.
 - [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** filter muted findings before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 18
 - **last-bug:** 2026-09-26 — equal-count snapshot severity tie in sponsor material findings resolver
 2026-09-26 seed hunt (seed→hit): reseeded application-pilots; proved equal-count snapshot/agent severity tie left decision-delta on agent Warning while deltas JSON used snapshot Error; seeded governed-coverage agent-over-count, reference-evidence receipt gate, and explainability muted-finding candidates; 28 scoped BuyerProofPack/BoardPack/decision-delta tests passed.
@@ -11567,8 +11567,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; no candidate met the same-run repro bar. Seeded two reachable receipt-gate candidates; 22 scoped BuyerProofPack/BoardPack tests passed.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a non-GUID `runId` skips `ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync` while still allowing a committed proof ZIP; input is the string run identifier accepted by the buyer-proof route and needs proof that persisted production run ids can be non-GUID.
-- (candidate) `BoardPackPdfBuilder.BuildPdfAsync` — a non-GUID `ExecDigestComposition.LatestCommittedRunIdHex` skips `BoardPackSealedExportReceiptGuard` while still rendering the board pack; input is the digest’s persisted latest-run identifier and needs proof of a reachable non-GUID run id.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — a non-GUID `runId` skips `ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync`; `ArchitectureRun.RunId` is contractually a lowercase 32-character hex identifier and the route/test corpus uses that shape, so no reachable non-GUID production input was found.
+- [x] (invalid) `BoardPackPdfBuilder.BuildPdfAsync` — a non-GUID `ExecDigestComposition.LatestCommittedRunIdHex` skips `BoardPackSealedExportReceiptGuard`; the pilot summary contract documents a 32-character hex run id and existing digest tests emit `Guid.ToString("N")`, so the prerequisite is not reachable from the product path.
+
+2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; cheap-disproved both non-GUID receipt-gate candidates from the `ArchitectureRun.RunId` and pilot summary 32-character hex contracts; 22 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
