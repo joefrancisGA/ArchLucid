@@ -5271,7 +5271,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 19
+- **hunts:** 18
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -5787,9 +5787,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 19
+- **hunts:** 17
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
@@ -6012,7 +6012,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 26
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6259,9 +6259,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 21
+- **hunts:** 20
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -11201,7 +11201,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26102,10 +26102,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 17
+- **hunts:** 20
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — post-commit provenance materialization used GetRunDetailAsync golden manifest after sealed-hash guard validated a different manifest-compare golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -26158,6 +26158,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy dead-letter handling deliberately performs the required audit and metric calls; existing destination-policy tests cover the observable behavior.
 
 2026-10-03 thorough hunt (dry): cheap-disproved all five coordination candidates; no reachable wrong outcome remained for a failing repro.
+
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — `Guid.Empty` is accepted by the nullable `RunId` pattern and may dispatch a run-scoped work type without manifest validation; reachable through a malformed persisted post-commit outbox row.
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessReviewCompletedEventAsync` — payload `ProjectId` overrides the outbox entry project without an equality check; reachable through persisted post-commit payload JSON created by an enqueue caller.
+- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — only an exact `ConflictException` gets immediate dead-letter treatment, so a derived or wrapped permanent conflict may consume all retry attempts; reachable through sealed-manifest guard exception propagation.
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — an empty outbox `RunId` skips the SQL snapshot/outbox run-id consistency check and sealed-manifest guard; reachable through a persisted graph outbox row with an empty run id.
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.DispatchWorkTypeAsync` — unknown persisted work types retry until dead-letter rather than being marked permanently invalid immediately; reachable through forward-incompatible or corrupted outbox work-type values.
+
+2026-10-03 seed hunt (seed-only): reread coordination dispatch, scope, conflict, and identity paths; no candidate met the hunt-ready bar in this pass.
 
 2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox could index a different golden manifest than the sealed-hash guard validated; 29 scoped coordination processor tests passed.
 
