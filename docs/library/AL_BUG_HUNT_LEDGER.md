@@ -2,6 +2,8 @@
 
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
 
+2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding source review and scoped verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged authenticated header binding, production-like scope rejection skips, route tenant matching, and explicit cross-tenant/anonymous exception review; no new mechanism-backed reachable candidate emerged; scoped tests passed.
