@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `host-core-jobs` — repeated the queue processor, job runner, and leader-elected hosted-loop review; no reachable wrong outcome emerged; 74 picker-scoped host-job tests passed.
+
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
 2026-10-03 thorough hunt (hit): `core-explanation-json` — out-of-range whole-number strings such as `"1e20"` passed finite/integer checks and converted to `int.MaxValue`, turning malformed persisted explanation counts into valid-looking counts. Added explicit `int.MaxValue` bounds for string and numeric floating-point paths; regression `FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing`; 41 scoped `RunExplanation` tests passed.
