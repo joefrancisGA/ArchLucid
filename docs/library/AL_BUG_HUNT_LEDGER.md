@@ -27527,13 +27527,15 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-12 — help-teams-integration TOC kept claim heading while header strip owns the band
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read `claim-discipline-policy.ts` and its focused policy tests; no hunt-ready row was promoted; seeded canonical-slug alias, heading-id variant, and non-canonical slug-input candidates; no production fix or repro was attempted.
 
 2026-09-12 seed hunt #1949 (hit): reseeded ui-claim-discipline-policy; proved help-teams-integration raw TOC/omit mismatch vs notifications/jira parity; 1 scoped regression test passed.
 
@@ -27554,6 +27556,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `help-notifications` / `HelpNotificationsGuideView` — operator-shell TOC passed raw `NOTIFICATIONS_HELP_GUIDE_HEADINGS` while `help-notifications` is omitted and claim renders in header/aside strips without `#help-notifications-claim-discipline-heading` — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by passing filtered `guideHeadings` into `HelpTopicTableOfContents`; regression in `HelpNotificationsGuideView.test.tsx`
 - [x] (proven) `help-workspace-settings` / `HelpWorkspaceSettingsGuideView` — TOC passed raw `WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS` while slug is omitted and claim renders in strip without matching h2 anchor — **hit 2026-09-08 thorough hunt #1307:** duplicate TOC links to missing claim anchor; fixed by `resolveGuideHeadingsForStrip("help-workspace-settings", …)`; regression in `HelpWorkspaceSettingsGuideView.test.tsx`
 - [x] (proven) `help-jira-integration` / `HelpJiraIntegrationGuideView` — TOC passed raw `JIRA_INTEGRATION_HELP_GUIDE_HEADINGS` while slug is omitted — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by filtered `guideHeadings`; regression in `HelpJiraIntegrationGuideView.test.tsx`
+
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — a live help route uses a canonical alias such as `help-cloud-connections-gcp` while the policy contains only the registry variant `cloud-connections-gcp` — exact-set lookup leaves the shared claim band visible and can duplicate header guidance; input is reachable from a help-route registry slug.
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — an omitted guide supplies a claim heading with an alternate id such as `what-<topic>-is-not` while the caller passes a different claim heading id — exact filtering leaves a stale TOC link to a missing anchor; input is reachable from a guide heading definition and omitted route slug.
+- [ ] (candidate) `shouldOmitClaimDisciplineBand` — a route caller supplies a non-canonical slug with surrounding whitespace or a trailing slash — exact `Set.has` lookup treats it as visible and can reintroduce the shared claim band on a folded-header surface; input is reachable from URL/registry-derived strip slugs.
 
 2026-09-08 thorough hunt #1307 (hit): proved notifications, workspace-settings, and jira-integration raw-TOC/omit mismatches; 14 scoped claim-discipline unit tests passed.
 
