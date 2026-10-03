@@ -3,7 +3,7 @@
      empty inference questionnaire while the plate still had diagram-evidence
      questions. Do not implement from this index. -->
 
-# SecureNow question queue — Luna prompt set (SN-QQ-01–SN-QQ-06)
+# SecureNow question queue — Luna prompt set (SN-QQ-01–SN-QQ-07)
 
 One subscription has one question queue. Paste **one** numbered file per GPT-5.6 Luna session, in order.
 
@@ -17,6 +17,7 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS
 | 4 | **SN-QQ-04** | Outline Answer control on rows that already have a question. |
 | 5 | **SN-QQ-05** | Assigned-pack questions that have no node. |
 | 6 | **SN-QQ-06** | An asserting answer expires as `HumanAssertion`. Ignore does not. |
+| 7 | **SN-QQ-07** | A failed load shows the API reason. A GET does not use the governance save copy. |
 | — | **SN-QQ-HOLD** | Stop list. Paste only when a session drifts. |
 
 **SN-QQ-HOLD** is not a build step.
