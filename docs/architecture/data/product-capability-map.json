@@ -1160,6 +1160,13 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceSecureNowQuestionsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceSnapshotsController",
       "capability": "infra-evidence",
       "productLine": "both",
