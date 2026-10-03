@@ -18390,7 +18390,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -18406,6 +18406,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed→hit): proved `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` reported an incomplete branch as a missing-hop path even when its terminal hop had no direct graph-edge continuation to the target; restored the direct-continuation guard and the existing regression `ProjectPath_records_missing_intermediate_hop_without_bridging_gap` passed. The full AzureExtractor scope passed 1400/1400.
 
+2026-10-03 seed hunt (seed-only): re-read the orphaned-state classifier and evidence-currency property readers after the partial-path guard fix; seeded one concrete unknown-currency candidate, but did not promote it without a focused semantic repro. The rebuilt AzureExtractor scope passed 1400/1400.
+
 2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; checked terminal/in-progress precedence, forward-compatible failure parsing, status coercion, and pipeline options; no new reachable mechanism-backed candidate survived review.
 
 2026-10-02 thorough hunt (dry): cheap-disproved the flattened `nextHopArmId` JSON-reference candidate; the full AzureExtractor filter had 1,398 passing and 1 unrelated baseline failure in `InventoryDiagramDataFlowTraversalHopProjectorTests`.
@@ -18415,6 +18417,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a source graph with an incomplete traversal branch that does not directly continue to the target reports a false unresolved gap — **hit 2026-10-03 seed hunt:** removing the `HasDirectContinuationToTarget` guard caused `ProjectPath_records_missing_intermediate_hop_without_bridging_gap` to fail; restored the guard so only partial branches with a direct target continuation are surfaced.
+- [ ] (candidate) `InventoryDiagramOrphanedStateClassifier.ReadEvidenceCurrency` — a reachable flattened `evidenceCurrency` value such as `"99"` is accepted by `Enum.TryParse` as an undefined enum and makes `IsCurrentEvidence` false, potentially suppressing orphan classification for current/derived resources; reachability is the extractor’s graph-node relationship property projection.
 
 - [x] (proven) `AzureExtractorPackageInventoryReader.ReadProperties` serialized nested object values via `GetRawText()` without evaluating inner sensitive keys — **hit 2026-09-07 (#1166):** App Service-style `siteConfig.connectionString` persisted plaintext; fixed via `RedactStructuredJson` recursive walk (`TryReadFromZip_redacts_nested_sensitive_keys_in_object_property_values`)
 - [x] (proven) `AzureExtractorSensitivePropertyRedactor` omitted `apiKey` and `*Token` suffix keys present in config redactor — **hit 2026-09-07 (#1200):** `apiKey` missed `apikey` fragment; `sasToken` missed suffix-token credential class; fixed via `apikey` fragment + `IsSuffixTokenCredentialKey`; regressions `IsSensitiveKey_detects_api_key_property_names_matching_config_redactor`, `TryReadFromZip_redacts_api_key_property_values`, `TryReadFromZip_redacts_sas_token_property_values`
