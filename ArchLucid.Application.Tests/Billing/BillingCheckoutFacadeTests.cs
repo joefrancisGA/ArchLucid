@@ -129,6 +129,47 @@ public sealed class BillingCheckoutFacadeTests
     }
 
     [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("billing provider unavailable"));
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ProviderError);
+        result.ErrorMessage.Should().Be("billing provider unavailable");
+    }
+
+    [SkippableFact]
     public async Task CreateCheckoutSessionAsync_blocks_when_active_subscription_exists()
     {
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

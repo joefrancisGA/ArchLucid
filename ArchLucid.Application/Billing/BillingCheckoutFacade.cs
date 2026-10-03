@@ -68,7 +68,7 @@ public sealed class BillingCheckoutFacade(
             await LogBillingAuditAsync(AuditEventTypes.BillingCheckoutCompleted, actorUserName, scope, JsonSerializer.Serialize(new { provider = provider.ProviderName, tier = tier.ToString(), providerSessionId = result.ProviderSessionId }), cancellationToken);
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.Success, Checkout = result };
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             ArchLucidInstrumentation.RecordBillingCheckout(provider.ProviderName, tier.ToString(), "provider_error");
             return new BillingCheckoutSessionResult { Outcome = BillingCheckoutValidationOutcome.ProviderError, ErrorMessage = ex.Message };
@@ -89,7 +89,7 @@ public sealed class BillingCheckoutFacade(
             await LogBillingAuditAsync(AuditEventTypes.BillingPortalCompleted, actorUserName, scope, JsonSerializer.Serialize(new { provider = provider.ProviderName, providerSessionId = result.ProviderSessionId }), cancellationToken);
             return new BillingPortalSessionResult { Outcome = BillingCheckoutValidationOutcome.Success, Portal = result };
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return new BillingPortalSessionResult { Outcome = BillingCheckoutValidationOutcome.ProviderError, ErrorMessage = ex.Message };
         }
