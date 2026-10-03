@@ -23437,13 +23437,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — `GraphSnapshotExtensions` neighbor traversal missed nodes when edge endpoints differed from `NodeId` only by surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the selected KnowledgeGraph/Provenance files; cheap-disproved the existing indexed-edge scope and serialization drift failures as pre-existing or contract-only; seeded graph-projector edge-id and graph-query normalization candidates; 356 KnowledgeGraph tests passed with 3 pre-existing failures and 47 Provenance tests passed.
+
+- [ ] (candidate) `ArchitectureKnowledgeModelGraphProjector.Project` — two reachable model elements produce the same canonical endpoints with different mapped edge types — `EdgeId` is always `${from}->${to}:RELATES` even when `EdgeType` is `ConnectsTo` or `Exposes`, so distinct graph edges can share an identifier; input is reachable from `model.Elements` and `RelatedElementIds`.
+- [ ] (candidate) `GraphSnapshotExtensions.GetNodesByType` / `GetEdgesByType` — persisted node or edge type values with surrounding whitespace — filters compare raw type strings without the trimming used for node-id traversal, so otherwise matching graph queries return no rows; input is reachable from `snapshot.Nodes`/`snapshot.Edges`.
 
 2026-09-27 seed hunt (seed→hit): reseeded knowledge-graph-provenance; proved `GraphSnapshotExtensions.GetOutgoingTargets` / `GetIncomingSources` indexed raw edge endpoint ids while matching `GraphNode.NodeId` without trim so padded endpoints dropped decisioning/RAG neighbor expansion (parity gap vs `ProvenanceBuilder.NormalizeId`); fixed with `NormalizeNodeId` trim on edge filters and node membership; regressions `GetOutgoingTargets_resolves_target_when_edge_to_node_id_has_surrounding_whitespace` and `GetIncomingSources_resolves_source_when_edge_from_node_id_has_surrounding_whitespace`; 2 extension + 354 KnowledgeGraph + 47 Provenance scoped tests passed (3 pre-existing KnowledgeGraph failures).
 

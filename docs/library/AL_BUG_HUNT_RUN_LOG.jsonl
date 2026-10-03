@@ -8636,3 +8636,4 @@
 {"at":"2026-10-03T07:30:00.7523496Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-03T07:34:23.8315931Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-03T07:38:52.8018855Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
+{"at":"2026-10-03T07:42:52.9847791Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}
