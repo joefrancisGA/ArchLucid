@@ -145,9 +145,13 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 diagramMode,
                 null,
                 includeNeverShowArmTypes,
-                includePrivateEndpointNodes
-                    ? new DiagramAstCompileOptions { IncludePrivateEndpointNodes = true }
-                    : null,
+                MergeDisplayCompileOptions(
+                    null,
+                    defaultGraphResult.Snapshot,
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices,
+                    includeCrossGroupFanOut,
+                    includeAvdAssets),
                 cancellationToken);
 
             modePreviews.Add(modePreview);
@@ -253,8 +257,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         DiagramAstCompileOptions? compileOptions = MergeDisplayCompileOptions(
             parsedMode.CompileOptions,
             graphResult.Snapshot,
+            includePrivateEndpointNodes,
             includeRecoveryServices,
-            includeCrossGroupFanOut);
+            includeCrossGroupFanOut,
+            includeAvdAssets);
 
         InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
             snapshotId,
@@ -674,8 +680,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         DiagramAstCompileOptions? compileOptions = MergeDisplayCompileOptions(
             parsedMode.CompileOptions,
             graphResult.Snapshot,
+            includePrivateEndpointNodes,
             includeRecoveryServices,
-            includeCrossGroupFanOut);
+            includeCrossGroupFanOut,
+            includeAvdAssets);
 
         return await RenderModeAsync(
             graphResult.Graph,
@@ -946,12 +954,18 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     private static DiagramAstCompileOptions? MergeDisplayCompileOptions(
         DiagramAstCompileOptions? options,
         AzureInventorySnapshotDetailReadModel? snapshot,
+        bool includePrivateEndpointNodes,
         bool includeRecoveryServices,
-        bool includeCrossGroupFanOut)
+        bool includeCrossGroupFanOut,
+        bool includeAvdAssets)
     {
         bool collectionIncomplete = HasRecoveryServicesCollectionGap(snapshot);
 
-        if (!includeRecoveryServices && !collectionIncomplete && !includeCrossGroupFanOut)
+        if (!includePrivateEndpointNodes
+            && !includeRecoveryServices
+            && !collectionIncomplete
+            && !includeCrossGroupFanOut
+            && !includeAvdAssets)
         {
             return options;
         }
@@ -965,9 +979,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseToResourceGroupMap = options?.CollapseToResourceGroupMap ?? false,
             CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
-            IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? false,
-            IncludeRecoveryServices = includeRecoveryServices,
-            IncludeAvdAssets = options?.IncludeAvdAssets ?? false,
+            IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? includePrivateEndpointNodes,
+            IncludeRecoveryServices = options?.IncludeRecoveryServices ?? includeRecoveryServices,
+            IncludeAvdAssets = options?.IncludeAvdAssets ?? includeAvdAssets,
             IncludeCrossGroupFanOut = includeCrossGroupFanOut,
             RecoveryServicesCollectionIncomplete = collectionIncomplete,
         };
