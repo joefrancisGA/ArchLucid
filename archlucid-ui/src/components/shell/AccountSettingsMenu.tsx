@@ -16,7 +16,9 @@ import {
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { SELF_SETTINGS_DESTINATIONS } from "@/lib/self-settings-destinations";
 import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
 import {
@@ -27,6 +29,7 @@ import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/
 import { cn } from "@/lib/utils";
 
 export const ACCOUNT_SETTINGS_MENU_ARIA_LABEL = "Your account settings";
+const ACCOUNT_SETTINGS_MENU_TOOLTIP = "Open preferences (F)";
 
 const PANEL_GAP_PX = 4;
 const PANEL_MIN_EDGE_PX = 16;
@@ -96,6 +99,15 @@ export function AccountSettingsMenu(): React.JSX.Element {
     },
     [syncAccountMenuOpenToUrl],
   );
+
+  useKeyboardShortcuts({
+    f: {
+      handler: () => {
+        setOpen((current) => !current);
+      },
+      description: "Open or close preferences",
+    },
+  });
 
   useEffect(() => {
     const syncAccountMenuOpenFromUrl = (): void => {
@@ -258,23 +270,30 @@ export function AccountSettingsMenu(): React.JSX.Element {
 
   return (
     <>
-      <Button
-        ref={triggerRef}
-        type="button"
-        variant="outline"
-        size="sm"
-        className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
-        data-testid="account-settings-menu-trigger"
+      <ToolbarHelpTooltip
+        content={ACCOUNT_SETTINGS_MENU_TOOLTIP}
         aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
-        aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
-        aria-haspopup="menu"
-        onClick={() => {
-          setOpen((current) => !current);
-        }}
+        aria-keyshortcuts="F"
       >
-        <CircleUser className="size-[18px]" aria-hidden />
-      </Button>
+        <Button
+          ref={triggerRef}
+          type="button"
+          variant="outline"
+          size="sm"
+          className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
+          data-testid="account-settings-menu-trigger"
+          aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
+          aria-keyshortcuts="F"
+          aria-expanded={open}
+          aria-controls={open ? panelId : undefined}
+          aria-haspopup="menu"
+          onClick={() => {
+            setOpen((current) => !current);
+          }}
+        >
+          <CircleUser className="size-[18px]" aria-hidden />
+        </Button>
+      </ToolbarHelpTooltip>
       {panel !== null && typeof document !== "undefined" ? createPortal(panel, document.body) : null}
     </>
   );

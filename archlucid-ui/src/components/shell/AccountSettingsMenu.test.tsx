@@ -116,6 +116,34 @@ describe("AccountSettingsMenu", () => {
 
     expect(routing.replace).toHaveBeenLastCalledWith("/", { scroll: false });
   });
+
+  it("exposes the preferences tooltip and toggles from F outside editable fields", () => {
+    render(<AccountSettingsMenu />);
+
+    const trigger = screen.getByTestId("account-settings-menu-trigger");
+    expect(trigger).toHaveAttribute("aria-label", "Your account settings");
+    expect(trigger).toHaveAttribute("aria-keyshortcuts", "F");
+
+    fireEvent.keyDown(window, { key: "f" });
+    expect(screen.getByTestId("account-settings-menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "f" });
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+
+  it("does not toggle from F while focus is in an editable field", () => {
+    render(
+      <>
+        <AccountSettingsMenu />
+        <input aria-label="Search" />
+      </>,
+    );
+
+    screen.getByRole("textbox", { name: "Search" }).focus();
+    fireEvent.keyDown(window, { key: "f" });
+
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
 });
 
 describe("computeAccountSettingsMenuPanelStyle", () => {
