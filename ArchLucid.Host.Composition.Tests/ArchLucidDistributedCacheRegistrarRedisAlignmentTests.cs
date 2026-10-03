@@ -77,4 +77,16 @@ public sealed class ArchLucidDistributedCacheRegistrarRedisAlignmentTests
 
         resolved.Should().Be("hotpath-redis:6379");
     }
+
+    [Fact]
+    public void ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis()
+    {
+        string resolved = ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString(
+            kgRedis: "projection-redis:6379",
+            new LlmCompletionResponseCacheOptions(),
+            new HotPathCacheOptions(),
+            distributedCacheAlreadyRegistered: true);
+
+        resolved.Should().Be("projection-redis:6379");
+    }
 }

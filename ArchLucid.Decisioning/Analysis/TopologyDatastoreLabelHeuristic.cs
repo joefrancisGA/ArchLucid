@@ -23,8 +23,8 @@ internal static class TopologyDatastoreLabelHeuristic
 
         string combined = BuildCombinedLabel(node);
 
-        return combined.Contains("keyvault", StringComparison.Ordinal)
-            || combined.Contains("key-vault", StringComparison.Ordinal)
+        return ContainsAffirmativeDelimiterToken(combined, "keyvault")
+            || DecisioningTextTokenMatcher.ContainsPattern(combined, "key-vault")
             || DecisioningTextTokenMatcher.ContainsStandaloneToken(combined, "sql")
             || ContainsAffirmativeStorageKeyword(combined)
             || ContainsAffirmativeSecretKeyword(combined)

@@ -248,6 +248,21 @@ public sealed class PilotRunDeltaComputerTests
     }
 
     [SkippableFact]
+    public async Task ComputeAsync_WhenManifestTimestampIsFutureDated_UsesCompletedUtcForTimeToCommit()
+    {
+        Guid runGuid = Guid.Parse("eeeeeeee-1111-2222-3333-555555555555");
+        ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
+        detail.Manifest!.Metadata!.CreatedUtc = detail.Run.CompletedUtc!.Value.AddDays(30);
+
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
+
+        PilotRunDeltas result = await sut.ComputeAsync(detail);
+
+        result.TimeToCommittedManifest.Should().Be(detail.Run.CompletedUtc - detail.Run.CreatedUtc);
+        result.ManifestCommittedUtc.Should().Be(detail.Run.CompletedUtc);
+    }
+
+    [SkippableFact]
     public async Task ComputeAsync_NullDetail_Throws()
     {
         PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);

@@ -291,13 +291,7 @@ public sealed partial class PilotRunDeltaComputer
         DateTime? manifestUtc = manifest?.Metadata?.CreatedUtc;
         DateTime? completedUtc = run.CompletedUtc;
 
-        if (completedUtc is null)
-            return manifestUtc;
-
-        if (manifestUtc is null)
-            return completedUtc;
-
-        return completedUtc > manifestUtc ? completedUtc : manifestUtc;
+        return completedUtc ?? manifestUtc;
     }
 
     /// <summary>

@@ -24,6 +24,7 @@ internal static partial class RunExplanationAggregateJsonReader
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;
@@ -75,6 +76,7 @@ internal static partial class RunExplanationAggregateJsonReader
             if (element.TryGetDouble(out double wholeNumber)
                 && double.IsFinite(wholeNumber)
                 && wholeNumber >= 0
+                && wholeNumber <= int.MaxValue
                 && wholeNumber == Math.Floor(wholeNumber))
             {
                 value = ((long)wholeNumber).ToString(CultureInfo.InvariantCulture);

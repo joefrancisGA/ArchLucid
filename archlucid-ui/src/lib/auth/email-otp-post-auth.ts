@@ -4,9 +4,12 @@ import { consumePostSignInReturnUrl } from "@/lib/oidc/session";
 const BOOTSTRAP_PATH = "/auth/bootstrap";
 
 export function resolveEmailOtpPostAuthPath(nextStep: string, returnUrl?: string): string {
+  const consumedReturnUrl = consumePostSignInReturnUrl();
   const safeReturn = isSafeReturnPath(returnUrl)
     ? returnUrl
-    : (consumePostSignInReturnUrl() ?? resolveSafeReturnPath(returnUrl));
+    : consumedReturnUrl !== null && isSafeReturnPath(consumedReturnUrl)
+      ? consumedReturnUrl
+      : resolveSafeReturnPath(returnUrl);
 
   const bootstrapQuery =
     safeReturn !== "/" ? `?returnUrl=${encodeURIComponent(safeReturn)}` : "";
@@ -24,9 +27,12 @@ export function resolveEmailOtpPostAuthPath(nextStep: string, returnUrl?: string
 }
 
 export function resolveBootstrapCompletePath(returnUrl?: string): string {
+  const consumedReturnUrl = consumePostSignInReturnUrl();
   const safeReturn = isSafeReturnPath(returnUrl)
     ? returnUrl
-    : (consumePostSignInReturnUrl() ?? "/");
+    : consumedReturnUrl !== null && isSafeReturnPath(consumedReturnUrl)
+      ? consumedReturnUrl
+      : "/";
 
   return safeReturn;
 }

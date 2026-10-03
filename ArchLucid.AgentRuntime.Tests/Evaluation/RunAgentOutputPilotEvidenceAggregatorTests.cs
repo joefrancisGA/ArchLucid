@@ -402,6 +402,62 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
             because: "PilotStrict sponsor gating must reject Real tasks when per-finding citation coverage is below floor");
     }
 
+    [Fact]
+    public async Task WouldPilotStrictBlockSponsorEvidenceAsync_matches_real_agent_result_task_ids_case_insensitively()
+    {
+        const string runKey = "91919191919191919191919191919191";
+        string parsedJson =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":["ev-1"],"confidence":0.85,"findings":[{"findingId":"f-uncited","severity":"High","description":"Long enough description text for semantic scoring.","enforcementTier":"PolicyViolation","evidenceRefs":[]}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"ev-1"}]}
+            """;
+
+        AgentOutputQualityGateOptions gateOptions = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 0,
+            SemanticWarnBelow = 0,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinCitationCoverageRatio = 0.5,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-citation-coverage-case",
+            TaskId = "Task-Citation-Coverage",
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = parsedJson,
+        };
+
+        AgentResult agentResult = new()
+        {
+            ResultId = "result-citation-coverage-case",
+            TaskId = "task-citation-coverage",
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            TaskStructuralExecutionMode = StructuralExecutionMode.Real,
+        };
+
+        RunAgentOutputPilotEvidenceAggregator sut = CreateSut(
+            gateOptions,
+            [agentResult],
+            agentExecutionMode: "Simulator");
+
+        bool blocked = await sut.WouldPilotStrictBlockSponsorEvidenceAsync(
+            [trace],
+            explanationSummary: null,
+            CancellationToken.None);
+
+        blocked.Should().BeTrue(
+            because: "the persisted Real task mode must be used even when task IDs differ only by case");
+    }
+
     private sealed class NoOpLlmFaithfulnessEvaluator : IAgentOutputFaithfulnessEvaluator
     {
         public Task<double?> TryEvaluateAsync(

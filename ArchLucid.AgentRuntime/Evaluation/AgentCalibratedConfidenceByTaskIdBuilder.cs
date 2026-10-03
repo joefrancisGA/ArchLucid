@@ -11,7 +11,7 @@ internal static class AgentCalibratedConfidenceByTaskIdBuilder
     {
         ArgumentNullException.ThrowIfNull(agentResults);
 
-        Dictionary<string, double?> map = new(StringComparer.Ordinal);
+        Dictionary<string, double?> map = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AgentResult result in agentResults)
         {

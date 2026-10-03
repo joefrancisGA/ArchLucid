@@ -512,4 +512,23 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         RunExplanationCostCalloutBuilder.TryParseDecisionCount(
             JsonDocument.Parse("""{"decisionCount":"5"}""").RootElement).Should().Be(5);
     }
+
+    [Fact]
+    public void FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "decisionCount": "1e20",
+              "unresolvedIssueCount": "1e20",
+              "complianceGapCount": "1e20"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.95);
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":"1e20"}""").RootElement).Should().BeNull();
+    }
 }

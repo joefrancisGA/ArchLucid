@@ -72,4 +72,37 @@ public sealed class RequiredCapabilityCoverageAnalyzerTests
         result.MissingCapabilities.Should().BeEmpty();
         result.SatisfiedCapabilities.Should().ContainSingle().Which.Should().Be("encryption-at-rest");
     }
+
+    [Fact]
+    public void Analyze_does_not_treat_mysql_evidence_as_sql_capability()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "ctx",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [ContextGraphPropertyKeys.RequiredCapabilities] = "sql",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "db-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "mysql",
+                    Category = "database",
+                },
+            ],
+        };
+
+        RequiredCapabilityCoverageResult result = new RequiredCapabilityCoverageAnalyzer().Analyze(snapshot);
+
+        result.SatisfiedCapabilities.Should().BeEmpty();
+        result.MissingCapabilities.Should().ContainSingle().Which.Should().Be("sql");
+    }
 }

@@ -44,8 +44,7 @@ public static class AzureInventoryAdfDatasetLocationExtractor
             && locationElement.ValueKind is JsonValueKind.Object)
         {
             containerOrFilesystem = Truncate(
-                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "fileName")
-                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "container")
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "container")
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "fileSystem"));
 
             folderPath = Truncate(
