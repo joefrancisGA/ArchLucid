@@ -25527,7 +25527,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-02
@@ -25585,6 +25585,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): reread policy-pack CRUD, assignment, catalog mutation, and sealed-manifest paths; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
 
 2026-10-03 seed hunt (seed-only): reread policy-pack controller construction, catalog reads, effective reads, simulation, result mapping, and simulation facade paths; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
+
+2026-10-03 seed hunt (seed-only): reread policy-pack CRUD, assignment, catalog mutation, controller reads, and simulation paths after the latest guard fixes; found no new reachable mechanism-backed candidate; 58 focused controller tests passed.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
