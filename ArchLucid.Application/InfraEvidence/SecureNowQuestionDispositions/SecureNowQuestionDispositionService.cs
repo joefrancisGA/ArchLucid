@@ -11,12 +11,44 @@ namespace ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 public sealed class SecureNowQuestionDispositionService(
     ISecureNowQuestionDispositionRepository dispositionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
-    IAuditService auditService) : ISecureNowQuestionDispositionService
+    IAuditService auditService,
+    IOperatorInferredConnectionRepository? inferredConnectionRepository = null) : ISecureNowQuestionDispositionService
 {
+    private readonly SecureNowQuestionCompiler questionCompiler = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
     private static readonly Regex VersionedQuestionKey = new(
         @"@v[1-9][0-9]*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    public async Task<IReadOnlyList<SecureNowQuestionRecord>> ListQuestionsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        AzureInventorySnapshotDetailReadModel? snapshot =
+            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.Header.SubscriptionId))
+            return [];
+
+        IReadOnlyList<SecureNowQuestionDispositionRecord> dispositions =
+            await dispositionRepository.ListByTenantAndSubscriptionAsync(
+                scope.TenantId,
+                Normalize(snapshot.Header.SubscriptionId),
+                cancellationToken);
+        IReadOnlyList<OperatorInferredConnectionRecord> inferred =
+            inferredConnectionRepository is null
+                ? []
+                : await inferredConnectionRepository.ListBySnapshotAsync(
+                    scope.TenantId,
+                    snapshotId,
+                    cancellationToken);
+
+        IReadOnlyList<SecureNowDiagramQuestionCandidate> candidates =
+            BuildDiagramCandidates(snapshot);
+        return questionCompiler.Compile(scope, snapshot, candidates, inferred, dispositions);
+    }
 
     public async Task<IReadOnlyList<SecureNowQuestionDispositionRecord>> ListAsync(
         ScopeContext scope,
@@ -319,4 +351,59 @@ public sealed class SecureNowQuestionDispositionService(
     private static string Normalize(string? value) => value?.Trim().ToLowerInvariant() ?? string.Empty;
 
     private static string NormalizeResourceId(string? value) => Normalize(value);
+
+    private static IReadOnlyList<SecureNowDiagramQuestionCandidate> BuildDiagramCandidates(
+        AzureInventorySnapshotDetailReadModel snapshot)
+    {
+        HashSet<string> relationshipResourceIds = snapshot.Relationships
+            .SelectMany(relationship => new[]
+            {
+                relationship.FromAzureResourceId,
+                relationship.ToAzureResourceId,
+            })
+            .Select(Normalize)
+            .Where(value => value.Length > 0)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> resourceIds = snapshot.Resources
+            .Select(resource => Normalize(resource.AzureResourceId))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        List<SecureNowDiagramQuestionCandidate> candidates = [];
+        foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
+        {
+            string resourceId = Normalize(resource.AzureResourceId);
+            if (relationshipResourceIds.Contains(resourceId)
+                || IsSharedServiceType(resource.ResourceType))
+                continue;
+
+            if (!string.IsNullOrWhiteSpace(resource.ParentResourceId)
+                && !resourceIds.Contains(Normalize(resource.ParentResourceId)))
+            {
+                continue;
+            }
+
+            candidates.Add(new SecureNowDiagramQuestionCandidate
+            {
+                SubscriptionId = Normalize(resource.SubscriptionId ?? snapshot.Header.SubscriptionId),
+                ResourceId = resourceId,
+                IsOrphanIntent = !string.IsNullOrWhiteSpace(resource.ParentResourceId),
+                IsUnknownEvidence = string.IsNullOrWhiteSpace(resource.ParentResourceId),
+                ProblemText = string.IsNullOrWhiteSpace(resource.ParentResourceId)
+                    ? "No cited connection, and this type is not on the shared-service list."
+                    : "Required parent relationship is not cited.",
+            });
+        }
+
+        return candidates;
+    }
+
+    private static bool IsSharedServiceType(string resourceType)
+    {
+        string normalized = resourceType.Trim().ToLowerInvariant();
+        return normalized is "microsoft.operationalinsights/workspaces"
+            or "microsoft.keyvault/vaults"
+            or "microsoft.managedidentity/userassignedidentities"
+            or "microsoft.insights/actiongroups"
+            or "microsoft.network/privatednszones";
+    }
 }
