@@ -2,6 +2,8 @@
 
 2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
+2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `api-key-auth` — re-read API-key authentication, key rotation masking, and admin rotation/audit paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `retrieval` — repeated the unchanged retrieval/indexing source review and scoped verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
