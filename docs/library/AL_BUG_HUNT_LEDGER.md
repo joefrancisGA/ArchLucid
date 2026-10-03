@@ -13527,13 +13527,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 46
-- **last-hunt:** 2026-09-30
+- **hunts:** 47
+- **last-hunt:** 2026-10-03
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-27 — chunk-cap failure deleted vectors before skip-unchanged could recover
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read retrieval indexing, in-memory vector search, Azure Search delegation, scope validation, and embedding metadata boundaries; no new reachable mechanism-backed candidate emerged; 351 scoped retrieval/indexing tests passed.
 
 2026-09-13 seed hunt #2273 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
 2026-09-12 seed hunt #2236 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
