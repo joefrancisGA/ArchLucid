@@ -13,7 +13,7 @@ export DOTNET_NOLOGO=1
 export NUGET_PACKAGES="${NUGET_PACKAGES:-${HOME}/.nuget/packages}"
 export PATH="/usr/local/bin:${PATH}"
 
-NODE_VERSION="22.22.2"
+NODE_VERSION="22.23.3"
 PWSH_VERSION="7.4.6"
 INSTALL_DIR="${DOTNET_ROOT:-${HOME}/.dotnet}"
 export DOTNET_ROOT="${INSTALL_DIR}"
