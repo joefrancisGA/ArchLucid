@@ -8697,3 +8697,4 @@
 {"at":"2026-10-03T15:16:42.1990884Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLogicAppConnectionExtractor.cs","ArchLucid.Core/AzureExtractor/AzureInventoryRecoveryServicesProtectedItemParser.cs"]}
 {"at":"2026-10-03T15:19:25.0963877Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-03T15:22:55.4106403Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryDependencyObservationParser.cs"]}
+{"at":"2026-10-03T15:27:00.2640304Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryDependencyObservationParser.cs"]}

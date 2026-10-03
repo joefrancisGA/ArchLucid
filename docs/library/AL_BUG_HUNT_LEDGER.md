@@ -18390,11 +18390,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 42
-- **bugs-found:** 26
+- **hunts:** 43
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — numeric unknown indirect-edge currency escaped the current fallback
+- **last-bug:** 2026-10-03 — negative dependency event counts were accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18414,6 +18414,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read dependency-observation and compute-identity companion readers; no new mechanism-backed candidate met the hunt-ready bar. The AzureExtractor scope passed 1402/1402.
 
+2026-10-03 thorough hunt (hit): proved `AzureInventoryDependencyObservationParser.TryParse` accepted negative `eventCount` values as valid aggregates; added a nonnegative bound and regression `TryParse_rejects_negative_event_count`. The rebuilt AzureExtractor scope passed 1403/1403.
+
 2026-10-03 thorough hunt (dry): cheap-disproved both retained malformed resource-ID type candidates because ARM workflow `$connections` and normalized Recovery Services companion contracts provide string resource IDs; no reachable failing repro was warranted. The AzureExtractor scope passed 1402/1402.
 
 2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; checked terminal/in-progress precedence, forward-compatible failure parsing, status coercion, and pipeline options; no new reachable mechanism-backed candidate survived review.
@@ -18429,7 +18431,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `InventoryDiagramIndirectRelationshipResolver.ResolveEvidenceCurrency` — numeric `"99"` on an edge was accepted as an undefined enum instead of using the `Current` fallback — **hit 2026-10-03 seed hunt:** added `Enum.IsDefined` validation for both edge and source-node currency values; regression `ResolveEvidenceCurrency_uses_current_fallback_for_numeric_unknown_edge_currency`.
 - [x] (invalid) `AzureInventoryLogicAppConnectionExtractor.TryReadString` — a non-string `parameters.$connections.*.connectionId` value such as numeric `123` is converted with `GetRawText()` and emitted as a connection resource id — **cheap-disproof 2026-10-03 thorough hunt:** the reachable ARM workflow `$connections` contract supplies string connection IDs; no valid ARM/config path emits a numeric resource ID.
 - [x] (invalid) `AzureInventoryRecoveryServicesProtectedItemParser.TryReadString` — a non-string protected-item `sourceResourceId` value such as numeric `123` is converted with `GetRawText()` and persisted as an apparent source ARM id — **cheap-disproof 2026-10-03 thorough hunt:** normalized Recovery Services companion rows require string resource IDs; no reachable schema path emits a numeric source ID.
-- [ ] (candidate) `AzureInventoryDependencyObservationParser.TryParse` — a negative `eventCount` is accepted as a valid aggregate count — reachability is the normalized `dependency-observations.json` telemetry companion row, whose event count represents observed event cardinality.
+- [x] (proven) `AzureInventoryDependencyObservationParser.TryParse` — a negative `eventCount` was accepted as a valid aggregate count — **hit 2026-10-03 thorough hunt:** added a nonnegative bound because the normalized telemetry row represents observed event cardinality; regression `TryParse_rejects_negative_event_count`.
 
 - [x] (proven) `AzureExtractorPackageInventoryReader.ReadProperties` serialized nested object values via `GetRawText()` without evaluating inner sensitive keys — **hit 2026-09-07 (#1166):** App Service-style `siteConfig.connectionString` persisted plaintext; fixed via `RedactStructuredJson` recursive walk (`TryReadFromZip_redacts_nested_sensitive_keys_in_object_property_values`)
 - [x] (proven) `AzureExtractorSensitivePropertyRedactor` omitted `apiKey` and `*Token` suffix keys present in config redactor — **hit 2026-09-07 (#1200):** `apiKey` missed `apikey` fragment; `sasToken` missed suffix-token credential class; fixed via `apikey` fragment + `IsSuffixTokenCredentialKey`; regressions `IsSensitiveKey_detects_api_key_property_names_matching_config_redactor`, `TryReadFromZip_redacts_api_key_property_values`, `TryReadFromZip_redacts_sas_token_property_values`

@@ -96,7 +96,9 @@ public static class AzureInventoryDependencyObservationParser
 
         if (element.TryGetProperty("eventCount", out JsonElement eventCountElement))
         {
-            if (eventCountElement.ValueKind is JsonValueKind.Number && eventCountElement.TryGetInt64(out long parsedCount))
+            if (eventCountElement.ValueKind is JsonValueKind.Number
+                && eventCountElement.TryGetInt64(out long parsedCount)
+                && parsedCount >= 0)
             {
                 eventCount = parsedCount;
             }
