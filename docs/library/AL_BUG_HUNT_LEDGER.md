@@ -6549,9 +6549,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -6615,6 +6615,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DefaultApplyOrderRoots` labels composition roots and the pilot profile as “no Azure apply” while the report presents every returned line under “expected apply order” — `DeploymentEvidenceReportMarkdown` emits the returned annotations verbatim, and `infra/apply-saas.ps1` documents the same metadata-only semantics; no reachable execution of these report strings exists.
 
 2026-09-11 seed hunt #1768 (seed-only): reseeded cli-terraform-evidence after #1759; cheap-disproof closed plain-leaf annotation and consumption-APIM ordering candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+2026-10-03 thorough hunt (dry): cheap-disproved the stale `$multiRootSequence` candidate with the live synchronization test and retired the report-interpretation candidate as outside the selected static-reference zone; 25 focused tests passed.
 
 2026-10-03 seed hunt (seed-only): reread `DeploymentEvidenceTerraformReference` and its 25 focused tests; no new hunt-ready defect met the reachability and wrong-outcome bar. Added two source-backed candidates for future falsification; all focused tests passed.
 
