@@ -20,6 +20,13 @@ public class DiagramAst
         set;
     } = [];
 
+    /// <summary>Imported relationships rejected before painting, with their drop reason (NR-11).</summary>
+    public List<DiagramDropGateRow> DropGateRows
+    {
+        get;
+        set;
+    } = [];
+
     public List<DiagramSubgraph> Subgraphs
     {
         get;

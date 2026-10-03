@@ -12,6 +12,7 @@ using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
 using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
+using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 using ArchLucid.Application.InfraEvidence.SecurityDeclaredConnections;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
@@ -84,6 +85,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ISecurityAssetAssertionResolver, SecurityAssetAssertionResolver>();
         services.AddScoped<ISecurityDeclaredConnectionService, SecurityDeclaredConnectionService>();
         services.AddScoped<IOperatorInferredConnectionService, OperatorInferredConnectionService>();
+        services.AddScoped<ISecureNowQuestionDispositionService, SecureNowQuestionDispositionService>();
         services.AddScoped<IInferenceQuestionnaireItemGenerator, InferenceQuestionnaireItemGenerator>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();

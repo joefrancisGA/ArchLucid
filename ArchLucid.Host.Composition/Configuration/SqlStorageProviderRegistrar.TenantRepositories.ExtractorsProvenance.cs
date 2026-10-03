@@ -75,6 +75,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<ISecurityAssetAssertionRepository, SqlSecurityAssetAssertionRepository>();
         services.AddScoped<ISecurityDeclaredConnectionRepository, SqlSecurityDeclaredConnectionRepository>();
         services.AddScoped<IOperatorInferredConnectionRepository, SqlOperatorInferredConnectionRepository>();
+        services.AddScoped<ISecureNowQuestionDispositionRepository, SqlSecureNowQuestionDispositionRepository>();
         services.AddScoped<IRemediationPatternRepository, SqlRemediationPatternRepository>();
         services.AddScoped<IRemediationPatternMatchRepository, SqlRemediationPatternMatchRepository>();
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();
