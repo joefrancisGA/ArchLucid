@@ -23,6 +23,8 @@ _ZONE_PRODUCT_OVERRIDES: dict[str, str] = {
     "host-infra-evidence-composition": PRODUCT_SECURENOW,
     "ui-infra-resource-hub": PRODUCT_SECURENOW,
     "ui-governance-findings-queue": PRODUCT_SECURENOW,
+    "securenow-question-queue": PRODUCT_SECURENOW,
+    "infra-evidence-diagrams": PRODUCT_SECURENOW,
 }
 
 # Path substrings (normalized lowercase) that indicate SecureNow-primary loci.
@@ -37,6 +39,7 @@ _SECURENOW_PATH_MARKERS: tuple[str, ...] = (
     "remediationfactory",
     "remediationpattern",
     "infraevidence",
+    "infra-evidence",
     "get-securenowazurepackage",
     "run-securenowazureextractor",
     "product-line/securenow",

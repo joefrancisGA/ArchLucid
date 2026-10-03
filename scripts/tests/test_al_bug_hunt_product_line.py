@@ -17,6 +17,7 @@ SPEC.loader.exec_module(product_line)
 def test_securenow_path_markers():
     assert product_line.classify_paths(("archlucid-ui/src/lib/product-line/securenow-governance-findings-copy.ts",)) == "securenow"
     assert product_line.classify_paths(("ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs",)) == "securenow"
+    assert product_line.classify_paths(("archlucid-ui/src/lib/infra-evidence/infra-evidence-hub-api.ts",)) == "securenow"
 
 
 def test_archlucid_shared_default():
@@ -25,6 +26,8 @@ def test_archlucid_shared_default():
 
 def test_zone_override():
     assert product_line.classify_hunt("ui-infra-resource-hub", paths=()) == "securenow"
+    assert product_line.classify_hunt("securenow-question-queue", paths=()) == "securenow"
+    assert product_line.classify_hunt("infra-evidence-diagrams", paths=()) == "securenow"
 
 
 def test_explicit_product_line():
