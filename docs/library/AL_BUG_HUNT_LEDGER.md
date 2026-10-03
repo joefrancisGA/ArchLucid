@@ -5487,7 +5487,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -27760,6 +27760,7 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): repeated the findings queue source and focused-test review; no new hunt-ready row or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (hit): proved `clearFacetFilters` encoded the pathname as a query key when composing URL helpers; preserved unrelated run/search scope and passed 7 focused URL-sync and saved-view tests.
 2026-10-03 seed hunt (seed-only): repeated the queue review after the picker’s code-churn signal; no new hunt-ready row or bounded candidate emerged. No code changes.
+2026-10-03 seed hunt (seed-only): re-read the queue facet URL-sync fix, presentation filters, assigned-to-me paths, and focused tests; no additional reachable wrong outcome or bounded candidate emerged. No code changes.
 
 ---
 
