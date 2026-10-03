@@ -202,6 +202,26 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_string_numeric_severity_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "99",
+                              "category": "Compliance",
+                              "enforcementTier": "PolicyViolation",
+                              "message": "Invalid string ordinal must not deserialize."
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding severity value*");
+    }
+
+    [Fact]
     public void Deserialize_numeric_treatment_maps_promote_ordinal()
     {
         const string json = """

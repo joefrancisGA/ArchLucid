@@ -11,4 +11,15 @@ public static class GovernanceRunIdNormalizer
 
         return ApiKeyMaterialNormalizer.Normalize(runId);
     }
+
+    public static bool AreEquivalent(string left, string right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+
+        if (Guid.TryParse(left, out Guid leftGuid) && Guid.TryParse(right, out Guid rightGuid))
+            return leftGuid == rightGuid;
+
+        return string.Equals(left, right, StringComparison.Ordinal);
+    }
 }

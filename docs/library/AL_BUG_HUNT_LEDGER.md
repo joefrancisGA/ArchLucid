@@ -6108,8 +6108,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 27
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
@@ -6200,7 +6200,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -6793,7 +6793,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -6952,8 +6952,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~ScimUsers
 - **hunts:** 16
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11226,9 +11226,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — snapshot governed-count preference dropped agent Critical severity buckets and top finding
 - **related-pd-tb:** none
@@ -11340,11 +11340,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): reread buyer-proof, sponsor-evidence, delta-selection, and committed-manifest paths; no candidate met the hunt-ready bar in this pass.
 
-- [ ] (candidate) `SponsorEvidencePackService.ResolveFindingsSnapshotAsync` — a repository failure is converted to an empty findings snapshot and the pack still returns, potentially presenting incomplete explainability as a successful sponsor pack; reachable through a tenant findings-snapshot read failure.
-- [ ] (candidate) `PilotRunDeltaComputer.ComputeAsync` — one failed parallel audit/evidence/artifact/savings lookup faults the whole delta instead of preserving independently resolved fields; reachable through a transient dependency failure during a buyer proof-pack request.
-- [ ] (candidate) `PilotSponsorMaterialFindingsResolver.Resolve` — when agent findings outnumber snapshot narrative findings but share the same maximum severity, the resolver keeps agent material rather than the persisted snapshot; reachable through agent-result advisory inflation on a committed run.
-- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating that generated report links are usable; reachable through the public proof-pack export base URL input.
-- [ ] (candidate) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — a future-dated manifest metadata timestamp can be selected over the completed run timestamp and inflate time-to-commit; reachable through persisted manifest metadata on a committed run.
+2026-10-03 thorough hunt (dry): cheap-disproved the five pilot candidates; snapshot and ancillary-store failures are intentionally degraded with warning/empty evidence behavior, snapshot material tie handling already prefers persisted narrative, proof-pack base URLs come from the request host rather than arbitrary caller input, and future manifest timestamps are already covered by the completed-UTC preference regression. No failing repro was warranted.
+
+- [x] (valid-no-repro) `SponsorEvidencePackService.ResolveFindingsSnapshotAsync` — a repository failure is converted to an empty findings snapshot — **cheap-disproof 2026-10-03 thorough hunt:** the pilot contract intentionally renders with an empty explainability snapshot while logging the unavailable store; missing ancillary data is represented by empty evidence rather than a false finding.
+- [x] (valid-no-repro) `PilotRunDeltaComputer.ComputeAsync` — one failed parallel lookup faults the whole delta — **cheap-disproof 2026-10-03 thorough hunt:** audit, trace, artifact, evidence-chain, and estimated-savings helpers each catch non-cancellation failures and return unresolved/empty values before `Task.WhenAll`.
+- [x] (valid-no-repro) `PilotSponsorMaterialFindingsResolver.Resolve` — equal maximum severity with agent over-count keeps agent material — **cheap-disproof 2026-10-03 thorough hunt:** the `agentFindings.Count > snapshot.Count` branch uses `>=` max-severity preference and returns persisted narrative findings on the equal-rank case.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating link usability — **cheap-disproof 2026-10-03 thorough hunt:** public pilot controllers derive the base URL from `Request.Scheme` and `Request.Host.Value`; arbitrary external base URLs do not reach this builder through the live route.
+- [x] (valid-no-repro) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — future manifest metadata inflates time-to-commit — **cheap-disproof 2026-10-03 thorough hunt:** the completed-UTC preference and future-timestamp regression already close this path.
 
 ---
 
@@ -20996,15 +20998,19 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 30
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 32
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — empty object citations counted as present for disposition
+- **last-bug:** 2026-10-03 — non-object aggregate JSON root threw during explanation confidence parsing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the aggregate and structured explanation readers; no newly promoted hunt-ready row survived cheap-disproof. Seeded five reachable candidates for numeric whole-number range coercion, alternate citation object fields, structured object text aliases, citation token coercion, and malformed aggregate root handling.
+
+2026-10-03 thorough hunt (hit): proved a parseable non-object aggregate root (`[]`) threw from `TryGetPropertyCaseInsensitive` instead of degrading to absent explanation confidence; added an object-root guard in `FromAggregateJson`; regression `FromAggregateJson_returns_null_for_non_object_root`; 42 scoped RunExplanation tests passed.
+
+2026-10-03 thorough hunt (dry): rechecked the five explanation candidates after the root-shape fix; out-of-range counts and numeric/boolean citation tokens are covered by existing regressions, alternate citation fields and `content` object aliases lack producer-contract reachability, and the non-object-root row is now covered by the new guard. 42 scoped RunExplanation tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded core-explanation-json after list flattening; proved nested-array `reasoning` paragraphs (`[["First"],["Second"]]`) rejected `TryNormalizeStructuredJson`; fixed with `CollectReasoningParts` flattening (parity with `CollectStringListEntries`); seeded aggregate `citations` nested-array count vs disposition as `(candidate)`; regression `TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs`; 68 scoped explanation unit tests passed.
 
@@ -21023,6 +21029,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — a parseable non-object aggregate root reaches object-only property enumeration and throws instead of returning a safe absent result — **hit 2026-10-03 thorough hunt:** guard non-object `JsonElement` roots before confidence sub-readers; regression `FromAggregateJson_returns_null_for_non_object_root`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — string count tokens throw on aggregate parse path — **hit 2026-09-07 hunt #1187 (seed→hit):** `TryGetInt32` on `JsonValueKind.String` threw before sibling readers coerced string whole numbers; `FromAggregateJson` crashed on string-encoded `decisionCount`/`unresolvedIssueCount`/`complianceGapCount`; fixed with `ValueKind` guards and `TryParseWholeNumberString`; regression in `FromAggregateJson_maps_string_encoded_decision_count_without_throwing`
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — omitted `citations` property skipped zero-citation WARN gate — **hit 2026-09-07 hunt #1187 (seed→hit):** missing key left `CitationCount` null so `ResolveDisposition` returned PASS while `FromSummary` with empty citations returned WARN; fixed by treating omitted property as empty array; regression in `FromAggregateJson_treats_omitted_citations_as_empty_for_disposition`
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — object-shaped `citations` ignored — **hit 2026-09-07 hunt #1187 (seed→hit):** single-object citation payloads fell through shape handling with null count; fixed by mapping object token to one citation; regression in `FromAggregateJson_maps_object_citation_as_single_citation_count`
@@ -21058,11 +21065,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-27 seed hunt (seed→hit): reseeded core-explanation-json after numeric citation fix; proved empty `{}` citation objects and scalar object citations counted as one citation for sponsor disposition while structured `evidenceRefs` drops object entries without `id`/`text`; fixed with `CountCitationObject` parity on array and scalar object shapes; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`; 76 Core Explanation + 3 Application RunExplanation tests passed.
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountFlattenedCitationEntry` — empty object citation tokens counted as present — **hit 2026-09-27 seed hunt:** any `JsonValueKind.Object` returned count 1 without reading `id`/`text`; fixed `CountCitationObject` for array entries and scalar `citations` object; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — aggregate count strings such as `"1e20"` can pass finite/whole-number checks before an out-of-range cast, potentially producing an incorrect `int` count; reachable through persisted aggregate explanation JSON scalar fields (`decisionCount`, `unresolvedIssueCount`, or `complianceGapCount`).
-- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.CountCitationObject` — a citation object containing alternate fields such as `url` or `label` may count as zero because the reader recognizes only `id` and `text`; reachable through aggregate explanation citation payloads.
-- [ ] (candidate) `StructuredExplanationParser.TryReadObjectStringProperty` — structured reasoning/evidence objects using a producer-supported `content` field may be silently dropped because object extraction is limited to `id`/`text`; reachable through structured LLM JSON payloads.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken` — numeric or boolean citation tokens may be normalized differently across aggregate readers, causing citation presence and disposition to disagree; reachable through aggregate explanation JSON citation arrays.
-- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed but parseable aggregate root shapes may throw instead of returning a safe null/hold result; reachable through persisted aggregate explanation JSON.
+- [x] (valid-no-repro) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — aggregate count strings such as `"1e20"` can pass finite/whole-number checks before an out-of-range cast — **cheap-disproof 2026-10-03 thorough hunt:** `TryParseWholeNumberString` bounds-checks finite values before casting; regression `FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing`.
+- [x] (invalid) `RunExplanationConfidenceCalloutBuilder.CountCitationObject` — a citation object containing alternate fields such as `url` or `label` may count as zero — **cheap-disproof 2026-10-03 thorough hunt:** the scoped producer/schema files define citation objects through `id`/`text`; no reachable `url`/`label` citation contract exists.
+- [x] (invalid) `StructuredExplanationParser.TryReadObjectStringProperty` — structured reasoning/evidence objects using a producer-supported `content` field may be silently dropped — **cheap-disproof 2026-10-03 thorough hunt:** the structured LLM prompt schema emits string lists and the reachable object aliases are `id`/`text`; `content` has no producer citation.
+- [x] (valid-no-repro) `RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken` — numeric or boolean citation tokens may be normalized inconsistently — **cheap-disproof 2026-10-03 thorough hunt:** numeric/boolean citation arrays are covered by `FromAggregateJson_counts_numeric_citation_array_entries_for_disposition` and shared token coercion.
+- [x] (valid-no-repro) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed but parseable aggregate root shapes may throw — **cheap-disproof 2026-10-03 thorough hunt:** non-object roots now return null via the object-root guard; regression `FromAggregateJson_returns_null_for_non_object_root`.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
@@ -21083,21 +21090,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 31
-- **bugs-found:** 28
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-26 — semanticSupportBand out-of-range ordinal silently ignored
+- **hunts:** 33
+- **bugs-found:** 29
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — string numeric severity ordinal silently accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the newly changed SecureNow question-disposition DTOs and existing converter/round-trip coverage; no contract-only wrong outcome reached the hunt-ready bar. The scoped Contracts suite passed 515/515. Seeded nullable-expiration response parity, answer-field shape parity, and derived-expiry consistency as candidates for later cross-layer proof.
 
+2026-10-03 thorough hunt (dry): cheap-disproved nullable expiration response parity because the application assigns a 90-day default before persistence; answer-field shape parity because answer code is required for answer operations while answer text is supplementary and ignore operations intentionally clear both; and derived-expiry consistency because listing computes `IsExpired` from `ExpirationUtc`. The Contracts suite passed 515/515.
+
+2026-10-03 seed hunt (seed→hit): proved `ArchitectureFindingJsonConverter.ReadSeverity` validated numeric JSON ordinals but accepted out-of-range numeric strings such as `"99"` through `Enum.TryParse`; fixed with `Enum.IsDefined` and regression `Deserialize_string_numeric_severity_out_of_range_throws`. The Contracts suite passed 516/516.
+
 ### Hypotheses
 
-- [ ] (candidate) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime`, so an unbounded disposition may round-trip as a default timestamp; reachable input: an API write omitting `expirationUtc`.
-- [ ] (candidate) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied without a contract-level shape; reachable input: a SecureNow question-disposition write payload with either answer representation.
-- [ ] (candidate) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without a contract invariant tying them together; reachable input: a persisted disposition returned after expiration evaluation.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without an invariant — **cheap-disproof 2026-10-03 thorough hunt:** `ListAsync` derives `IsExpired` directly from each record's `ExpirationUtc` using the same current timestamp; no disagreement path exists in the application mapping.
+- [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` — numeric string severity such as `"99"` bypassed the numeric ordinal guard and produced an undefined `FindingSeverity` value — **hit 2026-10-03 seed hunt:** agent-result JSON can carry severity strings into the converter, and `Enum.TryParse` succeeded without `Enum.IsDefined`; fixed by requiring defined enum values; regression `Deserialize_string_numeric_severity_out_of_range_throws`.
 2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
@@ -23631,15 +23643,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 40
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — exec digest and sibling dispatchers used padded OperatorBaseUrl for logo URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): reseeded notifications-pipeline across digest subscription CRUD/attempts, webhook delivery, and email dispatch; no hunt-ready defect survived cheap-disproof. Scoped Application notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured. Seeded retry-idempotency, webhook DNS-rebind, and duplicate digest-id query candidates for later proof.
+
+2026-10-03 thorough hunt (dry): rechecked the four notification candidates; duplicate digest IDs are deduplicated by the repository query and response mapping, email ledger races preserve at-most-once reservation semantics, and the retry-idempotency and DNS-rebind lenses lacked a falsifiable same-run contract/repro in the scoped files. Notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured.
 
 2026-09-27 seed hunt #52 (seed→hit): reseeded notifications-pipeline after #51 summary logo fix; proved `ExecDigestEmailDispatcher`, `RecurrenceCompletionEmailDispatcher`, `FindingRemediationAssignmentEmailDispatcher`, and `TrialLifecycleEmailDispatcher` still passed padded `OperatorBaseUrl` into branding/operator links (`TrimEnd('/')` only); fixed with `Trim().TrimEnd('/')` parity and `EmailBrandingUrls.TryBuildLogoImageUrl` leading-whitespace trim; regressions `ExecDigestEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url` and `TryBuildLogoImageUrl_trims_leading_and_trailing_whitespace_on_base`; 141 scoped Application notifications/digest tests passed.
 
@@ -26093,11 +26107,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 34
-- **bugs-found:** 27
+- **hunts:** 36
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — empty execute not-assessed baseline skipped quality-dimension drift
+- **last-bug:** 2026-10-03 — submit and activate validation rejected equivalent dashed and canonical-N GUID run IDs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26162,6 +26176,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-26 thorough hunt (hit): proved governance dry-run undefined numeric minimum severity bypass and execute-baseline compliance-rule-key drift gaps; cheap-disproved lineage promotions-on-unsealed-manifest; 25 targeted + 736 scoped PolicyPack/Governance Application tests passed (4 unrelated bundled-pack/audit demo failures on VM).
 
+2026-10-03 seed hunt (seed→hit): proved promotion validation compared manifest and caller GUID run IDs as ordinal strings, rejecting equivalent dashed versus canonical-N formats; fixed with semantic GUID comparison and regression `PromoteAsync_accepts_equivalent_guid_run_id_formats`.
+
+2026-10-03 seed hunt (seed→hit): proved submit and activate validation repeated the raw ordinal manifest/run-ID comparison, rejecting equivalent dashed versus canonical-N formats; fixed with shared `GovernanceRunIdNormalizer.AreEquivalent` and regression `SubmitApprovalRequestAsync_accepts_equivalent_guid_run_id_formats`.
+
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy after compliance-key drift fix; proved `PreFinalizeExecuteBaselineDriftEvaluator` ignored execute-time `CoverageAssignments` when pack-assignment hash unchanged (e.g. coverage acknowledgement or selection state drift); fixed with canonical coverage snapshot hash compare when execute captured rows; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`; 8 scoped PreFinalizeExecuteBaselineDriftEvaluator tests passed.
 
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `CoverageAssignments` not compared before finalize — **hit 2026-09-26 seed hunt:** finalize `ResolveAsync` omits run coverage acknowledgements while execute snapshot freezes coverage rows; fixed with `HashCoverageAssignments` parity when execute captured coverage; regression `EvaluateAsync_adds_blocking_item_when_coverage_assignments_drift`.
@@ -26175,6 +26193,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — execute-time `NotAssessedQualityDimensions` not compared before finalize — **hit 2026-09-26 seed hunt:** execute snapshot freezes dimension/reason rows but finalize rebuild could differ (e.g. reason text) without assignment-hash drift; regression `EvaluateAsync_adds_blocking_item_when_not_assessed_quality_dimensions_drift`.
 - [x] (proven) `PreFinalizeExecuteBaselineDriftEvaluator` — empty execute-time `NotAssessedQualityDimensions` skipped finalize comparison — **hit 2026-10-03 seed hunt:** the `Count > 0` guard allowed newly uncovered quality dimensions to pass finalize; fixed by always comparing the canonical snapshot hashes; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
+- [x] (proven) `GovernanceWorkflowPromoteValidateStage` — manifest run-id validation rejected equivalent GUID formatting — **hit 2026-10-03 seed hunt:** persisted manifests use canonical `"N"` GUIDs while callers can provide dashed `"D"` GUIDs; ordinal string comparison raised `GoldenManifestVersionNotFoundException` for the same run; fixed with `SameArchitectureRunKey` semantic GUID comparison; regression `PromoteAsync_accepts_equivalent_guid_run_id_formats`.
+- [x] (proven) `GovernanceWorkflowSubmitStage` and `GovernanceWorkflowActivateStage` — sibling manifest run-id validation rejected equivalent GUID formatting — **hit 2026-10-03 seed hunt:** both stages repeated ordinal comparison after promotion had been fixed; shared `GovernanceRunIdNormalizer.AreEquivalent` now accepts equivalent GUID formats while preserving opaque-ID equality; regression `SubmitApprovalRequestAsync_accepts_equivalent_guid_run_id_formats`.
 - [x] (valid-no-repro) `GovernanceDigestDecisionNeededComposer.IsHighSeverity` — persisted `ArchitectureRiskRegisterEntry.Severity` values such as `not-critical` or `highly-relevant` are classified as high severity by substring matching — **cheap-disproof 2026-10-03 thorough hunt:** `ArchitectureRiskRegisterReader` projects the persisted finding severity value, whose application callers derive from the defined `FindingSeverity` enum; no accepted reachable severity vocabulary produces those strings.
 - [x] (valid-no-repro) `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName` — persisted platform-default `PolicyPack.Name` values with casing different from the bundled display-name constants are not recognized by the cloud baseline applicator — **cheap-disproof 2026-10-03 thorough hunt:** platform-default names come from embedded bundled manifest metadata during seeding, and no in-scope rename path mutates their casing; exact ordinal matching is intentional.
 
@@ -26765,15 +26785,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 27
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — kill-switch during slow TryPromote still returned permit
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — later queued request overtook an earlier Quick Scan waiter
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
 
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — kill-switch during slow `TryPromoteAsync` still grants queued permit — **hit 2026-09-27 seed hunt #26:** post-promote snapshot re-check releases promoted lease; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`.
+
+2026-10-03 seed hunt (seed→hit): proved a post-admit operational snapshot exception was caught as `StoreUnavailable` without releasing a direct lease already granted by `TryAdmitAsync`; fixed by cleaning up the admitted lease or queue entry on post-admit failure; regression `WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails`; 41 scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved a later queued request could promote ahead of an earlier waiting request because each waiter promoted its own entry without checking enqueue order; fixed FIFO promotion in the in-memory store and SQL procedure; regression `InMemoryStore_does_not_promote_a_later_queue_entry_ahead_of_an_earlier_entry`; 42 scoped tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — operational snapshot failure after successful admit leaks a direct lease — **hit 2026-10-03 seed hunt:** the post-admit re-check shared the store-admit catch, so exceptions returned `StoreUnavailable` while retaining capacity; cleanup now releases direct leases and abandons queued entries when that re-check fails; regression `WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails`.
 
 2026-09-27 seed hunt #25 (seed→hit): reseeded post-operational admit window; proved kill-switch or operational anonymous block applied during slow `TryAdmitAsync` still committed a direct lease or queue row because gates ran only before the store call; fixed with post-admit operational/safety re-check and lease or queue rollback; regressions `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_admit`, `WaitForAdmissionAsync_rejects_when_operational_blocks_anonymous_during_slow_try_admit`; 39 scoped QuickScanDistributedConcurrency tests passed.
 
@@ -26853,6 +26879,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `InMemoryQuickScanDistributedConcurrencyStore.TryPromoteAsync` / `usp_QuickScanConcurrency_TryPromote` — a later queued Quick Scan request can acquire the freed slot before an earlier waiter because promotion checks only the requested row and active-lease count; **hit 2026-10-03 seed hunt:** concurrent public requests enqueue at distinct times, then the later entry is promoted first; require no earlier unexpired waiting entry before promotion in both implementations; regression `InMemoryStore_does_not_promote_a_later_queue_entry_ahead_of_an_earlier_entry`.
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None` — `CancellationToken.None` is intentional cleanup (same pattern as `SqlTenantAuthorityPipelineConcurrencyGate`); cancel path abandons queue row (`QuickScanDistributedConcurrencyLeaseLifecycleTests.WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting`)
 - [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (#1193): `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`; `DisposeAsync` still uses default non-cancellable release for intentional cleanup
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `catch (Exception)` on `TryPromoteAsync` swallowed `OperationCanceledException` and returned `StoreUnavailable` instead of abandoning via the cancel path and rethrowing; store-error abandon used caller token — **hit 2026-09-07 (#1209):** exclude `OperationCanceledException` from promote store-error handler; abandon promote failures and queue timeouts with `CancellationToken.None` (`WaitForAdmissionAsync_abandons_queue_entry_when_promote_is_cancelled`)
@@ -27413,9 +27440,14 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed-only): reseeded ui-infra-resource-hub; cheap-disproved the stale-resource-response candidate with the existing component lifecycle behavior; seeded RBAC and network relationship row-key collision candidates; 49 scoped ResourceHubClient tests passed.
 
+2026-10-03 seed hunt (seed-only): re-read tab navigation, resource-title derivation, audit-control selection, and captured collection rendering; no hunt-ready row was promoted; seeded concrete candidates for duplicate audit-control identity, trailing resource-title segments, and technical disclosure state carried through audit-control changes; 49 scoped ResourceHubClient tests passed.
+
 - [x] (valid-no-repro) `ResourceHubClient.loadHub` — a slower response for a previous `cloudResourceId` may overwrite a newer route's hub — **cheap-disproof 2026-10-03 seed hunt:** deferred-response repro passed with the newer hub title retained after the older request resolved; no production fix warranted.
 - [ ] (candidate) `ResourceHubClient` RBAC assignments table — two captured assignments with the same `principalId` and `roleDefinitionId` but different `scope` values — the React key `${principalId}-${roleDefinitionId}` collides, so one scoped assignment may be reused or omitted in the rendered table; input is reachable from `hub.rbacAssignments`.
 - [ ] (candidate) `ResourceHubClient` network relationships table — two captured relationships with the same `fromAzureResourceId` and `toAzureResourceId` but different `relationshipType` values — the React key omits relationship type, so one relationship row may be reused or omitted; input is reachable from `hub.networkRelationships`.
+- [ ] (candidate) `ResourceHub` audit-control list — two lineage matches with the same `controlId` and `auditEvidenceSnapshotId` but different `assessmentId` values — the “Other linked controls” key `${controlId}-${auditEvidenceSnapshotId}` collides and the inline picker value is only `controlId`, so one reachable cross-assessment match may be reused or become ambiguous; input is reachable from `hub.auditLineageLink.matches`.
+- [ ] (candidate) `ResourceHubClient.resourceTitle` — a captured ARM resource ID ending in `/` yields an empty final path segment, so the page title can normalize to blank instead of the resource identifier; input is reachable from `hub.currentConfiguration.azureResourceId` or `hub.externalResourceId`.
+- [ ] (candidate) `ResourceHubClient.setActiveTab` — an audit control change followed by tab navigation can retain the prior `infraResourceHubTechnicalKey` query value when it is a non-terraform disclosure key, leaving URL state for a disclosure that is not rendered on the new tab; input is reachable from the technical disclosure query parameter and audit scope picker.
 
 2026-09-27 seed hunt #24 (seed→hit): reseeded ui-infra-resource-hub; proved `sanitizeResourceHubQueryForTab` kept `infraResourceHubTechnicalKey=terraformAddress` when leaving the terraform tab, so tab-bar navigation carried a terraform-only disclosure key (and local open state) onto other hub tabs while `workQueue`/`runId` stayed intact; fixed by stripping terraform-only technical keys outside the terraform tab; regressions `clears terraform technical disclosure key when switching away from terraform tab`, `threads explorer workQueue when using G then E keyboard shortcut to return to explorer`, and `drops terraform-only technical disclosure key when leaving terraform tab`; 49 scoped ResourceHubClient tests passed.
 

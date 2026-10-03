@@ -27,6 +27,9 @@ public static class RunExplanationConfidenceCalloutBuilder
         using JsonDocument doc = JsonDocument.Parse(aggregateJson);
         JsonElement root = doc.RootElement;
 
+        if (root.ValueKind != JsonValueKind.Object)
+            return null;
+
         _ = RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(root);
         _ = RunExplanationRiskCalloutBuilder.TryParseRiskPosture(root);
         _ = RunExplanationCostCalloutBuilder.TryParseDecisionCount(root);

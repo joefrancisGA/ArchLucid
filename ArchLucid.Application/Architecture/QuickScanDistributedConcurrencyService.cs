@@ -68,7 +68,8 @@ public sealed class QuickScanDistributedConcurrencyService(
         Guid leaseId = Guid.NewGuid();
         Guid queueEntryId = Guid.NewGuid();
 
-        QuickScanConcurrencyAdmitResult admitResult;
+        QuickScanConcurrencyAdmitResult? admitResult = null;
+        QuickScanConcurrencyAdmitResult? admittedResult = null;
         TimeSpan queueWaitTimeout;
         DateTimeOffset admitUtcNow;
 
@@ -91,9 +92,10 @@ public sealed class QuickScanDistributedConcurrencyService(
             };
 
             admitResult = await _store.TryAdmitAsync(admitRequest, cancellationToken).ConfigureAwait(false);
+            admittedResult = admitResult;
 
             emergencyReject = await TryCreateEmergencyDisabledRejectAfterAdmitAsync(
-                admitResult,
+                admittedResult!,
                 cancellationToken).ConfigureAwait(false);
 
             if (emergencyReject is not null)
@@ -105,9 +107,14 @@ public sealed class QuickScanDistributedConcurrencyService(
         {
             _logger.LogError(ex, "Quick Scan distributed concurrency admit failed.");
 
+            if (admitResult is not null)
+                await CleanupAdmitResultAfterPostAdmitFailureAsync(admitResult).ConfigureAwait(false);
+
             return QuickScanDistributedConcurrencyAdmissionResult.Reject(
                 QuickScanConcurrencyRejectionReason.StoreUnavailable);
         }
+
+        QuickScanConcurrencyAdmitResult admitted = admittedResult!;
 
         QuickScanGuardContext telemetryContext = new()
         {
@@ -117,12 +124,12 @@ public sealed class QuickScanDistributedConcurrencyService(
             UseDistributedConcurrencyLimit = true,
         };
 
-        if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.DirectLease)
+        if (admitted.Outcome == QuickScanConcurrencyAdmitOutcome.DirectLease)
         {
             _telemetry.RecordConcurrencyLeaseAcquired(telemetryContext, queued: false);
 
             return QuickScanDistributedConcurrencyAdmissionResult.Permit(
-                admitResult.LeaseId!.Value,
+                admitted.LeaseId!.Value,
                 _store,
                 _telemetry,
                 telemetryContext,
@@ -131,7 +138,7 @@ public sealed class QuickScanDistributedConcurrencyService(
                 cancellationToken);
         }
 
-        if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.QueueFull)
+        if (admitted.Outcome == QuickScanConcurrencyAdmitOutcome.QueueFull)
         {
             _telemetry.RecordConcurrencyRejection(telemetryContext, QuickScanConcurrencyRejectionReason.QueueFull);
 
@@ -139,7 +146,7 @@ public sealed class QuickScanDistributedConcurrencyService(
                 QuickScanConcurrencyRejectionReason.QueueFull);
         }
 
-        if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.Busy)
+        if (admitted.Outcome == QuickScanConcurrencyAdmitOutcome.Busy)
         {
             _telemetry.RecordConcurrencyRejection(telemetryContext, QuickScanConcurrencyRejectionReason.Busy);
 
@@ -152,7 +159,7 @@ public sealed class QuickScanDistributedConcurrencyService(
         DateTimeOffset deadline = admitUtcNow + queueWaitTimeout;
         TimeSpan pollInterval = TimeSpan.FromMilliseconds(250);
         Guid promotedLeaseId = Guid.NewGuid();
-        Guid waitingQueueEntryId = admitResult.QueueEntryId!.Value;
+        Guid waitingQueueEntryId = admitted.QueueEntryId!.Value;
 
         try
         {
@@ -248,6 +255,25 @@ public sealed class QuickScanDistributedConcurrencyService(
             {
                 _logger.LogError(retryEx, "Quick Scan distributed concurrency abandon retry failed.");
             }
+        }
+    }
+
+    private async Task CleanupAdmitResultAfterPostAdmitFailureAsync(QuickScanConcurrencyAdmitResult admitResult)
+    {
+        try
+        {
+            if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.DirectLease && admitResult.LeaseId.HasValue)
+            {
+                await _store.ReleaseLeaseAsync(admitResult.LeaseId.Value, CancellationToken.None).ConfigureAwait(false);
+            }
+            else if (admitResult.Outcome == QuickScanConcurrencyAdmitOutcome.Queued && admitResult.QueueEntryId.HasValue)
+            {
+                await AbandonQueueEntryForCleanupAsync(admitResult.QueueEntryId.Value).ConfigureAwait(false);
+            }
+        }
+        catch (Exception cleanupException)
+        {
+            _logger.LogError(cleanupException, "Quick Scan distributed concurrency post-admit cleanup failed.");
         }
     }
 

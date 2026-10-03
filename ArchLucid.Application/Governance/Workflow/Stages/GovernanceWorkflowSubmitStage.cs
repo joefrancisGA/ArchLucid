@@ -113,7 +113,7 @@ public sealed class GovernanceWorkflowSubmitStage(
         if (manifest is null)
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
-        if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+        if (!GovernanceRunIdNormalizer.AreEquivalent(manifest.RunId, runId))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         GovernanceApprovalRequest request = new()

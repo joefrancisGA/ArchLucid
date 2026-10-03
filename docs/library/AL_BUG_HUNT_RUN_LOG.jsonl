@@ -8668,3 +8668,14 @@
 {"at":"2026-10-03T12:51:33.6587419Z","zoneId":"application-governance-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
 {"at":"2026-10-03T12:56:54.4315936Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/"]}
 {"at":"2026-10-03T12:59:04.5031262Z","zoneId":"application-governance-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
+{"at":"2026-10-03T13:03:57.8695552Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
+{"at":"2026-10-03T13:09:53.9579318Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
+{"at":"2026-10-03T13:13:32.4365125Z","zoneId":"archlucid-contracts","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
+{"at":"2026-10-03T13:18:34.1694438Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
+{"at":"2026-10-03T13:25:46.0438671Z","zoneId":"quick-scan-distributed-concurrency","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs","ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs","ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs"]}
+{"at":"2026-10-03T13:32:16.0986772Z","zoneId":"application-pilots","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
+{"at":"2026-10-03T13:43:34.2326335Z","zoneId":"quick-scan-distributed-concurrency","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs","ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs","ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs"]}
+{"at":"2026-10-03T13:50:31.6231287Z","zoneId":"notifications-pipeline","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/","ArchLucid.Application/Notifications/","ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs"]}
+{"at":"2026-10-03T13:54:37.5451242Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-03T13:56:45.6167623Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-03T14:01:06.536Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only"}
