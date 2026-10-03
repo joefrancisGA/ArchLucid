@@ -482,7 +482,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     const activeMatch = hub.auditLineageLink.matches.find(
-      (match) => match.controlId === resolvedControlId,
+      (match) =>
+        match.assessmentId === resolvedAssessmentId
+        && match.auditEvidenceSnapshotId === resolvedAuditSnapshotId
+        && match.controlId === resolvedControlId,
     );
     const labelParts = activeMatch != null
       ? [activeMatch.controlNumber, activeMatch.controlTitle]

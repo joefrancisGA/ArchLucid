@@ -6200,7 +6200,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 29
+- **hunts:** 28
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -27449,6 +27449,10 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `ResourceHubClient.resourceTitle` — a captured ARM resource ID ending in `/` yields an empty final path segment, so the page title can normalize to blank instead of the resource identifier; input is reachable from `hub.currentConfiguration.azureResourceId` or `hub.externalResourceId`.
 - [ ] (candidate) `ResourceHubClient.setActiveTab` — an audit control change followed by tab navigation can retain the prior `infraResourceHubTechnicalKey` query value when it is a non-terraform disclosure key, leaving URL state for a disclosure that is not rendered on the new tab; input is reachable from the technical disclosure query parameter and audit scope picker.
 
+2026-10-03 seed hunt (seed→hit): `resolvedAuditLineage` matched the active audit lineage only by `controlId`, so duplicate control IDs across audit snapshots displayed the first snapshot’s control number/title for the selected snapshot; fixed matching on `assessmentId`, `auditEvidenceSnapshotId`, and `controlId`; regression `uses the selected audit snapshot when duplicate control ids are linked`; 50 scoped ResourceHubClient tests passed.
+
+- [x] (proven) `ResourceHubClient.resolvedAuditLineage` — duplicate `controlId` values across audit snapshots selected the first match regardless of the URL’s assessment/snapshot scope — **hit 2026-10-03 seed hunt:** exact audit identity matching now selects the requested lineage match; regression `uses the selected audit snapshot when duplicate control ids are linked`.
+
 2026-09-27 seed hunt #24 (seed→hit): reseeded ui-infra-resource-hub; proved `sanitizeResourceHubQueryForTab` kept `infraResourceHubTechnicalKey=terraformAddress` when leaving the terraform tab, so tab-bar navigation carried a terraform-only disclosure key (and local open state) onto other hub tabs while `workQueue`/`runId` stayed intact; fixed by stripping terraform-only technical keys outside the terraform tab; regressions `clears terraform technical disclosure key when switching away from terraform tab`, `threads explorer workQueue when using G then E keyboard shortcut to return to explorer`, and `drops terraform-only technical disclosure key when leaving terraform tab`; 49 scoped ResourceHubClient tests passed.
 
 - **id:** ui-infra-resource-hub
@@ -27457,13 +27461,13 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 28
-- **bugs-found:** 16
+- **hunts:** 29
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — tab switch retained terraform-only technical disclosure URL key
+- **last-bug:** 2026-10-03 — duplicate audit control IDs selected the wrong snapshot lineage
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained the existing architecture-finding pagination routing, trailing-resource-title, audit-control identity, and row-key candidates; no production fix or repro was attempted.
 

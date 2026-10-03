@@ -603,6 +603,46 @@ describe("ResourceHubClient", () => {
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
   });
 
+  it("uses the selected audit snapshot when duplicate control ids are linked", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          controlId: "shared-control",
+          controlNumber: "AC-9",
+          controlTitle: "Second control",
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "shared-control",
+              controlNumber: "AC-2",
+              controlTitle: "First control",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlId: "shared-control",
+              controlNumber: "AC-9",
+              controlTitle: "Second control",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=dddddddd-dddd-dddd-dddd-dddddddddddd&controlId=shared-control",
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("AE-10 chain of custody for AC-9 · Second control.")).toBeInTheDocument();
+  });
+
   it("preserves explorer workQueue when switching hub tabs from the tab bar", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
