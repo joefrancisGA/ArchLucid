@@ -3081,6 +3081,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` values such as `svc-  1` were outer-trimmed only so resolved node ids stayed whitespace-padded and graph merge dropped dangling edges — **hit 2026-09-27 seed hunt (seed→hit):** #3908g trimmed surrounding whitespace on alias values but not internal whitespace after svc-/ds- prefix; fixed by `NormalizeAliasTargetNodeId` before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_value_has_internal_whitespace_after_synthetic_prefix`; 306 scoped edge-mapper/graph-merge tests passed.
 
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows emit duplicate `GraphEdge` objects that could create unstable duplicate committed edges — **cheap-disproof 2026-10-03 thorough hunt:** mapper intentionally emits one edge per relationship row, while `AgentTopologyProposalGraphMerge.AppendUniqueEdges` deduplicates by directed `(fromNodeId, toNodeId, edgeType)` before commit; 978 scoped edge-mapper/graph-merge tests passed.
+
 2026-09-27 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-value normalization gap; 306 scoped edge-mapper/graph-merge tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-key normalization gap; 307 scoped edge-mapper/graph-merge/endpoint-index tests passed.
@@ -3099,9 +3101,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 76
+- **hunts:** 77
 - **bugs-found:** 63
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
 - **related-pd-tb:** none
