@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `api-key-auth` — re-read API-key authentication, key rotation masking, and admin rotation/audit paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `retrieval` — repeated the unchanged retrieval/indexing source review and scoped verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `retrieval` — re-read tenant/workspace/project filters, scope validation, embedding metadata, document removal, and Azure Search fallback paths; no new mechanism-backed reachable candidate emerged; scoped retrieval/indexing tests passed.
