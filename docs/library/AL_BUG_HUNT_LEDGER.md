@@ -9891,9 +9891,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — consumed OTP return URL bypassed safe-path validation
 - **related-pd-tb:** none
@@ -18412,6 +18412,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read Logic App connection and Recovery Services protected-item JSON readers; no candidate met the full failing-repro bar without malformed-type assumptions, so retained two concrete input-shape candidates. The AzureExtractor scope passed 1402/1402.
 
+2026-10-03 thorough hunt (dry): cheap-disproved both retained malformed resource-ID type candidates because ARM workflow `$connections` and normalized Recovery Services companion contracts provide string resource IDs; no reachable failing repro was warranted. The AzureExtractor scope passed 1402/1402.
+
 2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; checked terminal/in-progress precedence, forward-compatible failure parsing, status coercion, and pipeline options; no new reachable mechanism-backed candidate survived review.
 
 2026-10-02 thorough hunt (dry): cheap-disproved the flattened `nextHopArmId` JSON-reference candidate; the full AzureExtractor filter had 1,398 passing and 1 unrelated baseline failure in `InventoryDiagramDataFlowTraversalHopProjectorTests`.
@@ -18423,8 +18425,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a source graph with an incomplete traversal branch that does not directly continue to the target reports a false unresolved gap — **hit 2026-10-03 seed hunt:** removing the `HasDirectContinuationToTarget` guard caused `ProjectPath_records_missing_intermediate_hop_without_bridging_gap` to fail; restored the guard so only partial branches with a direct target continuation are surfaced.
 - [x] (proven) `InventoryDiagramOrphanedStateClassifier.ReadEvidenceCurrency` — numeric `"99"` was accepted as an undefined enum and made `IsCurrentEvidence` false, suppressing orphan classification for a current connection with a missing endpoint — **hit 2026-10-03 thorough hunt:** added `Enum.IsDefined` validation so undefined values use the existing `Current` fallback; regression `Classify_numeric_unknown_evidence_currency_with_missing_endpoint_uses_current_fallback`.
 - [x] (proven) `InventoryDiagramIndirectRelationshipResolver.ResolveEvidenceCurrency` — numeric `"99"` on an edge was accepted as an undefined enum instead of using the `Current` fallback — **hit 2026-10-03 seed hunt:** added `Enum.IsDefined` validation for both edge and source-node currency values; regression `ResolveEvidenceCurrency_uses_current_fallback_for_numeric_unknown_edge_currency`.
-- [ ] (candidate) `AzureInventoryLogicAppConnectionExtractor.TryReadString` — a non-string `parameters.$connections.*.connectionId` value such as numeric `123` is converted with `GetRawText()` and emitted as a connection resource id instead of being rejected; reachability is the ARM workflow `properties.parameters.$connections` payload.
-- [ ] (candidate) `AzureInventoryRecoveryServicesProtectedItemParser.TryReadString` — a non-string protected-item `sourceResourceId` value such as numeric `123` is converted with `GetRawText()` and persisted as an apparent source ARM id; reachability is the normalized Recovery Services companion JSON payload.
+- [x] (invalid) `AzureInventoryLogicAppConnectionExtractor.TryReadString` — a non-string `parameters.$connections.*.connectionId` value such as numeric `123` is converted with `GetRawText()` and emitted as a connection resource id — **cheap-disproof 2026-10-03 thorough hunt:** the reachable ARM workflow `$connections` contract supplies string connection IDs; no valid ARM/config path emits a numeric resource ID.
+- [x] (invalid) `AzureInventoryRecoveryServicesProtectedItemParser.TryReadString` — a non-string protected-item `sourceResourceId` value such as numeric `123` is converted with `GetRawText()` and persisted as an apparent source ARM id — **cheap-disproof 2026-10-03 thorough hunt:** normalized Recovery Services companion rows require string resource IDs; no reachable schema path emits a numeric source ID.
 
 - [x] (proven) `AzureExtractorPackageInventoryReader.ReadProperties` serialized nested object values via `GetRawText()` without evaluating inner sensitive keys — **hit 2026-09-07 (#1166):** App Service-style `siteConfig.connectionString` persisted plaintext; fixed via `RedactStructuredJson` recursive walk (`TryReadFromZip_redacts_nested_sensitive_keys_in_object_property_values`)
 - [x] (proven) `AzureExtractorSensitivePropertyRedactor` omitted `apiKey` and `*Token` suffix keys present in config redactor — **hit 2026-09-07 (#1200):** `apiKey` missed `apikey` fragment; `sasToken` missed suffix-token credential class; fixed via `apikey` fragment + `IsSuffixTokenCredentialKey`; regressions `IsSensitiveKey_detects_api_key_property_names_matching_config_redactor`, `TryReadFromZip_redacts_api_key_property_values`, `TryReadFromZip_redacts_sas_token_property_values`
