@@ -139,8 +139,9 @@ describe("AccountSettingsMenu", () => {
       </>,
     );
 
-    screen.getByRole("textbox", { name: "Search" }).focus();
-    fireEvent.keyDown(window, { key: "f" });
+    const input = screen.getByRole("textbox", { name: "Search" });
+    input.focus();
+    fireEvent.keyDown(input, { key: "f" });
 
     expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
   });

@@ -275,24 +275,26 @@ export function AccountSettingsMenu(): React.JSX.Element {
         aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
         aria-keyshortcuts="F"
       >
-        <Button
-          ref={triggerRef}
-          type="button"
-          variant="outline"
-          size="sm"
-          className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
-          data-testid="account-settings-menu-trigger"
-          aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
-          aria-keyshortcuts="F"
-          aria-expanded={open}
-          aria-controls={open ? panelId : undefined}
-          aria-haspopup="menu"
-          onClick={() => {
-            setOpen((current) => !current);
-          }}
-        >
-          <CircleUser className="size-[18px]" aria-hidden />
-        </Button>
+        <span className="inline-flex">
+          <Button
+            ref={triggerRef}
+            type="button"
+            variant="outline"
+            size="sm"
+            className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
+            data-testid="account-settings-menu-trigger"
+            aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
+            aria-keyshortcuts="F"
+            aria-expanded={open}
+            aria-controls={open ? panelId : undefined}
+            aria-haspopup="menu"
+            onClick={() => {
+              setOpen((current) => !current);
+            }}
+          >
+            <CircleUser className="size-[18px]" aria-hidden />
+          </Button>
+        </span>
       </ToolbarHelpTooltip>
       {panel !== null && typeof document !== "undefined" ? createPortal(panel, document.body) : null}
     </>
