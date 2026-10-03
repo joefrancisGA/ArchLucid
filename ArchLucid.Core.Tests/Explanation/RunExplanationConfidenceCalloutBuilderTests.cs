@@ -531,4 +531,13 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         RunExplanationCostCalloutBuilder.TryParseDecisionCount(
             JsonDocument.Parse("""{"decisionCount":"1e20"}""").RootElement).Should().BeNull();
     }
+
+    [Fact]
+    public void FromAggregateJson_returns_null_for_non_object_root()
+    {
+        RunExplanationConfidenceSignals? signals =
+            RunExplanationConfidenceCalloutBuilder.FromAggregateJson("[]");
+
+        signals.Should().BeNull();
+    }
 }
