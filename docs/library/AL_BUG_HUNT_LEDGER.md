@@ -7192,13 +7192,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-08-25 — Simulator mode skipped `MaxCompletionTokens` range check in `ValidateOrThrow`, deferring failure to `AzureOpenAiOptions` `ValidateOnStart` at `Build()`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` startup composition and worker test coverage; no new reachable mechanism-backed candidate emerged. Focused tests could not run because the scoped build hit unrelated `CS8999` raw-string indentation in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs:49`.
 
 ### Hypotheses
 
