@@ -193,9 +193,9 @@ public sealed class TenantCatalogMigrationOrchestratorTests
             .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(ActiveTenant(clock));
         tenants
-            .Setup(t => t.SuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
             .Callback(() => operationOrder.Add("suspend"))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(true);
 
         Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
         audit
