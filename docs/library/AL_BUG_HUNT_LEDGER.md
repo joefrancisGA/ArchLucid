@@ -26476,7 +26476,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 30
+- **hunts:** 29
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 8
@@ -27247,15 +27247,18 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 28
+- **hunts:** 30
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
-- **last-bug:** 2026-09-26 — detailed/guided wizards kept deep-linked step after step= / intakeStep= cleared from URL
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — whitespace source architecture query suppressed nested-route fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the selected reviews/new wizard hooks and path switcher; no hunt-ready row was promoted; seeded whitespace source-architecture fallback, step URL clamping, and query-prefill retry candidates; the scoped run reported 111 passed and 71 pre-existing failures across 182 tests.
+
+2026-10-03 thorough hunt (hit): `useGuidedIntakeWizard` used `trim() ?? nestedRouteId`, so a reachable whitespace-only `sourceArchitectureId` query value became `""` and suppressed the nested architecture route fallback; fixed by using the trimmed query ID only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`; 5 focused wizard-hook tests passed.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
@@ -27341,7 +27344,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 2026-09-07 seed hunt #1213 (hit): reseeded query-prefill and wizard lifecycle paths; proved accelerator/preset prefill re-fired on step URL sync; added session-restore, stale step param, and mode-probe candidates.
 2026-09-07 thorough hunt #1219 (hit): proved session-restore confirm could treat unloaded clarifications as persisted; proved stale detailed wizard URL params survived path switches; cheap-disproved mode-probe flip on embedded detailed path.
 
-- [ ] (candidate) `useGuidedIntakeWizard.sourceArchitectureId` — a nested review route carries a whitespace-only `sourceArchitectureId` query value — `.trim()` produces an empty string and `??` prevents fallback to the nested route architecture id, so the intake can lose its source-architecture linkage; input is reachable from the review-intake URL.
+- [x] (proven) `useGuidedIntakeWizard.sourceArchitectureId` — a nested review route carries a whitespace-only `sourceArchitectureId` query value — `.trim()` produced an empty string and `??` prevented fallback to the nested route architecture id, so the intake lost its source-architecture linkage; **hit 2026-10-03:** use the trimmed query value only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`.
 - [ ] (candidate) `useNewRunWizardSteps` URL synchronization — a deep link supplies an out-of-range `step` value — the hook clamps the rendered step but leaves the invalid value in the URL, so copied/bookmarked links retain a non-canonical step and can repeatedly re-enter the clamp path; input is reachable from the wizard `step` query parameter.
 - [ ] (candidate) `useNewRunWizardQueryPrefill` — a valid example/preset query is present while the wizard is not yet on its required step — the run-once ref can mark a prefill before a later route/mode transition makes the effect applicable, leaving a deep-linked form partially unfilled; input is reachable from review-intake query parameters and path switching.
 

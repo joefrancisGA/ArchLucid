@@ -64,9 +64,8 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   );
   const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
   const sourceArchitectureIdFromNestedRoute = parseArchitectureNestedStartReviewArchitectureId(pathname) ?? "";
-  const sourceArchitectureId =
-    searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ??
-    sourceArchitectureIdFromNestedRoute;
+  const sourceArchitectureIdFromQuery = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
+  const sourceArchitectureId = sourceArchitectureIdFromQuery || sourceArchitectureIdFromNestedRoute;
   const requiresSystemName =
     options?.requiresSystemName ?? false;
   const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
