@@ -62,7 +62,7 @@ public sealed partial class PolicyPacksController
         {
             result = await _httpFacade.SimulateAsync(
                 request.Content,
-                request.RunId,
+                request.RunId.Trim(),
                 request.BlockCommitOnCritical,
                 request.BlockCommitMinimumSeverity,
                 request.ProposedPolicyPackId,

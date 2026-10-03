@@ -113,11 +113,16 @@ export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMo
       },
       mode,
     );
-    router.replace(reviewFindingsJobViewHrefFromSearch(
-      governanceFindingsNlFacetsHrefFromSearch(searchParams.toString(), EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS, pathname),
+    const clearedNlHref = governanceFindingsNlFacetsHrefFromSearch(
+      searchParams.toString(),
+      EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
       pathname,
-      DEFAULT_FINDING_JOB_VIEW,
-    ), { scroll: false });
+    );
+    const clearedNlSearch = clearedNlHref.includes("?") ? clearedNlHref.split("?")[1] ?? "" : "";
+    router.replace(
+      reviewFindingsJobViewHrefFromSearch(clearedNlSearch, pathname, DEFAULT_FINDING_JOB_VIEW),
+      { scroll: false },
+    );
   }, [mode, pathname, router, searchParams]);
 
   return { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters };

@@ -4,8 +4,11 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -15,6 +18,30 @@ namespace ArchLucid.Worker.Tests;
 [Trait("Category", "Integration")]
 public sealed class WorkerHostStartupTests
 {
+    [Fact]
+    public void Worker_host_disables_kestrel_server_header()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            KestrelServerOptions options = factory.Services.GetRequiredService<IOptions<KestrelServerOptions>>().Value;
+
+            options.AddServerHeader.Should().BeFalse();
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
     [Fact]
     public void Worker_host_fails_fast_when_transactional_outbox_requires_sql_but_storage_is_in_memory()
     {

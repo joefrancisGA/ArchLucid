@@ -18,6 +18,43 @@ namespace ArchLucid.Api.Tests;
 public sealed class PolicyPacksControllerSimulateTests
 {
     [Fact]
+    public async Task Simulate_forwards_canonical_run_id_to_facade()
+    {
+        const string canonicalRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+        string? forwardedRunId = null;
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        httpFacade
+            .Setup(f => f.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<PolicyPackContentDocument, string, bool?, int?, Guid?, CancellationToken>(
+                (_, runId, _, _, _, _) => forwardedRunId = runId)
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackGovernanceDryRunResult>.Success(
+                new PolicyPackGovernanceDryRunResult
+                {
+                    ResolvedRunId = canonicalRunId,
+                }));
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = $"  {canonicalRunId}  ",
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        forwardedRunId.Should().Be(canonicalRunId);
+    }
+
+    [Fact]
     public async Task Simulate_returns_bad_request_when_run_id_missing()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);

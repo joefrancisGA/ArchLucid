@@ -21,6 +21,9 @@ public partial class Program
 
         AzureOpenAiEnvironmentConfigurationBridge.Apply(builder.Configuration);
 
+        // DAST / defense in depth: omit Kestrel "Server" version token (ZAP 10036); TLS identity lives at the ingress.
+        builder.WebHost.ConfigureKestrel(static options => options.AddServerHeader = false);
+
         builder.AddArchLucidGracefulShutdown();
 
         ArchLucidSerilogConfiguration.Configure(builder, "ArchLucid.Worker");
