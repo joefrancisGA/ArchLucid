@@ -6259,9 +6259,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -11244,10 +11244,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — a persisted trace and matching `AgentResult` whose `TaskId` differs only by case may fail to attach evaluation metrics; reachable through task IDs persisted by agent execution and result repositories.
 - [ ] (candidate) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — latest traces with task IDs that differ only by case may collide in the case-insensitive `ToDictionary` and abort confidence enrichment; reachable through persisted execution traces after retries/imports.
 - [x] (proven) `AgentResultEvidenceFaithfulnessChecker.MeetsOverlapThreshold` — substring token matching marked a claim token as supported by a larger unrelated evidence token (`port` inside `important`); fixed overlap scoring to compare normalized tokens, with regression `Evaluate_does_not_count_substring_inside_unrelated_evidence_token_as_support`.
-- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — required JSON-key checks are ordinal-case-sensitive although AgentResult deserialization is case-insensitive; reachable through configured reference-case keys and agent JSON property casing.
-- [ ] (candidate) `AgentOutputTraceFindingCitationCoverageApplicator.ShouldEvaluateFindingCitationCoverage` — a missing task execution mode combined with host mode `Real` evaluates citation coverage for an otherwise unclassified task; reachable through persisted AgentResult mode fields and the runtime execution-mode configuration.
+- [x] (invalid) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — no configured reference-case artifact in this repository exercises a case-variant required key; the candidate lacks a concrete reachable input in the picked zone.
+- [x] (valid-no-repro) `AgentOutputTraceFindingCitationCoverageApplicator.ShouldEvaluateFindingCitationCoverage` — the host-mode fallback for a missing task mode is intentional and covered by `ShouldEvaluateFindingCitationCoverage_respects_task_and_host_modes`; simulator/fallback task modes remain excluded.
 
 2026-10-03 thorough hunt (hit): `AgentResultEvidenceFaithfulnessChecker` counted substring containment as evidence support; a model-produced `port context` claim passed against `important deployment context`. Token-set overlap now prevents unrelated substring matches.
+2026-10-03 thorough hunt (dry): cheap-disproof retired the reference-case key-casing candidate as unreachable in the picked zone and the citation-mode candidate as already covered; remaining task-ID candidates lacked a concrete live input for a failing repro.
 
 ---
 
