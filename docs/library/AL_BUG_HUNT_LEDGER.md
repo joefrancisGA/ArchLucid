@@ -6785,6 +6785,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
 
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
+
 ## Zone: ui-webhooks-settings
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after continue-last gating; proved failed manual `listAlertRoutingSubscriptions` refresh still rendered `WebhooksSubscriptionsTable` from stale `webhookRows` while configuration status and continue-last were already gated on `hasLoadedSuccessfully`; fixed by rendering the table only when `hasLoadedSuccessfully`; regression `hides stale subscriptions table when manual refresh fails`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
@@ -6813,8 +6815,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 33
-- **bugs-found:** 23
+- **hunts:** 34
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
@@ -6837,6 +6839,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
+- [x] (proven) `WebhooksSettingsClient` / `resolveWebhooksCreateSteps` — the initial pending subscription request passed `subscriptionsLoaded=false`, which the checklist treated as a completed enable step; the checklist now requires verified loading completion and subscription enablement; regressions `does not mark the enable step done while subscriptions are still loading` and `keeps enable step incomplete while subscriptions are still loading`.
 
 - (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
 - (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.

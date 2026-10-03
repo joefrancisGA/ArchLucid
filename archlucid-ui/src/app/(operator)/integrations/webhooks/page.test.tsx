@@ -1285,6 +1285,14 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.queryByLabelText("Status: Not configured")).toBeNull();
   });
 
+  it("does not mark the enable step done while subscriptions are still loading", () => {
+    apiMocks.list.mockImplementation(() => new Promise(() => {}));
+
+    render(<WebhooksIntegrationPage />);
+
+    expect(screen.getByTestId("webhooks-create-setup-step-enable")).not.toHaveTextContent("Done");
+  });
+
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
     render(<WebhooksIntegrationPage />);
 

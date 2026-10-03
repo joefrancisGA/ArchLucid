@@ -7,7 +7,7 @@ export function resolveWebhooksCreateSteps(input: {
   readonly subscriptionsLoaded: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
   const enableStepComplete =
-    !input.subscriptionsLoaded || input.subscriptionEnabled;
+    input.subscriptionsLoaded && input.subscriptionEnabled;
 
   return [
     {

@@ -26,7 +26,7 @@ describe("webhooks-create-checklist", () => {
     ).toBe("events");
   });
 
-  it("does not mark enable step incomplete while subscriptions are still loading", () => {
+  it("keeps enable step incomplete while subscriptions are still loading", () => {
     const steps = resolveWebhooksCreateSteps({
       destinationConfigured: true,
       eventsConfigured: true,
@@ -34,7 +34,7 @@ describe("webhooks-create-checklist", () => {
       subscriptionsLoaded: false,
     });
 
-    expect(steps[2]?.complete).toBe(true);
+    expect(steps[2]?.complete).toBe(false);
   });
 
   it("returns three create steps", () => {
