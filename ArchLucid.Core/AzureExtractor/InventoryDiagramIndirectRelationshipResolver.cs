@@ -93,7 +93,8 @@ public static class InventoryDiagramIndirectRelationshipResolver
         if (edge.Properties.TryGetValue(
                 InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
                 out string? edgeCurrency)
-            && Enum.TryParse(edgeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedEdgeCurrency))
+            && Enum.TryParse(edgeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedEdgeCurrency)
+            && Enum.IsDefined(parsedEdgeCurrency))
         {
             return parsedEdgeCurrency;
         }
@@ -116,7 +117,8 @@ public static class InventoryDiagramIndirectRelationshipResolver
             && fromNode.Properties.TryGetValue(
                 InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
                 out string? nodeCurrency)
-            && Enum.TryParse(nodeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedNodeCurrency))
+            && Enum.TryParse(nodeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedNodeCurrency)
+            && Enum.IsDefined(parsedNodeCurrency))
         {
             return parsedNodeCurrency;
         }

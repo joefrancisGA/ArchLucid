@@ -158,6 +158,27 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
     }
 
     [Fact]
+    public void ResolveEvidenceCurrency_uses_current_fallback_for_numeric_unknown_edge_currency()
+    {
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-unknown-currency",
+            FromNodeId = "from",
+            ToNodeId = "to",
+            EdgeType = "CONNECTS_TO",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] = "99",
+            },
+        };
+
+        InventoryDiagramIndirectRelationshipResolver
+            .ResolveEvidenceCurrency(edge, fromNode: null)
+            .Should()
+            .Be(InventoryDiagramEvidenceCurrency.Current);
+    }
+
+    [Fact]
     public void ResolveEvidenceCurrency_prefers_observed_edge_evidence_over_source_node_currency()
     {
         GraphNode fromNode = new()
