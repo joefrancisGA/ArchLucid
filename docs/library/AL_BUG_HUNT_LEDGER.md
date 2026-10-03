@@ -3244,7 +3244,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -25561,6 +25561,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPacksController` sealed-manifest guard — ghost-tenant requests reached the guard with no current scope and threw `NullReferenceException`/`ArgumentNullException` before the facade could map the request to HTTP 404; fixed by deferring the guard when the scope provider returns null, preserving the facade's tenant-scope mapping; regression coverage in `PolicyPacksControllerListScopeTests` (42 scoped tests).
 - [x] (invalid) `PolicyPacksController.GetPageBundle`, `ListWorkspaceSelection`, and `ListCatalog` — these scope-aware reads map only `MapScopeOrNull` before returning `Ok(result.Value!)`, so a non-scope facade failure could become HTTP 200 with a null or incomplete payload — **cheap-disproof 2026-10-02:** each facade path can return only `ScopeNotFound` or `Success`; no reachable non-scope failure outcome exists in the current facade contract.
 - [x] (invalid) `PolicyPacksController.GetRuleTemplates` — the static template endpoint returns `result.Value!` without inspecting `PolicyPackHttpOutcome`, so a future facade failure could become HTTP 200 with a null body — **cheap-disproof 2026-10-02:** the workflow serves static templates synchronously and the HTTP facade always returns `Success`; no reachable failure-producing path exists.
+- [ ] (candidate) `PolicyPacksController.Simulate` / `SimulateBulk` — the run-level sealed-manifest guard treats an authenticated request for a valid but missing or inaccessible run as a 409 missing-manifest conflict before the facade can return single-run 404 or bulk `NotFoundRunCount`; reachable input: `runId` / `runIds` supplied by the policy-pack simulation API; needs proof that absent runs should retain the facade's documented not-found semantics while existing unsealed runs remain fail-closed.
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — `isOrganizationRequired: true` on inactive platform pack bypassed `IsGloballyActiveAsync` gate symmetric with #1225 toggle path — **hit 2026-09-08 hunt #1312:** assign-create path force-enabled org-required rows on catalog-inactive platform packs; fixed by rejecting before `TryAssignAsync`; regression `TryAssignAsync_returns_pack_not_found_when_organization_required_on_inactive_platform_pack`
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin could assign Tenant/Workspace-scoped rows without tenant-admin JWT — **hit 2026-09-08 hunt #1312:** only org-required was gated in #1205; fixed by requiring tenant administrator for non-Project `scopeLevel`; regressions `TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`, `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
 - [x] (proven) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack returned HTTP 404 instead of 409 symmetric with org-required disable (#1206) — **hit 2026-09-08 hunt #1312:** workflow mapped inactive enable to `NotFound`; fixed with `PlatformPackInactive` → HTTP 409; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
@@ -25572,6 +25573,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-02 thorough hunt (hit): proved the sealed-manifest guard threw on null scope before ghost-tenant policy-pack requests could map to HTTP 404; deferred the guard when scope is absent; 42 scoped controller tests passed.
 
 2026-10-02 seed hunt (seed-only): reread all policy-pack controller partials; retained three mechanism-backed candidates and found no additional hunt-ready defect to prove; 55 scoped tests passed with 17 unrelated baseline failures from null test scopes.
+
+2026-10-03 seed hunt (seed-only): reread policy-pack mutation, simulation, catalog-read, and CRUD paths; seeded the missing/inaccessible simulation-run guard precedence candidate; 56 focused controller tests passed.
 
 2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
