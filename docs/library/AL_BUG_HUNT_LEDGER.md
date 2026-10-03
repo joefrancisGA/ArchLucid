@@ -27676,7 +27676,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-02
@@ -27756,6 +27756,7 @@ ABQ-09 churn hotspot.
 2026-10-02 seed hunt (seed-only): re-read the queue client, saved-view contract, approval banner contract, and focused tests; converted the two prior candidates into picker-recognized rows, but neither had a complete reachable input contract for a failing repro.
 
 2026-10-03 seed hunt (seed-only): re-read the findings queue client, queue mode, synopsis, facets, route boundary, and focused tests; no new hunt-ready row or bounded candidate emerged. No code changes.
+2026-10-03 seed hunt (seed-only): repeated the findings queue source and focused-test review; no new hunt-ready row or bounded candidate emerged. No code changes.
 
 ---
 
