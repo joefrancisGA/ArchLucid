@@ -6162,6 +6162,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-03 seed hunt (seed-only): re-read the selected extraction-router partial and focused boundary/regulatory regression coverage; no new reachable mechanism-backed candidate emerged; 29 focused DifficultyBasedExtractionRouter tests passed.
+
 2026-10-03 seed hunt (seed-only): repeated the selected extraction-router partial review and bounded-marker regression coverage; no new reachable mechanism-backed candidate emerged; 29 focused DifficultyBasedExtractionRouter tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the selected extraction-router partial and existing bounded-marker regression context; no new reachable mechanism-backed candidate emerged; 29 focused DifficultyBasedExtractionRouter tests passed.
