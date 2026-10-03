@@ -275,7 +275,12 @@ export function AccountSettingsMenu(): React.JSX.Element {
         aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
         aria-keyshortcuts="F"
       >
-        <span className="inline-flex">
+        <span
+          className="inline-flex"
+          onClick={() => {
+            setOpen((current) => !current);
+          }}
+        >
           <Button
             ref={triggerRef}
             type="button"
@@ -288,9 +293,6 @@ export function AccountSettingsMenu(): React.JSX.Element {
             aria-expanded={open}
             aria-controls={open ? panelId : undefined}
             aria-haspopup="menu"
-            onClick={() => {
-              setOpen((current) => !current);
-            }}
           >
             <CircleUser className="size-[18px]" aria-hidden />
           </Button>
