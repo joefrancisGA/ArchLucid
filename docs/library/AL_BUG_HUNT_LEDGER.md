@@ -26090,7 +26090,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26105,6 +26105,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (dry): cheap-disproved the severity-substring candidate because the risk-register reader receives the persisted finding severity contract, and the bundled-pack casing candidate because embedded seed metadata supplies the exact immutable display names; 746 scoped tests passed with 4 unrelated baseline failures.
 
 2026-10-03 seed hunt (seed-only): re-read governance drift, checklist, and policy-pack paths after the candidate cleanup; no new hunt-ready row or candidate was found.
+
+2026-10-03 seed hunt (seed-only): re-read finalize readiness, pre-finalize checklist, and policy-pack dry-run paths; invalid-run and missing-run branches are rejected by the API before readiness evaluation, and no new hunt-ready row or candidate was found.
 
 2026-09-26 seed hunt (seed→hit): reseeded application-governance-policy; proved finalize readiness scorecard ignored supplemental findings while pre-commit gate blocked; seeded dry-run metadata threshold, lineage promotions-on-unsealed-manifest, and execute-baseline compliance-key drift candidates; scoped PolicyPack/Governance tests passed.
 
