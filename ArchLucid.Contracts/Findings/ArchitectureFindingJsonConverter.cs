@@ -209,6 +209,9 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (element.ValueKind == JsonValueKind.String &&
             Enum.TryParse(element.GetString(), ignoreCase: true, out FindingTreatment parsed))
         {
+            if (!Enum.IsDefined(parsed))
+                throw new JsonException($"Unknown finding treatment value '{element.GetString()}'.");
+
             treatment = parsed;
             return true;
         }

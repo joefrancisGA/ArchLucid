@@ -8688,3 +8688,4 @@
 {"at":"2026-10-03T14:38:57.9058969Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
 {"at":"2026-10-03T14:44:01.1377396Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-03T14:47:26.8932918Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
+{"at":"2026-10-03T14:52:39.6236643Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/Findings/ArchitectureFindingJsonConverter.cs"]}

@@ -286,6 +286,27 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_string_numeric_treatment_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "enforcementTier": "PolicyViolation",
+                              "message": "Invalid string treatment ordinal must not deserialize.",
+                              "treatment": "99"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding treatment value*");
+    }
+
+    [Fact]
     public void Deserialize_unknown_severity_label_throws()
     {
         const string json = """
