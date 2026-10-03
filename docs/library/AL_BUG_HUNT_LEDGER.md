@@ -20822,13 +20822,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — empty object citations counted as present for disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the aggregate and structured explanation readers; no newly promoted hunt-ready row survived cheap-disproof. Seeded five reachable candidates for numeric whole-number range coercion, alternate citation object fields, structured object text aliases, citation token coercion, and malformed aggregate root handling.
 
 2026-09-26 seed hunt (seed→hit): reseeded core-explanation-json after list flattening; proved nested-array `reasoning` paragraphs (`[["First"],["Second"]]`) rejected `TryNormalizeStructuredJson`; fixed with `CollectReasoningParts` flattening (parity with `CollectStringListEntries`); seeded aggregate `citations` nested-array count vs disposition as `(candidate)`; regression `TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs`; 68 scoped explanation unit tests passed.
 
@@ -20882,6 +20884,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-27 seed hunt (seed→hit): reseeded core-explanation-json after numeric citation fix; proved empty `{}` citation objects and scalar object citations counted as one citation for sponsor disposition while structured `evidenceRefs` drops object entries without `id`/`text`; fixed with `CountCitationObject` parity on array and scalar object shapes; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`; 76 Core Explanation + 3 Application RunExplanation tests passed.
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountFlattenedCitationEntry` — empty object citation tokens counted as present — **hit 2026-09-27 seed hunt:** any `JsonValueKind.Object` returned count 1 without reading `id`/`text`; fixed `CountCitationObject` for array entries and scalar `citations` object; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — aggregate count strings such as `"1e20"` can pass finite/whole-number checks before an out-of-range cast, potentially producing an incorrect `int` count; reachable through persisted aggregate explanation JSON scalar fields (`decisionCount`, `unresolvedIssueCount`, or `complianceGapCount`).
+- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.CountCitationObject` — a citation object containing alternate fields such as `url` or `label` may count as zero because the reader recognizes only `id` and `text`; reachable through aggregate explanation citation payloads.
+- [ ] (candidate) `StructuredExplanationParser.TryReadObjectStringProperty` — structured reasoning/evidence objects using a producer-supported `content` field may be silently dropped because object extraction is limited to `id`/`text`; reachable through structured LLM JSON payloads.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken` — numeric or boolean citation tokens may be normalized differently across aggregate readers, causing citation presence and disposition to disagree; reachable through aggregate explanation JSON citation arrays.
+- [ ] (candidate) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed but parseable aggregate root shapes may throw instead of returning a safe null/hold result; reachable through persisted aggregate explanation JSON.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 

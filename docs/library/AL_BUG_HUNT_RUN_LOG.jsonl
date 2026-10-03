@@ -8554,3 +8554,4 @@
 {"at":"2026-10-03T02:17:15.6546689Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-03T02:22:42.8009962Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-03T02:28:32.5439903Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
+{"at":"2026-10-03T02:33:07.2110874Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
