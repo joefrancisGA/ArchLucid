@@ -12,6 +12,8 @@
 
 2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — repeated the unchanged payload normalization review; no reachable wrong outcome emerged; 28 scoped payload tests passed.
 
+2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — re-read the unchanged collection filters and null-document boundary; no mechanism-backed reachable candidate emerged; 28 scoped payload tests passed.
+
 2026-10-03 thorough hunt (hit): `application-pilots` — `PilotRunDeltaComputer.ResolveManifestCommittedUtc` selected a future-dated persisted manifest timestamp over the run completion timestamp, inflating buyer time-to-commit by 30 days in the failing repro. It now prefers `CompletedUtc` whenever present, with a future-timestamp regression; 2 targeted timestamp tests and 22 picker-scoped `BuyerProofPack`/`BoardPack` tests passed.
 
 2026-10-03 seed hunt (seed-only): `ui-review-detail-workspace` — re-read the selected review route, findings workspace, workspace chrome, and presentation derivation; no new mechanism-backed reachable candidate survived cheap-disproof; 33 scoped review-detail tests passed.
