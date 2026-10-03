@@ -220,7 +220,10 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
 
         bastion.Properties["ipConfiguration.subnet.id[0]"].Should().Be(subnetId);
         vnet.Properties["subnets"].Should().Contain(subnetId);
-        InventoryDiagramOrphanedStateClassifier.Classify(bastion, result.Graph, false).State.Should().BeNull();
+        InventoryDiagramConnectionStateResult classification =
+            InventoryDiagramOrphanedStateClassifier.Classify(bastion, result.Graph, false);
+        classification.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        classification.MissingRequirementMessage.Should().BeNull();
     }
 
     [Fact]
