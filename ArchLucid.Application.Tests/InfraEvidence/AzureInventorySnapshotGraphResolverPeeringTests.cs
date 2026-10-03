@@ -173,6 +173,60 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
     }
 
     [Fact]
+    public async Task TryResolveGraphAsync_copies_bastion_subnet_and_vnet_subnets_properties()
+    {
+        Guid bastionRow = Guid.Parse("44444444-1111-4000-8000-000000000001");
+        Guid vnetRow = Guid.Parse("44444444-1111-4000-8000-000000000002");
+        const string bastionId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/bastionHosts/bastion1";
+        const string vnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetId = vnetId + "/subnets/AzureBastionSubnet";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = bastionRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = bastionId,
+                        ResourceType = "Microsoft.Network/bastionHosts",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                    CreateVnet(vnetRow, vnetId),
+                ],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = bastionRow,
+                        PropertyKey = "ipConfiguration.subnet.id[0]",
+                        PropertyValue = subnetId,
+                    },
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = vnetRow,
+                        PropertyKey = "subnets",
+                        PropertyValue = "[{\"id\":\"" + subnetId + "\"}]",
+                    },
+                ],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        GraphNode bastion = result.Graph!.Nodes.Single(node => node.Properties["arm.id"] == bastionId);
+        GraphNode vnet = result.Graph.Nodes.Single(node => node.Properties["arm.id"] == vnetId);
+
+        bastion.Properties["ipConfiguration.subnet.id[0]"].Should().Be(subnetId);
+        vnet.Properties["subnets"].Should().Contain(subnetId);
+        InventoryDiagramConnectionStateResult classification =
+            InventoryDiagramOrphanedStateClassifier.Classify(bastion, result.Graph, false);
+        classification.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        classification.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Executive_mermaid_renders_owner_shape_peerings_from_vnet_properties_only()
     {
         (int from, int to)[] peerings =
