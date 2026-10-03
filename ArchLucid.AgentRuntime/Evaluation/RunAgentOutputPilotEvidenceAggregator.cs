@@ -113,7 +113,10 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                         hostAgentExecutionMode: hostAgentExecutionMode)
                     .ConfigureAwait(false);
 
-            if (evaluated is { GateOutcome: AgentOutputQualityGateOutcome.Rejected })
+            if (evaluated is
+                {
+                    GateOutcome: AgentOutputQualityGateOutcome.Rejected or AgentOutputQualityGateOutcome.Warned
+                })
                 return true;
         }
 

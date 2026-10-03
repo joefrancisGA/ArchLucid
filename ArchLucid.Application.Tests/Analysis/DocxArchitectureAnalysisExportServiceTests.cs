@@ -55,6 +55,66 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain("old warning");
     }
 
+    [Fact]
+    public async Task GenerateDocxAsync_includes_report_warnings()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Warnings = ["Manifest 'v1-run' was not found."],
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Report Warnings");
+        text.Should().Contain("Manifest 'v1-run' was not found.");
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_includes_execution_traces()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Compliance,
+                    TaskId = "task-1",
+                    TraceId = "trace-1",
+                    ParseSucceeded = true,
+                    CreatedUtc = DateTime.UtcNow,
+                    SystemPrompt = "system prompt",
+                    UserPrompt = "user prompt",
+                    RawResponse = "{\"ok\":true}",
+                    ParsedResultJson = "{\"result\":\"accepted\"}",
+                },
+            ],
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Agent Execution Traces");
+        text.Should().Contain("Trace ID: trace-1");
+        text.Should().Contain("system prompt");
+        text.Should().Contain("{\"result\":\"accepted\"}");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream memoryStream = new(docxBytes);

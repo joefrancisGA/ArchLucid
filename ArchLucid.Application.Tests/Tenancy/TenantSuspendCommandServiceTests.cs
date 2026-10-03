@@ -2,6 +2,8 @@ using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.Time.Testing;
 
 using Moq;
@@ -24,8 +26,8 @@ public sealed class TenantSuspendCommandServiceTests
             .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(ActiveTenant());
         tenants
-            .Setup(t => t.SuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         audit
             .Setup(a => a.AppendAsync(
                 It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantSuspended),
@@ -37,7 +39,7 @@ public sealed class TenantSuspendCommandServiceTests
         TenantSuspendOutcome outcome = await sut.TrySuspendAsync(TenantId, "u1", "admin", "corr", CancellationToken.None);
 
         Assert.Equal(TenantSuspendOutcome.Applied, outcome);
-        tenants.Verify(t => t.SuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()), Times.Once);
+        tenants.Verify(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -66,8 +68,53 @@ public sealed class TenantSuspendCommandServiceTests
         TenantSuspendOutcome outcome = await sut.TrySuspendAsync(TenantId, "u1", "admin", null, CancellationToken.None);
 
         Assert.Equal(TenantSuspendOutcome.AlreadyInDesiredState, outcome);
-        tenants.Verify(t => t.SuspendTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        tenants.Verify(t => t.TrySuspendTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         audit.Verify(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task TrySuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner()
+    {
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 8, 3, 12, 0, 0, TimeSpan.Zero));
+        TaskCompletionSource<bool> bothReadsCompleted =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int reads = 0;
+
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                if (Interlocked.Increment(ref reads) == 2)
+                    bothReadsCompleted.TrySetResult(true);
+
+                await bothReadsCompleted.Task;
+                return ActiveTenant();
+            });
+        tenants
+            .SetupSequence(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+        audit
+            .Setup(a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantSuspended),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantSuspendCommandService sut = new(tenants.Object, audit.Object, clock);
+
+        TenantSuspendOutcome[] outcomes = await Task.WhenAll(
+            sut.TrySuspendAsync(TenantId, "u1", "admin", "corr-1", CancellationToken.None),
+            sut.TrySuspendAsync(TenantId, "u2", "admin", "corr-2", CancellationToken.None));
+
+        outcomes.Count(outcome => outcome == TenantSuspendOutcome.Applied).Should().Be(1);
+        outcomes.Count(outcome => outcome == TenantSuspendOutcome.AlreadyInDesiredState).Should().Be(1);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantSuspended),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

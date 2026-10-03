@@ -64,6 +64,10 @@ internal static class PolicyPackHttpResultMapper
                 controller,
                 new ConflictException(
                     "Policy pack assignment conflicted with the current governance scope.")),
+            PolicyPackHttpOutcome.Forbidden => controller.Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Forbidden",
+                detail: "You are not authorized to assign this policy pack."),
             _ => throw new InvalidOperationException($"Unexpected assign outcome: {result.Outcome}."),
         };
     }

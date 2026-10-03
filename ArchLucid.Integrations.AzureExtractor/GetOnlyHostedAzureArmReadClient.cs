@@ -737,6 +737,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             accessToken,
             $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
             subscriptionId,
+            $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments",
             validateSubscriptionNextLink: true,
             cancellationToken).ConfigureAwait(false);
     }
@@ -753,6 +754,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             accessToken,
             $"https://management.azure.com/providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
             managementGroupId,
+            $"providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/policyAssignments",
             validateSubscriptionNextLink: false,
             cancellationToken).ConfigureAwait(false);
     }
@@ -993,6 +995,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         string accessToken,
         string initialUrl,
         string scopeKey,
+        string listingRelativePath,
         bool validateSubscriptionNextLink,
         CancellationToken cancellationToken)
     {
@@ -1066,11 +1069,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                 {
                     if (validateSubscriptionNextLink)
                     {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, scopeKey);
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            candidateNextLink,
+                            listingRelativePath);
                     }
                     else
                     {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsManagementGroup(candidateNextLink, scopeKey);
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            candidateNextLink,
+                            listingRelativePath);
                     }
 
                     nextLink = candidateNextLink;

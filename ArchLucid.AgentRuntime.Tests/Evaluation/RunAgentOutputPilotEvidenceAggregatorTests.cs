@@ -68,6 +68,58 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
     }
 
     [Fact]
+    public async Task WouldPilotStrictBlockSponsorEvidenceAsync_blocks_when_pilot_strict_trace_is_warned()
+    {
+        AgentOutputQualityGateOptions gateOptions = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-pilot-strict-warned",
+            TaskId = "task",
+            RunId = "run",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = LoadGoldenFixtureWithCitations("golden-agent-result-valid.json"),
+        };
+
+        Mock<IAgentOutputSemanticEvaluator> semanticEvaluator = new();
+        semanticEvaluator
+            .Setup(e => e.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<AgentType>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentOutputSemanticScore
+            {
+                OverallSemanticScore = 1,
+                JudgeHeuristicDisagreementElevatesWarn = true,
+            });
+
+        RunAgentOutputPilotEvidenceAggregator sut = CreateSut(
+            gateOptions,
+            semanticEvaluator: semanticEvaluator.Object);
+
+        bool blocked = await sut.WouldPilotStrictBlockSponsorEvidenceAsync(
+            [trace],
+            explanationSummary: null,
+            CancellationToken.None);
+
+        blocked.Should().BeTrue(
+            because: "PilotStrict sponsor evidence must not pass a trace that is warned by the shared evaluator");
+    }
+
+    [Fact]
     public async Task WouldPilotStrictBlockSponsorEvidenceAsync_blocks_on_explanation_summary_faithfulness_floor()
     {
         const string runKey = "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0";
@@ -366,7 +418,8 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
         AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null,
         AgentEvidencePackage? evidencePackage = null,
-        string agentExecutionMode = "Simulator")
+        string agentExecutionMode = "Simulator",
+        IAgentOutputSemanticEvaluator? semanticEvaluator = null)
     {
         Mock<IAgentOutputQualityGateOptionsResolver> optionsResolver = new();
         optionsResolver
@@ -393,16 +446,13 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
             .Setup(r => r.GetByRunIdAsync(scope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(agentResults ?? []);
 
-        HeuristicOnlyAgentOutputSemanticEvaluator semanticEvaluator =
-            new(new HeuristicAgentOutputSemanticEvaluator());
-
         return new RunAgentOutputPilotEvidenceAggregator(
             optionsResolver.Object,
             evidenceRepository.Object,
             scopeProvider.Object,
             agentResultRepository.Object,
             new AgentOutputEvaluator(),
-            semanticEvaluator,
+            semanticEvaluator ?? new HeuristicOnlyAgentOutputSemanticEvaluator(new HeuristicAgentOutputSemanticEvaluator()),
             new AgentOutputQualityGate(Options.Create(gateOptions)),
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             llmFaithfulnessEvaluator ?? new NoOpLlmFaithfulnessEvaluator(),
