@@ -7170,7 +7170,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -7192,6 +7192,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ConfigurationValidationHostedService` can fail after `ValidateOrThrow` passed — `CriticalConfigurationValidator` checks connection string, Real-mode Azure OpenAI, and production demo flags only; all three are also enforced by `ArchLucidConfigurationRules.CollectErrors`, so a passing pre-Build validation cannot fail the narrower hosted validator on the same configuration snapshot
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` and worker startup/composition boundaries; no new reachable mechanism-backed candidate emerged. The focused test build was blocked by pre-existing `CS8999` raw-string whitespace diagnostics in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs`; no test execution was claimed.
+
+2026-10-03 seed hunt (seed-only): repeated the `ArchLucid.Worker/Program.cs` startup review; no new reachable mechanism-backed candidate emerged. The focused test assembly was unavailable because the same pre-existing persistence build blocker prevented test execution.
 
 ---
 
