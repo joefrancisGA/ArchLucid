@@ -26924,7 +26924,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26933,6 +26933,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the review-detail route tree, page model, workspace presentation, findings workspace, and header state; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering remount restore guards, run-transition filter state, list-view state, persistence races, and same-document metadata URL synchronization.
+
+2026-10-03 seed hunt (seed-only): re-read the review-detail route, findings workspace, workspace header, presentation model, and focused tests; existing candidates remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
 
 2026-10-03 seed hunt (hit): promoted the review-detail URL synchronization candidate; `useReviewDetailWorkspaceTabs` passed an empty search-param set to initial tab resolution and had no reactive `useSearchParams` dependency, so soft navigation from Overview to Findings left the active panel stale. Fixed by consuming reactive search params and synchronizing `activeTab`; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts` (2 passed).
 
