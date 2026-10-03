@@ -34,6 +34,11 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddNicProperties(propertiesElement, properties);
         }
 
+        if (resourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase))
+        {
+            AddBastionProperties(propertiesElement, properties);
+        }
+
         if (resourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
         {
             AddPublicIpConfigurationProperty(propertiesElement, properties);
@@ -386,6 +391,48 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
                 {
                     properties["ipConfiguration.subnet.id"] = subnetId;
                 }
+            }
+
+            index++;
+        }
+    }
+
+    private static void AddBastionProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("ipConfigurations", out JsonElement ipConfigurations)
+            || ipConfigurations.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
+        {
+            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
+                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
+            string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
+
+            if (!string.IsNullOrWhiteSpace(subnetId))
+            {
+                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
+
+                if (index == 0)
+                {
+                    properties["ipConfiguration.subnet.id"] = subnetId;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(publicIpId))
+            {
+                properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
             }
 
             index++;

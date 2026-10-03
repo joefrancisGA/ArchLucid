@@ -40,6 +40,7 @@ public enum AzureInventoryRelationshipArmKind
     KeyVault = 25,
     NatGateway = 26,
     AzureFirewall = 27,
+    BastionHost = 35,
     FrontDoor = 28,
     ContainerApp = 29,
     ContainerAppEnvironment = 30,

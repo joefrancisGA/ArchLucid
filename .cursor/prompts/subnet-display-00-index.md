@@ -3,7 +3,7 @@
      missing, so Azure Bastions reported a subnet that no longer exists.
      Do not implement from this index. -->
 
-# Inventory diagram subnet display — Luna prompt set (SB-01–SB-04)
+# Inventory diagram subnet display — Luna prompt set (SB-01–SB-05)
 
 Paste **one** numbered file per GPT-5.6 Luna session, in order. Do not implement from this index.
 
@@ -15,8 +15,9 @@ Canonical doc: [`docs/architecture/INVENTORY_DIAGRAM_SUBNET_DISPLAY_LUNA_PROMPTS
 | 02 | `subnet-display-02-show-subnets-checkbox.md` | Add **Show subnets**. Checked draws the subnet cards. Unchecked keeps them off the plate. |
 | 03 | `subnet-display-03-network-defaults-subnets-on.md` | Choosing **Network — what can reach what** checks **Show subnets**. |
 | 04 | `subnet-display-04-bastion-subnet-sentence.md` | A Bastion subnet named in this snapshot is not "no longer exists." |
+| 05 | `subnet-display-05-bastion-subnet-capture.md` | The next capture stores the Bastion subnet id, and the diagram graph keeps it. |
 
-**01 → owner look → 02 → owner look → 03.** **04** follows **01** and can run before **02**. It does not add the checkbox.
+**01 → owner look → 02 → owner look → 03.** **04** follows **01** and can run before **02**. It does not add the checkbox. **05** follows **04**. It saves the subnet id the classifier never received.
 
 Each prompt stops before commit. The owner looks, then says whether to commit.
 

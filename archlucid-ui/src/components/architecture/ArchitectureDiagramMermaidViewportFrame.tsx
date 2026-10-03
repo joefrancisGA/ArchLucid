@@ -23,7 +23,7 @@ const VIEWPORT_FRAME_CLASSNAME =
 
 const CAMERA_CLASSNAME = 'overflow-auto p-4';
 
-const INK_CLIP_CLASSNAME = 'overflow-hidden';
+const INK_CLIP_CLASSNAME = 'w-max min-w-full overflow-hidden';
 
 /**
  * Visible diagram frame with overlay chrome outside the scrolling camera.

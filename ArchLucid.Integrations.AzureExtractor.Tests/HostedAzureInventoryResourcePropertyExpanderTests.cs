@@ -48,6 +48,37 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_persists_bastion_ip_configuration_subnet_id()
+    {
+        const string json = """
+            {
+              "ipConfigurations": [
+                {
+                  "properties": {
+                    "subnet": {
+                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureBastionSubnet"
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/bastionHosts",
+            document.RootElement,
+            []);
+
+        Assert.Equal(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureBastionSubnet",
+            properties["ipConfiguration.subnet.id"]);
+        Assert.Equal(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureBastionSubnet",
+            properties["ipConfiguration.subnet.id[0]"]);
+    }
+
+    [Fact]
     public void Expand_persists_standard_logic_app_site_connection_parameters()
     {
         const string json = """

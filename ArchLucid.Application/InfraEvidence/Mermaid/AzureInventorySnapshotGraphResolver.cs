@@ -136,6 +136,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodes.Add(node);
         }
 
+        HydrateSubnetPlacementProperties(graphSnapshot, nodes);
+
         List<GraphEdge> edges = [];
         HashSet<string> edgeKeys = new(StringComparer.Ordinal);
 
@@ -297,6 +299,51 @@ public sealed class AzureInventorySnapshotGraphResolver(
 
         // Materialized rows can exist before cloud-resource linkage; keep graph compile deterministic.
         return $"resource-row-{resource.ResourceRowId:D}";
+    }
+
+    private static void HydrateSubnetPlacementProperties(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        IReadOnlyList<GraphNode> nodes)
+    {
+        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
+            .GroupBy(resource => resource.ResourceRowId)
+            .ToDictionary(group => group.Key, group => group.First());
+        Dictionary<string, GraphNode> nodesByArmId = nodes
+            .Where(node => node.Properties.TryGetValue("arm.id", out string? armId)
+                && !string.IsNullOrWhiteSpace(armId))
+            .ToDictionary(
+                node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]),
+                node => node,
+                StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
+        {
+            if (property.IsRedacted
+                || string.IsNullOrWhiteSpace(property.PropertyValue)
+                || !resourcesByRowId.TryGetValue(property.ResourceRowId, out AzureInventoryResourceRecord? resource)
+                || !nodesByArmId.TryGetValue(
+                    ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
+                    out GraphNode? node))
+            {
+                continue;
+            }
+
+            string resourceType = resource.ResourceType ?? string.Empty;
+            bool isBastionSubnetProperty =
+                resourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase)
+                && (property.PropertyKey.Equals("ipConfiguration.subnet.id", StringComparison.OrdinalIgnoreCase)
+                    || property.PropertyKey.StartsWith(
+                        "ipConfiguration.subnet.id[",
+                        StringComparison.OrdinalIgnoreCase));
+            bool isVirtualNetworkSubnetsProperty =
+                AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resourceType)
+                && property.PropertyKey.Equals("subnets", StringComparison.OrdinalIgnoreCase);
+
+            if (isBastionSubnetProperty || isVirtualNetworkSubnetsProperty)
+            {
+                node.Properties[property.PropertyKey] = property.PropertyValue;
+            }
+        }
     }
 
     private static string ResolveLabel(AzureInventoryResourceRecord resource)

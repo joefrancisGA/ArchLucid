@@ -31,6 +31,7 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             AddAppServiceAssociations(resource, rows, keys);
             AddNatGatewayAssociations(resource, rows, keys);
             AddFirewallAssociations(resource, rows, keys);
+            AddBastionAssociations(resource, rows, keys);
             AddVmssAssociations(resource, rows, keys);
             AddFrontDoorAssociations(resource, rows, keys);
             AddContainerAppAssociations(resource, rows, keys);
@@ -538,6 +539,27 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         }
         catch (JsonException)
         {
+        }
+    }
+
+    private static void AddBastionAssociations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (string subnetId in ReadDelimitedIds(resource.Properties, "ipConfiguration.subnet.id"))
+        {
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                subnetId,
+                AzureInventoryRelationshipAssociationTypes.BastionToSubnet);
         }
     }
 

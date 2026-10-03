@@ -28011,7 +28011,7 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -28021,6 +28021,7 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (hit): Mermaid preview accepted recovery-services, cross-group fan-out, and AVD display flags but forwarded only private-endpoint visibility to mode rendering; preview responses ignored reachable requested display options; focused service regression passed.
 2026-10-03 seed hunt (hit): diagram outline retained a selected declared/inventory edge detail panel after the incoming outline changed; cleared selection and related connection state on outline changes; 22 outline tests passed.
 2026-10-03 seed hunt (hit): diagram workbench initialized mode from the URL only once, so browser navigation or an external search-param update left the mode picker and render state stale; resynchronized selected mode with URL changes; workbench tests passed apart from one unrelated snapshot-label fixture failure.
+2026-10-03 seed hunt (seed-only): reviewed snapshot-label formatting and diagram workbench picker behavior; the remaining UUID-label test failure is stale because resource counts were intentionally removed from picker labels, and no new mechanism-backed candidate met the reachability bar.
 
 ### Hypotheses
 

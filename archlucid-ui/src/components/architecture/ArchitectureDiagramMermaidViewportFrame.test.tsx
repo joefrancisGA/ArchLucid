@@ -45,6 +45,9 @@ describe('ArchitectureDiagramMermaidViewportFrame', () => {
     const inkClip = screen.getByTestId('architecture-diagram-ink-clip');
     expect(camera).toContainElement(inkClip);
     expect(inkClip).toContainElement(screen.getByTestId('diagram-ink'));
+    expect(inkClip.className.split(/\s+/u)).toContain('w-max');
+    expect(inkClip.className.split(/\s+/u)).toContain('min-w-full');
     expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
+    expect(inkClip.className.split(/\s+/u)).not.toContain('max-w-full');
   });
 });

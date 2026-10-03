@@ -39,6 +39,7 @@ internal static class HostedAzureArmNetworkTypeListDescriptors
         new("Microsoft.Web/sites", $"providers/Microsoft.Web/sites?api-version={WebApiVersion}"),
         new("Microsoft.Network/natGateways", $"providers/Microsoft.Network/natGateways?api-version={NatGatewayApiVersion}"),
         new("Microsoft.Network/azureFirewalls", $"providers/Microsoft.Network/azureFirewalls?api-version={FirewallApiVersion}"),
+        new("Microsoft.Network/bastionHosts", $"providers/Microsoft.Network/bastionHosts?api-version={FirewallApiVersion}"),
         new("Microsoft.Compute/virtualMachineScaleSets", $"providers/Microsoft.Compute/virtualMachineScaleSets?api-version={VmssApiVersion}"),
         new("Microsoft.Cdn/profiles", $"providers/Microsoft.Cdn/profiles?api-version={CdnApiVersion}"),
         new("Microsoft.Network/frontDoors", $"providers/Microsoft.Network/frontDoors?api-version={FrontDoorApiVersion}"),
