@@ -24179,10 +24179,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
 - **hunts:** 48
-- **bugs-found:** 27
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — existing unrelated distributed cache plus projection-only Redis config produced an empty graph pub/sub endpoint
+- **last-bug:** 2026-10-03 — null Redis configuration caused an unclassified startup exception
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
@@ -24194,6 +24194,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (seed-only): repeated the host-composition source and test review; the null-bound Redis configuration candidate remains unproven without a reachable configuration-binding repro; 404 scoped host-composition tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read host-composition cache registration and hosting-role gates; no candidate met the full wrong-outcome bar in this pass; 404 scoped host-composition tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved null-bound hot-path Redis configuration caused an unclassified startup exception during distributed LLM cache registration; null-safe fallback now reaches the intended configuration error; 405 scoped host-composition tests passed.
 
 2026-09-27 seed hunt #43 (seed→hit): reseeded host-composition after hunt #42; proved `RedisGraphProjectionHealthCheck` probed projection-specific Redis and only explicit `Backend=Distributed`, so shared hot-path `IDistributedCache` and Auto scale-out promotion misreported readiness; added `TryResolveGraphProjectionDistributedRedisConnectionString` and `GraphProjectionCacheRedisHealthCheck` in composition; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`; 402 scoped host-composition tests passed.
 
@@ -24213,6 +24215,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — orphan `ProjectionCache:RedisConnectionString` won over LLM/hot-path Redis when graph cache was memory — **hit 2026-09-27 seed hunt #44:** generic probe defers to distributed graph resolution and no longer treats unused projection strings as authoritative; regression `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory`
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString` — existing unrelated `IDistributedCache` plus projection-only Redis config returned an empty graph pub/sub endpoint — **hit 2026-10-03 seed hunt:** existing-cache resolution now falls back to projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`
 - (candidate) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a distributed LLM cache configuration with a null-bound `HotPathCache:RedisConnectionString` and no LLM Redis value reaches `.Trim()` and throws an unclassified startup `NullReferenceException` instead of the intended configuration error; reachability: the `HotPathCache:RedisConnectionString` appsettings/environment configuration key is bound into `HotPathCacheOptions`.
+- [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a null-bound `HotPathCache:RedisConnectionString` caused `.Trim()` to throw `NullReferenceException` instead of the intended configuration error — **hit 2026-10-03:** distributed LLM cache startup with an explicitly null hot-path Redis value failed unclassified; fixed with null-safe trimming; regression `RedisHealthProbeConnectionResolverTests.Distributed_llm_cache_with_null_hot_path_redis_reports_configuration_error`.
 - (candidate) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` returns early for any pre-registered `IDistributedCache`, even when `LlmCompletionCache:Provider=Distributed` has no shared Redis backing — input: an API replica with `AddDistributedMemoryCache` registered before LLM composition; reachability: the registrar explicitly skips registration whenever the service collection already contains `IDistributedCache`.
 - (candidate) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` reuses any pre-registered `IDistributedCache` while graph projection is configured as distributed — input: a memory-backed cache descriptor registered before projection composition plus `ProjectionCache:Backend=Distributed`; reachability: the existing-cache branch is selected by service registration order and affects projection reads across replicas.
 - (candidate) `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` creates a distributed response store whenever the provider label is `Distributed` without independently asserting that the resolved `IDistributedCache` is cross-process — input: distributed LLM cache configuration combined with a process-local cache registration; reachability: the singleton factory resolves `IDistributedCache` from the composed service provider.

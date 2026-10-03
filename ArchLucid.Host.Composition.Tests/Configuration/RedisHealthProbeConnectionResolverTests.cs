@@ -6,12 +6,35 @@ using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.Persistence.Coordination.Caching;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Host.Composition.Tests.Configuration;
 [Trait("Category", "Unit")]
 
 public sealed class RedisHealthProbeConnectionResolverTests
 {
+    [Fact]
+    public void Distributed_llm_cache_with_null_hot_path_redis_reports_configuration_error()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    [$"{LlmCompletionResponseCacheOptions.SectionName}:Enabled"] = "true",
+                    [$"{LlmCompletionResponseCacheOptions.SectionName}:Provider"] = "Distributed",
+                    [$"{HotPathCacheOptions.SectionName}:RedisConnectionString"] = null,
+                })
+            .Build();
+
+        ServiceCollection services = [];
+        Action act = () =>
+            ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded(
+                services,
+                configuration);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
     [Fact]
     public void TryResolve_returns_null_when_no_redis_values_configured()
     {

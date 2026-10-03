@@ -162,7 +162,7 @@ internal static class ArchLucidDistributedCacheRegistrar
             new HotPathCacheOptions();
 
         string redis = string.IsNullOrWhiteSpace(llm.RedisConnectionString)
-            ? hotPath.RedisConnectionString.Trim()
+            ? hotPath.RedisConnectionString?.Trim() ?? string.Empty
             : llm.RedisConnectionString.Trim();
 
         if (string.IsNullOrEmpty(redis))
