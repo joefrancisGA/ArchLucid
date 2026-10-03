@@ -4591,13 +4591,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-02 — triple-scoped table primary-key mutation bypassed ARCH006 scope binding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer` and focused tests; no failing repro was attempted for candidate-only rows; seeded record-declaration exemption handling as a fresh analyzer-shape candidate; 19 scoped analyzer tests passed.
 
 2026-10-01 seed hunt (seed-only): repeated the selected `RunsListClient.tsx` source review for filter disclosure, row/card activation, inspector state, and pagination; the exact focused filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
@@ -4635,6 +4637,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded tenant-scoped-analyzer after code churn; proved parameterless local-function / private-method SQL invocation bypassed `TenantScopedSqlExpressionResolver`; fixed `TryResolveFromMethodInvocation` with expression-body and single-return block folding; regression `ARCH006_reports_unscoped_sql_for_local_function_returning_sql`; 17 scoped analyzer tests passed.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — parameterless method invocation (`GetRunsSql()`) bypassed ARCH006 static resolution — **hit 2026-09-26 seed hunt:** resolver treated invocation as opaque symbol; fixed by folding zero-arg method bodies; regression `ARCH006_reports_unscoped_sql_for_local_function_returning_sql`.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — a `[TenantScopeExempt]` attribute on a persistence `record` declaration — the analyzer registers only `SyntaxKind.ClassDeclaration`, so the record symbol exemption is skipped and its intentionally exempt Dapper queries can still receive ARCH006; input is reachable from C# record types in `ArchLucid.Persistence`.
 
 2026-10-02 seed hunt (hit): reseeded tenant-scoped-analyzer; proved triple-scoped tables could bypass required workspace/project scope through primary-key/surrogate-key exemptions; fixed `requiresTripleScope` ordering before generic key exemptions; regression `ARCH006_reports_primary_key_delete_on_triple_scoped_table`; 18 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
