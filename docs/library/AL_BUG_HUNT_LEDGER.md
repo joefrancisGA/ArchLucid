@@ -25629,9 +25629,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — register responses exposed rows from older unsealed runs
 - **related-pd-tb:** none
@@ -25676,6 +25676,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (hit): proved register responses could expose an older unsealed run after the latest committed run passed the guard; validated every distinct source run in risk, decision, and bundled register responses. Regression passed, followed by 208 focused governance stickiness/posture/checklist tests.
 
 2026-10-03 seed hunt (seed-only): re-read governance stickiness controllers and pre-finalize checklist paths; cheap-disproved the dashed-vs-canonical policy-pack coverage concern via downstream run-id canonicalization; retained two reachable-path candidates for recurrence source-run sealing and missing finding run metadata. 208 focused governance stickiness/posture/checklist tests passed.
+
+2026-10-03 thorough hunt (dry): cheap-disproof and failing-repro attempts did not establish a reachable unsealed source-run recurrence response or metadata-only disposition fail-open outcome. 66 picker-scoped governance tests passed; both candidates remain open pending stronger runtime/repository evidence.
 
 2026-09-28 seed hunt (seed→hit): reseeded api-governance-stickiness; proved dashed-vs-canonical technology-ledger run id mismatch on pre-finalize checklist; 273 scoped stickiness/posture/checklist tests passed.
 
