@@ -71,6 +71,8 @@ export type EvidenceOrientationSourcesSectionProps = {
   readonly distinguishFollowUpDestinations?: boolean;
   /** When set, the matching follow-up renders as an outline button above the link list. */
   readonly promotedSourceHref?: string;
+  /** Optional cap for job-context follow-up filtering; omit to use the shared default. */
+  readonly maxLinks?: number;
 };
 
 /** Sources / follow-up index band shared by every evidence orientation strip. */
@@ -86,6 +88,7 @@ export function EvidenceOrientationSourcesSection({
   headingClassName,
   distinguishFollowUpDestinations = true,
   promotedSourceHref,
+  maxLinks,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
   const whereToGoNextVisible = useWhereToGoNextVisible();
@@ -93,7 +96,7 @@ export function EvidenceOrientationSourcesSection({
     ? filterWhereToGoNextFollowUpLinks(links)
     : links;
   const resolvedLinks = isWhereToGoNextFollowUpsTitle(title)
-    ? filterOrientationSourcesForJobContext(adminFilteredLinks, pathname)
+    ? filterOrientationSourcesForJobContext(adminFilteredLinks, pathname, maxLinks)
     : adminFilteredLinks;
 
   if (!whereToGoNextVisible) {

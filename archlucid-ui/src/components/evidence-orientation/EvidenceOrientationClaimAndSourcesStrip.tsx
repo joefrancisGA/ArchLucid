@@ -52,6 +52,8 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly stripTestId?: string;
   /** Where to go next strips default true so follow-up links prefix Read vs Open. */
   readonly distinguishFollowUpDestinations?: boolean;
+  /** Optional cap for job-context follow-up filtering; omit to use the shared default. */
+  readonly sourcesMaxLinks?: number;
   readonly promotedSourceHref?: string;
 };
 
@@ -83,6 +85,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   headingClassName,
   stripTestId,
   distinguishFollowUpDestinations = true,
+  sourcesMaxLinks,
   promotedSourceHref,
   hubSecondary = false,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element | null {
@@ -135,6 +138,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         listClassName={readingBodyClassName}
         headingClassName={headingClassName}
         distinguishFollowUpDestinations={resolvedDistinguishFollowUpDestinations}
+        maxLinks={sourcesMaxLinks}
         promotedSourceHref={promotedSourceHref}
       />
     </EvidenceOrientationStripShell>

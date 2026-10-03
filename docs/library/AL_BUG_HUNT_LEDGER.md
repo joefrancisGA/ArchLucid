@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — `WebhooksIntegrationEvidenceOrientationStrip` exposed five follow-up links, but the shared job-context cap truncated integration pages to three, dropping the reachable “How alerts work” link and failing the buyer-polished regression. Added an explicit source-list cap override and configured the webhook strip to retain all five links; isolated regression passed.
+
 2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload` materialization and JSON/null-document boundaries; no new mechanism-backed reachable candidate emerged; 28 picker-scoped payload tests passed.
 
 2026-10-03 seed hunt (seed-only): `core-requests-constraints` — re-read `RequestConstraintClassifier` and its matcher delegation; no mechanism-backed reachable candidate emerged; 868 scoped request-constraint tests passed.
