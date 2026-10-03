@@ -3007,10 +3007,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 63
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-02
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3099,8 +3099,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-11 seed hunt #1777 (hit): reseeded arm-terraform-source-ids after #1776; proved padded endpoint alias key resolution gap; 1 scoped edge mapper regression passed.
 
 - [x] (proven) `TerraformAzurermResourceTypeParser.TryParseSlug` — a reachable Terraform module address such as `module.azurerm_wrapper.azurerm_app_service.main` matched the module token first, so the actual provider resource token was not recognized; synthetic service aliases were omitted and relationship edges were dropped — **hit 2026-10-02 seed hunt:** parse the final `azurerm_`/`azuread_` token; regression `MapRelationships_resolves_synthetic_service_id_when_terraform_module_name_contains_azurerm_token`.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — emits one `GraphEdge` per duplicate `ManifestRelationship` without deduplicating the derived edge id; reachable duplicate agent relationship proposals can create duplicate graph edges or unstable overwrite behavior, requiring graph-merge proof of the intended duplicate semantics.
 
 2026-10-02 seed hunt (hit): reseeded arm-terraform-source-ids; proved Terraform module-name provider-token collision; 978 scoped edge-mapper/graph-merge tests passed with analyzers disabled.
+
+2026-10-03 seed hunt (seed-only): re-read ARM/Terraform endpoint indexing and edge mapping; seeded a duplicate-relationship edge candidate. 978 scoped edge-mapper/graph-merge tests passed with analyzers disabled; no candidate was promoted.
 
 ---
 
