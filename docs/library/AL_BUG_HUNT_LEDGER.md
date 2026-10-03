@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read the selected diagram model, generated-content parser, SVG/neighborhood helpers, and architecture diagram tests; no new defect met the repro bar. Seeded five reachable candidates for follow-up.
+
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — the declared Integration readiness follow-up was filtered out because its administration href was treated as forbidden in the shared “Where to go next” filter; preserved explicitly curated administration follow-ups for this integration strip and aligned accessible-name regressions. 58 focused webhook tests passed.
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
@@ -27975,14 +27977,19 @@ ABQ-09 churn hotspot.
 ## Zone: ui-architecture-diagram
 
 - **id:** ui-architecture-diagram
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+- (candidate) `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` is split into three parts, but only the first two become endpoints and the remaining text becomes the edge label, potentially dropping the reachable Queue→Worker leg; input originates from the parsed `## Data flows` section.
+- (candidate) `findNodeIdByLabel` in `architecture-diagram-model.ts` — a generated-content flow naming two entities with the same case-insensitive label resolves both endpoint references to the first live node, potentially attaching the flow to the wrong entity; input originates from user-authored/generated `users-and-stakeholders` and `systems-and-services` sections plus `data-flows`.
+- (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
+- (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
+- (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
