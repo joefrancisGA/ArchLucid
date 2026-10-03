@@ -2,6 +2,8 @@
 
 2026-10-03 seed hunt (seed-only): `ui-review-detail-workspace` — re-read the selected review route, findings workspace, workspace chrome, and presentation derivation; no new mechanism-backed reachable candidate survived cheap-disproof; 33 scoped review-detail tests passed.
 
+2026-10-03 seed hunt (seed-only): `ui-review-detail-workspace` — repeated the scoped source review with no code changes or reachable contract failure; 33 scoped review-detail tests passed.
+
 2026-10-02 seed hunt (hit): `tenant-scoped-analyzer` — ARCH006a missed a reachable non-constant local SQL initializer when the Dapper SQL argument was only the local variable reference; the analyzer inspected `sql` but not its initializer, so `dbo.Runs` produced no warning. Added initializer-aware diagnostic text candidates and regression `ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table`; 19 scoped tests passed.
 
 ## Zone: topology-proposal-merge
