@@ -55,6 +55,28 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain("old warning");
     }
 
+    [Fact]
+    public async Task GenerateDocxAsync_includes_report_warnings()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Warnings = ["Manifest 'v1-run' was not found."],
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Report Warnings");
+        text.Should().Contain("Manifest 'v1-run' was not found.");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream memoryStream = new(docxBytes);

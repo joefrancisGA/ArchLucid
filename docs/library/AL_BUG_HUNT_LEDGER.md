@@ -10890,11 +10890,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 36
-- **bugs-found:** 34
+- **hunts:** 37
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — agent-result comparison accepted an unsealed compare run
+- **last-bug:** 2026-10-03 — DOCX architecture-analysis export omitted report-level warnings
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -10903,6 +10903,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ReplayComparisonInterpretationDiffSlice` / `AgentResultDeltaMateriality` — agent presence-only deltas treated as non-material in synergy interpretation notes — **hit 2026-09-27 seed hunt #26:** `HasMaterialChanges` omitted `LeftExists` vs `RightExists`; fixed in `AgentResultDeltaMateriality.cs`; regression in `EndToEndReplayComparisonServiceRunDiffTests`.
 
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — the sealed-manifest hash guard covered only the primary `RunId`, while `IncludeAgentResultCompare` loaded a separate `CompareRunId` without an equivalent check; **hit 2026-10-03 seed hunt:** an analysis request with `IncludeAgentResultCompare=true` returned an agent diff for an unsealed compare run; guard now validates the compare run before diffing; regression `BuildAsync_blocks_unsealed_compare_run_when_agent_result_compare_is_requested`.
+- [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — report-level `ArchitectureAnalysisReport.Warnings` were omitted from DOCX output even though the markdown export rendered them; **hit 2026-10-03 seed hunt:** a reachable missing-manifest warning disappeared from the downloadable DOCX; fixed with a Report Warnings section and bullet rendering; regression `GenerateDocxAsync_includes_report_warnings`.
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` directly without proving that the comparison manifest belongs to the current scoped tenant/run lineage (reachable input: caller-supplied compare manifest version on an analysis request; needs a concrete cross-run/tenant lookup path and wrong-result repro).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — a supplied `PreloadedRunDetail.Manifest` is accepted after validating only `PreloadedRunDetail.Run.RunId`, so a stale preloaded detail could carry a manifest from another run into the report (reachable input: internal export/analysis caller supplying a preloaded detail; needs proof that such preloaded details can be assembled with mismatched manifest provenance).
 
@@ -10911,6 +10912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only, second pass): revalidated the three open architecture-analysis candidates; 19 picker-scoped tests passed with analyzers disabled; no candidate met the failing-repro bar.
 
 2026-10-03 seed hunt (seed→hit): proved `ArchitectureAnalysisService` compared agent results from an unsealed `CompareRunId`; added comparison-run sealed-manifest validation and regression coverage. 20 picker-scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved DOCX architecture-analysis exports dropped report-level warnings; added warning-section rendering and regression coverage. 21 picker-scoped tests passed.
 
 2026-09-12 seed hunt #2259 (seed-only): reseeded application-analysis with `-Hint application analysis`; no new hunt-ready rows.
 2026-09-12 seed hunt #2166 (seed-only): reseeded application-analysis with `-Hint application-analysis`; no new hunt-ready rows.

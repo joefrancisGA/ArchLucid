@@ -28,6 +28,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
             builder.AddParagraph($"Current Manifest Version: {report.Run.CurrentManifestVersion}");
         builder.AddSpacer();
+        if (report.Warnings.Count > 0)
+        {
+            builder.AddHeading("Report Warnings", 2);
+            foreach (string warning in report.Warnings)
+                builder.AddBullet(warning);
+            builder.AddSpacer();
+        }
         if (report.Evidence is not null)
         {
             builder.AddHeading("Evidence Package", 2);
