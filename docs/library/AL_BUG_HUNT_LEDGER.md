@@ -26888,7 +26888,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -27754,6 +27754,8 @@ ABQ-09 churn hotspot.
 2026-10-02 thorough hunt (dry): cheap-disproved the approval-banner candidate because the selected queue path has no reachable approval-provenance input; retained the malformed saved-view payload candidate pending proof that the API can return unsupported filter JSON. Focused Vitest ran 22 tests: 11 passed and 11 failed on baseline React external-store/update-depth or workspace-label failures.
 
 2026-10-02 seed hunt (seed-only): re-read the queue client, saved-view contract, approval banner contract, and focused tests; converted the two prior candidates into picker-recognized rows, but neither had a complete reachable input contract for a failing repro.
+
+2026-10-03 seed hunt (seed-only): re-read the findings queue client, queue mode, synopsis, facets, route boundary, and focused tests; no new hunt-ready row or bounded candidate emerged. No code changes.
 
 ---
 
