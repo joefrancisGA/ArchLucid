@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable generated-content data-flow row whose endpoint label contained the word `to` was split inside the endpoint token, so the diagram silently dropped the flow edge; constrained the textual delimiter to a word boundary and added a regression. 1 repro test failed before the fix; 6 scoped architecture diagram test files passed after it.
+
 2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read the selected diagram model, generated-content parser, SVG/neighborhood helpers, and architecture diagram tests; no new defect met the repro bar. Seeded five reachable candidates for follow-up.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — the declared Integration readiness follow-up was filtered out because its administration href was treated as forbidden in the shared “Where to go next” filter; preserved explicitly curated administration follow-ups for this integration strip and aligned accessible-name regressions. 58 focused webhook tests passed.
@@ -28039,14 +28041,15 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 5
-- **bugs-found:** 2
+- **hunts:** 6
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
 - [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
+- [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — a generated-content data-flow row such as `Token: API` was rewritten to `Token -> API`, then the unbounded textual `to` delimiter split the `Token` endpoint itself and dropped the edge; `to` now requires word boundaries; regression `preserves data-flow endpoints whose labels contain the word 'to'`.
 - (candidate) `findNodeIdByLabel` in `architecture-diagram-model.ts` — a generated-content flow naming two entities with the same case-insensitive label resolves both endpoint references to the first live node, potentially attaching the flow to the wrong entity; input originates from user-authored/generated `users-and-stakeholders` and `systems-and-services` sections plus `data-flows`.
 - (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
