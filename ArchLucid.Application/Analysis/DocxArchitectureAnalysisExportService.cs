@@ -1,5 +1,6 @@
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Diagrams;
 
@@ -60,6 +61,37 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             }
 
             builder.AddSpacer();
+        }
+
+        builder.AddHeading("Agent Execution Traces", 2);
+        if (report.ExecutionTraces.Count == 0)
+            builder.AddParagraph("No execution traces were found for this run.");
+        else
+        {
+            foreach (AgentExecutionTrace trace in report.ExecutionTraces
+                         .OrderBy(x => x.AgentType)
+                         .ThenBy(x => x.CreatedUtc))
+            {
+                builder.AddHeading($"{trace.AgentType} — Task {trace.TaskId}", 3);
+                builder.AddBullet($"Trace ID: {trace.TraceId}");
+                builder.AddBullet($"Parse Succeeded: {(trace.ParseSucceeded ? "Yes" : "No")}");
+                builder.AddBullet($"Created UTC: {trace.CreatedUtc:O}");
+                if (!string.IsNullOrWhiteSpace(trace.ErrorMessage))
+                    builder.AddBullet($"Error: {trace.ErrorMessage}");
+                builder.AddHeading("System Prompt", 4);
+                builder.AddCodeBlock(trace.SystemPrompt, "text");
+                builder.AddHeading("User Prompt", 4);
+                builder.AddCodeBlock(trace.UserPrompt, "text");
+                builder.AddHeading("Raw Response", 4);
+                builder.AddCodeBlock(trace.RawResponse, "json");
+                if (!string.IsNullOrWhiteSpace(trace.ParsedResultJson))
+                {
+                    builder.AddHeading("Parsed Result", 4);
+                    builder.AddCodeBlock(trace.ParsedResultJson, "json");
+                }
+
+                builder.AddSpacer();
+            }
         }
 
         if (report.Manifest is not null)
