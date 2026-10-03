@@ -8558,3 +8558,4 @@
 {"at":"2026-10-03T02:43:03.4087795Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-03T04:12:57.5520837Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/"]}
 {"at":"2026-10-03T04:19:13.5301449Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/"]}
+{"at":"2026-10-03T04:23:40.5372780Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/"]}

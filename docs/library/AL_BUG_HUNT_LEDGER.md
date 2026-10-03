@@ -6565,13 +6565,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — stale subscriptions table after failed refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved create save stayed enabled when `listAlertRoutingSubscriptions` failed so client duplicate-name guard ran against an empty `webhookRows` inventory; fixed with `hasLoadedSuccessfully` gate on save/submit; seeded connection-test network-error inline panel and empty-list refresh affordance candidates; 47 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
@@ -6585,6 +6587,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2173 (seed-only): reseeded ui-webhooks-settings with `-Hint webhooks -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
+- (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
+- (candidate) `WebhooksSettingsClient.openSubscription` — API subscription ID is interpolated into a CSS attribute selector without escaping; a selector-significant ID could throw on Continue-last action; reachable through a persisted API subscription ID.
+- (candidate) `WebhooksSettingsClient.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix requirement can hide severity configuration for mixed/case-variant event types; reachable through event-type values in the create form/API vocabulary.
+- (candidate) `useWebhooksSettingsMutations.executeToggle` — pending URL/dialog state may be reconstructed from stale toggle query params after scope change; reachable through an in-flight toggle plus scope navigation retaining `webhookEnableId`/`webhookDisableId`.
 
 - [x] Signing secret from a previous workspace remains visible after scope switch
 - [x] Save succeeds in the UI when the API returned 403 (retired: create throws on !ok; success callout only after await)
