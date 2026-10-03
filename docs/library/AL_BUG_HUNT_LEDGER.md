@@ -6108,8 +6108,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 27
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
@@ -26779,12 +26779,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **hunts:** 26
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — kill-switch during slow TryPromote still returned permit
+- **last-hunt:** 2026-10-03
+- **last-bug:** 2026-10-03 — post-admit operational snapshot failure leaked a direct lease
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
 
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — kill-switch during slow `TryPromoteAsync` still grants queued permit — **hit 2026-09-27 seed hunt #26:** post-promote snapshot re-check releases promoted lease; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`.
+
+2026-10-03 seed hunt (seed→hit): proved a post-admit operational snapshot exception was caught as `StoreUnavailable` without releasing a direct lease already granted by `TryAdmitAsync`; fixed by cleaning up the admitted lease or queue entry on post-admit failure; regression `WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails`; 41 scoped tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — operational snapshot failure after successful admit leaks a direct lease — **hit 2026-10-03 seed hunt:** the post-admit re-check shared the store-admit catch, so exceptions returned `StoreUnavailable` while retaining capacity; cleanup now releases direct leases and abandons queued entries when that re-check fails; regression `WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails`.
 
 2026-09-27 seed hunt #25 (seed→hit): reseeded post-operational admit window; proved kill-switch or operational anonymous block applied during slow `TryAdmitAsync` still committed a direct lease or queue row because gates ran only before the store call; fixed with post-admit operational/safety re-check and lease or queue rollback; regressions `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_admit`, `WaitForAdmissionAsync_rejects_when_operational_blocks_anonymous_during_slow_try_admit`; 39 scoped QuickScanDistributedConcurrency tests passed.
 

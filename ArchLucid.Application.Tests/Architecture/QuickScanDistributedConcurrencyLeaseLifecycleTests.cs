@@ -869,6 +869,65 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails()
+    {
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 1,
+                QueueWaitTimeoutSeconds = 30,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .SetupSequence(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            })
+            .ThrowsAsync(new InvalidOperationException("Simulated post-admit operational snapshot failure."));
+
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        QuickScanDistributedConcurrencyAdmissionResult admission =
+            await service.WaitForAdmissionAsync("post-admit-operational-failure");
+
+        admission.Allowed.Should().BeFalse();
+        admission.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.StoreUnavailable);
+
+        QuickScanConcurrencyAdmitResult capacityProbe = await store.TryAdmitAsync(
+            BuildAdmitRequest(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "capacity-probe",
+                maxConcurrent: 1,
+                maxQueued: 0));
+
+        capacityProbe.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_uses_current_lease_duration_on_each_promote_attempt()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
