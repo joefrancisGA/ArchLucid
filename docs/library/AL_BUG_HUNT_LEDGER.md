@@ -23437,13 +23437,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — `ArchitectureKnowledgeModelGraphProjector` emitted duplicate edge identifiers for different edge types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the selected KnowledgeGraph/Provenance files after the edge-id fix; no new hunt-ready repro was supported; seeded provenance content-hash normalization and agent-trace-id normalization candidates; 357 KnowledgeGraph tests passed with 3 pre-existing failures and 47 Provenance tests passed.
 
 2026-10-03 thorough hunt (hit): promoted the graph-projector edge-id candidate; failing repro exposed duplicate `EdgeId` values for different edge types, fixed the identifier to include `edgeType`; cheap-disproved the type-filter candidate; 357 KnowledgeGraph tests passed with 3 pre-existing failures and 47 Provenance tests passed.
 
@@ -23484,6 +23486,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureKnowledgeModelGraphProjector.Project` — two reachable model elements produced the same canonical endpoints with different mapped edge types, but `EdgeId` was always `${from}->${to}:RELATES`; **hit 2026-10-03 thorough hunt:** distinct `ConnectsTo`/`Exposes` edges shared an identifier, so edge-index consumers could conflate them; fixed `EdgeId` to include the mapped edge type; regression `Project_assigns_unique_edge_ids_when_same_endpoints_have_different_edge_types`.
 - [x] (valid-no-repro) `GraphSnapshotExtensions.GetNodesByType` / `GetEdgesByType` — persisted node or edge type values with surrounding whitespace — **cheap-disproof 2026-10-03 thorough hunt:** these helpers have no selected-zone production callers, and selected graph builders emit canonical type constants; no reachable product input supported a failing repro.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — persisted artifact `ContentHash` values with surrounding whitespace — fingerprint uses the raw hash string, so semantically identical artifact rows can produce different provenance revisions and unnecessary refreshes; input is reachable from `ProvenanceBuildInput.Artifacts`.
+- [ ] (candidate) `ProvenanceBuilder.ResolveAgentExecutionTraceId` — a non-empty but padded `AgentExecutionTraceId` takes precedence over the trace fallback without trimming — provenance metadata can retain a non-canonical trace reference; input is reachable from `Finding.AgentExecutionTraceId` and `Finding.Trace`.
 
 - [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
 - [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes
