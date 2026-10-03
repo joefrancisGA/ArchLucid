@@ -11,6 +11,8 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
+export const SECURENOW_INFRASTRUCTURE_DRIFT_LABEL = "Snapshots & Drift" as const;
+
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Infrastructure" as const;
 
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
@@ -30,7 +32,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
+    label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
     summary: "Compare inventory snapshots, classify drift, and export advisory Terraform.",
   },
   {

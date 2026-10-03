@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
 
 export const metadata: Metadata = {
-  title: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
+  title: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
 };
 
 /** SecureNow drift workbench — snapshot compare, change rows, advisory Terraform export. */

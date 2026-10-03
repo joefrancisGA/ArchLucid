@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -176,6 +177,7 @@ import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
 import {
   formatInfraEvidenceDiffLabel,
   formatInfraEvidenceSnapshotLabel,
@@ -218,6 +220,9 @@ type PendingDriftSubscriptionConfirmation =
   | { readonly kind: "diff"; readonly diffId: string };
 
 export function DriftWorkbenchClient() {
+  const { productLine } = useProductLine();
+  const pageTitle =
+    productLine === "security" ? SECURENOW_INFRASTRUCTURE_DRIFT_LABEL : GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE;
   const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "";
@@ -1279,7 +1284,7 @@ export function DriftWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
-        title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
+        title={pageTitle}
         subtitle={
           <>
             {GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_SUBTITLE_LEAD}{" "}
@@ -1297,7 +1302,7 @@ export function DriftWorkbenchClient() {
             shortcutsTestId="infra-drift-page-shortcuts"
             shortcuts={DRIFT_WORKBENCH_PAGE_SHORTCUTS}
             scopeStatusBadge={scopeStatusBadge}
-            contextualHelpTriggerText={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
+            contextualHelpTriggerText={pageTitle}
             extraShortcutHints={
               <>
                 {" · snapshot rows "}
