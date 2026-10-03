@@ -6597,8 +6597,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) Plain leaf evidence lines carry em-dash annotations so `ExtractLeafPaths` truncates hosted apply paths — **cheap-disproof 2026-09-11 seed hunt #1768:** thirteen unannotated leaves are exact `infra/terraform-*` paths; regression `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths`.
 - [x] (valid-no-repro) Consumption APIM root `infra/terraform` is ordered after longer `infra/terraform-*` siblings so substring `Contains` checks mis-rank apply order — **cheap-disproof 2026-09-11 seed hunt #1768:** edge → terraform → monitoring ordering matches `$appWaveLeaves`; regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
+- [ ] (candidate) `DefaultApplyOrderRoots` can become stale when `infra/apply-saas.ps1` adds a new `$multiRootSequence` leaf; a reachable repository deployment-profile change could make deployment evidence omit that root even while the apply script deploys it.
+- [ ] (candidate) `DefaultApplyOrderRoots` labels composition roots and the pilot profile as “no Azure apply” while the report presents every returned line under “expected apply order”; a reachable deployment-evidence report consumer could interpret metadata-only entries as executable apply targets.
 
 2026-09-11 seed hunt #1768 (seed-only): reseeded cli-terraform-evidence after #1759; cheap-disproof closed plain-leaf annotation and consumption-APIM ordering candidates; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+2026-10-03 seed hunt (seed-only): reread `DeploymentEvidenceTerraformReference` and its 25 focused tests; no new hunt-ready defect met the reachability and wrong-outcome bar. Added two source-backed candidates for future falsification; all focused tests passed.
 
 - [x] (valid-no-repro) Annotated composition/pilot/orchestrator evidence lines carry trailing whitespace that corrupts path extraction — **cheap-disproof 2026-09-11 seed hunt #1779:** plain-leaf guard `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths` plus em-dash split on annotated lines; all twenty paths trim-clean.
 - [x] (valid-no-repro) `infra/terraform-private` is not the first hosted leaf after composition roots — **cheap-disproof 2026-09-11 seed hunt #1779:** first leaf after composition is private per `$foundationWaveLeaves`; regression `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence`.
