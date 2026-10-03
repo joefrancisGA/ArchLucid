@@ -4995,13 +4995,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-26 — undefined insight-density TINYINT storage blocked typed-payload fallback on inspect
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read scoped finding selection, tenant predicates, child joins, typed-payload fallbacks, enum/byte mapping, and disposition projections; no fresh reachable mechanism-backed candidate met the hunt-ready bar; 419 focused tests passed.
 
 2026-09-12 seed hunt #2085 (seed-only): reseeded finding-inspect-sql; no new hunt-ready rows
 
