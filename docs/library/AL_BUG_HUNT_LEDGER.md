@@ -9668,7 +9668,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-01
@@ -26890,6 +26890,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-03 seed hunt (seed-only): re-read the review-detail route tree, page model, workspace presentation, findings workspace, and header state; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering remount restore guards, run-transition filter state, list-view state, persistence races, and same-document metadata URL synchronization.
+
 2026-10-03 seed hunt (hit): promoted the review-detail URL synchronization candidate; `useReviewDetailWorkspaceTabs` passed an empty search-param set to initial tab resolution and had no reactive `useSearchParams` dependency, so soft navigation from Overview to Findings left the active panel stale. Fixed by consuming reactive search params and synchronizing `activeTab`; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts` (2 passed).
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-review-detail-workspace; proved `RunDetailCreateHomeActivityPanel` orientation links omitted `includeCreateIntent` on overview/findings/clarifications tabs; fixed create-home activity hrefs; seeded `resolveReviewWorkspaceLifecycle` treating any `manifestId` as finalized and `ArchitectureCreatedClarificationsPanel` create-home tab href parity candidates; 9 create-home activity band vitest tests passed.
@@ -26905,6 +26907,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
+
+- (candidate) `RunDetailFindingsWorkspace` — the module-level `reviewFindingsLastVisitRestoredRunIds` set can suppress a later restore after the same run is remounted with findings query parameters removed; reachable by opening a run, navigating away and back, then returning without persisted findings filters in the URL.
+- (candidate) `RunDetailFindingsWorkspace` — classification-band state can remain on the prior run’s band during a client-side run transition until a URL event occurs because the initial state is not keyed by `runId`; reachable by switching between two review IDs with no classification-band query parameter.
+- (candidate) `RunDetailFindingsWorkspace` — list-view state can retain the prior run’s table/card preference during a client-side run transition before URL synchronization runs; reachable by switching review IDs with no `reviewFindingsListView` parameter.
+- (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
+- (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
 
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
 - [x] (proven) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — used `findingCountDisplay` from deferred explanation while findings list used detail snapshot on first paint — **hit 2026-09-07 (#1196):** tab badge stayed empty until explanation loaded even when triage-visible findings were already in run detail; fixed via `resolveRunDetailFindingsTabBadgeCount` fallback to detail triage counts (`falls back to detail snapshot triage counts when explanation count is deferred`)
