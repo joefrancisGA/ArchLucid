@@ -79,6 +79,68 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
     }
 
     [Fact]
+    public void Classify_bastion_uses_parent_virtual_network_subnet_list_when_subnet_node_is_hidden()
+    {
+        GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
+        bastion.Properties["subnet.id"] = SubnetArmId;
+        GraphNode virtualNetwork = CreateTopologyNode(
+            "vnet-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "Microsoft.Network/virtualNetworks");
+        virtualNetwork.Properties["subnets"] = $$"""[{"id":"{{SubnetArmId}}","name":"AzureBastionSubnet"}]""";
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            bastion,
+            CreateGraph([bastion, virtualNetwork], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
+    public void Classify_bastion_uses_inventory_subnet_edge_even_when_subnet_id_does_not_match()
+    {
+        GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
+        bastion.Properties["subnet.id"] = $"{SubnetArmId}-stale";
+        GraphNode subnet = CreateTopologyNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            bastion,
+            CreateGraph(
+                [bastion, subnet],
+                [
+                    new GraphEdge
+                    {
+                        EdgeId = "bastion-subnet",
+                        FromNodeId = bastion.NodeId,
+                        ToNodeId = subnet.NodeId,
+                        EdgeType = "bastionToSubnet",
+                    },
+                ]),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
+    public void Classify_bastion_uses_flattened_ip_configuration_subnet_id()
+    {
+        GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
+        bastion.Properties["ipConfiguration.subnet.id[0]"] = SubnetArmId;
+        GraphNode subnet = CreateTopologyNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            bastion,
+            CreateGraph([bastion, subnet], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
     public void Classify_bastion_without_inventory_subnet_remains_orphaned()
     {
         GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
@@ -90,7 +152,7 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
 
         result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
         result.MissingRequirementMessage.Should().Contain("required subnet");
-        result.MissingRequirementMessage.Should().Contain("no longer exists");
+        result.MissingRequirementMessage.Should().Contain("is not in this inventory snapshot");
     }
 
     [Fact]
