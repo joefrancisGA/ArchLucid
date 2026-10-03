@@ -134,7 +134,8 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
     {
         mapped = null;
         error = null;
-        if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source))
+if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source)
+    || !Enum.IsDefined(source))
         {
             error = "Source is invalid.";
             return false;
