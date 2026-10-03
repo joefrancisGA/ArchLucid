@@ -6200,7 +6200,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -27440,9 +27440,14 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed-only): reseeded ui-infra-resource-hub; cheap-disproved the stale-resource-response candidate with the existing component lifecycle behavior; seeded RBAC and network relationship row-key collision candidates; 49 scoped ResourceHubClient tests passed.
 
+2026-10-03 seed hunt (seed-only): re-read tab navigation, resource-title derivation, audit-control selection, and captured collection rendering; no hunt-ready row was promoted; seeded concrete candidates for duplicate audit-control identity, trailing resource-title segments, and technical disclosure state carried through audit-control changes; 49 scoped ResourceHubClient tests passed.
+
 - [x] (valid-no-repro) `ResourceHubClient.loadHub` — a slower response for a previous `cloudResourceId` may overwrite a newer route's hub — **cheap-disproof 2026-10-03 seed hunt:** deferred-response repro passed with the newer hub title retained after the older request resolved; no production fix warranted.
 - [ ] (candidate) `ResourceHubClient` RBAC assignments table — two captured assignments with the same `principalId` and `roleDefinitionId` but different `scope` values — the React key `${principalId}-${roleDefinitionId}` collides, so one scoped assignment may be reused or omitted in the rendered table; input is reachable from `hub.rbacAssignments`.
 - [ ] (candidate) `ResourceHubClient` network relationships table — two captured relationships with the same `fromAzureResourceId` and `toAzureResourceId` but different `relationshipType` values — the React key omits relationship type, so one relationship row may be reused or omitted; input is reachable from `hub.networkRelationships`.
+- [ ] (candidate) `ResourceHub` audit-control list — two lineage matches with the same `controlId` and `auditEvidenceSnapshotId` but different `assessmentId` values — the “Other linked controls” key `${controlId}-${auditEvidenceSnapshotId}` collides and the inline picker value is only `controlId`, so one reachable cross-assessment match may be reused or become ambiguous; input is reachable from `hub.auditLineageLink.matches`.
+- [ ] (candidate) `ResourceHubClient.resourceTitle` — a captured ARM resource ID ending in `/` yields an empty final path segment, so the page title can normalize to blank instead of the resource identifier; input is reachable from `hub.currentConfiguration.azureResourceId` or `hub.externalResourceId`.
+- [ ] (candidate) `ResourceHubClient.setActiveTab` — an audit control change followed by tab navigation can retain the prior `infraResourceHubTechnicalKey` query value when it is a non-terraform disclosure key, leaving URL state for a disclosure that is not rendered on the new tab; input is reachable from the technical disclosure query parameter and audit scope picker.
 
 2026-09-27 seed hunt #24 (seed→hit): reseeded ui-infra-resource-hub; proved `sanitizeResourceHubQueryForTab` kept `infraResourceHubTechnicalKey=terraformAddress` when leaving the terraform tab, so tab-bar navigation carried a terraform-only disclosure key (and local open state) onto other hub tabs while `workQueue`/`runId` stayed intact; fixed by stripping terraform-only technical keys outside the terraform tab; regressions `clears terraform technical disclosure key when switching away from terraform tab`, `threads explorer workQueue when using G then E keyboard shortcut to return to explorer`, and `drops terraform-only technical disclosure key when leaving terraform tab`; 49 scoped ResourceHubClient tests passed.
 
