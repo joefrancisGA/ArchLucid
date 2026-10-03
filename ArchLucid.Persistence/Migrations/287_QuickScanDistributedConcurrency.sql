@@ -153,12 +153,32 @@ BEGIN
 
     DECLARE @QueueStatus TINYINT;
     DECLARE @QueueExpiresUtc DATETIME2;
+    DECLARE @QueueEnqueuedUtc DATETIME2;
 
-    SELECT @QueueStatus = Status, @QueueExpiresUtc = QueueExpiresUtc
+    SELECT
+        @QueueStatus = Status,
+        @QueueExpiresUtc = QueueExpiresUtc,
+        @QueueEnqueuedUtc = EnqueuedUtc
     FROM dbo.QuickScanConcurrencyQueue WITH (UPDLOCK, ROWLOCK)
     WHERE QueueEntryId = @QueueEntryId;
 
     IF @QueueStatus IS NULL OR @QueueStatus <> 0 OR @QueueExpiresUtc <= @UtcNow
+    BEGIN
+        COMMIT TRANSACTION;
+        RETURN;
+    END
+
+    IF EXISTS
+    (
+        SELECT 1
+        FROM dbo.QuickScanConcurrencyQueue WITH (UPDLOCK, HOLDLOCK)
+        WHERE Status = 0
+          AND QueueExpiresUtc > @UtcNow
+          AND
+          (
+              EnqueuedUtc < @QueueEnqueuedUtc
+          )
+    )
     BEGIN
         COMMIT TRANSACTION;
         RETURN;

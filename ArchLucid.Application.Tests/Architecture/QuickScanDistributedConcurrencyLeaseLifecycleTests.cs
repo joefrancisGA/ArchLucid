@@ -2194,6 +2194,59 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             "atomic admit must not leave a queue row when TryAdmitAsync throws before returning Queued");
     }
 
+    [Fact]
+    public async Task InMemoryStore_does_not_promote_a_later_queue_entry_ahead_of_an_earlier_entry()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        DateTimeOffset start = new(2026, 10, 3, 13, 0, 0, TimeSpan.Zero);
+
+        QuickScanConcurrencyAdmitResult active = await store.TryAdmitAsync(
+            BuildAdmitRequest(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "active",
+                maxConcurrent: 1,
+                maxQueued: 2,
+                utcNow: start));
+        active.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        QuickScanConcurrencyAdmitResult first = await store.TryAdmitAsync(
+            BuildAdmitRequest(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "first",
+                maxConcurrent: 1,
+                maxQueued: 2,
+                utcNow: start.AddSeconds(1)));
+        QuickScanConcurrencyAdmitResult second = await store.TryAdmitAsync(
+            BuildAdmitRequest(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "second",
+                maxConcurrent: 1,
+                maxQueued: 2,
+                utcNow: start.AddSeconds(2)));
+
+        first.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.Queued);
+        second.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.Queued);
+
+        await store.ReleaseLeaseAsync(active.LeaseId!.Value);
+
+        QuickScanConcurrencyPromoteResult laterPromotion = await store.TryPromoteAsync(
+            new QuickScanConcurrencyPromoteRequest
+            {
+                QueueEntryId = second.QueueEntryId!.Value,
+                LeaseId = Guid.NewGuid(),
+                HolderInstanceId = "test-instance",
+                UtcNow = start.AddSeconds(3),
+                MaxConcurrentScans = 1,
+                LeaseDuration = TimeSpan.FromSeconds(60),
+            });
+
+        laterPromotion.Promoted.Should().BeFalse(
+            "the bounded Quick Scan queue must promote waiting requests in enqueue order");
+    }
+
     private static Mock<IOptionsMonitor<QuickScanSafetyOptions>> CreateDefaultSafetyOptions()
     {
         Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();

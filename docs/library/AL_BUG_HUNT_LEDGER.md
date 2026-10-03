@@ -26778,17 +26778,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 26
-- **bugs-found:** 18
+- **hunts:** 27
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — post-admit operational snapshot failure leaked a direct lease
+- **last-bug:** 2026-10-03 — later queued request overtook an earlier Quick Scan waiter
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
 
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — kill-switch during slow `TryPromoteAsync` still grants queued permit — **hit 2026-09-27 seed hunt #26:** post-promote snapshot re-check releases promoted lease; regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`.
 
 2026-10-03 seed hunt (seed→hit): proved a post-admit operational snapshot exception was caught as `StoreUnavailable` without releasing a direct lease already granted by `TryAdmitAsync`; fixed by cleaning up the admitted lease or queue entry on post-admit failure; regression `WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails`; 41 scoped tests passed.
+
+2026-10-03 seed hunt (seed→hit): proved a later queued request could promote ahead of an earlier waiting request because each waiter promoted its own entry without checking enqueue order; fixed FIFO promotion in the in-memory store and SQL procedure; regression `InMemoryStore_does_not_promote_a_later_queue_entry_ahead_of_an_earlier_entry`; 42 scoped tests passed.
 
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — operational snapshot failure after successful admit leaks a direct lease — **hit 2026-10-03 seed hunt:** the post-admit re-check shared the store-admit catch, so exceptions returned `StoreUnavailable` while retaining capacity; cleanup now releases direct leases and abandons queued entries when that re-check fails; regression `WaitForAdmissionAsync_releases_direct_lease_when_post_admit_operational_snapshot_fails`.
 
@@ -26870,6 +26872,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `InMemoryQuickScanDistributedConcurrencyStore.TryPromoteAsync` / `usp_QuickScanConcurrency_TryPromote` — a later queued Quick Scan request can acquire the freed slot before an earlier waiter because promotion checks only the requested row and active-lease count; **hit 2026-10-03 seed hunt:** concurrent public requests enqueue at distinct times, then the later entry is promoted first; require no earlier unexpired waiting entry before promotion in both implementations; regression `InMemoryStore_does_not_promote_a_later_queue_entry_ahead_of_an_earlier_entry`.
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None` — `CancellationToken.None` is intentional cleanup (same pattern as `SqlTenantAuthorityPipelineConcurrencyGate`); cancel path abandons queue row (`QuickScanDistributedConcurrencyLeaseLifecycleTests.WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting`)
 - [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (#1193): `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`; `DisposeAsync` still uses default non-cancellable release for intentional cleanup
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `catch (Exception)` on `TryPromoteAsync` swallowed `OperationCanceledException` and returned `StoreUnavailable` instead of abandoning via the cancel path and rethrowing; store-error abandon used caller token — **hit 2026-09-07 (#1209):** exclude `OperationCanceledException` from promote store-error handler; abandon promote failures and queue timeouts with `CancellationToken.None` (`WaitForAdmissionAsync_abandons_queue_entry_when_promote_is_cancelled`)
