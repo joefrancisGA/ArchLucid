@@ -69,6 +69,8 @@ export type EvidenceOrientationSourcesSectionProps = {
    * the destination before click.
    */
   readonly distinguishFollowUpDestinations?: boolean;
+  /** Keep explicitly curated administration follow-ups on product integration surfaces. */
+  readonly preserveAdminFollowUps?: boolean;
   /** When set, the matching follow-up renders as an outline button above the link list. */
   readonly promotedSourceHref?: string;
   /** Optional cap for job-context follow-up filtering; omit to use the shared default. */
@@ -87,12 +89,13 @@ export function EvidenceOrientationSourcesSection({
   listClassName,
   headingClassName,
   distinguishFollowUpDestinations = true,
+  preserveAdminFollowUps = false,
   promotedSourceHref,
   maxLinks,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
   const whereToGoNextVisible = useWhereToGoNextVisible();
-  const adminFilteredLinks = isWhereToGoNextFollowUpsTitle(title)
+  const adminFilteredLinks = isWhereToGoNextFollowUpsTitle(title) && !preserveAdminFollowUps
     ? filterWhereToGoNextFollowUpLinks(links)
     : links;
   const resolvedLinks = isWhereToGoNextFollowUpsTitle(title)

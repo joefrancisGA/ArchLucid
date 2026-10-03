@@ -136,10 +136,15 @@ export function WebhooksSettingsClient() {
 
   function openSubscription(subscriptionId: string): void {
     writeWebhookSubscriptionLastViewedId(subscriptionId);
-    document
-      .querySelector(`[data-webhook-subscription-id="${subscriptionId}"]`)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    document.querySelector<HTMLButtonElement>(`[data-testid="webhook-test-${subscriptionId}"]`)?.focus();
+    const subscriptionElement = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-webhook-subscription-id]"),
+    ).find((element) => element.dataset.webhookSubscriptionId === subscriptionId);
+    subscriptionElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const testButton = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-testid]")).find(
+      (element) => element.getAttribute("data-testid") === `webhook-test-${subscriptionId}`,
+    );
+    testButton?.focus();
   }
 
   const configurationStatusBlock = (

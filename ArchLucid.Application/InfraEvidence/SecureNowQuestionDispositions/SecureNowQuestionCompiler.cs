@@ -49,7 +49,10 @@ public sealed class SecureNowQuestionCompiler
                      .OrderByDescending(record => record.FromArmId is not null && record.ToArmId is not null)
                      .ThenBy(record => record.ConnectionId))
         {
-            string resourceId = Normalize(inferred.FromArmId ?? inferred.ToArmId);
+            string resourceId = Normalize(
+                string.IsNullOrWhiteSpace(inferred.FromArmId)
+                    ? inferred.ToArmId
+                    : inferred.FromArmId);
             string questionKey = $"{NormalizeKey(inferred.RuleName ?? "inferred-connection")}@v1";
             string fingerprint = Fingerprint(
                 questionKey,

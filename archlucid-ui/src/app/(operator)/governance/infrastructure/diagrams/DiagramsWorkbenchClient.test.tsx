@@ -467,6 +467,23 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
   });
 
+  it("resynchronizes the selected mode when the URL mode changes", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
+    expect(modePicker).toHaveValue("executive");
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full",
+    );
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => expect(modePicker).toHaveValue("full"));
+  });
+
   it("shows render status strip only when render fails", async () => {
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
       snapshotId: "11111111-1111-1111-1111-111111111111",

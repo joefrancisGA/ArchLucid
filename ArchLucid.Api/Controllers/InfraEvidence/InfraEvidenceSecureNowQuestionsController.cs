@@ -143,7 +143,8 @@ if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source)
             error = "Source is invalid.";
             return false;
         }
-        if (!Enum.TryParse(request.ScopeKind, true, out SecureNowQuestionScopeKind scopeKind))
+if (!Enum.TryParse(request.ScopeKind, true, out SecureNowQuestionScopeKind scopeKind)
+    || !Enum.IsDefined(scopeKind))
         {
             error = "ScopeKind is invalid.";
             return false;

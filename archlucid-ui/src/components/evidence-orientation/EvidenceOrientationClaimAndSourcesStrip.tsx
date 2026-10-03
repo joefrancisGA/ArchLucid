@@ -52,6 +52,8 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly stripTestId?: string;
   /** Where to go next strips default true so follow-up links prefix Read vs Open. */
   readonly distinguishFollowUpDestinations?: boolean;
+  /** Keep explicitly curated administration follow-ups on product integration surfaces. */
+  readonly preserveAdminFollowUps?: boolean;
   /** Optional cap for job-context follow-up filtering; omit to use the shared default. */
   readonly sourcesMaxLinks?: number;
   readonly promotedSourceHref?: string;
@@ -85,6 +87,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   headingClassName,
   stripTestId,
   distinguishFollowUpDestinations = true,
+  preserveAdminFollowUps = false,
   sourcesMaxLinks,
   promotedSourceHref,
   hubSecondary = false,
@@ -138,6 +141,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         listClassName={readingBodyClassName}
         headingClassName={headingClassName}
         distinguishFollowUpDestinations={resolvedDistinguishFollowUpDestinations}
+        preserveAdminFollowUps={preserveAdminFollowUps}
         maxLinks={sourcesMaxLinks}
         promotedSourceHref={promotedSourceHref}
       />

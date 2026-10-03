@@ -77,6 +77,18 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Inventory evidence")).toBeInTheDocument();
   });
 
+  it("keeps inventory questions visible when inferred connections fail to load", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+    mocks.listConnections.mockRejectedValue(new Error("inferred connections unavailable"));
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+
+    expect(await screen.findByTestId("infra-diagrams-question-hero")).toHaveTextContent(
+      "SecureNow has 1 question about this subscription.",
+    );
+    expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
+  });
+
   it("renders no hero or legacy empty questionnaire copy when there are no open questions", async () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 

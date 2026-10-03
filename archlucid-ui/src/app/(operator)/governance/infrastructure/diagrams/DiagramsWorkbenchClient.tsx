@@ -423,6 +423,10 @@ export function DiagramsWorkbenchClient() {
   const dark = useDocumentDarkMode();
 
   useEffect(() => {
+    setSelectedMode(urlMermaidMode);
+  }, [urlMermaidMode]);
+
+  useEffect(() => {
     setSeedNodeDraft(urlSeedNodeId);
 
     if (urlMermaidMode !== "dependencyNeighborhood") {

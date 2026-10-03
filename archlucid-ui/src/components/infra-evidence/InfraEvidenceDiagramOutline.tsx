@@ -373,6 +373,13 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const [declaredConnectionsError, setDeclaredConnectionsError] = useState<string | null>(null);
 
   useEffect(() => {
+    setSelectedDeclaredEdge(null);
+    setSelectedInventoryEdge(null);
+    setDeclaredConnections([]);
+    setDeclaredConnectionsError(null);
+  }, [outline]);
+
+  useEffect(() => {
     const storedNodesOpen = readOutlineSectionOpenFromSessionStorage(OUTLINE_NODES_OPEN_STORAGE_KEY);
 
     if (storedNodesOpen !== null) {

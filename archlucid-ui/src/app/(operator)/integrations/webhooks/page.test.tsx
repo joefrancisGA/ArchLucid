@@ -76,6 +76,7 @@ import {
   webhooksEnableConfirmDescription,
 } from "@/lib/webhooks-page-copy";
 import { WEBHOOKS_INTEGRATION_SOURCES } from "@/lib/webhooks-integration-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
@@ -102,6 +103,7 @@ describe("WebhooksIntegrationPage", () => {
     useOperateCapabilityMock.mockReturnValue(true);
     navigationMocks.resetSearchParams();
     navigationMocks.routerReplaceMock.mockClear();
+    window.localStorage.removeItem("archlucid_webhook_subscription_continue_last_v1");
 
     apiMocks.list.mockResolvedValue([]);
     apiMocks.create.mockResolvedValue({});
@@ -136,10 +138,13 @@ describe("WebhooksIntegrationPage", () => {
     const sources = screen.getByTestId("webhooks-integration-sources");
 
     for (const link of WEBHOOKS_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expect(within(sources).getByRole("link", { name: formatHelpFollowUpLinkAccessibleName(link.href, link.label) }))
+        .toHaveAttribute("href", link.href);
     }
 
-    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    const readinessLinks = within(sources).getAllByRole("link", {
+      name: formatHelpFollowUpLinkAccessibleName(INTEGRATIONS_READINESS_PATH, "Integration readiness"),
+    });
     expect(readinessLinks).toHaveLength(1);
     expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
@@ -491,6 +496,32 @@ describe("WebhooksIntegrationPage", () => {
     expect(within(card).getByText(/Stored — copy is not shown/i)).toBeInTheDocument();
     expect(card).toHaveAttribute("data-webhook-subscription-id", subscriptionId);
     expect(screen.getByTestId("webhooks-continue-last-viewed-row")).toHaveTextContent("Hook");
+  });
+
+  it("opens a continue-last subscription when its API id contains selector-significant characters", async () => {
+    const subscriptionId = 'hook"]';
+    window.localStorage.setItem("archlucid_webhook_subscription_continue_last_v1", subscriptionId);
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId("webhooks-continue-last-viewed-open"));
+
+    expect(document.activeElement).toBe(screen.getByTestId(`webhook-test-${subscriptionId}`));
   });
 
   it("shows test pending, success, and failure feedback for saved subscriptions", async () => {

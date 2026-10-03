@@ -175,6 +175,26 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         result.ErrorMessage.Should().Be("QuestionKey must end with a positive version such as @v1.");
     }
 
+    [Fact]
+    public async Task Scope_kind_must_be_a_defined_value()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                ScopeKind = (SecureNowQuestionScopeKind)999,
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("ScopeKind is invalid.");
+        repository.Rows.Should().BeEmpty();
+    }
+
     private static SecureNowQuestionDispositionService CreateSut(
         InMemoryDispositionRepository repository,
         bool snapshotOwned = true)

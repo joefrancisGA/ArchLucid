@@ -7594,6 +7594,17 @@ BEGIN
         ON dbo.LlmTenantWalletLedger (TenantId, CreatedUtc DESC);
 END;
 
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'UX_LlmTenantWalletLedger_StripePaymentIntentId'
+      AND object_id = OBJECT_ID(N'dbo.LlmTenantWalletLedger'))
+BEGIN
+    CREATE UNIQUE NONCLUSTERED INDEX UX_LlmTenantWalletLedger_StripePaymentIntentId
+        ON dbo.LlmTenantWalletLedger (StripePaymentIntentId)
+        WHERE StripePaymentIntentId IS NOT NULL;
+END;
+
 GO
 
 IF OBJECT_ID(N'dbo.StripeWebhookIdempotency', N'U') IS NULL

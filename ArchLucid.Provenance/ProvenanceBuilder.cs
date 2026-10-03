@@ -231,7 +231,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         static string? ResolveAgentExecutionTraceId(Finding finding)
         {
             if (!string.IsNullOrWhiteSpace(finding.AgentExecutionTraceId))
-                return finding.AgentExecutionTraceId;
+                return finding.AgentExecutionTraceId.Trim();
 
             return finding.Trace?.SourceAgentExecutionTraceId;
         }

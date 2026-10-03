@@ -509,6 +509,38 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(detailPanel).getByText(/Authorization from managed identity and RBAC/)).toBeInTheDocument();
   });
 
+  it("clears a selected edge detail panel when the outline changes", () => {
+    const declaredOutline: InfraEvidenceMermaidOutline = {
+      ...outline,
+      edges: [
+        {
+          from: "n_src",
+          to: "n_dst",
+          label: "declared",
+          source: "declared",
+          confidenceBand: "declared",
+          provenanceKind: "DeclaredFact",
+          inferenceSource: null,
+          declaredConnectionId: "declared-connection-1",
+        },
+      ],
+    };
+
+    const { rerender } = render(
+      <InfraEvidenceDiagramOutline
+        outline={declaredOutline}
+        defaultEdgesOpen={true}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("infra-diagrams-declared-edge-n_src-n_dst"));
+    expect(screen.getByTestId("infra-evidence-declared-connection-panel")).toBeInTheDocument();
+
+    rerender(<InfraEvidenceDiagramOutline outline={outline} defaultEdgesOpen={true} />);
+
+    expect(screen.queryByTestId("infra-evidence-declared-connection-panel")).not.toBeInTheDocument();
+  });
+
   it("downloads the structured node and edge lists as JSON", () => {
     const downloadSpy = vi.spyOn(graphViewModelExport, "downloadBrowserTextFile").mockImplementation(() => {});
 

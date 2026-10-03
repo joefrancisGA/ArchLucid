@@ -1,5 +1,65 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read the selected diagram model, generated-content parser, SVG/neighborhood helpers, and architecture diagram tests; no new defect met the repro bar. Seeded five reachable candidates for follow-up.
+
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — the declared Integration readiness follow-up was filtered out because its administration href was treated as forbidden in the shared “Where to go next” filter; preserved explicitly curated administration follow-ups for this integration strip and aligned accessible-name regressions. 58 focused webhook tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook review and existing refresh, scope, and Continue-last regressions; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — repeated the selected client/hook and existing-test review after the selector-safe navigation fix; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
+2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client/hook branches and existing webhook settings tests; no new reachable wrong outcome or mechanism-backed candidate emerged; two narrow settings tests passed.
+
+2026-10-03 seed hunt (seed-only): `llm-wallet` — re-read wallet PUT/null handling, tenant state creation, optimistic row-version updates, refill/consume transactions, and existing wallet tests; no new hunt-ready repro was proven; 17 scoped wallet tests passed. Seeded one reachable candidate for clearing persisted Stripe payment identifiers.
+
+2026-10-03 thorough hunt (dry): `llm-wallet` — cheap-disproved the nullable Stripe identifier clearing candidate: the endpoint exposes partial-update fields, no in-repo caller uses null to clear a payment method, and the contract does not promise null-clearing semantics; 17 scoped wallet tests passed.
+
+2026-10-03 thorough hunt (hit): `llm-wallet` — proved concurrent Stripe payment-intent credits could both pass the pre-transaction ledger check because the SQL ledger lacked a unique payment-intent constraint; added a filtered unique index, duplicate-key rollback/`Duplicate` handling, rollback migration, and schema-script parity; wallet tests passed and four idempotency surfaces were validated.
+
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved `WebhooksSettingsClient.openSubscription` interpolated an API-provided subscription id into a CSS attribute selector, so selector-significant ids failed to scroll/focus the target row from Continue last viewed; replaced selector interpolation with attribute-value matching and added regression `opens a continue-last subscription when its API id contains selector-significant characters`; isolated regression passed (the full file retains one unrelated pre-existing sources-strip failure).
+
+2026-10-03 seed hunt (seed-only): `retrieval` — repeated the unchanged retrieval/indexing review and scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `retrieval` — re-read tenant/workspace/project filtering, scope validation, embedding metadata, document removal, and search fallback paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `architecture-recommendation` — repeated the unchanged recommendation actionability, alternative selection, proposed-change, and priority review with focused verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `architecture-recommendation` — repeated the unchanged recommendation actionability, alternative selection, proposed-change, and priority review with focused verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `architecture-recommendation` — re-read recommendation actionability, alternative selection, proposed-change templates, and declared-priority handling; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 thorough hunt (hit): `knowledge-graph-provenance` — promoted `ProvenanceBuilder.ResolveAgentExecutionTraceId`; padded non-empty `Finding.AgentExecutionTraceId` was copied verbatim instead of canonicalized, retaining whitespace in provenance metadata and trace links; fixed with `.Trim()` and regression `Build_normalizes_surrounding_whitespace_on_agent_execution_trace_correlation`; scoped provenance tests passed.
+
+2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 thorough hunt (dry): `host-core-coordination` — repeated all five candidate cheap-disproof checks; no failing reproduction or source change emerged; scoped coordination/outbox tests passed.
+
+2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `api-key-auth` — re-read API-key authentication, key rotation masking, and admin rotation/audit paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `retrieval` — repeated the unchanged retrieval/indexing source review and scoped verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `retrieval` — re-read tenant/workspace/project filters, scope validation, embedding metadata, document removal, and Azure Search fallback paths; no new mechanism-backed reachable candidate emerged; scoped retrieval/indexing tests passed.
+
+2026-10-03 thorough hunt (dry): `host-core-coordination` — cheap-disproved all five picker candidates: empty `Guid` values still enter manifest validation, `ConflictException` is sealed, the review payload is produced from the same scope as the outbox row, the empty-run-id path is not a production enqueue path, and unknown work types dead-letter at the configured retry ceiling; scoped coordination/outbox tests passed.
+
+2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding review and scoped test verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged scope-binding source review and scoped verification; no new mechanism-backed reachable candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `scope-binding-middleware` — repeated the unchanged authenticated header binding, production-like scope rejection skips, route tenant matching, and explicit cross-tenant/anonymous exception review; no new mechanism-backed reachable candidate emerged; scoped tests passed.
@@ -3733,8 +3793,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety; admission gate; prompt injection
 - **paths:** ArchLucid.Application/Runs/Orchestration/CompositeRequestContentSafetyPrecheck.cs; ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs; ArchLucid.Application/Runs/Orchestration/DefaultRequestContentSafetyPrecheck.cs
 - **test-filter:** FullyQualifiedName~DefaultRequestContentSafetyPrecheckTests|FullyQualifiedName~LlmSemanticAdmissionGateTests
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — SourceDocumentUrl omitted from prompt-injection scan
@@ -5414,8 +5474,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 18
-- **bugs-found:** 9
+- **hunts:** 21
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
@@ -5450,7 +5510,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GetWalletAsync` returned stale `AutoRefillsThisUtcMonthCount` after UTC month rollover — **hit 2026-09-03 (#584):** `MapView` echoed persisted count while `CanAutoRefill` already treated a new month as zero refills; operators saw prior-month cap usage in billing UI; fixed by normalizing count on read; regression in `GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`.
 - [x] (proven) `UpdateWalletAsync` rejected enabling auto-replenish when `MonthlyCapUsd` omitted but already persisted — **hit 2026-09-09 hunt #1432:** `GetValueOrDefault()` treated omitted cap as zero; partial PUT returned null/409 even when wallet already had a valid cap; fixed by validating persisted cap when enabling without resubmitting cap; regression `UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted`
 - [x] (invalid) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — **cheap-disproof 2026-09-09 hunt #1432:** billing UI blocks save without payment method; GET exposes `hasPaymentMethod`; `TryAutoRefillAsync` no-ops safely when customer/payment method missing; no charge or overspend wrong outcome
-- [ ] (candidate) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — checks `LedgerContainsPaymentIntentAsync` before the serializable wallet transaction, while `LlmTenantWalletLedger` has no unique constraint on `StripePaymentIntentId`; two concurrent webhook/retry deliveries with the same payment intent can both pass the check and credit twice. Reachable input: duplicate Stripe payment-intent success deliveries racing against each other or an auto-refill completion.
+- [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — duplicate Stripe payment-intent deliveries could both pass the pre-transaction idempotency check because `LlmTenantWalletLedger` had no unique constraint; the concurrent fix added a filtered unique index, duplicate-key handling, migration 406, and schema-script parity.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — `COALESCE` preserves nullable Stripe identifiers on partial PUTs; cheap-disproof 2026-10-03 thorough hunt: no in-repo caller sends null to clear a payment method, payment methods are managed through Stripe billing, and the API contract does not state null-clearing semantics; the behavior is intentional partial-update preservation.
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
 
@@ -6088,13 +6149,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — not-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 seed hunt (seed-only): re-read the selected recommendation engine and its alternatives/proposed-change assembly; no new reachable mechanism-backed candidate emerged; 40 focused tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` actionable-finding filtering and recommendation assembly; no new reachable mechanism-backed candidate emerged; 40 focused Alternatives/ProposedChange tests passed.
 
@@ -6162,7 +6225,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -6444,7 +6507,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -6750,11 +6813,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 27
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **hunts:** 33
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — stale subscriptions table after failed refresh
+- **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6773,9 +6836,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
+
 - (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
 - (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
-- (candidate) `WebhooksSettingsClient.openSubscription` — API subscription ID is interpolated into a CSS attribute selector without escaping; a selector-significant ID could throw on Continue-last action; reachable through a persisted API subscription ID.
+- [x] (proven) `WebhooksSettingsClient.openSubscription` — API subscription ID was interpolated into a CSS attribute selector without escaping; selector-significant IDs failed to find the Continue-last target row, so navigation did not scroll/focus the subscription action; **hit 2026-10-03 seed hunt:** replaced selector interpolation with attribute-value matching; regression `opens a continue-last subscription when its API id contains selector-significant characters`.
 - (candidate) `WebhooksSettingsClient.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix requirement can hide severity configuration for mixed/case-variant event types; reachable through event-type values in the create form/API vocabulary.
 - (candidate) `useWebhooksSettingsMutations.executeToggle` — pending URL/dialog state may be reconstructed from stale toggle query params after scope change; reachable through an in-flight toggle plus scope navigation retaining `webhookEnableId`/`webhookDisableId`.
 
@@ -7403,13 +7468,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 64
+- **hunts:** 66
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-28 — embedded zero-width space in configured API key material broke authentication
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 seed hunt (seed-only): repeated the selected API-key authentication, key rotation masking, and admin audit review; no new reachable mechanism-backed candidate emerged; 53 focused handler/service tests passed.
+
+2026-10-03 seed hunt (seed-only): re-read API-key authentication, key rotation masking, and admin rotation/audit paths; no new reachable mechanism-backed candidate emerged; 53 focused handler/service tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read API-key authentication, key rotation masking, and admin rotation/audit paths; no new reachable mechanism-backed candidate emerged; 53 handler/service tests passed, while 2 endpoint tests were blocked by missing SQL Server in the cloud VM.
 
@@ -7701,13 +7770,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): repeated the selected scope-binding middleware and route-filter review with unchanged source; no new reachable mechanism-backed candidate emerged; 39 focused unit tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the selected scope-binding middleware and route-filter paths; no new reachable mechanism-backed candidate emerged; 39 focused unit tests passed, while 6 SQL-backed integration tests were blocked by the unavailable SQL Server test connection.
 
@@ -13569,13 +13640,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 48
+- **hunts:** 50
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-27 — chunk-cap failure deleted vectors before skip-unchanged could recover
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): repeated the selected retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog review; no new reachable mechanism-backed candidate emerged; 351 focused tests passed.
+
+2026-10-03 seed hunt (seed-only): re-read retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog boundaries; no new reachable mechanism-backed candidate emerged; 351 focused retrieval/indexing tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read retrieval indexing, in-memory vector search, Azure Search delegation, scope validation, and embedding metadata boundaries; no new reachable mechanism-backed candidate emerged; 351 scoped retrieval/indexing tests passed.
 
@@ -23643,13 +23718,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — `ArchitectureKnowledgeModelGraphProjector` emitted duplicate edge identifiers for different edge types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 thorough hunt (dry): rechecked the two picker candidates for artifact ContentHash whitespace and padded AgentExecutionTraceId precedence; no failing repro emerged; 47 Provenance tests passed, while KnowledgeGraph had 357 passed and 3 pre-existing unrelated failures after rebuild.
 
 2026-10-03 thorough hunt (dry): cheap-disproved both open candidate lenses because neither had been promoted to hunt-ready with a concrete wrong outcome; no failing-repro attempt was supported; 357 KnowledgeGraph tests ran with 3 pre-existing failures and 47 Provenance tests passed.
 
@@ -26525,13 +26602,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — post-commit provenance materialization used GetRunDetailAsync golden manifest after sealed-hash guard validated a different manifest-compare golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 thorough hunt (dry): repeated cheap-disproof of the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
+
+2026-10-03 thorough hunt (dry): cheap-disproved the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
 ### Hypotheses
 
@@ -26806,7 +26887,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-23
@@ -27844,44 +27925,72 @@ ABQ-09 churn hotspot.
 ## Zone: securenow-question-queue
 
 - **id:** securenow-question-queue
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (hit): inventory questions disappeared when the optional inferred-connection request failed; preserved question results while surfacing the secondary load error; `SecureNowQuestionQueue` regression passed.
+2026-10-03 seed hunt (hit): SecureNow mutation validation accepted an undefined `ScopeKind`; rejected invalid enum values at both the controller boundary and service boundary; 3 focused validation tests passed.
+2026-10-03 seed hunt (seed-only): reseeded question compilation and disposition lifecycle paths; left two concrete candidates for a future repro.
+2026-10-03 thorough hunt (hit): proved blank inferred-connection source endpoint selection discarded a populated target endpoint; fixed fallback selection and passed 7 compiler tests.
+
+### Hypotheses
+
+- [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
+- [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
+- [ ] (candidate) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` can both reach the unknown-evidence path with the same empty resource identity, so the emitted set collapses to one question; input is reachable from nullable Azure inventory resource identifiers.
+- [x] (proven) `SecureNowQuestionCompiler` inferred-connection projection — a proposed record with an empty `FromArmId` and a populated `ToArmId` selected the empty string instead of the usable endpoint, producing an unaddressable question identity; fixed with whitespace-aware endpoint fallback; regression `Inferred_question_uses_the_populated_endpoint_when_the_source_arm_id_is_blank`
 
 ## Zone: infra-evidence-diagrams
 
 - **id:** infra-evidence-diagrams
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (hit): Mermaid preview accepted recovery-services, cross-group fan-out, and AVD display flags but forwarded only private-endpoint visibility to mode rendering; preview responses ignored reachable requested display options; focused service regression passed.
+2026-10-03 seed hunt (hit): diagram outline retained a selected declared/inventory edge detail panel after the incoming outline changed; cleared selection and related connection state on outline changes; 22 outline tests passed.
+2026-10-03 seed hunt (hit): diagram workbench initialized mode from the URL only once, so browser navigation or an external search-param update left the mode picker and render state stale; resynchronized selected mode with URL changes; workbench tests passed apart from one unrelated snapshot-label fixture failure.
+2026-10-03 seed hunt (seed-only): reviewed snapshot-label formatting and diagram workbench picker behavior; the remaining UUID-label test failure is stale because resource counts were intentionally removed from picker labels, and no new mechanism-backed candidate met the reachability bar.
+
+### Hypotheses
+
+- [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
+- [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
+- [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
 
 ## Zone: ui-architecture-diagram
 
 - **id:** ui-architecture-diagram
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+- (candidate) `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` is split into three parts, but only the first two become endpoints and the remaining text becomes the edge label, potentially dropping the reachable Queue→Worker leg; input originates from the parsed `## Data flows` section.
+- (candidate) `findNodeIdByLabel` in `architecture-diagram-model.ts` — a generated-content flow naming two entities with the same case-insensitive label resolves both endpoint references to the first live node, potentially attaching the flow to the wrong entity; input originates from user-authored/generated `users-and-stakeholders` and `systems-and-services` sections plus `data-flows`.
+- (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
+- (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
+- (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
