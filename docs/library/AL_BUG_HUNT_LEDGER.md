@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload` collection materialization and its JSON/null-document tests; no new mechanism-backed reachable candidate emerged; 28 scoped payload tests passed.
+
 2026-10-03 thorough hunt (hit): `application-pilots` — `PilotRunDeltaComputer.ResolveManifestCommittedUtc` selected a future-dated persisted manifest timestamp over the run completion timestamp, inflating buyer time-to-commit by 30 days in the failing repro. It now prefers `CompletedUtc` whenever present, with a future-timestamp regression; 2 targeted timestamp tests and 22 picker-scoped `BuyerProofPack`/`BoardPack` tests passed.
 
 2026-10-03 seed hunt (seed-only): `ui-review-detail-workspace` — re-read the selected review route, findings workspace, workspace chrome, and presentation derivation; no new mechanism-backed reachable candidate survived cheap-disproof; 33 scoped review-detail tests passed.
