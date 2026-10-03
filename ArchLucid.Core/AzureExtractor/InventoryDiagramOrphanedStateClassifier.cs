@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
 
@@ -439,11 +441,17 @@ public static class InventoryDiagramOrphanedStateClassifier
             properties,
             InventoryDiagramOrphanedStatePropertyKeys.RequiredVirtualNetworkArmId);
 
+        if (HasSubnetEdge(graphNode, graph)
+            || HasSubnetListedOnVirtualNetwork(subnetArmId, graph))
+        {
+            return null;
+        }
+
         if (!string.IsNullOrWhiteSpace(subnetArmId) && !IsArmIdResolvable(subnetArmId, armIdToGraphNode))
         {
             string subnetName = ReadResourceName(subnetArmId, "subnet");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"required subnet {subnetName} no longer exists");
+                $"required subnet {subnetName} is not in this inventory snapshot");
         }
 
         if (!string.IsNullOrWhiteSpace(vnetArmId) && !IsArmIdResolvable(vnetArmId, armIdToGraphNode))
@@ -454,17 +462,11 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         if (string.IsNullOrWhiteSpace(subnetArmId)
-            && HasSubnetEdge(graphNode, graph)
-            )
-        {
-            return null;
-        }
-
-        if (string.IsNullOrWhiteSpace(subnetArmId)
             && (armResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase)
                 || armResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase)))
         {
-            return InventoryDiagramConnectionStateResult.Orphaned("required subnet no longer exists");
+            return InventoryDiagramConnectionStateResult.Orphaned(
+                "required subnet is not in this inventory snapshot");
         }
 
         return null;
@@ -491,6 +493,64 @@ public static class InventoryDiagramOrphanedStateClassifier
                     "Microsoft.Network/virtualNetworks/subnets",
                     StringComparison.OrdinalIgnoreCase);
         });
+    }
+
+    private static bool HasSubnetListedOnVirtualNetwork(string? subnetArmId, GraphSnapshot graph)
+    {
+        if (string.IsNullOrWhiteSpace(subnetArmId))
+        {
+            return false;
+        }
+
+        string normalizedSubnetArmId = ArmResourceIdNormalizer.Normalize(subnetArmId);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            if (!string.Equals(
+                    ReadArmType(node),
+                    "Microsoft.Network/virtualNetworks",
+                    StringComparison.OrdinalIgnoreCase)
+                || !node.Properties.TryGetValue("subnets", out string? subnetsJson)
+                || string.IsNullOrWhiteSpace(subnetsJson))
+            {
+                continue;
+            }
+
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(subnetsJson);
+
+                if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (JsonElement subnet in document.RootElement.EnumerateArray())
+                {
+                    if (!subnet.TryGetProperty("id", out JsonElement idElement)
+                        || idElement.ValueKind is not JsonValueKind.String)
+                    {
+                        continue;
+                    }
+
+                    string? listedSubnetArmId = idElement.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(listedSubnetArmId)
+                        && string.Equals(
+                            ArmResourceIdNormalizer.Normalize(listedSubnetArmId),
+                            normalizedSubnetArmId,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (JsonException)
+            {
+            }
+        }
+
+        return false;
     }
 
     private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedLoadBalancer(
@@ -732,7 +792,21 @@ public static class InventoryDiagramOrphanedStateClassifier
         if (properties.TryGetValue("ipConfigurations", out string? ipConfigurationsJson)
             && !string.IsNullOrWhiteSpace(ipConfigurationsJson))
         {
-            return TryReadSubnetArmIdFromIpConfigurations(ipConfigurationsJson);
+            string? nestedSubnetId = TryReadSubnetArmIdFromIpConfigurations(ipConfigurationsJson);
+
+            if (!string.IsNullOrWhiteSpace(nestedSubnetId))
+            {
+                return nestedSubnetId;
+            }
+        }
+
+        foreach (KeyValuePair<string, string> property in properties)
+        {
+            if (property.Key.StartsWith("ipConfiguration.subnet.id[", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(property.Value))
+            {
+                return ArmResourceIdNormalizer.Normalize(property.Value);
+            }
         }
 
         return null;
