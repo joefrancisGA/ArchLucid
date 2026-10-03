@@ -27830,6 +27830,7 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): attempted a duplicate-row bulk-selection repro; the UI confirmed `findingId` identity, but the selected files did not establish distinct API entities for duplicate IDs. Retired the candidate as invalid; no code changes.
 2026-10-03 seed hunt (seed-only): re-read bulk selection, URL synchronization, filtering, and assigned-to-me sorting after candidate retirement; no new reachable wrong outcome or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read queue filtering, saved-view navigation, bulk selection, grouped disclosure, virtualization, row mapping, and focused tests; no new hunt-ready row met the same-run repro bar. Seeded resource-disclosure revalidation and saved-view navigation-order candidates; focused suite had 22 passing and 11 pre-existing harness/fixture failures.
+2026-10-03 seed hunt (seed-only): re-read grouped disclosure state, queue filtering, saved-view navigation, and focused tests; the resource-disclosure candidate remains bounded but not yet repro-ready, and the saved-view ordering candidate lacks a deterministic failing route-transition repro. Focused suite had 13 passing and 11 pre-existing harness/fixture failures; no code changes.
 
 ---
 
