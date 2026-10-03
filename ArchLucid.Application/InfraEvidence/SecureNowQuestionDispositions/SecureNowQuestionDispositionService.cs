@@ -274,6 +274,11 @@ public sealed class SecureNowQuestionDispositionService(
         if (string.IsNullOrWhiteSpace(request.EvidenceFingerprint))
             return "EvidenceFingerprint is required.";
 
+        if (!Enum.IsDefined(request.Source))
+            return "Source is invalid.";
+        if (!Enum.IsDefined(request.ScopeKind))
+            return "ScopeKind is invalid.";
+
         if (status == SecureNowQuestionDispositionStatus.Answered
             && string.IsNullOrWhiteSpace(request.AnswerCode))
             return "AnswerCode is required.";

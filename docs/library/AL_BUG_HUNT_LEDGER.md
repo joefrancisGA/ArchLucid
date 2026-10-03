@@ -27928,18 +27928,20 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (hit): inventory questions disappeared when the optional inferred-connection request failed; preserved question results while surfacing the secondary load error; `SecureNowQuestionQueue` regression passed.
+2026-10-03 seed hunt (hit): SecureNow mutation validation accepted an undefined `ScopeKind`; rejected invalid enum values at both the controller boundary and service boundary; 3 focused validation tests passed.
 
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
+- [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
 
 ## Zone: infra-evidence-diagrams
 
