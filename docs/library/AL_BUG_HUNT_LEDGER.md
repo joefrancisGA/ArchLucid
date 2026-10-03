@@ -6793,7 +6793,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -6952,8 +6952,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~ScimUsers
 - **hunts:** 16
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -21093,11 +21093,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-03 seed hunt (seed-only): re-read the newly changed SecureNow question-disposition DTOs and existing converter/round-trip coverage; no contract-only wrong outcome reached the hunt-ready bar. The scoped Contracts suite passed 515/515. Seeded nullable-expiration response parity, answer-field shape parity, and derived-expiry consistency as candidates for later cross-layer proof.
 
+2026-10-03 thorough hunt (dry): cheap-disproved nullable expiration response parity because the application assigns a 90-day default before persistence; answer-field shape parity because answer code is required for answer operations while answer text is supplementary and ignore operations intentionally clear both; and derived-expiry consistency because listing computes `IsExpired` from `ExpirationUtc`. The Contracts suite passed 515/515.
+
 ### Hypotheses
 
-- [ ] (candidate) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime`, so an unbounded disposition may round-trip as a default timestamp; reachable input: an API write omitting `expirationUtc`.
-- [ ] (candidate) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied without a contract-level shape; reachable input: a SecureNow question-disposition write payload with either answer representation.
-- [ ] (candidate) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without a contract invariant tying them together; reachable input: a persisted disposition returned after expiration evaluation.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without an invariant — **cheap-disproof 2026-10-03 thorough hunt:** `ListAsync` derives `IsExpired` directly from each record's `ExpirationUtc` using the same current timestamp; no disagreement path exists in the application mapping.
 2026-09-12 seed hunt #1932 (seed-only): reseeded archlucid-contracts; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] (valid-no-repro) JSON round-trip drops a required field on a versioned request DTO — `KeyContractsJsonRoundTripTests` and `JsonRoundTripPropertyTests` cover core request/run DTO shapes.
