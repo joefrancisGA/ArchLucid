@@ -60,6 +60,16 @@ public sealed class TopologyDatastoreLabelHeuristicTests
     }
 
     [Fact]
+    public void IsRegulatedDatastoreTopologyNode_does_not_false_positive_on_non_keyvault_label()
+    {
+        GraphNode node = CreateTopologyNode("non-keyvault-api-gateway", sourceId: "/providers/Microsoft.Web/sites/non-keyvault-api");
+
+        TopologyDatastoreLabelHeuristic.IsRegulatedDatastoreTopologyNode(node)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void IsRegulatedDatastoreTopologyNode_still_matches_postgres_label()
     {
         GraphNode node = CreateTopologyNode("payments-postgres-flex", sourceId: "/providers/Microsoft.DBforPostgreSQL/flexibleServers/payments");
