@@ -3554,6 +3554,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1950 (seed-only): reseeded commit-output-integrity after master merge churn; no new mechanism-backed hunt-ready rows beyond closed ledger entries.
 
 2026-10-03 seed hunt (seed-only): re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, `AgentExecutionTraceLatestPerTaskSelector`, and focused tests; all visible mechanisms were already closed or contractually intentional, with no new reachable candidate meeting the hunt-ready bar. No code changes.
+2026-10-03 seed hunt (seed-only): repeated the selected commit integrity, quality-gate, latest-trace selection, and focused-test review; no new reachable wrong outcome or bounded candidate emerged. Application integrity tests passed 54/54 and Core selector tests passed 33/33 with unrelated analyzers disabled.
 
 2026-10-03 seed hunt (seed-only): repeated the integrity-source and focused-test review; no new reachable mechanism emerged beyond the closed selector rank, task-key, and quality-gate policy rows. No code changes.
 
