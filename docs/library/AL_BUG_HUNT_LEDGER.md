@@ -3888,9 +3888,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
@@ -6801,6 +6801,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
+
 2026-10-03 seed hunt (seed-only): re-read the architecture-intelligence page composition and its existing deep-link, retry, stale-result, buyer-shell, and recovery coverage; no new mechanism-backed reachable defect survived cheap-disproof. The two scoped page-client suites passed 52/52. Seeded malformed run-scope rendering, whitespace run-id action gating, and golden-result checklist semantics as candidates for later proof.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-architecture-intelligence after footer/reasoning gating fixes; proved `showIntakeForm` required `!productContextLoadFailed` so the failure panel told operators to paste a description or load the golden fixture while the textarea and fixture action stayed hidden; fixed by showing intake whenever inbound context is not loading; regression `shows intake form when product context load failure panel is visible`; 49 scoped `ArchitectureIntelligencePageClient` tests + 3 buyer-polished tests passed.
@@ -6809,9 +6811,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `ArchitectureIntelligencePageClient` scope banner and review links — a whitespace-only `activeRunId` remains truthy for banner rendering and `encodeURIComponent` link construction; reachable input: a malformed `runId=%20%20` architecture-intelligence URL, with a possible misleading scope banner and unusable review links.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action gate — `Publish to findings/advisory` disables only when `activeRunId === null`, not when the active run id is blank/whitespace; reachable input: a malformed deep-link `runId` query value, potentially leaving a publish action enabled for no real review.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` analysis checklist — `analysisComplete` is true only for `runState.kind === "reasoning"`, so a completed golden-test action leaves the Analyze checklist step incomplete; reachable input: an operator using the visible `Run golden test` action and then reading the setup progress.
+- [x] (invalid) `ArchitectureIntelligencePageClient` scope banner and review links — cheap-disproof 2026-10-03 thorough hunt: this component consumes `activeRunId` from `useArchitectureIntelligencePage`; URL parsing/normalization is outside the picked zone file, so a whitespace-only URL value is not a reachable input established here.
+- [x] (invalid) `ArchitectureIntelligencePageClient` publish action gate — cheap-disproof 2026-10-03 thorough hunt: same absent URL-normalization prerequisite; the component has no evidence that `activeRunId` can be whitespace-only at this boundary.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` analysis checklist — cheap-disproof 2026-10-03 thorough hunt: `analysisComplete` intentionally tracks reasoning output (`runState.kind === "reasoning"`), while the golden harness has a separate result path and is not a reasoning analysis completion.
 
 - [x] Page shows recommendations for a package outside the current workspace Î“Ã‡Ã¶ fixed: clear `runState` when inbound `runId` changes
 - [x] Stale query data from the previous tenant remains after scope switch Î“Ã‡Ã¶ fixed: reset intake + reasoning on operator scope key change

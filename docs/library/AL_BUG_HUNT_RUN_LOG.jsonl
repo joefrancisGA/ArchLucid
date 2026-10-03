@@ -8657,3 +8657,4 @@
 {"at":"2026-10-03T12:18:01.0112179Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/"]}
 {"at":"2026-10-03T12:23:20.4612550Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/,ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs"]}
 {"at":"2026-10-03T12:25:40.8727697Z","zoneId":"ui-architecture-intelligence","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx"]}
+{"at":"2026-10-03T12:27:44.0921329Z","zoneId":"ui-architecture-intelligence","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx"]}
