@@ -6239,13 +6239,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — offline replay ignored HTTP status in `observedOutcome` when `observedStatusCode` omitted
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-03 seed hunt (seed-only): repeated the CLI tenant-isolation command/runner review; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-10-03 seed hunt (seed-only): repeated the CLI tenant-isolation command/runner review; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
