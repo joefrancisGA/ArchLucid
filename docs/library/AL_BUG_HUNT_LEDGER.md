@@ -4995,7 +4995,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -5025,6 +5025,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `NormalizeInspectText` rejects a substantive persisted inspect field when the text contains a Unicode format/control character — a `FindingRecords.Title`, `Rationale`, `ReasoningTrace`, `MuteReason`, or `AssignedToUserId` value such as `TLS\u200B` is selected by `FindingInspectReadSql` and then normalized to null instead of preserving the visible text; reachability is the SQL-backed FindingRecords fields mapped by `DapperFindingInspectReadRepository.MapInspectResponse`, but the selected zone does not establish that such stored values are produced by a real caller.
 - (candidate) The `AgentExecutionTraces` left join is scoped by `TraceId` and `RunId` but not tenant/workspace/project — a reused trace identity in a persisted FindingRecords row could project another scope's `modelAlias`; the selected SQL shows the missing predicates, but the selected files do not establish that trace identifiers can collide across scopes.
 - (candidate) `BuildMetadataTypedPayload` tests raw `title is not null` rather than normalized title when deciding whether to emit `whyThisMatters` — metadata-only inspect for a whitespace-only title plus a rationale can emit a rationale-derived field while `title` is null; the input is reachable through the selected SQL's `fr.Title`/`fr.Rationale` columns, but the contract does not yet show this is an incorrect response.
+- (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` returns the stored `FindingId` without applying the same trim used on the request parameter — a persisted id with surrounding whitespace could produce an inspect response whose `FindingId` differs from the route value even though the query matched the trimmed id; reachability is `fr.FindingId` selected by the main inspect SQL and the CLI/API finding-id input, but the contract does not establish whether stored ids may be padded.
 
 2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
 
@@ -5484,6 +5485,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): reseeded finding-inspect-sql from the selected SQL, mapper, and repository paths; no hunt-ready row met the reachable-input bar. Added three candidates for embedded format/control characters in substantive stored text, cross-scope trace identity reuse, and normalized-title handling in metadata fallback. No code changes.
 2026-10-03 seed hunt (seed-only): re-read inspect SQL joins, mapper enum handling, Dapper row loading, payload/rule fallback, disposition projection, and all focused tests; no new hunt-ready row met the same-run repro bar. Scoped test execution was blocked by unrelated repository-wide ARCH006/ARCH006a analyzer errors before tests ran.
+
+2026-10-03 seed hunt (seed-only): re-read the inspect row projection and current focused candidates for duplicate semantic-support overlays, non-UTC `DateTime` kinds, and stored finding-id padding; no reachable wrong outcome met the hunt-ready bar. No code changes.
 
 ---
 
