@@ -11494,7 +11494,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -11620,6 +11620,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BoardPackQuarterWindow.Resolve` — supplying only one of `PeriodStartUtc` or `PeriodEndUtc` silently discards the supplied bound and uses the full calendar quarter; input originates from the public board-pack request body and needs confirmation of the partial-window contract.
 - (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — malformed `isDemoTenant` JSON types throw from `GetBoolean` instead of returning the fail-closed validation result; input originates from the serialized deltas contract and needs a reachable non-boolean producer.
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
+- (candidate) `PilotValueReportService.BuildAsync` — when more than `DefaultRunDetailCap` committed runs are in range, ascending sort plus `Take` loads the oldest 400 and omits newer runs from findings, averages, and timeline; input originates from a tenant with more than 400 committed pilot runs in the report window.
+- (candidate) `PilotRunDeltaComputer.ComputeAsync` — a persisted findings snapshot with zero rows is treated as unavailable, so stale agent-result findings can remain in buyer deltas instead of honoring an authoritative empty snapshot; input originates from a committed run linked to an empty persisted findings snapshot.
+- (candidate) `PilotValueReportService.BuildAsync` — an audit export containing exactly `AuditExportMaxRows` rows is marked truncated even when the repository has no additional rows, overstating incompleteness in the buyer value report; input originates from a tenant whose scoped audit export has exactly the configured cap.
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; no candidate met the same-run repro bar. Seeded two reachable receipt-gate candidates; 22 scoped BuyerProofPack/BoardPack tests passed.
 - [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — a non-GUID `runId` skips `ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync`; `ArchitectureRun.RunId` is contractually a lowercase 32-character hex identifier and the route/test corpus uses that shape, so no reachable non-GUID production input was found.
@@ -11627,6 +11630,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; cheap-disproved both non-GUID receipt-gate candidates from the `ArchitectureRun.RunId` and pilot summary 32-character hex contracts; 22 scoped BuyerProofPack/BoardPack tests passed.
 2026-10-03 seed hunt (seed-only): re-read buyer-proof ZIP assembly, board-pack quarter windows, commit guards, receipt gates, and focused tests; no additional reachable wrong outcome or bounded candidate emerged. The scoped BuyerProofPack/BoardPack tests passed 22/22 with unrelated analyzers disabled.
+
+2026-10-03 seed hunt (seed-only): re-read the pilot value report cap, findings-snapshot selection, and audit export paths; no candidate met the same-run repro bar. The cap-selection candidate needs a runnable scoped test, but the Application test build was blocked by pre-existing repository-wide ARCH006/ARCH006a analyzer errors. Added three reachable candidates for the next hunt.
 
 ---
 
