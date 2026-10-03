@@ -26551,13 +26551,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — post-commit provenance materialization used GetRunDetailAsync golden manifest after sealed-hash guard validated a different manifest-compare golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 thorough hunt (dry): repeated cheap-disproof of the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
