@@ -6826,6 +6826,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
+2026-10-03 seed hunt (seed-only): re-read the picked client and hook source plus 58 focused tests; no new mechanism-backed candidate met the reachability and wrong-outcome bar, and all existing webhook regressions passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded ui-webhooks-settings; proved create save stayed enabled when `listAlertRoutingSubscriptions` failed so client duplicate-name guard ran against an empty `webhookRows` inventory; fixed with `hasLoadedSuccessfully` gate on save/submit; seeded connection-test network-error inline panel and empty-list refresh affordance candidates; 47 scoped webhooks folder tests passed (2 pre-existing sources-strip failures unrelated).
 
