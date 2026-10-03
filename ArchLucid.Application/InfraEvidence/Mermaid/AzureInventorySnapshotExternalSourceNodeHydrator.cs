@@ -97,19 +97,19 @@ internal static class AzureInventorySnapshotExternalSourceNodeHydrator
         {
             if (!string.IsNullOrWhiteSpace(persistedSource.FactoryResourceId))
             {
-                externalNode.Properties["arm.externalFactoryName"] =
+                externalNode.Properties[AzureInventoryAdfExternalSourceNodeFactory.ExternalFactoryNamePropertyKey] =
                     ExtractArmResourceName(persistedSource.FactoryResourceId);
             }
 
             if (!string.IsNullOrWhiteSpace(persistedSource.IntegrationRuntimeName))
             {
-                externalNode.Properties["arm.externalIntegrationRuntime"] =
+                externalNode.Properties[AzureInventoryAdfExternalSourceNodeFactory.ExternalIntegrationRuntimePropertyKey] =
                     persistedSource.IntegrationRuntimeName;
             }
 
             if (persistedSource.HostInKeyVault)
             {
-                externalNode.Properties["arm.externalHostInKeyVault"] = "true";
+                externalNode.Properties[AzureInventoryAdfExternalSourceNodeFactory.ExternalHostInKeyVaultPropertyKey] = "true";
             }
 
             if (!string.IsNullOrWhiteSpace(persistedSource.KeyVaultResourceId))

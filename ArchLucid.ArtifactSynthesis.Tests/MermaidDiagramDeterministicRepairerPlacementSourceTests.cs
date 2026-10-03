@@ -82,6 +82,10 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
             ArmResourceType = "Microsoft.Storage/storageAccounts",
             ArmResourceKind = "StorageV2",
             ExternalLinkedServiceType = "AzureBlobStorage",
+            ExternalFactoryName = "adf-edw-hi-dev",
+            ExternalTargetHost = "sa1.blob.core.windows.net",
+            ExternalIntegrationRuntime = "managed",
+            ExternalHostInKeyVault = true,
             ArmResourceGroup = "rg",
             IncludeResourceGroupInCaption = true,
             HasPrivateEndpointAccess = true,
@@ -119,6 +123,10 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
         repairedNode.ArmResourceId.Should().Be(sourceNode.ArmResourceId);
         repairedNode.ArmResourceKind.Should().Be(sourceNode.ArmResourceKind);
         repairedNode.ExternalLinkedServiceType.Should().Be(sourceNode.ExternalLinkedServiceType);
+        repairedNode.ExternalFactoryName.Should().Be(sourceNode.ExternalFactoryName);
+        repairedNode.ExternalTargetHost.Should().Be(sourceNode.ExternalTargetHost);
+        repairedNode.ExternalIntegrationRuntime.Should().Be(sourceNode.ExternalIntegrationRuntime);
+        repairedNode.ExternalHostInKeyVault.Should().BeTrue();
         repairedNode.IncludeResourceGroupInCaption.Should().BeTrue();
         repairedNode.HasPrivateEndpointAccess.Should().BeTrue();
         repairedNode.IsExecutiveOverflow.Should().BeTrue();
