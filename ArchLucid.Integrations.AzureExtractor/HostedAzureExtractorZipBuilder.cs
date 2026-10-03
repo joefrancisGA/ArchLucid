@@ -238,6 +238,7 @@ public static class HostedAzureExtractorZipBuilder
                 targetResourceId = row.TargetResourceId,
                 targetHost = row.TargetHost,
                 keyVaultResourceId = row.KeyVaultResourceId,
+                hostInKeyVault = row.HostInKeyVault,
                 integrationRuntimeName = row.IntegrationRuntimeName,
                 collectionStatus = row.CollectionStatus,
                 warningCode = row.WarningCode,
