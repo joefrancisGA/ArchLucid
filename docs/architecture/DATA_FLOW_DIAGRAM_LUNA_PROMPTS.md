@@ -1,9 +1,9 @@
-> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-17 then save that link identity, draw one card per external host, wrap tall stages left to right, roll up repeated cards, read app settings and uploaded config, summarize the stages, and filter edges by evidence. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-17-evidence-filters.md`](../../.cursor/prompts/data-flow-diagram-17-evidence-filters.md)
+> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-18 then save that link identity, draw one card per external host, wrap tall stages left to right, scroll a canvas wider than the frame, roll up repeated cards, read app settings and uploaded config, summarize the stages, and filter edges by evidence. Internal engineering only.
+> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-18-scroll-wide-canvas.md`](../../.cursor/prompts/data-flow-diagram-18-scroll-wide-canvas.md)
 
 # Data flow diagram — Luna prompts
 
-**Created:** 2026-09-30 · **Revised:** 2026-10-03 (DFV-11–DFV-17) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
+**Created:** 2026-09-30 · **Revised:** 2026-10-03 (DFV-11–DFV-18) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
@@ -24,6 +24,7 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 | **DFV-11** | [data-flow-diagram-11-persist-linked-service-identity.md](../../.cursor/prompts/data-flow-diagram-11-persist-linked-service-identity.md) | Store linked-service type, host, factory, runtime, and the Key Vault flag. Put them back on the graph node. Do not add inventory resources. |
 | **DFV-12** | [data-flow-diagram-12-same-host-cards.md](../../.cursor/prompts/data-flow-diagram-12-same-host-cards.md) | One card per external host, with an edge from each factory. A host that matches a snapshot resource connects to that resource. |
 | **DFV-13** | [data-flow-diagram-13-left-to-right-columns.md](../../.cursor/prompts/data-flow-diagram-13-left-to-right-columns.md) | Wrap a stage after 12 cards. Connected cards sit above `Not connected`. Edges still run left to right. |
+| **DFV-18** | [data-flow-diagram-18-scroll-wide-canvas.md](../../.cursor/prompts/data-flow-diagram-18-scroll-wide-canvas.md) | Scroll a canvas that is wider than the frame. Fit in view still fits the whole picture. Zoom and Fit stay on the frame. |
 | **DFV-14** | [data-flow-diagram-14-rollup-repeated-cards.md](../../.cursor/prompts/data-flow-diagram-14-rollup-repeated-cards.md) | More than three same-type, same-neighbor cards become one card. Click lists the members. PNG export lists them under the legend. |
 | **DFV-15** | [data-flow-diagram-15-app-and-config-evidence.md](../../.cursor/prompts/data-flow-diagram-15-app-and-config-evidence.md) | Collect Function App and App Service hosts. Label a file confirmation `From config`. Say `No evidence checked` when the snapshot never looked. |
 | **DFV-16** | [data-flow-diagram-16-stage-summary.md](../../.cursor/prompts/data-flow-diagram-16-stage-summary.md) | One line above the columns counts each stage, including used and unused storage. |
@@ -31,7 +32,7 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 
 ## Run order
 
-**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07. Then **12**, **13**, **14**, **15**, **10**, **16**, **17**. **10** can run any time after 07. Do not run two of these in one session.
+**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07. Then **12**, **13**, **18**, **14**, **15**, **10**, **16**, **17**. **18** is the viewer scroll after **13**. Look at that scrollbar before pasting **14**. **10** can run any time after 07. Do not run two of these in one session.
 
 ## After PR 4128
 
@@ -52,7 +53,7 @@ The July 2026 zip has no icon for `Microsoft.Databricks/accessConnectors`, `Micr
 ## Not in DFV-06 through DFV-10
 
 - A click-through resource panel. NR-12 already states Unknown questions in the outline. DFV-14 later lists rollup members in the existing card focus.
-- A second zoom mode that hides cards. The column canvas stays. DFV-13 wraps a tall stage. DFV-14 rolls up repeated cards.
+- A second zoom mode that hides cards. The column canvas stays. DFV-13 wraps a tall stage. DFV-18 scrolls that wider canvas. DFV-14 rolls up repeated cards.
 - Pipeline and dataset cards. DFV-08 names the linked service and its factory. It does not add those nodes.
 - Drawing VNets, subnets, NICs, or NSGs on Data flow. DFV-10 captions the hop that is already on the canvas.
 - A new config-file collector inside DFV-09. DFV-09 parses a host the extractor already receives. DFV-15 reads Function App and App Service settings and labels an already-confirmed upload `From config`.
