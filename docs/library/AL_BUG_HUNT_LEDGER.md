@@ -25716,7 +25716,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 25
+- **hunts:** 24
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -26676,7 +26676,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **hunts:** 26
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — kill-switch during slow TryPromote still returned permit
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
@@ -27311,6 +27311,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-03 seed hunt (seed-only): re-ran ui-infra-resource-hub after the picker still showed the prior counter; confirmed the same stale-resource-response repro remains disproved, retained the RBAC and network relationship row-key candidates, and made no additional code changes; 49 scoped ResourceHubClient tests passed.
+
 2026-10-03 seed hunt (seed-only): reseeded ui-infra-resource-hub; cheap-disproved the stale-resource-response candidate with the existing component lifecycle behavior; seeded RBAC and network relationship row-key collision candidates; 49 scoped ResourceHubClient tests passed.
 
 - [x] (valid-no-repro) `ResourceHubClient.loadHub` — a slower response for a previous `cloudResourceId` may overwrite a newer route's hub — **cheap-disproof 2026-10-03 seed hunt:** deferred-response repro passed with the newer hub title retained after the older request resolved; no production fix warranted.
@@ -27325,10 +27327,10 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — tab switch retained terraform-only technical disclosure URL key
 - **related-pd-tb:** none
 - **code-changed-since:** no
