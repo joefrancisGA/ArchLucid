@@ -104,6 +104,9 @@ public static class AzureInventoryAdfLinkedServiceSanitizer
         (string? targetResourceId, string? targetHost) =
             AzureInventoryAdfLinkedServiceTargetExtractor.Extract(typePropertiesElement, linkedServiceType);
         string? keyVaultResourceId = TryExtractKeyVaultResourceId(typePropertiesElement, linkedServiceType);
+        bool hostInKeyVault = AzureInventoryAdfLinkedServiceTargetExtractor.HasKeyVaultHostReference(
+            typePropertiesElement,
+            linkedServiceType);
 
         string collectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded;
         string? warningCode = null;
@@ -125,6 +128,7 @@ public static class AzureInventoryAdfLinkedServiceSanitizer
             TargetResourceId = targetResourceId,
             TargetHost = targetHost,
             KeyVaultResourceId = keyVaultResourceId,
+            HostInKeyVault = hostInKeyVault,
             IntegrationRuntimeName = TryReadIntegrationRuntimeName(propertiesElement),
             CollectionStatus = collectionStatus,
             WarningCode = warningCode,

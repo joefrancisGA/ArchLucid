@@ -76,7 +76,23 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             || linkedServiceType.Equals("AzurePostgreSql", StringComparison.OrdinalIgnoreCase)
             || linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server"));
+            string? server = AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(
+                typePropertiesElement,
+                "server");
+
+            if (!string.IsNullOrWhiteSpace(server))
+            {
+                return NormalizeHost(server);
+            }
+
+            if (linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase)
+                && typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+                && connectionString.ValueKind is JsonValueKind.String)
+            {
+                return TryExtractConnectionStringHost(connectionString.GetString());
+            }
+
+            return null;
         }
 
         if (linkedServiceType.Equals("AzureSqlMI", StringComparison.OrdinalIgnoreCase))
@@ -195,6 +211,32 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         return null;
     }
 
+    public static bool HasKeyVaultHostReference(
+        JsonElement typePropertiesElement,
+        string linkedServiceType)
+    {
+        if (!linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase)
+            || typePropertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        foreach (string propertyName in new[] { "server", "connectionString" })
+        {
+            if (typePropertiesElement.TryGetProperty(propertyName, out JsonElement value)
+                && value.ValueKind is JsonValueKind.Object
+                && value.TryGetProperty("type", out JsonElement type)
+                && type.ValueKind is JsonValueKind.String
+                && (type.GetString()?.Equals("SecureString", StringComparison.OrdinalIgnoreCase) == true
+                    || type.GetString()?.Equals("AzureKeyVaultSecret", StringComparison.OrdinalIgnoreCase) == true))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static string? TryReadNestedScalar(JsonElement element, string objectPropertyName, string scalarPropertyName)
     {
         if (!element.TryGetProperty(objectPropertyName, out JsonElement nestedElement)
@@ -253,6 +295,51 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         }
 
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed.ToLowerInvariant();
+    }
+
+    private static string? TryExtractConnectionStringHost(string? connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return null;
+        }
+
+        foreach (string segment in connectionString.Split(';'))
+        {
+            int separator = segment.IndexOf('=');
+            if (separator <= 0)
+            {
+                continue;
+            }
+
+            string key = segment[..separator].Trim();
+            if (!key.Equals("server", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string value = segment[(separator + 1)..].Trim().Trim('"', '\'');
+            string? normalized = NormalizeHost(value);
+            if (normalized is null)
+            {
+                return null;
+            }
+
+            int colon = normalized.LastIndexOf(':');
+            if (colon > 0
+                && normalized[(colon + 1)..].All(char.IsDigit))
+            {
+                normalized = normalized[..colon];
+            }
+
+            return Uri.CheckHostName(normalized) is UriHostNameType.Dns
+                or UriHostNameType.IPv4
+                or UriHostNameType.IPv6
+                ? normalized
+                : null;
+        }
+
+        return null;
     }
 
     private static bool IsArmResourceId(string? value)

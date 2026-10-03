@@ -205,4 +205,47 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
         provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
         associationType.Should().Be(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred);
     }
+
+    [Fact]
+    public void TryResolveTargetArmId_infers_mysql_linked_service_from_connection_string_host()
+    {
+        const string factoryArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        const string mysqlArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DBforMySQL/flexibleServers/mysql-edw";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new AzureExtractorExtendedResourceRow
+            {
+                AzureResourceId = mysqlArmId,
+                ResourceType = "Microsoft.DBforMySQL/flexibleServers",
+                Name = "mysql-edw",
+            },
+        ];
+
+        Dictionary<string, string> visibleArmIds =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildVisibleArmIdSet(resources);
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        AzureInventoryAdfLinkedServiceRow row = new()
+        {
+            FactoryResourceId = factoryArmId,
+            LinkedServiceName = "MySqlLinkedService",
+            LinkedServiceType = "AzureMySql",
+            TargetHost = "mysql-edw.mysql.database.azure.com",
+        };
+
+        bool resolved = AzureInventoryAdfLinkedServiceTargetResolver.TryResolveTargetArmId(
+            row,
+            visibleArmIds,
+            hostIndex,
+            out string? targetArmId,
+            out ProvenanceKind provenanceKind,
+            out _);
+
+        resolved.Should().BeTrue();
+        targetArmId.Should().Be(ArmResourceIdNormalizer.Normalize(mysqlArmId));
+        provenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
 }

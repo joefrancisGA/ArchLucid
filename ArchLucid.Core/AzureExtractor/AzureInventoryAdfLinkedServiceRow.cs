@@ -47,6 +47,12 @@ public sealed class AzureInventoryAdfLinkedServiceRow
         init;
     }
 
+    public bool HostInKeyVault
+    {
+        get;
+        init;
+    }
+
     public string? IntegrationRuntimeName
     {
         get;
