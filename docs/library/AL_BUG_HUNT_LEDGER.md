@@ -6120,13 +6120,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — not-cost priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 seed hunt (seed-only): re-read the selected recommendation engine and its alternatives/proposed-change assembly; no new reachable mechanism-backed candidate emerged; 40 focused tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` actionable-finding filtering and recommendation assembly; no new reachable mechanism-backed candidate emerged; 40 focused Alternatives/ProposedChange tests passed.
 
