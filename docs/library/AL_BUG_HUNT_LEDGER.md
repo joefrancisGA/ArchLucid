@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `retrieval` — re-read tenant/workspace/project filtering, scope validation, embedding metadata, document removal, and search fallback paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
+
 2026-10-03 seed hunt (seed-only): `architecture-recommendation` — repeated the unchanged recommendation actionability, alternative selection, proposed-change, and priority review with focused verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `architecture-recommendation` — repeated the unchanged recommendation actionability, alternative selection, proposed-change, and priority review with focused verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
