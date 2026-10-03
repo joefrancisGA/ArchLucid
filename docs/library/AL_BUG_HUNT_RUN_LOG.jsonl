@@ -8536,3 +8536,4 @@
 {"at":"2026-10-03T00:59:31.8678508Z","zoneId":"tenant-scoped-analyzer","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs"]}
 {"at":"2026-10-03T01:03:21.4546926Z","zoneId":"artifact-synthesis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-03T01:14:57.3545126Z","zoneId":"api-governance-stickiness","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs,ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.SealedManifestGuard.cs"]}
+{"at":"2026-10-03T01:19:07.4974548Z","zoneId":"api-governance-stickiness","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/,ArchLucid.Application/Governance/"]}
