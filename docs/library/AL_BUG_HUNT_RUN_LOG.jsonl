@@ -1,4 +1,3 @@
-{"at":"2026-09-03T19:17:18.9968389Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-03T19:22:56.683498Z","zoneId":"notifications-pipeline","outcome":"hit"}
 {"at":"2026-09-03T19:27:22.9524363Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-03T19:32:33.4826968Z","zoneId":"notifications-pipeline","outcome":"hit"}
@@ -8596,3 +8595,4 @@
 {"at":"2026-10-03T19:06:01.1216371Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.Credit.cs","ArchLucid.Persistence/Migrations/406_LlmTenantWalletLedger_StripePaymentIntent_Unique.sql"]}
 {"at":"2026-10-03T19:15:29.2867285Z","zoneId":"ui-webhooks-settings","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
 {"at":"2026-10-03T19:15:56.2593529Z","zoneId":"llm-wallet","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/WalletController.cs","ArchLucid.Application/Budgeting/LlmTenantWalletService.cs","ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs"]}
+{"at":"2026-10-03T19:18:58.0051675Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/WalletController.cs,ArchLucid.Application/Budgeting/LlmTenantWalletService.cs,ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs"]}

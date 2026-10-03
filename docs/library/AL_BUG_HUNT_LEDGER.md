@@ -2,6 +2,8 @@
 
 2026-10-03 seed hunt (seed-only): `llm-wallet` — re-read wallet PUT/null handling, tenant state creation, optimistic row-version updates, refill/consume transactions, and existing wallet tests; no new hunt-ready repro was proven; 17 scoped wallet tests passed. Seeded one reachable candidate for clearing persisted Stripe payment identifiers.
 
+2026-10-03 thorough hunt (dry): `llm-wallet` — cheap-disproved the nullable Stripe identifier clearing candidate: the endpoint exposes partial-update fields, no in-repo caller uses null to clear a payment method, and the contract does not promise null-clearing semantics; 17 scoped wallet tests passed.
+
 2026-10-03 thorough hunt (hit): `llm-wallet` — proved concurrent Stripe payment-intent credits could both pass the pre-transaction ledger check because the SQL ledger lacked a unique payment-intent constraint; added a filtered unique index, duplicate-key rollback/`Duplicate` handling, rollback migration, and schema-script parity; wallet tests passed and four idempotency surfaces were validated.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved `WebhooksSettingsClient.openSubscription` interpolated an API-provided subscription id into a CSS attribute selector, so selector-significant ids failed to scroll/focus the target row from Continue last viewed; replaced selector interpolation with attribute-value matching and added regression `opens a continue-last subscription when its API id contains selector-significant characters`; isolated regression passed (the full file retains one unrelated pre-existing sources-strip failure).
@@ -5458,9 +5460,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
 - **related-pd-tb:** none
@@ -5495,7 +5497,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `UpdateWalletAsync` rejected enabling auto-replenish when `MonthlyCapUsd` omitted but already persisted — **hit 2026-09-09 hunt #1432:** `GetValueOrDefault()` treated omitted cap as zero; partial PUT returned null/409 even when wallet already had a valid cap; fixed by validating persisted cap when enabling without resubmitting cap; regression `UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted`
 - [x] (invalid) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — **cheap-disproof 2026-09-09 hunt #1432:** billing UI blocks save without payment method; GET exposes `hasPaymentMethod`; `TryAutoRefillAsync` no-ops safely when customer/payment method missing; no charge or overspend wrong outcome
 - [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — duplicate Stripe payment-intent deliveries could both pass the pre-transaction idempotency check because `LlmTenantWalletLedger` had no unique constraint; the concurrent fix added a filtered unique index, duplicate-key handling, migration 406, and schema-script parity.
-- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — `COALESCE` treats a reachable `PUT /v1/billing/wallet` JSON `null` for `StripeCustomerId` or `StripePaymentMethodId` as “leave unchanged,” so an operator cannot clear a persisted payment identifier and a later auto-refill may retain the old payment instrument; request properties are nullable and the controller forwards them directly.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — `COALESCE` preserves nullable Stripe identifiers on partial PUTs; cheap-disproof 2026-10-03 thorough hunt: no in-repo caller sends null to clear a payment method, payment methods are managed through Stripe billing, and the API contract does not state null-clearing semantics; the behavior is intentional partial-update preservation.
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
 
