@@ -5,11 +5,14 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 /// <summary>Left-to-right data-flow stage columns with reserved gutter and sky-lane bands.</summary>
 internal static class DiagramForestDataFlowColumnLayout
 {
+    internal const int MaxCardsPerDataFlowSubcolumn = 12;
+
     internal sealed record ColumnInfo(
         int StageIndex,
         string Label,
         double LeftX,
-        double Width);
+        double Width,
+        int ColumnIndex);
 
     internal sealed record NodePlacement(
         DiagramNode Node,
@@ -65,43 +68,56 @@ internal static class DiagramForestDataFlowColumnLayout
             orderedColumns = ApplyColumnCrossingOrder(orderedColumns, relevantEdges);
         }
 
+        HashSet<string> connectedNodeIds = relevantEdges
+            .SelectMany(edge => new[] { edge.FromNodeId, edge.ToNodeId })
+            .ToHashSet(StringComparer.Ordinal);
         List<NodePlacement> placements = [];
         List<ColumnInfo> columns = [];
         double columnX = options.Padding;
         double nodeTop = options.Padding + options.DataFlowSkyLaneHeight + options.DataFlowStageLabelBand;
 
-        foreach (List<DiagramNode> column in orderedColumns)
+        foreach (List<DiagramNode> stage in orderedColumns)
         {
-            List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = column
-                .Select(node => (
-                    Node: node,
-                    Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
+            List<DiagramNode> orderedStage = stage
+                .OrderByDescending(node => connectedNodeIds.Contains(node.NodeId))
                 .ToList();
-            double columnWidth = sized.Count == 0
-                ? options.UniformNodeWidth
-                : sized.Max(item => item.Metrics.Width);
-            int stageIndex = column.First().SubgraphId is not null
-                && stageOrder.TryGetValue(column.First().SubgraphId!, out int resolvedStageIndex)
+            int stageIndex = orderedStage.First().SubgraphId is not null
+                && stageOrder.TryGetValue(orderedStage.First().SubgraphId!, out int resolvedStageIndex)
                 ? resolvedStageIndex
                 : notStagedIndex;
             string label = ResolveColumnLabel(stageIndex, orderedSubgraphs, notStagedIndex);
-            columns.Add(new ColumnInfo(stageIndex, label, columnX, columnWidth));
-            double nodeY = nodeTop;
 
-            foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
+            for (int offset = 0; offset < orderedStage.Count; offset += MaxCardsPerDataFlowSubcolumn)
             {
-                placements.Add(new NodePlacement(
-                    node,
-                    columnX + ((columnWidth - metrics.Width) / 2.0d),
-                    nodeY,
-                    metrics.Width,
-                    metrics.Height,
-                    metrics,
-                    stageIndex));
-                nodeY += metrics.Height + options.NodeVerticalGap;
-            }
+                List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = orderedStage
+                    .Skip(offset)
+                    .Take(MaxCardsPerDataFlowSubcolumn)
+                    .Select(node => (
+                        Node: node,
+                        Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
+                    .ToList();
+                double columnWidth = sized.Count == 0
+                    ? options.UniformNodeWidth
+                    : sized.Max(item => item.Metrics.Width);
+                int columnIndex = columns.Count;
+                columns.Add(new ColumnInfo(stageIndex, label, columnX, columnWidth, columnIndex));
+                double nodeY = nodeTop;
 
-            columnX += columnWidth + options.DataFlowColumnGutter;
+                foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
+                {
+                    placements.Add(new NodePlacement(
+                        node,
+                        columnX + ((columnWidth - metrics.Width) / 2.0d),
+                        nodeY,
+                        metrics.Width,
+                        metrics.Height,
+                        metrics,
+                        columnIndex));
+                    nodeY += metrics.Height + options.NodeVerticalGap;
+                }
+
+                columnX += columnWidth + options.DataFlowColumnGutter;
+            }
         }
 
         return new Result(placements, columns);
