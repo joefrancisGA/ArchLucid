@@ -7429,13 +7429,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-28 — embedded zero-width space in configured API key material broke authentication
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-03 seed hunt (seed-only): repeated the selected API-key authentication, key rotation masking, and admin audit review; no new reachable mechanism-backed candidate emerged; 53 focused handler/service tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read API-key authentication, key rotation masking, and admin rotation/audit paths; no new reachable mechanism-backed candidate emerged; 53 focused handler/service tests passed.
 
