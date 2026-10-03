@@ -4591,9 +4591,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-02 — triple-scoped table primary-key mutation bypassed ARCH006 scope binding
 - **related-pd-tb:** none
@@ -4637,7 +4637,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (hit): reseeded tenant-scoped-analyzer after code churn; proved parameterless local-function / private-method SQL invocation bypassed `TenantScopedSqlExpressionResolver`; fixed `TryResolveFromMethodInvocation` with expression-body and single-return block folding; regression `ARCH006_reports_unscoped_sql_for_local_function_returning_sql`; 17 scoped analyzer tests passed.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — parameterless method invocation (`GetRunsSql()`) bypassed ARCH006 static resolution — **hit 2026-09-26 seed hunt:** resolver treated invocation as opaque symbol; fixed by folding zero-arg method bodies; regression `ARCH006_reports_unscoped_sql_for_local_function_returning_sql`.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — a `[TenantScopeExempt]` attribute on a persistence `record` declaration — the analyzer registers only `SyntaxKind.ClassDeclaration`, so the record symbol exemption is skipped and its intentionally exempt Dapper queries can still receive ARCH006; input is reachable from C# record types in `ArchLucid.Persistence`.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — a `[TenantScopeExempt]` attribute on a persistence `record` declaration — invalid 2026-10-03 thorough hunt: record declarations are not registered for exemption validation, but query exemption lookup walks the containing-symbol chain and still honors the record symbol; 19 focused analyzer tests passed.
+
+2026-10-03 thorough hunt (dry): cheap-disproved the record-declaration exemption candidate because `TryGetExemption` walks containing symbols and record-level exemptions still suppress ARCH006; 19 focused `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-02 seed hunt (hit): reseeded tenant-scoped-analyzer; proved triple-scoped tables could bypass required workspace/project scope through primary-key/surrogate-key exemptions; fixed `requiresTripleScope` ordering before generic key exemptions; regression `ARCH006_reports_primary_key_delete_on_triple_scoped_table`; 18 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
