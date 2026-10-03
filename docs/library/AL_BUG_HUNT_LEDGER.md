@@ -2,6 +2,8 @@
 
 2026-10-03 thorough hunt (hit): `llm-wallet` — proved concurrent Stripe payment-intent credits could both pass the pre-transaction ledger check because the SQL ledger lacked a unique payment-intent constraint; added a filtered unique index, duplicate-key rollback/`Duplicate` handling, rollback migration, and schema-script parity; wallet tests passed and four idempotency surfaces were validated.
 
+2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved `WebhooksSettingsClient.openSubscription` interpolated an API-provided subscription id into a CSS attribute selector, so selector-significant ids failed to scroll/focus the target row from Continue last viewed; replaced selector interpolation with attribute-value matching and added regression `opens a continue-last subscription when its API id contains selector-significant characters`; isolated regression passed (the full file retains one unrelated pre-existing sources-strip failure).
+
 2026-10-03 seed hunt (seed-only): `retrieval` — repeated the unchanged retrieval/indexing review and scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `retrieval` — re-read tenant/workspace/project filtering, scope validation, embedding metadata, document removal, and search fallback paths; no new reachable mechanism-backed candidate emerged; scoped tests passed.
@@ -6792,11 +6794,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 27
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **hunts:** 28
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — stale subscriptions table after failed refresh
+- **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6817,7 +6819,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
 - (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
-- (candidate) `WebhooksSettingsClient.openSubscription` — API subscription ID is interpolated into a CSS attribute selector without escaping; a selector-significant ID could throw on Continue-last action; reachable through a persisted API subscription ID.
+- [x] (proven) `WebhooksSettingsClient.openSubscription` — API subscription ID was interpolated into a CSS attribute selector without escaping; selector-significant IDs failed to find the Continue-last target row, so navigation did not scroll/focus the subscription action; **hit 2026-10-03 seed hunt:** replaced selector interpolation with attribute-value matching; regression `opens a continue-last subscription when its API id contains selector-significant characters`.
 - (candidate) `WebhooksSettingsClient.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix requirement can hide severity configuration for mixed/case-variant event types; reachable through event-type values in the create form/API vocabulary.
 - (candidate) `useWebhooksSettingsMutations.executeToggle` — pending URL/dialog state may be reconstructed from stale toggle query params after scope change; reachable through an in-flight toggle plus scope navigation retaining `webhookEnableId`/`webhookDisableId`.
 
