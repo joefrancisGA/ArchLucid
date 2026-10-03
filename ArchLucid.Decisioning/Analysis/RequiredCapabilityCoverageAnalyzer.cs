@@ -84,25 +84,47 @@ public sealed class RequiredCapabilityCoverageAnalyzer
 
     private static bool CapabilitySatisfied(string capability, HashSet<string> evidenceTokens)
     {
-        string normalized = NormalizeCapability(capability);
+        string[] requiredTokens = TokenizeCapability(capability);
+        if (requiredTokens.Length == 0)
+            return false;
 
-        if (evidenceTokens.Contains(normalized))
-            return true;
-
-        foreach (string token in evidenceTokens)
-        {
-            if (token.Contains(normalized, StringComparison.OrdinalIgnoreCase)
-                || normalized.Contains(token, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return evidenceTokens.Any(evidence =>
+            ContainsCapabilityPhrase(TokenizeCapability(evidence), requiredTokens));
     }
 
     private static string NormalizeCapability(string capability) =>
         capability.Trim().Replace('-', ' ').Replace('_', ' ');
+
+    private static string[] TokenizeCapability(string capability) =>
+        NormalizeCapability(capability)
+            .Split([' ', '/', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    private static bool ContainsCapabilityPhrase(string[] evidenceTokens, string[] requiredTokens)
+    {
+        if (requiredTokens.Length > evidenceTokens.Length)
+            return false;
+
+        for (int start = 0; start <= evidenceTokens.Length - requiredTokens.Length; start++)
+        {
+            bool matches = true;
+            for (int offset = 0; offset < requiredTokens.Length; offset++)
+            {
+                if (!string.Equals(
+                        evidenceTokens[start + offset],
+                        requiredTokens[offset],
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    matches = false;
+                    break;
+                }
+            }
+
+            if (matches)
+                return true;
+        }
+
+        return false;
+    }
 
     private static void AppendToken(HashSet<string> tokens, string? value)
     {
