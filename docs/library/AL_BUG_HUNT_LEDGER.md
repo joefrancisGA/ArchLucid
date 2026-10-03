@@ -5787,7 +5787,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-26
@@ -6012,7 +6012,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 26
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26148,6 +26148,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PostCommitProjectionOutboxProcessor` sealed-hash guard validated manifest-compare golden manifest but `ProvenanceSnapshotMaterialization` called `GetRunDetailAsync` and materialized with `detail.GoldenManifest` when the two loads disagreed — **hit 2026-09-27 seed hunt (seed→hit):** benign-skip provenance materialization when run-detail and validated manifest-compare golden manifest ids differ; regression `ProcessPendingBatchAsync_benign_skips_provenance_materialization_when_run_detail_and_manifest_compare_golden_manifests_disagree`.
 
 2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved post-commit provenance materialization could use a different golden manifest than the sealed-hash guard validated; 30 scoped coordination processor tests passed.
+
+2026-10-03 seed hunt (seed-only): reseeded coordination failure, retry, and manifest-read paths from the current source; no candidate met the hunt-ready bar in this pass.
+
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — a second `GetRunDetailAsync` read may return a same-ID manifest whose content changed after the validated manifest read; reachable through a concurrent run-detail update during post-commit materialization.
+- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — an exception from `onRetryScheduledAsync` after backoff persistence may fault the worker even though the entry is already safely scheduled; reachable through processor retry instrumentation callbacks.
+- [ ] (candidate) `OutboxProcessorRetryCalculator.RetryDelayAfterFailure` — a persisted negative or extreme `AttemptCount` may produce a non-monotonic or overflowed delay before clamping; reachable through malformed recoverable-outbox attempt data.
+- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — a partially completed parallel batch returns only the dequeued count after cancellation, without reporting which entries completed; reachable through host shutdown cancellation during concurrent outbox processing.
+- [ ] (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — a destination policy dead-letter path records the row directly instead of using the shared dead-letter callback, which may diverge from common dead-letter instrumentation; reachable through a persisted export destination SAS URL rejected at processing time.
 
 2026-09-27 seed hunt (seed→hit): reseeded host-core-coordination; proved retrieval indexing outbox could index a different golden manifest than the sealed-hash guard validated; 29 scoped coordination processor tests passed.
 
