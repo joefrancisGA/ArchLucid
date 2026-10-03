@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 thorough hunt (hit): `knowledge-graph-provenance` — promoted `ProvenanceBuilder.ResolveAgentExecutionTraceId`; padded non-empty `Finding.AgentExecutionTraceId` was copied verbatim instead of canonicalized, retaining whitespace in provenance metadata and trace links; fixed with `.Trim()` and regression `Build_normalizes_surrounding_whitespace_on_agent_execution_trace_correlation`; scoped provenance tests passed.
+
 2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
