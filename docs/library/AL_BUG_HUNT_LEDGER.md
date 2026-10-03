@@ -27991,6 +27991,8 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read diagram focus, model/override, neighborhood-map, storage, Mermaid, and existing architecture tests; no additional candidate met the same-run repro bar. Seeded four concrete follow-up candidates; 18 focused tests passed.
 
+2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read diagram focus, model/override, neighborhood-map generation/parsing, storage, and existing tests; generator aggregation invalidated duplicate-link and duplicate-type-key candidates, while no remaining candidate met the same-run repro bar. 18 focused tests passed.
+
 ## Zone: ui-architecture-diagram
 
 - **id:** ui-architecture-diagram
@@ -27999,7 +28001,7 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -28013,6 +28015,6 @@ ABQ-09 churn hotspot.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
 - [x] (proven) `architectureDiagramModelToTextAlternative` — an edge whose source or target node was removed remained in the accessible text alternative while Mermaid omitted it; now only edges with active endpoints are rendered; regression `omits edges connected to removed nodes from the text alternative`.
 - [ ] (candidate) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returns only the seed and misses its one-hop neighbors because this helper compares raw strings; input originates from diagram selection URL/highlight state.
-- [ ] (candidate) `DiagramNeighborhoodMapView` link rows — repeated inventory metadata links with the same `from` and `to` pair share a React key, so one repeated relationship row may be reused or omitted; input originates from parsed subscription-map SVG metadata.
-- [ ] (candidate) `DiagramNeighborhoodMapView.renderTypeChip` — repeated neighborhood type metadata with the same name and count shares a React key, so duplicate type chips may be reused or omitted; input originates from parsed inventory SVG metadata.
+- [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
+- [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
 - [ ] (candidate) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed by positional ids such as `edge_0` can target a different flow after generated flow ordering changes; input originates from device-local version restoration after edited architecture content changes.
