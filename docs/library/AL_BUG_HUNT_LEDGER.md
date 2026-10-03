@@ -5271,7 +5271,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -11239,6 +11239,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-10 seed hunt #1629 (seed-only): reseeded agent-runtime-evaluation after #668; cheap-disproof closed QualityRejected short-circuit, Warned confidence policy, trace-id prefix resolution, sponsor gate early exits, and explanation-summary faithfulness floor; 181 scoped `Evaluation` tests passed.
 2026-10-03 thorough hunt (hit): PilotStrict sponsor evidence aggregation treated only Rejected as blocking, allowing a shared evaluator Warned outcome through; added regression coverage and fail-closed handling. Scoped Evaluation tests passed.
+2026-10-03 seed hunt (seed-only): reseeded from the evaluation source files; no candidate met the hunt-ready bar without a focused reachability check. Scoped tests were not rerun because no code changed.
+
+- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — a persisted trace and matching `AgentResult` whose `TaskId` differs only by case may fail to attach evaluation metrics; reachable through task IDs persisted by agent execution and result repositories.
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — latest traces with task IDs that differ only by case may collide in the case-insensitive `ToDictionary` and abort confidence enrichment; reachable through persisted execution traces after retries/imports.
+- [ ] (candidate) `AgentResultEvidenceFaithfulnessChecker.MeetsOverlapThreshold` — substring token matching may mark a claim token as supported by a larger unrelated evidence token (for example `data` inside `metadata`); reachable through model-produced claims and ingested evidence-package text.
+- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — required JSON-key checks are ordinal-case-sensitive although AgentResult deserialization is case-insensitive; reachable through configured reference-case keys and agent JSON property casing.
+- [ ] (candidate) `AgentOutputTraceFindingCitationCoverageApplicator.ShouldEvaluateFindingCitationCoverage` — a missing task execution mode combined with host mode `Real` evaluates citation coverage for an otherwise unclassified task; reachable through persisted AgentResult mode fields and the runtime execution-mode configuration.
 
 ---
 
