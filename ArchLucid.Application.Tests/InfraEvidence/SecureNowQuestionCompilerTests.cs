@@ -112,6 +112,34 @@ public sealed class SecureNowQuestionCompilerTests
     }
 
     [Fact]
+    public void Inferred_question_uses_the_populated_endpoint_when_the_source_arm_id_is_blank()
+    {
+        const string targetArmId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/target";
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(),
+            [],
+            [
+                new OperatorInferredConnectionRecord
+                {
+                    ConnectionId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    Status = OperatorInferredConnectionStatus.Proposed,
+                    Source = OperatorInferredConnectionSource.Questionnaire,
+                    RuleName = "Unresolved host",
+                    QuestionText = "Should this host connect to the app?",
+                    FromArmId = " ",
+                    ToArmId = targetArmId,
+                },
+            ],
+            []);
+
+        questions.Should().ContainSingle();
+        questions[0].ResourceId.Should().Be(targetArmId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void A_matching_disposition_is_joined_without_creating_a_second_row()
     {
         SecureNowQuestionCompiler compiler = new();
