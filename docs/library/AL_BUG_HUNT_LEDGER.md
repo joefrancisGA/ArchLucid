@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable dependency-neighborhood seed URL with casing/whitespace differing from outline endpoint ids focused only the seed and omitted its one-hop neighbors; normalized seed comparisons and added a regression. 1 repro test failed before the fix; 21 scoped architecture diagram tests passed after it.
+
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — a reachable generated-content data-flow row whose endpoint label contained the word `to` was split inside the endpoint token, so the diagram silently dropped the flow edge; constrained the textual delimiter to a word boundary and added a regression. 1 repro test failed before the fix; 6 scoped architecture diagram test files passed after it.
 2026-10-03 seed hunt (seed→hit): `host-composition` — proved a null `Email:Provider` configuration caused `IEmailProvider` resolution to throw `NullReferenceException` at composition time; normalized the provider before dispatch and added `TransactionalEmailRegistrationTests.RegisterTransactionalEmailServices_null_provider_configuration_falls_back_to_noop`; 406 scoped host-composition tests passed.
 
@@ -28042,8 +28044,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 6
-- **bugs-found:** 3
+- **hunts:** 7
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **related-pd-tb:** none
@@ -28057,7 +28059,7 @@ ABQ-09 churn hotspot.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
 - [x] (proven) `architectureDiagramModelToTextAlternative` — an edge whose source or target node was removed remained in the accessible text alternative while Mermaid omitted it; now only edges with active endpoints are rendered; regression `omits edges connected to removed nodes from the text alternative`.
-- [ ] (candidate) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returns only the seed and misses its one-hop neighbors because this helper compares raw strings; input originates from diagram selection URL/highlight state.
+- [x] (proven) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returned only the seed and missed its one-hop neighbors because this helper compared raw strings; normalized comparisons and added regression `matches seed and outline endpoint ids case-insensitively`.
 - [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
 - [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
 - [ ] (candidate) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed by positional ids such as `edge_0` can target a different flow after generated flow ordering changes; input originates from device-local version restoration after edited architecture content changes.

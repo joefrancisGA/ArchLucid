@@ -25,6 +25,22 @@ describe("resolveDiagramCameraFocusNodeIds", () => {
   it("returns empty set for empty seed", () => {
     expect(resolveDiagramCameraFocusNodeIds("", { nodes: [], edges: [] })).toEqual([]);
   });
+
+  it("matches seed and outline endpoint ids case-insensitively", () => {
+    const focusIds = resolveDiagramCameraFocusNodeIds(" B ", {
+      nodes: [
+        { id: "a", label: "A", resourceType: null, resourceGroup: null },
+        { id: "b", label: "B", resourceType: null, resourceGroup: null },
+        { id: "c", label: "C", resourceType: null, resourceGroup: null },
+      ],
+      edges: [
+        { from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null },
+        { from: "b", to: "c", label: null, source: "observed", declaredConnectionId: null },
+      ],
+    });
+
+    expect(focusIds).toEqual(["B", "a", "c"]);
+  });
 });
 
 describe("inventoryDiagramNodeElementMatchesFocusId", () => {
