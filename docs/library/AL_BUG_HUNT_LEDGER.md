@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-03 seed hunt (seed-only): `cli-terraform-evidence` — reread the static Terraform root list, report consumer, apply-saas ordering sources, and synchronization tests; no new reachable mechanism-backed candidate emerged beyond the already-closed drift and documentation rows. The scoped test build was blocked by an existing `CS1705` Azure.Core assembly-version conflict.
+
 2026-10-03 seed hunt (seed-only): `application-pilots` — reread buyer-proof, board-pack, receipt-gate, and delta paths; existing non-GUID receipt, filename, partial-window, malformed-JSON, and degraded-summary candidates remain reachable lenses, but no row met the failing-repro bar in this pass. The scoped test build was blocked by existing `ARCH006` / `ARCH006a` analyzer errors in `ArchLucid.Persistence`.
 2026-10-03 seed hunt (seed-only): `cli-terraform-evidence` — re-read the static apply-order reference and its live apply-saas, Terraform-pilot, and reference-document sync tests; no new reachable mechanism-backed candidate emerged; scoped reference tests passed.
 
@@ -5485,7 +5487,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
