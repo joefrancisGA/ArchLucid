@@ -3510,7 +3510,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 55
+- **hunts:** 54
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -3838,7 +3838,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
 - **hunts:** 8
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-01
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -23973,8 +23973,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 thorough hunt (dry): cheap-disproved all four notification candidates; no failing repro or source change emerged. Notifications webhook tests passed; API and Application test builds were blocked by unrelated repository-wide ARCH006/ARCH006a analyzer errors before test execution.
 
 2026-10-03 thorough hunt (dry): rechecked the four notification candidates; duplicate digest IDs are deduplicated by the repository query and response mapping, email ledger races preserve at-most-once reservation semantics, and the retry-idempotency and DNS-rebind lenses lacked a falsifiable same-run contract/repro in the scoped files. Notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured.
-
-2026-10-03 thorough hunt (dry): cheap-disproved all four picker candidates; no candidate met the hunt-ready bar for a failing repro. Application notification tests passed 141/141, Notifications webhook tests passed 37/37, and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured.
 
 2026-09-27 seed hunt #52 (seed→hit): reseeded notifications-pipeline after #51 summary logo fix; proved `ExecDigestEmailDispatcher`, `RecurrenceCompletionEmailDispatcher`, `FindingRemediationAssignmentEmailDispatcher`, and `TrialLifecycleEmailDispatcher` still passed padded `OperatorBaseUrl` into branding/operator links (`TrimEnd('/')` only); fixed with `Trim().TrimEnd('/')` parity and `EmailBrandingUrls.TryBuildLogoImageUrl` leading-whitespace trim; regressions `ExecDigestEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url` and `TryBuildLogoImageUrl_trims_leading_and_trailing_whitespace_on_base`; 141 scoped Application notifications/digest tests passed.
 
