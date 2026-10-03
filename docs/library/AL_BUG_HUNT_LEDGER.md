@@ -5776,7 +5776,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -27745,6 +27745,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — an operator saved view with persisted `payload.filters` set to `null`, an array, or an object with malformed `nlFacets` was cast directly to `FindingsSavedViewFilters`; loading the view threw or passed malformed facets into queue state instead of falling back safely; fixed runtime normalization in `applyFindingsSavedViewFilters`; regressions `falls back to empty findings filters when persisted filters are null`, `falls back to empty findings filters when persisted filters are an array`, and `drops malformed natural-language facets from persisted filters`.
 - [x] (proven) `applyFindingsSavedViewFilters` — an object-shaped `nlFacets` with invalid nested values such as `titleKeywords: null` passed through the outer object guard; saved-view navigation then called `.map` on the invalid value and threw; fixed by normalizing severity, status, and title-keyword element types; regression `does not throw when persisted natural-language facet fields have invalid types`.
 - [x] (proven) `useGovernanceFindingsQueueFacets.clearFacetFilters` — composed the full pathname returned by `governanceFindingsNlFacetsHrefFromSearch` as the `currentSearch` input to `reviewFindingsJobViewHrefFromSearch`; clearing facets with reachable `runId`/`q` scope encoded `/governance/findings?` as a query key and corrupted the final URL; fixed by extracting the cleared helper's query string before composing the job-view URL; regression `preserves unrelated URL scope when clearing facet filters`.
+- [x] (invalid) `GovernanceFindingsQueueDesktopTable` bulk selection keyed only by `findingId` — a duplicate `findingId` across different `runId` rows would share a checkbox state; the selected files do not establish that duplicate IDs represent distinct API findings, and the bulk-action contract also uses `findingId` as the operation key, so the proposed composite identity is not actionable in this zone.
 
 2026-10-02 thorough hunt (hit): proved malformed operator saved-view filter payloads could throw during findings queue navigation; normalized object/string/boolean/facet fields before applying filters; 3 focused saved-view tests passed, with 2 pre-existing focused queue-suite failures unrelated to this change.
 
@@ -27761,6 +27762,7 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (hit): proved `clearFacetFilters` encoded the pathname as a query key when composing URL helpers; preserved unrelated run/search scope and passed 7 focused URL-sync and saved-view tests.
 2026-10-03 seed hunt (seed-only): repeated the queue review after the picker’s code-churn signal; no new hunt-ready row or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read the queue facet URL-sync fix, presentation filters, assigned-to-me paths, and focused tests; no additional reachable wrong outcome or bounded candidate emerged. No code changes.
+2026-10-03 seed hunt (seed-only): attempted a duplicate-row bulk-selection repro; the UI confirmed `findingId` identity, but the selected files did not establish distinct API entities for duplicate IDs. Retired the candidate as invalid; no code changes.
 
 ---
 
