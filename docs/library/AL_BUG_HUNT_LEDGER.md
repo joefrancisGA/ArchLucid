@@ -4217,7 +4217,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -7706,6 +7706,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-03 seed hunt (seed-only): re-read the selected scope-binding middleware and route-filter paths; no new reachable mechanism-backed candidate emerged; 39 focused unit tests passed, while 6 SQL-backed integration tests were blocked by the unavailable SQL Server test connection.
 
 2026-09-12 seed hunt #2131 (seed-only): reseeded scope-binding-middleware; no new hunt-ready rows.
 
