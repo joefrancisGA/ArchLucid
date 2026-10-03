@@ -46,10 +46,11 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
         const string sql = """
                            SELECT *
                            FROM dbo.SecureNowQuestionDispositions
-                           WHERE TenantId = @TenantId
-                             AND SubscriptionId = @SubscriptionId
-                             AND ResourceId = @ResourceId
-                             AND QuestionKey = @QuestionKey;
+WHERE TenantId = @TenantId
+  AND IdentityHashSha256 = @IdentityHashSha256
+  AND SubscriptionId = @SubscriptionId
+  AND ResourceId = @ResourceId
+  AND QuestionKey = @QuestionKey;
                            """;
 
         using System.Data.IDbConnection connection =
