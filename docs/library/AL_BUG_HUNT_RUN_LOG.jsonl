@@ -8652,3 +8652,4 @@
 {"at":"2026-10-03T08:33:26.1894155Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-03T08:35:54.6336660Z","zoneId":"ui-claim-discipline-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
 {"at":"2026-10-03T08:41:18.8273842Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
+{"at":"2026-10-03T08:43:29.3808463Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
