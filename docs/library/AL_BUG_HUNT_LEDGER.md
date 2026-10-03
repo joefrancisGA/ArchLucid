@@ -5266,10 +5266,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-11 — enabling auto-replenish skipped step validation on persisted invalid monthly cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -5302,12 +5302,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GetWalletAsync` returned stale `AutoRefillsThisUtcMonthCount` after UTC month rollover — **hit 2026-09-03 (#584):** `MapView` echoed persisted count while `CanAutoRefill` already treated a new month as zero refills; operators saw prior-month cap usage in billing UI; fixed by normalizing count on read; regression in `GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`.
 - [x] (proven) `UpdateWalletAsync` rejected enabling auto-replenish when `MonthlyCapUsd` omitted but already persisted — **hit 2026-09-09 hunt #1432:** `GetValueOrDefault()` treated omitted cap as zero; partial PUT returned null/409 even when wallet already had a valid cap; fixed by validating persisted cap when enabling without resubmitting cap; regression `UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted`
 - [x] (invalid) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — **cheap-disproof 2026-09-09 hunt #1432:** billing UI blocks save without payment method; GET exposes `hasPaymentMethod`; `TryAutoRefillAsync` no-ops safely when customer/payment method missing; no charge or overspend wrong outcome
+- [ ] (candidate) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — checks `LedgerContainsPaymentIntentAsync` before the serializable wallet transaction, while `LlmTenantWalletLedger` has no unique constraint on `StripePaymentIntentId`; two concurrent webhook/retry deliveries with the same payment intent can both pass the check and credit twice. Reachable input: duplicate Stripe payment-intent success deliveries racing against each other or an auto-refill completion.
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
 
 - [x] (proven) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish without resubmitting `MonthlyCapUsd` only checked persisted cap `> 0`, not step alignment — **hit 2026-09-11 seed hunt #1774:** legacy/seeded cap `75m` could enable auto-replenish despite `$50` step rule; fixed by validating persisted cap with `IsValidMonthlyCap` when cap omitted; regression `UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_invalid_step`
 
 2026-09-11 seed hunt #1774 (hit): reseeded llm-wallet; proved auto-replenish enable bypassed persisted invalid monthly-cap step validation; 1 scoped wallet test passed.
+
+2026-10-03 seed hunt (seed-only): re-read wallet controller, staged service, and SQL repository paths; seeded the concurrent duplicate Stripe payment-intent credit candidate. 17 scoped wallet tests passed; repository-level race proof remains required.
 
 2026-09-03 seed hunt #584: reseeded llm-wallet; proved wallet read month-rollover display gap vs `CanAutoRefill` parity; seeded auto-replenish-without-payment-method UX candidate.
 
