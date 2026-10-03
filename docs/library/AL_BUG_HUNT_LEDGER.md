@@ -27944,15 +27944,17 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-26 seed hunt (seed-only): reseeded host-infra-evidence-composition after Graphviz/delete/peel-catalog module churn; cheap-disproof closed duplicate peel-catalog provider and orphan bootstrapper candidates; 12 scoped InfraEvidenceComposition tests passed.
+
+2026-10-03 seed hunt (seed-only): reread `InfraEvidenceCompositionModule` after SecureNow question-disposition registration churn; both SQL and InMemory repository wiring were present, and no new hunt-ready defect was proven. Added two composition-boundary candidates; the scoped test filter was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` / `CoordinatorArtifactsCompositionModule` — duplicate `IDiagramPeelCatalogProvider` registration leaves artifact default provider active so infra mermaid ignores DB peel catalog — **cheap-disproof 2026-09-26 seed hunt:** `AddInfraEvidenceCapability` runs after Authority coordinator artifacts; InMemory resolves `RepositoryDiagramPeelCatalogProvider`; regression `InMemory_composition_infra_evidence_peel_catalog_provider_wins_over_artifact_default`.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — registers `DiagramPeelCatalogBootstrapper` without hosted startup wiring so SQL/InMemory peel catalog never seeds — **cheap-disproof 2026-09-26 seed hunt:** `RepositoryDiagramPeelCatalogProvider` seeds read-time defaults when repository count is zero; bootstrapper is optional persistence helper, not required for mermaid render.
@@ -27963,6 +27965,9 @@ ABQ-09 churn hotspot.
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecureNowQuestionDispositionService` — the newly registered SecureNow question API can resolve in one storage mode but fail with HTTP 500 when a hosting composition omits `ISecureNowQuestionDispositionRepository`; input is a request to the new SecureNow question endpoint under an InMemory or SQL host.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / cloud-resource hub services — the module registers hub consumers while identity-directory wiring is supplied by separate storage registrars; a host that composes the capability without a storage provider could expose a reachable hub request as a DI failure instead of a controlled unavailable response.
 
 - [x] (proven) `InMemoryStorageProviderRegistrar` / `InfraEvidenceCompositionModule` — `ICloudResourceEvidenceHubService` and `ICloudResourceExplorerQueryService` registered but InMemory `ICloudResourceIdentityDirectory` never persisted upserted identities — **hit 2026-09-07 hunt #1190 (seed→hit):** `NoOpCloudResourceIdentityDirectory` returned synthetic upsert rows with new Guids while `TryGetByCloudResourceIdAsync` always returned null, so OpenAPI/InMemory hosts could not resolve resource hub after inventory materialization; fixed with `InMemoryCloudResourceIdentityDirectory` and composition regression in `InfraEvidenceCompositionModuleTests`
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `MermaidDiagramReadabilityThresholds` singleton may not flow into `InfraEvidenceSnapshotMermaidService` when optional ctor default bypasses DI — **disproved 2026-09-07 (#1273):** MS DI injects registered singleton into optional primary-constructor parameter; same instance used at render time (`InfraEvidenceCompositionModule_wires_mermaid_readability_thresholds_singleton_into_snapshot_mermaid_service`)
