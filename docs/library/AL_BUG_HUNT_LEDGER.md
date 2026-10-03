@@ -3888,9 +3888,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 30
+- **hunts:** 29
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
@@ -6200,10 +6200,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 29
+- **hunts:** 28
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-09-27
 - **last-bug:** 2026-09-27 — offline replay ignored HTTP status in `observedOutcome` when `observedStatusCode` omitted
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -6793,15 +6793,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 28
+- **hunts:** 31
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — product-context load failure hid intake despite paste/fixture recovery copy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
+
+2026-10-03 seed hunt (seed-only): re-read the unchanged page composition and repeated the deep-link, loading, failure, recovery, and result-state coverage; no new hunt-ready defect emerged. The two scoped page-client suites passed 52/52. Seeded the remaining failure-scope banner and publish-without-result-state candidates for a future run.
 
 2026-10-03 seed hunt (seed-only): re-read the architecture-intelligence page composition and its existing deep-link, retry, stale-result, buyer-shell, and recovery coverage; no new mechanism-backed reachable defect survived cheap-disproof. The two scoped page-client suites passed 52/52. Seeded malformed run-scope rendering, whitespace run-id action gating, and golden-result checklist semantics as candidates for later proof.
 
@@ -6810,6 +6812,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Product-context load failure blocks intake recovery affordances — **hit 2026-09-27 seed hunt:** `showIntakeForm` gated on `!productContextLoadFailed`; fixed in `use-architecture-intelligence-product-context.ts`; regression `shows intake form when product context load failure panel is visible`.
 
 ### Hypotheses
+
+- [ ] (candidate) `ArchitectureIntelligencePageClient` scope banner — `activeRunId && !loadingInboundContext` still renders “Scoped to review” while the product-context failure panel is visible; reachable input: a deep-linked review whose source-context request returns an HTTP failure, with possible contradictory recovery/scope messaging.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action gate — the publish button is gated by `activeRunId` but not by the absence of `runState`; reachable input: a valid deep-linked review before reasoning or golden output exists, potentially exposing a publish action with no result to publish.
 
 - [x] (invalid) `ArchitectureIntelligencePageClient` scope banner and review links — cheap-disproof 2026-10-03 thorough hunt: this component consumes `activeRunId` from `useArchitectureIntelligencePage`; URL parsing/normalization is outside the picked zone file, so a whitespace-only URL value is not a reachable input established here.
 - [x] (invalid) `ArchitectureIntelligencePageClient` publish action gate — cheap-disproof 2026-10-03 thorough hunt: same absent URL-normalization prerequisite; the component has no evidence that `activeRunId` can be whitespace-only at this boundary.
