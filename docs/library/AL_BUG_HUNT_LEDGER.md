@@ -100,6 +100,8 @@
 
 2026-10-03 seed hunt (seed-only): re-read the four selected topology merge files and focused tests; no new mechanism-backed reachable candidate survived cheap-disproof; 1,590 focused topology-proposal-merge tests passed.
 
+2026-10-03 seed hunt (seed-only): repeated the selected topology merge source and test review; no new mechanism-backed reachable candidate emerged; 1,590 focused topology-proposal-merge tests passed.
+
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics` — omitted-category node registers both `svc-` and `ds-` prefixes and `TryAdd` blocks the later categorized node's primary alias — **hit 2026-09-30:** categorized primary prefix overwrites the fallback after the index is built; regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`.
 
 2026-09-29 seed hunt #3055 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows; cheap-disproof closed #3051×#3054 diagonal for mixed node-id/ARM combined `endpointAliases` with **hybrid** relationships when node-id alias targets, ARM alias values, **and** the direct relationship ARM endpoint all use uppercase casing; fourteen regressions under prefix `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_`; 1412 scoped topology-proposal-merge tests passed.
@@ -2867,7 +2869,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1594
+- **hunts:** 1595
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 971
 - **consecutive-dry-hunts:** 0
