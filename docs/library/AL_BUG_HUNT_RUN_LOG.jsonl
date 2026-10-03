@@ -8646,3 +8646,4 @@
 {"at":"2026-10-03T21:58:25.0588717Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
 {"at":"2026-10-03T22:01:10.4487937Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
 {"at":"2026-10-03T22:05:47.6164113Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
+{"at":"2026-10-03T22:08:39.0172361Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
