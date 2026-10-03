@@ -10078,7 +10078,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -10140,6 +10140,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read post-auth bootstrap, invitation validation, sign-in routing, and proxy matcher boundaries; no new reachable wrong outcome or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read the complete selected auth/proxy failure, storage, redirect, and matcher surfaces; no new reachable wrong outcome or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read the selected auth/proxy source index; no new reachable wrong outcome or bounded candidate emerged. No code changes.
+2026-10-03 seed hunt (seed-only): re-read the selected auth/proxy source surfaces; no hunt-ready row emerged. Persisted one candidate for pinned demo-run scope overriding bearer-derived scope; no code changes.
 
 - [x] (proven) `POST /api/auth/bff-session/refresh` — rejected refresh (`invalid_grant`) returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** stale expired session cookie persisted and kept blocking proxy reads until explicit DELETE; fixed with `buildBffSessionClearCookieHeaders` on rejection path; regression `clears BFF session cookies when the refresh token is rejected`
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
@@ -10150,6 +10151,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `isPublicAnonymousProxyPath` / `isAnonymousMarketingProxyPath` OpenAPI parity — **valid-no-repro 2026-09-26 seed hunt:** re-grepped `paths.generated.ts` `/v1/marketing/*` (nine routes) and pre-auth `v1/auth/*` buyer flows against `proxy-anonymous-marketing-paths.ts`; UI `/api/proxy/` callers match; process risk only when new anonymous routes ship without allowlist update
 - [x] (invalid) `POST /api/auth/bff-session/refresh` — unparseable session cookie leaves stale HttpOnly cookies — **invalid 2026-09-26 seed hunt:** `refresh/route.ts` appends `buildBffSessionClearCookieHeaders` when `cookieValue` is present and `payload === null` (same bar as activity route)
 - [x] (invalid) Unsigned visitor stale `archlucid_operator_scope_v1` poisons anonymous marketing `/api/proxy` scope headers — **invalid 2026-09-26 seed hunt:** `clearOidcSession()` clears operator scope storage; registration-scope priority after sign-out covered in 2026-09-25 hit; marketing controllers are `[AllowUnscopedRoute]`
+- [ ] (candidate) `resolveProxyUpstreamScopeHeaders` merges pinned demo-run scope after bearer-derived tenant/workspace/project claims — input is an authenticated browser request to a reachable `/api/proxy/v1/architecture/run/{pinned-demo-run-id}/...` route; the upstream scope can be forced to the default demo tenant despite the bearer claims, requiring a repro against the API authorization/scope contract.
 
 2026-09-26 seed hunt (seed-only): reseeded ui-auth-proxy after unparseable-cookie hit wave; cheap-disproved trial/local dev-verify allowlist gap, refresh unparseable stale-cookie regression, and unsigned stale-operator marketing scope; reaffirmed OpenAPI marketing + pre-auth allowlist parity; 90 scoped proxy/BFF/return-path vitest tests passed.
 
