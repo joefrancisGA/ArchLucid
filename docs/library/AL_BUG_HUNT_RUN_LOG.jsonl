@@ -8699,3 +8699,4 @@
 {"at":"2026-10-03T15:22:55.4106403Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryDependencyObservationParser.cs"]}
 {"at":"2026-10-03T15:27:00.2640304Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryDependencyObservationParser.cs"]}
 {"at":"2026-10-03T15:31:09.3459671Z","zoneId":"arm-terraform-source-ids","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs","ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs"]}
+{"at":"2026-10-03T15:33:54.5522673Z","zoneId":"application-billing-logic","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
