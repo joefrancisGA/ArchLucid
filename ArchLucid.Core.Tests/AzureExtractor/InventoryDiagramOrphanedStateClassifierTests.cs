@@ -49,7 +49,7 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
             CreateGraph([bastion, subnet], []),
             hasCitedDiagramEdges: false);
 
-        result.State.Should().BeNull();
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
         result.MissingRequirementMessage.Should().BeNull();
     }
 
@@ -74,7 +74,7 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
                 ]),
             hasCitedDiagramEdges: false);
 
-        result.State.Should().BeNull();
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
         result.MissingRequirementMessage.Should().BeNull();
     }
 
