@@ -3341,7 +3341,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -27350,6 +27350,8 @@ ABQ-09 churn hotspot.
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient`; no hunt-ready row was promoted; retained RBAC/network relationship key-collision candidates and seeded resource-title fallback and audit-control identity candidates; 49 scoped ResourceHubClient tests passed.
+
 2026-09-27 seed hunt #23 (seed-only): reseeded ui-infra-resource-hub; no open hunt-ready rows; cheap-disproof closed `setActiveTab` / `switchActiveAuditControl` vs `auditScopeChipHref` explorer `workQueue` gap (tab bar, inline audit picker, and keyboard shortcuts retain `workQueue` via `searchParams` + `sanitizeResourceHubQueryForTab` without an explicit patch); added regressions `preserves explorer workQueue when switching hub tabs via keyboard shortcut` and `threads explorer workQueue on back-to-explorer link`; 47 scoped ResourceHubClient tests passed.
 
 - [x] (valid-no-repro) `setActiveTab` / `switchActiveAuditControl` — explorer `workQueue` dropped on tab bar or audit control picker navigation while audit scope chip explicitly patches queue — **cheap-disproof 2026-09-27 seed hunt #23:** navigation rebuilds from `searchParams.toString()`; `sanitizeResourceHubQueryForTab` does not strip `workQueue`; regressions for keyboard shortcut and explorer back link.
@@ -27434,6 +27436,13 @@ ABQ-09 churn hotspot.
 2026-09-07 seed hunt #1189 (hit): seeded zone from ABQ-09 churn hotspot; proved tab-bar runId scope leak vs cross-link parity.
 
 2026-09-07 thorough hunt #1281 (hit): proved partial-audit URL stale-banner gap; disproved work-queue cache-key hypothesis; 25 scoped unit tests passed.
+
+### Hypotheses
+
+- [ ] (candidate) `ResourceHubClient` RBAC assignments table — two captured assignments with the same `principalId` and `roleDefinitionId` but different `scope` values — the React key `${principalId}-${roleDefinitionId}` collides, so one scoped assignment may be reused or omitted in the rendered table; input is reachable from `hub.rbacAssignments`.
+- [ ] (candidate) `ResourceHubClient` network relationships table — two captured relationships with the same `fromAzureResourceId` and `toAzureResourceId` but different `relationshipType` values — the React key omits relationship type, so one relationship row may be reused or omitted; input is reachable from `hub.networkRelationships`.
+- [ ] (candidate) `ResourceHubClient.resourceTitle` — a captured `currentConfiguration.azureResourceId` ending in `/` — `.split("/").pop()` yields an empty string and `??` prevents fallback to the external resource id, so the page title can render blank; input is reachable from the captured resource-hub API payload.
+- [ ] (candidate) `ResourceHubClient.resolvedAuditLineage` — two audit matches share a `controlId` but differ by assessment or evidence snapshot — `.find()` selects the first match for the URL-selected control, so the audit label can identify the wrong assessment lineage; input is reachable from `hub.auditLineageLink.matches`.
 
 ---
 

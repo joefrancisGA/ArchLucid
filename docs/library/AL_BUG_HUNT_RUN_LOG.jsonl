@@ -8641,3 +8641,4 @@
 {"at":"2026-10-03T07:51:45.0812606Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}
 {"at":"2026-10-03T07:56:05.0005987Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}
 {"at":"2026-10-03T07:59:27.3609174Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}
+{"at":"2026-10-03T08:02:12.5618926Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
