@@ -11212,7 +11212,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -11242,6 +11242,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read all `ArchLucid.Application/Billing/` sources and the Marketplace, BillingCheckout, and TenantLlmCostReporting test surfaces; no new reachable candidate emerged; 17 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
+
+2026-10-03 seed hunt (seed-only): re-read checkout, Marketplace mutation, webhook publishing, tenant estimate, and cost-reporting paths; no new reachable mechanism-backed candidate emerged; 17 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): repeated the billing-zone source and test review; no new reachable candidate emerged; 17 scoped tests passed.
 

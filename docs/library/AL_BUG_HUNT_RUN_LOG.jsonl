@@ -8718,3 +8718,4 @@
 {"at":"2026-10-03T16:30:25.4162452Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
 {"at":"2026-10-03T16:34:03.3092773Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-03T16:38:11.4831556Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs"]}
+{"at":"2026-10-03T16:42:26.1806599Z","zoneId":"application-billing-logic","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
