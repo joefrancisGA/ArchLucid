@@ -52,7 +52,7 @@ describe("product-line catalog", () => {
 
     expect(hrefs).toContain("/");
     expect(hrefs).not.toContain("/governance/infrastructure");
-    expect(hrefs).toContain("/infrastructure/drift");
+    expect(hrefs).toContain("/infrastructure/snapshots-drift");
     expect(hrefs).not.toContain("/governance/infrastructure/drift");
     expect(hrefs).toContain("/infrastructure/diagrams");
     expect(hrefs).not.toContain("/governance/infrastructure/diagrams");
@@ -177,8 +177,8 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/infrastructure/resources", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/resources/res-1", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/resources", "architecture")).toBe(false);
-    expect(isPathAllowedForProductLine("/infrastructure/drift", "security")).toBe(true);
-    expect(isPathAllowedForProductLine("/infrastructure/drift", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/infrastructure/snapshots-drift", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/snapshots-drift", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/ask", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/terraform", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/compliance/policy-packs", "security")).toBe(true);

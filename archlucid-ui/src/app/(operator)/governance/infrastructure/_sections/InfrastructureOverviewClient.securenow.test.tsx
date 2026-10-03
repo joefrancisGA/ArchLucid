@@ -94,7 +94,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
     expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS.map((row) => row.href)).toEqual([
       "/infrastructure/resources",
-      "/infrastructure/drift",
+      "/infrastructure/snapshots-drift",
       "/infrastructure/declared-connections",
       "/infrastructure/diagrams",
       "/infrastructure/diagram-reconcile",

@@ -63,6 +63,7 @@ import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { PRODUCT_LINE_PLAYGROUND_TITLE } from "@/lib/product-line/product-line-copy";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
 
 /**
  * Static pathname → announcement title mappings for canonical architect workspace routes only.
@@ -110,7 +111,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [GOVERNANCE_INFRASTRUCTURE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureOverview,
   [SECURENOW_INFRASTRUCTURE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureOverview,
   [GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
-  [SECURENOW_INFRASTRUCTURE_DRIFT_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
+  [SECURENOW_INFRASTRUCTURE_DRIFT_PATH]: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
   [GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
   [SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
   [GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
