@@ -1533,7 +1533,21 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         if (isDataFlow && dataFlowColumns is not null && dataFlowColumns.Count > 0)
         {
-            root.Add(DiagramForestDataFlowStageLabelSvgEmitter.EmitLayer(svgNamespace, dataFlowColumns, options));
+            root.Add(DiagramForestDataFlowStageLabelSvgEmitter.EmitLayer(
+                svgNamespace,
+                dataFlowColumns,
+                placements
+                    .Select(placement => new DiagramForestDataFlowColumnLayout.NodePlacement(
+                        placement.Node,
+                        placement.X,
+                        placement.Y,
+                        placement.Width,
+                        placement.Height,
+                        placement.Metrics,
+                        placement.DataFlowColumnIndex))
+                    .ToList(),
+                visibleEdges,
+                options));
         }
 
         XElement edgeLayer = new(svgNamespace + "g", new XAttribute("class", "edges"));

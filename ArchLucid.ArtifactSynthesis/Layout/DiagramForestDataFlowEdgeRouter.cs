@@ -85,11 +85,11 @@ internal static class DiagramForestDataFlowEdgeRouter
 
     private static int FindColumnIndex(
         IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> columns,
-        int stageIndex)
+        int columnIndex)
     {
         for (int index = 0; index < columns.Count; index++)
         {
-            if (columns[index].StageIndex == stageIndex)
+            if (columns[index].ColumnIndex == columnIndex)
             {
                 return index;
             }
