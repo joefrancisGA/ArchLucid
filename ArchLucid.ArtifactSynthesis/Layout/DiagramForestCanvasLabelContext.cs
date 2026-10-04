@@ -155,6 +155,23 @@ public sealed class DiagramForestCanvasLabelContext
             SuppressResourceGroupCaption: suppressResourceGroupCaption);
     }
 
+    private static string FormatExternalFactoriesLine(IReadOnlyList<string> factoryNames)
+    {
+        List<string> ordered = factoryNames
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (ordered.Count <= 3)
+        {
+            return $"Factories {string.Join(", ", ordered)}";
+        }
+
+        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+    }
+
     private static IReadOnlyList<string> BuildDataFlowDetailLines(
         DiagramNode node,
         string? dataFlowTypeLine)
@@ -171,7 +188,11 @@ public sealed class DiagramForestCanvasLabelContext
             lines.Add($"{node.ExternalLinkedServiceType.Trim()} link");
         }
 
-        if (!string.IsNullOrWhiteSpace(node.ExternalFactoryName))
+        if (node.ExternalFactoryNames.Count > 1)
+        {
+            lines.Add(FormatExternalFactoriesLine(node.ExternalFactoryNames));
+        }
+        else if (!string.IsNullOrWhiteSpace(node.ExternalFactoryName))
         {
             lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
         }

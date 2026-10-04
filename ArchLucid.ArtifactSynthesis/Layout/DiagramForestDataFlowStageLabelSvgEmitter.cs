@@ -27,7 +27,10 @@ internal static class DiagramForestDataFlowStageLabelSvgEmitter
             .ToHashSet(StringComparer.Ordinal);
 
         XElement layer = new(svgNamespace + "g", new XAttribute("class", "data-flow-stage-labels"));
-        double labelY = options.Padding + options.DataFlowSkyLaneHeight + (options.DataFlowStageLabelBand / 2.0d);
+        double labelY = options.Padding
+            + options.DataFlowSkyLaneHeight
+            + options.DataFlowStageSummaryBand
+            + (options.DataFlowStageLabelBand / 2.0d);
 
         foreach (IGrouping<int, DiagramForestDataFlowColumnLayout.ColumnInfo> stageColumns in columns
                      .GroupBy(column => column.StageIndex)
