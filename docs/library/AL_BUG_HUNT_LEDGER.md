@@ -27759,9 +27759,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
@@ -27781,6 +27781,8 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-04 thorough hunt (hit): proved `useNewRunWizardSteps` clamped an out-of-range `step` query only in rendered state while leaving the copied/bookmarked URL non-canonical; canonicalized invalid numeric step values during URL synchronization and passed the regression `canonicalizes an out-of-range deep-linked step in the URL`. The query-prefill candidate remained valid-no-repro; its focused hook test passed, while broader integration coverage retained the known stale-label/App-Router harness failures.
 
 2026-10-04 thorough hunt (dry): revalidated the two picker-listed candidates against the current code; the step candidate is already fixed and its 3 tests passed, while the query-prefill guard remained valid-no-repro and its focused test passed. No new failing repro was found; the picker’s duplicate candidate rows were classified in the hypothesis ledger.
+
+2026-10-04 thorough hunt (dry): cheap-disproved the remaining query-prefill candidate; its effect returns before marking the one-shot ref unless the example is present in full mode at step 2, and accelerator/preset effects remain independently applicable or guarded. The focused query-prefill test passed; no failing repro.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
