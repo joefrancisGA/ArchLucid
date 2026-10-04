@@ -6403,6 +6403,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay SKIPped exclude-run-id probes when `runListPayloadScannable` was false but captured `observedOutcome` still recorded `foreign runId present`; fixed `TenantIsolationNegativeTestOfflineRunner` to honor leak copy before unscannable SKIP; regression `RunOffline_FailsExcludeRunIdProbeWhenUnscannableManifestStillRecordsForeignRunIdPresent`; 46 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — `runListPayloadScannable: false` with `foreign runId present` observed outcome SKIPped as unverifiable list — **hit 2026-10-04 seed hunt:** honor leak copy before unscannable SKIP; regression `RunOffline_FailsExcludeRunIdProbeWhenUnscannableManifestStillRecordsForeignRunIdPresent`.
+
 2026-09-27 seed hunt (seed→hit): reseeded cli-tenant-isolation after `foreignRunIdVisible` replay fix; proved offline manifest replay SKIPped exclude-run-id and deny-status probes when `observedStatusCode` was omitted but live `observedOutcome` copy still began with `HTTP 200` / `HTTP 404`; fixed `ResolveObservedStatusCode` to parse status from outcome text before re-derivation; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs200Absent`; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — missing `observedStatusCode` with `HTTP ###` outcome copy SKIPped as status `0` — **hit 2026-09-27 seed hunt:** parse HTTP status prefix from `observedOutcome` when code omitted; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs200Absent`.
@@ -6431,11 +6435,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 35
-- **bugs-found:** 16
+- **hunts:** 36
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — offline replay ignored HTTP status in `observedOutcome` when `observedStatusCode` omitted
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — offline replay SKIPped leak copy when `runListPayloadScannable` was false
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 

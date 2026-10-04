@@ -36,7 +36,8 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
-            else if (probe.ForeignRunIdVisible)
+            else if (probe.ForeignRunIdVisible
+                     || ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
             {
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
@@ -44,10 +45,6 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
                      || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
-            }
-            else if (ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
-            {
-                verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
             else
             {
