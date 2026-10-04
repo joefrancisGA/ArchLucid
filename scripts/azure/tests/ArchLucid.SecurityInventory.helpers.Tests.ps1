@@ -110,6 +110,35 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
             Should -Be $false
     }
 
+    It 'emits bastionToSubnet and stamps the subnet id back onto the Bastion' {
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureBastionSubnet'
+        $bastion = [ordered]@{
+            resourceType = 'Microsoft.Network/bastionHosts'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/bastionHosts/bastion1'
+            properties = @{
+                'ipConfiguration.subnet.id' = $subnetId
+            }
+        }
+
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($bastion))
+
+        @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' })[0].toResourceId | Should -Be $subnetId
+
+        $emptyBastion = [ordered]@{
+            resourceType = 'Microsoft.Network/bastionHosts'
+            resourceId = $bastion.resourceId
+            properties = @{}
+        }
+
+        Add-ArchLucidBastionSubnetPropertiesFromAssociations `
+            -Resources @($emptyBastion) `
+            -NetworkAssociations $rows
+
+        $emptyBastion.properties['ipConfiguration.subnet.id'] | Should -Be $subnetId
+        $emptyBastion.properties['ipConfiguration.subnet.id[0]'] | Should -Be $subnetId
+    }
+
     It 'skips public IP network associations when ipConfiguration.id is absent' {
         $inventory = @(
             [ordered]@{

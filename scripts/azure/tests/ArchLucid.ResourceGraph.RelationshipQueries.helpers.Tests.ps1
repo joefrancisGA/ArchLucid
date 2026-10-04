@@ -14,7 +14,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
     It 'projects type on each ARG relationship query' {
         $specs = @(Get-ArchLucidArgNetworkAssociationQuerySpecs)
 
-        $specs.Count | Should -Be 4
+        $specs.Count | Should -Be 5
         foreach ($spec in $specs)
         {
             $spec.Query | Should -Match 'project id, type'
@@ -22,6 +22,32 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
 
         ($specs | Where-Object { $_.Kind -eq 'virtualNetwork' }).Query |
             Should -Match 'peerings = properties.virtualNetworkPeerings'
+        ($specs | Where-Object { $_.Kind -eq 'bastionHost' }).Query |
+            Should -Match "type =~ 'microsoft.network/bastionhosts'"
+    }
+
+    It 'emits bastionToSubnet from a Bastion ARG ipConfiguration' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureBastionSubnet'
+        $ipConfigurationsJson = @"
+[
+  {
+    "properties": {
+      "subnet": { "id": "$subnetId" }
+    }
+  }
+]
+"@
+
+        Add-ArchLucidArgNetworkAssociationRowsFromBastionRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -BastionResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/bastionHosts/bastion1' `
+            -IpConfigurationsJson $ipConfigurationsJson
+
+        @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' })[0].toResourceId | Should -Be $subnetId
     }
 
     It 'emits vnetPeering from a VNet ARG record without a type column' {

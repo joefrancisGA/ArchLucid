@@ -417,7 +417,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.2"
+$scriptVersion = "0.4.3"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -748,6 +748,11 @@ try
         {
             $sqlDatabasePrincipalRows = @(Get-ArchLucidAzureSqlDatabasePrincipalCompanionRows -InventoryResources @($resources))
         }
+
+        Add-ArchLucidBastionSubnetPropertiesFromAssociations `
+            -Resources @($resources) `
+            -NetworkAssociations @($networkAssociationRows)
+        Write-ArchLucidResourcesJsonStream -Path $resourcesPath -Resources $resources
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $roleAssignmentRows)
         Write-Utf8NoBom (Join-Path $staging "network-associations.json") (ConvertTo-ArchLucidJsonArray -Items $networkAssociationRows)

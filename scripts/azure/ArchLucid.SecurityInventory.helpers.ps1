@@ -117,6 +117,41 @@ function Add-ArchLucidSecurityInventoryResourceProperties
         }
     }
 
+    if ($AzResource.ResourceType -like "*bastionHosts*")
+    {
+        try
+        {
+            [int]$ipConfigIndex = 0
+
+            foreach ($ipConfig in @($AzResource.Properties.ipConfigurations))
+            {
+                [string]$subnetId = "$( $ipConfig.properties.subnet.id )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+                {
+                    if ($ipConfigIndex -eq 0)
+                    {
+                        $Properties["ipConfiguration.subnet.id"] = $subnetId
+                    }
+
+                    $Properties["ipConfiguration.subnet.id[$ipConfigIndex]"] = $subnetId
+                }
+
+                [string]$publicIpId = "$( $ipConfig.properties.publicIPAddress.id )".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($publicIpId)))
+                {
+                    $Properties["ipConfiguration.publicIPAddress.id[$ipConfigIndex]"] = $publicIpId
+                }
+
+                $ipConfigIndex++
+            }
+        }
+        catch
+        {
+        }
+    }
+
     if ($AzResource.ResourceType -like "*virtualMachines*")
     {
         try
@@ -1019,6 +1054,27 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
             }
         }
 
+        if ($resourceType -like "*bastionHosts*")
+        {
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if ($property.Name -like 'ipConfiguration.subnet.id[*]' -or $property.Name -eq 'ipConfiguration.subnet.id')
+                {
+                    [string]$subnetId = "$( $property.Value )".Trim()
+
+                    if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+                    {
+                        Add-ArchLucidNetworkAssociationRow `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -FromResourceId $resourceId `
+                            -ToResourceId $subnetId `
+                            -AssociationType "bastionToSubnet"
+                    }
+                }
+            }
+        }
+
         if ($resourceType -like "*publicIPAddresses*")
         {
             [string]$ipConfigurationId = ""
@@ -1231,6 +1287,65 @@ function Add-ArchLucidNetworkAssociationRow
     }
 
     [void]$Rows.Add($row)
+}
+
+function Add-ArchLucidBastionSubnetPropertiesFromAssociations
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $Resources,
+
+        [object[]] $NetworkAssociations = @()
+    )
+
+    [hashtable]$resourcesById = @{}
+
+    foreach ($resource in @($Resources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        $resourcesById[$resourceId.ToLowerInvariant()] = $resource
+    }
+
+    foreach ($association in @($NetworkAssociations))
+    {
+        if ($null -eq $association) { continue }
+        if ("$( $association.associationType )".Trim() -ne 'bastionToSubnet') { continue }
+
+        [string]$fromResourceId = "$( $association.fromResourceId )".Trim()
+        [string]$subnetId = "$( $association.toResourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($fromResourceId) -or [string]::IsNullOrWhiteSpace($subnetId))
+        {
+            continue
+        }
+
+        if (-not $resourcesById.ContainsKey($fromResourceId.ToLowerInvariant()))
+        {
+            continue
+        }
+
+        $resource = $resourcesById[$fromResourceId.ToLowerInvariant()]
+
+        if ($null -eq $resource.properties)
+        {
+            $resource.properties = @{}
+        }
+
+        if (-not ($resource.properties.ContainsKey('ipConfiguration.subnet.id')))
+        {
+            $resource.properties['ipConfiguration.subnet.id'] = $subnetId
+        }
+
+        if (-not ($resource.properties.ContainsKey('ipConfiguration.subnet.id[0]')))
+        {
+            $resource.properties['ipConfiguration.subnet.id[0]'] = $subnetId
+        }
+    }
 }
 
 function Resolve-ArchLucidAssociatedResourceFromIpConfiguration([string] $IpConfigurationId)
