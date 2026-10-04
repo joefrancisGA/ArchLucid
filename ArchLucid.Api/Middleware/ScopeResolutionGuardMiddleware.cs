@@ -64,7 +64,9 @@ internal sealed class ScopeResolutionGuardMiddleware(
         if (pathString.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (path is "/" or "/robots.txt" or "/sitemap.xml")
+        if (string.Equals(path, "/", StringComparison.Ordinal)
+            || string.Equals(path, "/robots.txt", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(path, "/sitemap.xml", StringComparison.OrdinalIgnoreCase))
             return true;
 
         Endpoint? endpoint = context.GetEndpoint();

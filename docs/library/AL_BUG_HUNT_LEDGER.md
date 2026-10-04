@@ -7990,13 +7990,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 47
-- **bugs-found:** 9
+- **hunts:** 48
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — segment-blind `/openapi` prefix skip in scope guard
+- **last-bug:** 2026-10-04 — case-sensitive `/robots.txt` and `/sitemap.xml` skip in scope guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (hit): promoted case-sensitive crawler-hint skip candidate; `ShouldSkip` matched `/robots.txt` and `/sitemap.xml` with ordinal equality so `/ROBOTS.TXT` hit TB-304 on staging-like hosts; fixed with `OrdinalIgnoreCase` for those paths; regression `InvokeAsync_staging_host_skips_public_crawler_hint_paths_case_insensitive`; 78 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
 2026-10-04 thorough hunt (hit): promoted `/openapi` prefix skip candidate; `ShouldSkip` used `path.StartsWith("/openapi")`, skipping TB-304 for impostor paths like `/openapifoo`; aligned with peer middleware via `PathString.StartsWithSegments("/openapi")`; regression `InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path`; 76 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
@@ -8106,6 +8108,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ScopeResolutionGuardMiddleware` `/health` prefix skip bypassed TB-304 on authorized health routes — **hit 2026-10-04:** `ShouldSkip` used `path.StartsWith("/health")`, skipping `/health/detailed` and `/health/diagnostics` so development-default JWT scope reached authorized probes while `/v1/*` was rejected; fixed with segment-bound `IsPublicHealthProbePath` for anonymous probes only; regressions `InvokeAsync_staging_host_rejects_development_default_tenant_claim_on_authorized_health_path` and `InvokeAsync_staging_host_does_not_skip_healthcare_prefixed_path`.
 - [x] (valid-no-repro) Single `x-tenant-id` header value with comma-separated GUIDs bypasses header-only escalation — **cheap-disproof 2026-10-04 seed hunt:** `TryParseHeaderGuid` cannot parse `"guid,guid"`; `ValidateHeaderOnlyScopeEscalation` returns Ok, but `HttpScopeContextProvider` also fails to parse so scope stays `ScopeSource.Default` and `ScopeResolutionGuard` rejects Default on production-like hosts; no cross-tenant steering on staging.
 - [x] (invalid) `RouteTenantScopeBindingFilter.HasPolicy` misses `PlatformTenantDeletionAuthority` when policy is filter-only — **cheap-disproof 2026-10-04 seed hunt:** tenant deletion uses class-level `[Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]` on `AdminTenantsController`; regression `OnActionExecutionAsync_platform_lifecycle_policy_skips_binding`.
+- [x] (proven) `ScopeResolutionGuardMiddleware` case-sensitive `/robots.txt` and `/sitemap.xml` skip — **hit 2026-10-04:** `path is "/robots.txt" or "/sitemap.xml"` rejected mixed-case crawler requests with 403 on staging-like hosts; fixed with `OrdinalIgnoreCase` equality; regression `InvokeAsync_staging_host_skips_public_crawler_hint_paths_case_insensitive`.
 
 ---
 
