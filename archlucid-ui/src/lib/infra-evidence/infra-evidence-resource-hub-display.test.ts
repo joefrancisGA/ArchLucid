@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatDiagramCorrespondenceConfidenceBandLabel,
   formatResourceHubFindingStreamCaption,
   remediationInstanceStatusTagKind,
   resolveDiagramCorrespondenceConfidenceStatusKind,
@@ -20,6 +21,12 @@ describe("infra-evidence-resource-hub-display", () => {
   it("maps confidence bands to status tag kinds", () => {
     expect(resolveDiagramCorrespondenceConfidenceStatusKind("Confirmed")).toBe("ready");
     expect(resolveDiagramCorrespondenceConfidenceStatusKind("InsufficientEvidence")).toBe("needs-attention");
+    expect(resolveDiagramCorrespondenceConfidenceStatusKind("")).toBe("neutral");
+  });
+
+  it("labels empty confidence bands for operators", () => {
+    expect(formatDiagramCorrespondenceConfidenceBandLabel("")).toBe("Confidence not recorded");
+    expect(formatDiagramCorrespondenceConfidenceBandLabel("Likely")).toBe("Likely");
   });
 
   it("maps remediation instance status strings", () => {

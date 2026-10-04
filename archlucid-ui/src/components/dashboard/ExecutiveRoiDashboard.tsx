@@ -16,8 +16,16 @@ type SponsorRoiAggregates = {
 const ROI_PATH = `/api/proxy/${ApiV1Routes.analyticsRoi}`;
 
 function formatTimeSavedHours(hours: number): string {
-  if (!Number.isFinite(hours) || hours <= 0) {
-    return " — ";
+  if (!Number.isFinite(hours)) {
+    return "Not returned";
+  }
+
+  if (hours === 0) {
+    return "0 hrs";
+  }
+
+  if (hours < 0) {
+    return "Not returned";
   }
 
   const rounded = hours >= 10 ? Math.round(hours) : Math.round(hours * 10) / 10;

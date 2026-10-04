@@ -4,6 +4,7 @@ import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-toke
 
 import { useOperatorTaskSuccessRatesQuery } from "@/hooks/use-operator-task-success-rates-query";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
+import { presentOperatorSessionsToFinalizedPercent } from "@/lib/operator/operator-sessions-to-finalized-percent-display";
 
 function safeNonNegativeWholeDisplay(value: unknown): string {
   const numeric = typeof value === "number" ? value : Number(value);
@@ -13,23 +14,6 @@ function safeNonNegativeWholeDisplay(value: unknown): string {
   }
 
   return String(Math.floor(numeric));
-}
-
-function safeSessionsToFinalizedPercent(ratio: unknown, sessionsTotal: unknown): string {
-  const sessions = typeof sessionsTotal === "number" ? sessionsTotal : Number(sessionsTotal);
-  const r = typeof ratio === "number" ? ratio : Number(ratio);
-
-  if (!Number.isFinite(sessions) || sessions <= 0 || !Number.isFinite(r)) {
-    return " — ";
-  }
-
-  const pct = Math.round(r * 100);
-
-  if (!Number.isFinite(pct)) {
-    return " — ";
-  }
-
-  return `${Math.min(100, Math.max(0, pct))}%`;
 }
 
 /** Small operator-home tile for pilot adoption counters (process lifetime; resets on API restart). */
@@ -45,8 +29,9 @@ export function OperatorTaskSuccessTile() {
         <h2 id="operator-task-success-heading" className={cn("font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Pilot adoption
         </h2>
-        <p className={cn("mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          No data yet. Metrics appear after your first completed review session.
+        <p className={cn("mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+          Adoption counters could not be loaded. Metrics appear after your first completed review session when the API
+          responds successfully.
         </p>
       </section>
     );
@@ -71,6 +56,10 @@ export function OperatorTaskSuccessTile() {
 
 function OperatorTaskSuccessTileBody(props: { readonly data: OperatorTaskSuccessRates }) {
   const { data } = props;
+  const conversion = presentOperatorSessionsToFinalizedPercent(
+    data.firstRunCommittedPerSessionRatio,
+    data.firstSessionCompletedTotal,
+  );
 
   return (
     <section
@@ -94,10 +83,13 @@ function OperatorTaskSuccessTileBody(props: { readonly data: OperatorTaskSuccess
           <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Finalized</dt>
         </div>
         <div>
-          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-            {safeSessionsToFinalizedPercent(data.firstRunCommittedPerSessionRatio, data.firstSessionCompletedTotal)}
-          </dd>
+          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">{conversion.display}</dd>
           <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Conversion</dt>
+          {conversion.footnote ? (
+            <dd className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
+              {conversion.footnote}
+            </dd>
+          ) : null}
         </div>
       </dl>
       <p className={cn("mt-2 text-center text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>{data.windowNote}</p>

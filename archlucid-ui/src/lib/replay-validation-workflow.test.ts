@@ -102,4 +102,8 @@ describe("formatReplayDurationLabel", () => {
     expect(formatReplayDurationLabel(500)).toBe("< 1 sec");
     expect(formatReplayDurationLabel(65000)).toBe("1 min 5 sec");
   });
+
+  it("labels missing duration", () => {
+    expect(formatReplayDurationLabel(null)).toBe("Duration not recorded");
+  });
 });

@@ -6,10 +6,18 @@ export function severityFromTrace(label: string | null | undefined): string {
   const t = (label ?? "").trim();
 
   if (t.length === 0) {
-    return " — ";
+    return "Not recorded";
   }
 
-  if (/\bcritical\b/i.test(t) || /\b(severe|high)\b/i.test(t)) {
+  if (/\bcritical\b/i.test(t)) {
+    return "Critical";
+  }
+
+  if (/\bsevere\b/i.test(t)) {
+    return "Severe";
+  }
+
+  if (/\bhigh\b/i.test(t)) {
     return "High";
   }
 

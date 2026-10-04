@@ -5,6 +5,8 @@ import {
   type StandardsRulesContributingPolicyPack,
 } from "./standards-rules-rows-build";
 
+export const STANDARDS_RULES_EVIDENCE_COVERAGE_NOT_IN_SCOPE = "Not in scope" as const;
+
 export type StandardsRulesSummary = {
   readonly standardsInScope: number;
   readonly rulesEnforced: number;
@@ -19,7 +21,9 @@ export function buildStandardsRulesSummary(rows: readonly StandardsRuleRow[]): S
   const rulesWithLinkedFindings = rows.filter((row) => row.linkedFindingsHref !== null).length;
   const evidencedRules = rows.filter((row) => standardsRuleHasEvidence(row)).length;
   const evidenceCoverageLabel =
-    rows.length === 0 ? "0%" : `${Math.round((evidencedRules / rows.length) * 100)}%`;
+    rows.length === 0
+      ? STANDARDS_RULES_EVIDENCE_COVERAGE_NOT_IN_SCOPE
+      : `${Math.round((evidencedRules / rows.length) * 100)}%`;
 
   return {
     standardsInScope: standards.size,

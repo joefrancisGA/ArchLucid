@@ -42,7 +42,7 @@ function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
     return `Unknown (${decision.buyerConfidenceSource})`;
   }
 
-  return "Unknown";
+  return "Not recorded";
 }
 
 type DecisionRegisterDecisionCardProps = {
@@ -105,7 +105,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           </div>
           <div>
             <dt className="text-al-text-secondary">Supporting findings</dt>
-            <dd className="m-0 font-medium text-al-text-primary">{finiteIntegerCountDisplay(findingCount)}</dd>
+            <dd className="m-0 font-medium text-al-text-primary">
+              {finiteIntegerCountDisplay(findingCount, { missingLabel: "not-returned" })}
+            </dd>
             <dd className="m-0 text-al-text-secondary text-xs">
               These are findings linked to the recorded decision.
             </dd>

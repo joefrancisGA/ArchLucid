@@ -67,6 +67,7 @@ export function LlmBudgetUtilizationMeter() {
         : "Monthly budget utilization is within normal limits.";
   const labelId = "llm-budget-utilization-label";
   const displayPct = pct ?? 0;
+  const utilizationNotComputed = pct === null;
 
   return (
     <div data-testid="llm-budget-utilization-meter">
@@ -86,20 +87,28 @@ export function LlmBudgetUtilizationMeter() {
           )}
           aria-live="polite"
         >
-          {pct !== null ? `${pct}% used` : " — "}
+          {utilizationNotComputed ? "Not computed" : `${pct}% used`}
         </p>
       </div>
-      <Progress
-        value={displayPct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={displayPct}
-        aria-labelledby={labelId}
-        indicatorClassName={indicatorClassName}
-        className="mt-2"
-      />
+      {utilizationNotComputed ? (
+        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          Utilization fraction was not returned for this UTC month.
+        </p>
+      ) : (
+        <Progress
+          value={displayPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={displayPct}
+          aria-labelledby={labelId}
+          indicatorClassName={indicatorClassName}
+          className="mt-2"
+        />
+      )}
       <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
-        {statusText}
+        {utilizationNotComputed
+          ? "Monthly budget monitoring is active but utilization cannot be shown until the server returns hardCapUtilizationFraction."
+          : statusText}
         {status.effectiveHardCapUsd !== null ? (
           <span className={cn("mt-1 block tabular-nums text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             Budget used: {formatUsd(status.estimatedUsdPressure)} of {formatUsd(status.effectiveHardCapUsd)}
