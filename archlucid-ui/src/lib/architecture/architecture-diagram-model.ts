@@ -177,6 +177,36 @@ function parseFlowEndpoints(
   return edges;
 }
 
+const PIPE_DETAIL_COLUMN_SEPARATOR = " · ";
+
+function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
+  readonly flowText: string;
+  readonly trailingEdgeLabel: string;
+} {
+  if (entity.detail === null || entity.detail.length === 0) {
+    return { flowText: entity.label, trailingEdgeLabel: "" };
+  }
+
+  const separatorIndex = entity.detail.indexOf(PIPE_DETAIL_COLUMN_SEPARATOR);
+
+  if (separatorIndex >= 0) {
+    const target = entity.detail.slice(0, separatorIndex).trim();
+    const trailingEdgeLabel = entity.detail.slice(separatorIndex + PIPE_DETAIL_COLUMN_SEPARATOR.length).trim();
+
+    if (target.length > 0) {
+      return {
+        flowText: `${entity.label} -> ${target}`,
+        trailingEdgeLabel,
+      };
+    }
+  }
+
+  return {
+    flowText: `${entity.label} -> ${entity.detail}`,
+    trailingEdgeLabel: "",
+  };
+}
+
 function addFlowEdges(
   parseResult: ArchitectureStructuredParseResult,
   nodes: readonly ArchitectureDiagramNode[],
@@ -191,13 +221,20 @@ function addFlowEdges(
   let edgeIndex = edges.length;
 
   for (const entity of flowSection.entities) {
-    const combined = entity.detail !== null && entity.detail.length > 0 ? `${entity.label} -> ${entity.detail}` : entity.label;
-    for (const endpoints of parseFlowEndpoints(combined, nodes)) {
+    const { flowText, trailingEdgeLabel } = resolveEntityFlowParseText(entity);
+
+    for (const endpoints of parseFlowEndpoints(flowText, nodes)) {
+      const edgeLabel = endpoints.label.length > 0
+        ? endpoints.label
+        : trailingEdgeLabel.length > 0
+          ? trailingEdgeLabel
+          : "data flow";
+
       edges.push({
         id: `edge_${edgeIndex}`,
         sourceId: endpoints.sourceId,
         targetId: endpoints.targetId,
-        label: endpoints.label.length > 0 ? endpoints.label : "data flow",
+        label: edgeLabel,
         provenance: entity.provenance,
         removed: false,
       });

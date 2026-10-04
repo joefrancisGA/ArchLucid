@@ -124,4 +124,48 @@ describe("buildArchitectureDiagramModel", () => {
       }),
     ]);
   });
+
+  it("materializes pipe-delimited data flows when detail includes a description column", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Gateway", detail: null, provenance: "inferred" },
+              { label: "API", detail: null, provenance: "inferred" },
+            ],
+            provenance: "inferred",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: null,
+            entities: [
+              {
+                label: "Gateway",
+                detail: "API · TLS 1.2",
+                provenance: "inferred",
+              },
+            ],
+            provenance: "inferred",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "Gateway|API|TLS 1.2",
+      },
+      "Payments",
+    );
+
+    expect(model.edges).toEqual([
+      expect.objectContaining({
+        sourceId: "system_gateway",
+        targetId: "system_api",
+        label: "TLS 1.2",
+      }),
+    ]);
+  });
 });

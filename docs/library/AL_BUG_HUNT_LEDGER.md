@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — pipe-delimited generated data-flow rows with a description column (`Gateway|API|TLS 1.2`) were rewritten as `Gateway -> API · TLS 1.2`, so the target token included the description and the edge was dropped; split pipe-joined detail on the structured ` · ` separator before flow parsing and preserved the trailing column as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`; 52 focused lib architecture-diagram tests passed.
+
 2026-10-04 seed hunt (seed→hit): `host-composition` — `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` and threw `NullReferenceException` during readiness probe resolution instead of returning null; aligned with null-safe hot-path trimming used in distributed LLM cache registration; regression `TryResolve_returns_null_when_hot_path_redis_is_explicitly_null`; 408 scoped host-composition tests passed.
 
 2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — promoted duplicate-label resolution: a system-to-system flow `Gateway -> API` attached to the stakeholder `API` node when a system `API` also existed because `findNodeIdByLabel` always picked the first case-insensitive match; resolve ambiguous labels using the upstream endpoint node kind and added regression `resolves duplicate labels to the endpoint in the same node kind as the source`; 51 focused lib architecture-diagram tests passed.
@@ -28628,8 +28630,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 8
-- **bugs-found:** 5
+- **hunts:** 9
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
 - **related-pd-tb:** none
@@ -28638,7 +28640,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
 - [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow endpoints containing the word `to`, including `Order to Cash -> Billing`, were split before the explicit arrow and dropped; known node-label fragments are now merged before endpoint resolution; regressions cover both `Token: API` and `Order to Cash -> Billing`.
 - [x] (proven) `findNodeIdByLabel` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — duplicate case-insensitive labels across stakeholder and system entities made `Gateway -> API` attach to the first `API` node (stakeholder) instead of the system service; ambiguous targets now prefer the same node kind as the resolved source; regression `resolves duplicate labels to the endpoint in the same node kind as the source`.
-- (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
+- [x] (proven) `addFlowEdges` / `resolveEntityFlowParseText` in `architecture-diagram-model.ts` — pipe-delimited data-flow entities with a description column joined ` · ` in `detail` were parsed as `label -> full detail`, so the target never matched a live node; now treats the first ` · ` segment as the target endpoint and keeps later segments as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
