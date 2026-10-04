@@ -27701,9 +27701,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
 - **related-pd-tb:** none
@@ -27713,6 +27713,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 2026-10-04 seed hunt (seed-only): reseeded architecture-intelligence-orchestrator; reviewed continue coalescing and cache-hit finalize paths; no new hunt-ready rows; 62 scoped tests passed.
 2026-10-04 seed hunt (seed-only): re-read orchestrator finalize, continue dual-manifest pin scope, and tombstone invalidation caps; seeded three bounded candidates; 62 scoped orchestrator/cache tests passed.
+2026-10-04 thorough hunt (dry): cheap-disproved tombstone-cap saturation (pin-cap prevents 65th pinned invalidation path; existing `AddTombstonedRunId_skips_fifo_drop` + deferred flush), continue dual-manifest race (single-threaded snapshot builds), and `Set` tombstone TOCTOU (re-check under `_evictionLock`); 62 scoped tests passed; no code changes.
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator/cache slice; 61 scoped tests passed; retained two concrete cache candidates for the next repro pass.
 
@@ -27738,9 +27739,9 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys — **cheap-disproved 2026-09-30:** the files expose no contract that duplicate source ordering is semantically interchangeable; a cache miss alone is not a proven wrong outcome for an ordered source list.
 - [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request — **hit 2026-09-30:** cache manifests intentionally omit generated run ids, and cache-hit finalization preserved the cached identity for a request that generated a new run id; fixed by always applying the current resolved run id to the isolated result and model; regression `RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`.
-- [ ] (candidate) `ReviewResultCache.InvalidateForRun` / `AddTombstonedRunId` — when `MaxTombstonedRunIds` is saturated and every queued tombstone still has pinned cache entries, tombstone enqueue aborts while pinned rows for a newly invalidated run remain readable via `TryGet` until pins release; input is improve-loop pressure with repeated invalidations under pin retention.
-- [ ] (candidate) `RunContinueFromExistingReviewAsync` — `PinScope(continueManifest, contentManifest)` pins two storage keys but cache probes use `continueManifest` only; if baseline model or ledger inputs change between `BuildContinueFromExistingRunCoalesceManifest` and `Build` on the same request, publish storage may land under an unpinned content key during the in-flight window; input is concurrent persistence mutation on a continue re-review.
-- [ ] (candidate) `ReviewResultCache.Set` — `IsRunIdTombstoned` is checked before acquiring `_evictionLock` and again inside the lock; a concurrent `InvalidateForRun` tombstone between the checks could allow inserting a cache row for a run id that was just invalidated; input is concurrent invalidate + cache store on the same normalized run id.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` / `AddTombstonedRunId` — tombstone FIFO saturation while every queued tombstone still has pinned entries — **valid-no-repro 2026-10-04 thorough hunt:** pinned invalidation already tombstones servable rows (`TryGet_misses_when_run_id_is_tombstoned_even_if_entry_is_pinned`); when a 65th distinct pin cannot be acquired (`MaxDistinctPinnedStorageKeys`), `InvalidateForRun` removes the unpinned row instead of leaving a stale hit; regression `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
+- [x] (invalid) `RunContinueFromExistingReviewAsync` — dual-manifest `PinScope` vs `continueManifest`-only probes with concurrent persistence mutation — **invalid 2026-10-04 thorough hunt:** `existing`/`ledgerEntries` load once and both manifests build synchronously on the same snapshots; `BuildContinueFromExistingRunCoalesceManifest` embeds `contentManifest.ContentHash`; both keys are pinned via `PinScope(continueManifest, contentManifest)`.
+- [x] (invalid) `ReviewResultCache.Set` — tombstone check before `_evictionLock` vs concurrent `InvalidateForRun` — **invalid 2026-10-04 thorough hunt:** `Set` re-checks `IsRunIdTombstonedUnlocked` inside the lock after clone/sanitize; regressions `Set_skips_insert_when_sanitized_run_id_matches_tombstone` and `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
