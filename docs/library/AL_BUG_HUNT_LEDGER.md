@@ -93,6 +93,8 @@
 
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read continue-from-existing-run cache manifests, pin scopes, and cache-hit finalization; no reachable wrong outcome emerged; 62 picker-scoped tests passed.
 
+2026-10-04 seed hunt (seed-only): `host-core-jobs` — re-read `WorkerHostDrainHostedService` shutdown/drain signaling and execute-ownership hosted registration boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
+
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — rechecked pinned expiry and deferred invalidation behavior; no reachable wrong outcome emerged; 62 picker-scoped tests passed.
 
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache pin/coalescing, invalidation/tombstones, and manifest hashing paths; no mechanism-backed reachable candidate emerged; 62 picker-scoped tests passed.
@@ -10018,13 +10020,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — in-memory retry capacity-exhausted terminal path lacked second cancel re-read before Failed assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (seed-only): reseeded host-core-jobs; reviewed worker drain and execute-ownership hosted boundaries; no new hunt-ready rows; 74 scoped host-core-jobs tests passed.
 
 2026-09-27 thorough hunt (hit): proved `InMemoryBackgroundJobQueue` retry capacity-exhausted and writer-rejected branches logged before the second `_info` cancel re-read (parity gap vs terminal-failure and durable capacity terminal paths); second re-read before `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`; 85 scoped host-core-jobs + in-memory queue tests passed.
 
