@@ -59,7 +59,7 @@ public sealed partial class DapperFindingInspectReadRepository
             RecommendedActions = joinResult.RecommendedActions,
             AuditRowId = joinResult.AuditRowId,
             RunId = row.RunId,
-            ManifestVersion = row.CurrentManifestVersion,
+            ManifestVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.CurrentManifestVersion),
             ModelDeploymentName = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ModelDeploymentName),
             ModelAlias = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ModelAlias),
             PromptTemplateVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.PromptTemplateVersion),

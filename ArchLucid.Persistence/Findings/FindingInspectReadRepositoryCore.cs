@@ -37,7 +37,7 @@ internal static class FindingInspectReadRepositoryCore
             occurredAtUtc,
             eventId,
             EncodeRowVersionStampBase64(rowVersionStamp),
-            reviewerUserId,
+            NormalizeInspectDisplayText(reviewerUserId),
             ToUtcDateTimeOffset(revisitDueUtc));
     }
 

@@ -5103,6 +5103,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `CurrentManifestVersion` and `LatestDispositionReviewerUserId` skipped `NormalizeInspectDisplayText` on the Dapper inspect mapper (in-memory `ManifestVersion` copied the raw string), so zero-width-only manifest or reviewer ids could reach inspect while other governance fields were sanitized; normalize manifest version on both paths and reviewer user id in `MapDispositionPointerProjection`; regressions `GetInspectAsync_normalizes_manifest_version_like_sql_inspect_mapper` and `MapDispositionPointerProjection_normalizes_invisible_only_reviewer_user_id_to_null`; 427 scoped inspect mapper/sql/repository-core tests passed.
+
 2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository.GetInspectAsync` copied the first raw `AppliedRuleIds` / trace rule string while Dapper inspect uses `ResolveRuleFields` (trim, skip format-only ids, fall through JSON array), so in-memory inspect could surface zero-width-padded decision rule ids SQL inspect already rejected; serialize in-memory applied-rule ids and delegate to `ResolveRuleFields`; regression `GetInspectAsync_resolves_decision_rule_fields_like_sql_inspect_mapper`; 422 scoped inspect mapper/sql/repository-core tests and 3 in-memory normalization tests passed.
 
 2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository.GetInspectAsync` kept recommended actions that only passed `IsNullOrWhiteSpace` while the SQL follow-up batch uses `FilterRecommendedActions` (trim plus reject format/control characters), so in-memory inspect could return zero-width-only or format-tainted action strings SQL inspect already dropped; route in-memory actions through `FilterRecommendedActions`; regression `GetInspectAsync_filters_recommended_actions_like_sql_inspect_join`; 422 scoped inspect mapper/sql/repository-core tests passed.
@@ -5119,11 +5121,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 77
-- **bugs-found:** 20
+- **hunts:** 78
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — in-memory inspect skipped `ResolveRuleFields` for decision rules
+- **last-bug:** 2026-10-04 — manifest version and disposition reviewer skipped inspect display normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5143,6 +5145,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryFindingInspectReadRepository.GetInspectAsync` — governance text fields and `FindingId` skipped the same normalization as Dapper inspect — **hit 2026-10-04 seed hunt:** `NormalizeInspectDisplayText` on mute reason, assignee, and reasoning trace; `NormalizeFindingId` on response id; regression `GetInspectAsync_normalizes_governance_text_fields_like_sql_inspect_mapper`.
 - [x] (proven) `InMemoryFindingInspectReadRepository.GetInspectAsync` — recommended actions used whitespace-only filtering instead of `FilterRecommendedActions` — **hit 2026-10-04 seed hunt:** parity with SQL follow-up batch; regression `GetInspectAsync_filters_recommended_actions_like_sql_inspect_join`.
 - [x] (proven) `InMemoryFindingInspectReadRepository.GetInspectAsync` — decision rule id/name used raw applied-rule and trace strings instead of `ResolveRuleFields` — **hit 2026-10-04 seed hunt:** JSON-serialize in-memory applied rule ids and share Dapper inspect rule resolution; regression `GetInspectAsync_resolves_decision_rule_fields_like_sql_inspect_mapper`.
+
+- [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` / `MapDispositionPointerProjection` — `CurrentManifestVersion` and `LatestDispositionReviewerUserId` skipped `NormalizeInspectDisplayText` — **hit 2026-10-04 seed hunt:** in-memory `ManifestVersion` parity; regressions `GetInspectAsync_normalizes_manifest_version_like_sql_inspect_mapper` and `MapDispositionPointerProjection_normalizes_invisible_only_reviewer_user_id_to_null`.
 
 - [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — response `FindingId` omitted `NormalizeFindingId` while SQL bound trimmed `@FindingId` — **hit 2026-10-04 seed hunt:** same pass as in-memory governance parity; `FindingId = NormalizeFindingId(row.FindingId)`.
 

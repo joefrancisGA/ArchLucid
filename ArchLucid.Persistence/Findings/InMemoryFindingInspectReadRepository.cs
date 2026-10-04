@@ -106,7 +106,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             RecommendedActions = recommendedActions,
             AuditRowId = null,
             RunId = runId,
-            ManifestVersion = detail.Run.CurrentManifestVersion,
+            ManifestVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
+                detail.Run.CurrentManifestVersion),
             ModelDeploymentName =
                 FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.ModelDeploymentName),
             ModelAlias = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.ModelAlias),

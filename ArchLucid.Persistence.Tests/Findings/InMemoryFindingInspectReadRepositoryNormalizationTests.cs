@@ -140,4 +140,41 @@ public sealed class InMemoryFindingInspectReadRepositoryNormalizationTests
         response!.DecisionRuleId.Should().Be("policy-42");
         response.DecisionRuleName.Should().Be("policy-42");
     }
+
+    [Fact]
+    public async Task GetInspectAsync_normalizes_manifest_version_like_sql_inspect_mapper()
+    {
+        Guid runId = Guid.Parse("dddddddddddddddddddddddddddddddd");
+        string findingId = $"finding-demo-{runId:N}-primary";
+        ScopeContext scope = new();
+
+        Finding finding = new()
+        {
+            FindingId = findingId,
+            FindingType = "test",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Info,
+            Title = "Title",
+            Rationale = "Rationale",
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId, CurrentManifestVersion = "\u200B" },
+            FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingInspectReadRepository repository = new(authority.Object);
+
+        FindingInspectResponse? response = await repository.GetInspectAsync(scope, findingId, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.ManifestVersion.Should().BeNull();
+    }
 }

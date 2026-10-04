@@ -804,6 +804,21 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void MapDispositionPointerProjection_normalizes_invisible_only_reviewer_user_id_to_null()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "\u200B",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDispositionReviewerUserId.Should().BeNull();
+    }
+
+    [Fact]
     public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt()
     {
         JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
