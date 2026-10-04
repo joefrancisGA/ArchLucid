@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 thorough hunt (hit): `ui-webhooks-settings` — manual Refresh reused `load()` without clearing enable/disable confirmation state, so a failed inventory refresh left toggle dialogs open against unverified `webhookRows`; added `refreshSubscriptions` in `useWebhooksSettings` to dismiss pending confirmations before reload; regression `closes enable confirmation when manual refresh fails after subscriptions were loaded`; 59 scoped webhooks folder tests passed.
+
 2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — document names, declaration names/formats, and path-like reference lists still used `HasUsableIdentifierText` without rejecting embedded whitespace, so STJ values such as `diag\u00A0ram` or `pci\u00A0/dss` survived materialization and broke batch/path key parity (same class as evidence bundle id NBSP); introduced `HasUsableCompactIdentifierText` for compact ids while keeping internal spaces on inline requirements, constraints, assumptions, and document/declaration bodies; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`; 39 scoped payload JSON tests passed.
 
 2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — `HasUsableEvidenceBundleId` allowed embedded no-break space (`bundle\u00A01`) because `HasSubstantiveText` skips `char.IsWhiteSpace` and worker lookup uses `Trim()` only on ends, so malformed outbox ids dead-lettered instead of invalid-payload discard; added `HasNoInternalWhitespace` for evidence bundle ids only; regressions `IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id` and `Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp`; 36 scoped payload JSON tests passed.
@@ -7002,6 +7004,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-10-04 thorough hunt (hit): proved manual Refresh left enable/disable confirmation dialogs open when `listAlertRoutingSubscriptions` failed after a prior successful load; `refreshSubscriptions` now clears pending toggle confirmations before reload while post-confirm toggle refresh failures still surface in-dialog; regression `closes enable confirmation when manual refresh fails after subscriptions were loaded`; 59 scoped webhooks folder tests passed.
+
+- [x] (proven) `useWebhooksSettings` / `WebhooksSettingsClient` — manual Refresh left enable/disable URL-backed confirmations open against stale `webhookRows` after `hasLoadedSuccessfully` flipped false — **hit 2026-10-04 thorough hunt:** `refreshSubscriptions` dismisses pending confirmations before `load()`; regression above.
+
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — writes continue-last id before DOM scroll — **cheap-disproof 2026-10-04:** `resolveContinueLastWebhookSubscription` returns null for stale ids; continue-last only offers ids from the current inventory.
+
+- [x] (valid-no-repro) `useWebhooksSettings.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix — **cheap-disproof 2026-10-04:** create-form event vocabulary is the fixed `webhookOutboundEventCatalog` with canonical lowercase ids only.
+
 2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after continue-last gating; proved failed manual `listAlertRoutingSubscriptions` refresh still rendered `WebhooksSubscriptionsTable` from stale `webhookRows` while configuration status and continue-last were already gated on `hasLoadedSuccessfully`; fixed by rendering the table only when `hasLoadedSuccessfully`; regression `hides stale subscriptions table when manual refresh fails`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
 
 - [x] (proven) `WebhooksSettingsClient` — stale subscriptions table after failed manual refresh — **hit 2026-09-27 seed hunt:** table branch ignored `hasLoadedSuccessfully` while other subscription chrome gated; regression `hides stale subscriptions table when manual refresh fails`
@@ -7028,11 +7038,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 35
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 1
+- **hunts:** 36
+- **bugs-found:** 25
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
+- **last-bug:** 2026-10-04 — manual Refresh left toggle confirmations open on failed reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7054,8 +7064,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
 - [x] (proven) `WebhooksSettingsClient` / `resolveWebhooksCreateSteps` — the initial pending subscription request passed `subscriptionsLoaded=false`, which the checklist treated as a completed enable step; the checklist now requires verified loading completion and subscription enablement; regressions `does not mark the enable step done while subscriptions are still loading` and `keeps enable step incomplete while subscriptions are still loading`.
-- [ ] (candidate) `WebhooksSettingsClient.openSubscription` — a Continue-last click writes an API-provided subscription id to local storage before confirming that a matching rendered row and test button exist, so a reachable render/refresh race could preserve an id that cannot be reopened on the next visit; input originates from the subscription list and Continue-last action.
-- [ ] (candidate) `useWebhooksSettings.showAlertSeverityFilter` — event-type values are accepted only when every id has the exact lowercase `archlucid.alert.` prefix, so a reachable API/form event vocabulary with case-variant alert ids can hide the minimum-severity control while still allowing those events to be selected; input originates from webhook event types.
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — see cheap-disproof 2026-10-04 thorough hunt above.
+- [x] (valid-no-repro) `useWebhooksSettings.showAlertSeverityFilter` — see cheap-disproof 2026-10-04 thorough hunt above.
 
 - (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
 - (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
