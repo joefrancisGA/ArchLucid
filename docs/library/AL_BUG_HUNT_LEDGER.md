@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `host-composition` — `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` and threw `NullReferenceException` during readiness probe resolution instead of returning null; aligned with null-safe hot-path trimming used in distributed LLM cache registration; regression `TryResolve_returns_null_when_hot_path_redis_is_explicitly_null`; 408 scoped host-composition tests passed.
+
 2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — promoted duplicate-label resolution: a system-to-system flow `Gateway -> API` attached to the stakeholder `API` node when a system `API` also existed because `findNodeIdByLabel` always picked the first case-insensitive match; resolve ambiguous labels using the upstream endpoint node kind and added regression `resolves duplicate labels to the endpoint in the same node kind as the source`; 51 focused lib architecture-diagram tests passed.
 
 2026-10-03 seed hunt (seed-only): `cli-terraform-evidence` — reread the static Terraform root list, report consumer, apply-saas ordering sources, and synchronization tests; no new reachable mechanism-backed candidate emerged beyond the already-closed drift and documentation rows. The scoped test build was blocked by an existing `CS1705` Azure.Core assembly-version conflict.
@@ -24556,11 +24558,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 50
-- **bugs-found:** 29
+- **hunts:** 51
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — null `Email:Provider` configuration caused an unclassified composition exception
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — null-bound hot-path Redis in health probe resolver caused unclassified `NullReferenceException`
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
@@ -24594,8 +24596,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `graph-projection-cache` readiness — `RedisGraphProjectionHealthCheck` probed projection Redis and ignored `CacheProvider=Auto` scale-out promotion — **hit 2026-09-27 seed hunt #43:** composition health check uses `TryResolveGraphProjectionDistributedRedisConnectionString`; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`
 - [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — orphan `ProjectionCache:RedisConnectionString` won over LLM/hot-path Redis when graph cache was memory — **hit 2026-09-27 seed hunt #44:** generic probe defers to distributed graph resolution and no longer treats unused projection strings as authoritative; regression `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory`
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString` — existing unrelated `IDistributedCache` plus projection-only Redis config returned an empty graph pub/sub endpoint — **hit 2026-10-03 seed hunt:** existing-cache resolution now falls back to projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`
-- (candidate) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a distributed LLM cache configuration with a null-bound `HotPathCache:RedisConnectionString` and no LLM Redis value reaches `.Trim()` and throws an unclassified startup `NullReferenceException` instead of the intended configuration error; reachability: the `HotPathCache:RedisConnectionString` appsettings/environment configuration key is bound into `HotPathCacheOptions`.
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a null-bound `HotPathCache:RedisConnectionString` caused `.Trim()` to throw `NullReferenceException` instead of the intended configuration error — **hit 2026-10-03:** distributed LLM cache startup with an explicitly null hot-path Redis value failed unclassified; fixed with null-safe trimming; regression `RedisHealthProbeConnectionResolverTests.Distributed_llm_cache_with_null_hot_path_redis_reports_configuration_error`.
+- [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — configuration binding left `HotPathCache:RedisConnectionString` null while LLM/projection Redis were absent, so the generic health-probe fallback called `.Trim()` on null — **hit 2026-10-04:** null-safe hot-path trim returns null like empty configuration; regression `TryResolve_returns_null_when_hot_path_redis_is_explicitly_null`.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` returns early for any pre-registered `IDistributedCache`, even when `LlmCompletionCache:Provider=Distributed` has no shared Redis backing — **cheap-disproof 2026-10-03:** production composition registers only Redis-backed `IDistributedCache`; `AddDistributedMemoryCache` appears only in test fixtures.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` reuses any pre-registered `IDistributedCache` while graph projection is configured as distributed — **cheap-disproof 2026-10-03:** the memory-backed pre-registration prerequisite is test-only; production storage registrars use the shared Redis registration path.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` creates a distributed response store whenever the provider label is `Distributed` without independently asserting that the resolved `IDistributedCache` is cross-process — **cheap-disproof 2026-10-03:** no production composition path registers a process-local `IDistributedCache` before this registrar.
