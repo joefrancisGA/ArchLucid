@@ -114,6 +114,9 @@ public sealed partial class ReviewClarificationQuestionsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (request.Answers is null)
+            return this.BadRequestProblem("Answers is required.", ProblemTypes.ValidationFailed);
+
         foreach (KeyValuePair<string, string> answer in request.Answers)
         {
             if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(answer.Value))

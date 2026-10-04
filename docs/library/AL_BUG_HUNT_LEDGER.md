@@ -25065,11 +25065,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 60
-- **bugs-found:** 52
+- **hunts:** 61
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — quick scan safety audit Enum.Parse on corrupt snapshot mode
+- **last-bug:** 2026-10-04 — clarification answers null collection NRE
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25078,6 +25078,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-02 thorough hunt (dry): cheap-disproved the model-catalog evaluation evidence-size candidate; the persistence schema intentionally stores `EvidenceJson` as `NVARCHAR(MAX)`, and no concrete bounded-input failure or configured size contract was present to support a failing repro; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server.
 
 2026-10-04 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths. No candidate was promoted because the scoped controller test command was blocked before test discovery by pre-existing ARCH006/ARCH006a analyzer errors in unrelated persistence files. Seeded the verification-route error-mapping candidate for a future repro.
+
+2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` iterated `request.Answers` without a null guard, so JSON `"answers": null` caused `NullReferenceException` instead of `400 ValidationFailed`; regression `ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answers_collection_is_null`; closed stale open candidate rows for Quick Scan parse (already proven) and null answer values (valid-no-repro); 20 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
 
 2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `AdminQuickScanSafetyController.PutAsync` used `Enum.Parse` on post-mutation `snapshot.OperationalMode` for audit logging, so an unparseable snapshot string (e.g. contract/store skew) could throw after a successful override; resolve mode with `TryParse` falling back to the validated request mode; regression `PutAsync_returns_ok_when_snapshot_operational_mode_is_unparseable_but_request_mode_is_valid`; re-confirmed valid-no-repro on null clarification-answer values; 19 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
 
@@ -25097,7 +25099,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `AdminQuickScanSafetyController.PutAsync` — `Enum.Parse` on post-override `snapshot.OperationalMode` for audit logging — **hit 2026-10-04 thorough hunt:** unparseable snapshot mode after successful `SetOverrideAsync` threw instead of returning the mutation response; `ResolveOperationalModeForAudit` uses `TryParse` with request-mode fallback; regression `PutAsync_returns_ok_when_snapshot_operational_mode_is_unparseable_but_request_mode_is_valid`.
 
-- [x] (valid-no-repro) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — null JSON answer values — **cheap-disproof 2026-10-04 thorough hunt:** `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` and `UnicodeTextValidation.IsValidUnicodeText` treat null/empty as valid at the controller gate; no unhandled null path was reproduced on the validation loop.
+- [x] (proven) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — null `Answers` collection — **hit 2026-10-04 thorough hunt:** deserialized `"answers": null` reached `foreach` and threw `NullReferenceException`; guard returns `400 ValidationFailed`; regression `ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answers_collection_is_null`.
+
+- [x] (valid-no-repro) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — null JSON answer values within a non-null collection — **cheap-disproof 2026-10-04 thorough hunt:** `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` and `UnicodeTextValidation.IsValidUnicodeText` treat null/empty as valid at the controller gate; no unhandled null path was reproduced on the validation loop.
 
 - [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` accepts attacker-controlled `RecordAgentModelCatalogEvaluationRequest.EvidenceJson` and forwards it without a controller-side size bound — cheap-disproof 2026-10-02 thorough hunt: `dbo.AgentModelCatalogEvaluation.EvidenceJson` is intentionally `NVARCHAR(MAX)`, and the selected files provide no concrete maximum-size contract or observed failure to falsify; no failing repro was justified.
 
@@ -25226,8 +25230,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `SupportBundleController.DownloadSupportBundle` — `AuditService.EnrichAuditEvent` fills empty tenant/workspace/project fields from the authenticated HTTP scope provider, and `SupportBundleAssembler` emits only host environment/build/reference data rather than tenant-scoped records; no attribution or cross-tenant repro remains.
 
-- [ ] (candidate) `AdminQuickScanSafetyController.PutAsync` — parses `snapshot.OperationalMode` with `Enum.Parse` after the admin service returns; a reachable persisted or service-produced mode value outside `QuickScanSafetyOperationalMode` could surface a 500 instead of a conservative validation response, pending proof that the service/store contract cannot emit an unknown mode.
-- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — iterates `request.Answers` and reads each `answer.Value` as non-null text; a reachable JSON object containing a null answer value could reach `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` and fail with an unhandled null path, pending the request DTO deserialization/nullability contract.
+- [x] (invalid) `AdminQuickScanSafetyController.PutAsync` — stale open candidate duplicate — **closed 2026-10-04 thorough hunt:** superseded by proven `ResolveOperationalModeForAudit` hit in zone hypotheses above.
+
+- [x] (invalid) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — stale open candidate for null answer values — **closed 2026-10-04 thorough hunt:** superseded by proven null-`Answers` collection guard and valid-no-repro on null per-entry values.
 
 2026-10-03 seed hunt (seed-only): re-read Authority/Admin controller policy, scope, input, and audit boundaries; seeded the support-bundle scope/audit attribution candidate. 14 focused controller tests passed; 5 SQL-backed integration tests were blocked because no SQL Server was available.
 2026-10-04 thorough hunt (dry): cheap-disproved the support-bundle scope/audit candidate; audit enrichment supplies request scope and the assembler has no tenant-scoped data access. Fourteen focused tests passed; five SQL-backed integration tests were blocked by unavailable SQL Server, with no failing repro.
