@@ -286,7 +286,4 @@ public sealed class TopologyProposalConsensusMergerTests
 
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
     }
-
-        result.MergedProposal.AddedRelationships.Should().ContainSingle();
-    }
 }
