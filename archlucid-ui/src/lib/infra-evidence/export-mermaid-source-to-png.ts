@@ -3,13 +3,15 @@ import { sanitizeArchitectureDiagramSvg } from "@/lib/architecture/architecture-
 import { renderMermaidSvgMarkup } from "@/lib/mermaid/mermaid-safe-render";
 import { sanitizeMermaidSvgForCanvasExport } from "@/lib/infra-evidence/sanitize-mermaid-svg-for-canvas-export";
 
+const SVG_NS = "http://www.w3.org/2000/svg";
+
 export type ExportMermaidSourceToPngOptions = {
   readonly dark?: boolean;
   readonly renderId?: string;
   readonly backgroundColor?: string;
 };
 
-function appendDataFlowRollupMemberLegend(svgMarkup: string): string {
+export function appendDataFlowRollupMemberLegend(svgMarkup: string): string {
   if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
     return svgMarkup;
   }
