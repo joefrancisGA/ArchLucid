@@ -658,6 +658,79 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_inline_requirements_with_internal_spaces()
+    {
+        Guid runId = Guid.Parse("15151515-1515-1515-1515-151515151515");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["must use https"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("must use https");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("16161616-1616-1616-1616-161616161616");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "policyReferences": ["pci\u00A0/dss", "keep-policy"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.PolicyReferences.Should().Equal("keep-policy");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_document_when_name_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("14141414-1414-1414-1414-141414141414");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diag\u00A0ram", "contentType": "text/plain", "content": "body" },
+                  { "name": "keep", "contentType": "text/plain", "content": "body" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp()
     {
         const string json = """
