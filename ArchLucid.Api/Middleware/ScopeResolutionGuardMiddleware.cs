@@ -82,5 +82,15 @@ internal sealed class ScopeResolutionGuardMiddleware(
         path.StartsWithSegments("/health/live", StringComparison.OrdinalIgnoreCase)
         || path.StartsWithSegments("/health/ready", StringComparison.OrdinalIgnoreCase)
         || path.StartsWithSegments("/health/version", StringComparison.OrdinalIgnoreCase)
-        || path.Equals("/health", StringComparison.OrdinalIgnoreCase);
+        || IsRootHealthAggregateProbe(path);
+
+    private static bool IsRootHealthAggregateProbe(PathString path)
+    {
+        string? value = path.Value;
+
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        return string.Equals(value.TrimEnd('/'), "/health", StringComparison.OrdinalIgnoreCase);
+    }
 }
