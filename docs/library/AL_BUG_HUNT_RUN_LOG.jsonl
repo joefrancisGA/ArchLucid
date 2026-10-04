@@ -1,4 +1,3 @@
-{"at":"2026-09-04T04:51:31.2681306Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T04:57:33.5456668Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T05:05:13.7635521Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T05:12:49.6185106Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8714,3 +8713,4 @@
 {"at":"2026-10-04T04:45:46.6477695Z","zoneId":"run-execute-ownership","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs;ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs;ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs"]}
 {"at":"2026-10-04T04:48:30.362351Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/;archlucid-ui/src/components/reviews/"]}
 {"at":"2026-10-04T04:51:26.0661198Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewDetailWorkspace.tsx,archlucid-ui/src/components/reviews/ReviewDetailWorkspaceTabShell.tsx,archlucid-ui/src/components/reviews/ReviewWorkbenchSelectionContext.tsx,archlucid-ui/src/components/reviews/ReviewWorkspaceStaleBanner.tsx"]}
+{"at":"2026-10-04T04:54:22.1110538Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewWorkspaceStaleBanner.tsx,archlucid-ui/src/components/reviews/ReviewWorkspaceStaleBanner.test.tsx"],"severity":"medium","defectClass":"state-machine-gap"}

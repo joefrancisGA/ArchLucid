@@ -4743,7 +4743,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
@@ -27804,7 +27804,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 - (candidate) `ReviewWorkbenchSelectionProvider` — finding selection only reconciles from `window.location` on `popstate`; a same-document control that replaces `findingId` without dispatching `popstate` can leave the visible finding selection stale, reachable through another review-detail control using `replaceState`.
 - (candidate) `ReviewWorkbenchSelectionProvider` — workbench focus is initialized from the parent prop only and is not read from the URL before the first render; a Working-mode deep link with `workbenchFocus=evidence` can briefly focus the default column, pending first-paint focus contract proof.
-- (candidate) `ReviewWorkspaceStaleBanner` — the activity fingerprint baseline is retained across a client-side `runId` transition; switching between reviews with different authoritative fingerprints can surface a stale banner for the newly opened review, reachable when the detail route changes without remounting this banner.
+- [x] (proven) `ReviewWorkspaceStaleBanner` — the activity fingerprint baseline was retained across a client-side `runId` transition; switching from a committed review to an in-review review surfaced a false stale banner. Reset the baseline and visibility when `runId` changes; regression `does not carry the previous run baseline into a client-side run transition`.
 
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
 - [x] (proven) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — used `findingCountDisplay` from deferred explanation while findings list used detail snapshot on first paint — **hit 2026-09-07 (#1196):** tab badge stayed empty until explanation loaded even when triage-visible findings were already in run detail; fixed via `resolveRunDetailFindingsTabBadgeCount` fallback to detail triage counts (`falls back to detail snapshot triage counts when explanation count is deferred`)
@@ -27845,6 +27845,8 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-04 seed hunt (seed-only): repeated the selected workspace/presenter review; no new reachable product candidate emerged. The same presenter assertion remains a test-harness mismatch, and the focused workspace tests again reported 20 passed and 1 invalid harness failure.
 
 2026-10-04 seed hunt (seed-only): re-read the selected workspace tab, workbench selection, and stale-summary paths; no new hunt-ready row survived cheap-disproof. The focused workspace suite reported 21 passed and 1 invalid presenter harness assertion. Seeded three contract-dependent candidates for follow-up.
+
+2026-10-04 seed hunt (seed→hit): promoted `ReviewWorkspaceStaleBanner`; its activity fingerprint baseline survived a reachable client-side `runId` transition and falsely displayed “updated elsewhere” for the newly opened review. Reset baseline state on run transition and added `does not carry the previous run baseline into a client-side run transition`; the regression passed. The broader scoped suite reported 22 passed and 1 pre-existing invalid presenter harness failure.
 
 ---
 
