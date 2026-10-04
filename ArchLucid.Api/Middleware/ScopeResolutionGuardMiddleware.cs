@@ -64,9 +64,7 @@ internal sealed class ScopeResolutionGuardMiddleware(
         if (pathString.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(path, "/", StringComparison.Ordinal)
-            || string.Equals(path, "/robots.txt", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(path, "/sitemap.xml", StringComparison.OrdinalIgnoreCase))
+        if (IsRootOrCrawlerHintPath(path))
             return true;
 
         Endpoint? endpoint = context.GetEndpoint();
@@ -94,5 +92,16 @@ internal sealed class ScopeResolutionGuardMiddleware(
             return false;
 
         return string.Equals(value.TrimEnd('/'), "/health", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsRootOrCrawlerHintPath(string path)
+    {
+        if (string.Equals(path, "/", StringComparison.Ordinal))
+            return true;
+
+        string trimmed = path.TrimEnd('/');
+
+        return string.Equals(trimmed, "/robots.txt", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "/sitemap.xml", StringComparison.OrdinalIgnoreCase);
     }
 }
