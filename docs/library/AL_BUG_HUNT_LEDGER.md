@@ -28207,11 +28207,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — question queue retained skipped state across snapshot changes
+- **last-bug:** 2026-10-04 — reopening an expired question disposition preserved its expired timestamp
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28234,6 +28234,8 @@ ABQ-09 churn hotspot.
 
 2026-10-04 seed hunt (seed-only): re-read question disposition SQL upsert, reopen lifecycle, and queue state after the prior dry hunt; no candidate met the full same-run repro bar. Seeded two bounded follow-ups; no product test was added.
 
+2026-10-04 thorough hunt (hit): proved `SecureNowQuestionDispositionService.ReopenAsync` preserved a past `ExpirationUtc`, leaving a successfully reopened disposition expired; renewed expired dispositions for the standard 90-day lifetime and added `Reopen_renews_an_expired_disposition`. The focused SecureNowQuestion disposition suite passed 11/11 with unrelated ARCH006 analyzers disabled.
+
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
@@ -28244,7 +28246,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable API mutation with `resourceId: null` dereferenced `resourceId.Length` and produced a server error instead of validation failure; fixed with explicit required-resource validation and regression `Null_resource_id_is_rejected_as_validation_error`
 - [x] (proven) `SecureNowQuestionQueue` — skipped and visited state keyed only by versioned `questionKey`, so a `NotSure` action on one resource hid other resources sharing that key; fixed with subscription/resource/question identity keys and regression `keeps another resource with the same question key after skipping one`
 - [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent answer/ignore writes for the same tenant/question identity use a SQL `MERGE` without an explicit serialization hint, so two reachable operators may receive a duplicate-key or lost-update failure; input is concurrent mutation requests for one queue question.
-- [ ] (candidate) `SecureNowQuestionDispositionService.ReopenAsync` — reopening an expired disposition preserves its past `ExpirationUtc`, so the persisted record can remain expired after a successful reopen; input is a reachable reopen request for an expired ignored or answered disposition.
+- [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` — reopening an expired disposition preserved its past `ExpirationUtc`, leaving the successful reopen expired; renewed expired records for the standard 90-day lifetime and added regression `Reopen_renews_an_expired_disposition`
 - [x] (invalid) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — a resource with a non-empty `ParentResourceId` absent from the snapshot resource set is skipped before it can become an orphan question — **cheap-disproof 2026-10-04 thorough hunt:** the selected `SecureNowQuestionCompiler` contract explicitly suppresses `IsKnownMissingAzureObject` candidates, so missing-parent inventory objects are intentionally excluded from the queue.
 - [x] (valid-no-repro) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` — **cheap-disproof 2026-10-04 thorough hunt:** the values map to defined enum members and the selected files establish no harmful persistence or user-visible wrong outcome.
 - [x] (proven) `SecureNowQuestionQueue` — `sessionSkippedQuestionKeys` and `visitedQuestionKeys` survived a `snapshotId` change, so a same-identity question in the next snapshot could remain hidden and the visit cap could carry over; reset both sets when the snapshot changes, with regression `clears skipped question state when the snapshot changes`.

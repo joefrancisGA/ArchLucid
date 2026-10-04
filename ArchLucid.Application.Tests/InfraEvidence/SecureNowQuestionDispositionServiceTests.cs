@@ -158,6 +158,36 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Reopen_renews_an_expired_disposition()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource");
+
+        await sut.IgnoreAsync(Scope, SnapshotId, request, "actor");
+        repository.Rows[0] = repository.Rows[0] with
+        {
+            ExpirationUtc = DateTime.UtcNow.AddMinutes(-1),
+        };
+
+        SecureNowQuestionDispositionMutationResult reopened = await sut.ReopenAsync(
+            Scope,
+            SnapshotId,
+            new SecureNowQuestionDispositionReopenRequest
+            {
+                SubscriptionId = request.SubscriptionId,
+                ResourceId = request.ResourceId,
+                QuestionKey = request.QuestionKey,
+                Reason = "Evidence changed.",
+            },
+            "reviewer");
+
+        reopened.Succeeded.Should().BeTrue();
+        reopened.Record!.ExpirationUtc.Should().BeAfter(DateTime.UtcNow);
+    }
+
+    [Fact]
     public async Task Question_key_requires_a_positive_version()
     {
         InMemoryDispositionRepository repository = new();

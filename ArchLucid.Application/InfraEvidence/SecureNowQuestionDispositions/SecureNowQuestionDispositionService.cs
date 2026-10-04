@@ -152,7 +152,9 @@ public sealed class SecureNowQuestionDispositionService(
             AnswerCode = existing.AnswerCode,
             AnswerText = existing.AnswerText,
             Reason = existing.Reason,
-            ExpirationUtc = existing.ExpirationUtc,
+            ExpirationUtc = existing.ExpirationUtc > now
+                ? existing.ExpirationUtc
+                : now.Add(MaximumDispositionLifetime),
             EvidenceFingerprint = existing.EvidenceFingerprint,
             ActorKey = actorKey.Trim(),
             UpdatedUtc = now,
