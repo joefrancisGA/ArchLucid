@@ -38,13 +38,13 @@ export type DigestsPageHeaderProps = {
  */
 function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
   if (lastUpdatedUtc === null) {
-    return " — ";
+    return "Not recorded";
   }
 
   const parsed: Date = new Date(lastUpdatedUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return parsed.toLocaleString(undefined, {

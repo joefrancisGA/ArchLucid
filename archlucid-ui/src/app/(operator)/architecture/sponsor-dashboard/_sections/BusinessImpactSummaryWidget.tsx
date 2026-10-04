@@ -28,7 +28,7 @@ import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lu
 
 function formatUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return " — ";
+    return "Amount not returned";
   }
 
   return new Intl.NumberFormat(undefined, {

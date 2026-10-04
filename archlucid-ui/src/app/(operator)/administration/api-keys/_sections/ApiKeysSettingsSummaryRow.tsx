@@ -35,7 +35,7 @@ function formatOptionalTimestamp(value: string | null, loading: boolean): string
   }
 
   if (value === null) {
-    return " — ";
+    return "Not recorded";
   }
 
   return formatRelativeTime(value);
