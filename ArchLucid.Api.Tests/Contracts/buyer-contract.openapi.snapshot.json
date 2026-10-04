@@ -12631,6 +12631,46 @@
         },
         "type": "object"
       },
+      "DiagramInfrastructureEdgeGapRow": {
+        "properties": {
+          "associationType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diagramEdgeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "edgeGapId": {
+            "type": "string"
+          },
+          "explainText": {
+            "type": "string"
+          },
+          "fromCloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gapKind": {
+            "type": "string"
+          },
+          "toCloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "DiagramInfrastructureReconciliationRequest": {
         "properties": {
           "snapshotId": {
@@ -12642,9 +12682,22 @@
       },
       "DiagramInfrastructureReconciliationResult": {
         "properties": {
+          "comparisonId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "diagramNodeCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "edgeGaps": {
+            "items": {
+              "$ref": "#/components/schemas/DiagramInfrastructureEdgeGapRow"
+            },
+            "type": "array"
           },
           "inventoryResourceCount": {
             "format": "int32",
@@ -19447,6 +19500,39 @@
             "type": "string"
           },
           "name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfrastructureDiagramComparisonCreateRequest": {
+        "properties": {
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/DiagramSourceReference"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "InfrastructureDiagramNodeMappingSaveRequest": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "diagramNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "normalizedDiagramLabel": {
             "type": "string"
           }
         },
@@ -34133,6 +34219,24 @@
         },
         "type": "object"
       },
+      "SecureNowQuestionDispositionAuditResponse": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "actorKey": {
+            "type": "string"
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecureNowQuestionDispositionReopenApiRequest": {
         "properties": {
           "questionKey": {
@@ -34145,6 +34249,75 @@
             "type": "string"
           },
           "subscriptionId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowQuestionDispositionResponse": {
+        "properties": {
+          "actorKey": {
+            "type": "string"
+          },
+          "answerCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "answerText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEntries": {
+            "items": {
+              "$ref": "#/components/schemas/SecureNowQuestionDispositionAuditResponse"
+            },
+            "type": "array"
+          },
+          "dispositionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidenceFingerprint": {
+            "type": "string"
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isExpired": {
+            "type": "boolean"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "scopeKind": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
             "type": "string"
           }
         },
@@ -48460,6 +48633,9 @@
     },
     {
       "name": "InfraEvidenceSnapshots"
+    },
+    {
+      "name": "InfrastructureDiagramComparisons"
     },
     {
       "name": "InsightDensityNoveltyRates"
