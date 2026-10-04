@@ -991,4 +991,41 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         costRecommendation.TradeOffs.Should().BeEmpty();
         reliabilityRecommendation.TradeOffs[0].CompetingPositions.Should().Contain("Recovery-first");
     }
+
+    [Fact]
+    public void BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_excluding_cost()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Pilot scope excluding cost from the first release"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Cost with explicit human approval.");
+    }
 }

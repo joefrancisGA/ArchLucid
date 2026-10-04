@@ -160,7 +160,15 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             || CreateNegatedDimensionPattern("no", dimensionToken).IsMatch(priority)
             || CreateNegatedDimensionPattern("not", dimensionToken).IsMatch(priority)
             || CreateNegatedDimensionPattern("anti", dimensionToken).IsMatch(priority)
-            || CreateWithoutDimensionPattern(dimensionToken).IsMatch(priority);
+            || CreateWithoutDimensionPattern(dimensionToken).IsMatch(priority)
+            || CreateExcludingDimensionPattern(dimensionToken).IsMatch(priority);
+    }
+
+    private static Regex CreateExcludingDimensionPattern(string dimensionToken)
+    {
+        return new Regex(
+            $@"\bexclud(?:e|es|ed|ing)\s+{Regex.Escape(dimensionToken)}\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 
     private static Regex CreateWithoutDimensionPattern(string dimensionToken)

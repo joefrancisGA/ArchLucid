@@ -6154,6 +6154,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-04 seed hunt #42 (seed→hit): promoted declared-priority negation gap for `excluding cost` workbook phrasing; proved `Pilot scope excluding cost from the first release` still preferred Cost in Security/Cost trade-offs because dimension-word matching hit `cost` without treating `excluding cost` as negation; extended `IsNegatedDimensionMention` with `exclud(e|es|ed|ing) {dimension}`; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_excluding_cost`; exact Alternatives/ProposedChange filter passed 43/43.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `excluding {dimension}` phrases not negated — **hit 2026-10-04 seed hunt #42:** `excluding cost` falsely preferred Cost-first resolution; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_excluding_cost`.
+
 2026-10-04 seed hunt (seed→hit): promoted declared-priority negation gap for `anti-cost` workbook phrasing; proved `Anti-cost` priorities still preferred Cost in Security/Cost trade-offs because dimension-word matching hit the `cost` token inside `anti-cost`; extended `IsNegatedDimensionMention` with `anti-` and `without {dimension}` patterns; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_anti_cost`; exact Alternatives/ProposedChange filter passed 42/42.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `anti-{dimension}` and `without {dimension}` phrases not negated — **hit 2026-10-04 seed hunt:** `anti-cost` falsely preferred Cost-first resolution; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_anti_cost`.
@@ -6253,11 +6257,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 41
+- **hunts:** 42
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 18
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — `anti-cost` priorities falsely preferred Cost in trade-offs
+- **last-bug:** 2026-10-04 — `excluding cost` priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -13888,6 +13892,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-04 seed hunt #53 (seed→hit): reseeded retrieval; proved shrink reindex removed the whole document then re-upserted, so a failed shrink re-upsert left the document with zero searchable chunks after the batch upsert had already written new ordinals; fixed by deleting only stale `{documentId}-chunk-N` ids via `IVectorIndex.RemoveChunkIdsAsync` after the batch upsert; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`; 354 scoped retrieval/indexing tests passed.
+
 2026-10-04 seed hunt #52 (seed→hit): reseeded retrieval; proved `IndexDocumentsAsync` removed all reindexed document vectors before a batched `UpsertChunksAsync`, so upsert failures left every document in the batch unsearchable without catalog rollback; fixed by upserting first and running remove-then-reupsert only when `IndexedChunkCount` exceeds the new chunk count (content shrink); regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`; 353 scoped retrieval/indexing tests passed.
 
 2026-10-04 seed hunt #51 (seed→hit): reseeded retrieval; proved `RetrievalIndexingService.IndexDocumentsAsync` removed prior vectors for an earlier document in the same batch before `EmbedManyAsync` completed for a later document, so embedding failures left earlier documents unsearchable without catalog rollback; fixed by deferring `RemoveChunksForDocumentAsync` until all embeddings succeed and immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`; 352 scoped retrieval/indexing tests passed.
@@ -13914,11 +13920,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 52
+- **hunts:** 53
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — batch upsert failure deleted vectors before catalog rollback
+- **last-bug:** 2026-10-04 — shrink reindex remove-all + re-upsert left document empty on re-upsert failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13982,6 +13988,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — chunk-cap validation ran after `RemoveChunksForDocumentAsync`, so cap failures left documents without vectors while unchanged-hash retries skipped re-index — **hit 2026-09-27 seed hunt #38:** defer document chunk removal until after `MaxChunksPerIndexOperation` passes; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — batched reindex removed prior vectors for every document before `UpsertChunksAsync`, so upsert failures left the whole batch without searchable vectors while catalog hashes stayed stale — **hit 2026-10-04 seed hunt #52:** upsert new chunks first and remove-then-reupsert only when catalog `IndexedChunkCount` exceeds the new chunk count; regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content-shrink cleanup removed all document chunks then re-upserted, so re-upsert failure after batch upsert left zero searchable vectors — **hit 2026-10-04 seed hunt #53:** delete only stale higher-ordinal `chunkId` values via `RemoveChunkIdsAsync`; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
