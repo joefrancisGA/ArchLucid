@@ -6154,6 +6154,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-04 seed hunt #43 (seed→hit): promoted declared-priority negation gap for `except cost` workbook phrasing; proved `Pilot scope except cost from the first release` still preferred Cost in Security/Cost trade-offs because dimension-word matching hit `cost` without treating `except cost` as negation; extended `IsNegatedDimensionMention` with `except {dimension}`; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_except_cost`; exact Alternatives/ProposedChange filter passed 44/44.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `except {dimension}` phrases not negated — **hit 2026-10-04 seed hunt #43:** `except cost` falsely preferred Cost-first resolution; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_except_cost`.
+
 2026-10-04 seed hunt #42 (seed→hit): promoted declared-priority negation gap for `excluding cost` workbook phrasing; proved `Pilot scope excluding cost from the first release` still preferred Cost in Security/Cost trade-offs because dimension-word matching hit `cost` without treating `excluding cost` as negation; extended `IsNegatedDimensionMention` with `exclud(e|es|ed|ing) {dimension}`; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_excluding_cost`; exact Alternatives/ProposedChange filter passed 43/43.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `excluding {dimension}` phrases not negated — **hit 2026-10-04 seed hunt #42:** `excluding cost` falsely preferred Cost-first resolution; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_excluding_cost`.
@@ -6257,11 +6261,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 42
+- **hunts:** 43
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 19
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — `excluding cost` priorities falsely preferred Cost in trade-offs
+- **last-bug:** 2026-10-04 — `except cost` priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
