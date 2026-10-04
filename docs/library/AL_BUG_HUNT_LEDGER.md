@@ -27854,6 +27854,8 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-04 seed hunt (seed-only): re-read the selected review-detail route, workspace header, tab synchronization, and workbench paths; no new hunt-ready row emerged. The presenter assertion remains a test-harness mismatch, while the focused suite otherwise passed 22 tests.
 
+2026-10-04 seed hunt (seed-only): repeated the selected review-detail workspace source review; no new reachable wrong outcome emerged. The focused suite again reported 22 passed and the same invalid presenter harness assertion.
+
 ---
 
 ## Zone: ui-review-intake-wizards
