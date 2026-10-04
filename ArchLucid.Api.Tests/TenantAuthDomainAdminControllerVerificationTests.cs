@@ -55,6 +55,19 @@ public sealed class TenantAuthDomainAdminControllerVerificationTests
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
+    [Fact]
+    public async Task RemoveDomainAsync_returns_bad_request_when_domain_not_registered_for_tenant()
+    {
+        TenantAuthDomainAdminController controller = CreateController(new InMemoryTenantSignInEmailDomainRepository());
+
+        IActionResult action = await controller.RemoveDomainAsync(
+            "missing.example",
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     private static TenantAuthDomainAdminController CreateController(
         InMemoryTenantSignInEmailDomainRepository domains)
     {

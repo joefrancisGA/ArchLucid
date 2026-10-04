@@ -113,9 +113,17 @@ public sealed partial class TenantAuthDomainAdminController(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
 
-        TenantSignInEmailDomainRecord record =
-            await _adminService.RemoveDomainAsync(scope.TenantId, normalizedDomain, cancellationToken)
+        TenantSignInEmailDomainRecord record;
+
+        try
+        {
+            record = await _adminService.RemoveDomainAsync(scope.TenantId, normalizedDomain, cancellationToken)
                 .ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         await _auditService.LogAsync(
             new AuditEvent
