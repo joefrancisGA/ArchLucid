@@ -28132,10 +28132,10 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -28171,6 +28171,10 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AuditEvidenceSelectorRegistry` injects one typed selector per ctor parameter; repeated Register duplicates descriptors but `ListDescriptors` stays at nine (`InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services — **cheap-disproof 2026-09-12 thorough hunt #1948:** production hosts always call `AddArchLucidApplicationServices`, which registers persistence before `InfraEvidenceCompositionModule`; standalone import is test-only and intentionally unwired (`InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services` asserts descriptors only)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance — **cheap-disproof 2026-09-11 seed hunt #1796:** MS DI last-wins keeps final `Register()` default thresholds, not an earlier host override; regression `InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins`.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` — both audit-readiness and SecureNow architect consumers are registered for every hosting role; a reachable inventory-diff materialization in a worker or simulator host could invoke a consumer whose role-specific repository graph is absent and fail the post-materialization operation instead of isolating the unsupported consumer.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `TenantBrandingAdminService` — tenant-branding admin services are registered unconditionally; a reachable branding-profile mutation request under a host with only the read-side branding cache or a no-op persistence provider could report success without durable invalidation, leaving subsequent branded exports stale.
+
+2026-10-04 seed hunt (seed-only): reread the composition registrations and full-host test boundary; no new candidate met the same-run hunt-ready reachability and wrong-outcome bar. Seeded two bounded candidates around diff-consumer role wiring and tenant-branding mutation durability; no product code changed.
 
 2026-09-11 seed hunt #1796 (seed-only): reseeded host-infra-evidence-composition after #1624; cheap-disproof closed duplicate Mermaid thresholds singleton candidate; 1 scoped InfraEvidenceCompositionModule test passed.
 
