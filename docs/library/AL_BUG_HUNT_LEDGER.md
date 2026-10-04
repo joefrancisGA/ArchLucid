@@ -21336,11 +21336,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 32
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — non-object aggregate JSON root threw during explanation confidence parsing
+- **hunts:** 33
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — negative explanation counts were accepted by whole-number coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21349,6 +21349,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 2026-10-03 thorough hunt (hit): proved a parseable non-object aggregate root (`[]`) threw from `TryGetPropertyCaseInsensitive` instead of degrading to absent explanation confidence; added an object-root guard in `FromAggregateJson`; regression `FromAggregateJson_returns_null_for_non_object_root`; 42 scoped RunExplanation tests passed.
 
 2026-10-03 thorough hunt (dry): rechecked the five explanation candidates after the root-shape fix; out-of-range counts and numeric/boolean citation tokens are covered by existing regressions, alternate citation fields and `content` object aliases lack producer-contract reachability, and the non-object-root row is now covered by the new guard. 42 scoped RunExplanation tests passed.
+
+2026-10-04 seed hunt (hit): proved `RunExplanationAggregateJsonReader.TryReadWholeNumber` accepted negative JSON integers through its direct `TryGetInt32` branch, allowing negative decision, unresolved-issue, and compliance-gap counts into explanation callouts; rejected negative values and added `FromAggregateJson_ignores_negative_whole_number_counts_without_throwing`. The 43 scoped RunExplanation tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded core-explanation-json after list flattening; proved nested-array `reasoning` paragraphs (`[["First"],["Second"]]`) rejected `TryNormalizeStructuredJson`; fixed with `CollectReasoningParts` flattening (parity with `CollectStringListEntries`); seeded aggregate `citations` nested-array count vs disposition as `(candidate)`; regression `TryNormalizeStructuredJson_flattens_nested_array_reasoning_paragraphs`; 68 scoped explanation unit tests passed.
 
@@ -21369,6 +21371,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — a parseable non-object aggregate root reaches object-only property enumeration and throws instead of returning a safe absent result — **hit 2026-10-03 thorough hunt:** guard non-object `JsonElement` roots before confidence sub-readers; regression `FromAggregateJson_returns_null_for_non_object_root`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — string count tokens throw on aggregate parse path — **hit 2026-09-07 hunt #1187 (seed→hit):** `TryGetInt32` on `JsonValueKind.String` threw before sibling readers coerced string whole numbers; `FromAggregateJson` crashed on string-encoded `decisionCount`/`unresolvedIssueCount`/`complianceGapCount`; fixed with `ValueKind` guards and `TryParseWholeNumberString`; regression in `FromAggregateJson_maps_string_encoded_decision_count_without_throwing`
+- [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — negative JSON integer count tokens were accepted, so aggregate decision/issue/compliance callouts could expose negative counts; fixed by requiring nonnegative direct integer values; regression `FromAggregateJson_ignores_negative_whole_number_counts_without_throwing`
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — omitted `citations` property skipped zero-citation WARN gate — **hit 2026-09-07 hunt #1187 (seed→hit):** missing key left `CitationCount` null so `ResolveDisposition` returned PASS while `FromSummary` with empty citations returned WARN; fixed by treating omitted property as empty array; regression in `FromAggregateJson_treats_omitted_citations_as_empty_for_disposition`
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — object-shaped `citations` ignored — **hit 2026-09-07 hunt #1187 (seed→hit):** single-object citation payloads fell through shape handling with null count; fixed by mapping object token to one citation; regression in `FromAggregateJson_maps_object_citation_as_single_citation_count`
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — string-encoded numeric `confidence` / `schemaVersion` may bypass structured normalize path — **hit 2026-09-07 hunt #1261:** `JsonSerializer.Deserialize` to strongly typed DTO threw on string numerics, so `TryNormalizeStructuredJson` returned false and `Parse` wrapped the raw JSON as plain-text reasoning; fixed with `JsonDocument` field reads plus `RunExplanationAggregateJsonReader.TryReadFiniteDouble` and `StrictSchemaVersionReader`; regressions `TryNormalizeStructuredJson_coerces_string_encoded_confidence`, `TryNormalizeStructuredJson_coerces_string_encoded_schema_version`, `Parse_does_not_treat_json_with_string_encoded_confidence_as_plain_text`.

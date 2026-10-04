@@ -8702,3 +8702,4 @@
 {"at":"2026-10-04T00:38:58.1581199Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/","ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs"]}
 {"at":"2026-10-04T00:42:26.5205675Z","zoneId":"cloud-extractors","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-04T00:55:27.9457358Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/"]}
+{"at":"2026-10-04T01:01:26.9900082Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
