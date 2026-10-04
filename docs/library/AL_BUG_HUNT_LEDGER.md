@@ -4743,7 +4743,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 26
+- **hunts:** 25
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
@@ -27760,7 +27760,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -27847,6 +27847,8 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-04 seed hunt (seed-only): re-read the selected workspace tab, workbench selection, and stale-summary paths; no new hunt-ready row survived cheap-disproof. The focused workspace suite reported 21 passed and 1 invalid presenter harness assertion. Seeded three contract-dependent candidates for follow-up.
 
 2026-10-04 seed hunt (seed→hit): promoted `ReviewWorkspaceStaleBanner`; its activity fingerprint baseline survived a reachable client-side `runId` transition and falsely displayed “updated elsewhere” for the newly opened review. Reset baseline state on run transition and added `does not carry the previous run baseline into a client-side run transition`; the regression passed. The broader scoped suite reported 22 passed and 1 pre-existing invalid presenter harness failure.
+
+2026-10-04 seed hunt (seed-only): re-read the selected workspace header, tab URL synchronization, workbench selection, and stale-summary paths after the stale-banner fix; no additional hunt-ready mechanism emerged. The scoped suite remained 22 passed with the same 1 invalid presenter harness assertion; existing contract-dependent candidates remain queued.
 
 ---
 
