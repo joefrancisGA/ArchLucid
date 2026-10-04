@@ -91,7 +91,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             <dt className="text-al-text-secondary">
               <span>Recorded at</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                When this decision was recorded. Not recorded matches confidence when no timestamp was persisted.
+                When this decision was recorded. “Not recorded” means no timestamp was persisted.
               </span>
             </dt>
             <dd className="m-0 font-medium text-al-text-primary">{formatRecordedAt(decision.recordedAtUtc)}</dd>
