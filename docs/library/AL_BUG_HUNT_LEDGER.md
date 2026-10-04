@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — document names, declaration names/formats, and path-like reference lists still used `HasUsableIdentifierText` without rejecting embedded whitespace, so STJ values such as `diag\u00A0ram` or `pci\u00A0/dss` survived materialization and broke batch/path key parity (same class as evidence bundle id NBSP); introduced `HasUsableCompactIdentifierText` for compact ids while keeping internal spaces on inline requirements, constraints, assumptions, and document/declaration bodies; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`; 39 scoped payload JSON tests passed.
+
 2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — `HasUsableEvidenceBundleId` allowed embedded no-break space (`bundle\u00A01`) because `HasSubstantiveText` skips `char.IsWhiteSpace` and worker lookup uses `Trim()` only on ends, so malformed outbox ids dead-lettered instead of invalid-payload discard; added `HasNoInternalWhitespace` for evidence bundle ids only; regressions `IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id` and `Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp`; 36 scoped payload JSON tests passed.
 
 2026-10-04 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload` materialization and outbox JSON boundaries; cheap-disproved infrastructure `content` combining marks, `infrastructureDeclarations: [null]`, string `workKind` enum literals (full `TryDeserialize` reject), and empty payload `runId` (worker overwrites from outbox `entry.RunId` like non-authoritative `projectId`); 34 scoped payload JSON tests passed.
@@ -3943,13 +3945,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 32
-- **bugs-found:** 22
+- **hunts:** 33
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — embedded NBSP in evidenceBundleId passed worker gate
+- **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
 
 - [x] (proven) `HasUsableEvidenceBundleId` — embedded no-break space in `evidenceBundleId` passed `HasSubstantiveText` and combining-mark checks but survived `Trim()` in `AuthorityPipelineMaterializeWork`, causing bundle lookup failure and outbox retries — **hit 2026-10-04 seed hunt:** `HasNoInternalWhitespace` guard on evidence bundle ids only; regressions `IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id` and `Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp`.
 
