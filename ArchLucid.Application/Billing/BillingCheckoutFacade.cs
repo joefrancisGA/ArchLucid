@@ -134,24 +134,34 @@ public sealed class BillingCheckoutFacade(
 
     private static bool TryParseCheckoutTier(string? label, out BillingCheckoutTier tier)
     {
-        switch (label?.Trim())
+        string normalized = label?.Trim() ?? string.Empty;
+
+        if (string.Equals(normalized, "Team", StringComparison.OrdinalIgnoreCase))
         {
-            case "Team":
-                tier = BillingCheckoutTier.Team;
-                return true;
-            case "Architect":
-                tier = BillingCheckoutTier.Architect;
-                return true;
-            case "Pro":
-                tier = BillingCheckoutTier.Pro;
-                return true;
-            case "Enterprise":
-                tier = BillingCheckoutTier.Enterprise;
-                return true;
-            default:
-                tier = default;
-                return false;
+            tier = BillingCheckoutTier.Team;
+            return true;
         }
+
+        if (string.Equals(normalized, "Architect", StringComparison.OrdinalIgnoreCase))
+        {
+            tier = BillingCheckoutTier.Architect;
+            return true;
+        }
+
+        if (string.Equals(normalized, "Pro", StringComparison.OrdinalIgnoreCase))
+        {
+            tier = BillingCheckoutTier.Pro;
+            return true;
+        }
+
+        if (string.Equals(normalized, "Enterprise", StringComparison.OrdinalIgnoreCase))
+        {
+            tier = BillingCheckoutTier.Enterprise;
+            return true;
+        }
+
+        tier = default;
+        return false;
     }
 
     private static bool BlocksNewCheckout(string status) =>

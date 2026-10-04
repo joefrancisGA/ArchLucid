@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `application-billing-logic` — `BillingCheckoutFacade.TryParseCheckoutTier` matched checkout `TargetTier` labels case-sensitively, so a reachable JSON body with `team` was rejected as missing/unknown tier; tier parsing now uses ordinal case-insensitive comparison; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`; 28 scoped billing tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-billing-logic` — promoted unknown persisted `TenantTier` handling: `TenantCostEstimateService.TryGetEstimateAsync` fell back to the Standard monthly band for out-of-range enum values from `ITenantRepository`; now returns null when the tier is not defined; regression `TryGetEstimateAsync_unknown_tier_returns_null`; cheap-disproof closed the zero-token positive-cost top-run candidate because `AgentExecutionTraceRunLlmCostAggregator` skips zero-token slices before estimating; 27 scoped billing tests passed.
 
 2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — pipe-delimited generated data-flow rows with a description column (`Gateway|API|TLS 1.2`) were rewritten as `Gateway -> API · TLS 1.2`, so the target token included the description and the edge was dropped; split pipe-joined detail on the structured ` · ` separator before flow parsing and preserved the trailing column as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`; 52 focused lib architecture-diagram tests passed.
@@ -11626,11 +11628,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 18
-- **bugs-found:** 10
+- **hunts:** 19
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — unknown persisted tenant tier mapped to Standard cost band
+- **last-bug:** 2026-10-04 — checkout TargetTier rejected case-variant labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11659,6 +11661,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantLlmCostTopRunRanker.TryBuildRow` omits a run when trace slices aggregate to zero tokens but a nonzero cost estimate is available — **cheap-disproof 2026-10-04:** `AgentExecutionTraceRunLlmCostAggregator.Compute` skips slices with zero prompt/completion/reasoning tokens before calling `ILlmCostEstimator`, so a positive USD estimate cannot be produced without measurable tokens.
 - [x] (proven) `TenantLlmCostTopRunRanker.TryBuildRow` ignores `ReasoningTokens` when deciding whether a run has measurable usage, omitting reasoning-only runs when the provider rate is unavailable — **hit 2026-10-03:** the zero-usage predicate now includes reasoning tokens (`TenantLlmCostTopRunRankerTests.RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`).
 - [x] (proven) `BillingCheckoutFacade.CreatePortalSessionAsync` returned `Success` when a provider result contained an empty portal URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable portal URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreatePortalSessionAsync_rejects_incomplete_provider_result`.
+- [x] (proven) `BillingCheckoutFacade.TryParseCheckoutTier` — checkout `TargetTier` values differing only by case (for example `team`) were treated as unknown and returned `RequestBodyRequired` even though the API documents canonical tier names; **hit 2026-10-04:** ordinal case-insensitive tier parsing; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
