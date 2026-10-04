@@ -73,8 +73,18 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
           <EnterpriseTable ariaLabel="Uploaded capture inventory for this review">
             <EnterpriseTableHead>
               <EnterpriseTableRow>
-                <EnterpriseTableHeaderCell scope="col">File</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell scope="col">Uploaded</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col">
+                  <span>File</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The file captured for this review.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell scope="col">
+                  <span>Uploaded</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    When this file was added to the review.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>

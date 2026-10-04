@@ -140,7 +140,12 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
                 Standard / Framework
               </button>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Category</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Category</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The category recorded for this rule.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell sortDirection={sortDirectionFor("severity", sortKey, sortAsc)}>
               <button type="button" className="font-inherit" onClick={() => onSort("severity")}>
                 Severity
@@ -151,8 +156,18 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
                 Enforcement mode
               </button>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Evidence</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Source policy pack</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Evidence</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Whether evidence is linked for this rule.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Source policy pack</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The policy pack that supplied this rule.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Linked findings</EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>

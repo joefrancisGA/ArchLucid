@@ -129,11 +129,36 @@ export function ReviewAgentExecutionLogSection({
             <EnterpriseTable ariaLabel="Agent execution log" className={OPERATOR_TYPOGRAPHY.helper}>
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
-                  <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Findings</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Evidence refs</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Agent</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The agent that produced this result.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Confidence</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      How strongly this agent recorded support for its result. It is not a probability that the result is correct.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Findings</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      How many findings this agent produced.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Evidence refs</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      How many evidence references this agent cited.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Status</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Whether this agent completed or recorded a limitation.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>

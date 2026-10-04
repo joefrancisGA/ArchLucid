@@ -196,12 +196,42 @@ export function OperatorInferredConnectionsPanel(
           >
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Select</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>From</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>To</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Setting</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Source</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Select</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Choose this proposed connection for review. Selecting it does not create the connection in Azure.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>From</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The starting resource inferred from the uploaded configuration.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>To</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The destination inferred from the uploaded configuration.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Setting</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The configuration setting that suggested this connection.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Source</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The uploaded file or format this proposal came from.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Status</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded state of this proposal. It is not proof that the connection exists in Azure.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>
