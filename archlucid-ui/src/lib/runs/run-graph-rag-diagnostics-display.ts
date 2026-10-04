@@ -3,12 +3,15 @@ import type { RunRetrievalGroundingSummary } from "@/types/authority";
 export const GRAPH_RAG_NEIGHBOR_HIT_RATE_HELPER =
   "Share of graph neighbor expansion that returned chunks — not citation coverage on the review." as const;
 
-function finiteMetric(value: number | null | undefined): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return null;
-  }
+function finiteMetric(value: unknown): number | null {
+  const numeric =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim().length > 0
+        ? Number(value)
+        : Number.NaN;
 
-  return value;
+  return Number.isFinite(numeric) ? numeric : null;
 }
 
 export function formatGraphRagDiagnosticCount(value: number | null | undefined): string {
@@ -21,7 +24,7 @@ export function formatGraphRagDiagnosticCount(value: number | null | undefined):
   return String(finite);
 }
 
-export function formatGraphRagNeighborHitRate(value: number | null | undefined): string {
+export function formatGraphRagNeighborHitRate(value: number | string | null | undefined): string {
   const finite = finiteMetric(value);
 
   if (finite === null) {
