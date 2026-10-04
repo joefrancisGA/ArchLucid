@@ -8,7 +8,7 @@
 
 ## Stop
 
-Do not build any of the following while implementing SN-QQ-01 through SN-QQ-08:
+Do not build any of the following while implementing SN-QQ-01 through SN-QQ-09:
 
 - One question per "Missing a required link" row, or a question that only asks the reader to confirm a fact the outline already states.
 - A second questionnaire panel, a second count, or a sentence that no inference questions remain.
