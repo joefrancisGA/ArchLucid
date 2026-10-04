@@ -19,8 +19,8 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { readBusinessImpactThemeCountsDisplay } from "@/lib/sponsor/business-impact-theme-count-display";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
-import { presentBusinessImpactThemeCounts } from "@/lib/sponsor/business-impact-theme-count-display";
 
 function formatEstimatedSavingsUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -74,7 +74,7 @@ export function BusinessImpactSummaryWidget({
 
   const systemCountState = resolveSponsorSystemCountState(data?.systemCount);
   const hasCommittedRuns = systemCountState === "has";
-  const businessImpactCounts = presentBusinessImpactThemeCounts(data?.businessImpactCategoryCounts);
+  const businessImpactCounts = readBusinessImpactThemeCountsDisplay(data);
   const themeCards = [
     { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
     { key: "compliance", label: "Compliance themes", value: businessImpactCounts.compliance, icon: Scale },

@@ -47,10 +47,14 @@ export type RunFindingExplainabilityTableProps = {
 };
 
 function gapsSummary(row: FindingTraceConfidenceDto): string {
-  const m = row.missingTraceFields?.filter((s) => s.trim().length > 0) ?? [];
+  if (row.missingTraceFields === null || row.missingTraceFields === undefined) {
+    return "Gaps not returned";
+  }
+
+  const m = row.missingTraceFields.filter((s) => s.trim().length > 0);
 
   if (m.length === 0) {
-    return " — ";
+    return "No gaps recorded";
   }
 
   if (m.length <= 2) {

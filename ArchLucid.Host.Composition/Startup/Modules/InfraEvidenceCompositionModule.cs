@@ -113,6 +113,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAzureInventoryDiffConsumer, SecureNowArchitectDiffConsumer>();
         services.AddScoped<IStructuredDiagramIngestService, StructuredDiagramIngestService>();
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
+        services.AddScoped<IInfrastructureDiagramComparisonService, InfrastructureDiagramComparisonService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
         services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
         services.AddScoped<ICloudResourceAuditLineageResolver, CloudResourceAuditLineageResolver>();

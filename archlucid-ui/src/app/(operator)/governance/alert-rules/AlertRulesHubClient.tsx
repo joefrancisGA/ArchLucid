@@ -63,7 +63,7 @@ function alertRulesHubTabLabel(tabId: AlertRulesHubTabId, count: number | undefi
   const baseLabel = TAB_CONFIG[tabId].label;
 
   if (count === undefined) {
-    return baseLabel;
+    return tabId === "rules" ? `${baseLabel} (Not returned)` : baseLabel;
   }
 
   return `${baseLabel} (${count})`;
@@ -93,9 +93,9 @@ function AlertRulesHubTabPanel(props: {
 
 function AlertRulesHubTabsList(): React.JSX.Element {
   const { tabCounts } = useAlertRulesHubRefresh();
-  const rulesCountKnown = tabCounts.rules !== undefined;
-  const rulesCount = rulesCountKnown ? tabCounts.rules! : 0;
-  const testAlertsDisabled = rulesCountKnown && rulesCount === 0;
+  const rulesCount = tabCounts.rules;
+  const rulesCountKnown = rulesCount !== undefined;
+  const testAlertsDisabled = rulesCount === 0;
   const testAlertsDisabledReason = whyDisabledNeedsPrerequisite("at least one alert rule");
 
   return (
@@ -188,8 +188,7 @@ function AlertRulesHubTabShell(props: {
     rulesConfigChange,
     compositeRulesConfigChange,
   } = useAlertRulesHubRefresh();
-  const rulesCountKnown = tabCounts.rules !== undefined;
-  const rulesCount = rulesCountKnown ? tabCounts.rules! : 0;
+  const rulesCount = tabCounts.rules;
 
   useEffect(() => {
     if (props.activeTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {
@@ -202,7 +201,7 @@ function AlertRulesHubTabShell(props: {
     (id: string) => {
       const nextTab = alertRulesHubTabFromSearchParam(id);
 
-      if (nextTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {
+      if (nextTab === "test-alerts" && rulesCount === 0 && rulesCount !== undefined) {
         return;
       }
 

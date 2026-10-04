@@ -1,15 +1,42 @@
 import { describe, expect, it } from "vitest";
 
-import { presentBusinessImpactThemeCounts } from "@/lib/sponsor/business-impact-theme-count-display";
+import { readBusinessImpactThemeCountsDisplay } from "@/lib/sponsor/business-impact-theme-count-display";
 
-describe("presentBusinessImpactThemeCounts", () => {
+describe("readBusinessImpactThemeCountsDisplay", () => {
+  it("returns Not returned when category counts are missing", () => {
+    const display = readBusinessImpactThemeCountsDisplay({
+      businessImpactCategoryCounts: undefined,
+    } as never);
+
+    expect(display.security).toBe("Not returned");
+    expect(display.cost).toBe("Not returned");
+  });
+
   it("labels omitted theme counts as Not returned", () => {
-    expect(
-      presentBusinessImpactThemeCounts({
+    const display = readBusinessImpactThemeCountsDisplay({
+      businessImpactCategoryCounts: {
         securityThemeCount: 2,
-        complianceThemeCount: undefined,
-      }).compliance,
-    ).toBe("Not returned");
-    expect(presentBusinessImpactThemeCounts(undefined).security).toBe("Not returned");
+      },
+    } as never);
+
+    expect(display.security).toBe("2");
+    expect(display.compliance).toBe("Not returned");
+  });
+
+  it("formats finite theme counts", () => {
+    const display = readBusinessImpactThemeCountsDisplay({
+      businessImpactCategoryCounts: {
+        securityThemeCount: 2,
+        complianceThemeCount: 1,
+        securityComplianceThemeCount: 0,
+        reliabilityThemeCount: 3,
+        costThemeCount: 0,
+        governanceThemeCount: 1,
+        otherThemeCount: 0,
+      },
+    } as never);
+
+    expect(display.security).toBe("2");
+    expect(display.reliability).toBe("3");
   });
 });

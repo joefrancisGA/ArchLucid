@@ -90,7 +90,7 @@ export function buildAdvisoryScheduleListItemView(
     nextRunPrimary: next.primary,
     nextRunUtcSecondary: next.utcSecondary,
     lastRunPrimary: last.primary,
-    lastOutcome: " — ",
+    lastOutcome: "No runs yet",
     statusKind: schedule.isEnabled ? "ready" : "draft",
     statusLabel: schedule.isEnabled ? "Ready" : "Draft",
     statusHelperText: schedule.isEnabled
@@ -103,13 +103,13 @@ export function buildAdvisoryScheduleListItemView(
 
 export function summarizeExecutionOutcome(execution: AdvisoryScanExecution | undefined): string {
   if (execution === undefined) {
-    return "No run recorded";
+    return "No runs yet";
   }
 
   const status = execution.status.trim();
 
   if (status.length === 0) {
-    return "Status not returned";
+    return "Outcome not returned";
   }
 
   if (execution.errorMessage && execution.errorMessage.trim().length > 0) {
@@ -127,7 +127,7 @@ export function withLatestExecutionOutcome(
 
   return {
     ...view,
-    lastOutcome: summarizeExecutionOutcome(latest),
+    lastOutcome: executions === undefined ? "History not loaded" : summarizeExecutionOutcome(latest),
   };
 }
 

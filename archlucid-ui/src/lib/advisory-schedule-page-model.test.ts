@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildAdvisoryScheduleExamplePreviewView,
+  buildAdvisoryScheduleListItemView,
   resolveExampleWeeklyMondayInstants,
   summarizeExecutionOutcome,
+  withLatestExecutionOutcome,
 } from "@/lib/advisory-schedule-page-model";
 
 describe("resolveExampleWeeklyMondayInstants", () => {
@@ -66,5 +68,24 @@ describe("buildAdvisoryScheduleExamplePreviewView", () => {
     expect(view.lastRunPrimary).not.toBe(" — ");
     expect(new Date(nextUtc).getTime()).toBeGreaterThan(Date.now());
     expect(new Date(lastUtc).getTime()).toBeLessThan(Date.now());
+  });
+});
+
+describe("withLatestExecutionOutcome", () => {
+  it("distinguishes unloaded history from a loaded empty history", () => {
+    const view = buildAdvisoryScheduleListItemView({
+      scheduleId: "schedule-1",
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      runProjectSlug: "default",
+      name: "Nightly scan",
+      cronExpression: "0 8 * * 1",
+      isEnabled: true,
+      createdUtc: "2026-08-20T15:30:00.000Z",
+    }, "UTC");
+
+    expect(withLatestExecutionOutcome(view, undefined).lastOutcome).toBe("History not loaded");
+    expect(withLatestExecutionOutcome(view, []).lastOutcome).toBe("No runs yet");
   });
 });

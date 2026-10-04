@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — pipe-delimited generated data-flow rows with a description column (`Gateway|API|TLS 1.2`) were rewritten as `Gateway -> API · TLS 1.2`, so the target token included the description and the edge was dropped; split pipe-joined detail on the structured ` · ` separator before flow parsing and preserved the trailing column as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`; 52 focused lib architecture-diagram tests passed.
+
+2026-10-04 seed hunt (seed→hit): `host-composition` — `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` and threw `NullReferenceException` during readiness probe resolution instead of returning null; aligned with null-safe hot-path trimming used in distributed LLM cache registration; regression `TryResolve_returns_null_when_hot_path_redis_is_explicitly_null`; 408 scoped host-composition tests passed.
+
+2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — promoted duplicate-label resolution: a system-to-system flow `Gateway -> API` attached to the stakeholder `API` node when a system `API` also existed because `findNodeIdByLabel` always picked the first case-insensitive match; resolve ambiguous labels using the upstream endpoint node kind and added regression `resolves duplicate labels to the endpoint in the same node kind as the source`; 51 focused lib architecture-diagram tests passed.
+
 2026-10-03 seed hunt (seed-only): `cli-terraform-evidence` — reread the static Terraform root list, report consumer, apply-saas ordering sources, and synchronization tests; no new reachable mechanism-backed candidate emerged beyond the already-closed drift and documentation rows. The scoped test build was blocked by an existing `CS1705` Azure.Core assembly-version conflict.
 
 2026-10-03 seed hunt (seed-only): `application-pilots` — reread buyer-proof, board-pack, receipt-gate, and delta paths; existing non-GUID receipt, filename, partial-window, malformed-JSON, and degraded-summary candidates remain reachable lenses, but no row met the failing-repro bar in this pass. The scoped test build was blocked by existing `ARCH006` / `ARCH006a` analyzer errors in `ArchLucid.Persistence`.
@@ -3925,9 +3931,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 20
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — combining marks in inlineRequirements and document/declaration content survived substantive-text-only materialization
 - **related-pd-tb:** none
@@ -24554,11 +24560,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 50
-- **bugs-found:** 29
+- **hunts:** 51
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — null `Email:Provider` configuration caused an unclassified composition exception
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — null-bound hot-path Redis in health probe resolver caused unclassified `NullReferenceException`
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
@@ -24592,8 +24598,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `graph-projection-cache` readiness — `RedisGraphProjectionHealthCheck` probed projection Redis and ignored `CacheProvider=Auto` scale-out promotion — **hit 2026-09-27 seed hunt #43:** composition health check uses `TryResolveGraphProjectionDistributedRedisConnectionString`; regressions `TryResolve_graph_projection_distributed_redis_prefers_hot_path_when_hot_path_registers_shared_cache` and `TryResolve_graph_projection_distributed_redis_when_auto_promotes_on_multi_replica`
 - [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — orphan `ProjectionCache:RedisConnectionString` won over LLM/hot-path Redis when graph cache was memory — **hit 2026-09-27 seed hunt #44:** generic probe defers to distributed graph resolution and no longer treats unused projection strings as authoritative; regression `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory`
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString` — existing unrelated `IDistributedCache` plus projection-only Redis config returned an empty graph pub/sub endpoint — **hit 2026-10-03 seed hunt:** existing-cache resolution now falls back to projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`
-- (candidate) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a distributed LLM cache configuration with a null-bound `HotPathCache:RedisConnectionString` and no LLM Redis value reaches `.Trim()` and throws an unclassified startup `NullReferenceException` instead of the intended configuration error; reachability: the `HotPathCache:RedisConnectionString` appsettings/environment configuration key is bound into `HotPathCacheOptions`.
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a null-bound `HotPathCache:RedisConnectionString` caused `.Trim()` to throw `NullReferenceException` instead of the intended configuration error — **hit 2026-10-03:** distributed LLM cache startup with an explicitly null hot-path Redis value failed unclassified; fixed with null-safe trimming; regression `RedisHealthProbeConnectionResolverTests.Distributed_llm_cache_with_null_hot_path_redis_reports_configuration_error`.
+- [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — configuration binding left `HotPathCache:RedisConnectionString` null while LLM/projection Redis were absent, so the generic health-probe fallback called `.Trim()` on null — **hit 2026-10-04:** null-safe hot-path trim returns null like empty configuration; regression `TryResolve_returns_null_when_hot_path_redis_is_explicitly_null`.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` returns early for any pre-registered `IDistributedCache`, even when `LlmCompletionCache:Provider=Distributed` has no shared Redis backing — **cheap-disproof 2026-10-03:** production composition registers only Redis-backed `IDistributedCache`; `AddDistributedMemoryCache` appears only in test fixtures.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` reuses any pre-registered `IDistributedCache` while graph projection is configured as distributed — **cheap-disproof 2026-10-03:** the memory-backed pre-registration prerequisite is test-only; production storage registrars use the shared Redis registration path.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` creates a distributed response store whenever the provider label is `Distributed` without independently asserting that the resolved `IDistributedCache` is cross-process — **cheap-disproof 2026-10-03:** no production composition path registers a process-local `IDistributedCache` before this registrar.
@@ -28624,17 +28630,17 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 7
-- **bugs-found:** 4
+- **hunts:** 9
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
 - [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
 - [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow endpoints containing the word `to`, including `Order to Cash -> Billing`, were split before the explicit arrow and dropped; known node-label fragments are now merged before endpoint resolution; regressions cover both `Token: API` and `Order to Cash -> Billing`.
-- (candidate) `findNodeIdByLabel` in `architecture-diagram-model.ts` — a generated-content flow naming two entities with the same case-insensitive label resolves both endpoint references to the first live node, potentially attaching the flow to the wrong entity; input originates from user-authored/generated `users-and-stakeholders` and `systems-and-services` sections plus `data-flows`.
-- (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
+- [x] (proven) `findNodeIdByLabel` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — duplicate case-insensitive labels across stakeholder and system entities made `Gateway -> API` attach to the first `API` node (stakeholder) instead of the system service; ambiguous targets now prefer the same node kind as the resolved source; regression `resolves duplicate labels to the endpoint in the same node kind as the source`.
+- [x] (proven) `addFlowEdges` / `resolveEntityFlowParseText` in `architecture-diagram-model.ts` — pipe-delimited data-flow entities with a description column joined ` · ` in `detail` were parsed as `label -> full detail`, so the target never matched a live node; now treats the first ` · ` segment as the target endpoint and keeps later segments as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
@@ -28642,4 +28648,3 @@ ABQ-09 churn hotspot.
 - [x] (proven) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returned only the seed and missed its one-hop neighbors because this helper compared raw strings; normalized comparisons and added regression `matches seed and outline endpoint ids case-insensitively`.
 - [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
 - [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
-- [ ] (candidate) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed by positional ids such as `edge_0` can target a different flow after generated flow ordering changes; input originates from device-local version restoration after edited architecture content changes.

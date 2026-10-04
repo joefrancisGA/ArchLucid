@@ -6,6 +6,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { policyPackTypeDisplayLabel } from "@/lib/policy/policy-pack-type-label";
+import { formatPolicyPacksEffectiveLayerCount } from "@/lib/policy/policy-packs-effective-layer-count-display";
 import { resolvePolicyPacksEffectiveLayersHelper } from "@/lib/policy/policy-packs-workspace-status-copy";
 import type { EffectivePolicyPackSet, PolicyPack } from "@/types/policy-packs";
 
@@ -19,13 +20,9 @@ export type PolicyPacksMetricStripProps = {
 
 export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
   const { buyerPolishedShell, packCount, workspaceAssignmentCount, effective, selectedPackSummary } = props;
-  const effectiveLayerCount = effective?.packs.length ?? 0;
-  const effectiveLayersDisplay =
-    effective === null
-      ? "Not returned"
-      : String(effectiveLayerCount);
+  const effectiveLayerCount = effective?.packs.length ?? null;
   const effectiveLayersHelper = resolvePolicyPacksEffectiveLayersHelper({
-    effectiveLayerCount,
+    effectiveLayerCount: effectiveLayerCount ?? 0,
     registeredPackCount: packCount,
     workspaceAssignmentCount,
   });
@@ -48,7 +45,7 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{effectiveLayersDisplay}</p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{formatPolicyPacksEffectiveLayerCount(effective)}</p>
           <p
             className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}
             data-testid="policy-packs-effective-layers-helper"

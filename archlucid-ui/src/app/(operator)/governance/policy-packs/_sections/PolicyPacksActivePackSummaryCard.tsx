@@ -40,7 +40,7 @@ function resolveActivePackName(
     return fromSelected;
   }
 
-  return " — ";
+  return "No active pack";
 }
 
 function resolveActivePackVersion(
@@ -53,7 +53,9 @@ function resolveActivePackVersion(
     return fromEffective;
   }
 
-  return selectedPack?.currentVersion?.trim() ?? " — ";
+  const fromSelected = selectedPack?.currentVersion?.trim() ?? "";
+
+  return fromSelected.length > 0 ? fromSelected : "Version not returned";
 }
 
 export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSummaryCardProps) {
@@ -83,11 +85,21 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
         <div className="flex flex-wrap items-center gap-2">
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{packName}</p>
           <StatusTag kind={isEnabled ? "ready" : "neutral"} label={isEnabled ? "Enabled in workspace" : "Not in scope"} />
-          {packVersion !== " — " ? <StatusTag kind="neutral" label={`Version ${packVersion}`} /> : null}
+          {effective?.packs[0] !== undefined || selectedPack !== undefined ? (
+            <StatusTag
+              kind="neutral"
+              label={packVersion === "Version not returned" ? packVersion : `Version ${packVersion}`}
+            />
+          ) : null}
         </div>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
           {formatActivePolicyPackSummaryBody(packName, enforcedRuleCount)}
         </p>
+        {effective !== null && effective.packs.length > 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Resolved active pack for this workspace scope — not every registered catalog pack.
+          </p>
+        ) : null}
         <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
           <div>
             <dt className="text-al-text-secondary">Scope</dt>

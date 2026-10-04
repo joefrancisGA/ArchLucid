@@ -2,6 +2,12 @@ namespace ArchLucid.Contracts.Architecture;
 
 public sealed class DiagramInfrastructureReconciliationResult
 {
+    public Guid? ComparisonId
+    {
+        get;
+        set;
+    }
+
     public Guid RunId
     {
         get;
@@ -31,4 +37,10 @@ public sealed class DiagramInfrastructureReconciliationResult
         get;
         set;
     }
+
+    public List<DiagramInfrastructureEdgeGapRow> EdgeGaps
+    {
+        get;
+        set;
+    } = [];
 }

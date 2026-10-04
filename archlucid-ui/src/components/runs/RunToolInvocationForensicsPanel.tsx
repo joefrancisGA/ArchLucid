@@ -30,7 +30,7 @@ export type RunToolInvocationForensicsPanelProps = {
 
 function formatDuration(durationMs: number | null | undefined): string {
   if (durationMs === null || durationMs === undefined || Number.isNaN(durationMs)) {
-    return "Duration not recorded";
+    return "Duration not returned";
   }
 
   if (durationMs < 1000) {
@@ -158,7 +158,7 @@ export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensic
               <EnterpriseTableHeaderCell>
                 <span>Δ prior</span>
                 <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                  The recorded duration for this invocation.
+                  Recorded tool-call duration — not review wall-clock between agents.
                 </span>
               </EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>

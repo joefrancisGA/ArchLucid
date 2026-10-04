@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -60,6 +60,7 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
+| P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
 | P1 | **SN-QQ-01–08** + hold | Subscription question queue | **Backlog** (prompts only) | L | One queue for diagram evidence, inference items, and pack questions. Hero only when the open count is greater than zero. Ignore expires and reopens when the evidence fingerprint changes. **SN-QQ-07** shows the API reason when that load fails. **SN-QQ-08** maps the questions controller. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
 | P1 | **AX-DC-01–08** | Executive / Identity / Data diagram **consumption** | **Backlog** (prompts only) | L | Authorization endpoints, Probable/Inferred strokes, completeness warnings, edge inspector, hosted vs Tier-1 honesty. Hold: [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md`](../library/AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md). |
 | P1 | **DCU-01–05** | Diagram consumption UX (read, filter, share) | **Backlog** (prompts only) | M | Connector click opens the existing evidence panel, one stroke legend, evidence-family chips, PNG reading strip, node connection hint. Hold: [`.cursor/prompts/diagram-consumption-ux-06-hold.md`](../../.cursor/prompts/diagram-consumption-ux-06-hold.md). |
@@ -99,6 +100,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Verification honesty | [securenow-verification-00-index.md](../../.cursor/prompts/securenow-verification-00-index.md) | **SN-VF-01–SN-VF-05** | [`SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md) |
 | Question queue | [securenow-question-queue-00-index.md](../../.cursor/prompts/securenow-question-queue-00-index.md) | **SN-QQ-01–SN-QQ-08** + hold | [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md) |
 | Diagram consumption UX | [diagram-consumption-ux-00-index.md](../../.cursor/prompts/diagram-consumption-ux-00-index.md) | **DCU-01–DCU-05** + hold | [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md) |
+| Diagram import comparison | [diagram-import-comparison-00-index.md](../../.cursor/prompts/diagram-import-comparison-00-index.md) | **DIC-01–DIC-05** + hold | [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md) |
 
 ---
 

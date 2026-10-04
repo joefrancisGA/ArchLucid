@@ -9,13 +9,13 @@ export function azureConnectionStatusTagKind(): EnterpriseStatusKind {
 
 export function formatAzureConnectionTimestamp(value: string | null | undefined): string {
   if (value === null || value === undefined || value.trim().length === 0) {
-    return "Never";
+    return "Last check not returned";
   }
 
   const parsed = Date.parse(value);
 
   if (Number.isNaN(parsed)) {
-    return value;
+    return "Date not readable";
   }
 
   return formatInstantForLocale(value);
@@ -28,7 +28,11 @@ export function formatAzureSubscriptionSummary(subscriptionIds: string): string 
     .filter((part) => part.length > 0);
 
   if (parts.length === 0) {
+<<<<<<< HEAD
+    return "No subscriptions recorded";
+=======
     return "Connection not recorded";
+>>>>>>> origin/master
   }
 
   if (parts.length === 1) {

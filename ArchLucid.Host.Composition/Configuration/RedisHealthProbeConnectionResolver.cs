@@ -97,7 +97,7 @@ internal static class RedisHealthProbeConnectionResolver
         if (!string.IsNullOrWhiteSpace(llm.RedisConnectionString))
             return llm.RedisConnectionString.Trim();
 
-        string hotPathRedis = hotPath.RedisConnectionString.Trim();
+        string hotPathRedis = hotPath.RedisConnectionString?.Trim() ?? string.Empty;
 
         return string.IsNullOrEmpty(hotPathRedis) ? null : hotPathRedis;
     }

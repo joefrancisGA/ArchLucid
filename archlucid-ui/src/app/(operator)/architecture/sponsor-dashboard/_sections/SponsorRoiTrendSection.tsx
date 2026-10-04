@@ -49,7 +49,7 @@ function isNormalizedHistoryPoint(point: SponsorRoiHistoryPoint): point is Norma
 
 function formatMonth(isoUtc: string | undefined): string {
   if (isoUtc === undefined || isoUtc.trim().length === 0) {
-    return " — ";
+    return "Month not returned";
   }
 
   const date = new Date(isoUtc);

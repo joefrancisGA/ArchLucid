@@ -22,7 +22,7 @@ export const PLATFORM_BUNDLED_POLICY_PACK_CATEGORY_OPTIONS: ReadonlyArray<{
 
 export function formatPlatformBundledPolicyPackUtc(iso: string | null | undefined): string {
   if (iso == null || iso.trim().length === 0) {
-    return "Not published";
+    return "Published time not returned";
   }
 
   const parsed = new Date(iso);

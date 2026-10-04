@@ -107,7 +107,11 @@ export function formatFindingsVisibilitySummaryLine(
   hiddenByConfidenceCount: number | null | undefined,
 ): string | null {
   if (hiddenByConfidenceCount === null || hiddenByConfidenceCount === undefined) {
-    return "Hidden-by-confidence count not returned";
+    if (shownCount === toolbarFilteredCount) {
+      return null;
+    }
+
+    return `Showing ${shownCount} of ${toolbarFilteredCount} — hidden count not returned`;
   }
 
   if (hiddenByConfidenceCount <= 0 && shownCount === toolbarFilteredCount) {

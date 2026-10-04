@@ -174,9 +174,12 @@ export function buyerAuditTrailGovernanceSummaryCounts(
   };
 }
 
-export function formatBuyerAuditTrailLastActivity(lastActivityUtc: string | null): string {
+export function formatBuyerAuditTrailLastActivity(
+  lastActivityUtc: string | null,
+  options?: { readonly hasEventsInView?: boolean },
+): string {
   if (lastActivityUtc === null || lastActivityUtc.trim().length === 0) {
-    return " — ";
+    return options?.hasEventsInView === true ? "No activity in view" : "Last activity not returned";
   }
 
   return formatIsoUtcForDisplay(lastActivityUtc);
