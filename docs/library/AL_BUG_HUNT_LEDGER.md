@@ -13920,7 +13920,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -26911,6 +26911,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 seed hunt (hit): promoted the dead-letter hook failure candidate and proved that `RecoverableOutboxFailureHandler` propagated an audit/metric hook exception after persisting terminal dead-letter state; changed hooks to best-effort while preserving cancellation, with `RecoverableOutboxFailureHandlerTests.HandleAsync_does_not_escape_dead_letter_hook_failure_after_recording_terminal_state`. Focused regression passed and 20 coordination/outbox tests passed.
 
 2026-10-04 seed hunt (seed-only): reread the changed shared failure handler, processor isolation shell, and sibling dead-letter paths after the fix; no fresh reachable mechanism-backed candidate emerged beyond the closed hook-isolation row. No code changes.
+
+2026-10-04 seed hunt (seed-only): repeated the selected coordination source review after the dead-letter hook isolation fix; no new reachable candidate emerged. No code changes.
 
 ### Hypotheses
 
