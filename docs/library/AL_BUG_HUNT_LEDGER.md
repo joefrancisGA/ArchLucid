@@ -6403,6 +6403,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay SKIPped exclude-run-id probes when manifest `verdict` was `skip` but captured `observedOutcome` still recorded `foreign runId present`; fixed `TenantIsolationNegativeTestOfflineRunner` to honor leak copy before explicit manifest skip; regression `RunOffline_FailsExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeClaimsForeignRunIdPresent`; 47 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — manifest `verdict: skip` with `foreign runId present` observed outcome SKIPped — **hit 2026-10-04 seed hunt:** honor leak copy before manifest skip; regression `RunOffline_FailsExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeClaimsForeignRunIdPresent`.
+
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay SKIPped exclude-run-id probes when `runListPayloadScannable` was false but captured `observedOutcome` still recorded `foreign runId present`; fixed `TenantIsolationNegativeTestOfflineRunner` to honor leak copy before unscannable SKIP; regression `RunOffline_FailsExcludeRunIdProbeWhenUnscannableManifestStillRecordsForeignRunIdPresent`; 46 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — `runListPayloadScannable: false` with `foreign runId present` observed outcome SKIPped as unverifiable list — **hit 2026-10-04 seed hunt:** honor leak copy before unscannable SKIP; regression `RunOffline_FailsExcludeRunIdProbeWhenUnscannableManifestStillRecordsForeignRunIdPresent`.
@@ -6435,11 +6439,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 36
-- **bugs-found:** 17
+- **hunts:** 37
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — offline replay SKIPped leak copy when `runListPayloadScannable` was false
+- **last-bug:** 2026-10-04 — offline replay honored manifest skip over leak copy
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 

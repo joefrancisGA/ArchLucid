@@ -32,14 +32,14 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
 
         if (string.Equals(probe.ExpectedOutcome, "exclude-run-id", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
-            {
-                verdict = TenantIsolationNegativeTestVerdict.Skip;
-            }
-            else if (probe.ForeignRunIdVisible
-                     || ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
+            if (probe.ForeignRunIdVisible
+                || ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
             {
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
+            }
+            else if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Skip;
             }
             else if (probe.RunListPayloadScannable == false
                      || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
