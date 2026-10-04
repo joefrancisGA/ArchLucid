@@ -1,12 +1,10 @@
 import type { DraftBranchQuotaResponse } from "@/types/draft-intake";
 import { BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL } from "@/lib/vocabulary/billing-meter-vocabulary";
 
-function finiteQuotaField(value: number | undefined | null): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return null;
-  }
+function finiteQuotaField(value: number | string | undefined | null): number | null {
+  const parsed = typeof value === "number" ? value : typeof value === "string" && value.trim().length > 0 ? Number(value) : Number.NaN;
 
-  return value;
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 /** Operator-facing summary for what-if branch quota and estimated run cost (estimate — SAQ-011, UU-502). */
