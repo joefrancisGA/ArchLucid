@@ -123,9 +123,11 @@ describe("useNewRunWizardSteps", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.stepIndex).toBe(8);
+      expect(result.current.stepIndex).toBe(result.current.stepDefinitions.length - 1);
     });
 
-    expect(wizardSearchParamsHarness.state.query).toBe("step=8");
+    expect(wizardSearchParamsHarness.state.query).toBe(
+      `step=${result.current.stepDefinitions.length - 1}`,
+    );
   });
 });

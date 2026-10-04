@@ -27763,7 +27763,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — out-of-range wizard step remained non-canonical in the deep-link URL
+- **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27773,7 +27773,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-03 thorough hunt (dry): cheap-disproved out-of-range `step` URL normalization because `useNewRunWizardSteps` clamps the rendered state correctly and no canonical-query contract requires rewriting the deep link; query-prefill retry was disproved because the example effect checks full-wizard mode and step 2 before marking its run-once ref, while accelerator/preset effects are immediately applicable; 5 focused wizard-hook tests passed.
 
-- [x] (proven) `useNewRunWizardSteps` — an out-of-range `step` query remains non-canonical in the URL after rendering clamps it — **hit 2026-10-04 thorough hunt:** initial and popstate URL synchronization now rewrite numeric values above the active step count to the clamped index; regression `canonicalizes an out-of-range deep-linked step in the URL`.
+- [x] (proven) `useNewRunWizardSteps` — an out-of-range `step` query remained non-canonical in the URL after rendering clamps it; canonicalized clamped values during query and `popstate` synchronization; regression `canonicalizes an out-of-range deep-linked step in the URL`.
 - [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — an example/preset query is consumed before the wizard reaches its required step — **cheap-disproof 2026-10-03 thorough hunt:** the example effect marks its ref only after `wizardMode === "full"` and `stepIndex === 2`; accelerator/preset effects independently guard invalid or baseline paths; focused prefill tests passed.
 
 2026-10-03 thorough hunt (dry): repeated cheap-disproof of the two review-intake URL/prefill candidates; 3 focused hook tests passed. The broader example/preset integration tests had 3 harness/assertion failures (stale “Evidence” label and missing mocked App Router).
@@ -27821,6 +27821,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 2026-10-01 seed hunt (seed-only, hint `V`): scoped URL-sync tests had 13 passing and 12 pre-existing `ReviewsNewPathSwitcher` assertion failures because those tests still expect `router.replace` while the route now commits with `history.replaceState`; no candidate was promoted or proven.
 
 2026-10-02 thorough hunt (dry): cheap-disproved all three same-mounted path/prefill candidates; the candidate-focused hook tests passed, while 12 path-switcher assertions failed on the obsolete `router.replace` expectation, with no failing repro for the selected candidates.
+
+2026-10-04 thorough hunt (hit): proved `useNewRunWizardSteps` clamped an out-of-range `step` query for rendering but left the invalid value in the URL; canonicalized clamped values during query and `popstate` synchronization and added `canonicalizes an out-of-range deep-linked step in the URL`. The focused step suite passed 3/3.
 
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `rerun=` survives switch to guided intake and prefills Socratic intake — **cheap-disproof 2026-09-25 seed hunt #3908:** guided intake intentionally consumes `rerun=` via `useGuidedIntakePriorRunPrefill`; regression `prefills guided intake from rerun= when the prior package intake is available`.
 
