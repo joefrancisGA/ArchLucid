@@ -139,6 +139,30 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $emptyBastion.properties['ipConfiguration.subnet.id[0]'] | Should -Be $subnetId
     }
 
+    It 'stamps the full ipConfiguration id from ARG public IP facts' {
+        $publicIpId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-aks'
+        $ipConfigurationId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1/virtualMachines/0/networkInterfaces/nic1/ipConfigurations/ipconfig1'
+        $parentNicId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1/virtualMachines/0/networkInterfaces/nic1'
+        $emptyPublicIp = [ordered]@{
+            resourceType = 'Microsoft.Network/publicIPAddresses'
+            resourceId = $publicIpId
+            properties = @{}
+        }
+        $facts = @(
+            [ordered]@{
+                resourceId = $publicIpId
+                ipConfigurationId = $ipConfigurationId
+            }
+        )
+
+        Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts `
+            -Resources @($emptyPublicIp) `
+            -PublicIpIpConfigurationFacts $facts
+
+        $emptyPublicIp.properties['ipConfiguration.id'] | Should -Be $ipConfigurationId
+        $emptyPublicIp.properties['ipConfiguration.id'] | Should -Not -Be $parentNicId
+    }
+
     It 'skips public IP network associations when ipConfiguration.id is absent' {
         $inventory = @(
             [ordered]@{

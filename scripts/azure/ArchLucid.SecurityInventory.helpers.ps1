@@ -1289,6 +1289,59 @@ function Add-ArchLucidNetworkAssociationRow
     [void]$Rows.Add($row)
 }
 
+function Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $Resources,
+
+        [object[]] $PublicIpIpConfigurationFacts = @()
+    )
+
+    [hashtable]$resourcesById = @{}
+
+    foreach ($resource in @($Resources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        $resourcesById[$resourceId.ToLowerInvariant()] = $resource
+    }
+
+    foreach ($fact in @($PublicIpIpConfigurationFacts))
+    {
+        if ($null -eq $fact) { continue }
+
+        [string]$resourceId = "$( $fact.resourceId )".Trim()
+        [string]$ipConfigurationId = "$( $fact.ipConfigurationId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId) -or [string]::IsNullOrWhiteSpace($ipConfigurationId))
+        {
+            continue
+        }
+
+        if (-not $resourcesById.ContainsKey($resourceId.ToLowerInvariant()))
+        {
+            continue
+        }
+
+        $resource = $resourcesById[$resourceId.ToLowerInvariant()]
+
+        if ($null -eq $resource.properties)
+        {
+            $resource.properties = @{}
+        }
+
+        if (-not ($resource.properties.ContainsKey('ipConfiguration.id')))
+        {
+            $resource.properties['ipConfiguration.id'] = $ipConfigurationId
+        }
+    }
+}
+
 function Add-ArchLucidBastionSubnetPropertiesFromAssociations
 {
     param(

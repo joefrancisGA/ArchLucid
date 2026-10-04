@@ -435,7 +435,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.3"
+$scriptVersion = "0.4.4"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -681,6 +681,7 @@ try
             -ManagementGroupId $ManagementGroupId)
 
         [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($inventoryForAssociationDerivation))
+        [System.Collections.ArrayList]$publicIpIpConfigurationFacts = [System.Collections.ArrayList]::new()
 
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {
@@ -688,7 +689,8 @@ try
             {
                 [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
                     -SubscriptionId $subId `
-                    -ResourceGroupScope $ResourceGroupScope)
+                    -ResourceGroupScope $ResourceGroupScope `
+                    -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts)
 
                 foreach ($argRow in @($argRows))
                 {
@@ -700,7 +702,8 @@ try
         {
             [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
                 -SubscriptionId $SubscriptionId `
-                -ResourceGroupScope $ResourceGroupScope)
+                -ResourceGroupScope $ResourceGroupScope `
+                -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts)
 
             foreach ($argRow in @($argRows))
             {
@@ -780,6 +783,9 @@ try
         Add-ArchLucidBastionSubnetPropertiesFromAssociations `
             -Resources @($resources) `
             -NetworkAssociations @($networkAssociationRows)
+        Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts `
+            -Resources @($resources) `
+            -PublicIpIpConfigurationFacts @($publicIpIpConfigurationFacts)
         Write-ArchLucidResourcesJsonStream -Path $resourcesPath -Resources $resources
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $roleAssignmentRows)

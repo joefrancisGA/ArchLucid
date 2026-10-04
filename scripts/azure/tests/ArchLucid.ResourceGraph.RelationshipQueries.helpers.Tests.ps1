@@ -14,7 +14,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
     It 'projects type on each ARG relationship query' {
         $specs = @(Get-ArchLucidArgNetworkAssociationQuerySpecs)
 
-        $specs.Count | Should -Be 5
+        $specs.Count | Should -Be 6
         foreach ($spec in $specs)
         {
             $spec.Query | Should -Match 'project id, type'
@@ -24,6 +24,8 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
             Should -Match 'peerings = properties.virtualNetworkPeerings'
         ($specs | Where-Object { $_.Kind -eq 'bastionHost' }).Query |
             Should -Match "type =~ 'microsoft.network/bastionhosts'"
+        ($specs | Where-Object { $_.Kind -eq 'publicIpAddress' }).Query |
+            Should -Match "type =~ 'microsoft.network/publicipaddresses'"
     }
 
     It 'emits bastionToSubnet from a Bastion ARG ipConfiguration' {
@@ -48,6 +50,61 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
 
         @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' }).Count | Should -Be 1
         @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' })[0].toResourceId | Should -Be $subnetId
+    }
+
+    It 'emits publicIpToNic from a scale-set NIC ipConfiguration object' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $facts = [System.Collections.ArrayList]::new()
+        $publicIpId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-aks'
+        $ipConfigurationId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1/virtualMachines/0/networkInterfaces/nic1/ipConfigurations/ipconfig1'
+        $parentNicId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1/virtualMachines/0/networkInterfaces/nic1'
+        $ipConfiguration = [PSCustomObject]@{ id = $ipConfigurationId }
+
+        Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -PublicIpResourceId $publicIpId `
+            -IpConfigurationJson $ipConfiguration `
+            -PublicIpIpConfigurationFacts $facts
+
+        @($rows | Where-Object { $_.associationType -eq 'publicIpToNic' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'publicIpToNic' })[0].fromResourceId | Should -Be $publicIpId
+        @($rows | Where-Object { $_.associationType -eq 'publicIpToNic' })[0].toResourceId | Should -Be $parentNicId
+        $facts.Count | Should -Be 1
+        $facts[0].ipConfigurationId | Should -Be $ipConfigurationId
+    }
+
+    It 'emits publicIpToNic from a JSON-string ipConfiguration' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $publicIpId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-aks'
+        $ipConfigurationId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1/virtualMachines/0/networkInterfaces/nic1/ipConfigurations/ipconfig1'
+        $parentNicId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1/virtualMachines/0/networkInterfaces/nic1'
+        $ipConfigurationJson = "{`"id`":`"$ipConfigurationId`"}"
+
+        Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -PublicIpResourceId $publicIpId `
+            -IpConfigurationJson $ipConfigurationJson
+
+        @($rows | Where-Object { $_.associationType -eq 'publicIpToNic' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'publicIpToNic' })[0].toResourceId | Should -Be $parentNicId
+    }
+
+    It 'skips publicIpToNic when ipConfiguration is absent' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $publicIpId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/unattached'
+
+        Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -PublicIpResourceId $publicIpId `
+            -IpConfigurationJson $null
+
+        $rows.Count | Should -Be 0
     }
 
     It 'emits vnetPeering from a VNet ARG record without a type column' {

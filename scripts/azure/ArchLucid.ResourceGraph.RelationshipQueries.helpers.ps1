@@ -143,6 +143,76 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
     }
 }
 
+function Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $PublicIpResourceId,
+        [object] $IpConfigurationJson,
+        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
+    )
+
+    if ($null -eq $IpConfigurationJson)
+    {
+        return
+    }
+
+    [object]$ipConfiguration = $IpConfigurationJson
+
+    if ($ipConfiguration -is [string])
+    {
+        if ([string]::IsNullOrWhiteSpace($ipConfiguration))
+        {
+            return
+        }
+
+        try
+        {
+            $ipConfiguration = ConvertFrom-Json -InputObject $ipConfiguration -ErrorAction Stop
+        }
+        catch
+        {
+            return
+        }
+    }
+
+    [object]$ipConfigurationIdRef = Get-ArchLucidArgNestedProperty $ipConfiguration 'id'
+    [string]$ipConfigurationId = "$ipConfigurationIdRef".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
+    {
+        return
+    }
+
+    if ($ipConfigurationId.IndexOf('/ipConfigurations/', [System.StringComparison]::OrdinalIgnoreCase) -lt 0)
+    {
+        return
+    }
+
+    [string]$associatedResourceId = Resolve-ArchLucidAssociatedResourceFromIpConfiguration -IpConfigurationId $ipConfigurationId
+
+    if ([string]::IsNullOrWhiteSpace($associatedResourceId))
+    {
+        return
+    }
+
+    Add-ArchLucidNetworkAssociationRow `
+        -Rows $Rows `
+        -Seen $Seen `
+        -FromResourceId $PublicIpResourceId `
+        -ToResourceId $associatedResourceId `
+        -AssociationType 'publicIpToNic'
+
+    if ($null -ne $PublicIpIpConfigurationFacts)
+    {
+        [void]$PublicIpIpConfigurationFacts.Add([ordered]@{
+                resourceId = $PublicIpResourceId
+                ipConfigurationId = $ipConfigurationId
+            })
+    }
+}
+
 function Add-ArchLucidArgNetworkAssociationRowsFromBastionRecord
 {
     param(
@@ -340,6 +410,10 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
             Query = "Resources | where type =~ 'microsoft.network/bastionhosts' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations"
         }
         [pscustomobject]@{
+            Kind = 'publicIpAddress'
+            Query = "Resources | where type =~ 'microsoft.network/publicipaddresses' $rgFilter | project id, type, ipConfiguration = properties.ipConfiguration"
+        }
+        [pscustomobject]@{
             Kind = 'virtualNetwork'
             Query = "Resources | where type =~ 'microsoft.network/virtualnetworks' $rgFilter | project id, type, subnets = properties.subnets, peerings = properties.virtualNetworkPeerings"
         }
@@ -394,7 +468,9 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
         [Parameter(Mandatory = $true)]
         [string] $SubscriptionId,
 
-        [string] $ResourceGroupScope = ""
+        [string] $ResourceGroupScope = "",
+
+        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
     )
 
     if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
@@ -460,6 +536,14 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -Seen $seen `
                             -BastionResourceId $resourceId `
                             -IpConfigurationsJson $Row.ipConfigurations
+                    }
+                    'publicIpAddress' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -PublicIpResourceId $resourceId `
+                            -IpConfigurationJson $Row.ipConfiguration `
+                            -PublicIpIpConfigurationFacts $PublicIpIpConfigurationFacts
                     }
                     'virtualNetwork' {
                         Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord `
