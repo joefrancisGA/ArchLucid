@@ -7435,15 +7435,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
 2026-09-13 seed hunt #2262 (seed-only): reseeded billing-webhooks with `-Hint billing` `-Refresh`; no new hunt-ready rows.
+
+2026-10-04 seed hunt (seed-only): reread the four picker-selected webhook and replay-guard paths; no new candidate met the same-run hunt-ready reachability and wrong-outcome bar. Seeded two bounded follow-ups around payload-size contract parity and multi-instance replay claims; no product code changed.
 
 ### Hypotheses
 2026-09-12 seed hunt #1907 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
@@ -7468,6 +7470,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` credits wallet on negative `amountCents` — **cheap-disproof 2026-09-12 seed hunt #1897:** processor forwards signed cents to wallet service; negative amounts are a wallet-layer policy concern, not a silent double-credit path in the webhook processor itself.
 - [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` allows duplicate registration after `TryRegisterEventAsync` claim — **cheap-disproof 2026-09-12 seed hunt #1897:** `RememberAsync` is idempotent overwrite on cache; replay rejection remains via `_claimedKeys` + cache lookup in `HasSeenAsync`.
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — an inbound Stripe request body at or above the bounded-reader limit is rejected before provider signature verification; input is a reachable Stripe webhook payload whose serialized metadata or line items exceed the controller’s shared maximum, with a possible provider-specific size contract mismatch.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — the atomic replay claim is process-local while the memory cache is also node-local; input is the same valid signed webhook delivered concurrently to two API instances, with the outcome depending on whether the upstream billing ledger claim is bypassed or unavailable.
 
 2026-09-12 seed hunt #1894 (seed-only): reseeded billing-webhooks; scoped tests passed; no hunt-ready defect proven this pass.
 
