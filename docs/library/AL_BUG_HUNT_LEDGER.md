@@ -4083,7 +4083,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -4306,7 +4306,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
 - **hunts:** 43
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
@@ -11665,9 +11665,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — faithfulness checker accepted substring-only evidence matches
 - **related-pd-tb:** none
@@ -11722,6 +11722,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 thorough hunt (dry): cheap-disproof retired the reference-case key-casing candidate as unreachable in the picked zone and the citation-mode candidate as already covered; remaining task-ID candidates lacked a concrete live input for a failing repro.
 
 2026-10-04 seed hunt (seed-only): re-read evaluation orchestration, LLM judge sampling, faithfulness grounding, and quality-gate paths; no existing candidate met the full reachable wrong-outcome bar. Seeded three concrete candidates for follow-up; no product test was added.
+2026-10-04 thorough hunt (dry): cheap-disproved the three evaluation candidates; per-call judge reservations prevent the apparent concurrent quota bypass, enforced quality-gate exceptions intentionally propagate through `Task.WhenAll`, and duplicate evidence IDs lacked a reachable producer. Scoped `Evaluation` tests were blocked before execution by unrelated `ARCH006/ARCH006a` tenant-scope analyzer errors in `ArchLucid.Persistence`; no production code changed.
 
 2026-10-04 thorough hunt (dry): cheap-disproved the three evaluation candidates; budget reservation semantics and evidence-ID uniqueness are outside the selected files, while `Task.WhenAll` exception propagation has no established wrong outcome and enforcing failures are intentional. No hunt-ready hypothesis remained and no failing repro was attempted.
 
