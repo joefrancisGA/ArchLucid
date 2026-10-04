@@ -15,14 +15,14 @@ export function isProductionDeployEnvironment(): boolean {
 }
 
 export function formatOperationalTimestamp(value: string | null | undefined): string {
-  if (!value) {
-    return " — ";
+  if (!value || value.trim().length === 0) {
+    return "Not recorded";
   }
 
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.getTime())) {
-    return value;
+    return "Date not readable";
   }
 
   return parsed.toLocaleString(undefined, { timeZoneName: "short" });

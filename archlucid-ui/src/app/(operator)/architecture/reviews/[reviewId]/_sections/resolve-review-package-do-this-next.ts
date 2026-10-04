@@ -60,8 +60,8 @@ export type ReviewPackageDoThisNext = {
 
 export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryActionInput & {
   readonly showProgressTracker: boolean;
-  readonly openClarificationGapCount: number;
-  readonly findingsCount?: number;
+  readonly openClarificationGapCount?: number;
+  readonly findingsCount?: number | null;
   readonly correctionHref: string | null;
   readonly nextAction?: string | null;
   readonly evidenceCoverageLinkedCount: number;
@@ -355,12 +355,36 @@ export function resolveReviewPackageDoThisNext(
   }
 
   if (input.manifestId === null && !input.runCompleted) {
+    if (input.openClarificationGapCount === undefined) {
+      return {
+        kind: "view-assessment-progress",
+        sentence: "Clarification count not returned — refresh this review before choosing the next step.",
+        actionLabel: "View assessment progress",
+        href: viewAssessmentHref(input),
+      };
+    }
+
+    const findingsCountKnown =
+      input.findingsCount !== undefined && input.findingsCount !== null;
+
+    if (!findingsCountKnown) {
+      return {
+        kind: "view-assessment-progress",
+        sentence: "Findings count not returned — refresh this review before choosing the next step.",
+        actionLabel: "View assessment progress",
+        href: viewAssessmentHref(input),
+      };
+    }
+
+    const openClarificationGapCount = input.openClarificationGapCount;
+    const findingsCount = input.findingsCount!;
+
     const loopNext = resolveClarificationsFindingsLoopNext({
-      openClarificationGapCount: input.openClarificationGapCount,
-      findingsCount: input.findingsCount ?? 0,
+      openClarificationGapCount,
+      findingsCount,
     });
 
-    if (loopNext !== null && input.openClarificationGapCount > 0) {
+    if (loopNext !== null && openClarificationGapCount > 0) {
       const clarificationsAction = reviewLifecycleNextActionInstance({
         id: "answer-clarifications",
         hrefInput: registryHrefInput(input),
@@ -374,7 +398,7 @@ export function resolveReviewPackageDoThisNext(
       };
     }
 
-    if (loopNext !== null && input.openClarificationGapCount === 0 && (input.findingsCount ?? 0) > 0) {
+    if (loopNext !== null && openClarificationGapCount === 0 && findingsCount > 0) {
       return {
         kind: "review-findings",
         sentence: loopNext.sentence,

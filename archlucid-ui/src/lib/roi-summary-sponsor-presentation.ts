@@ -54,7 +54,7 @@ export function formatRoiSummarySponsorDate(isoUtc: string): string {
   const parsed = new Date(isoUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return SPONSOR_DATE.format(parsed);
@@ -64,7 +64,7 @@ export function formatRoiSummaryExclusiveEndDate(isoUtc: string): string {
   const parsed = new Date(isoUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   parsed.setUTCDate(parsed.getUTCDate() - 1);

@@ -20,6 +20,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { readBusinessImpactThemeCountsDisplay } from "@/lib/sponsor/business-impact-theme-count-display";
+import {
+  businessImpactHasCommittedRuns,
+  presentBusinessImpactSystemCountLabel,
+} from "@/lib/sponsor/business-impact-system-count-display";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
 function formatUsd(value: number | undefined): string {
@@ -60,7 +64,8 @@ export function BusinessImpactSummaryWidget({
     return <OperatorApiProblem failure={failure} />;
   }
 
-  const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
+  const systemCountLabel = presentBusinessImpactSystemCountLabel(data?.systemCount);
+  const hasCommittedRuns = businessImpactHasCommittedRuns(data?.systemCount);
   const businessImpactCounts = readBusinessImpactThemeCountsDisplay(data);
   const themeCards = [
     { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
@@ -79,7 +84,10 @@ export function BusinessImpactSummaryWidget({
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Theme counts from the latest sponsor ROI summary.
-          {!hasCommittedRuns && !isLoading ? " Finalize a review to populate these cards." : null}
+          {systemCountLabel !== null && !isLoading ? ` ${systemCountLabel}.` : null}
+          {systemCountLabel === null && !hasCommittedRuns && !isLoading
+            ? " Finalize a review to populate these cards."
+            : null}
         </p>
       </div>
 
@@ -140,9 +148,7 @@ export function BusinessImpactSummaryWidget({
                 {isLoading ? (
                   <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
                 ) : (
-                  <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                    {hasCommittedRuns ? card.value : "Not returned"}
-                  </p>
+                  <p className={OPERATOR_TYPOGRAPHY.kpiValue}>{card.value}</p>
                 )}
               </CardContent>
             </Card>

@@ -1,7 +1,7 @@
 /** Formats API process uptime seconds for operator health dashboards. */
 export function formatProcessUptime(seconds: number | null | undefined): string {
   if (seconds === null || seconds === undefined || !Number.isFinite(seconds) || seconds < 0) {
-    return " — ";
+    return "Uptime not returned";
   }
 
   const total = Math.floor(seconds);
