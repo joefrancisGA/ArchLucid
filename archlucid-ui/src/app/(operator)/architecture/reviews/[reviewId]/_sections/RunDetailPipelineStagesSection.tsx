@@ -174,8 +174,11 @@ export function RunDetailPipelineStagesSection({
                   <span className="font-medium text-al-text-primary">
                     {buyerPipelineStageName(stage.stageName, buyerPipelineLabels)}
                   </span>
-                  <span className="text-al-text-secondary" data-testid="pipeline-stage-duration">
-                    {formatStageDurationMs(stage.durationMs ?? null)}
+                  <span className="text-al-text-secondary">
+                    <span className="sr-only">Recorded stage time</span>
+                    <span data-testid="pipeline-stage-duration">
+                      {formatStageDurationMs(stage.durationMs ?? null)}
+                    </span>
                   </span>
                 </li>
               ))}

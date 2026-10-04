@@ -88,7 +88,7 @@ export function RunDetailReviewPackageSponsorHandoffGate(
         trustEvidenceCard={props.trustEvidenceCard}
         usedStaticDemoRun={props.usedStaticDemoRun}
         showExtendedSponsorBriefing={props.showExtendedSponsorBriefing}
-        lowExtractionConfidenceCount={props.lowExtractionConfidenceCount ?? 0}
+        lowExtractionConfidenceCount={props.lowExtractionConfidenceCount}
         enginesSucceeded={props.enginesSucceeded ?? null}
         progressSummary={props.progressSummary ?? null}
         graphSnapshot={props.graphSnapshot ?? null}

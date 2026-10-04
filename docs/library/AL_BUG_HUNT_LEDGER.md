@@ -181,6 +181,8 @@
 
 ## Zone: topology-proposal-merge
 
+2026-10-04 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.IntersectControls` compared raw control strings, so dual-model proposals with equivalent `RequiredControls` but different surrounding whitespace dropped the control and inflated disagreement; trim-aware intersection with dedupe; regression `Merge_intersects_required_controls_when_whitespace_differs_between_models`. Scoped topology-proposal-merge filter passed 1,599/1,599.
+
 2026-09-30 seed hunt (seed→hit): uncategorized inventory node indexed before a same-label Data node claimed `ds-{label}` via the omit-category both-prefix registration; `PreferCategorizedSyntheticAlias` restores the categorized node's primary prefix after indexing. Regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`. 1588 scoped topology-proposal-merge tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the four selected topology merge files and focused tests; no new mechanism-backed reachable candidate survived cheap-disproof; 1,590 focused topology-proposal-merge tests passed.
@@ -202,6 +204,8 @@
 2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` used an untrimmed endpoint membership pre-check, dropping agent-proposed relationships whose declared endpoint IDs had surrounding whitespace; reused the trim-aware endpoint validator and added `Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace`. The scoped topology-proposal-merge filter passed 1,590/1,590.
 
 2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.RelationshipKey` compared raw endpoint IDs, so two model proposals with equivalent relationships but different surrounding whitespace failed consensus intersection; trimmed relationship endpoints before key construction and added `Merge_intersects_relationships_when_models_pad_endpoint_ids_differently`. The scoped topology-proposal-merge filter passed 1,590/1,590.
+
+- [x] (proven) `TopologyProposalConsensusMerger.IntersectControls` — compared raw `RequiredControls` strings so padded control ids failed dual-model intersection — **hit 2026-10-04 seed hunt:** trim-aware control intersection with dedupe; regression `Merge_intersects_required_controls_when_whitespace_differs_between_models`.
 
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics` — omitted-category node registers both `svc-` and `ds-` prefixes and `TryAdd` blocks the later categorized node's primary alias — **hit 2026-09-30:** categorized primary prefix overwrites the fallback after the index is built; regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`.
 
@@ -2970,16 +2974,13 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1604
+- **hunts:** 1605
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 974
+- **bugs-found:** 975
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **bugs-found:** 974
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — consensus intersection ignored endpoint whitespace normalization
+- **last-bug:** 2026-10-04 — consensus intersection ignored required-control whitespace
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-13 seed hunt #2369 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_chaos_studio_target.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_chaos_studio_target_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
@@ -6153,6 +6154,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-04 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` actionable gating vs `ArchitectureRecommendationTradeOffBuilder` provenance-aware trade-off gating, `FindRecommendationForDimension` attachment, and declared-priority negation patterns; no row met hunt-ready bar for same-run proof; persisted four bounded candidates; exact Alternatives/ProposedChange filter passed 40/40.
+
 2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed again and no reachable mechanism-backed candidate emerged.
 
 2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed, with no reachable mechanism-backed candidate.
@@ -6212,6 +6215,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
 
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForDimension` — `FirstOrDefault` on `AffectedRequirementOrQualityAttribute` attaches each Security/Cost (or other pair) trade-off only to the first recommendation when multiple actionable findings share a dimension; reachable when a specialist review emits two Fail rows in the same quality dimension plus a competing-dimension Fail.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — negation covers `non-` / `no-` / `not-` plus `unreliability` but not `anti-{dimension}` or `without {dimension}` declared-priority phrases operators may enter in review workbooks; wrong outcome would be false Cost-first or Security-first resolution when those phrases appear.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` makes trade-off identity non-deterministic across rebuilds of the same finding set; reachable on every `BuildRecommendations` call and may break diff/telemetry keyed by stable trade-off ids (needs consumer citation before hunt-ready promotion).
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — copies full `declaredPriorities` into each recommendation's `Dependencies` even when trade-off resolution already consumed priorities; reachable on multi-finding reviews and may overstate per-recommendation dependency edges in exported manifests.
+
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `no-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `Low-Cost` remains a valid Cost preference; generalized negated dimension detection via `no-` / `non-` prefixes for all trade-off dimension tokens; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost` and `BuildRecommendations_prefers_cost_first_when_priority_mentions_low_cost_design`; 27 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `no-cost` declared priorities falsely prefer Cost — **hit 2026-09-27 seed hunt:** `no-` negation must mirror `non-` handling without blocking legitimate `Low-Cost` mentions; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
@@ -6239,7 +6247,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 38
+- **hunts:** 39
 - **last-hunt:** 2026-10-04
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
@@ -10022,13 +10030,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (seed-only): re-read durable processor cancel re-read paths, in-memory retry/terminal branches, watchdog notify-failure handling, and integration DLQ retry pagination; no row met hunt-ready bar for same-run proof; persisted four bounded candidates; 74 Host.Core + 39 Api scoped tests passed.
 
 2026-10-04 seed hunt (seed-only): reseeded host-core-jobs; reviewed worker drain and execute-ownership hosted boundaries; no new hunt-ready rows; 74 scoped host-core-jobs tests passed.
 2026-10-04 seed hunt (seed→hit): reseeded host-core-jobs; proved invalid WorkUnitJson branch logged before post-log cancel re-reads (parity gap vs exhausted-retry terminal path); 74 scoped Host.Core + 25 processor tests passed.
@@ -10042,6 +10052,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2109 (seed-only): reseeded host-core-jobs; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — single `_info` re-read after the `moving to DLQ` `LogError` before writing `Failed`, while `BackgroundJobQueueProcessorHostedService` exhausted-retry uses dual post-log `GetAsync`; reachable when `MarkCanceledAsync` races between the post-log read and `Failed` assignment (cancel-during-log regression exists; cancel-between-reads window untested).
+- [ ] (candidate) `InMemoryBackgroundJobQueue` retry capacity-exhausted branch — single post-log `_info` re-read after the `pending capacity exhausted` `LogError` vs durable processor dual post-log `GetAsync` before `MarkFailedTerminalAsync` (same in-memory/durable parity shape as terminal failure).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry scheduling — no regression mirroring `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_after_invalid_payload_log` for cancel visible after the `scheduling retry` `LogWarning` (durable code already performs two post-log `GetAsync` calls; gap is test/process coverage only).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` invalid `WorkUnitJson` branch — `MarkFailedTerminalAsync` passes `row.RetryCount + 1` from the `TryPrepareQueuedJobAsync` snapshot rather than re-reading the live row retry count before terminal failure; reachable only if repository retry state changes between prepare and invalid-payload handling on the same poll.
 
 - [x] (proven) Job dequeue runs work without re-binding tenant scope from the job payload — `BackgroundJobWorkUnitExecutor` resolves scope via `BackgroundJobWorkUnitScopeResolver` and pushes `AmbientScopeContext` before run-scoped reads
 - [x] Leader-elected hosted service runs the same outbox drain on every replica â€” retired: intentional when `HostLeaderElection:Enabled` is false; default is enabled
@@ -10219,13 +10234,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — consumed OTP return URL bypassed safe-path validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 thorough hunt (dry): cheap-disproved all four seeded candidates — evaluate routing `returnPath` has no in-zone consumer; `.json` matcher skip is intentional with explicit `/api/proxy/:path*` host gate (proven 2026-09-25); partial email-OTP session restore shows code step but verify rejects missing `challengeId`; LS-010 bootstrap redirect is tested intentional when dedicated scope cannot apply; scoped vitest 218 passed / 3 baseline seam failures.
 
 2026-10-04 seed hunt (seed-only): re-read sign-in routing, email-OTP session, live-seat bootstrap redirect, and `proxy.ts` matcher boundaries after the demo-scope dry hunt; no row met the hunt-ready bar for same-run proof; seeded four bounded candidates; scoped auth/proxy vitest passed 218 tests with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
 
@@ -10233,10 +10250,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `evaluateAuthSignInRouting` / `AuthSignInRoutingApiResponse.returnPath` — the routing evaluate API can return a normalized `returnPath` in JSON, but the in-zone sign-in client currently consumes only `ssoRequired` and `message`; a future caller that navigates using the response field without `isSafeReturnPath` could diverge from `AuthSignInReturnPathGuard` unless parity is enforced at the UI boundary.
-- [ ] (candidate) `proxy.ts` `config.matcher` — the catch-all negative lookahead skips any pathname ending in `.json`, so split-site `decideHostGateRedirect` and demo-run alias redirects never run for a `.json` suffix route; reachable only if an operator or marketing bookmark used a `.json` pathname segment.
-- [ ] (candidate) `readEmailOtpChallengeSession` — restores a session when `maskedEmail` and `email` are present but `challengeId` is absent (`null`); the sign-in flow blocks verify without a challenge id today, but tampered sessionStorage could surface a code step without a bound challenge until verify is attempted.
-- [ ] (candidate) `runSignedInDedicatedScopeBootstrap` — when `bootstrapDedicatedWorkspaceScope` fails while stored scope is still the sample workspace and the sample visit flag is inactive, the helper hard-navigates to `/auth/bootstrap`; reachable on signed-in live-seat entry (LS-010) and may evict the operator from a non-bootstrap desk path before dedicated scope is proven impossible vs transient bootstrap failure.
+- [x] (invalid) `evaluateAuthSignInRouting` / `AuthSignInRoutingApiResponse.returnPath` — **invalid 2026-10-04 dry:** `use-sign-in-flow-state.ts` passes `safeReturnUrl` from query into evaluate and never navigates using API `returnPath`; no other in-zone caller consumes the field — hypothetical future caller is out of scope.
+- [x] (valid-no-repro) `proxy.ts` `config.matcher` — **valid-no-repro 2026-10-04 dry:** `.json` suffix exclusion is intentional for static assets; host gate for BFF JSON is covered by explicit `/api/proxy/:path*` matcher (proven 2026-09-25); contrived `.json` pathname bookmarks are not product routes.
+- [x] (valid-no-repro) `readEmailOtpChallengeSession` — **valid-no-repro 2026-10-04 dry:** partial sessionStorage restore can open the code step, but `handleCodeSubmit` rejects null/empty `challengeId` before verify — conservative guard, not an auth bypass.
+- [x] (valid-no-repro) `runSignedInDedicatedScopeBootstrap` — **valid-no-repro 2026-10-04 dry:** redirect to `/auth/bootstrap` when bootstrap cannot replace sticky demo scope is LS-010 contract; `live-seat-scope-bootstrap-redirect.test.ts` documents intentional behavior.
 
 - [x] (valid-no-repro) `isAnonymousMarketingProxyPathNormalized` treats every `v1/marketing/quick-scan/` and `v1/marketing/trust-center/` descendant as anonymous; the current OpenAPI catalog contains only the anonymous quick-scan/status/sample and trust-center evidence-pack descendants, and the UI proxy callers match that set. No concrete protected descendant exists to drive a failing repro; this remains process risk when a new marketing endpoint ships without an allowlist update.
 - [x] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path - invalid: server bearer stripped on allowlisted marketing paths; cookies are not copied upstream

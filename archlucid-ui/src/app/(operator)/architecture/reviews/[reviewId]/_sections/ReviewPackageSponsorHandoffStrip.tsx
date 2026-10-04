@@ -39,6 +39,10 @@ import {
 } from "@/lib/runs/run-detail-deliverables-copy";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
+  LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL,
+  resolveLowExtractionConfidenceCount,
+} from "@/lib/review-quality/low-extraction-confidence-count";
+import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
 } from "@/lib/review-quality/finalize-quality-scorecard";
@@ -56,7 +60,7 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   readonly usedStaticDemoRun: boolean;
   readonly showExtendedSponsorBriefing: boolean;
-  readonly lowExtractionConfidenceCount?: number;
+  readonly lowExtractionConfidenceCount?: number | null;
   /** Optional rehearsal inputs; empty sections stay honest when omitted. */
   readonly rehearsalPreview?: SponsorRehearsalPreviewInput | null;
   readonly enginesSucceeded?: number | null;
@@ -69,7 +73,8 @@ export type ReviewPackageSponsorHandoffStripProps = {
 export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {
-  const lowExtractionConfidenceCount = Math.max(0, Math.trunc(props.lowExtractionConfidenceCount ?? 0));
+  const lowExtractionPresentation = resolveLowExtractionConfidenceCount(props.lowExtractionConfidenceCount);
+  const lowExtractionConfidenceCount = lowExtractionPresentation.value;
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
     parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(null),
@@ -78,10 +83,12 @@ export function ReviewPackageSponsorHandoffStrip(
   moreExportsOpenRef.current = moreExportsOpen;
   const [docxExportBusy, setDocxExportBusy] = useState(false);
   const [extractionCaveatAcknowledged, setExtractionCaveatAcknowledged] = useState(false);
-  const extractionGateSatisfied = isExtractionFidelityGateSatisfied({
-    lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
-    extractionCaveatAcknowledged,
-  });
+  const extractionGateSatisfied =
+    lowExtractionPresentation.known &&
+    isExtractionFidelityGateSatisfied({
+      lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
+      extractionCaveatAcknowledged,
+    });
   const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(props.manifestSummary);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: props.runId,
@@ -153,7 +160,15 @@ export function ReviewPackageSponsorHandoffStrip(
         {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
-      {lowExtractionConfidenceCount > 0 ? (
+      {!lowExtractionPresentation.known ? (
+        <p
+          className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-package-extraction-count-not-loaded"
+        >
+          {LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL} — sponsor export stays blocked until the count loads.
+        </p>
+      ) : null}
+      {lowExtractionPresentation.known && lowExtractionConfidenceCount > 0 ? (
         <div
           className="mt-3 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900/50 dark:bg-amber-950/30"
           data-testid="review-package-extraction-fidelity-gate"

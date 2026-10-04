@@ -30,6 +30,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { formatGovernanceResolutionWorkingResultsLabel } from "@/lib/governance/governance-resolution-collection-count-display";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   GOVERNANCE_STANDARDS_RULES_BUYER_START_HERE_HELPER,
@@ -342,9 +343,7 @@ export function GovernanceResolutionPageView(props: Props) {
       data-testid="standards-rules-scope-status"
     />
   );
-  const workingResultsLabel = m.loading
-    ? "Loading resolution…"
-    : `${m.data?.decisions.length ?? 0} decisions · ${m.data?.conflicts.length ?? 0} conflicts`;
+  const workingResultsLabel = formatGovernanceResolutionWorkingResultsLabel(m.loading, m.data);
 
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>

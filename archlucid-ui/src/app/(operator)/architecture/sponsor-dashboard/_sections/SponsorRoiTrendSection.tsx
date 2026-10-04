@@ -26,7 +26,7 @@ import {
 } from "@/lib/sponsor/sponsor-time-range";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd, resolveSponsorTrendSavingsUsd } from "@/lib/execution-mode-honesty";
+import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -37,6 +37,7 @@ import {
   sponsorRoiTrendCriticalFindingsForScale,
   sponsorRoiTrendSimulatorOnlyBadgeLabel,
 } from "@/lib/sponsor/sponsor-roi-trend-history-point-display";
+import { mapSponsorRoiTrendSavingsChartPoints } from "@/lib/sponsor/sponsor-roi-trend-savings-display";
 
 import { SponsorRoiSavingsTrendSvgChart } from "./SponsorRoiSavingsTrendSvgChart";
 
@@ -54,7 +55,7 @@ function formatMonth(isoUtc: string | undefined): string {
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return date.toLocaleDateString(undefined, { month: "short", year: "2-digit", timeZone: "UTC" });
@@ -131,9 +132,10 @@ export function SponsorRoiTrendSection({
     [allPoints, timeRange],
   );
 
-  const maxCritical = sponsorRoiTrendCriticalFindingsForScale(points);
-  const showMixedModeFootnote = chartIncludesMixedMode(points);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const maxCritical = sponsorRoiTrendCriticalFindingsForScale(points);
+  const savingsChartPoints = mapSponsorRoiTrendSavingsChartPoints(points, buyerPolished);
+  const showMixedModeFootnote = chartIncludesMixedMode(points);
 
   return (
     <Card>
@@ -195,20 +197,7 @@ export function SponsorRoiTrendSection({
         ) : null}
         {!loading && !error && points.length > 0 ? (
           <div className="space-y-4" data-testid="exec-roi-trend-chart">
-            <SponsorRoiSavingsTrendSvgChart
-              points={points.map((point) => ({
-                snapshotUtc: point.snapshotUtc ?? "",
-                totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(
-                  {
-                    totalEstimatedUsdSavings: Number(point.totalEstimatedUsdSavings) || 0,
-                    realModeSavingsUsd: Number(point.realModeSavingsUsd) || 0,
-                    realRunCount: point.realRunCount ?? 0,
-                    simulatorRunCount: point.simulatorRunCount ?? 0,
-                  },
-                  buyerPolished,
-                ),
-              }))}
-            />
+            <SponsorRoiSavingsTrendSvgChart points={savingsChartPoints} />
             <div>
               <div className={cn("mb-2 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Critical security findings</div>
               <div className="flex items-end gap-2">
