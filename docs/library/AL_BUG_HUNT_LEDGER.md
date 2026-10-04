@@ -24505,8 +24505,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 74
-- **bugs-found:** 36
+- **hunts:** 75
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — policy-assignment document pagination accepted a same-subscription cross-collection next link
@@ -24542,6 +24542,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet was emitted with `nicToSubnet` even though the source resource was a `Microsoft.Compute/virtualMachineScaleSets` resource — **hit 2026-10-04:** added `vmssToSubnet` with `VirtualMachineScaleSet → Subnet` catalog metadata; regression `Build_emits_vmss_to_subnet_row_with_vmss_association_type`.
 - [x] (invalid) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP — **cheap-disproof 2026-10-04:** selected extractor files define no expected Bastion public-IP association contract or catalog relationship, so no wrong outcome was established.
 - [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters were emitted with the generic `appServiceToSubnet` association type even though the source resource was a `Microsoft.Databricks/workspaces` resource — **hit 2026-10-04:** added `databricksWorkspaceToSubnet` with `DatabricksWorkspace → Subnet` catalog metadata; regression `Build_emits_databricks_workspace_to_subnet_association`.
+- [x] (proven) `AwsIamRoleArn.TryGetAccountId` / `EnsureAccountMatches` — a reachable hosted AWS extractor request with `RoleArn=arn:aws:iam::<account>:policy/<name>` passed account matching because only the account segment was validated, then was sent to STS as a role — **hit 2026-10-04 seed hunt:** require a non-empty `role/` resource segment; regression `EnsureAccountMatches_rejects_an_iam_policy_arn_as_a_role_arn`.
 
 2026-10-04 thorough hunt (hit): proved and fixed VMSS and Databricks source-kind mismatches in hosted Azure subnet associations; cheap-disproved the unsupported Bastion public-IP contract. Azure association builder tests passed 16/16 and Core association catalog tests passed 14/14. The scoped compile-check script was inconclusive because its Linux path join prepended `/workspace` twice; no compile errors were observed in the test builds.
 
@@ -24552,6 +24553,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (hit): proved `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource` accepted `diagnosticSettingsEvil` via an unbounded path prefix, allowing an ARM pagination cursor outside the intended diagnostic-settings collection; required an exact path or slash-delimited descendant and added `ListDiagnosticSettingsAsync_rejects_next_link_with_diagnostic_settings_prefix_collision`. The focused Azure read-client suite passed 33/33.
 
 2026-10-04 seed hunt (hit): proved `HostedAzureArmNextLinkValidator.EnsureTargetsFederatedCredentialsIdentity` accepted `federatedIdentityCredentialsEvil` via an unbounded path prefix, allowing an ARM pagination cursor outside the intended federated-credentials collection; required an exact path or slash-delimited descendant and added `ListFederatedCredentialsAsync_rejects_next_link_with_federated_credentials_prefix_collision`. The focused Azure read-client suite passed 34/34.
+2026-10-04 seed hunt (hit): promoted the reachable AWS role ARN validation candidate; `AwsIamRoleArn` checked only the account segment, so an IAM policy ARN with a matching account passed local validation and reached STS as a role. Required a non-empty `role/` resource segment and added `EnsureAccountMatches_rejects_an_iam_policy_arn_as_a_role_arn`; the focused AWS ARN suite passed 3/3.
 
 2026-10-04 seed hunt (hit): proved `ListSubscriptionPolicyAssignmentDocumentsAsync` validated only the subscription, so an ARM `nextLink` into the same subscription's `policyDefinitions` collection was followed while reading policy-assignment documents; fixed with exact listing-path validation and added `ListSubscriptionPolicyAssignmentDocumentsAsync_rejects_next_link_for_different_policy_collection`. The focused Azure read-client suite passed 35/35 with analyzers disabled because unrelated pre-existing `ARCH006`/`ARCH006a` errors block the normal test build.
 
