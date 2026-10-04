@@ -3,6 +3,7 @@ using System.Data;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.RelationalRead;
@@ -15,6 +16,9 @@ namespace ArchLucid.Persistence.Repositories;
 
 public sealed partial class SqlContextSnapshotRepository
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Latest context snapshot by project slug within the active tenant catalog.")]
     public async Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(projectId);

@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -49,7 +50,10 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                 IsEnabled = @IsEnabled,
                 LastDeliveredUtc = @LastDeliveredUtc,
                 MetadataJson = @MetadataJson
-            WHERE SubscriptionId = @SubscriptionId;
+            WHERE SubscriptionId = @SubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -57,6 +61,9 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Digest subscription lookup by SubscriptionId within the active tenant catalog.")]
     public async Task<DigestSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct)
     {
         const string sql = """

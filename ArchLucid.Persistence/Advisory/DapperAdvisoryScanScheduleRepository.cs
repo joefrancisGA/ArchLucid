@@ -54,7 +54,10 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
                 RunProjectSlug = @RunProjectSlug,
                 LastRunUtc = @LastRunUtc,
                 NextRunUtc = @NextRunUtc
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -126,6 +129,9 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Advisory scan schedule lookup by ScheduleId within the active tenant catalog.")]
     public async Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
     {
         const string sql = """

@@ -42,6 +42,9 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Conversation thread lookup by ThreadId within the active tenant catalog.")]
     public async Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
         const string sql = """
@@ -147,6 +150,9 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Conversation thread touch by ThreadId within the active tenant catalog.")]
     public async Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
         const string sql = """

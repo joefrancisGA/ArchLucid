@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -37,6 +38,9 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert archive by AlertId within the active tenant catalog.")]
     public async Task ArchiveAsync(Guid alertId, CancellationToken ct)
     {
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -46,6 +50,9 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             cancellationToken: ct));
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert record lookup by AlertId within the active tenant catalog.")]
     public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
     {
         string sql = $"""

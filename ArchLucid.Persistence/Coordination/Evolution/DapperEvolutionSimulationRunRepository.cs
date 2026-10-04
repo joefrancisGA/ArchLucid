@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Evolution;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -14,6 +15,9 @@ namespace ArchLucid.Persistence.Coordination.Evolution;
 public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory connectionFactory)
     : IEvolutionSimulationRunRepository
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Denormalized scope lookup on EvolutionCandidateChangeSets by id before simulation run insert.")]
     public async Task InsertAsync(EvolutionSimulationRunRecord record, CancellationToken cancellationToken)
     {
         const string scopeSql = """

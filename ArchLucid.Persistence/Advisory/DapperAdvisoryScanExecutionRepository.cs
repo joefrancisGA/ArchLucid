@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -48,7 +49,10 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
                 Status = @Status,
                 ResultJson = @ResultJson,
                 ErrorMessage = @ErrorMessage
-            WHERE ExecutionId = @ExecutionId;
+            WHERE ExecutionId = @ExecutionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -56,6 +60,9 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Execution history listed by schedule id within the active tenant catalog connection.")]
     public async Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         Guid scheduleId,
         int take,

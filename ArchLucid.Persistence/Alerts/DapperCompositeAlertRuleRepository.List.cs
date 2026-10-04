@@ -1,3 +1,5 @@
+using ArchLucid.Core.Tenancy;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -6,6 +8,9 @@ namespace ArchLucid.Persistence.Alerts;
 
 public sealed partial class DapperCompositeAlertRuleRepository
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Composite alert rule lookup by CompositeRuleId within the active tenant catalog.")]
     public async Task<CompositeAlertRule?> GetByIdAsync(Guid compositeRuleId, CancellationToken ct)
     {
         const string sqlRule = """

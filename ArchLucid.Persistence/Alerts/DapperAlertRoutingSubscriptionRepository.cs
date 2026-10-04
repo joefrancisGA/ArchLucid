@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -53,7 +54,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                 LastModifiedUtc = @LastModifiedUtc,
                 LastDeliveredUtc = @LastDeliveredUtc,
                 MetadataJson = @MetadataJson
-            WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
+            WHERE RoutingSubscriptionId = @RoutingSubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -61,6 +65,9 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert routing subscription lookup by RoutingSubscriptionId within the active tenant catalog.")]
     public async Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct)
     {
         const string sql = """

@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -46,7 +47,10 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
                 Status = @Status,
                 ErrorMessage = @ErrorMessage,
                 RetryCount = @RetryCount
-            WHERE AlertDeliveryAttemptId = @AlertDeliveryAttemptId;
+            WHERE AlertDeliveryAttemptId = @AlertDeliveryAttemptId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -54,6 +58,9 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert delivery attempts listed by AlertId within the active tenant catalog.")]
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(
         Guid alertId,
         CancellationToken ct)
@@ -75,6 +82,9 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert delivery attempts listed by RoutingSubscriptionId within the active tenant catalog.")]
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListBySubscriptionAsync(
         Guid routingSubscriptionId,
         int take,

@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -83,6 +84,9 @@ internal sealed partial class DapperProductLearningPlanningPlanRepository(ISqlCo
                 cancellationToken: cancellationToken));
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Improvement theme scope lookup by ThemeId within the active tenant catalog.")]
     private static async Task EnsureThemeScopeMatchesAsync(
         SqlConnection connection,
         Guid themeId,

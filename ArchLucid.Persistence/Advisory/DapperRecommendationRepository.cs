@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -74,6 +75,9 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
         await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct));
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Recommendation lookup by RecommendationId within the active tenant catalog.")]
     public async Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
     {
         const string sql = """

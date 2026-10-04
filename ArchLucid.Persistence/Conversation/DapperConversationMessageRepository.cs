@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -17,6 +18,9 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     : IConversationMessageRepository
 {
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Denormalized scope lookup on ConversationThreads by ThreadId before message insert.")]
     public async Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(message);

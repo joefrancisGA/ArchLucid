@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -75,7 +76,10 @@ public sealed class DapperPolicyPackAssignmentRepository(
                            UPDATE dbo.PolicyPackAssignments
                            SET IsEnabled = @IsEnabled,
                                IsOrganizationRequired = @IsOrganizationRequired
-                           WHERE AssignmentId = @AssignmentId;
+                           WHERE AssignmentId = @AssignmentId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

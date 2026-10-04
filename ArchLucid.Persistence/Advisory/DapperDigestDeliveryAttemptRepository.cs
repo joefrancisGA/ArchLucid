@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -49,7 +50,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             SET
                 Status = @Status,
                 ErrorMessage = @ErrorMessage
-            WHERE AttemptId = @AttemptId;
+            WHERE AttemptId = @AttemptId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -57,6 +61,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Delivery attempt history listed by DigestId within the active tenant catalog.")]
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
         Guid digestId,
         CancellationToken ct)
@@ -136,6 +143,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Delivery attempt history listed by SubscriptionId within the active tenant catalog.")]
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
         Guid subscriptionId,
         int take,

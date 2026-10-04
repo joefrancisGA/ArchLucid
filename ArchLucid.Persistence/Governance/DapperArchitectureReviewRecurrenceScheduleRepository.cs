@@ -56,7 +56,10 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
                 LastRunStatus = @LastRunStatus,
                 LastErrorMessage = @LastErrorMessage,
                 ConsecutiveFailureCount = @ConsecutiveFailureCount
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -123,6 +126,9 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
         return result.ToList();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Architecture review recurrence schedule lookup by ScheduleId within the active tenant catalog.")]
     public async Task<ArchitectureReviewRecurrenceSchedule?> GetByIdAsync(
         Guid scheduleId,
         CancellationToken cancellationToken = default)

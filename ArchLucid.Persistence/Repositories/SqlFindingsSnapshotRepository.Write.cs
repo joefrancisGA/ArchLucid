@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Sql;
@@ -46,6 +47,9 @@ public sealed partial class SqlFindingsSnapshotRepository
     /// <summary>
     ///     Inserts relational finding rows when <c>FindingRecords</c> is still empty (idempotent).
     /// </summary>
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Backfill scope lookup by FindingsSnapshotId surrogate key before slice insert.")]
     internal static async Task BackfillRelationalSlicesAsync(
         FindingsSnapshot snapshot,
         IDbConnection connection,

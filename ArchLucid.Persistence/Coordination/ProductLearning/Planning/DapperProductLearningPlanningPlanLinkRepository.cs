@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -165,6 +166,9 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
             .ToList();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Improvement plan scope lookup by PlanId within the active tenant catalog.")]
     private static async Task<ProductLearningScope> RequirePlanScopeAsync(
         SqlConnection connection,
         Guid planId,

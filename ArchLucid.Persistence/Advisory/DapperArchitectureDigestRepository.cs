@@ -76,6 +76,9 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Architecture digest lookup by DigestId within the active tenant catalog.")]
     public async Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
     {
         const string sql = """

@@ -85,7 +85,10 @@ public sealed class DapperPolicyPackRepository(
                                CurrentVersion = @CurrentVersion,
                                IsDeleted = @IsDeleted,
                                QualityDimension = @QualityDimension
-                           WHERE PolicyPackId = @PolicyPackId;
+                           WHERE PolicyPackId = @PolicyPackId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -93,6 +96,9 @@ public sealed class DapperPolicyPackRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Policy pack lookup by PolicyPackId within the active tenant catalog.")]
     public async Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """
