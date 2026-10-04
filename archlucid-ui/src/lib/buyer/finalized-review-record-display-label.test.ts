@@ -58,7 +58,9 @@ describe("finalizedReviewRecordDisplayLabel", () => {
     );
   });
 
-  it("returns an em dash when neither title nor manifest id is available", () => {
-    expect(finalizedReviewRecordDisplayLabel(summary({ runId: "other-run", description: "" }), null)).toBe(" — ");
+  it("returns Untitled review when neither title nor manifest id is available", () => {
+    expect(finalizedReviewRecordDisplayLabel(summary({ runId: "other-run", description: "" }), null)).toBe(
+      "Untitled review",
+    );
   });
 });

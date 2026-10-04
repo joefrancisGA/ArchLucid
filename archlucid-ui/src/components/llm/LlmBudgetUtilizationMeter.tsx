@@ -136,7 +136,7 @@ function indicatorClassForTone(tone: LlmBudgetUtilizationTone): string {
 
 function formatUsd(value: number | null): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
-    return " — ";
+    return "Amount not returned";
   }
 
   return `$${value.toFixed(2)}`;

@@ -10,7 +10,7 @@ function safeNonNegativeWholeDisplay(value: unknown): string {
   const numeric = typeof value === "number" ? value : Number(value);
 
   if (!Number.isFinite(numeric) || numeric < 0) {
-    return " — ";
+    return "Not returned";
   }
 
   return String(Math.floor(numeric));
