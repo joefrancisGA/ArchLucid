@@ -67,4 +67,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u2066").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_soft_hyphen_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u00ADret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_soft_hyphen_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u00AD").Should().BeEmpty();
+    }
 }

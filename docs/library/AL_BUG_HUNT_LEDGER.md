@@ -7659,6 +7659,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-28 seed hunt #55 (seed→hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded zero-width space (U+200B) still showed configured in admin snapshot while `MatchesAnyCommaSeparatedKey` compared against material that still contained the invisible character and rejected the visible key; extended `ApiKeyMaterialNormalizer` to remove invisible key-material characters anywhere in the segment (not only leading/trailing); regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`, `GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured`; 53 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
 
+- [x] (proven) `ApiKeyMaterialNormalizer` allowlist missed other Unicode format (Cf) characters such as soft hyphen (U+00AD) — **hit 2026-10-04 seed hunt:** pasted Cf characters outside the explicit invisible set still broke auth while admin UI showed configured; fixed by stripping all `UnicodeCategory.Format` characters instead of growing the allowlist; regressions `When_admin_key_config_has_embedded_soft_hyphen_still_authenticates`, `Normalize_strips_embedded_soft_hyphen_from_key_material`, `GetSnapshot_treats_soft_hyphen_only_readonly_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded bidi isolate marks (U+2066–U+2069) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** isolate marks were outside the invisible set; fixed by adding `\u2066`–`\u2069`; regressions `When_admin_key_config_has_embedded_left_to_right_isolate_still_authenticates`, `Normalize_strips_embedded_left_to_right_isolate_from_key_material`, `GetSnapshot_treats_left_to_right_isolate_only_admin_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded bidi embedding/override marks (U+202A–U+202E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** embedding marks were outside the invisible set; fixed by adding `\u202A`–`\u202E`; regressions `When_admin_key_config_has_embedded_left_to_right_embedding_still_authenticates`, `Normalize_strips_embedded_left_to_right_embedding_from_key_material`, `GetSnapshot_treats_left_to_right_embedding_only_readonly_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded left-to-right mark (U+200E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** bidi marks were outside the invisible set; fixed by adding `\u200E`/`\u200F`; regressions `When_admin_key_config_has_embedded_left_to_right_mark_still_authenticates`, `Normalize_strips_embedded_left_to_right_mark_from_key_material`, `GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured`.
@@ -7676,13 +7677,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 69
-- **bugs-found:** 16
+- **hunts:** 70
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — embedded bidi isolate marks (U+2066–U+2069) in configured API key material broke authentication
+- **last-bug:** 2026-10-04 — allowlisted invisible API key chars missed other Unicode format (Cf) characters
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (hit): reseeded api-key-auth; proved embedded soft hyphen (U+00AD) in configured key material still showed configured while authentication rejected the visible key; replaced growing allowlist with `UnicodeCategory.Format` stripping in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_soft_hyphen_still_authenticates`, `Normalize_strips_embedded_soft_hyphen_from_key_material`, `GetSnapshot_treats_soft_hyphen_only_readonly_slot_as_unconfigured`; 61 scoped handler/service unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
 2026-10-04 seed hunt (hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded U+2066 left-to-right isolate still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` with bidi isolate marks `\u2066`–`\u2069`; regressions `When_admin_key_config_has_embedded_left_to_right_isolate_still_authenticates`, `Normalize_strips_embedded_left_to_right_isolate_from_key_material`, `GetSnapshot_treats_left_to_right_isolate_only_admin_slot_as_unconfigured`; 59 scoped handler/service unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 

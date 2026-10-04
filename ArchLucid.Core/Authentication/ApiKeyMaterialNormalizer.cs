@@ -1,11 +1,10 @@
+using System.Globalization;
+
 namespace ArchLucid.Core.Authentication;
 
 /// <summary>Normalizes API key material from configuration and inbound headers (trim + strip invisible Unicode).</summary>
 public static class ApiKeyMaterialNormalizer
 {
-    private const string InvisibleKeyMaterialChars =
-        "\uFEFF\u200B\u200C\u200D\u200E\u200F\u2060\u2066\u2067\u2068\u2069\u202A\u202B\u202C\u202D\u202E";
-
     public static string Normalize(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -35,5 +34,5 @@ public static class ApiKeyMaterialNormalizer
     }
 
     private static bool IsInvisibleKeyMaterialChar(char character)
-        => InvisibleKeyMaterialChars.IndexOf(character) >= 0;
+        => char.GetUnicodeCategory(character) == UnicodeCategory.Format;
 }

@@ -408,6 +408,21 @@ public sealed class AdminApiKeySettingsServiceTests
         sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_soft_hyphen_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u00AD"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "soft-hyphen-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().ReadOnly.MaskedSegments.Should().BeEmpty();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
