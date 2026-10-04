@@ -8,6 +8,8 @@
 
 2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` treated any non-empty `governanceFindingsResourceGroupKey` as exclusive disclosure state, so when queue filters removed the open resource group every remaining group rendered collapsed; ignore stale keys and clear the URL when the open group is absent from `displayRows`; regression `keeps remaining resource groups expanded when disclosure URL references a filtered-out group`; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
 
+2026-10-04 seed hunt (seed→hit): `application-pilots` — `WhyArchLucidSnapshotService.BuildAsync` set `AuditRowCountTruncated` when `GetByScopeAsync` returned exactly `AuditRowCountCap` rows even though no additional default-scope audit events existed, overstating truncation on the why-ArchLucid proof snapshot; over-fetch one row and mark truncated only when count exceeds the cap; regressions `BuildAsync_when_audit_rows_equal_cap_does_not_mark_truncated` and `BuildAsync_marks_audit_row_count_as_truncated_when_more_than_cap_exist`; 5 `WhyArchLucidSnapshotServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` marked `AuditExportTruncated` when the scoped audit export returned exactly `AuditExportMaxRows` rows even though no additional audit events existed, overstating incompleteness in the buyer value report; fetch `AuditExportMaxRows + 1` and treat truncation only when the repository returns more than the cap; regression `BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated`; 11 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotRunDeltaComputer.TryLoadFindingsSnapshotAsync` treated a persisted zero-row findings snapshot as unavailable (`null`), so buyer `pilot-run-deltas.json` kept stale agent severity buckets and top-finding pointers; empty snapshots now load authoritatively and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
@@ -11762,11 +11764,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 36
-- **bugs-found:** 24
+- **hunts:** 37
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — audit export at exact cap falsely marked truncated
+- **last-bug:** 2026-10-04 — why-ArchLucid snapshot audit count at exact cap falsely marked truncated
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11912,6 +11914,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-04 seed hunt (seed→hit): promoted empty persisted findings-snapshot candidate; proved zero-row snapshots were nulled in `TryLoadFindingsSnapshotAsync`, leaving stale agent severity in buyer deltas; fixed authoritative empty snapshot handling; regression above; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
 
 2026-10-04 seed hunt (seed→hit): promoted audit-export cap candidate; proved exact-cap audit exports set `AuditExportTruncated` without an extra row; fixed with cap+1 fetch; regression above; 11 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
+
+- [x] (proven) `WhyArchLucidSnapshotService.BuildAsync` — default-scope audit row count at exactly `AuditRowCountCap` marked truncated with no extra rows — **hit 2026-10-04 seed hunt:** over-fetch one row via `GetByScopeAsync`; regressions `BuildAsync_when_audit_rows_equal_cap_does_not_mark_truncated` and `BuildAsync_marks_audit_row_count_as_truncated_when_more_than_cap_exist`.
+
+2026-10-04 seed hunt (seed→hit): re-read pilot audit cap paths after value-report fix; proved the same `>= cap` truncation bug on why-ArchLucid snapshot; fixed; 5 `WhyArchLucidSnapshotServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
