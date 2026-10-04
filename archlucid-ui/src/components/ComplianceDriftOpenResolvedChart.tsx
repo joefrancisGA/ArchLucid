@@ -1,24 +1,20 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
+import {
+  formatComplianceDriftActivityCountDisplay,
+  parseComplianceDriftActivityCount,
+} from "@/lib/compliance-drift-open-resolved-count";
 
 export type ComplianceDriftOpenResolvedChartProps = {
   points: ComplianceDriftTrendPoint[];
 };
 
-function safeCount(value: unknown): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return 0;
-  }
-
-  return Math.max(0, Math.floor(value));
-}
-
 function formatBucketLabel(isoUtc: string): string {
   const d = new Date(isoUtc);
 
   if (Number.isNaN(d.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   const month = String(d.getUTCMonth() + 1).padStart(2, "0");
@@ -41,11 +37,14 @@ export function ComplianceDriftOpenResolvedChart(props: ComplianceDriftOpenResol
 
   const normalized = points.map((p) => ({
     bucketUtc: p.bucketUtc,
-    openCount: safeCount(p.openFindingsCount),
-    resolvedCount: safeCount(p.resolvedFindingsCount),
+    openCount: parseComplianceDriftActivityCount(p.openFindingsCount),
+    resolvedCount: parseComplianceDriftActivityCount(p.resolvedFindingsCount),
   }));
 
-  const maxStack = Math.max(...normalized.map((p) => p.openCount + p.resolvedCount), 1);
+  const maxStack = Math.max(
+    ...normalized.map((p) => (p.openCount ?? 0) + (p.resolvedCount ?? 0)),
+    1,
+  );
   const barMaxPx = 120;
 
   return (
@@ -71,8 +70,8 @@ export function ComplianceDriftOpenResolvedChart(props: ComplianceDriftOpenResol
 
 type NormalizedPoint = {
   bucketUtc: string;
-  openCount: number;
-  resolvedCount: number;
+  openCount: number | null;
+  resolvedCount: number | null;
 };
 
 function OpenResolvedStackedBars(props: {
@@ -89,11 +88,13 @@ function OpenResolvedStackedBars(props: {
       aria-label="Compliance drift findings trend: stacked bars show opened vs resolved counts per day"
     >
       {normalized.map((point) => {
-        const stack = point.openCount + point.resolvedCount;
+        const open = point.openCount ?? 0;
+        const resolved = point.resolvedCount ?? 0;
+        const stack = open + resolved;
         const stackPx = stack === 0 ? 0 : Math.max(2, (stack / maxStack) * barMaxPx);
-        const openPx = stack === 0 ? 0 : (point.openCount / stack) * stackPx;
+        const openPx = stack === 0 ? 0 : (open / stack) * stackPx;
         const resolvedPx = stackPx - openPx;
-        const barAriaLabel = `Opened ${point.openCount}, resolved ${point.resolvedCount}`;
+        const barAriaLabel = `Opened ${formatComplianceDriftActivityCountDisplay(point.openCount)}, resolved ${formatComplianceDriftActivityCountDisplay(point.resolvedCount)}`;
 
         return (
           <div

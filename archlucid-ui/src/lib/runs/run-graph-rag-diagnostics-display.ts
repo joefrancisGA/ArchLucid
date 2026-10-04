@@ -7,6 +7,9 @@ import type { RunRetrievalGroundingSummary } from "@/types/authority";
 export const GRAPH_RAG_NEIGHBOR_HIT_RATE_SCOPE_LINE =
   "Neighbor chunks with a citation link ÷ neighbor chunks added on this run (not the citation-coverage percent above)." as const;
 
+export const GRAPH_RAG_REVIEW_RETRIEVAL_SCOPE_LINE =
+  "Metrics describe this review’s retrieval pass only — not tenant-wide search quality." as const;
+
 export function resolveGraphRagPilotFloorLabel(
   disposition: string | null | undefined,
 ): string {
