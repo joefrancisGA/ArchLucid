@@ -1,9 +1,9 @@
-> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-18 then save that link identity, draw one card per external host, wrap tall stages left to right, scroll a canvas wider than the frame, roll up repeated cards, read app settings and uploaded config, summarize the stages, and filter edges by evidence. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-18-scroll-wide-canvas.md`](../../.cursor/prompts/data-flow-diagram-18-scroll-wide-canvas.md)
+> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-19 then save that link identity, draw one card per external host, wrap tall stages left to right, scroll a canvas wider than the frame, roll up repeated cards, fix the PNG browser fallback, read app settings and uploaded config, summarize the stages, and filter edges by evidence. Internal engineering only.
+> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-19-png-fallback-namespace.md`](../../.cursor/prompts/data-flow-diagram-19-png-fallback-namespace.md)
 
 # Data flow diagram — Luna prompts
 
-**Created:** 2026-09-30 · **Revised:** 2026-10-03 (DFV-11–DFV-18) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
+**Created:** 2026-09-30 · **Revised:** 2026-10-04 (DFV-19) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
@@ -26,13 +26,14 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 | **DFV-13** | [data-flow-diagram-13-left-to-right-columns.md](../../.cursor/prompts/data-flow-diagram-13-left-to-right-columns.md) | Wrap a stage after 12 cards. Connected cards sit above `Not connected`. Edges still run left to right. |
 | **DFV-18** | [data-flow-diagram-18-scroll-wide-canvas.md](../../.cursor/prompts/data-flow-diagram-18-scroll-wide-canvas.md) | Scroll a canvas that is wider than the frame. Fit in view still fits the whole picture. Zoom and Fit stay on the frame. |
 | **DFV-14** | [data-flow-diagram-14-rollup-repeated-cards.md](../../.cursor/prompts/data-flow-diagram-14-rollup-repeated-cards.md) | More than three same-type, same-neighbor cards become one card. Click lists the members. PNG export lists them under the legend. |
+| **DFV-19** | [data-flow-diagram-19-png-fallback-namespace.md](../../.cursor/prompts/data-flow-diagram-19-png-fallback-namespace.md) | Define the SVG namespace in the browser PNG fallback so Export PNG no longer throws `SVG_NS is not defined`. |
 | **DFV-15** | [data-flow-diagram-15-app-and-config-evidence.md](../../.cursor/prompts/data-flow-diagram-15-app-and-config-evidence.md) | Collect Function App and App Service hosts. Label a file confirmation `From config`. Say `No evidence checked` when the snapshot never looked. |
 | **DFV-16** | [data-flow-diagram-16-stage-summary.md](../../.cursor/prompts/data-flow-diagram-16-stage-summary.md) | One line above the columns counts each stage, including used and unused storage. |
 | **DFV-17** | [data-flow-diagram-17-evidence-filters.md](../../.cursor/prompts/data-flow-diagram-17-evidence-filters.md) | Four checkboxes, on by default, hide Observed, App settings, From config, or Inferred edges. Cards stay. |
 
 ## Run order
 
-**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07. Then **12**, **13**, **18**, **14**, **15**, **10**, **16**, **17**. **18** is the viewer scroll after **13**. Look at that scrollbar before pasting **14**. **10** can run any time after 07. Do not run two of these in one session.
+**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07. Then **12**, **13**, **18**, **14**, **19**, **15**, **10**, **16**, **17**. **18** is the viewer scroll after **13**. Look at that scrollbar before pasting **14**. **19** fixes the PNG fallback after **14**. Look at a downloaded PNG before pasting **15**. **10** can run any time after 07. Do not run two of these in one session.
 
 ## After PR 4128
 
