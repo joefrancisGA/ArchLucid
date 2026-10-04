@@ -109,8 +109,8 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
             options);
 
         route.Should().NotBeNull();
-        route!.Segments[0].X1.Should().BeApproximately(storage.X + storage.Width, 0.001d);
-        route.Segments[^1].X2.Should().BeApproximately(source.X, 0.001d);
+        route!.Segments[0].X1.Should().BeApproximately(storage.X, 0.001d);
+        route.Segments[^1].X2.Should().BeApproximately(source.X + source.Width, 0.001d);
     }
 
     [Fact]
