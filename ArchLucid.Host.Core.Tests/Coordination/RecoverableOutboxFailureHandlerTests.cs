@@ -1,5 +1,6 @@
 using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Coordination;
 
 using FluentAssertions;
 
