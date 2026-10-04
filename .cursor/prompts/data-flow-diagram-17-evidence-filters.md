@@ -1,10 +1,10 @@
 # DFV-17 — Filter data-flow edges by where the evidence came from
 
-**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not implement DFV-14, DFV-15, or DFV-16 in this session.
+**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not implement DFV-12, DFV-20, or DFV-21 in this session. If DFV-16 is already on `master`, the stage-count line must follow the edges that remain. Do not add that line in this session if it is absent.
 
 **Repo:** `c:\ArchLucid`
 
-**Wave:** Data flow diagram (**DFV**). **Depends on:** current `master`. Follow the existing `includeCrossGroupFanOut` checkbox. Do not add a workspace tab.
+**Wave:** Data flow diagram (**DFV**). **Depends on:** current `master` after the Source column is readable enough to judge edges. Prefer DFV-12 first. Follow the existing `includeCrossGroupFanOut` checkbox. Do not add a workspace tab. Do not change the DFV-14 rollup rule.
 
 ## Goal
 
