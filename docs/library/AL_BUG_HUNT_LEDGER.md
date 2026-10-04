@@ -26896,11 +26896,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 23
-- **bugs-found:** 17
+- **hunts:** 24
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — dead-letter audit hook failure escaped recoverable outbox batch isolation
+- **last-bug:** 2026-10-04 — direct export dead-letter audit failure scheduled a retry after terminal persistence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26915,11 +26915,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 seed hunt (seed-only): repeated the selected coordination source review after the dead-letter hook isolation fix; no new reachable candidate emerged. No code changes.
 
 2026-10-04 seed hunt (seed-only): reread `RecoverableOutboxFailureHandler`, `RecoverableOutboxProcessorBase`, and the regression test after the fix; no new reachable candidate emerged. No code changes.
+2026-10-04 seed hunt (hit): proved the direct destination-policy dead-letter path in `RunExportBlobPushOutboxProcessor` bypassed the shared best-effort handler; an audit failure after `RecordDeadLetterAsync` caused the base processor to schedule backoff for the same terminal row. Centralized cancellation-aware best-effort audit handling and added `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure`; export processor tests passed 10/10 and the Host.Core coordination scope passed 20/20.
 
 ### Hypotheses
 
 - [x] (proven) `RecoverableOutboxProcessorBase.OnProcessingFailedAsync` — after recording a dead letter, an `OnDeadLetterAsync` audit/metric hook can throw and abort the batch instead of isolating the already-classified failure; **hit 2026-10-04 seed hunt:** `RecoverableOutboxFailureHandler` propagated `InvalidOperationException` from a failing dead-letter hook after `RecordDeadLetterAsync` succeeded; `RecoverableOutboxFailureHandlerTests.HandleAsync_does_not_escape_dead_letter_hook_failure_after_recording_terminal_state` now proves hooks are best-effort while cancellation still propagates.
-- [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — immediate destination-policy dead-letter branches perform audit and instrumentation before returning; an audit failure after `RecordDeadLetterAsync` could escape the processor and prevent later leased entries from being handled. **Not promoted in 2026-10-04 seed hunt:** the shared handler fix covers the reachable dead-letter callback path; no processor-specific failing repro was attempted.
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, empty-export, and sealed-receipt dead-letter branches performed audit after `RecordDeadLetterAsync`; **hit 2026-10-04:** `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure` reproduced an audit failure being converted into backoff for the already-terminal row; `LogDeadLetterAuditAsync` now contains non-cancellation audit failures.
 
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` loads SQL with outbox `ScopeContext` but `CosmosGraphSnapshotRepository.SaveAsync` reads `IScopeContextProvider.GetCurrentScope()`; without `AmbientScopeContext.Push`, worker background drain tags Cosmos documents with dev-default tenant triple instead of the outbox entry scope — fixed 2026-08-20 (`CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_cosmos_save`)
 - [x] (invalid) Outbox processor pushes export blobs to a destination for the wrong tenant — `RunExportBlobPushOutboxProcessor` passes explicit `ScopeContext` into `IRunExportPackageBuilder.BuildAsync`; export path does not read ambient scope
