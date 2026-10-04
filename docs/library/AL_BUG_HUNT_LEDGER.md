@@ -19057,7 +19057,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -19072,6 +19072,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-04 seed hunt (seed-only): re-read `ConfigurationSensitiveConfigPathMatcher`, `ConfigurationSensitiveConfigValueScanner`, `ConfigurationEffectiveValueResolver`, and the configuration tests; no new reachable mechanism-backed candidate emerged. The built configuration-filtered run was blocked by existing ARCH006/ARCH006a diagnostics in `ArchLucid.Persistence`; the existing no-build binary passed 1,045 configuration tests.
 
 2026-10-04 seed hunt (seed-only): repeated the selected configuration summary review; no new reachable mechanism-backed candidate emerged. The existing no-build configuration-filtered binary passed 1,045 tests; the known ARCH006/ARCH006a build blocker remains outside the selected zone.
+
+2026-10-04 seed hunt (seed-only): repeated the selected configuration summary source review; no new reachable mechanism-backed candidate emerged. The no-build configuration-filtered binary again passed 1,045 tests.
 
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after snake_case fix; proved kebab-case `api-key` bypassed `IsSensitiveConfigPropertyName` for the same admin JSON effective-value path class; fixed by hyphen-delimiter tokenization alongside underscore splits; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`; 1042 scoped Configuration tests passed.
 
