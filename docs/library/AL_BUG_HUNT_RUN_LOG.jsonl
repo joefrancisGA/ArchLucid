@@ -8721,3 +8721,4 @@
 {"at":"2026-10-04T20:40:39.0447037Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/architecture/architecture-diagram-model.ts"]}
 {"at":"2026-10-04T20:47:22.1729896Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/TenantCostEstimateService.cs"]}
 {"at":"2026-10-04T20:54:37.4053661Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/BillingCheckoutFacade.cs"]}
+{"at":"2026-10-04T21:00:00.1464154Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Composition/Configuration/ArchLucidReferenceDataHotPathRegistrar.cs"]}
