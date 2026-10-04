@@ -21,6 +21,10 @@ const committedManifest: ManifestSummary = {
 };
 
 describe("signed-records-list-seal-integrity", () => {
+  it("labels missing digest as seal check not returned", () => {
+    expect(truncateSignedRecordsListSealDigest("")).toBe("Seal check not returned");
+  });
+
   it("truncates long manifest digests for disclosure", () => {
     expect(truncateSignedRecordsListSealDigest("sha256-demo-abcdef1234567890abcdef1234567890")).toBe(
       "sha256-d…34567890",

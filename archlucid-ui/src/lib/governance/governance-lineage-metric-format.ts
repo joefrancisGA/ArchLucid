@@ -8,7 +8,7 @@ import { formatRemediationFactoryPercentDisplay } from "@/lib/remediation-factor
 export function formatGovernanceLineageWholeCount(value: unknown): string {
   if (typeof value !== "number" || !Number.isFinite(value))
   {
-    return " — ";
+    return "Not returned";
   }
 
   return String(Math.round(value));

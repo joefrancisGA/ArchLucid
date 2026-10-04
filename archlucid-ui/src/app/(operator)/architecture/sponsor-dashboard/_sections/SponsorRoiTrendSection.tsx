@@ -46,7 +46,7 @@ function formatMonth(isoUtc: string | undefined): string {
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return date.toLocaleDateString(undefined, { month: "short", year: "2-digit", timeZone: "UTC" });

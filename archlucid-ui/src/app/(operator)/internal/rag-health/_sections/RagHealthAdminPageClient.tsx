@@ -29,13 +29,13 @@ import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-he
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
-    return " — ";
+    return "Not recorded";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";

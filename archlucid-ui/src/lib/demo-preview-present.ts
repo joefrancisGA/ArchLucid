@@ -53,7 +53,7 @@ export function computeDemoReviewDurationLabel(
   const end = ordered.length > 0 ? ordered[ordered.length - 1] : null;
 
   if (start === null || end === null || end < start) {
-    return " — ";
+    return "Duration not readable";
   }
 
   const dayMs = 1000 * 60 * 60 * 24;
