@@ -1,4 +1,3 @@
-{"at":"2026-09-04T02:31:47.6786973Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T02:45:25.5581563Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T03:01:11.1988195Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T03:10:43.5946383Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8681,3 +8680,5 @@
 {"at":"2026-10-04T02:24:00.2382344Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx,archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.test.tsx"]}
 {"at":"2026-10-04T02:29:11.7278440Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
 {"at":"2026-10-04T02:28:19.3526904Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/,ArchLucid.Application.Tests/InfraEvidence/SecureNowQuestionDispositionServiceTests.cs)"]}
+{"at":"2026-10-04T02:29:11.727844Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
+{"at":"2026-10-04T02:35:55.0373849Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs,ArchLucid.Application.Tests/Runs/Orchestration/TopologyProposalConsensusMergerTests.cs"]}

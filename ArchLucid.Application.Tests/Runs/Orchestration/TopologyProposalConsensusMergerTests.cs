@@ -196,4 +196,48 @@ public sealed class TopologyProposalConsensusMergerTests
         result.MergedProposal.AddedRelationships.Should().BeEmpty(
             "service intersection dropped svc-worker so api→worker must not survive consensus merge");
     }
+
+    [Fact]
+    public void Merge_keeps_relationships_when_synthetic_endpoints_have_internal_whitespace()
+    {
+        static AgentTopologyProposal Proposal() =>
+            new()
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-  api",
+                        TargetId = "ds-  sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            };
+
+        TopologyProposalConsensusMergeResult result =
+            TopologyProposalConsensusMerger.Merge(Proposal(), Proposal());
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
 }

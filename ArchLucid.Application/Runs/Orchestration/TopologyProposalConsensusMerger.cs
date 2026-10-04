@@ -180,9 +180,6 @@ public static class TopologyProposalConsensusMerger
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            if (!endpointKeys.Contains(relationship.SourceId) || !endpointKeys.Contains(relationship.TargetId))
-                continue;
-
             if (!TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(relationship, endpointKeys))
                 continue;
 
