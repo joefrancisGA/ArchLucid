@@ -28153,10 +28153,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 4
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
+- **hunts:** 5
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — oversized question keys reached persistence without matching the `NVARCHAR(256)` column limit
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28166,12 +28167,15 @@ ABQ-09 churn hotspot.
 2026-10-03 thorough hunt (hit): proved blank inferred-connection source endpoint selection discarded a populated target endpoint; fixed fallback selection and passed 7 compiler tests.
 2026-10-03 thorough hunt (dry): cheap-disproved the blank-resource-identity candidate because `AzureInventoryResources.AzureResourceId` is `NOT NULL` at the persistence boundary; the 15 scoped SecureNowQuestion tests passed when unrelated ARCH006 analyzer errors were disabled.
 
+2026-10-04 seed hunt (hit): proved `SecureNowQuestionDispositionService.ValidateIdentity` accepted a reachable versioned `QuestionKey` longer than the persistence column, allowing an oversized API mutation to reach a database truncation failure; added a 256-character guard and regression `Question_key_cannot_exceed_the_persistence_column_limit`. The 16 scoped SecureNowQuestion tests passed with unrelated ARCH006 analyzers disabled.
+
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
 - [x] (invalid) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` cannot reach the persisted inventory path: `AzureInventoryResourceRecord.AzureResourceId` is non-nullable and `dbo.AzureInventoryResources.AzureResourceId` is `NOT NULL`; the scoped candidate is retired without a repro.
 - [x] (proven) `SecureNowQuestionCompiler` inferred-connection projection — a proposed record with an empty `FromArmId` and a populated `ToArmId` selected the empty string instead of the usable endpoint, producing an unaddressable question identity; fixed with whitespace-aware endpoint fallback; regression `Inferred_question_uses_the_populated_endpoint_when_the_source_arm_id_is_blank`
+- [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable versioned `QuestionKey` over 256 characters passed service validation even though `dbo.SecureNowQuestionDispositions.QuestionKey` is `NVARCHAR(256)`, allowing a persistence truncation failure; fixed with a class-level length guard and regression `Question_key_cannot_exceed_the_persistence_column_limit`
 
 ## Zone: infra-evidence-diagrams
 
