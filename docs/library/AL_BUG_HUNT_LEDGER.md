@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — infrastructure `format` and document `contentType` were not validated with `HasUsableIdentifierText`, so embedded combining marks (for example `json\u0300`) survived materialization and broke declaration/parser routing parity with `name`/`content`; extended `HasSubstantiveInfrastructureDeclaration` and `HasSubstantiveDocument`; regressions `Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_type_contains_embedded_combining_mark`; 34 scoped payload JSON tests passed.
+
 2026-10-04 seed hunt (seed→hit): `host-composition` — `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` when Redis L2 was enabled, throwing `NullReferenceException` instead of the documented configuration error; null-safe trim now surfaces `InvalidOperationException`; regression `RegisterHotPathReadCaching_null_redis_connection_reports_configuration_error`; 409 scoped host-composition tests passed.
 
 2026-10-04 seed hunt (seed→hit): `application-billing-logic` — `BillingCheckoutFacade.TryParseCheckoutTier` matched checkout `TargetTier` labels case-sensitively, so a reachable JSON body with `team` was rejected as missing/unknown tier; tier parsing now uses ordinal case-insensitive comparison; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`; 28 scoped billing tests passed.
@@ -3937,13 +3939,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 29
-- **bugs-found:** 20
-- **consecutive-dry-hunts:** 1
+- **hunts:** 30
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — combining marks in inlineRequirements and document/declaration content survived substantive-text-only materialization
+- **last-bug:** 2026-10-04 — combining marks in infrastructure format and document contentType survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `HasSubstantiveInfrastructureDeclaration` / `HasSubstantiveDocument` — `format` and `contentType` were not scanned for embedded combining marks, so declarations/documents with valid `name`/`content` but corrupted routing metadata survived materialization — **hit 2026-10-04 seed hunt:** apply `HasUsableIdentifierText` to `format` and `contentType`; regressions `Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_type_contains_embedded_combining_mark`.
 
 2026-10-04 seed hunt (hit): promoted inlineRequirements and document-content combining-mark parity; `InlineRequirements` still used `MaterializeStringList` and document/declaration `content` used `HasSubstantiveText` only, so embedded combining marks survived materialization and broke stable requirement/document canonicalization; fixed by routing `InlineRequirements` through `MaterializeReferenceStringList` and requiring `HasUsableIdentifierText` on document and infrastructure declaration content; regressions `Deserialize_filters_inline_requirements_when_entry_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_contains_embedded_combining_mark`; 32 scoped payload JSON tests passed.
 
@@ -24607,6 +24611,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.ResolveGraphProjectionRedisConnectionString` — existing unrelated `IDistributedCache` plus projection-only Redis config returned an empty graph pub/sub endpoint — **hit 2026-10-03 seed hunt:** existing-cache resolution now falls back to projection Redis after LLM/hot-path sources; regression `ResolveGraphProjectionRedisConnectionString_when_existing_cache_has_no_related_redis_uses_projection_redis`
 - [x] (proven) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` — a null-bound `HotPathCache:RedisConnectionString` caused `.Trim()` to throw `NullReferenceException` instead of the intended configuration error — **hit 2026-10-03:** distributed LLM cache startup with an explicitly null hot-path Redis value failed unclassified; fixed with null-safe trimming; regression `RedisHealthProbeConnectionResolverTests.Distributed_llm_cache_with_null_hot_path_redis_reports_configuration_error`.
 - [x] (proven) `RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString` — configuration binding left `HotPathCache:RedisConnectionString` null while LLM/projection Redis were absent, so the generic health-probe fallback called `.Trim()` on null — **hit 2026-10-04:** null-safe hot-path trim returns null like empty configuration; regression `TryResolve_returns_null_when_hot_path_redis_is_explicitly_null`.
+- [x] (proven) `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` — Redis hot-path registration called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` before the configuration guard — **hit 2026-10-04:** null-safe trim reaches the documented `InvalidOperationException`; regression `RegisterHotPathReadCaching_null_redis_connection_reports_configuration_error`.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` returns early for any pre-registered `IDistributedCache`, even when `LlmCompletionCache:Provider=Distributed` has no shared Redis backing — **cheap-disproof 2026-10-03:** production composition registers only Redis-backed `IDistributedCache`; `AddDistributedMemoryCache` appears only in test fixtures.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` reuses any pre-registered `IDistributedCache` while graph projection is configured as distributed — **cheap-disproof 2026-10-03:** the memory-backed pre-registration prerequisite is test-only; production storage registrars use the shared Redis registration path.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` creates a distributed response store whenever the provider label is `Distributed` without independently asserting that the resolved `IDistributedCache` is cross-process — **cheap-disproof 2026-10-03:** no production composition path registers a process-local `IDistributedCache` before this registrar.

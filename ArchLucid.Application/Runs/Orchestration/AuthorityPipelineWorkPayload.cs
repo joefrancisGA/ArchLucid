@@ -149,7 +149,9 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableIdentifierText(document.Name) && HasUsableIdentifierText(document.Content);
+        HasUsableIdentifierText(document.Name)
+        && HasUsableIdentifierText(document.ContentType)
+        && HasUsableIdentifierText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -164,6 +166,8 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableIdentifierText(declaration.Name) && HasUsableIdentifierText(declaration.Content);
+        return HasUsableIdentifierText(declaration.Name)
+               && HasUsableIdentifierText(declaration.Format)
+               && HasUsableIdentifierText(declaration.Content);
     }
 }

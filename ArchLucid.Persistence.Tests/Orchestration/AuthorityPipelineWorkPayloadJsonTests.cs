@@ -500,6 +500,60 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "main", "format": "json\u0300", "content": "{\"resources\":[]}" },
+                  { "name": "keep", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_document_when_content_type_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "keep", "contentType": "text/plain\u0300", "content": "diagram source" },
+                  { "name": "keep", "contentType": "text/plain", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.ContentType.Should().Be("text/plain");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_empty_document_objects()
     {
         Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
