@@ -3457,9 +3457,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-11 — signup readiness hint mislabeled fractional team size and overlong industry Other optional-field failures
 - **related-pd-tb:** TB-2005
@@ -26908,6 +26908,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-04 thorough hunt (dry): cheap-disproved both remaining coordination candidates; package-builder failures are explicit or transient by contract, and provenance materialization rejects incomplete build input; no failing repro.
+
 2026-10-03 thorough hunt (dry): repeated cheap-disproof of the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
@@ -26978,10 +26980,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `OutboxProcessorRetryCalculator.RetryDelayAfterFailure` — malformed negative/extreme attempt counts are not emitted by the recoverable-outbox persistence path, and the calculator clamps ordinary overflow to its configured cap.
 - [x] (valid-no-repro) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — returning the number dequeued is the method contract; cancellation propagates rather than claiming successful completion, while each entry remains independently leased/processed.
 - [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy dead-letter handling deliberately performs the required audit and metric calls; existing destination-policy tests cover the observable behavior.
-- [x] (invalid) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — the candidate lacked a concrete reachable builder exception contract and wrong outcome; `RunExportPackageBuilder` translates reachable missing/invalid persisted authority material into `RunExportPackageResult` outcomes before the processor branch, so no failing repro was warranted.
-- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — `ProvenanceGraphAccessService.TryMaterializeSnapshotAsync` returns without building or persisting when `GoldenManifest` is null; the processor safely marks the outbox row processed after that no-op, so no failing repro remains.
+- [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — an exception from `IRunExportPackageBuilder.BuildAsync` outside the explicit push `InvalidOperationException` handler could retry a persistently invalid export package instead of reaching the processor's direct dead-letter path; reachable input is malformed or unavailable persisted run-export state returned by the package builder; `RunExportPackageBuilder.BuildAsync` maps missing run, missing manifest, sealed-receipt mismatch, and incomplete states to explicit results; dependency exceptions remain transient retry inputs, with no persistent invalid-input contract or failing repro.
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — after the manifest-compare read succeeds, a reachable run-detail read that returns a DTO with no `GoldenManifest` is passed to `TryMaterializeSnapshotAsync` rather than being explicitly skipped; `ProvenanceGraphAccessService.TryCreateBuildInput` returns false when manifest, graph, findings, or authority trace is missing, so materialization safely no-ops; no failing repro.
 
 2026-10-03 thorough hunt (dry): cheap-disproved all five coordination candidates; no reachable wrong outcome remained for a failing repro.
+2026-10-04 thorough hunt (dry): cheap-disproved both remaining coordination candidates; package-builder failures are explicit or transient by contract, and provenance materialization rejects incomplete build input; no failing repro.
 
 2026-10-03 thorough hunt (dry): repeated all five candidate cheap-disproof checks; empty run ids fail closed or are unreachable from production enqueue paths, `ConflictException` matching covers derived exceptions, and unknown work types follow the configured retry/dead-letter contract. The scoped test build was blocked by unrelated ARCH006/ARCH006a analyzer errors before tests ran.
 
