@@ -5586,7 +5586,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-13
@@ -23905,15 +23905,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (hit): promoted the reachable trace-fallback normalization candidate; `ProvenanceBuilder` trimmed direct agent trace ids but returned padded `ExplainabilityTrace.SourceAgentExecutionTraceId` unchanged. Fixed fallback normalization; regression `Build_normalizes_surrounding_whitespace_on_trace_fallback_correlation`. ProvenanceBuilder tests passed 16/16 and graph projector tests passed 7/7.
 
 2026-10-04 seed hunt (seed-only): re-read structured-diagram reconstruction, graph compilation, inventory overlay, and provenance paths; no candidate met the same-run failing-repro bar. Scoped Provenance tests passed; focused structured-diagram KnowledgeGraph test selection passed without production changes. Seeded three reachable candidates for the next hunt.
+
+2026-10-04 seed hunt (seed-only): repeated the structured-diagram reconstruction, graph compilation, inventory overlay, and provenance review; the three existing candidates still lack a supported semantic-equivalence contract for a failing repro. The 50 scoped Provenance tests passed; no production changes.
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
 
 
 
 ### Hypotheses
 
-- (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments` — persisted `CanonicalObject.SourceId` values differing only by case could split one structured diagram into multiple reconstructed documents instead of one; input reaches this method through `StructuredDiagramGraphMerger`'s `contextSnapshot.CanonicalObjects`.
-- (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — a persisted `connectedToNodeIds` token whose canonical-object id differs only by case could fail the ordinal `diagramNodeIdByObjectId` lookup and omit a diagram edge; input reaches this method from canonical structured-diagram properties in `ContextSnapshot`.
-- (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — inventory relationships with the same endpoint pair and relationship type differing only by case could bypass ordinal `edgeKeys` dedup and emit duplicate graph edges; input reaches this method through persisted `snapshot.Relationships`.
+- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments` — persisted `CanonicalObject.SourceId` values differing only by case could split one structured diagram into multiple reconstructed documents instead of one; input reaches this method through `StructuredDiagramGraphMerger`'s `contextSnapshot.CanonicalObjects`.
+- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — a persisted `connectedToNodeIds` token whose canonical-object id differs only by case could fail the ordinal `diagramNodeIdByObjectId` lookup and omit a diagram edge; input reaches this method from canonical structured-diagram properties in `ContextSnapshot`.
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — inventory relationships with the same endpoint pair and relationship type differing only by case could bypass ordinal `edgeKeys` dedup and emit duplicate graph edges; input reaches this method through persisted `snapshot.Relationships`.
 
 - [x] (proven) `ArchitectureKnowledgeModelGraphProjector.Project` — two reachable model elements produced the same canonical endpoints with different mapped edge types, but `EdgeId` was always `${from}->${to}:RELATES`; **hit 2026-10-03 thorough hunt:** distinct `ConnectsTo`/`Exposes` edges shared an identifier, so edge-index consumers could conflate them; fixed `EdgeId` to include the mapped edge type; regression `Project_assigns_unique_edge_ids_when_same_endpoints_have_different_edge_types`.
 - [x] (valid-no-repro) `GraphSnapshotExtensions.GetNodesByType` / `GetEdgesByType` — persisted node or edge type values with surrounding whitespace — **cheap-disproof 2026-10-03 thorough hunt:** these helpers have no selected-zone production callers, and selected graph builders emit canonical type constants; no reachable product input supported a failing repro.
