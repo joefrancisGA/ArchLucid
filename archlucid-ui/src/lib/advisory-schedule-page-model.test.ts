@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildAdvisoryScheduleExamplePreviewView,
   resolveExampleWeeklyMondayInstants,
+  summarizeExecutionOutcome,
 } from "@/lib/advisory-schedule-page-model";
 
 describe("resolveExampleWeeklyMondayInstants", () => {
@@ -34,6 +35,13 @@ describe("resolveExampleWeeklyMondayInstants", () => {
 
     expect(nextUtc).toBe("2026-08-31T08:00:00.000Z");
     expect(lastUtc).toBe("2026-08-17T08:00:00.000Z");
+  });
+});
+
+describe("summarizeExecutionOutcome", () => {
+  it("distinguishes no run from empty status", () => {
+    expect(summarizeExecutionOutcome(undefined)).toBe("No run recorded");
+    expect(summarizeExecutionOutcome({ status: "  ", errorMessage: null } as never)).toBe("Status not returned");
   });
 });
 

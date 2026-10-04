@@ -1,10 +1,10 @@
 # DFV-12 — One card per external host, and a real resource when the host matches
 
-**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not implement DFV-13, DFV-14, or DFV-15 in this session.
+**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not implement DFV-16, DFV-17, DFV-20, or DFV-21 in this session.
 
 **Repo:** `c:\ArchLucid`
 
-**Wave:** Data flow diagram (**DFV**). **Depends on:** DFV-11 on current `master`. Do not redo persistence. Do not redo the edge router.
+**Wave:** Data flow diagram (**DFV**). **Depends on:** current `master` after DFV-11, DFV-13, DFV-14, DFV-18, and DFV-19. Do not redo persistence, the edge router, column wrap, horizontal scroll, the DFV-14 rollup rule, or the PNG fallback. Collapse shared hosts before that rollup runs, so the Source column has fewer cards for DFV-14 to group.
 
 ## Goal
 
@@ -12,7 +12,7 @@ On **Data flow — what may connect**, the same SFTP or HTTP host is one card, w
 
 ## Why
 
-DFV-11 puts `TargetHost` and `LinkedServiceType` back on the external node. The same link name still appears once per factory (`fsxp_sftp` under dev, ppd, and tst). Those cards share a host and draw three copies.
+DFV-11 puts `TargetHost` and `LinkedServiceType` back on the external node. The same link name still appears once per factory (`fsxp_sftp` under dev, ppd, and tst). Those cards share a host and draw three copies. A later look at `Hmd_HI_HAP_Non_Prod` still shows a crowded Source column on the left, including stacks of HTTP and SFTP cards. DFV-14 already rolls up more than three cards that share a type, a stage, and the same neighbors. It does not merge two factories that name the same host. This session does that merge.
 
 `AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex` already maps `sa1.blob.core.windows.net` to a storage account and `{name}.mysql.database.azure.com` to a MySQL server. That match runs only while the capture is materialized. A host saved by DFV-11 can still sit on an external card when the original match missed, or when DFV-09 fills the host later.
 

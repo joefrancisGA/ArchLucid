@@ -14,6 +14,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -29,6 +30,7 @@ import {
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
 import { formatAdminTenantHealthMetric } from "@/lib/tenant-health-admin-display";
+import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-severity";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
@@ -126,7 +128,12 @@ export function TenantHealthAdminPageClient() {
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Tenant</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Engagement</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              Engagement risk
+              <span className={cn("block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                Lower score = higher risk (not finding severity)
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               Governance
               <span className={cn("block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
@@ -152,10 +159,21 @@ export function TenantHealthAdminPageClient() {
                 {row.tenantId}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
-                <span className={cn("tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatAdminTenantHealthMetric(row.engagementScore)}
-                </span>
-                <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Engagement score</span>
+                {row.engagementScore === null ? (
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    {formatAdminTenantHealthMetric(row.engagementScore)}
+                  </span>
+                ) : (
+                  <>
+                    <SeverityTag
+                      kind={engagementScoreSeverityKind(row.engagementScore)}
+                      label="Engagement risk"
+                    />
+                    <span className={cn("ml-2 tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {formatAdminTenantHealthMetric(row.engagementScore)}
+                    </span>
+                  </>
+                )}
               </EnterpriseTableCell>
               <EnterpriseTableCell>{formatAdminTenantHealthMetric(row.governanceScore)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.pilotFunnelStage || "Not returned"}</EnterpriseTableCell>

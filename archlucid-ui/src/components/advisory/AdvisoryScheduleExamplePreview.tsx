@@ -89,6 +89,9 @@ export function AdvisoryScheduleExamplePreview(props: AdvisoryScheduleExamplePre
             </EnterpriseTableCell>
             <EnterpriseTableCell>
               <StatusTag kind={example.statusKind} label={example.statusLabel} />
+              <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {example.statusHelperText}
+              </p>
             </EnterpriseTableCell>
           </EnterpriseTableRow>
         </EnterpriseTableBody>

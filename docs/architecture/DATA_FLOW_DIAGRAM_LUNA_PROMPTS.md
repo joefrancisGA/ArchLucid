@@ -1,9 +1,9 @@
-> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-19 then save that link identity, draw one card per external host, wrap tall stages left to right, scroll a canvas wider than the frame, roll up repeated cards, fix the PNG browser fallback, read app settings and uploaded config, summarize the stages, and filter edges by evidence. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-19-png-fallback-namespace.md`](../../.cursor/prompts/data-flow-diagram-19-png-fallback-namespace.md)
+> **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-19 then save that link identity, draw one card per external host, wrap tall stages left to right, scroll a canvas wider than the frame, roll up repeated cards, fix the PNG browser fallback, read app settings and uploaded config, summarize the stages, and filter edges by evidence. DFV-20 is Composer copy for how to read a card. DFV-21 rolls up a crowded Source column only after DFV-12. Internal engineering only.
+> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-21-source-type-rollup.md`](../../.cursor/prompts/data-flow-diagram-21-source-type-rollup.md)
 
 # Data flow diagram — Luna prompts
 
-**Created:** 2026-09-30 · **Revised:** 2026-10-04 (DFV-19) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
+**Created:** 2026-09-30 · **Revised:** 2026-10-04 (DFV-20, DFV-21) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna (DFV-20 is Composer 2.5)
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
@@ -30,10 +30,12 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 | **DFV-15** | [data-flow-diagram-15-app-and-config-evidence.md](../../.cursor/prompts/data-flow-diagram-15-app-and-config-evidence.md) | Collect Function App and App Service hosts. Label a file confirmation `From config`. Say `No evidence checked` when the snapshot never looked. |
 | **DFV-16** | [data-flow-diagram-16-stage-summary.md](../../.cursor/prompts/data-flow-diagram-16-stage-summary.md) | One line above the columns counts each stage, including used and unused storage. |
 | **DFV-17** | [data-flow-diagram-17-evidence-filters.md](../../.cursor/prompts/data-flow-diagram-17-evidence-filters.md) | Four checkboxes, on by default, hide Observed, App settings, From config, or Inferred edges. Cards stay. |
+| **DFV-20** | [data-flow-diagram-20-reading-the-cards.md](../../.cursor/prompts/data-flow-diagram-20-reading-the-cards.md) | Composer, not Luna. Under the data-flow caption, one sentence says the first line is the name, the next line is the type, and the status lines are consumer or factory identity. |
+| **DFV-21** | [data-flow-diagram-21-source-type-rollup.md](../../.cursor/prompts/data-flow-diagram-21-source-type-rollup.md) | Hold until DFV-12 is on `master` and Source is still hard to read. In Source only, more than three cards of one connector type become one card even when neighbors differ. |
 
 ## Run order
 
-**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07. Then **12**, **13**, **18**, **14**, **19**, **15**, **10**, **16**, **17**. **18** is the viewer scroll after **13**. Look at that scrollbar before pasting **14**. **19** fixes the PNG fallback after **14**. Look at a downloaded PNG before pasting **15**. **10** can run any time after 07. Do not run two of these in one session.
+**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session at a time: **16** (stage counts), **20** (Composer card-reading sentence), **12** (one card per external host), then **17** (evidence filters) if edges are still noisy. **21** stays unpasted until **12** has shipped and the Source column is still hard to read. **08**, **09**, **10**, **11**, and **15** stay available when their own dependencies on `master` are met. Do not run two of these in one session.
 
 ## After PR 4128
 

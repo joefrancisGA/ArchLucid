@@ -11,7 +11,10 @@ import {
   findingInsightDensityDisclosureHrefFromSearch,
   parseFindingInsightDensityOpenFromSearch,
 } from "@/lib/findings/finding-insight-density-disclosure-url";
-import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import {
+  formatInsightDensityBandLabel,
+  INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE,
+} from "@/lib/findings/insight-density-band";
 
 export type FindingInsightDensityDisclosureProps = {
   readonly insightDensityScore: number | null;
@@ -28,6 +31,7 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
   const openRef = useRef(open);
   openRef.current = open;
   const hasScore = props.insightDensityScore !== null && Number.isFinite(props.insightDensityScore);
+  const bandLabel = formatInsightDensityBandLabel(props.insightDensityScore);
   const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
 
   const syncOpenToUrl = useCallback(
@@ -93,10 +97,16 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
         Insight density signals
       </summary>
       <dl className={cn("m-0 mt-2 space-y-2", OPERATOR_TYPOGRAPHY.body)}>
+        {bandLabel !== null ? (
+          <div>
+            <dt className="font-semibold text-al-text-primary">Insight density band</dt>
+            <dd className="m-0 text-al-text-secondary">{bandLabel}</dd>
+          </div>
+        ) : null}
         {hasScore ? (
           <div>
             <dt className="font-semibold text-al-text-primary">Insight density score</dt>
-            <dd className="m-0 tabular-nums text-al-text-secondary">{Math.trunc(props.insightDensityScore ?? 0)}</dd>
+            <dd className="m-0 tabular-nums text-al-text-secondary">{Math.trunc(props.insightDensityScore as number)}</dd>
           </div>
         ) : null}
         {whyText.length > 0 ? (
