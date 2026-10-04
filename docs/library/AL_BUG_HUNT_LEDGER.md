@@ -24505,11 +24505,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 73
-- **bugs-found:** 35
+- **hunts:** 74
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — federated-credentials pagination accepted a prefix-collision next link
+- **last-bug:** 2026-10-04 — policy-assignment document pagination accepted a same-subscription cross-collection next link
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24531,6 +24531,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `ListSubscriptionPolicyAssignmentDocumentsAsync` — a same-subscription ARM `nextLink` into `policyDefinitions` passed subscription-only validation and could be followed while reading policy-assignment documents — **hit 2026-10-04 seed hunt:** required the exact subscription policy-assignment listing path; regression `ListSubscriptionPolicyAssignmentDocumentsAsync_rejects_next_link_for_different_policy_collection`.
+
 - [x] (valid-no-repro) `HostedAzureArmResourceRecordMerger.MergeByResourceId` — duplicate `indexResources` IDs that differ only by case or surrounding whitespace could throw before typed records merge — **cheap-disproof 2026-10-03 thorough hunt:** typed enrichment is downstream of ARM list responses, but no live ARM response or provider contract establishes duplicate resource IDs across the index page; no failing repro.
 - [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — pages are appended without ARN deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Resource Explorer provider behavior or reachable fixture establishes duplicate ARNs across pages; collector pagination/loop guards passed existing tests; no failing repro.
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — pages are appended without asset-name deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Asset Inventory provider behavior or reachable fixture establishes duplicate asset names across pages; raw-page pagination tests passed; no failing repro.
@@ -24550,6 +24552,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (hit): proved `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource` accepted `diagnosticSettingsEvil` via an unbounded path prefix, allowing an ARM pagination cursor outside the intended diagnostic-settings collection; required an exact path or slash-delimited descendant and added `ListDiagnosticSettingsAsync_rejects_next_link_with_diagnostic_settings_prefix_collision`. The focused Azure read-client suite passed 33/33.
 
 2026-10-04 seed hunt (hit): proved `HostedAzureArmNextLinkValidator.EnsureTargetsFederatedCredentialsIdentity` accepted `federatedIdentityCredentialsEvil` via an unbounded path prefix, allowing an ARM pagination cursor outside the intended federated-credentials collection; required an exact path or slash-delimited descendant and added `ListFederatedCredentialsAsync_rejects_next_link_with_federated_credentials_prefix_collision`. The focused Azure read-client suite passed 34/34.
+
+2026-10-04 seed hunt (hit): proved `ListSubscriptionPolicyAssignmentDocumentsAsync` validated only the subscription, so an ARM `nextLink` into the same subscription's `policyDefinitions` collection was followed while reading policy-assignment documents; fixed with exact listing-path validation and added `ListSubscriptionPolicyAssignmentDocumentsAsync_rejects_next_link_for_different_policy_collection`. The focused Azure read-client suite passed 35/35 with analyzers disabled because unrelated pre-existing `ARCH006`/`ARCH006a` errors block the normal test build.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 

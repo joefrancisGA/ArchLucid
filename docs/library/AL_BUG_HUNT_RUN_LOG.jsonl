@@ -1,5 +1,3 @@
-{"at":"2026-09-04T01:35:20.6549308Z","zoneId":"ui-help-docs","outcome":"hit"}
-{"at":"2026-09-04T01:46:05.8014541Z","zoneId":"billing-webhooks","outcome":"hit"}
 {"at":"2026-09-04T01:52:25.7746377Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T02:01:01.3329768Z","zoneId":"host-core-coordination","outcome":"seed-only"}
 {"at":"2026-09-04T02:02:00Z","zoneId":"host-core-coordination","outcome":"seed-only"}
@@ -8674,3 +8672,4 @@
 {"at":"2026-10-04T01:32:18.2065112Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-04T01:38:52.4740371Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/;ArchLucid.Integrations.GcpExtractor/;ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-04T01:45:23.9771701Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/;ArchLucid.Integrations.GcpExtractor/;ArchLucid.Integrations.AzureExtractor/"]}
+{"at":"2026-10-04T01:52:20.7172684Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/)"],"severity":"medium","defectClass":"fail-open-validation"}
