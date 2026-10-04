@@ -51,10 +51,6 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
                 verdict = EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
             }
         }
-        else if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
-        {
-            verdict = TenantIsolationNegativeTestVerdict.Skip;
-        }
         else
         {
             verdict = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(ResolveObservedStatusCode(probe));
