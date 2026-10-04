@@ -144,10 +144,20 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Project name</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Deleted on</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Permanently removed on</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Permanently removed on</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                When this project is scheduled for permanent removal from the stored workspace record.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Deleted by</EnterpriseTableHeaderCell>
             {buyerPolishedShell ? null : (
-              <EnterpriseTableHeaderCell className="w-[7.5rem] text-right">Restore</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="w-[7.5rem] text-right">
+                <span>Restore</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Restore this stored project record before permanent removal. Restoring does not recreate or change Azure resources.
+                </span>
+              </EnterpriseTableHeaderCell>
             )}
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>

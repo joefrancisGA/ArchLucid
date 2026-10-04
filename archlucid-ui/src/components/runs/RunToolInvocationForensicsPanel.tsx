@@ -131,12 +131,42 @@ export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensic
         <EnterpriseTable ariaLabel="Tool and external invocation forensics" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Invoked (UTC)</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Tool</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Args preview</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Outcome</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Δ prior</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Raw trace</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Invoked (UTC)</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  When this tool or external service was invoked, shown in UTC.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Tool</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The tool or external service used for this invocation.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Args preview</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  A shortened view of the arguments recorded for this invocation.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Outcome</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The recorded result of this invocation. A complete trace may not be available.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Δ prior</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The recorded duration for this invocation.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Raw trace</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Open the available raw trace for diagnostic review. Trace availability does not change the review record.
+                </span>
+              </EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>

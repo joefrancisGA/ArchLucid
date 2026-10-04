@@ -98,9 +98,24 @@ export function RunsListWorkQueueTable(props: RunsListWorkQueueTableProps): Reac
                       <span className="sr-only">Compare</span>
                     </EnterpriseTableHeaderCell>
                   ) : null}
-                  <EnterpriseTableHeaderCell>Architecture review</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Architecture review</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The architecture review available to open or compare.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Created</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      When this architecture review was created.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Actions</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Open, compare, or continue this review. These actions do not change Azure.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
