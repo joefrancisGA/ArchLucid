@@ -3848,7 +3848,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-01
@@ -3999,7 +3999,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
 - **hunts:** 36
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
@@ -28224,6 +28224,8 @@ ABQ-09 churn hotspot.
 
 2026-10-04 seed hunt (seed-only): re-read question candidate construction, mutation mapping, and queue state after the resource-identity fix; no candidate met the full same-run repro bar. Seeded two bounded follow-ups; no product test was added.
 
+2026-10-04 thorough hunt (dry): cheap-disproved the missing-parent candidate because the selected compiler contract explicitly suppresses known missing Azure objects; closed the numeric-enum candidate as valid-no-repro because numeric strings map to defined enum values but no user-visible wrong outcome was established. No hunt-ready hypothesis remained and no failing repro was attempted.
+
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
@@ -28233,8 +28235,8 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable versioned `QuestionKey` over 256 characters passed service validation even though `dbo.SecureNowQuestionDispositions.QuestionKey` is `NVARCHAR(256)`, allowing a persistence truncation failure; fixed with a class-level length guard and regression `Question_key_cannot_exceed_the_persistence_column_limit`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable API mutation with `resourceId: null` dereferenced `resourceId.Length` and produced a server error instead of validation failure; fixed with explicit required-resource validation and regression `Null_resource_id_is_rejected_as_validation_error`
 - [x] (proven) `SecureNowQuestionQueue` — skipped and visited state keyed only by versioned `questionKey`, so a `NotSure` action on one resource hid other resources sharing that key; fixed with subscription/resource/question identity keys and regression `keeps another resource with the same question key after skipping one`
-- [ ] (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — a resource with a non-empty `ParentResourceId` absent from the snapshot resource set is skipped before it can become an orphan question; input is a persisted inventory snapshot containing a child resource whose parent was not collected.
-- [ ] (candidate) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` despite the public request contract declaring string enum names; input is an API mutation payload with numeric enum text.
+- [x] (invalid) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — a resource with a non-empty `ParentResourceId` absent from the snapshot resource set is skipped before it can become an orphan question — **cheap-disproof 2026-10-04 thorough hunt:** the selected `SecureNowQuestionCompiler` contract explicitly suppresses `IsKnownMissingAzureObject` candidates, so missing-parent inventory objects are intentionally excluded from the queue.
+- [x] (valid-no-repro) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` — **cheap-disproof 2026-10-04 thorough hunt:** the values map to defined enum members and the selected files establish no harmful persistence or user-visible wrong outcome.
 
 ## Zone: infra-evidence-diagrams
 
