@@ -19,21 +19,40 @@ INSTALL_DIR="${DOTNET_ROOT:-${HOME}/.dotnet}"
 export DOTNET_ROOT="${INSTALL_DIR}"
 
 install_node() {
-  if [[ -x /usr/local/bin/node && -x /usr/local/bin/npm ]]; then
+  local node_home="${HOME}/.local/node"
+  local node_bin="${node_home}/bin/node"
+  local npm_bin="${node_home}/bin/npm"
+
+  if [[ -x "${node_bin}" && -x "${npm_bin}" ]]; then
     local current
-    current="$(/usr/local/bin/node -v 2>/dev/null || true)"
+    current="$("${node_bin}" -v 2>/dev/null || true)"
     if [[ "${current}" == "v${NODE_VERSION}" ]]; then
-      echo "Node.js ${current} already installed at /usr/local"
+      echo "Node.js ${current} already installed at ${node_home}"
+      mkdir -p "${HOME}/.local/bin"
+      ln -sf "${node_bin}" "${HOME}/.local/bin/node"
+      ln -sf "${npm_bin}" "${HOME}/.local/bin/npm"
+      ln -sf "${node_home}/bin/npx" "${HOME}/.local/bin/npx"
       return 0
     fi
   fi
 
-  echo "Installing Node.js ${NODE_VERSION}..."
+  # Remove a broken /usr/local Node left by a partial install (common when the root disk is full).
+  if [[ -x /usr/local/bin/node ]] && ! /usr/local/bin/node -v >/dev/null 2>&1; then
+    echo "Removing corrupted /usr/local Node binary..."
+    sudo rm -f /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack 2>/dev/null || true
+  fi
+
+  echo "Installing Node.js ${NODE_VERSION} to ${node_home}..."
+  rm -rf "${node_home}"
+  mkdir -p "${node_home}" "${HOME}/.local/bin"
   curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz
-  sudo tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 --no-same-owner
-  hash -r
-  /usr/local/bin/node -v
-  /usr/local/bin/npm -v
+  tar -xJf /tmp/node.tar.xz -C "${node_home}" --strip-components=1
+  rm -f /tmp/node.tar.xz
+  ln -sf "${node_bin}" "${HOME}/.local/bin/node"
+  ln -sf "${npm_bin}" "${HOME}/.local/bin/npm"
+  ln -sf "${node_home}/bin/npx" "${HOME}/.local/bin/npx"
+  "${node_bin}" -v
+  "${npm_bin}" -v
 }
 
 install_dotnet() {
