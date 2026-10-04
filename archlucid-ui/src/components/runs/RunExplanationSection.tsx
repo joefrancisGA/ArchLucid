@@ -18,6 +18,10 @@ import {
   parseRunExplanationProvenanceOpenFromSearch,
   runExplanationProvenanceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-explanation-provenance-disclosure-url";
+import {
+  presentRunExplanationHeadlineCount,
+  resolveRunExplanationFindingCountForHeadline,
+} from "@/lib/runs/run-explanation-headline-stats-display";
 
 export type RunExplanationSectionProps = {
   summary: RunExplanationSummary | null;
@@ -301,10 +305,13 @@ export function RunExplanationSection({
     return null;
   }
 
-  const findingCountForStats =
-    displayFindingCount !== undefined && displayFindingCount !== null && Number.isFinite(displayFindingCount)
-      ? Math.trunc(displayFindingCount)
-      : summary.findingCount;
+  const findingCountForStats = resolveRunExplanationFindingCountForHeadline(
+    displayFindingCount,
+    summary.findingCount,
+  );
+  const decisionCountForStats = presentRunExplanationHeadlineCount(summary.decisionCount);
+  const unresolvedCountForStats = presentRunExplanationHeadlineCount(summary.unresolvedIssueCount);
+  const complianceGapCountForStats = presentRunExplanationHeadlineCount(summary.complianceGapCount);
 
   const expl = explanationBody(summary);
   const themeSummaries = summary.themeSummaries ?? [];
@@ -345,8 +352,8 @@ export function RunExplanationSection({
         </span>
         <span className={cn("ml-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
-            ? `${summary.decisionCount} approval decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
-            : `${summary.decisionCount} decisions · ${findingCountForStats} findings · ${summary.unresolvedIssueCount} unresolved · ${summary.complianceGapCount} compliance gaps`}
+            ? `${decisionCountForStats} approval decisions · ${findingCountForStats} risk findings · ${unresolvedCountForStats} open items`
+            : `${decisionCountForStats} decisions · ${findingCountForStats} findings · ${unresolvedCountForStats} unresolved · ${complianceGapCountForStats} compliance gaps`}
         </span>
         {deterministicFallback ? (
           <span
@@ -369,7 +376,11 @@ export function RunExplanationSection({
             (token overlap vs finding traces — see docs)
           </span>
         </p>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Faithfulness ratio not recorded for this explanation.
+        </p>
+      )}
 
       {deterministicFallback && !buyerPolishedShell ? (
         <p
@@ -409,7 +420,14 @@ export function RunExplanationSection({
           <CitationChips citations={summary.citations ?? []} runId={runId} />
         </div>
       ) : (
-        <CitationChips citations={summary.citations ?? []} runId={runId} />
+        <div id="doc-explanation-evidence-cited">
+          <p className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {buyerPolishedShell
+              ? "No cited evidence lines returned for this review."
+              : "No explanation citations returned for this review."}
+          </p>
+          <CitationChips citations={summary.citations ?? []} runId={runId} />
+        </div>
       )}
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (

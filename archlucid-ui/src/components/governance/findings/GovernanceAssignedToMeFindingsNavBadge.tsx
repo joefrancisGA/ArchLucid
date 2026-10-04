@@ -14,6 +14,14 @@ export function GovernanceAssignedToMeFindingsNavBadge() {
     return <GovernanceAssignedToMeCountBlockedCallout failure={countQuery.failure} />;
   }
 
+  if (countQuery.isSuccess && countQuery.data === null) {
+    return (
+      <span className="sr-only" data-testid="governance-assigned-to-me-count-not-returned">
+        Assigned finding count not returned
+      </span>
+    );
+  }
+
   const count = countQuery.data ?? 0;
 
   if (count <= 0) {

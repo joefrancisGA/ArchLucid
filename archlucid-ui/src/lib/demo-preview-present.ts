@@ -16,7 +16,7 @@ export type DemoPreviewAtAGlanceMetrics = {
 
 function formatCount(value: number | null | undefined): string {
   if (value === null || value === undefined || typeof value !== "number" || !Number.isFinite(value)) {
-    return " — ";
+    return "Not returned";
   }
 
   return String(value);

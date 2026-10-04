@@ -56,7 +56,8 @@ export function useOperatorAttentionSummary(
         unfinishedWorkRailCount,
         runs,
         assignedToMeFindingsCount:
-          serverAttention.assignedToMeFindingsCount ?? assignedQuery.data ?? 0,
+          serverAttention.assignedToMeFindingsCount ??
+          (assignedQuery.data === null ? undefined : assignedQuery.data),
         awaitingApprovalCount:
           serverAttention.awaitingApprovalCount ?? awaitingItems.length,
         alertsOpenCount: serverAttention.alertsOpenCount ?? alertsSummary.open,

@@ -22,9 +22,11 @@ export function recurrenceRunStatusPresentation(
   schedule: ArchitectureReviewRecurrenceSchedule,
 ): RecurrenceStatusPresentation {
   const lastStatus = schedule.lastRunStatus?.trim().toLowerCase() ?? "never";
-  const failures = schedule.consecutiveFailureCount ?? 0;
+  const failuresRaw = schedule.consecutiveFailureCount;
+  const failuresKnown = typeof failuresRaw === "number" && Number.isFinite(failuresRaw);
+  const failures = failuresKnown ? Math.max(0, Math.trunc(failuresRaw)) : 0;
 
-  if (!schedule.isEnabled && failures >= 5) {
+  if (!schedule.isEnabled && failuresKnown && failures >= 5) {
     return {
       kind: "danger",
       label: "Auto-disabled",
@@ -37,8 +39,16 @@ export function recurrenceRunStatusPresentation(
   if (lastStatus === "failed") {
     return {
       kind: "danger",
-      label: failures > 0 ? `Failed (${failures})` : "Failed",
-      title: schedule.lastErrorMessage ?? undefined,
+      label:
+        failuresKnown && failures > 0
+          ? `Failed (${failures})`
+          : failuresKnown
+            ? "Failed"
+            : "Failed",
+      title:
+        failuresKnown
+          ? schedule.lastErrorMessage ?? undefined
+          : "Failure count not returned",
     };
   }
 

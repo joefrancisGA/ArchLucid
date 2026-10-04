@@ -23,7 +23,13 @@ function MetricTileBody(props: {
     <>
       <p className={OPERATOR_TYPOGRAPHY.helper}>{props.label}</p>
       <p className={cn(notComputed ? OPERATOR_TYPOGRAPHY.helper : OPERATOR_TYPOGRAPHY.kpiValue)}>
-        {loading ? "Loading metrics…" : notComputed ? "Not computed" : props.value}
+        {loading
+          ? "Loading metrics…"
+          : notComputed
+            ? props.metricsLoaded
+              ? "Not returned"
+              : "Not computed"
+            : props.value}
       </p>
       {props.valueFootnote ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.valueFootnote}</p> : null}
       <p className={OPERATOR_TYPOGRAPHY.helper}>{props.scopeLine}</p>
