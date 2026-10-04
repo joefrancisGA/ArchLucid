@@ -35,7 +35,9 @@ public static class AzureInventoryAdfDatasetLocationExtractor
         }
 
         string locationKind = datasetType.Trim();
-        string? containerOrFilesystem = null;
+        string? containerOrFilesystem = Truncate(
+            AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "fileSystem")
+            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "container"));
         string? folderPath = Truncate(
             AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "folderPath")
             ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "directory"));
@@ -45,7 +47,7 @@ public static class AzureInventoryAdfDatasetLocationExtractor
         if (typePropertiesElement.TryGetProperty("location", out JsonElement locationElement)
             && locationElement.ValueKind is JsonValueKind.Object)
         {
-            containerOrFilesystem = Truncate(
+            containerOrFilesystem ??= Truncate(
                 AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "container")
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "fileSystem"));
 
@@ -53,10 +55,6 @@ public static class AzureInventoryAdfDatasetLocationExtractor
                 AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "folderPath")
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "fileName"));
         }
-
-        containerOrFilesystem ??= Truncate(
-            AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "fileSystem")
-            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "container"));
 
         tableName = Truncate(
             AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "tableName")

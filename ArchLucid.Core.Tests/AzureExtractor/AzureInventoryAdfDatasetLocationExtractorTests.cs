@@ -67,6 +67,35 @@ public sealed class AzureInventoryAdfDatasetLocationExtractorTests
     }
 
     [Fact]
+    public void Extract_prefers_top_level_container_over_location_container()
+    {
+        JsonElement properties = Parse("""
+            {
+              "type": "AzureBlob",
+              "typeProperties": {
+                "container": "raw",
+                "location": {
+                  "container": "nested"
+                }
+              }
+            }
+            """);
+
+        (
+            string? locationKind,
+            string? containerOrFilesystem,
+            string? folderPath,
+            string? tableName,
+            string? schemaName) = AzureInventoryAdfDatasetLocationExtractor.Extract(properties);
+
+        locationKind.Should().Be("AzureBlob");
+        containerOrFilesystem.Should().Be("raw");
+        folderPath.Should().BeNull();
+        tableName.Should().BeNull();
+        schemaName.Should().BeNull();
+    }
+
+    [Fact]
     public void Extract_prefers_container_over_file_name_for_blob_location()
     {
         JsonElement properties = Parse("""

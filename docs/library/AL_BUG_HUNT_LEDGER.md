@@ -18901,13 +18901,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 46
-- **bugs-found:** 28
+- **hunts:** 47
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — ADF dataset location `fileName` overrode top-level `folderPath`
+- **last-bug:** 2026-10-04 — ADF dataset `location.container` overrode top-level `container`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (hit): promoted top-level `container` vs `location.container` candidate; `AzureInventoryAdfDatasetLocationExtractor` read nested `location.container` before typeProperties `container`, misreporting blob container names when both were present; fixed by resolving top-level `fileSystem`/`container` before location fallbacks (parity with folderPath ordering); regression `Extract_prefers_top_level_container_over_location_container`; scoped `AzureExtractor` tests passed 1451/1451 (1424 Core + 27 Application).
 
 2026-10-04 seed hunt (hit): promoted top-level `folderPath` vs `location.fileName` candidate; `AzureInventoryAdfDatasetLocationExtractor` read `location.fileName` before merging typeProperties `folderPath`, reporting `data.csv` instead of `raw/ingest` when both were present on Azure Blob ARM payloads; fixed by resolving top-level `folderPath`/`directory` before location fallbacks; regression `Extract_prefers_top_level_folder_path_over_location_file_name`; scoped `AzureExtractor` tests passed 1450/1450 (1423 Core + 27 Application).
 
@@ -19184,6 +19186,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser.NormalizeArmId` — explicit flattened `nextHopArmId` suffix values storing JSON reference blobs may normalize the raw JSON string when it contains `/subscriptions/` — **cheap-disproof 2026-10-02:** package `ReadProperties` preserves route JSON as one `routes` property rather than producing flattened suffix keys, and all production consumers normalize resolved next-hop ids before lookup; no reachable package input reaches the suspected explicit-key branch.
 - [x] (invalid) `AzureInventoryAdfDatasetLocationExtractor` — an ADF location object supplies both `container` and `fileSystem` for a dataset type whose canonical field is `fileSystem` — **cheap-disproof 2026-10-03:** the selected extractor source and focused tests contain no reachable schema evidence for both fields or type-specific precedence; no hunt-ready wrong outcome established.
 - [x] (proven) `AzureInventoryAdfDatasetLocationExtractor` — `typeProperties.location.fileName` overrode top-level `typeProperties.folderPath` — **hit 2026-10-04 seed hunt:** location block assigned `folderPath` from `fileName` before top-level `folderPath` merged, misreporting blob ingest paths on ADF ARM datasets that carry both fields; fixed by reading top-level `folderPath`/`directory` first; regression `Extract_prefers_top_level_folder_path_over_location_file_name`.
+- [x] (proven) `AzureInventoryAdfDatasetLocationExtractor` — `typeProperties.location.container` overrode top-level `typeProperties.container` — **hit 2026-10-04 seed hunt:** location block assigned `containerOrFilesystem` before typeProperties `container` merged, misreporting blob container names when both were present; fixed by reading top-level `fileSystem`/`container` first; regression `Extract_prefers_top_level_container_over_location_container`.
 - [x] (invalid) `AzureInventoryAdfDatasetParser` — a reachable ADF dataset has a `folderPath`, `tableName`, or `schemaName` longer than the shared 260-character bound — **cheap-disproof 2026-10-03:** the 260-character truncation is an explicit parser bound, and the selected source/tests show no requirement that these fields remain collision-free beyond it; no hunt-ready wrong outcome established.
 
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
