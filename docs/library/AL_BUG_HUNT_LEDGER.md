@@ -5103,6 +5103,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository.GetInspectAsync` kept recommended actions that only passed `IsNullOrWhiteSpace` while the SQL follow-up batch uses `FilterRecommendedActions` (trim plus reject format/control characters), so in-memory inspect could return zero-width-only or format-tainted action strings SQL inspect already dropped; route in-memory actions through `FilterRecommendedActions`; regression `GetInspectAsync_filters_recommended_actions_like_sql_inspect_join`; 422 scoped inspect mapper/sql/repository-core tests passed.
+
 2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository.GetInspectAsync` returned raw `MuteReason`, `AssignedToUserId`, and `ReasoningTrace` (and did not trim `FindingId`) while the Dapper inspect mapper normalized those governance fields, so in-memory storage mode could surface invisible-only mute/assignee/trace text that SQL inspect already stripped; align in-memory and Dapper `FindingId` normalization; regression `GetInspectAsync_normalizes_governance_text_fields_like_sql_inspect_mapper`; 423 scoped inspect mapper/sql/repository-core tests passed.
 
 2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `DapperFindingInspectReadRepository.MapInspectResponse` copied `ModelDeploymentName`, `ModelAlias`, `PromptTemplateVersion`, and `ReasoningTraceDigestSha256` without `NormalizeInspectDisplayText`, so persisted zero-width/format characters could reach the inspect API as misleading model metadata while mute reason and reasoning trace were sanitized; apply display normalization on those fields (in-memory inspect parity); regression `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters`; 422 scoped FindingInspectReadModelMapper/Sql/RepositoryCore tests passed.
@@ -5115,11 +5117,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 75
-- **bugs-found:** 18
+- **hunts:** 76
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — in-memory inspect skipped governance text normalization
+- **last-bug:** 2026-10-04 — in-memory inspect recommended-actions filter parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5137,6 +5139,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — model metadata and digest fields skipped `NormalizeInspectDisplayText` — **hit 2026-10-04 seed hunt:** sanitize `ModelDeploymentName`, `ModelAlias`, `PromptTemplateVersion`, and `ReasoningTraceDigestSha256`; in-memory inspect parity; regression `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters`.
 
 - [x] (proven) `InMemoryFindingInspectReadRepository.GetInspectAsync` — governance text fields and `FindingId` skipped the same normalization as Dapper inspect — **hit 2026-10-04 seed hunt:** `NormalizeInspectDisplayText` on mute reason, assignee, and reasoning trace; `NormalizeFindingId` on response id; regression `GetInspectAsync_normalizes_governance_text_fields_like_sql_inspect_mapper`.
+- [x] (proven) `InMemoryFindingInspectReadRepository.GetInspectAsync` — recommended actions used whitespace-only filtering instead of `FilterRecommendedActions` — **hit 2026-10-04 seed hunt:** parity with SQL follow-up batch; regression `GetInspectAsync_filters_recommended_actions_like_sql_inspect_join`.
 
 - [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — response `FindingId` omitted `NormalizeFindingId` while SQL bound trimmed `@FindingId` — **hit 2026-10-04 seed hunt:** same pass as in-memory governance parity; `FindingId = NormalizeFindingId(row.FindingId)`.
 
