@@ -36,7 +36,7 @@ function renderTile(
       data-testid={`architecture-diagram-neighborhood-tile-${neighborhood.id}`}
       onClick={() => onOpenNeighborhood(neighborhood.id)}
     >
-      <span className="w-full truncate text-[14px] font-semibold text-[#0f172a] dark:text-slate-100" title={neighborhood.title}>
+      <span className="w-full truncate text-[14px] font-semibold text-[#0f172a] dark:text-slate-100">
         {neighborhood.title}
       </span>
       <span className="text-[12px] text-[#64748b]">{`${neighborhood.resourceCount} resources`}</span>
