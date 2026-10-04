@@ -24790,10 +24790,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-26 — security-trust publication audit field surrogate guard gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24802,7 +24802,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-02 thorough hunt (dry): cheap-disproved the model-catalog evaluation evidence-size candidate; the persistence schema intentionally stores `EvidenceJson` as `NVARCHAR(MAX)`, and no concrete bounded-input failure or configured size contract was present to support a failing repro; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server.
 
+2026-10-04 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths. No candidate was promoted because the scoped controller test command was blocked before test discovery by pre-existing ARCH006/ARCH006a analyzer errors in unrelated persistence files. Seeded the verification-route error-mapping candidate for a future repro.
+
 ### Hypotheses
+
+- (candidate) `TenantAuthDomainAdminController.Verification` `StartVerificationAsync` / `CheckVerificationAsync` — an admin UI action can submit a stale or tampered `normalizedDomain` route value, and `RequireDomainAsync` throws `InvalidOperationException` for a missing tenant-owned domain; the controller does not map that exception to a 404/400 response, so the reachable action may return a 500 instead of a client error.
 
 - [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` accepts attacker-controlled `RecordAgentModelCatalogEvaluationRequest.EvidenceJson` and forwards it without a controller-side size bound — cheap-disproof 2026-10-02 thorough hunt: `dbo.AgentModelCatalogEvaluation.EvidenceJson` is intentionally `NVARCHAR(MAX)`, and the selected files provide no concrete maximum-size contract or observed failure to falsify; no failing repro was justified.
 
