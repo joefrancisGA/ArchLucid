@@ -398,6 +398,7 @@ public sealed class SecureNowQuestionDispositionService(
             {
                 SubscriptionId = Normalize(resource.SubscriptionId ?? snapshot.Header.SubscriptionId),
                 ResourceId = resourceId,
+                ResourceType = resource.ResourceType,
                 IsOrphanIntent = !string.IsNullOrWhiteSpace(resource.ParentResourceId),
                 IsUnknownEvidence = string.IsNullOrWhiteSpace(resource.ParentResourceId),
                 ProblemText = string.IsNullOrWhiteSpace(resource.ParentResourceId)

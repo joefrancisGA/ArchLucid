@@ -10,6 +10,9 @@ export type SecureNowQuestion = {
   readonly scopeKind: string;
   readonly status: string;
   readonly questionText: string;
+  readonly resourceType: string;
+  readonly resourceName: string;
+  readonly reasonText: string;
   readonly sourceLine: string;
   readonly answerCodes: readonly string[];
   readonly evidenceFingerprint: string;
@@ -55,6 +58,9 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     scopeKind: stringOrDefault(raw.scopeKind),
     status: stringOrDefault(raw.status, "Open"),
     questionText: stringOrDefault(raw.questionText),
+    resourceType: stringOrDefault(raw.resourceType),
+    resourceName: stringOrDefault(raw.resourceName),
+    reasonText: stringOrDefault(raw.reasonText),
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
       ? raw.answerCodes.filter((value): value is string => typeof value === "string")

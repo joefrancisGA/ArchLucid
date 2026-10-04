@@ -11,6 +11,9 @@ public sealed record SecureNowQuestionRecord
     public SecureNowQuestionScopeKind ScopeKind { get; init; }
     public SecureNowQuestionDispositionStatus Status { get; init; }
     public string QuestionText { get; init; } = string.Empty;
+    public string ResourceType { get; init; } = string.Empty;
+    public string ResourceName { get; init; } = string.Empty;
+    public string ReasonText { get; init; } = string.Empty;
     public string SourceLine { get; init; } = string.Empty;
     public IReadOnlyList<string> AnswerCodes { get; init; } = [];
     public string EvidenceFingerprint { get; init; } = string.Empty;
