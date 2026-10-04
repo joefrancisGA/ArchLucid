@@ -11665,15 +11665,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — faithfulness checker accepted substring-only evidence matches
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [ ] (candidate) `AgentOutputLlmSemanticJudge.TryJudgeAsync` — a configured `JudgeInvocationCount` greater than one launches samples concurrently after one budget peek, so a reachable enabled multi-sample judge run may consume more tenant judge quota than the peek permits; input is the persisted `AgentOutputLlmSemanticJudgeOptions` configuration.
+- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync` — `Task.WhenAll` over persisted traces propagates one evaluator exception and can abort recording for otherwise valid traces; input is a run containing one malformed or evaluator-triggering trace alongside successful traces.
+- [ ] (candidate) `AgentEvidenceGroundingIndex.Build` — duplicate policy, service, or pattern IDs overwrite earlier reference blobs in the case-insensitive map, so an AgentResult citation can resolve to the wrong evidence text; input is a reachable evidence package containing repeated catalog identifiers.
 
 - [x] (invalid) Evaluation runner scores a failed trace as passed — warn-only gate records parse failures without rejecting; pilot strict rejects unparsed output (`AgentOutputTraceQualityEvaluatorTests`).
 - [x] (invalid) Runner uses a golden fixture from a different tenant's catalog — reference cases load from a single configured JSON path, not tenant-scoped catalogs (`AgentOutputReferenceCaseCatalog`).
@@ -11716,6 +11720,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 thorough hunt (hit): evaluation task-ID matching and calibrated-confidence lookup were case-sensitive in separate paths; a trace `Task-1` failed to attach its persisted result `task-1`, while the confidence lookup used a different comparer. Both paths now use ordinal-ignore-case task-ID semantics; 186 scoped `Evaluation` tests passed.
 2026-10-03 seed hunt (hit): promoted one reachable task-ID parity candidate in `RunAgentOutputPilotEvidenceAggregator`; a case-only task-ID mismatch omitted persisted Real execution mode and allowed sponsor evidence through under Simulator host mode. Fixed and verified with 187 scoped `Evaluation` tests.
 2026-10-03 thorough hunt (dry): cheap-disproof retired the reference-case key-casing candidate as unreachable in the picked zone and the citation-mode candidate as already covered; remaining task-ID candidates lacked a concrete live input for a failing repro.
+
+2026-10-04 seed hunt (seed-only): re-read evaluation orchestration, LLM judge sampling, faithfulness grounding, and quality-gate paths; no existing candidate met the full reachable wrong-outcome bar. Seeded three concrete candidates for follow-up; no product test was added.
 
 ---
 
