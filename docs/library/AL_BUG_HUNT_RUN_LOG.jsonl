@@ -8700,3 +8700,4 @@
 {"at":"2026-10-04T00:33:33.9796918Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
 {"at":"2026-10-04T00:21:54.2037999Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(docs/library/AL_BUG_HUNT_LEDGER.md)"]}
 {"at":"2026-10-04T00:38:58.1581199Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/","ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs"]}
+{"at":"2026-10-04T00:42:26.5205675Z","zoneId":"cloud-extractors","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}

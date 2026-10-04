@@ -24476,10 +24476,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24512,7 +24512,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-04 seed hunt (seed-only): re-read the selected Azure network-association builder, ARM property expander, AWS/GCP collectors and packagers, and focused extractor tests. The three reachable association-typing/exposure candidates remain candidates because downstream graph validation or the expected Bastion public-IP contract is outside this zone's selected files; no failing repro was attempted.
 
-2026-10-04 thorough hunt (dry): cheap-disproved promotion of the three association candidates because the selected extractor files do not establish the downstream graph rejection or the expected Bastion public-IP contract; no hunt-ready hypothesis remained and no failing repro was attempted.
+2026-10-04 thorough hunt (dry): cheap-disproved promotion of the three association candidates because the selected extractor files do not establish the downstream graph rejection or the expected Bastion public-IP contract; no hunt-ready hypothesis remained and no failing repro was attempted. The focused association-builder suite passed 14/14.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
