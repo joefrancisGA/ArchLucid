@@ -10,12 +10,10 @@ export type AdminTenantHealthSummaryItem = {
   lastActivityUtc: string | null;
 };
 
-function finiteAdminMetric(value: number | undefined): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return null;
-  }
+function finiteAdminMetric(value: number | string | undefined): number | null {
+  const parsed = typeof value === "number" ? value : typeof value === "string" && value.trim().length > 0 ? Number(value) : Number.NaN;
 
-  return value;
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 export type AdminTenantHealthListResponse = {
