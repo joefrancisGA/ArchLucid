@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` treated any non-empty `governanceFindingsResourceGroupKey` as exclusive disclosure state, so when queue filters removed the open resource group every remaining group rendered collapsed; ignore stale keys and clear the URL when the open group is absent from `displayRows`; regression `keeps remaining resource groups expanded when disclosure URL references a filtered-out group`; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotRunDeltaComputer.TryLoadFindingsSnapshotAsync` treated a persisted zero-row findings snapshot as unavailable (`null`), so buyer `pilot-run-deltas.json` kept stale agent severity buckets and top-finding pointers; empty snapshots now load authoritatively and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
 
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` sorted committed runs ascending then `Take(DefaultRunDetailCap)`, so tenants with more than 400 committed pilots in-window loaded the oldest runs for findings/timeline aggregation and dropped newer committed activity; cap now uses `TakeLast` so detail loading prefers the newest runs; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
@@ -28236,11 +28238,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 23
-- **bugs-found:** 21
+- **hunts:** 24
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — persisted operator scope snapshot caused React useSyncExternalStore rerender loop
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — stale resource-group disclosure URL collapsed filtered groups
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28306,7 +28308,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `applyFindingsSavedViewFilters` — an object-shaped `nlFacets` with invalid nested values such as `titleKeywords: null` passed through the outer object guard; saved-view navigation then called `.map` on the invalid value and threw; fixed by normalizing severity, status, and title-keyword element types; regression `does not throw when persisted natural-language facet fields have invalid types`.
 - [x] (proven) `useGovernanceFindingsQueueFacets.clearFacetFilters` — composed the full pathname returned by `governanceFindingsNlFacetsHrefFromSearch` as the `currentSearch` input to `reviewFindingsJobViewHrefFromSearch`; clearing facets with reachable `runId`/`q` scope encoded `/governance/findings?` as a query key and corrupted the final URL; fixed by extracting the cleared helper's query string before composing the job-view URL; regression `preserves unrelated URL scope when clearing facet filters`.
 - [x] (invalid) `GovernanceFindingsQueueDesktopTable` bulk selection keyed only by `findingId` — a duplicate `findingId` across different `runId` rows would share a checkbox state; the selected files do not establish that duplicate IDs represent distinct API findings, and the bulk-action contract also uses `findingId` as the operation key, so the proposed composite identity is not actionable in this zone.
-- (candidate) `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` — after an operator opens a resource group, applying a queue facet can preserve the `resourceGroup` URL key while removing that group from `displayRows`; the remaining groups then all receive `open=false` and the filtered queue appears collapsed. Reachable input: clicking a resource disclosure followed by a register/NL/search filter action.
+- [x] (proven) `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` — stale `governanceFindingsResourceGroupKey` collapsed every remaining resource group after filters removed the open group — **hit 2026-10-04 seed hunt:** fall back to default open when the URL key is absent from current groups and clear the param; regression `keeps remaining resource groups expanded when disclosure URL references a filtered-out group`.
 - (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — saved-view loading issues router replacements from each individual state setter and then issues a final rebuilt saved-view URL; an operator loading a saved view through the API/UI while the route is changing could allow an earlier stale replacement to win and restore prior filters. Reachable input: loading an operator saved view with existing query filters.
 
 2026-10-02 thorough hunt (hit): proved malformed operator saved-view filter payloads could throw during findings queue navigation; normalized object/string/boolean/facet fields before applying filters; 3 focused saved-view tests passed, with 2 pre-existing focused queue-suite failures unrelated to this change.
@@ -28330,6 +28332,8 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): re-read grouped disclosure state, queue filtering, saved-view navigation, and focused tests; the resource-disclosure candidate remains bounded but not yet repro-ready, and the saved-view ordering candidate lacks a deterministic failing route-transition repro. Focused suite had 13 passing and 11 pre-existing harness/fixture failures; no code changes.
 
 - [x] (proven) `useOperatorScopeRecord` — `readOperatorScopeFromStorage` returned a newly allocated object on every `useSyncExternalStore` snapshot read when a persisted operator scope existed, causing React's maximum-update-depth loop and preventing the governance findings queue from rendering; fixed with a raw-storage-keyed stable snapshot cache; regression `does not rerender forever when a persisted operator scope exists`.
+
+2026-10-04 seed hunt (seed→hit): promoted resource-group disclosure candidate; proved stale `governanceFindingsResourceGroupKey` collapsed all groups after filter removed the open resource; fixed disclosure open-state + URL cleanup; regression above; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
 
 ---
 
