@@ -60,7 +60,7 @@ export type ReviewPackageDoThisNext = {
 
 export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryActionInput & {
   readonly showProgressTracker: boolean;
-  readonly openClarificationGapCount: number;
+  readonly openClarificationGapCount: number | null;
   readonly findingsCount?: number;
   readonly correctionHref: string | null;
   readonly nextAction?: string | null;
@@ -360,7 +360,11 @@ export function resolveReviewPackageDoThisNext(
       findingsCount: input.findingsCount ?? 0,
     });
 
-    if (loopNext !== null && input.openClarificationGapCount > 0) {
+    if (
+      loopNext !== null &&
+      input.openClarificationGapCount !== null &&
+      input.openClarificationGapCount > 0
+    ) {
       const clarificationsAction = reviewLifecycleNextActionInstance({
         id: "answer-clarifications",
         hrefInput: registryHrefInput(input),
@@ -374,7 +378,11 @@ export function resolveReviewPackageDoThisNext(
       };
     }
 
-    if (loopNext !== null && input.openClarificationGapCount === 0 && (input.findingsCount ?? 0) > 0) {
+    if (
+      loopNext !== null &&
+      input.openClarificationGapCount === 0 &&
+      (input.findingsCount ?? 0) > 0
+    ) {
       return {
         kind: "review-findings",
         sentence: loopNext.sentence,

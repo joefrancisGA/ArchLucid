@@ -31,4 +31,12 @@ describe("FindingInsightDensityDisclosure", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("shows Score not returned when rationale exists without a score", () => {
+    render(
+      <FindingInsightDensityDisclosure insightDensityScore={null} whyThisIsNotGeneric="Specific control gap cited." />,
+    );
+
+    expect(screen.getByText("Score not returned")).toBeInTheDocument();
+  });
 });

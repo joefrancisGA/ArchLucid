@@ -9,7 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
-import { formatStageDurationMs } from "@/lib/format-stage-duration";
+import { formatStageDurationMs, PIPELINE_STAGE_RECORDED_DURATION_SCOPE_LINE } from "@/lib/format-stage-duration";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import {
   mapPipelineStageOutcomeToStatusKind,
@@ -162,6 +162,9 @@ export function RunDetailPipelineStagesSection({
                 <RunTraceViewerLink traceId={otelTraceId} />
               </div>
             ) : null}
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {PIPELINE_STAGE_RECORDED_DURATION_SCOPE_LINE}
+            </p>
             <ul className="space-y-2" data-testid="run-detail-pipeline-stages-technical-list">
               {stageTimeline.map((stage) => (
                 <li

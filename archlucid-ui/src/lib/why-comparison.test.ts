@@ -6,9 +6,14 @@ import {
   WHY_COMPARISON_ROWS,
   WHY_COMPARISON_ROWS_SERIALIZED,
   WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER,
+  whyHardCellDisplay,
 } from "./why-comparison";
 
 describe("why-comparison (front-door table drift guards)", () => {
+  it("renders explicit No for negative capability cells", () => {
+    expect(whyHardCellDisplay("no")).toBe("No");
+  });
+
   it("WHY_COMPARISON_ROWS_SERIALIZED round-trips to WHY_COMPARISON_ROWS", () => {
     const parsed: WhyHardComparisonRow[] = JSON.parse(WHY_COMPARISON_ROWS_SERIALIZED) as WhyHardComparisonRow[];
     expect(parsed).toEqual([...WHY_COMPARISON_ROWS]);

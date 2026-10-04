@@ -38,4 +38,22 @@ describe("ComplianceDriftOpenResolvedChart", () => {
     expect(screen.getByText(/opened \(findings captured\)/i)).toBeInTheDocument();
     expect(screen.getByText(/resolved \(human review\)/i)).toBeInTheDocument();
   });
+
+  it("labels unreadable bucket dates as Date not readable", () => {
+    render(
+      <ComplianceDriftOpenResolvedChart
+        points={[
+          {
+            bucketUtc: "invalid",
+            changeCount: 0,
+            changesByType: {},
+            openFindingsCount: 1,
+            resolvedFindingsCount: 0,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Date not readable")).toBeInTheDocument();
+  });
 });

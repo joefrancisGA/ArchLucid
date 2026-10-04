@@ -28,6 +28,7 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
   const openRef = useRef(open);
   openRef.current = open;
   const hasScore = props.insightDensityScore !== null && Number.isFinite(props.insightDensityScore);
+  const scoreDisplay = hasScore ? String(Math.trunc(props.insightDensityScore ?? 0)) : "Score not returned";
   const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
 
   const syncOpenToUrl = useCallback(
@@ -93,12 +94,10 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
         Insight density signals
       </summary>
       <dl className={cn("m-0 mt-2 space-y-2", OPERATOR_TYPOGRAPHY.body)}>
-        {hasScore ? (
-          <div>
-            <dt className="font-semibold text-al-text-primary">Insight density score</dt>
-            <dd className="m-0 tabular-nums text-al-text-secondary">{Math.trunc(props.insightDensityScore ?? 0)}</dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="font-semibold text-al-text-primary">Insight density score</dt>
+          <dd className="m-0 tabular-nums text-al-text-secondary">{scoreDisplay}</dd>
+        </div>
         {whyText.length > 0 ? (
           <div>
             <dt className="font-semibold text-al-text-primary">Why this is not generic</dt>

@@ -30,6 +30,14 @@ import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
+import {
+  buildSponsorRoiTrendCriticalBarAriaLabel,
+  isSponsorRoiTrendSimulatorOnlyPeriod,
+  sponsorRoiTrendCriticalBarHeightPx,
+  sponsorRoiTrendCriticalFindingsForScale,
+  sponsorRoiTrendSimulatorOnlyBadgeLabel,
+} from "@/lib/sponsor/sponsor-roi-trend-history-point-display";
+
 import { SponsorRoiSavingsTrendSvgChart } from "./SponsorRoiSavingsTrendSvgChart";
 
 type NormalizedHistoryPoint = SponsorRoiHistoryPoint & { snapshotUtc: string };
@@ -54,20 +62,6 @@ function formatMonth(isoUtc: string | undefined): string {
 
 function chartIncludesMixedMode(points: NormalizedHistoryPoint[]): boolean {
   return points.some((point) => point.isMixedMode);
-}
-
-function buildCriticalBarTitle(point: NormalizedHistoryPoint, buyerPolished: boolean): string {
-  const monthLabel = formatMonth(point.snapshotUtc);
-
-  if (buyerPolished) {
-    return `${point.criticalSecurityFindings} critical findings — ${monthLabel}`;
-  }
-
-  return `${point.criticalSecurityFindings} critical findings — ${monthLabel} · ${point.realRunCount} Real · ${point.simulatorRunCount} Simulator`;
-}
-
-function isSimulatorOnlyPeriod(point: NormalizedHistoryPoint): boolean {
-  return (point.realRunCount ?? 0) === 0 && (point.simulatorRunCount ?? 0) > 0;
 }
 
 export type SponsorRoiTrendSectionProps = {
@@ -137,7 +131,7 @@ export function SponsorRoiTrendSection({
     [allPoints, timeRange],
   );
 
-  const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings ?? 0), 1);
+  const maxCritical = sponsorRoiTrendCriticalFindingsForScale(points);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -219,7 +213,12 @@ export function SponsorRoiTrendSection({
               <div className={cn("mb-2 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Critical security findings</div>
               <div className="flex items-end gap-2">
                 {points.map((point) => {
-                  const criticalBarLabel = buildCriticalBarTitle(point, buyerPolished);
+                  const criticalBarLabel = buildSponsorRoiTrendCriticalBarAriaLabel(
+                    point,
+                    formatMonth(point.snapshotUtc),
+                    buyerPolished,
+                  );
+                  const simulatorOnly = isSponsorRoiTrendSimulatorOnlyPeriod(point);
 
                   return (
                   <div
@@ -228,17 +227,21 @@ export function SponsorRoiTrendSection({
                     tabIndex={0}
                     aria-label={criticalBarLabel}
                   >
-                    {isSimulatorOnlyPeriod(point) ? (
+                    {simulatorOnly ? (
                       <StatusTag
                         kind="needs-attention"
-                        label={buyerPolished ? RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL : "Simulator-only"}
+                        label={
+                          buyerPolished
+                            ? RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL
+                            : sponsorRoiTrendSimulatorOnlyBadgeLabel(false)
+                        }
                         className="text-[9px] px-1 py-0"
                         data-testid="exec-roi-trend-simulator-only"
                       />
                     ) : null}
                     <div
                       className="w-full rounded-sm bg-amber-500/80"
-                      style={{ height: `${Math.max(8, Math.round(((point.criticalSecurityFindings ?? 0) / maxCritical) * 120))}px` }}
+                      style={{ height: `${sponsorRoiTrendCriticalBarHeightPx(point, maxCritical)}px` }}
                     />
                     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.navHelper)}>{formatMonth(point.snapshotUtc)}</span>
                   </div>

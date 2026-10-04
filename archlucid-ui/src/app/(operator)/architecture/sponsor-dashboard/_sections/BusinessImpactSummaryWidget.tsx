@@ -21,9 +21,9 @@ import {
 } from "@/lib/design-tokens";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
-function formatUsd(value: number | undefined): string {
+function formatEstimatedSavingsUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return " — ";
+    return "Savings not returned";
   }
 
   return new Intl.NumberFormat(undefined, {
@@ -31,6 +31,18 @@ function formatUsd(value: number | undefined): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function resolveSponsorSystemCountState(systemCount: number | undefined): "missing" | "none" | "has" {
+  if (typeof systemCount !== "number" || !Number.isFinite(systemCount)) {
+    return "missing";
+  }
+
+  if (systemCount <= 0) {
+    return "none";
+  }
+
+  return "has";
 }
 
 /** Server-authoritative business-impact theme counts (TB-105). */
@@ -74,7 +86,8 @@ export function BusinessImpactSummaryWidget({
     return <OperatorApiProblem failure={failure} />;
   }
 
-  const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
+  const systemCountState = resolveSponsorSystemCountState(data?.systemCount);
+  const hasCommittedRuns = systemCountState === "has";
   const businessImpactCounts = readBusinessImpactCounts(data);
   const themeCards = [
     { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
@@ -93,7 +106,8 @@ export function BusinessImpactSummaryWidget({
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Theme counts from finalized reviews in this workspace.
-          {!hasCommittedRuns && !isLoading ? " Finalize a review to populate these cards." : null}
+          {systemCountState === "missing" && !isLoading ? " System count not returned for this workspace." : null}
+          {systemCountState === "none" && !isLoading ? " Finalize a review to populate these cards." : null}
         </p>
       </div>
 
@@ -126,7 +140,7 @@ export function BusinessImpactSummaryWidget({
             ) : (
               <>
                 <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                  {formatUsd(data?.totalEstimatedUsdSavings)}
+                  {formatEstimatedSavingsUsd(data?.totalEstimatedUsdSavings)}
                 </p>
                 {data ? (
                   <CardDescription className={cn("mt-2", OPERATOR_KPI_CARD_DESCRIPTION)}>
@@ -155,7 +169,11 @@ export function BusinessImpactSummaryWidget({
                   <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
                 ) : (
                   <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                    {hasCommittedRuns ? card.value : " — "}
+                    {systemCountState === "missing"
+                      ? "Not returned"
+                      : hasCommittedRuns
+                        ? card.value
+                        : " — "}
                   </p>
                 )}
               </CardContent>

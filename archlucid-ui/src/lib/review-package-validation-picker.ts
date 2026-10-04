@@ -63,7 +63,7 @@ export function reviewPackageStatusLabel(run: RunSummary): string {
 
 export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
   if (run.hasGoldenManifest !== true) {
-    return " — ";
+    return "Not finalized";
   }
 
   return formatRecurrenceScheduleUtcLabel(run.createdUtc);

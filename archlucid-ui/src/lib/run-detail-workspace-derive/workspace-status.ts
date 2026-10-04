@@ -121,7 +121,9 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Awaiting decision", kind: "awaiting-decision", statusTagKind: "needs-attention" };
     }
 
-    const blockingCount = input.blockingFindingCount ?? 0;
+    const blockingCountKnown =
+      typeof input.blockingFindingCount === "number" && Number.isFinite(input.blockingFindingCount);
+    const blockingCount = blockingCountKnown ? input.blockingFindingCount! : 0;
     const governancePending =
       gateLabel === "Pending" ||
       /pending/i.test(governanceDecision) ||
@@ -136,7 +138,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized;
 
     if (isFinalized) {
-      if (blockingCount > 0) {
+      if (blockingCountKnown && blockingCount > 0) {
         return {
           label: "Finalized · approval blocked",
           kind: "finalized",
@@ -159,7 +161,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
     }
 
-    if (blockingCount > 0) {
+    if (blockingCountKnown && blockingCount > 0) {
       return resolveReviewCompleteWorkspaceStatus(input, "approval blocked");
     }
 

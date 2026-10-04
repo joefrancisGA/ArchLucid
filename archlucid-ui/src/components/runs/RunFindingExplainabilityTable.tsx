@@ -351,7 +351,8 @@ export function RunFindingExplainabilityTable({
         >
           {rowVirtualizer.getVirtualItems().map((vi) => {
             const row = sortedRows[vi.index]!;
-            const pct = traceCompletenessPercent(row.traceCompletenessRatio) ?? 0;
+            const pct = traceCompletenessPercent(row.traceCompletenessRatio);
+            const pctDisplay = pct === null ? "Not returned" : `${pct}%`;
             const titleFull =
               row.findingTitle !== null &&
               row.findingTitle !== undefined &&
@@ -365,7 +366,7 @@ export function RunFindingExplainabilityTable({
               confidenceLevel !== null ? (
                 <FindingConfidenceBadge level={confidenceLevel} />
               ) : (
-                <span className="text-neutral-400 dark:text-neutral-500">—</span>
+                <span className="text-neutral-400 dark:text-neutral-500">Confidence not recorded</span>
               );
 
             const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, row.findingId);
@@ -430,7 +431,7 @@ export function RunFindingExplainabilityTable({
                   )}
                 </div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>
-                <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{pct}</div>
+                <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{pctDisplay}</div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{confidenceSlot}</div>
                 <div className={cn("min-w-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {missingTraceFields.length > 2 ? (

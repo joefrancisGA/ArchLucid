@@ -35,7 +35,7 @@ function formatTimeSavedHours(hours: number): string {
 
 function formatCount(value: number): string {
   if (!Number.isFinite(value) || value < 0) {
-    return " — ";
+    return "Not returned";
   }
 
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
