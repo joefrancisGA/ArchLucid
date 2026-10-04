@@ -153,6 +153,20 @@ public sealed class AzureSearchSdkClient(
             ct);
     }
 
+    /// <inheritdoc />
+    public Task RemoveChunkIdsAsync(IReadOnlyList<string> chunkIds, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(chunkIds);
+
+        if (chunkIds.Count == 0)
+            return Task.CompletedTask;
+
+        if (!TryCreateSearchClient(out SearchClient? client) || client is null)
+            throw new InvalidOperationException("Azure AI Search is not configured.");
+
+        return client.DeleteDocumentsAsync("chunkId", chunkIds, cancellationToken: ct);
+    }
+
     private bool TryCreateSearchClient(out SearchClient? client)
     {
         client = null;

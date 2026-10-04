@@ -189,18 +189,12 @@ public sealed class RetrievalIndexingService(
                 if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
                     && prior.IndexedChunkCount > split.Count)
                 {
-                    await _vectorIndex.RemoveChunksForDocumentAsync(
-                        doc.DocumentId,
-                        doc.TenantId,
-                        doc.WorkspaceId,
-                        doc.ProjectId,
-                        ct).ConfigureAwait(false);
+                    List<string> staleChunkIds = [];
 
-                    IReadOnlyList<RetrievalChunk> documentChunks = chunks
-                        .Where(chunk => string.Equals(chunk.DocumentId, doc.DocumentId, StringComparison.Ordinal))
-                        .ToList();
+                    for (int ordinal = split.Count; ordinal < prior.IndexedChunkCount; ordinal++)
+                        staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
 
-                    await _vectorIndex.UpsertChunksAsync(documentChunks, ct).ConfigureAwait(false);
+                    await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
                 }
             }
         }

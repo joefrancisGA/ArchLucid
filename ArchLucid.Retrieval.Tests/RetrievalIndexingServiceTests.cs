@@ -898,4 +898,93 @@ public sealed class RetrievalIndexingServiceTests
         catalog.TryGet(secondDocumentId, out RetrievalDocumentIndexState? secondState).Should().BeTrue();
         secondState!.ContentHash.Should().Be("HASH-SECOND-V1");
     }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        InMemoryVectorIndex innerIndex = new();
+        int upsertCalls = 0;
+        Mock<IVectorIndex> index = new();
+        index
+            .Setup(i => i.UpsertChunksAsync(It.IsAny<IReadOnlyList<RetrievalChunk>>(), It.IsAny<CancellationToken>()))
+            .Returns<IReadOnlyList<RetrievalChunk>, CancellationToken>(async (batch, token) =>
+            {
+                upsertCalls++;
+
+                if (upsertCalls == 3)
+                    throw new InvalidOperationException("simulated shrink re-upsert failure");
+
+                await innerIndex.UpsertChunksAsync(batch, token);
+            });
+        index
+            .Setup(i => i.RemoveChunksForDocumentAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<string, Guid, Guid, Guid, CancellationToken>((documentId, tenantId, workspaceId, projectId, token) =>
+                innerIndex.RemoveChunksForDocumentAsync(documentId, tenantId, workspaceId, projectId, token));
+        index
+            .Setup(i => i.RemoveChunkIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Returns<IReadOnlyList<string>, CancellationToken>((chunkIds, token) =>
+                innerIndex.RemoveChunkIdsAsync(chunkIds, token));
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index.Object,
+            catalog,
+            caps.Object);
+
+        const string documentId = "d-shrink-reupsert-fail";
+        RetrievalDocument longDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = new string('x', 5200),
+            ContentHash = "HASH-LONG",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([longDoc], CancellationToken.None);
+        innerIndex.GetEmbeddingMetadata()!.ChunkCount.Should().BeGreaterThan(1);
+
+        RetrievalDocument shortDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = new string('y', 100),
+            ContentHash = "HASH-SHORT",
+            CreatedUtc = longDoc.CreatedUtc,
+        };
+
+        Func<Task> shrinkAttempt = async () => await sut.IndexDocumentsAsync([shortDoc], CancellationToken.None);
+        await shrinkAttempt.Should().NotThrowAsync();
+
+        innerIndex.GetEmbeddingMetadata()!.ChunkCount.Should().Be(1);
+        upsertCalls.Should().Be(2, "shrink reindex must not require a second upsert after deleting the whole document");
+        catalog.TryGet(documentId, out RetrievalDocumentIndexState? state).Should().BeTrue();
+        state!.ContentHash.Should().Be("HASH-SHORT");
+    }
 }
