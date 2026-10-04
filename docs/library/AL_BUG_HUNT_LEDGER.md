@@ -11573,7 +11573,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -19060,7 +19060,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 26
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — JSON effective values with dotted `api.key` / `credentials.api_key` leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -27544,6 +27544,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; existing candidate rows remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
 
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; existing candidate rows remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
+
+2026-10-04 seed hunt (seed-only): re-read the three picker paths and ownership/orchestrator tests after recent churn. Repeated pre-acquire checks are intentional race guards already covered by deletion, commit, and schedule-clear regressions; renewal/release candidates lack a concrete wrong outcome. The scoped ownership/orchestrator suite passed 54/54; no candidate was promoted or proven.
 
 ### Hypotheses
 
