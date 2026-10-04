@@ -55,4 +55,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u202A").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_left_to_right_isolate_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u2066ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_left_to_right_isolate_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u2066").Should().BeEmpty();
+    }
 }
