@@ -8717,3 +8717,4 @@
 {"at":"2026-10-04T17:41:41.5822599Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-04T17:46:32.1903591Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-04T17:56:33.2037223Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs,ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
+{"at":"2026-10-04T18:00:33.4744184Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs,ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
