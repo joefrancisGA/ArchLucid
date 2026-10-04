@@ -193,7 +193,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             foreach (string parentArmId in resolved.ParentArmIds)
             {
-                if (IsArmIdResolvable(parentArmId, armIdToGraphNode))
+                if (IsArmIdResolvableIncludingAncestor(parentArmId, armIdToGraphNode))
                 {
                     return null;
                 }
@@ -209,9 +209,13 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             string? associatedResourceId = TryResolveAssociatedResourceFromIpConfiguration(ipConfigurationId);
 
-            if (!string.IsNullOrWhiteSpace(associatedResourceId)
-                && !IsArmIdResolvable(associatedResourceId, armIdToGraphNode))
+            if (!string.IsNullOrWhiteSpace(associatedResourceId))
             {
+                if (IsArmIdResolvableIncludingAncestor(associatedResourceId, armIdToGraphNode))
+                {
+                    return null;
+                }
+
                 string parentName = ReadResourceName(associatedResourceId, "parent resource");
                 return InventoryDiagramConnectionStateResult.Orphaned(
                     $"parent resource {parentName} no longer exists");
@@ -986,6 +990,31 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         return armIdToGraphNode.ContainsKey(ArmResourceIdNormalizer.Normalize(armId));
+    }
+
+    private static bool IsArmIdResolvableIncludingAncestor(
+        string? armId,
+        IReadOnlyDictionary<string, GraphNode> armIdToGraphNode)
+    {
+        if (IsArmIdResolvable(armId, armIdToGraphNode))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return false;
+        }
+
+        foreach (string ancestor in ArmResourceIdNormalizer.EnumerateAncestorResourceIds(armId))
+        {
+            if (armIdToGraphNode.ContainsKey(ancestor))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static InventoryDiagramEvidenceCurrency ReadEvidenceCurrency(IReadOnlyDictionary<string, string> properties)

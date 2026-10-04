@@ -346,6 +346,38 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
         result.MissingRequirementMessage.Should().Contain("lng-missing");
     }
 
+    [Fact]
+    public void Classify_public_ip_with_vmss_nic_ip_configuration_is_not_orphaned_when_vmss_is_in_graph()
+    {
+        const string publicIpArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-aks";
+        const string vmssArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/vmss1";
+        const string vmssNicArmId =
+            vmssArmId + "/virtualMachines/0/networkInterfaces/nic1";
+        string ipConfigurationId = vmssNicArmId + "/ipConfigurations/ipconfig1";
+
+        GraphNode publicIp = CreateTopologyNode(
+            "pip-node",
+            publicIpArmId,
+            "Microsoft.Network/publicIPAddresses");
+        publicIp.Properties["ipConfiguration.id"] = ipConfigurationId;
+        GraphNode vmss = CreateTopologyNode(
+            "vmss-node",
+            vmssArmId,
+            "Microsoft.Compute/virtualMachineScaleSets");
+
+        GraphSnapshot graph = CreateGraph([publicIp, vmss], []);
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            publicIp,
+            graph,
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().NotContain("no IP configuration or parent reference");
+    }
+
     private static GraphSnapshot CreateGraph(
         IReadOnlyList<GraphNode> nodes,
         IReadOnlyList<GraphEdge> edges)
