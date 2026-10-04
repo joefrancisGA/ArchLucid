@@ -24078,10 +24078,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 40
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — exec digest and sibling dispatchers used padded OperatorBaseUrl for logo URLs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24921,9 +24921,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-12 seed hunt #1994 (seed→hit): reseeded api-authority-admin-controllers; proved finding-feedback comment surrogate guard gap; 1 scoped `RunsControllerTests` passed.
 
-- [ ] (candidate) `SupportBundleController.DownloadSupportBundle` — emits `SupportBundleDownloaded` audit events without tenant/workspace/project scope fields and assembles the bundle without an ambient scope argument; reachable authenticated ExecuteAuthority support-bundle downloads can be unattributed or cross-tenant if the assembler reads tenant data, pending proof of its data scope and audit contract.
+- [x] (valid-no-repro) `SupportBundleController.DownloadSupportBundle` — `AuditService.EnrichAuditEvent` fills empty tenant/workspace/project fields from the authenticated HTTP scope provider, and `SupportBundleAssembler` emits only host environment/build/reference data rather than tenant-scoped records; no attribution or cross-tenant repro remains.
 
 2026-10-03 seed hunt (seed-only): re-read Authority/Admin controller policy, scope, input, and audit boundaries; seeded the support-bundle scope/audit attribution candidate. 14 focused controller tests passed; 5 SQL-backed integration tests were blocked because no SQL Server was available.
+
+2026-10-04 thorough hunt (dry): cheap-disproved the support-bundle scope/audit candidate; audit enrichment supplies request scope and the assembler has no tenant-scoped data access. Fourteen focused tests passed; five SQL-backed integration tests were blocked by unavailable SQL Server, with no failing repro.
 
 ---
 
