@@ -84,7 +84,11 @@ function ArchitectureHubFilterChip(props: {
   const disabled = props.option.id !== "all" && countKnown && props.count === 0;
   const disabledReasonId = `architecture-hub-filter-${props.option.id}-disabled-reason`;
   const labelWithCount =
-    countKnown && props.option.id !== "all" ? `${props.option.label} (${props.count})` : props.option.label;
+    props.option.id === "all"
+      ? props.option.label
+      : countKnown
+        ? `${props.option.label} (${props.count})`
+        : `${props.option.label} (Not returned)`;
 
   return (
     <span className="inline-flex">

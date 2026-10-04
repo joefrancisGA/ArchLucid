@@ -45,7 +45,7 @@ function resolveSourcePackLabel(
   ruleSetId: string | undefined,
 ): string {
   if (effectivePacks.length === 0) {
-    return " — ";
+    return "Source pack not returned";
   }
 
   const primary = effectivePacks[0];

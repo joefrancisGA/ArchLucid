@@ -23,13 +23,13 @@ import type { AdminTenantsState } from "./use-admin-tenants-state";
 
 function formatUtc(iso: string | null | undefined): string {
   if (iso == null || iso.trim().length === 0) {
-    return " — ";
+    return "Not recorded";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";
