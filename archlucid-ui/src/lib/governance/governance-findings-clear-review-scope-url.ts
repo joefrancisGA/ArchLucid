@@ -1,5 +1,6 @@
 import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { GOVERNANCE_FINDINGS_BULK_PARAM } from "@/lib/governance/governance-findings-bulk-selection-url";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 
 /** Removes review scope from the findings queue URL while preserving register and facet filters. */
 export function governanceFindingsClearReviewScopeHref(
@@ -11,6 +12,7 @@ export function governanceFindingsClearReviewScopeHref(
   params.delete("runId");
   params.delete(GOVERNANCE_FINDINGS_BULK_PARAM);
   params.delete(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM);
+  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   const nextQuery = params.toString();
 
