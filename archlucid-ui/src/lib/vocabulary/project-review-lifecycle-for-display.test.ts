@@ -15,6 +15,10 @@ describe("projectReviewLifecycleForDisplay (TB-2372)", () => {
     expect(projectReviewLifecycleForDisplay({ manifestStatus: "Draft" }).manifestStatusLabel).toBe("Draft");
   });
 
+  it("labels missing manifest status as Not finalized", () => {
+    expect(projectReviewLifecycleForDisplay({}).manifestStatusLabel).toBe("Not finalized");
+  });
+
   it("formats committed run counts without API verbs", () => {
     const projection = projectReviewLifecycleForDisplay({
       committedRunsInScope: 2,

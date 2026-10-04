@@ -13,15 +13,19 @@ function MetricTileBody(props: {
   readonly windowLine?: string;
   readonly ruleLine?: string;
   readonly value: string | null;
+  readonly valueFootnote?: string | null;
+  readonly metricsLoaded: boolean;
 }) {
   const notComputed = props.value === null;
+  const loading = !props.metricsLoaded && notComputed;
 
   return (
     <>
       <p className={OPERATOR_TYPOGRAPHY.helper}>{props.label}</p>
       <p className={cn(notComputed ? OPERATOR_TYPOGRAPHY.helper : OPERATOR_TYPOGRAPHY.kpiValue)}>
-        {notComputed ? "Not computed" : props.value}
+        {loading ? "Loading metrics…" : notComputed ? "Not computed" : props.value}
       </p>
+      {props.valueFootnote ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.valueFootnote}</p> : null}
       <p className={OPERATOR_TYPOGRAPHY.helper}>{props.scopeLine}</p>
       {props.windowLine ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.windowLine}</p> : null}
       {props.ruleLine ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.ruleLine}</p> : null}
@@ -54,6 +58,8 @@ export function RemediationFactoryExecutiveMetricsSection(props: {
                 windowLine={tile.windowLine}
                 ruleLine={tile.ruleLine}
                 value={tile.value}
+                valueFootnote={tile.valueFootnote}
+                metricsLoaded={props.metricsLoaded}
               />
             </Link>
           );
@@ -67,6 +73,8 @@ export function RemediationFactoryExecutiveMetricsSection(props: {
               windowLine={tile.windowLine}
               ruleLine={tile.ruleLine}
               value={tile.value}
+              valueFootnote={tile.valueFootnote}
+              metricsLoaded={props.metricsLoaded}
             />
           </div>
         );

@@ -29,6 +29,7 @@ const DRIFT_RISK_RANK: Readonly<Record<string, number>> = {
   info: 7,
   unknown: 8,
   none: 9,
+  "not-recorded": 10,
 };
 
 function compareStrings(left: string | null | undefined, right: string | null | undefined): number {
@@ -38,6 +39,10 @@ function compareStrings(left: string | null | undefined, right: string | null | 
 function driftRiskRank(riskKey: InfraEvidenceDriftRiskKey): number {
   if (riskKey === "none") {
     return DRIFT_RISK_RANK.none;
+  }
+
+  if (riskKey === "not-recorded") {
+    return DRIFT_RISK_RANK["not-recorded"];
   }
 
   if (riskKey === "unknown") {

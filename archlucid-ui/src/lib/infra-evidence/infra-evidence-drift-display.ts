@@ -55,7 +55,8 @@ export const INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS: readonly { value: 
 
 export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string; label: string }[] = [
   { value: "", label: "All risk levels" },
-  { value: "none", label: "None" },
+  { value: "not-recorded", label: "Not recorded (unclassified)" },
+  { value: "none", label: "None (classified)" },
   { value: "unknown", label: "Unknown" },
   { value: "elevated", label: "Elevated" },
   { value: "critical", label: "Critical" },

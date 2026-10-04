@@ -2,7 +2,9 @@ import { formatInfraEvidenceChangeTypeLabel } from "@/lib/infra-evidence/infra-e
 import type { InfraEvidenceDiffChange, InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { SEVERITY_LABELS, normalizeFindingSeverity } from "@/lib/design-tokens";
 
-export type InfraEvidenceDriftRiskKey = "none" | "unknown" | string;
+export type InfraEvidenceDriftRiskKey = "none" | "not-recorded" | "unknown" | string;
+
+export const INFRA_EVIDENCE_DRIFT_RISK_NOT_RECORDED_KEY = "not-recorded" as const;
 
 const DRIFT_RISK_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
   elevated: "Elevated",
@@ -27,7 +29,7 @@ export function resolveInfraEvidenceDriftRiskKey(
   const trimmed = (raw ?? "").trim();
 
   if (trimmed.length === 0) {
-    return "none";
+    return INFRA_EVIDENCE_DRIFT_RISK_NOT_RECORDED_KEY;
   }
 
   const normalized = trimmed.toLowerCase();
@@ -44,6 +46,10 @@ export function resolveInfraEvidenceDriftRiskKey(
 }
 
 export function formatInfraEvidenceDriftRiskLabel(riskKey: InfraEvidenceDriftRiskKey): string {
+  if (riskKey === INFRA_EVIDENCE_DRIFT_RISK_NOT_RECORDED_KEY) {
+    return "Not recorded";
+  }
+
   if (riskKey === "none") {
     return "None";
   }
@@ -72,7 +78,11 @@ export function formatInfraEvidenceDriftRiskLabel(riskKey: InfraEvidenceDriftRis
 }
 
 export function isInfraEvidenceDriftRiskTooltipEligible(riskKey: InfraEvidenceDriftRiskKey): boolean {
-  return riskKey !== "none" && riskKey !== "unknown";
+  return (
+    riskKey !== "none"
+    && riskKey !== INFRA_EVIDENCE_DRIFT_RISK_NOT_RECORDED_KEY
+    && riskKey !== "unknown"
+  );
 }
 
 export function isInfraEvidenceDriftRiskyChange(riskClassification: string | null | undefined): boolean {

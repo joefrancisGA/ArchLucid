@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 import { presentCostEvidenceFreshness, presentSponsorKpiCount } from "@/lib/sponsor/sponsor-roi-kpi-display";
 
 describe("presentSponsorKpiCount", () => {
-  it("returns em dash for missing values", () => {
+  it("returns Not returned for missing values", () => {
     const result = presentSponsorKpiCount(undefined, { loading: false });
 
-    expect(result.display).toBe(" — ");
+    expect(result.display).toBe("Not returned");
     expect(result.state).toBe("missing");
   });
 

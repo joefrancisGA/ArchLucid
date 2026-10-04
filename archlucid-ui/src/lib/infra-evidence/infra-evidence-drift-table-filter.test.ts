@@ -155,11 +155,15 @@ describe("infra-evidence-drift-table-filter", () => {
     expect(filterDriftChanges(rows, emptyFilters, twoSnapshotDiff)).toEqual([rows[0]]);
   });
 
-  it("filters drift rows by none and unknown risk keys", () => {
+  it("filters drift rows by not-recorded, none, and unknown risk keys", () => {
     const rows = [
-      buildChange("none", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none", {
+      buildChange("unclassified", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-unclassified", {
         changeType: "ResourceModified",
         riskClassification: null,
+      }),
+      buildChange("none", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-none", {
+        changeType: "ResourceModified",
+        riskClassification: "none",
       }),
       buildChange("unknown", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-unknown", {
         changeType: "ResourceModified",
@@ -183,9 +187,10 @@ describe("infra-evidence-drift-table-filter", () => {
       propertyFilter: "",
     };
 
-    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "none" }, twoSnapshotDiff)).toEqual([rows[0]]);
-    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "unknown" }, twoSnapshotDiff)).toEqual([rows[1]]);
-    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "elevated" }, twoSnapshotDiff)).toEqual([rows[2]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "not-recorded" }, twoSnapshotDiff)).toEqual([rows[0]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "none" }, twoSnapshotDiff)).toEqual([rows[1]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "unknown" }, twoSnapshotDiff)).toEqual([rows[2]]);
+    expect(filterDriftChanges(rows, { ...baseFilters, riskFilter: "elevated" }, twoSnapshotDiff)).toEqual([rows[3]]);
   });
 
   it("filters drift rows by resource group, resource type, and property", () => {

@@ -13,6 +13,9 @@ export type CloudResourceDisplayNameInput = {
 
 const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
 
+/** Operator tables — missing ARM id or name (UU-457). */
+export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = "Name not recorded" as const;
+
 /**
  * SecureNow lists and diagrams show Azure resource names in lowercase for scanability.
  * Storage keeps the cloud provider casing; normalization is display-only.
@@ -41,10 +44,10 @@ export function formatCloudResourceDisplayName(input: CloudResourceDisplayNameIn
 }
 
 const EMPTY_DISPLAY: AzureResourceDisplay = {
-  name: EMPTY_RESOURCE_NAME_PLACEHOLDER,
+  name: AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL,
   resourceType: null,
   resourceGroup: null,
-  primaryLabel: EMPTY_RESOURCE_NAME_PLACEHOLDER,
+  primaryLabel: AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL,
   secondaryLabel: null,
 };
 
