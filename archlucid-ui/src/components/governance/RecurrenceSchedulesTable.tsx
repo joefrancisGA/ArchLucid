@@ -178,7 +178,9 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
         {schedules.map((schedule) => {
           const statusKind = scheduleStatusKind(schedule);
           const runStatus = recurrenceRunStatusPresentation(schedule);
-          const autoDisabled = !schedule.isEnabled && (schedule.consecutiveFailureCount ?? 0) >= 5;
+          const failuresRaw = schedule.consecutiveFailureCount;
+          const failuresKnown = typeof failuresRaw === "number" && Number.isFinite(failuresRaw);
+          const autoDisabled = !schedule.isEnabled && failuresKnown && failuresRaw >= 5;
           const isEditing = editingId === schedule.scheduleId;
 
           return (
@@ -245,6 +247,11 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
                   label={runStatus.label}
                   title={runStatus.title}
                 />
+                {!failuresKnown ? (
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                    Failure count not returned
+                  </p>
+                ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <BooleanStatusChip

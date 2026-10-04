@@ -215,10 +215,14 @@ export function RunExplanationSection({
     const showModelConfidenceBlock =
       confRaw !== null && confRaw !== undefined && Number.isFinite(confRaw);
     const items: DocumentTocItem[] = [{ id: "doc-explanation-assessment", label: "Assessment" }];
+    const citationsMissing = summary.citations === null || summary.citations === undefined;
     const citationCount = summary.citations?.length ?? 0;
 
-    if (citationCount > 0) {
-      items.push({ id: "doc-explanation-evidence-cited", label: "Evidence cited" });
+    if (citationsMissing || citationCount > 0) {
+      items.push({
+        id: "doc-explanation-evidence-cited",
+        label: citationsMissing ? "Evidence cited (not returned)" : "Evidence cited",
+      });
     }
 
     const traces = summary.findingTraceConfidences;
@@ -369,13 +373,27 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      {(summary.citations?.length ?? 0) > 0 ? (
-        <div id="doc-explanation-evidence-cited">
-          <CitationChips citations={summary.citations ?? []} runId={runId} />
+      {summary.citations === null || summary.citations === undefined ? (
+        <div id="doc-explanation-evidence-cited" className="mb-4">
+          <h3 className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Evidence cited
+            <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              This explanation only — not the full review evidence graph.
+            </span>
+          </h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Citations not returned</p>
         </div>
-      ) : (
-        <CitationChips citations={summary.citations ?? []} runId={runId} />
-      )}
+      ) : (summary.citations.length ?? 0) > 0 ? (
+        <div id="doc-explanation-evidence-cited">
+          <h3 className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Evidence cited
+            <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              This explanation only — not the full review evidence graph.
+            </span>
+          </h3>
+          <CitationChips citations={summary.citations} runId={runId} />
+        </div>
+      ) : null}
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">
