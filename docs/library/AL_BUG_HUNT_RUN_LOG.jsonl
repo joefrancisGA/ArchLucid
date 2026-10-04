@@ -8708,3 +8708,4 @@
 {"at":"2026-10-04T01:12:17.6129336Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"securenow","paths":["@(ArchLucid.Provenance/,ArchLucid.KnowledgeGraph/)"]}
 {"at":"2026-10-04T01:16:38.0703385Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/;ArchLucid.Provenance/"]}
 {"at":"2026-10-04T01:22:34.1716137Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/;ArchLucid.Provenance/"]}
+{"at":"2026-10-04T01:26:35.4202791Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/;ArchLucid.Provenance/"]}
