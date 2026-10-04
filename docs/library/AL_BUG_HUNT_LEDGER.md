@@ -6520,7 +6520,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -6555,6 +6555,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read the selected command wrapper and focused core tests; no hunt-ready row met the reachable wrong-outcome bar. Seeded one cancellation-versus-argument-validation candidate. No code changes.
 
 2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and the focused core tests; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, and no second reachable mechanism was found in the selected wrapper. No code changes.
+
+2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and `DraftNewCommandCoreTests`; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, no second reachable mechanism was found in the selected wrapper, and all 16 focused tests passed.
 
 ---
 
@@ -24472,9 +24474,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 67
+- **hunts:** 70
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
@@ -24501,6 +24503,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `HostedAzureArmResourceRecordMerger.MergeByResourceId` — duplicate `indexResources` IDs that differ only by case or surrounding whitespace could throw before typed records merge — **cheap-disproof 2026-10-03 thorough hunt:** typed enrichment is downstream of ARM list responses, but no live ARM response or provider contract establishes duplicate resource IDs across the index page; no failing repro.
 - [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — pages are appended without ARN deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Resource Explorer provider behavior or reachable fixture establishes duplicate ARNs across pages; collector pagination/loop guards passed existing tests; no failing repro.
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — pages are appended without asset-name deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Asset Inventory provider behavior or reachable fixture establishes duplicate asset names across pages; raw-page pagination tests passed; no failing repro.
+
+- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet is emitted with `nicToSubnet` even though the source resource is a `Microsoft.Compute/virtualMachineScaleSets` resource; verify whether graph materialization drops or misclassifies the VMSS-to-subnet association because the association type declares a network-interface source.
+- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP; verify whether hosted inventory diagrams omit Bastion public exposure.
+- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters are emitted with the generic `appServiceToSubnet` association type; verify whether downstream graph consumers reject or misclassify the Databricks workspace source kind.
+
+2026-10-04 seed hunt (seed-only): re-read the selected Azure network-association builder, ARM property expander, AWS/GCP collectors and packagers, and focused extractor tests. The three reachable association-typing/exposure candidates remain candidates because downstream graph validation or the expected Bastion public-IP contract is outside this zone's selected files; no failing repro was attempted.
+
+2026-10-04 thorough hunt (dry): cheap-disproved promotion of the three association candidates because the selected extractor files do not establish the downstream graph rejection or the expected Bastion public-IP contract; no hunt-ready hypothesis remained and no failing repro was attempted.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
@@ -24818,7 +24828,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 293
+- **hunts:** 295
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
@@ -24831,6 +24841,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-02 seed hunt (seed-only): re-read the Governance/Tenancy controller partials and existing scope, validation, ETag, and sealed-manifest regressions; the picker still exposes only this ledger path, and no new reachable mechanism-backed candidate could be promoted without inventing a product hypothesis. No production files changed.
 
 2026-10-03 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; no source-level candidate could meet the reachability bar. The focused filter ran 154 tests: 137 passed and 17 SQL-backed/default-double environment failures; no production files changed.
+
+2026-10-04 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; the ledger supplied no new reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
@@ -26193,11 +26207,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 25
+- **hunts:** 28
 - **bugs-found:** 15
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — forbidden policy-pack assignment mapped to HTTP 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -26209,8 +26223,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `PolicyPacksController.Simulate` — an OpenAPI `runId` containing surrounding whitespace is validated using its trimmed GUID but the original string is forwarded to `SimulateAsync`; verify whether any downstream caller observes the untrimmed identifier rather than the workflow's current trim.
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — an OpenAPI `runIds` array mixing blank entries with valid GUIDs is accepted, then blanks are silently removed before `RequestedRunCount`; verify whether the endpoint contract requires one result/count slot per submitted array item.
+- [x] (invalid) `PolicyPacksController.Simulate` — an OpenAPI `runId` containing surrounding whitespace is validated using its trimmed GUID but the original string is forwarded to `SimulateAsync` — **cheap-disproof 2026-10-03:** the selected controller passes `request.RunId.Trim()` to `SimulateAsync`, and `Simulate_forwards_canonical_run_id_to_facade` already covers the reachable input.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — an OpenAPI `runIds` array mixing blank entries with valid GUIDs is accepted, then blanks are silently removed before `RequestedRunCount` — **cheap-disproof 2026-10-03:** the selected controller forwards the original list, including blank entries, to the facade; neither the selected endpoint nor its OpenAPI contract establishes a required result/count slot for blank submitted items.
+
+2026-10-03 thorough hunt (dry): cheap-disproved the stale single-run whitespace-forwarding candidate; the bulk blank-entry candidate remains outside the selected controller evidence because the controller forwards the original list and the downstream facade is not in this zone's paths. The focused controller filter was blocked by existing `ARCH006` / `ARCH006a` analyzer errors in `ArchLucid.Persistence`.
+
+2026-10-03 thorough hunt (dry): cheap-disproved the remaining bulk blank-entry candidate; the controller passes the original `runIds` list to the facade and no reachable contract wrong outcome was established. No failing repro was attempted because no hunt-ready hypothesis remained.
+
+2026-10-04 thorough hunt (dry): independently rechecked both policy-pack simulation candidates; the existing canonical forwarding regression and scoped controller behavior passed (77 tests), with no failing repro.
 
 - [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` — catalog demote lacked promote symmetry scope binding — **hit 2026-09-07 (#1170):** promote requires source pack in caller `(tenant, workspace, project)` scope; demote accepted any catalog entry id under tenant admin auth and demoted globally; fixed by resolving `SourcePolicyPackId` and applying `IsPackVisibleInScope` before mutation (`TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope`, `DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope`)
 - [x] (proven) `PolicyPacksController.Assign` / `SetAssignmentOrganizationRequired` — project admin could create or toggle org-required assignment locks without tenant/workspace admin role — **hit 2026-09-07 (#1205):** `PolicyPackMutationAuthority` allows SCIM `ProjectAdmin`; org-required locks are organization-governance tier (`AssignPolicyPackRequest` documents workspace-admin disable/archive lockout); fixed by requiring `AdminAuthority` on `SetAssignmentOrganizationRequired` and rejecting `Assign` with `isOrganizationRequired` when `ICallerRoleAccessor.IsTenantAdministrator()` is false (`TryAssignAsync_returns_forbidden_when_organization_required_without_tenant_administrator`, `Assign_returns_forbidden_when_organization_required_without_tenant_administrator`, `HandleRequirementAsync_project_admin_succeeds_policy_pack_mutation_without_tenant_admin_jwt`)
