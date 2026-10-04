@@ -7975,13 +7975,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (seed-only): re-read `ScopeIdentityBindingMiddleware`, `ScopeResolutionGuardMiddleware`, and `RouteTenantScopeBindingFilter`; cheap-disproof closed comma-separated single-header escalation and `AuthorizeFilter`-only policy skip; seeded one segment-boundary `/health` skip candidate; 72 scoped unit tests passed (6 `ScopeIdentityBindingIntegrationTests` failed — no SQL Server in cloud VM).
 
 2026-10-03 seed hunt (seed-only): repeated the selected scope-binding middleware and route-filter review with unchanged source; no new reachable mechanism-backed candidate emerged; 39 focused unit tests passed.
 
@@ -8077,6 +8079,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1956 (seed-only): reseeded scope-binding-middleware; cheap-disproof closed Cookie authentication type header-steering as unreachable (`ArchLucidSaml2AuthenticationCoexistenceConfigurer` keeps JWT Bearer as `DefaultAuthenticateScheme`); 72 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 - [x] (invalid) Cookie-authenticated principal steers scope via `x-tenant-id` without bound claim — **cheap-disproof 2026-09-12 seed hunt #1956:** SAML session cookies use `DefaultSignInScheme` only; API `[Authorize]` resolves `DefaultAuthenticateScheme` (Bearer/ApiKey), not Cookies; `RequiresBoundScopeClaimsForHeaders` omission is unreachable for JSON API traffic.
+
+- [ ] (candidate) `ScopeResolutionGuardMiddleware` `/health` prefix skip is segment-blind — **locus:** `ShouldSkip` uses `path.StartsWith("/health")` (line 58) while peer middleware uses `StartsWithSegments("/health")`; **input:** staging-like host request to a root `/health*` path outside `MapHealthChecks` maps; **wrong outcome:** TB-304 trusted-scope guard skipped; **reachability:** `PipelineExtensions.HealthDocs.cs` only maps `/health`, `/health/live`, `/health/ready`, `/health/version`, `/health/diagnostics`, `/health/detailed` — no broader `/health*` API surface today.
+- [x] (valid-no-repro) Single `x-tenant-id` header value with comma-separated GUIDs bypasses header-only escalation — **cheap-disproof 2026-10-04 seed hunt:** `TryParseHeaderGuid` cannot parse `"guid,guid"`; `ValidateHeaderOnlyScopeEscalation` returns Ok, but `HttpScopeContextProvider` also fails to parse so scope stays `ScopeSource.Default` and `ScopeResolutionGuard` rejects Default on production-like hosts; no cross-tenant steering on staging.
+- [x] (invalid) `RouteTenantScopeBindingFilter.HasPolicy` misses `PlatformTenantDeletionAuthority` when policy is filter-only — **cheap-disproof 2026-10-04 seed hunt:** tenant deletion uses class-level `[Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]` on `AdminTenantsController`; regression `OnActionExecutionAsync_platform_lifecycle_policy_skips_binding`.
 
 ---
 
