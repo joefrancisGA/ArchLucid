@@ -4871,6 +4871,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 2026-10-04 seed hunt (seed-only): reread `SqlRunRepository` and its save/query partials plus the selected SQL shape tests. The wrapper and current partials expose no fresh reachable scope or transaction mismatch beyond the closed normalization and representative-selection rows; no new candidate met the seed-hunt bar. No code changes.
+- [ ] (candidate) `SqlRunRepository` primary-constructor dependencies `ISqlConnectionFactory` and `IAuthorityRunListConnectionFactory` are accepted without the explicit null guards used for `ITenantRepository`; a reachable misconfigured DI composition could defer failure to the first repository call instead of failing construction, but the selected file does not contain a real registration/configuration path that supplies null.
 
 - [x] (valid-no-repro) Get-by-id returns a run that belongs to a different tenant — `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant`
 - [x] (valid-no-repro) List query omits tenant predicate when workspace filter is empty — `RunListWarningFlagSql.ScopeWhereTail` always binds `r.TenantId`
@@ -5024,6 +5025,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1255 (seed-only): reseeded after #1183; cheap-disproof closed detail-vs-list PackageOrigin parity as documented TB-738 list-only fallback; seeded workflowIntent case-sensitivity and architecture-list projection candidates; shape regressions for COALESCE/list/detail split.
 
 2026-09-07 seed hunt #1183 (hit): reseeded run repository list SQL; proved ArchitectureRequests join missed padded stored request ids for PackageOrigin fallback.
+
+2026-10-04 seed hunt (seed-only): the picker exposed only the partial-class constructor in `SqlRunRepository.cs`; its selected tests passed from existing binaries (135 passed, 1 SQL integration skipped), and no constructor-level candidate met the selected-file reachability bar. Seeded one bounded null-dependency-validation candidate; no product code changed.
 
 ---
 
