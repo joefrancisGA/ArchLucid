@@ -3529,10 +3529,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
@@ -3583,6 +3583,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): repeated the selector, quality-rank, and commit-gate review; no new reachable mechanism or hunt-ready candidate emerged. No code changes.
 
 2026-10-03 seed hunt (seed-only): repeated the selected integrity-source and focused-test review; no new reachable mechanism or candidate emerged beyond the existing closed policy rows. No code changes.
+
+2026-10-04 seed hunt (seed-only): reread the selected integrity service, quality-gate evaluator, latest-per-task selector, and focused tests; no fresh reachable mechanism-backed candidate emerged beyond the existing closed rows. No code changes.
 
 ### Hypotheses
 
