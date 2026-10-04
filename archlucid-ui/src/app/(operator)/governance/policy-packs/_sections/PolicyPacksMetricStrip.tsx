@@ -62,7 +62,7 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
         </CardHeader>
         <CardContent className="pt-0">
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {selectedPackSummary !== undefined ? selectedPackSummary.name : " — "}
+            {selectedPackSummary !== undefined ? selectedPackSummary.name : "No pack selected"}
           </p>
           {selectedPackSummary !== undefined ? (
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>

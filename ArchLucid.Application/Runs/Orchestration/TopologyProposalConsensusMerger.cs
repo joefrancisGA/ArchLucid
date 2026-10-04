@@ -125,13 +125,30 @@ public static class TopologyProposalConsensusMerger
 
     private static List<string> IntersectControls(IReadOnlyList<string> primary, IReadOnlyList<string> secondary)
     {
-        HashSet<string> secondaryControls = new(secondary ?? [], StringComparer.OrdinalIgnoreCase);
+        HashSet<string> secondaryControls = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string control in secondary ?? [])
+        {
+            if (string.IsNullOrWhiteSpace(control))
+                continue;
+
+            secondaryControls.Add(control.Trim());
+        }
+
         List<string> intersection = [];
+        HashSet<string> seenIntersection = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string control in primary)
         {
-            if (secondaryControls.Contains(control))
-                intersection.Add(control);
+            if (string.IsNullOrWhiteSpace(control))
+                continue;
+
+            string trimmed = control.Trim();
+
+            if (!secondaryControls.Contains(trimmed) || !seenIntersection.Add(trimmed))
+                continue;
+
+            intersection.Add(trimmed);
         }
 
         return intersection;

@@ -20,6 +20,7 @@ export type AdvisoryScheduleListItemView = {
   readonly lastOutcome: string;
   readonly statusKind: "ready" | "draft";
   readonly statusLabel: "Ready" | "Draft";
+  readonly statusHelperText: string;
   readonly isEnabled: boolean;
   readonly cronExpression: string;
 };
@@ -92,6 +93,9 @@ export function buildAdvisoryScheduleListItemView(
     lastOutcome: "No runs yet",
     statusKind: schedule.isEnabled ? "ready" : "draft",
     statusLabel: schedule.isEnabled ? "Ready" : "Draft",
+    statusHelperText: schedule.isEnabled
+      ? "Enabled — next run is scheduled"
+      : "Disabled — this schedule will not run",
     isEnabled: schedule.isEnabled,
     cronExpression: schedule.cronExpression,
   };
@@ -150,6 +154,7 @@ export function buildAdvisoryScheduleExamplePreviewView(
     lastOutcome: "Completed",
     statusKind: "ready",
     statusLabel: "Ready",
+    statusHelperText: "Enabled — next run is scheduled",
     isEnabled: true,
     cronExpression: EXAMPLE_WEEKLY_CRON_EXPRESSION,
   };

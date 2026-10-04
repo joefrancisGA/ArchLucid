@@ -20,6 +20,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
+import { presentBusinessImpactThemeCounts } from "@/lib/sponsor/business-impact-theme-count-display";
 
 function formatUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -31,21 +32,6 @@ function formatUsd(value: number | undefined): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-/** Server-authoritative business-impact theme counts (TB-105). */
-function readBusinessImpactCounts(data: SponsorRoiSummary | null) {
-  const counts = data?.businessImpactCategoryCounts;
-
-  return {
-    security: counts?.securityThemeCount ?? 0,
-    compliance: counts?.complianceThemeCount ?? 0,
-    securityCompliance: counts?.securityComplianceThemeCount ?? 0,
-    reliability: counts?.reliabilityThemeCount ?? 0,
-    cost: counts?.costThemeCount ?? 0,
-    governance: counts?.governanceThemeCount ?? 0,
-    other: counts?.otherThemeCount ?? 0,
-  };
 }
 
 export type BusinessImpactSummaryWidgetProps = {
@@ -75,7 +61,7 @@ export function BusinessImpactSummaryWidget({
   }
 
   const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
-  const businessImpactCounts = readBusinessImpactCounts(data);
+  const businessImpactCounts = presentBusinessImpactThemeCounts(data?.businessImpactCategoryCounts);
   const themeCards = [
     { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
     { key: "compliance", label: "Compliance themes", value: businessImpactCounts.compliance, icon: Scale },

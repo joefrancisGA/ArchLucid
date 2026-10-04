@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 export type SponsorRoiSavingsTrendPoint = {
   readonly snapshotUtc: string;
   readonly totalEstimatedUsdSavings: number;
+  readonly savingsTooltipSuffix?: string | null;
 };
 
 export type SponsorRoiSavingsTrendSvgChartProps = {
@@ -114,7 +115,10 @@ export function SponsorRoiSavingsTrendSvgChart(props: SponsorRoiSavingsTrendSvgC
 
         return (
           <g key={point.snapshotUtc}>
-            <title>{formatUsdTooltip(point.totalEstimatedUsdSavings, monthLabel)}</title>
+            <title>
+              {formatUsdTooltip(point.totalEstimatedUsdSavings, monthLabel)}
+              {point.savingsTooltipSuffix ? ` · ${point.savingsTooltipSuffix}` : ""}
+            </title>
             <rect
               x={x}
               y={y}

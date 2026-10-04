@@ -163,8 +163,16 @@ export function ReviewAgentExecutionLogSection({
                       <EnterpriseTableCell className="tabular-nums">
                         {formatAgentExecutionConfidenceLabel(result)}
                       </EnterpriseTableCell>
-                      <EnterpriseTableCell className="tabular-nums">{result.findings?.length ?? 0}</EnterpriseTableCell>
-                      <EnterpriseTableCell className="tabular-nums">{result.evidenceRefs?.length ?? 0}</EnterpriseTableCell>
+                      <EnterpriseTableCell className="tabular-nums">
+                        {result.findings === undefined
+                          ? "Not returned"
+                          : String(result.findings.length)}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="tabular-nums">
+                        {result.evidenceRefs === undefined
+                          ? "Not returned"
+                          : String(result.evidenceRefs.length)}
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         {hasDegradation ? (
                           <span

@@ -66,6 +66,12 @@ export function RunRetrievalGraphRagDiagnosticsStrip(
           </>
         ) : null}
       </dl>
+      <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+        {GRAPH_RAG_REVIEW_RETRIEVAL_SCOPE_LINE}
+      </p>
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+        {GRAPH_RAG_NEIGHBOR_HIT_RATE_SCOPE_LINE}
+      </p>
       {qualityPosture === "unproven" ? (
         <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-300">
           Graph-RAG neighbor expansion ran without Azure AI Search vector posture — treat retrieval quality as unproven.

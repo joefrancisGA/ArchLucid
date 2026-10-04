@@ -384,4 +384,25 @@ public sealed class TopologyProposalConsensusMergerTests
 
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void Merge_intersects_required_controls_when_whitespace_differs_between_models()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["SOC2"],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = [" SOC2 "],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("SOC2");
+    }
 }

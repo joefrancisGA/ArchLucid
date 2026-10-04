@@ -35,30 +35,27 @@ public static class AzureInventoryAdfDatasetLocationExtractor
         }
 
         string locationKind = datasetType.Trim();
-        string? containerOrFilesystem = null;
-        string? folderPath = null;
+        string? containerOrFilesystem = Truncate(
+            AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "fileSystem")
+            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "container"));
+        string? folderPath = Truncate(
+            AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "folderPath")
+            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "directory")
+            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "fileName"));
         string? tableName = null;
         string? schemaName = null;
 
         if (typePropertiesElement.TryGetProperty("location", out JsonElement locationElement)
             && locationElement.ValueKind is JsonValueKind.Object)
         {
-            containerOrFilesystem = Truncate(
+            containerOrFilesystem ??= Truncate(
                 AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "container")
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "fileSystem"));
 
-            folderPath = Truncate(
+            folderPath ??= Truncate(
                 AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "folderPath")
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(locationElement, "fileName"));
         }
-
-        folderPath ??= Truncate(
-            AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "folderPath")
-            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "directory"));
-
-        containerOrFilesystem ??= Truncate(
-            AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "fileSystem")
-            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "container"));
 
         tableName = Truncate(
             AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "tableName")

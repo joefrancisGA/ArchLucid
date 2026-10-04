@@ -1,6 +1,6 @@
 import type { FindingSeverityKind } from "@/lib/design-tokens";
 
-/** Maps engagement score to severity chip colors for admin tenant-health table (TB-228). */
+/** Maps engagement score to severity chip colors for admin tenant-health table (TB-228). Lower score = higher risk. */
 export function engagementScoreSeverityKind(score: number): FindingSeverityKind {
   if (score < 30) {
     return "critical";

@@ -28,16 +28,17 @@ import {
   fetchAdminTenantHealthList,
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
+import { presentTenantHealthAdminCount } from "@/lib/tenant-health-admin-display";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
-    return " — ";
+    return "Last activity not returned";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Last activity not returned";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -51,7 +52,13 @@ export function TenantHealthAdminPageClient() {
   const [loading, setLoading] = useState(true);
 
   const sortedItems = useMemo(
-    () => [...items].sort((left, right) => left.engagementScore - right.engagementScore),
+    () =>
+      [...items].sort((left, right) => {
+        const leftScore = left.engagementScore ?? Number.POSITIVE_INFINITY;
+        const rightScore = right.engagementScore ?? Number.POSITIVE_INFINITY;
+
+        return leftScore - rightScore;
+      }),
     [items],
   );
 
@@ -119,7 +126,12 @@ export function TenantHealthAdminPageClient() {
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Tenant</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Engagement</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              Engagement risk
+              <span className={cn("block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                Lower score = higher risk (not finding severity)
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Funnel stage</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Reviews (7d)</EnterpriseTableHeaderCell>
@@ -140,14 +152,23 @@ export function TenantHealthAdminPageClient() {
                 {row.tenantId}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
-                <span className={cn("tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {row.engagementScore}
-                </span>
-                <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Engagement score</span>
+                {row.engagementScore === null ? (
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Not returned</span>
+                ) : (
+                  <>
+                    <SeverityTag
+                      kind={engagementScoreSeverityKind(row.engagementScore)}
+                      label="Engagement risk"
+                    />
+                    <span className={cn("ml-2 tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {row.engagementScore}
+                    </span>
+                  </>
+                )}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.governanceScore}</EnterpriseTableCell>
+              <EnterpriseTableCell>{presentTenantHealthAdminCount(row.governanceScore)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.pilotFunnelStage}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.runsLast7d}</EnterpriseTableCell>
+              <EnterpriseTableCell>{presentTenantHealthAdminCount(row.runsLast7d)}</EnterpriseTableCell>
               <EnterpriseTableCell>{formatUtc(row.lastActivityUtc)}</EnterpriseTableCell>
             </EnterpriseTableRow>
           ))}

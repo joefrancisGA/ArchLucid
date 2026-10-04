@@ -2,11 +2,11 @@ export type AdminTenantHealthSummaryItem = {
   tenantId: string;
   workspaceId: string;
   projectId: string;
-  engagementScore: number;
-  governanceScore: number;
+  engagementScore: number | null;
+  governanceScore: number | null;
   pilotFunnelStage: string;
-  runsLast7d: number;
-  commitsLast7d: number;
+  runsLast7d: number | null;
+  commitsLast7d: number | null;
   lastActivityUtc: string | null;
 };
 
@@ -43,11 +43,21 @@ export async function fetchAdminTenantHealthList(): Promise<AdminTenantHealthLis
     tenantId: row.tenantId ?? "",
     workspaceId: row.workspaceId ?? "",
     projectId: row.projectId ?? "",
-    engagementScore: row.engagementScore ?? 0,
-    governanceScore: row.governanceScore ?? 0,
+    engagementScore:
+      typeof row.engagementScore === "number" && Number.isFinite(row.engagementScore)
+        ? row.engagementScore
+        : null,
+    governanceScore:
+      typeof row.governanceScore === "number" && Number.isFinite(row.governanceScore)
+        ? row.governanceScore
+        : null,
     pilotFunnelStage: row.pilotFunnelStage ?? "",
-    runsLast7d: row.runsLast7d ?? 0,
-    commitsLast7d: row.commitsLast7d ?? 0,
+    runsLast7d:
+      typeof row.runsLast7d === "number" && Number.isFinite(row.runsLast7d) ? row.runsLast7d : null,
+    commitsLast7d:
+      typeof row.commitsLast7d === "number" && Number.isFinite(row.commitsLast7d)
+        ? row.commitsLast7d
+        : null,
     lastActivityUtc: row.lastActivityUtc ?? null,
   }));
 

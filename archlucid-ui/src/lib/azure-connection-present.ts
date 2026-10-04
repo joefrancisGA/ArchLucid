@@ -28,7 +28,7 @@ export function formatAzureSubscriptionSummary(subscriptionIds: string): string 
     .filter((part) => part.length > 0);
 
   if (parts.length === 0) {
-    return " — ";
+    return "Connection not recorded";
   }
 
   if (parts.length === 1) {

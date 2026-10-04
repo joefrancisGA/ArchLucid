@@ -8,8 +8,8 @@ const SECONDS_PER_HOUR = 3600;
 
 /** USD savings from findings snapshot — whole dollars or em-dash when unknown. */
 export function formatUsd(value: number | null | undefined): string {
-  if (value === null || value === undefined) return " — ";
-  if (!Number.isFinite(value)) return " — ";
+  if (value === null || value === undefined) return "Amount not returned";
+  if (!Number.isFinite(value)) return "Amount not returned";
 
   return new Intl.NumberFormat(undefined, {
     style: "currency",
@@ -20,17 +20,17 @@ export function formatUsd(value: number | null | undefined): string {
 
 /** "12.34 h" or em-dash when the input is null / non-finite. */
 export function formatHours(seconds: number | null | undefined): string {
-  if (seconds === null || seconds === undefined) return " — ";
-  if (!Number.isFinite(seconds)) return " — ";
-  if (seconds < 0) return " — ";
+  if (seconds === null || seconds === undefined) return "Hours not returned";
+  if (!Number.isFinite(seconds)) return "Hours not returned";
+  if (seconds < 0) return "Hours not returned";
 
   return `${(seconds / SECONDS_PER_HOUR).toFixed(2)} h`;
 }
 
 /** "5" / "5.5" — integer formatting unless the median falls between counts. */
 export function formatFindings(count: number | null | undefined): string {
-  if (count === null || count === undefined) return " — ";
-  if (!Number.isFinite(count)) return " — ";
+  if (count === null || count === undefined) return "Count not returned";
+  if (!Number.isFinite(count)) return "Count not returned";
 
   return Number.isInteger(count) ? String(count) : count.toFixed(1);
 }
@@ -94,7 +94,7 @@ export function formatPerRunFindingsLine(totalFindings: unknown): string {
   const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
   const formatted = formatFindings(numeric);
 
-  if (formatted === " — ") {
+  if (formatted === "Count not returned") {
     return "Not enough data yet";
   }
 

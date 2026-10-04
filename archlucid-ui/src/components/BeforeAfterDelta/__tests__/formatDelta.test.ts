@@ -15,12 +15,12 @@ describe("formatHours", () => {
     expect(formatHours(2 * 3600)).toBe("2.00 h");
   });
 
-  it("returns em-dash for null/undefined/non-finite/negative", () => {
-    expect(formatHours(null)).toBe(" — ");
-    expect(formatHours(undefined)).toBe(" — ");
-    expect(formatHours(Number.NaN)).toBe(" — ");
-    expect(formatHours(Number.POSITIVE_INFINITY)).toBe(" — ");
-    expect(formatHours(-1)).toBe(" — ");
+  it("returns explicit not-returned copy for null/undefined/non-finite/negative", () => {
+    expect(formatHours(null)).toBe("Hours not returned");
+    expect(formatHours(undefined)).toBe("Hours not returned");
+    expect(formatHours(Number.NaN)).toBe("Hours not returned");
+    expect(formatHours(Number.POSITIVE_INFINITY)).toBe("Hours not returned");
+    expect(formatHours(-1)).toBe("Hours not returned");
   });
 });
 
@@ -31,10 +31,10 @@ describe("formatFindings", () => {
     expect(formatFindings(5.5)).toBe("5.5");
   });
 
-  it("returns em-dash for null/undefined/non-finite", () => {
-    expect(formatFindings(null)).toBe(" — ");
-    expect(formatFindings(undefined)).toBe(" — ");
-    expect(formatFindings(Number.NaN)).toBe(" — ");
+  it("returns explicit not-returned copy for null/undefined/non-finite", () => {
+    expect(formatFindings(null)).toBe("Count not returned");
+    expect(formatFindings(undefined)).toBe("Count not returned");
+    expect(formatFindings(Number.NaN)).toBe("Count not returned");
   });
 });
 

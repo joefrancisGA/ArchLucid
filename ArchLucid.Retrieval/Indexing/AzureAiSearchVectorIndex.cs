@@ -49,6 +49,13 @@ public sealed class AzureAiSearchVectorIndex(IAzureSearchClient client, IScopeCo
     }
 
     /// <inheritdoc />
+    public Task RemoveChunkIdsAsync(IReadOnlyList<string> chunkIds, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(chunkIds);
+        return client.RemoveChunkIdsAsync(chunkIds, ct);
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<RetrievalHit>> SearchAsync(
         RetrievalQuery query,
         float[] queryEmbedding,

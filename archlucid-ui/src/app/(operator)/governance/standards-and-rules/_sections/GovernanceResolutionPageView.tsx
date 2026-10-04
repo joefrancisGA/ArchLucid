@@ -30,6 +30,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { formatGovernanceResolutionWorkingResultsLabel } from "@/lib/governance/governance-resolution-collection-count-display";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   GOVERNANCE_STANDARDS_RULES_BUYER_START_HERE_HELPER,

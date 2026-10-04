@@ -39,6 +39,10 @@ import {
 } from "@/lib/runs/run-detail-deliverables-copy";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
+  LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL,
+  resolveLowExtractionConfidenceCount,
+} from "@/lib/review-quality/low-extraction-confidence-count";
+import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
 } from "@/lib/review-quality/finalize-quality-scorecard";
@@ -56,7 +60,7 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   readonly usedStaticDemoRun: boolean;
   readonly showExtendedSponsorBriefing: boolean;
-  readonly lowExtractionConfidenceCount?: number;
+  readonly lowExtractionConfidenceCount?: number | null;
   /** Optional rehearsal inputs; empty sections stay honest when omitted. */
   readonly rehearsalPreview?: SponsorRehearsalPreviewInput | null;
   readonly enginesSucceeded?: number | null;
