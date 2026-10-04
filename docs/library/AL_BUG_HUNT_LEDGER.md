@@ -11573,7 +11573,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -11801,7 +11801,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
 - **hunts:** 43
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
 - **last-bug:** 2026-10-03 — unmanaged identity capability triggered managed identity control
 - **related-pd-tb:** none
@@ -27549,10 +27549,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-04 seed hunt (seed-only): re-read the three picker paths and ownership/orchestrator tests after recent churn. Repeated pre-acquire checks are intentional race guards already covered by deletion, commit, and schedule-clear regressions; renewal/release candidates lack a concrete wrong outcome. The scoped ownership/orchestrator suite passed 54/54; no candidate was promoted or proven.
 
+2026-10-04 thorough hunt (dry): cheap-disproved the two repeated pre-acquire validation candidates as intentional race guards already covered by run-deletion, commit-transition, and live-schedule regressions. The scoped ownership/orchestrator suite passed 54/54; no failing repro and no code change.
+
 ### Hypotheses
 
-- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads can reject a still-valid execute after an intermediate status/scope read changes, despite the first eligibility check admitting it; reachable when run state changes between the two full-execute checks.
-- (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations can observe inconsistent snapshots and reject a valid selective request after earlier checks passed; reachable when schedule or run status changes during the pre-acquire sequence.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads are intentional race guards; the existing run-deleted-immediately-before-acquire regression establishes the second read's fail-closed purpose, with no separate wrong outcome from the extra read.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations are intentional race guards; existing commit/delete/schedule-clear regressions establish the checks prevent ownership admission during transitions, with no separate wrong outcome from the repeated reads.
 - (candidate) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — a dynamic options change between `AcquireAsync` and `BeginRenewalScope` can disable the renewal scope while the lease remains held; reachable when `RunExecuteOwnershipLeaseOptions.Enabled` changes during execute admission.
 - (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — release result is ignored, so an ownership-loss or repository failure can leave the orchestrator reporting successful completion without surfacing that cleanup failed; reachable when the lease repository returns an unsuccessful release during execute finalization.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal waits for a renewal task that may be blocked in a repository call despite cancellation, delaying release and extending the lease pin; reachable when renewal storage does not promptly honor the linked cancellation token.
