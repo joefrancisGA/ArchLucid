@@ -158,9 +158,13 @@ export PATH="${HOME}/.local/bin:/usr/local/bin:${DOTNET_ROOT}:${PATH}"
 
 prune_bootstrap_disk 350
 if (( "$(avail_root_mb)" >= 250 )); then
-  echo "Restoring and building ArchLucid.Api (Debug)..."
-  dotnet restore ArchLucid.Api/ArchLucid.Api.csproj
-  dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --verbosity minimal
+  echo "Restoring and building ArchLucid.Api (Debug) [best-effort]..."
+  if dotnet restore ArchLucid.Api/ArchLucid.Api.csproj \
+    && dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --verbosity minimal; then
+    echo "ArchLucid.Api Debug build succeeded."
+  else
+    echo "WARNING: ArchLucid.Api Debug build failed; continuing install (UI and scoped .NET builds may still work)." >&2
+  fi
 else
   echo "Skipping ArchLucid.Api restore/build (less than 250MB free on /)."
 fi
