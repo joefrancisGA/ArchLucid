@@ -18787,13 +18787,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — negative dependency event counts were accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (seed-only): re-read ADF linked-service/dataset sanitizers, messaging capture extraction, compute-identity principal indexing, and dependency-observation parsing after the 2026-10-03 ADF and telemetry hits; no row met the hunt-ready bar for same-run proof; seeded five mechanism-backed candidates; scoped `AzureExtractor` tests passed 1443/1443 (1416 Core + 27 Application).
 
 2026-10-03 thorough hunt (dry): cheap-disproved the three ADF reseed candidates; the selected source and focused tests provide no reachable schema evidence that `container` and `fileSystem` coexist with type-specific precedence, that location `fileName` should lose to top-level `folderPath`, or that the deliberate 260-character bound is incorrect; no failing repro was warranted.
 
@@ -18822,6 +18824,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [ ] (candidate) `AzureInventoryMessagingAssociationExtractor.IsEnabled` — `captureDescription.enabled` must be JSON boolean `true` to treat capture as enabled; a string token such as `"true"` is treated as disabled while a missing `enabled` property defaults to enabled, so reachable Event Hub ARM `properties.captureDescription` payloads with string booleans could omit `CaptureStorageAccountId` on an otherwise active capture destination.
+- [ ] (candidate) `AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar` / `AzureInventoryAdfLinkedServiceTargetExtractor.TryExtractTargetResourceId` — `typeProperties.resourceId` or ARM-shaped `serviceEndpoint` values serialized as JSON objects (`{"id":"/subscriptions/..."}`) are rejected because non-scalar kinds return null, leaving `AzureInventoryAdfLinkedServiceSanitizer` in `TargetUnresolved` even when the linked service references a storage account by resource id object shape from package `ReadProperties` blobs.
+- [ ] (candidate) `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` — `JsonElement.TryGetProperty` is case-sensitive, so identity JSON using `PrincipalId` or `UserAssignedIdentities` instead of `principalId` / `userAssignedIdentities` yields no principals in `BuildPrincipalToComputeArmIds`; reachable input is the `identity` property JSON carried on `AzureExtractorExtendedResourceRow` resources ingested from inventory packages.
+- [ ] (candidate) `AzureInventoryAdfDatasetSanitizer.TryReadLinkedServiceReferenceName` — non-string `linkedServiceName.referenceName` values are coerced with `GetRawText().Trim('"')` before `AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName`, so reachable ADF dataset ARM `properties.linkedServiceName` reference objects with numeric or boolean `referenceName` tokens may resolve to `_unresolved` rows or accept unexpected names.
+- [ ] (candidate) `AzureInventoryAdfLinkedServiceSanitizer.TryExtractKeyVaultResourceId` — always returns null for `AzureKeyVault` linked services, so companion rows never populate `KeyVaultResourceId` even when `typeProperties.baseUrl` resolves to a vault host via `AzureInventoryAdfLinkedServiceTargetExtractor`; reachable ADF Key Vault linked-service ARM payloads may lose vault ARM linkage in external-source graph materialization that reads `keyVaultResourceId`.
 
 - [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a source graph with an incomplete traversal branch that does not directly continue to the target reports a false unresolved gap — **hit 2026-10-03 seed hunt:** removing the `HasDirectContinuationToTarget` guard caused `ProjectPath_records_missing_intermediate_hop_without_bridging_gap` to fail; restored the guard so only partial branches with a direct target continuation are surfaced.
 - [x] (proven) `InventoryDiagramOrphanedStateClassifier.ReadEvidenceCurrency` — numeric `"99"` was accepted as an undefined enum and made `IsCurrentEvidence` false, suppressing orphan classification for a current connection with a missing endpoint — **hit 2026-10-03 thorough hunt:** added `Enum.IsDefined` validation so undefined values use the existing `Current` fallback; regression `Classify_numeric_unknown_evidence_currency_with_missing_endpoint_uses_current_fallback`.
