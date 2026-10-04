@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   applyFindingsConfidenceVisibility,
+  formatFindingsVisibilitySummaryLine,
   isApprovalBlockingFinding,
   isLowConfidenceFinding,
   partitionQuickDecisionFindingsByConfidence,
@@ -89,5 +90,11 @@ describe("finding-confidence-filter", () => {
 
     expect(partition.trustedFindings).toHaveLength(0);
     expect(partition.lowConfidenceFindings.map((row) => row.findingId)).toEqual(["f-1"]);
+  });
+});
+
+describe("formatFindingsVisibilitySummaryLine", () => {
+  it("labels missing hidden count honestly", () => {
+    expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toContain("hidden count not returned");
   });
 });
