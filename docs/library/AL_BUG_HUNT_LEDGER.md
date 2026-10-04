@@ -2975,7 +2975,7 @@
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-04 — consensus intersection ignored endpoint whitespace normalization
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2369 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_chaos_studio_target.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_chaos_studio_target_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
@@ -3926,7 +3926,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-09-28
 - **last-bug:** 2026-09-28 — embedded combining marks in requiredCapabilities survived substantive-text-only materialization
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `AuthorityPipelineWorkPayload.EnsureMutableCollections` / `MaterializeStringList` — `requiredCapabilities` entries with embedded combining marks (for example `messaging\u0300`) passed `HasSubstantiveText` but broke capability slug parity vs `MaterializeReferenceStringList` used for policy/topology/security-baseline hints — **hit 2026-09-28 seed hunt (seed→hit):** route `RequiredCapabilities` through `MaterializeReferenceStringList`; regression `Deserialize_filters_required_capabilities_when_entry_contains_embedded_combining_mark`.
 
@@ -26902,7 +26902,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — dead-letter audit hook failure escaped recoverable outbox batch isolation
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-03 thorough hunt (dry): repeated cheap-disproof of the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
