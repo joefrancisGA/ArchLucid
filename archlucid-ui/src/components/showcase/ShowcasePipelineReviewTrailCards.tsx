@@ -10,13 +10,13 @@ import type { PipelineTimelineItem } from "@/types/authority";
 
 function safeLocaleTime(iso: string): string {
   if (iso.trim().length === 0) {
-    return " — ";
+    return "Date not recorded";
   }
 
   const d = new Date(iso);
 
   if (Number.isNaN(d.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return d.toLocaleString();

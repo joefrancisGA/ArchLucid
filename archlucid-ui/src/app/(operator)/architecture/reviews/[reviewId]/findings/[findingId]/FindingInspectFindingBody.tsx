@@ -119,7 +119,7 @@ export function FindingInspectFindingBody({
     ),
   };
 
-  const evidenceRefCount = payload.evidence?.length ?? 0;
+  const evidenceRefCount = payload.evidence == null ? null : payload.evidence.length;
   const modelProvenance = buildFindingModelProvenanceRow({
     trustLabel: payload.trustLabel ?? typedPayloadLookupString(payload, "trustLabel"),
     trustLabelReason: payload.trustLabelReason ?? typedPayloadLookupString(payload, "trustLabelReason"),

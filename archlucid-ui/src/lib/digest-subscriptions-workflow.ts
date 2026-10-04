@@ -142,7 +142,7 @@ export function maskDigestDestination(destination: string, canRevealDetails: boo
   const trimmed: string = destination.trim();
 
   if (trimmed.length === 0) {
-    return " — ";
+    return "Destination not recorded";
   }
 
   if (canRevealDetails) {

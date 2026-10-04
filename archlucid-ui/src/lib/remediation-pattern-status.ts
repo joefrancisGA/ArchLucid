@@ -29,14 +29,14 @@ export function formatRemediationPatternAutomationLevel(
   automationLevel: number | string | undefined,
 ): string {
   if (automationLevel === undefined || automationLevel === null) {
-    return "—";
+    return "Not recorded";
   }
 
   if (typeof automationLevel === "string") {
     const trimmed = automationLevel.trim();
 
     if (trimmed.length === 0) {
-      return "—";
+      return "Not recorded";
     }
 
     switch (trimmed) {

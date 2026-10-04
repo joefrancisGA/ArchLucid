@@ -184,10 +184,14 @@ export function resolveSubscriptionStatusBadge(
 export function formatDeliveryResult(
   attempts: readonly DigestDeliveryAttempt[] | undefined,
 ): string {
+  if (attempts === undefined) {
+    return "Delivery result not returned";
+  }
+
   const latest: DigestDeliveryAttempt | null = resolveLatestDeliveryAttempt(attempts);
 
   if (latest === null) {
-    return " — ";
+    return "No delivery recorded";
   }
 
   if (latest.errorMessage?.trim()) {

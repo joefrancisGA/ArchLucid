@@ -44,9 +44,9 @@ describe("buyerGovernanceApprovalDisplayLabel", () => {
     expect(buyerGovernanceApprovalDisplayLabel("Failed")).toBe("Failed");
   });
 
-  it("returns dash for empty strings", () => {
-    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe(" — ");
-    expect(buyerGovernanceApprovalDisplayLabel("")).toBe(" — ");
-    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe(" — ");
+  it("returns not recorded for empty strings", () => {
+    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("Not recorded");
+    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("Not recorded");
+    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("Not recorded");
   });
 });

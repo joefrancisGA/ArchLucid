@@ -23,7 +23,7 @@ function formatIdentifierShort(value: string): string {
   const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   return trimmed.length > 10 ? `${trimmed.slice(0, 10)}…` : trimmed;

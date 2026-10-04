@@ -30,7 +30,7 @@ export function extractEmailDomain(workEmail: string): string {
   const atIndex = workEmail.lastIndexOf("@");
 
   if (atIndex < 0 || atIndex === workEmail.length - 1) {
-    return " — ";
+    return "Domain not recorded";
   }
 
   return workEmail.slice(atIndex + 1);
@@ -38,7 +38,7 @@ export function extractEmailDomain(workEmail: string): string {
 
 export function formatPricingQuoteAgeHours(ageHours: number): string {
   if (!Number.isFinite(ageHours) || ageHours < 0) {
-    return " — ";
+    return "Age not readable";
   }
 
   if (ageHours < 1) {
@@ -52,7 +52,7 @@ export function formatPricingQuoteSubmittedUtc(createdUtc: string): string {
   const parsed = Date.parse(createdUtc);
 
   if (Number.isNaN(parsed)) {
-    return createdUtc;
+    return "Date not readable";
   }
 
   return new Date(parsed).toLocaleString(undefined, {
@@ -128,7 +128,7 @@ export function resolvePricingQuoteLastTouchLabel(row: PricingQuoteAgingRow): st
   const touched = row.firstResponseUtc?.trim();
 
   if (touched === undefined || touched.length === 0) {
-    return " — ";
+    return "Not recorded";
   }
 
   return formatPricingQuoteSubmittedUtc(touched);

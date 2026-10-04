@@ -14,7 +14,7 @@ import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface
 
 function formatMetric(value: number | null | undefined, digits: number): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {
-    return " — ";
+    return "Not returned";
   }
 
   return value.toFixed(digits);

@@ -26,5 +26,5 @@ export function outcomeLabel(params: {
     return "OK";
   }
 
-  return " — ";
+  return "Outcome not returned";
 }

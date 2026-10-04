@@ -5,7 +5,11 @@ import {
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
 
-export function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[]): string {
+export function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[] | null | undefined): string {
+  if (attempts === null || attempts === undefined) {
+    return "Recipients not returned";
+  }
+
   const destinations: string[] = [
     ...new Set(
       attempts
@@ -15,7 +19,7 @@ export function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[]): st
   ];
 
   if (destinations.length === 0) {
-    return " — ";
+    return "No recipients recorded";
   }
 
   if (destinations.length <= 2) {

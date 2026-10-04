@@ -10,4 +10,9 @@ describe("formatWebhookDestinationLabel", () => {
   it("shows hostname only for root paths", () => {
     expect(formatWebhookDestinationLabel("https://listener.example/")).toBe("listener.example");
   });
+
+  it("returns destination not recorded for empty input", () => {
+    expect(formatWebhookDestinationLabel("")).toBe("Destination not recorded");
+    expect(formatWebhookDestinationLabel("   ")).toBe("Destination not recorded");
+  });
 });

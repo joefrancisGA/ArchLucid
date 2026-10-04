@@ -22,13 +22,17 @@ function formatMonthLabel(isoUtc: string): string {
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return date.toLocaleDateString(undefined, { month: "short", year: "2-digit", timeZone: "UTC" });
 }
 
-function formatUsdTooltip(value: number, monthLabel: string): string {
+function formatUsdTooltip(value: number | null, monthLabel: string): string {
+  if (value === null || !Number.isFinite(value)) {
+    return `Amount not returned — ${monthLabel}`;
+  }
+
   const rounded = Math.round(value).toLocaleString();
 
   return `$${rounded} — ${monthLabel}`;
@@ -66,7 +70,10 @@ export function SponsorRoiSavingsTrendSvgChart(props: SponsorRoiSavingsTrendSvgC
     return null;
   }
 
-  const maxSavings = Math.max(...points.map((point) => point.totalEstimatedUsdSavings), 1);
+  const finiteSavings = points
+    .map((point) => point.totalEstimatedUsdSavings)
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const maxSavings = Math.max(...finiteSavings, 1);
   const yTicks = buildYAxisTicks(maxSavings, 4);
   const plotWidth = CHART_WIDTH - PADDING_LEFT - PADDING_RIGHT;
   const plotHeight = chartHeightPx - PADDING_TOP - PADDING_BOTTOM;
@@ -108,7 +115,11 @@ export function SponsorRoiSavingsTrendSvgChart(props: SponsorRoiSavingsTrendSvgC
       })}
       {points.map((point, index) => {
         const monthLabel = formatMonthLabel(point.snapshotUtc);
-        const barHeight = Math.max(4, (point.totalEstimatedUsdSavings / maxSavings) * plotHeight);
+        const savingsKnown =
+          typeof point.totalEstimatedUsdSavings === "number" && Number.isFinite(point.totalEstimatedUsdSavings);
+        const barHeight = savingsKnown
+          ? Math.max(4, (point.totalEstimatedUsdSavings! / maxSavings) * plotHeight)
+          : 0;
         const centerX = PADDING_LEFT + barSlotWidth * index + barSlotWidth / 2;
         const x = centerX - barWidth / 2;
         const y = PADDING_TOP + plotHeight - barHeight;

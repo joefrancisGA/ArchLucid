@@ -80,10 +80,12 @@ function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): Rea
     props.pipelineTimelinesBundleBlockedReason
     ?? runDetailTimelinesBundleBlockedReason(pipelineTimelineFailure)
     ?? runPipelineTimelineBlockedReason(pipelineTimelineFailure);
+  const timelineKnown = pipelineTimelineForUi !== null;
   const totalCount = pipelineTimelineForUi?.length ?? 0;
   const showFullTrailLink =
     !buyerPolishedArtifactTable
     && !pipelineTimelineFailure
+    && timelineKnown
     && totalCount > OPERATOR_INLINE_AUDIT_EVENT_LIMIT;
 
   return (
@@ -150,9 +152,11 @@ export function RunDetailPipelineTimelineSection(
     parseRunPipelineTimelineOpenFromSearch(null),
   );
   const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
-  const summaryLine = buildAuditTrailSummaryLine(
-    pipelineTimelineFailure ? null : pipelineTimelineForUi,
-  );
+  const summaryLine = pipelineTimelineFailure
+    ? undefined
+    : pipelineTimelineForUi === null
+      ? "Events not returned"
+      : buildAuditTrailSummaryLine(pipelineTimelineForUi);
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
