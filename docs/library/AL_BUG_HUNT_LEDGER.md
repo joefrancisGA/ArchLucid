@@ -13888,6 +13888,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-04 seed hunt #51 (seed→hit): reseeded retrieval; proved `RetrievalIndexingService.IndexDocumentsAsync` removed prior vectors for an earlier document in the same batch before `EmbedManyAsync` completed for a later document, so embedding failures left earlier documents unsearchable without catalog rollback; fixed by deferring `RemoveChunksForDocumentAsync` until all embeddings succeed and immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`; 352 scoped retrieval/indexing tests passed.
+
 2026-10-01 seed hunt (seed-only): extended the retrieval source review across Azure Search adapters, scope validation, summarization, chunking, and embedding caching; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 2026-10-01 seed hunt (seed-only): inspected retrieval indexing, in-memory search, Azure scope filtering, query orchestration, structural chunking, and lexical reranking; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -13910,11 +13912,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 50
-- **last-hunt:** 2026-10-03
-- **bugs-found:** 20
+- **hunts:** 51
+- **last-hunt:** 2026-10-04
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-27 — chunk-cap failure deleted vectors before skip-unchanged could recover
+- **last-bug:** 2026-10-04 — multi-document batch removed vectors before later-document embed failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13976,6 +13978,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestChunkSummarizer.MaybeSummarizeAsync` — policy-pack-only (non-manifest) hit lists above `SafeTokenLimit` returned unchanged when no manifest summarization candidates existed — **hit 2026-09-27 seed hunt #36:** apply `TrimHitsToSafeTokenLimit` on the no-candidate path; regressions `MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget` and non-manifest budget enforcement in `MaybeSummarizeAsync_does_not_summarize_non_manifest_corpus_hits`.
 - [x] (proven) `AdminRagHealthQuery.GetRagHealth` — `ChunkCount` reflected indexed document count instead of vector chunk totals — **hit 2026-09-27 thorough hunt #37:** catalog records per-document `IndexedChunkCount`; corpus freshness exposes `ChunkCount` sum; admin health maps that field; regressions `IndexDocumentsAsync_records_chunk_count_in_corpus_freshness_summary` and `AdminRagHealthQuery_marks_fresh_stale_and_null_last_indexed`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — chunk-cap validation ran after `RemoveChunksForDocumentAsync`, so cap failures left documents without vectors while unchanged-hash retries skipped re-index — **hit 2026-09-27 seed hunt #38:** defer document chunk removal until after `MaxChunksPerIndexOperation` passes; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 

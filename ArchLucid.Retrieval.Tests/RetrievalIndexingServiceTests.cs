@@ -696,4 +696,90 @@ public sealed class RetrievalIndexingServiceTests
         summaries[0].ChunkCount.Should().BeGreaterThan(1);
         summaries[0].ChunkCount.Should().Be(index.GetEmbeddingMetadata()!.ChunkCount);
     }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted()
+    {
+        const string firstDocumentId = "d-multi-first";
+        const string secondDocumentId = "d-multi-second";
+
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+            {
+                if (texts.Any(t => t.Contains("trigger embed failure", StringComparison.Ordinal)))
+                    throw new InvalidOperationException("simulated embedding failure on second document");
+
+                return texts.Select(_ => new float[4]).ToList();
+            });
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object);
+
+        RetrievalDocument firstIndexedAlone = new()
+        {
+            DocumentId = firstDocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "first document stable corpus",
+            ContentHash = "HASH-FIRST-V1",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([firstIndexedAlone], CancellationToken.None);
+        int chunkCountBeforeBatch = index.GetEmbeddingMetadata()!.ChunkCount;
+        chunkCountBeforeBatch.Should().BeGreaterThan(0);
+
+        RetrievalDocument firstInBatch = new()
+        {
+            DocumentId = firstDocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "first document updated corpus in same batch",
+            ContentHash = "HASH-FIRST-V2",
+            CreatedUtc = firstIndexedAlone.CreatedUtc,
+        };
+
+        RetrievalDocument secondInBatch = new()
+        {
+            DocumentId = secondDocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "trigger embed failure on second document",
+            ContentHash = "HASH-SECOND",
+            CreatedUtc = firstIndexedAlone.CreatedUtc,
+        };
+
+        Func<Task> batchAttempt = async () =>
+            await sut.IndexDocumentsAsync([firstInBatch, secondInBatch], CancellationToken.None);
+
+        await batchAttempt.Should().ThrowAsync<InvalidOperationException>();
+
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().Be(
+            chunkCountBeforeBatch,
+            "embedding failure on a later document in the same batch must not delete earlier document vectors before upsert");
+
+        catalog.TryGet(firstDocumentId, out RetrievalDocumentIndexState? firstState).Should().BeTrue();
+        firstState!.ContentHash.Should().Be("HASH-FIRST-V1");
+    }
 }
