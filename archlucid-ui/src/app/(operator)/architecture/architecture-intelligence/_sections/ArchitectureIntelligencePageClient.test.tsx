@@ -1119,6 +1119,71 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByText("Golden test marker before fixture load")).not.toBeInTheDocument();
   });
 
+  it("keeps publish disabled for a golden test result", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+            runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Architecture for review A.",
+              },
+            ],
+          }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/golden-test")) {
+          return okJsonFetchResponse(({
+            passed: true,
+            plantedDefectRecall: 1,
+            falsePositiveCount: 0,
+            mutationChangedFindings: false,
+            beforeCounts: { High: 1 },
+            afterCounts: { High: 1 },
+            notes: "Golden test result is not a reasoning run",
+          }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-golden-test-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-golden-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
+  });
+
   it("clears golden test results when inbound runId switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
