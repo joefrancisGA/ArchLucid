@@ -5816,9 +5816,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
@@ -11675,9 +11675,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AgentOutputLlmSemanticJudge.TryJudgeAsync` — a configured `JudgeInvocationCount` greater than one launches samples concurrently after one budget peek, so a reachable enabled multi-sample judge run may consume more tenant judge quota than the peek permits; input is the persisted `AgentOutputLlmSemanticJudgeOptions` configuration.
-- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync` — `Task.WhenAll` over persisted traces propagates one evaluator exception and can abort recording for otherwise valid traces; input is a run containing one malformed or evaluator-triggering trace alongside successful traces.
-- [ ] (candidate) `AgentEvidenceGroundingIndex.Build` — duplicate policy, service, or pattern IDs overwrite earlier reference blobs in the case-insensitive map, so an AgentResult citation can resolve to the wrong evidence text; input is a reachable evidence package containing repeated catalog identifiers.
+- [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryJudgeAsync` — a configured `JudgeInvocationCount` greater than one launches samples concurrently after one budget peek — **cheap-disproof 2026-10-04 thorough hunt:** the selected files do not establish whether the budget tracker reserves atomically per completion or whether multi-sample quota overrun is a wrong product outcome.
+- [x] (valid-no-repro) `AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync` — `Task.WhenAll` over persisted traces propagates one evaluator exception — **cheap-disproof 2026-10-04 thorough hunt:** enforcing quality-gate exceptions are intentional and the selected files establish no requirement to continue recording other traces after an evaluator failure.
+- [x] (valid-no-repro) `AgentEvidenceGroundingIndex.Build` — duplicate policy, service, or pattern IDs overwrite earlier reference blobs in the case-insensitive map — **cheap-disproof 2026-10-04 thorough hunt:** the selected files establish no uniqueness contract or reachable duplicate catalog payload that would make the overwrite a wrong outcome.
 
 - [x] (invalid) Evaluation runner scores a failed trace as passed — warn-only gate records parse failures without rejecting; pilot strict rejects unparsed output (`AgentOutputTraceQualityEvaluatorTests`).
 - [x] (invalid) Runner uses a golden fixture from a different tenant's catalog — reference cases load from a single configured JSON path, not tenant-scoped catalogs (`AgentOutputReferenceCaseCatalog`).
@@ -11722,6 +11722,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 thorough hunt (dry): cheap-disproof retired the reference-case key-casing candidate as unreachable in the picked zone and the citation-mode candidate as already covered; remaining task-ID candidates lacked a concrete live input for a failing repro.
 
 2026-10-04 seed hunt (seed-only): re-read evaluation orchestration, LLM judge sampling, faithfulness grounding, and quality-gate paths; no existing candidate met the full reachable wrong-outcome bar. Seeded three concrete candidates for follow-up; no product test was added.
+
+2026-10-04 thorough hunt (dry): cheap-disproved the three evaluation candidates; budget reservation semantics and evidence-ID uniqueness are outside the selected files, while `Task.WhenAll` exception propagation has no established wrong outcome and enforcing failures are intentional. No hunt-ready hypothesis remained and no failing repro was attempted.
 
 ---
 

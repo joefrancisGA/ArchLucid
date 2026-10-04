@@ -1,4 +1,3 @@
-{"at":"2026-09-04T02:13:20.4380517Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T02:31:47.6786973Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T02:45:25.5581563Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T03:01:11.1988195Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8676,3 +8675,4 @@
 {"at":"2026-10-04T02:10:17.1943756Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-04T02:10:57.8631127Z","zoneId":"securenow-question-queue","outcome":"seed-only","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/,ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs,archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx)"]}
 {"at":"2026-10-04T02:13:15.5033787Z","zoneId":"securenow-question-queue","outcome":"dry","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/,ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs,archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx)"]}
+{"at":"2026-10-04T02:17:28.3392658Z","zoneId":"agent-runtime-evaluation","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.AgentRuntime/Evaluation/)"]}
