@@ -4,11 +4,8 @@ import {
   buildAdvisoryScheduleExamplePreviewView,
   buildAdvisoryScheduleListItemView,
   resolveExampleWeeklyMondayInstants,
-<<<<<<< HEAD
   summarizeExecutionOutcome,
-=======
   withLatestExecutionOutcome,
->>>>>>> 8eb03cf74e1d08f8c3c3528466988815aa74cbf3
 } from "@/lib/advisory-schedule-page-model";
 
 describe("resolveExampleWeeklyMondayInstants", () => {
