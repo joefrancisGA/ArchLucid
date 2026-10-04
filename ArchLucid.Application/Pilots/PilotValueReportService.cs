@@ -113,9 +113,10 @@ public sealed class PilotValueReportService(
             return EmptyReport(scope.TenantId, from, toExclusive, pendingApprovalsNow);
         List<CommittedRunRef> committedRuns = await CollectCommittedRunsAsync(from, toExclusive, cancellationToken).ConfigureAwait(false);
         committedRuns.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
-        IReadOnlyList<AuditEvent> auditRows = await _auditRepository
-            .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows, cancellationToken).ConfigureAwait(false);
-        bool auditTruncated = auditRows.Count >= AuditExportMaxRows;
+        IReadOnlyList<AuditEvent> auditFetch = await _auditRepository
+            .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows + 1, cancellationToken).ConfigureAwait(false);
+        bool auditTruncated = auditFetch.Count > AuditExportMaxRows;
+        IReadOnlyList<AuditEvent> auditRows = auditTruncated ? auditFetch.Take(AuditExportMaxRows).ToList() : auditFetch;
 
         if (auditTruncated && _logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pilot value report: audit export capped at {Cap} for tenant {TenantId}.", AuditExportMaxRows, scope.TenantId);

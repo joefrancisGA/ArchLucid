@@ -87,7 +87,7 @@ public sealed class PilotValueReportServiceTests
                 Scope.ProjectId,
                 expectedFrom,
                 to,
-                PilotValueReportService.AuditExportMaxRows,
+                PilotValueReportService.AuditExportMaxRows + 1,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -386,6 +386,54 @@ public sealed class PilotValueReportServiceTests
         runs.Verify(
             r => r.GetRunDetailForRoiAsync(newestRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        int cap = PilotValueReportService.AuditExportMaxRows;
+        List<AuditEvent> auditRows = new(cap);
+
+        for (int i = 0; i < cap; i++)
+        {
+            auditRows.Add(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RecommendationGenerated,
+                    OccurredUtc = from.AddMinutes(i),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    ActorUserId = "u",
+                    ActorUserName = "n",
+                });
+        }
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], false, null));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                from,
+                to,
+                cap + 1,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(auditRows);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report!.AuditExportTruncated.Should().BeFalse();
+        report.TotalRecommendationsProduced.Should().Be(cap);
     }
 
     [SkippableFact]
