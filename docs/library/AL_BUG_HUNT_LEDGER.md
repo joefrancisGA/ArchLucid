@@ -28202,7 +28202,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -28222,6 +28222,8 @@ ABQ-09 churn hotspot.
 
 2026-10-04 seed hunt (hit): proved `SecureNowQuestionQueue` keyed skipped and visited state only by `questionKey`, so choosing `NotSure` for one resource hid other resources sharing `unknown-evidence@v1` or `orphan-still-needed@v1`; keyed state by subscription/resource/question identity and added `keeps another resource with the same question key after skipping one`. The focused UI suite passed 7/7.
 
+2026-10-04 seed hunt (seed-only): re-read question candidate construction, mutation mapping, and queue state after the resource-identity fix; no candidate met the full same-run repro bar. Seeded two bounded follow-ups; no product test was added.
+
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
@@ -28231,6 +28233,8 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable versioned `QuestionKey` over 256 characters passed service validation even though `dbo.SecureNowQuestionDispositions.QuestionKey` is `NVARCHAR(256)`, allowing a persistence truncation failure; fixed with a class-level length guard and regression `Question_key_cannot_exceed_the_persistence_column_limit`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable API mutation with `resourceId: null` dereferenced `resourceId.Length` and produced a server error instead of validation failure; fixed with explicit required-resource validation and regression `Null_resource_id_is_rejected_as_validation_error`
 - [x] (proven) `SecureNowQuestionQueue` — skipped and visited state keyed only by versioned `questionKey`, so a `NotSure` action on one resource hid other resources sharing that key; fixed with subscription/resource/question identity keys and regression `keeps another resource with the same question key after skipping one`
+- [ ] (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — a resource with a non-empty `ParentResourceId` absent from the snapshot resource set is skipped before it can become an orphan question; input is a persisted inventory snapshot containing a child resource whose parent was not collected.
+- [ ] (candidate) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` despite the public request contract declaring string enum names; input is an API mutation payload with numeric enum text.
 
 ## Zone: infra-evidence-diagrams
 
