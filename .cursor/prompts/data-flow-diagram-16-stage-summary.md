@@ -1,10 +1,10 @@
 # DFV-16 — Put a one-line summary on the data-flow canvas
 
-**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not implement DFV-14, DFV-15, or DFV-17 in this session.
+**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not implement DFV-12, DFV-17, DFV-20, or DFV-21 in this session.
 
 **Repo:** `c:\ArchLucid`
 
-**Wave:** Data flow diagram (**DFV**). **Depends on:** current `master`. Do not redo column wrap or rollup. Count the cards the canvas is about to paint, after rollup if DFV-14 has already replaced a group with one card.
+**Wave:** Data flow diagram (**DFV**). **Depends on:** current `master` after DFV-13, DFV-14, DFV-18, and DFV-19. Do not redo column wrap, horizontal scroll, rollup, or the PNG fallback. Count the cards the canvas is about to paint. A DFV-14 rollup counts as one card. Do not also count its hidden members.
 
 ## Goal
 
@@ -12,7 +12,7 @@ On **Data flow — what may connect**, one line above the stage columns states h
 
 ## Why
 
-The stage headers already name Source, Application, Ingestion, Storage, Transform, and Consumer. A reviewer still has to scan the columns to learn that storage is large and mostly unconnected. `DiagramForestDataFlowStageLabelSvgEmitter` paints the headers and nothing above them.
+The stage headers already name Source, Application, Ingestion, Storage, Transform, and Consumer. On snapshot `Hmd_HI_HAP_Non_Prod` the left side is still dense, and a reviewer has to scan the columns to learn that storage is large and mostly unconnected. `DiagramForestDataFlowStageLabelSvgEmitter` paints the headers and nothing above them. This line is counts only. It does not explain what the lines on a card mean. That helper is DFV-20.
 
 ## Read first
 
@@ -29,7 +29,7 @@ The stage headers already name Source, Application, Ingestion, Storage, Transfor
 3. For the Storage stage, when consumer lines exist, append ` ({used} used, {none} no consumer found)` or ` ({used} used, {none} no evidence checked)` using whichever phrase the cards actually show. Count cards, so a DFV-14 rollup counts as one card. Do not also count its hidden members.
 4. When a Not staged column has cards, end the line with ` · {n} not staged`.
 5. An empty stage is absent from the line. A diagram with one stage is still one line, with no arrow.
-6. The line is ordinary SVG text, so the PNG export includes it. Do not add a second header in the page chrome.
+6. The line is ordinary SVG text, so the PNG export includes it. Do not add a "Reading a card" sentence in the page chrome. That is DFV-20.
 7. Tests:
     - Two source cards, one ingestion card, three storage cards (one `Used by 1`, two `No consumer found`), and one consumer card render `2 Source → 1 Ingestion → 3 Storage (1 used, 2 no consumer found) → 1 Consumer`, or the same words with the header capitalization the stage labels already use.
     - A Full subscription canvas does not contain `no consumer found` from this line.
