@@ -3,6 +3,7 @@ using System.Security;
 using System.Xml.Linq;
 
 using ArchLucid.Core.Diagrams;
+using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
@@ -15,13 +16,14 @@ public static class DiagramForestLegendSvgEmitter
     private const double PictogramSize = 16.0d;
     private const double LeftPadding = 10.0d;
     private const double TopPadding = 8.0d;
-    private const double BackgroundWidth = 180.0d;
+    private const double BackgroundWidth = 420.0d;
 
     public sealed record LegendInput(
         IReadOnlyList<DiagramInventoryPictogramKind> UsedKinds,
         bool HasPrivateEndpointAccess,
         bool HasDashedPeeringEdges,
-        bool HasResourceGroupFrames);
+        bool HasResourceGroupFrames,
+        IReadOnlyList<DiagramNode> RollupNodes);
 
     public sealed record LegendLayout(
         XElement Group,
@@ -63,6 +65,12 @@ public static class DiagramForestLegendSvgEmitter
         if (input.HasResourceGroupFrames)
         {
             rows.Add("Resource group");
+        }
+
+        foreach (DiagramNode rollup in input.RollupNodes)
+        {
+            rows.Add($"[{rollup.DataFlowRollupOrdinal}] {rollup.Label}");
+            rows.AddRange(rollup.DataFlowRollupMemberNames.Select(member => $"  {member}"));
         }
 
         double height = TopPadding + (rows.Count * RowHeight) + TopPadding;
@@ -128,6 +136,13 @@ public static class DiagramForestLegendSvgEmitter
             {
                 group.Add(ResourceGroupFrameSwatch(svgNamespace, LeftPadding, y - 9.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
+                continue;
+            }
+
+            if (row.StartsWith("  ", StringComparison.Ordinal)
+                || row.Contains(" [", StringComparison.Ordinal))
+            {
+                group.Add(Text(svgNamespace, LeftPadding, y, row, bold: row.Contains(" [", StringComparison.Ordinal)));
                 continue;
             }
 

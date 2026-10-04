@@ -134,4 +134,11 @@ public sealed class DiagramForestLayoutOptions
         get;
         init;
     }
+
+    /// <summary>When true, include data-flow rollup members in the export legend.</summary>
+    public bool IncludeDataFlowRollupMembersInLegend
+    {
+        get;
+        init;
+    }
 }

@@ -15,7 +15,8 @@ public static class DiagramForestNodeSvgEmitter
         double width,
         double height,
         DiagramForestNodeMetrics metrics,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        DiagramNode? node = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(metrics);
@@ -29,6 +30,17 @@ public static class DiagramForestNodeSvgEmitter
             svgNamespace + "g",
             new XAttribute("class", "node"),
             new XAttribute("id", $"node-{nodeId}"));
+        if (node?.IsDataFlowRollup == true)
+        {
+            group.Add(
+                new XAttribute(
+                    "data-member-ids",
+                    string.Join("|", node.DataFlowRollupMemberIds)));
+            group.Add(
+                new XAttribute(
+                    "data-member-names",
+                    string.Join("|", node.DataFlowRollupMemberNames)));
+        }
         string? questionableTitle = metrics.IsQuestionable
             ? $"{accessibilityTitle} — Questionable; select the resource for the reason and recommended action"
             : null;
@@ -130,6 +142,20 @@ public static class DiagramForestNodeSvgEmitter
         }
 
         group.Add(text);
+
+        if (node?.IsDataFlowRollup == true)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(width - options.NodePaddingX)),
+                new XAttribute("y", Format(firstLineBaseline)),
+                new XAttribute("text-anchor", "end"),
+                new XAttribute("font-size", "10"),
+                new XAttribute("font-weight", "700"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape($"[{node.DataFlowRollupOrdinal}]")));
+        }
 
         int linesAfterName = metrics.NameLines.Count;
         if (metrics.DataFlowTypeLine is not null)

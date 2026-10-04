@@ -199,15 +199,60 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
           <EnterpriseTable ariaLabel="Retrieval grounding traces" className={OPERATOR_TYPOGRAPHY.body}>
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Corpus</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Chunks</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Documents</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Scores</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Coverage</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Tokens</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Graph-RAG</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Trace</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Agent</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The agent that produced this retrieval trace.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Corpus</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The evidence corpus searched for this trace.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Chunks</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded chunk identifiers returned by retrieval.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Documents</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The documents associated with the retrieved chunks.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Scores</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The retrieval scores recorded for returned results. They are ranking signals, not review confidence percentages.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Coverage</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded share of cited material covered by this trace. It is not overall review completeness.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Tokens</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded input and output token counts for this trace.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Graph-RAG</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Whether graph-based retrieval metadata was recorded for this trace.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Trace</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The identifier for the agent execution trace associated with this retrieval.
+                  </span>
+                </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Recorded</EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>

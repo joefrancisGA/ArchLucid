@@ -9,6 +9,65 @@ export type ExportMermaidSourceToPngOptions = {
   readonly backgroundColor?: string;
 };
 
+function appendDataFlowRollupMemberLegend(svgMarkup: string): string {
+  if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
+    return svgMarkup;
+  }
+
+  const parsed = new DOMParser().parseFromString(svgMarkup, "image/svg+xml");
+  const svg = parsed.documentElement;
+  if (svg.localName.toLowerCase() !== "svg" || parsed.querySelector("parsererror") !== null) {
+    return svgMarkup;
+  }
+
+  const viewBox = (svg.getAttribute("viewBox") ?? "").trim().split(/[\s,]+/u).map(Number);
+  if (viewBox.length !== 4 || viewBox.some((value) => !Number.isFinite(value))) {
+    return svgMarkup;
+  }
+
+  const [minX, minY, viewWidth, viewHeight] = viewBox;
+  const rollups = [...svg.querySelectorAll("g.node[data-member-names]")];
+  if (rollups.length === 0) {
+    return svgMarkup;
+  }
+
+  const rowHeight = 16;
+  const topPadding = 12;
+  const rows = rollups.flatMap((rollup, index) => {
+    const title = rollup.querySelector("title")?.textContent?.trim() ?? "Rollup";
+    const members = (rollup.getAttribute("data-member-names") ?? "").split("|").filter(Boolean);
+    return [`[${index + 1}] ${title}`, ...members.map((member) => `  ${member}`)];
+  });
+  const legendHeight = topPadding * 2 + rows.length * rowHeight;
+  const legendGroup = parsed.createElementNS(SVG_NS, "g");
+  legendGroup.setAttribute("class", "rollup-member-legend");
+  const legendY = minY + viewHeight + 12;
+  legendGroup.setAttribute("transform", `translate(${minX},${legendY})`);
+
+  const background = parsed.createElementNS(SVG_NS, "rect");
+  background.setAttribute("width", "720");
+  background.setAttribute("height", String(legendHeight));
+  background.setAttribute("fill", "#ffffff");
+  background.setAttribute("stroke", "#e2e8f0");
+  legendGroup.appendChild(background);
+
+  rows.forEach((row, index) => {
+    const text = parsed.createElementNS(SVG_NS, "text");
+    text.setAttribute("x", "10");
+    text.setAttribute("y", String(topPadding + 12 + index * rowHeight));
+    text.setAttribute("font-size", index === 0 || row.includes(" [") ? "11" : "10");
+    text.setAttribute("font-weight", index === 0 || row.includes(" [") ? "700" : "400");
+    text.setAttribute("font-family", "system-ui,sans-serif");
+    text.setAttribute("fill", "#334155");
+    text.textContent = row;
+    legendGroup.appendChild(text);
+  });
+
+  svg.appendChild(legendGroup);
+  svg.setAttribute("viewBox", `${minX} ${minY} ${viewWidth} ${viewHeight + legendHeight + 12}`);
+  return new XMLSerializer().serializeToString(svg);
+}
+
 function readSvgExportDimensions(svgMarkup: string): { width: number; height: number } {
   if (typeof DOMParser === "undefined") {
     return { width: 1200, height: 800 };
@@ -48,7 +107,7 @@ function readSvgExportDimensions(svgMarkup: string): { width: number; height: nu
 function sanitizeSvgMarkupForCanvasExport(svgMarkup: string, dark: boolean): string {
   const withPalette = sanitizeArchitectureDiagramSvg(svgMarkup, { dark });
 
-  return sanitizeMermaidSvgForCanvasExport(withPalette);
+  return sanitizeMermaidSvgForCanvasExport(appendDataFlowRollupMemberLegend(withPalette));
 }
 
 async function svgMarkupToPngBlob(
