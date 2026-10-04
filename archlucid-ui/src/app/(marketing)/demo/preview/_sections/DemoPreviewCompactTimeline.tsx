@@ -27,13 +27,13 @@ type DemoPreviewCompactTimelineProps = {
 
 function safeLocaleTime(iso: string): string {
   if (iso.trim().length === 0) {
-    return " — ";
+    return "Date not readable";
   }
 
   const date = new Date(iso);
 
   if (Number.isNaN(date.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return date.toLocaleString();

@@ -5,9 +5,17 @@ import { finiteSponsorRoiHistoryCount } from "@/lib/sponsor/sponsor-roi-trend-hi
 
 export type SponsorRoiTrendSavingsChartPoint = {
   readonly snapshotUtc: string;
-  readonly totalEstimatedUsdSavings: number;
+  readonly totalEstimatedUsdSavings: number | null;
   readonly savingsTooltipSuffix: string | null;
 };
+
+function finiteSponsorRoiSavingsUsd(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return value;
+}
 
 /** Avoid buyer-polished $0 savings when run-mix counts were omitted (UU-582). */
 export function mapSponsorRoiTrendSavingsChartPoints(
@@ -19,22 +27,39 @@ export function mapSponsorRoiTrendSavingsChartPoints(
     const simulator = finiteSponsorRoiHistoryCount(point.simulatorRunCount);
     const runMixMissing = real === null || simulator === null;
 
-    const savingsInput = {
-      totalEstimatedUsdSavings: Number(point.totalEstimatedUsdSavings) || 0,
-      realModeSavingsUsd: Number(point.realModeSavingsUsd) || 0,
-      realRunCount: real ?? 0,
-      simulatorRunCount: simulator ?? 0,
-    };
+    const totalEstimatedUsdSavings = finiteSponsorRoiSavingsUsd(point.totalEstimatedUsdSavings);
+    const realModeSavingsUsd = finiteSponsorRoiSavingsUsd(point.realModeSavingsUsd);
 
-    const usd =
-      buyerPolished && runMixMissing
-        ? savingsInput.totalEstimatedUsdSavings
-        : resolveExecutiveTrendSavingsUsd(savingsInput, buyerPolished);
+    if (runMixMissing) {
+      return {
+        snapshotUtc: point.snapshotUtc,
+        totalEstimatedUsdSavings,
+        savingsTooltipSuffix: "Run mix not returned",
+      };
+    }
+
+    if (totalEstimatedUsdSavings === null) {
+      return {
+        snapshotUtc: point.snapshotUtc,
+        totalEstimatedUsdSavings: null,
+        savingsTooltipSuffix: "Amount not returned",
+      };
+    }
+
+    const usd = resolveExecutiveTrendSavingsUsd(
+      {
+        totalEstimatedUsdSavings,
+        realModeSavingsUsd: realModeSavingsUsd ?? 0,
+        realRunCount: real!,
+        simulatorRunCount: simulator!,
+      },
+      buyerPolished,
+    );
 
     return {
       snapshotUtc: point.snapshotUtc,
       totalEstimatedUsdSavings: usd,
-      savingsTooltipSuffix: runMixMissing ? "Run mix not returned" : null,
+      savingsTooltipSuffix: null,
     };
   });
 }

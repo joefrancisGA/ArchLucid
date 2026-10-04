@@ -203,6 +203,12 @@ export function AdvisorySchedulesTable(props: AdvisorySchedulesTableProps): Reac
         </EnterpriseTableBody>
       </EnterpriseTable>
 
+      {historyOpenFor !== null && executionsBySchedule[historyOpenFor] === undefined ? (
+        <p className={cn("m-0 mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          History not returned for this schedule.
+        </p>
+      ) : null}
+
       {historyOpenFor !== null && (executionsBySchedule[historyOpenFor]?.length ?? 0) > 0 ? (
         <div
           className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"

@@ -70,7 +70,8 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
   };
   const query = useArchitectureSealDeltaQuery(props.architectureId);
   const delta = query.data;
-  const diffCount = delta?.diffs.length ?? 0;
+  const diffsKnown = delta !== undefined && Array.isArray(delta.diffs);
+  const diffCount = diffsKnown ? delta.diffs.length : 0;
   const [panelOpen, setPanelOpenState] = useState(() => readPanelOpenFromUrl() ?? false);
   const panelOpenRef = useRef(panelOpen);
   panelOpenRef.current = panelOpen;
@@ -185,7 +186,7 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
     sealedReviewRunId.length > 0
       ? `${resolveSystemNotJobDeskSealedChildReviewHref(sealedReviewRunId, props.architectureId)}#run-actions`
       : null;
-  const groupedDiffs = groupDiffsBySection(delta.diffs);
+  const groupedDiffs = diffsKnown ? groupDiffsBySection(delta.diffs) : new Map();
 
   return (
     <CollapsibleSection
@@ -194,9 +195,11 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
       open={panelOpen}
       onToggle={setPanelOpen}
       summaryLine={
-        diffCount > 0
-          ? ARCHITECTURE_SEAL_DELTA_DIFF_COUNT_LABEL(diffCount)
-          : delta.emptyStateCopy ?? undefined
+        !diffsKnown
+          ? "Seal diffs not returned"
+          : diffCount > 0
+            ? ARCHITECTURE_SEAL_DELTA_DIFF_COUNT_LABEL(diffCount)
+            : delta.emptyStateCopy ?? undefined
       }
       sectionTestId="architecture-seal-delta-panel"
       className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
@@ -215,7 +218,13 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
           </p>
         ) : null}
 
-        {diffCount > 0 ? (
+        {!diffsKnown ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Seal diff list not returned for this architecture.
+          </p>
+        ) : null}
+
+        {diffsKnown && diffCount > 0 ? (
           <div className="space-y-4" data-testid="architecture-seal-delta-diff-list">
             {[...groupedDiffs.entries()].map(([section, items]) => (
               <section key={section} aria-label={architectureSealDeltaSectionLabel(section)}>
