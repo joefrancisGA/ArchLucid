@@ -13,12 +13,12 @@
      source cards, few connectors, a tall top-to-bottom canvas, and
      long runs of the same card. DFV-11 through DFV-17 save the link
      identity, collapse a shared host, wrap the columns, scroll a
-     canvas that is wider than the frame, roll up repeated cards, read
-     app settings and uploaded config, summarize the stages, and filter
-     edges by evidence.
+     canvas that is wider than the frame, roll up repeated cards, fix
+     the PNG browser fallback, read app settings and uploaded config,
+     summarize the stages, and filter edges by evidence.
      Do not implement from this index. -->
 
-# Data flow diagram — Luna prompt set (DFV-01–DFV-18)
+# Data flow diagram — Luna prompt set (DFV-01–DFV-19)
 
 **Do not implement from this index.** Paste **one** numbered `.cursor/prompts/data-flow-diagram-*.md` file per GPT-5.6 Luna session.
 
@@ -45,6 +45,7 @@ Canonical wave doc: [`docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md`](../.
 | **Left to right** | Each stage is one tall stack, so the canvas reads top to bottom. | A stage wider than 12 cards wraps into sub-columns. Connected cards sit above a `Not connected` group. Edges still leave on the right and enter on the left. | **DFV-13** |
 | **Wide canvas** | After the wrap, the picture is wider than the frame. The camera scrolls vertically. The ink clip cuts off the right-hand stages, so there is no horizontal scrollbar. | The same camera scrolls left and right when the picture is wider than the frame. Fit in view still fits the whole picture. Zoom and Fit stay on the frame. | **DFV-18** |
 | **Repeated cards** | Dozens of storage accounts with the same connections are dozens of cards. | More than three same-type, same-neighbor cards become one card. Click lists the members. PNG export lists them under the legend. | **DFV-14** |
+| **PNG fallback** | After the rollup, Export PNG reports `SVG_NS is not defined` when the server rasterizer is unavailable. | The browser fallback defines the SVG namespace, downloads the PNG, and still lists rollup members. | **DFV-19** |
 | **App and config evidence** | App-setting collection reads Container Apps only. A confirmed upload is labelled `Confirmed connection`. Every lonely store says `No consumer found`. | Function Apps and App Services contribute host edges. A file confirmation says `From config`. A snapshot with no such evidence says `No evidence checked`. | **DFV-15** |
 | **Stage summary** | The reviewer counts the columns by eye. | One line above the stages gives the counts, including how many storage cards are used. | **DFV-16** |
 | **Evidence filters** | Declared, guessed, and confirmed edges are one picture. | Four checkboxes, on by default, hide Observed, App settings, From config, or Inferred edges. Cards stay. | **DFV-17** |
@@ -55,7 +56,7 @@ Keep the evidence catalog's exclusions. Do not put diagnostic settings, NIC, VNe
 
 ## Run order
 
-**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07; the host it finds is stored by **11** and painted by **08**. Then **12**, **13**, **18**, **14**, **15**, **10**, **16**, **17**. **18** is the viewer scroll after **13**. Look at that scrollbar before pasting **14**. **10** can run any time after 07. The recommended look puts it after the new edges exist. Do not run two of these in one session.
+**01–07 are on `master`.** Next: **11**, then **08**. **09** can run any time after 07; the host it finds is stored by **11** and painted by **08**. Then **12**, **13**, **18**, **14**, **19**, **15**, **10**, **16**, **17**. **18** is the viewer scroll after **13**. Look at that scrollbar before pasting **14**. **19** fixes the PNG fallback after **14**. Look at a downloaded PNG before pasting **15**. **10** can run any time after 07. The recommended look puts it after the new edges exist. Do not run two of these in one session.
 
 Each implementation prompt ends **before commit**. The owner looks, then says whether to commit.
 
@@ -78,6 +79,7 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 13 | `data-flow-diagram-13-left-to-right-columns.md` | `dfv/13-left-to-right-columns` |
 | 18 | `data-flow-diagram-18-scroll-wide-canvas.md` | `dfv/18-scroll-wide-canvas` |
 | 14 | `data-flow-diagram-14-rollup-repeated-cards.md` | `dfv/14-rollup-repeated-cards` |
+| 19 | `data-flow-diagram-19-png-fallback-namespace.md` | `dfv/19-png-fallback-namespace` |
 | 15 | `data-flow-diagram-15-app-and-config-evidence.md` | `dfv/15-app-and-config-evidence` |
 | 16 | `data-flow-diagram-16-stage-summary.md` | `dfv/16-stage-summary` |
 | 17 | `data-flow-diagram-17-evidence-filters.md` | `dfv/17-evidence-filters` |
