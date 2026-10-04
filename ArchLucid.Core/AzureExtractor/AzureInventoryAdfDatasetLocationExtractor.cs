@@ -40,7 +40,8 @@ public static class AzureInventoryAdfDatasetLocationExtractor
             ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "container"));
         string? folderPath = Truncate(
             AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "folderPath")
-            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "directory"));
+            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "directory")
+            ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "fileName"));
         string? tableName = null;
         string? schemaName = null;
 
