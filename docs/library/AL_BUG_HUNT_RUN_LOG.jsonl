@@ -8727,3 +8727,4 @@
 {"at":"2026-10-04T21:22:02.8116257Z","zoneId":"authority-pipeline-payload","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}
 {"at":"2026-10-04T21:36:27.5740455Z","zoneId":"ui-webhooks-settings","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
 {"at":"2026-10-04T21:40:35.7395082Z","zoneId":"ui-webhooks-settings","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx,archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
+{"at":"2026-10-04T21:47:14.9883762Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}

@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` sorted committed runs ascending then `Take(DefaultRunDetailCap)`, so tenants with more than 400 committed pilots in-window loaded the oldest runs for findings/timeline aggregation and dropped newer committed activity; cap now uses `TakeLast` so detail loading prefers the newest runs; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
+
+2026-10-04 seed hunt (seed→hit): `ui-webhooks-settings` — `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` matched `OnCallWebhook` with exact case while alert-routing API treats outbound webhook channel types case-insensitively, so rows such as `oncallwebhook` disappeared from `webhookRows` and the subscriptions table; normalized with trim + lowercase compare; regression `lists webhook subscriptions when API returns case-variant OnCallWebhook channelType`; 60 scoped webhooks folder tests passed.
+
 2026-10-04 thorough hunt (hit): `ui-webhooks-settings` — manual Refresh reused `load()` without clearing enable/disable confirmation state, so a failed inventory refresh left toggle dialogs open against unverified `webhookRows`; added `refreshSubscriptions` in `useWebhooksSettings` to dismiss pending confirmations before reload; regression `closes enable confirmation when manual refresh fails after subscriptions were loaded`; 59 scoped webhooks folder tests passed.
 
 2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — document names, declaration names/formats, and path-like reference lists still used `HasUsableIdentifierText` without rejecting embedded whitespace, so STJ values such as `diag\u00A0ram` or `pci\u00A0/dss` survived materialization and broke batch/path key parity (same class as evidence bundle id NBSP); introduced `HasUsableCompactIdentifierText` for compact ids while keeping internal spaces on inline requirements, constraints, assumptions, and document/declaration bodies; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`; 39 scoped payload JSON tests passed.
@@ -7004,6 +7008,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-10-04 seed hunt (seed→hit): promoted case-variant `channelType` filtering; exact-case `OnCallWebhook` gate hid API rows the server already classifies as outbound webhooks; regression `lists webhook subscriptions when API returns case-variant OnCallWebhook channelType`; 60 scoped webhooks folder tests passed.
+
+- [x] (proven) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case filter hid case-variant `OnCallWebhook` API rows from `webhookRows` — **hit 2026-10-04 seed hunt:** trim + lowercase compare; regression above.
+
 2026-10-04 thorough hunt (hit): proved manual Refresh left enable/disable confirmation dialogs open when `listAlertRoutingSubscriptions` failed after a prior successful load; `refreshSubscriptions` now clears pending toggle confirmations before reload while post-confirm toggle refresh failures still surface in-dialog; regression `closes enable confirmation when manual refresh fails after subscriptions were loaded`; 59 scoped webhooks folder tests passed.
 
 - [x] (proven) `useWebhooksSettings` / `WebhooksSettingsClient` — manual Refresh left enable/disable URL-backed confirmations open against stale `webhookRows` after `hasLoadedSuccessfully` flipped false — **hit 2026-10-04 thorough hunt:** `refreshSubscriptions` dismisses pending confirmations before `load()`; regression above.
@@ -7038,11 +7046,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 36
-- **bugs-found:** 25
+- **hunts:** 37
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — manual Refresh left toggle confirmations open on failed reload
+- **last-bug:** 2026-10-04 — case-variant OnCallWebhook channelType hidden from webhookRows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7067,11 +7075,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — see cheap-disproof 2026-10-04 thorough hunt above.
 - [x] (valid-no-repro) `useWebhooksSettings.showAlertSeverityFilter` — see cheap-disproof 2026-10-04 thorough hunt above.
 
-- (candidate) `useWebhooksSettingsMutations` — `webhookEnableId`/`webhookDisableId` confirmation can remain actionable after a successful inventory becomes stale because a later manual refresh fails while `webhookRows` and the URL parameter remain; reachable through a deep-link toggle confirmation followed by failed `listAlertRoutingSubscriptions`.
-- (candidate) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case channel filtering can hide case-variant API rows from `webhookRows`; reachable through an alert-routing subscription API response.
+- [x] (proven) `useWebhooksSettingsMutations` — toggle confirmation stayed open after failed manual refresh — **hit 2026-10-04 thorough hunt:** `refreshSubscriptions` clears pending enable/disable (and URL sync) before reload; regression `closes enable confirmation when manual refresh fails after subscriptions were loaded`.
+- [x] (proven) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — see hit 2026-10-04 seed hunt above.
 - [x] (proven) `WebhooksSettingsClient.openSubscription` — API subscription ID was interpolated into a CSS attribute selector without escaping; selector-significant IDs failed to find the Continue-last target row, so navigation did not scroll/focus the subscription action; **hit 2026-10-03 seed hunt:** replaced selector interpolation with attribute-value matching; regression `opens a continue-last subscription when its API id contains selector-significant characters`.
-- (candidate) `WebhooksSettingsClient.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix requirement can hide severity configuration for mixed/case-variant event types; reachable through event-type values in the create form/API vocabulary.
-- (candidate) `useWebhooksSettingsMutations.executeToggle` — pending URL/dialog state may be reconstructed from stale toggle query params after scope change; reachable through an in-flight toggle plus scope navigation retaining `webhookEnableId`/`webhookDisableId`.
+- [x] (valid-no-repro) `WebhooksSettingsClient.showAlertSeverityFilter` — duplicate of `useWebhooksSettings.showAlertSeverityFilter` cheap-disproof 2026-10-04.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.executeToggle` — scope switch runs `handleScopeChange`, which resets mutation state and pending toggle URL sync via `resetMutationState` / `setPendingEnable(null)`; existing scope-switch regressions cover in-flight toggles.
 
 - [x] Signing secret from a previous workspace remains visible after scope switch
 - [x] Save succeeds in the UI when the API returned 403 (retired: create throws on !ok; success callout only after await)
@@ -11742,11 +11750,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 33
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — snapshot governed-count preference dropped agent Critical severity buckets and top finding
+- **hunts:** 34
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — value report run-detail cap loaded oldest committed runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11868,7 +11876,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BoardPackQuarterWindow.Resolve` — supplying only one of `PeriodStartUtc` or `PeriodEndUtc` silently discards the supplied bound and uses the full calendar quarter; input originates from the public board-pack request body and needs confirmation of the partial-window contract.
 - (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — malformed `isDemoTenant` JSON types throw from `GetBoolean` instead of returning the fail-closed validation result; input originates from the serialized deltas contract and needs a reachable non-boolean producer.
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
-- (candidate) `PilotValueReportService.BuildAsync` — when more than `DefaultRunDetailCap` committed runs are in range, ascending sort plus `Take` loads the oldest 400 and omits newer runs from findings, averages, and timeline; input originates from a tenant with more than 400 committed pilot runs in the report window.
+- [x] (proven) `PilotValueReportService.BuildAsync` — run-detail cap used `Take` on ascending-sorted committed runs, omitting newest pilots from findings/timeline aggregation — **hit 2026-10-04 seed hunt:** `TakeLast(DefaultRunDetailCap)`; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`.
 - (candidate) `PilotRunDeltaComputer.ComputeAsync` — a persisted findings snapshot with zero rows is treated as unavailable, so stale agent-result findings can remain in buyer deltas instead of honoring an authoritative empty snapshot; input originates from a committed run linked to an empty persisted findings snapshot.
 - (candidate) `PilotValueReportService.BuildAsync` — an audit export containing exactly `AuditExportMaxRows` rows is marked truncated even when the repository has no additional rows, overstating incompleteness in the buyer value report; input originates from a tenant whose scoped audit export has exactly the configured cap.
 
@@ -11886,6 +11894,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): repeated the selected pilot value-report, empty-snapshot, audit-cap, proof-pack, and board-pack review; no new reachable wrong outcome or bounded candidate emerged. BuyerProofPack/BoardPack tests passed 22/22 with unrelated analyzers disabled.
 
 2026-10-03 seed hunt (seed-only): re-read the same pilot report and delta-selection candidates; no candidate reached the hunt-ready bar or produced a failing repro, and no additional reachable mechanism was identified. No production code changed.
+
+2026-10-04 seed hunt (seed→hit): promoted run-detail cap candidate; proved oldest-first `Take` dropped the newest committed run from capped findings aggregation; fixed with `TakeLast`; regression above; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
