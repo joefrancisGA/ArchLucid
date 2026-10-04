@@ -6776,7 +6776,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-09-30
@@ -6916,8 +6916,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** WebhooksSettings
 - **hunts:** 35
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — selector-significant subscription id breaks Continue last viewed navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -28144,6 +28144,8 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed-only): reread `InfraEvidenceCompositionModule` after SecureNow question-disposition registration churn; both SQL and InMemory repository wiring were present, and no new hunt-ready defect was proven. Added two composition-boundary candidates; the scoped test filter was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
+- 2026-10-04 thorough hunt (dry): cheap-disproved both composition-boundary candidates. InMemory registers `NoOpSecureNowQuestionDispositionRepository`, SQL registers `SqlSecureNowQuestionDispositionRepository`, and the full InMemory/SQL DI graphs validate on build; the existing cloud-resource hub composition test also resolves and serves an upserted identity. No failing repro was reachable.
+
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` / `CoordinatorArtifactsCompositionModule` — duplicate `IDiagramPeelCatalogProvider` registration leaves artifact default provider active so infra mermaid ignores DB peel catalog — **cheap-disproof 2026-09-26 seed hunt:** `AddInfraEvidenceCapability` runs after Authority coordinator artifacts; InMemory resolves `RepositoryDiagramPeelCatalogProvider`; regression `InMemory_composition_infra_evidence_peel_catalog_provider_wins_over_artifact_default`.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — registers `DiagramPeelCatalogBootstrapper` without hosted startup wiring so SQL/InMemory peel catalog never seeds — **cheap-disproof 2026-09-26 seed hunt:** `RepositoryDiagramPeelCatalogProvider` seeds read-time defaults when repository count is zero; bootstrapper is optional persistence helper, not required for mermaid render.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — new `IAzureInventorySnapshotDeleteService` / `IGraphvizLayoutRenderer` registrations fail InMemory `ValidateOnBuild` — **cheap-disproof 2026-09-26 seed hunt:** full InMemory pipeline resolves `AzureInventorySnapshotDeleteService` and `GraphvizFdpLayoutRenderer`; regression `InMemory_composition_resolves_snapshot_delete_and_graphviz_from_module`.
@@ -28154,8 +28156,8 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecureNowQuestionDispositionService` — the newly registered SecureNow question API can resolve in one storage mode but fail with HTTP 500 when a hosting composition omits `ISecureNowQuestionDispositionRepository`; input is a request to the new SecureNow question endpoint under an InMemory or SQL host.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / cloud-resource hub services — the module registers hub consumers while identity-directory wiring is supplied by separate storage registrars; a host that composes the capability without a storage provider could expose a reachable hub request as a DI failure instead of a controlled unavailable response.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `ISecureNowQuestionDispositionService` — the newly registered SecureNow question API can resolve in one storage mode but fail with HTTP 500 when a hosting composition omits `ISecureNowQuestionDispositionRepository`; **disproved 2026-10-04 thorough hunt:** InMemory registers `NoOpSecureNowQuestionDispositionRepository`, SQL registers `SqlSecureNowQuestionDispositionRepository`, and both full storage graphs validate on build; `InMemory_storage_full_composition_validates_on_build` and `Sql_storage_full_composition_validates_on_build` cover the reachable host modes.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / cloud-resource hub services — the module registers hub consumers while identity-directory wiring is supplied by separate storage registrars; a host that composes the capability without a storage provider could expose a reachable hub request as a DI failure instead of a controlled unavailable response. **Disproved 2026-10-04 thorough hunt:** the InMemory composition supplies `InMemoryCloudResourceIdentityDirectory`, the full graph validates, and `InMemory_composition_cloud_resource_hub_resolves_upserted_identity` resolves the hub and returns the upserted resource.
 
 - [x] (proven) `InMemoryStorageProviderRegistrar` / `InfraEvidenceCompositionModule` — `ICloudResourceEvidenceHubService` and `ICloudResourceExplorerQueryService` registered but InMemory `ICloudResourceIdentityDirectory` never persisted upserted identities — **hit 2026-09-07 hunt #1190 (seed→hit):** `NoOpCloudResourceIdentityDirectory` returned synthetic upsert rows with new Guids while `TryGetByCloudResourceIdAsync` always returned null, so OpenAPI/InMemory hosts could not resolve resource hub after inventory materialization; fixed with `InMemoryCloudResourceIdentityDirectory` and composition regression in `InfraEvidenceCompositionModuleTests`
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `MermaidDiagramReadabilityThresholds` singleton may not flow into `InfraEvidenceSnapshotMermaidService` when optional ctor default bypasses DI — **disproved 2026-09-07 (#1273):** MS DI injects registered singleton into optional primary-constructor parameter; same instance used at render time (`InfraEvidenceCompositionModule_wires_mermaid_readability_thresholds_singleton_into_snapshot_mermaid_service`)
