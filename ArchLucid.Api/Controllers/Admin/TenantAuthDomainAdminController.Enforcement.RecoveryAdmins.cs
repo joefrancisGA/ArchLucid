@@ -96,14 +96,23 @@ public sealed partial class TenantAuthDomainAdminController
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
 
-        TenantAuthDomainRecoveryAdminRemovalResult result = await _adminService
-            .TryRemoveRecoveryAdminAsync(
-                scope.TenantId,
-                normalizedDomain,
-                normalizedRecoveryAdminEmail,
-                confirmRemoveLast,
-                cancellationToken)
-            .ConfigureAwait(false);
+        TenantAuthDomainRecoveryAdminRemovalResult result;
+
+        try
+        {
+            result = await _adminService
+                .TryRemoveRecoveryAdminAsync(
+                    scope.TenantId,
+                    normalizedDomain,
+                    normalizedRecoveryAdminEmail,
+                    confirmRemoveLast,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         if (!result.Removed)
         {

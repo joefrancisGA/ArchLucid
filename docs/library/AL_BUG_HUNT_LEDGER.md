@@ -25065,11 +25065,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 58
-- **bugs-found:** 50
+- **hunts:** 59
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — tenant auth domain remove missing-domain 500
+- **last-bug:** 2026-10-04 — tenant auth domain recovery-admin remove missing-domain 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25079,11 +25079,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-04 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths. No candidate was promoted because the scoped controller test command was blocked before test discovery by pre-existing ARCH006/ARCH006a analyzer errors in unrelated persistence files. Seeded the verification-route error-mapping candidate for a future repro.
 
+2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `TenantAuthDomainAdminController.RemoveRecoveryAdminAsync` let `RequireDomainAsync` `InvalidOperationException` bubble for an unknown route `normalizedDomain`; map to `400 ValidationFailed`; regression `RemoveRecoveryAdminAsync_returns_bad_request_when_domain_not_registered_for_tenant`; re-confirmed valid-no-repro on picker Quick Scan `Enum.Parse` and null clarification-answer candidates; 18 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
+
 2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `TenantAuthDomainAdminController.RemoveDomainAsync` let `RequireDomainAsync` `InvalidOperationException` bubble for an unknown route `normalizedDomain`, unlike verification routes fixed earlier the same day; map to `400 ValidationFailed`; regression `RemoveDomainAsync_returns_bad_request_when_domain_not_registered_for_tenant`; 17 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
 
 2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `TenantAuthDomainAdminController.StartVerificationAsync` / `CheckVerificationAsync` let `RequireDomainAsync` `InvalidOperationException` bubble when the route `normalizedDomain` is not registered for the tenant (stale admin link), unlike sibling `ProposeAsync` / `MarkRoutingTestedAsync`; map to `400 ValidationFailed`; regressions `StartVerificationAsync_returns_bad_request_when_domain_not_registered_for_tenant` and `CheckVerificationAsync_returns_bad_request_when_domain_not_registered_for_tenant`; 16 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
 
 ### Hypotheses
+
+- [x] (proven) `TenantAuthDomainAdminController.RemoveRecoveryAdminAsync` — missing tenant-owned `normalizedDomain` surfaced `InvalidOperationException` as an unhandled 500 — **hit 2026-10-04 thorough hunt:** catch `InvalidOperationException` and return `BadRequestProblem` like sibling domain admin routes; regression `RemoveRecoveryAdminAsync_returns_bad_request_when_domain_not_registered_for_tenant`.
 
 - [x] (proven) `TenantAuthDomainAdminController.RemoveDomainAsync` — missing tenant-owned `normalizedDomain` surfaced `InvalidOperationException` as an unhandled 500 — **hit 2026-10-04 thorough hunt:** catch `InvalidOperationException` and return `BadRequestProblem` like sibling domain admin routes; regression `RemoveDomainAsync_returns_bad_request_when_domain_not_registered_for_tenant`.
 
