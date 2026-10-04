@@ -149,7 +149,8 @@ public sealed partial class DifficultyBasedExtractionRouter
         && previous != '-'
         && previous != '_'
         && previous != '.'
-        && previous != '/';
+        && previous != '/'
+        && previous != ':';
 
     private static bool IsValidMarkerEndBoundary(char next) =>
         !char.IsLetterOrDigit(next) && next != '-' && next != '_';
