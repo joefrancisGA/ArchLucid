@@ -47,7 +47,7 @@ public sealed partial class DapperFindingInspectReadRepository
 
         return new FindingInspectResponse
         {
-            FindingId = row.FindingId,
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(row.FindingId),
             Severity = recordSeverity,
             TypedPayload = typed,
             Classification = classification,

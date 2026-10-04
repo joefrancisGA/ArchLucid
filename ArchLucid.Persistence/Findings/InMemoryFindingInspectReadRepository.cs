@@ -96,7 +96,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
 
         return new FindingInspectResponse
         {
-            FindingId = match.FindingId,
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(match.FindingId),
             Severity = match.Severity,
             TypedPayload = typed,
             Classification = match.Classification
@@ -122,11 +122,12 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ConfidenceLevel = match.ConfidenceLevel,
             HumanReviewStatus = match.HumanReviewStatus,
             IsMuted = match.IsMuted,
-            MuteReason = match.MuteReason,
-            ReasoningTrace = ResolveInspectReasoningTrace(match),
+            MuteReason = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.MuteReason),
+            ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
+                ResolveInspectReasoningTrace(match)),
             ReasoningTraceDigestSha256 = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
                 match.Trace.ReasoningTraceDigestSha256),
-            AssignedToUserId = match.AssignedToUserId,
+            AssignedToUserId = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.AssignedToUserId),
             RemediationDueUtc = match.RemediationDueUtc,
             RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = detail.Run.RealModeFellBackToSimulator,
