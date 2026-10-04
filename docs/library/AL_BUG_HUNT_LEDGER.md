@@ -3920,7 +3920,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-28
@@ -27797,6 +27797,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
 - (candidate) `ReviewDetailWorkspaceTabShell.renderTabPanel` — a non-null `inPipelineBanner` is rendered into every hidden non-activity tab panel as well as the active panel; reachable pipeline-in-flight input could duplicate interactive banner markup or IDs across the workspace, pending a banner contract/test-id check.
 - (candidate) `ReviewDetailWorkspaceTabShell` workbench composition — the evidence vocabulary rail is rendered once inside `WorkbenchLayoutBridge` and again in the hidden evidence tab panel; reachable Working-mode workbench input could duplicate vocabulary navigation or its identifiers, pending focused DOM/accessibility proof.
+- [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused test failure came from mocking `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; `useReviewDetailWorkspaceTabs` intentionally reads presenter state from `window.location`, so this does not establish a reachable product failure.
 
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
 - [x] (proven) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — used `findingCountDisplay` from deferred explanation while findings list used detail snapshot on first paint — **hit 2026-09-07 (#1196):** tab badge stayed empty until explanation loaded even when triage-visible findings were already in run detail; fixed via `resolveRunDetailFindingsTabBadgeCount` fallback to detail triage counts (`falls back to detail snapshot triage counts when explanation count is deferred`)
@@ -27831,6 +27832,8 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-09-07 seed hunt #1174 (hit): reseeded review detail workspace presentation/lifecycle paths; proved completed pre-finalize runs mislabeled in progress when no manifest.
 2026-09-07 thorough hunt #1196 (hit): proved legacy archTab initial hydration gap and deferred-explanation findings tab badge gap; classified deriveRunDetailWorkspaceStatus as valid-no-repro.
 2026-10-04 seed hunt (seed-only): re-read `ReviewDetailWorkspace`, `ReviewDetailWorkspaceTabShell`, and presenter/workbench paths; the workbench architecture-panel duplication candidate was cheap-disproved with exactly one mounted panel, while two banner/vocabulary-rail duplication candidates remain contract-dependent for later proof. No product change.
+
+2026-10-04 seed hunt (seed-only): re-read the selected workspace paths and focused tests; the presenter-mode test failure was invalid because its `useSearchParams` mock disagreed with the hook's `window.location` source, while the remaining duplication candidates stayed contract-dependent. The focused workspace tests reported 20 passed and 1 invalid harness failure; no product change.
 
 ---
 
