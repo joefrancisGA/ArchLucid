@@ -19057,7 +19057,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -19076,6 +19076,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-04 seed hunt (seed-only): repeated the selected configuration summary source review; no new reachable mechanism-backed candidate emerged. The no-build configuration-filtered binary again passed 1,045 tests.
 
 2026-10-04 seed hunt (seed-only): repeated the selected configuration summary review with no new reachable wrong outcome or mechanism-backed candidate. The no-build configuration-filtered binary passed 1,045 tests again.
+
+2026-10-04 seed hunt (seed-only): repeated the selected configuration summary review with no new reachable mechanism-backed candidate. The no-build configuration-filtered binary passed 1,045 tests.
 
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after snake_case fix; proved kebab-case `api-key` bypassed `IsSensitiveConfigPropertyName` for the same admin JSON effective-value path class; fixed by hyphen-delimiter tokenization alongside underscore splits; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`; 1042 scoped Configuration tests passed.
 
