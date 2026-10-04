@@ -4,6 +4,10 @@ export function formatRunRetrievalCitationCoverage(citationCoverage: number | nu
     return "Not recorded";
   }
 
+  if (!Number.isFinite(citationCoverage) || citationCoverage < 0 || citationCoverage > 100) {
+    return "Not recorded";
+  }
+
   const pct =
     citationCoverage > 0 && citationCoverage <= 1
       ? Math.round(citationCoverage * 100)
