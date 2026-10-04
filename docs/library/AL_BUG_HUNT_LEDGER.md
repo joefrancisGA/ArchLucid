@@ -7067,10 +7067,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 32
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
+- **hunts:** 33
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — product-context load failure hid intake despite paste/fixture recovery copy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7087,8 +7087,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `ArchitectureIntelligencePageClient` scope banner — `activeRunId && !loadingInboundContext` still renders “Scoped to review” while the product-context failure panel is visible; reachable input: a deep-linked review whose source-context request returns an HTTP failure, with possible contradictory recovery/scope messaging.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action gate — the publish button is gated by `activeRunId` but not by the absence of `runState`; reachable input: a valid deep-linked review before reasoning or golden output exists, potentially exposing a publish action with no result to publish.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` scope banner — the existing failure-state contract intentionally keeps the selected review scope visible while offering paste/fixture recovery; `ArchitectureIntelligencePageClient.test.tsx` covers the banner during product-context failure.
+- [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — a deep-linked review populated `activeRunId` before any analysis result existed, enabling “Publish to findings/advisory”; the button now also requires non-null `runState`; regression `keeps publish disabled for a deep-linked review before analysis produces a result`.
+
+2026-10-04 seed→hit: promoted and proved the publish-without-result-state candidate; the focused repro initially failed because the publish gate checked only `activeRunId`, then passed after requiring `runState`. The full page-client suite passed 50/50.
 
 - [x] (invalid) `ArchitectureIntelligencePageClient` scope banner and review links — cheap-disproof 2026-10-03 thorough hunt: this component consumes `activeRunId` from `useArchitectureIntelligencePage`; URL parsing/normalization is outside the picked zone file, so a whitespace-only URL value is not a reachable input established here.
 - [x] (invalid) `ArchitectureIntelligencePageClient` publish action gate — cheap-disproof 2026-10-03 thorough hunt: same absent URL-normalization prerequisite; the component has no evidence that `activeRunId` can be whitespace-only at this boundary.

@@ -157,6 +157,26 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
   });
 
+  it("keeps publish disabled for a deep-linked review before analysis produces a result", async () => {
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "runId" ? "dddddddd-dddd-dddd-dddd-dddddddddddd" : null,
+    );
+    stubProductContextFetch(
+      "dddddddd-dddd-dddd-dddd-dddddddddddd",
+      "Hydrated product architecture description.",
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Hydrated product architecture description.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
+  });
+
   it("hydrates architecture description from product run source-context", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {
