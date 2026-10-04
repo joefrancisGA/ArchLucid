@@ -51,19 +51,20 @@ internal sealed class ScopeResolutionGuardMiddleware(
     private static bool ShouldSkip(HttpContext context)
     {
         string path = context.Request.Path.Value ?? string.Empty;
+        PathString pathString = context.Request.Path;
 
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (path.StartsWith("/health", StringComparison.OrdinalIgnoreCase))
+        if (IsPublicHealthProbePath(pathString))
             return true;
 
         // Canonical OpenAPI document (MapOpenApi) — contract probes must not require tenant scope.
 
-        if (path.StartsWith("/openapi", StringComparison.OrdinalIgnoreCase))
+        if (pathString.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (path is "/" or "/robots.txt" or "/sitemap.xml")
+        if (IsRootOrCrawlerHintPath(path))
             return true;
 
         Endpoint? endpoint = context.GetEndpoint();
@@ -75,5 +76,32 @@ internal sealed class ScopeResolutionGuardMiddleware(
             return true;
 
         return false;
+    }
+
+    private static bool IsPublicHealthProbePath(PathString path) =>
+        path.StartsWithSegments("/health/live", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/health/ready", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/health/version", StringComparison.OrdinalIgnoreCase)
+        || IsRootHealthAggregateProbe(path);
+
+    private static bool IsRootHealthAggregateProbe(PathString path)
+    {
+        string? value = path.Value;
+
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        return string.Equals(value.TrimEnd('/'), "/health", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsRootOrCrawlerHintPath(string path)
+    {
+        if (string.Equals(path, "/", StringComparison.Ordinal))
+            return true;
+
+        string trimmed = path.TrimEnd('/');
+
+        return string.Equals(trimmed, "/robots.txt", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "/sitemap.xml", StringComparison.OrdinalIgnoreCase);
     }
 }

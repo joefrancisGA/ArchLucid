@@ -59,6 +59,25 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
     }
 
     /// <inheritdoc />
+    public Task RemoveChunkIdsAsync(IReadOnlyList<string> chunkIds, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(chunkIds);
+        _ = ct;
+
+        if (chunkIds.Count == 0)
+            return Task.CompletedTask;
+
+        HashSet<string> idSet = new(chunkIds, StringComparer.Ordinal);
+
+        lock (_sync)
+        {
+            _chunks.RemoveAll(chunk => idSet.Contains(chunk.ChunkId));
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(chunks);
