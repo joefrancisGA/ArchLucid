@@ -6,6 +6,12 @@ export type DiagramReconcileStepReadiness = {
   readonly kind: EnterpriseStatusKind;
 };
 
+function isAdvisoryDiagramComparisonPath(
+  sealedRecord: DiagramReconcileSealedReviewRecordState,
+): boolean {
+  return sealedRecord.kind === "idle" || sealedRecord.kind === "invalid-id";
+}
+
 export function resolveDiagramReconcileDiagramSourceStepReadiness(input: {
   readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
   readonly modelNodeCount: number | null;
@@ -16,13 +22,24 @@ export function resolveDiagramReconcileDiagramSourceStepReadiness(input: {
     return { label: "Loading model", kind: "in-progress" };
   }
 
+  if (isAdvisoryDiagramComparisonPath(input.sealedRecord)) {
+    if (input.modelNodeCount != null && input.modelNodeCount > 0) {
+      return { label: "Model ready", kind: "ready" };
+    }
+
+    if (input.mermaidDraft.trim().length > 0) {
+      return { label: "Draft ready to compare", kind: "ready" };
+    }
+
+    return { label: "Needs diagram source", kind: "needs-attention" };
+  }
+
   if (input.sealedRecord.kind === "loading") {
     return { label: "Verifying record", kind: "in-progress" };
   }
 
   if (
-    input.sealedRecord.kind === "invalid-id"
-    || input.sealedRecord.kind === "not-found"
+    input.sealedRecord.kind === "not-found"
     || input.sealedRecord.kind === "blocked"
     || (input.sealedRecord.kind === "loaded" && !input.sealedRecord.isSealed)
   ) {
@@ -68,6 +85,7 @@ export function resolveDiagramReconcileReconcileStepReadiness(input: {
   readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
   readonly selectedSnapshotId: string;
   readonly modelNodeCount: number | null;
+  readonly mermaidDraft: string;
   readonly reconciliationSaved: boolean;
   readonly loadingReconciliation: boolean;
 }): DiagramReconcileStepReadiness {
@@ -77,6 +95,18 @@ export function resolveDiagramReconcileReconcileStepReadiness(input: {
 
   if (input.reconciliationSaved) {
     return { label: "Reconciliation saved", kind: "ready" };
+  }
+
+  const hasDiagramSource =
+    (input.modelNodeCount != null && input.modelNodeCount > 0)
+    || input.mermaidDraft.trim().length > 0;
+
+  if (
+    isAdvisoryDiagramComparisonPath(input.sealedRecord)
+    && input.selectedSnapshotId.trim().length > 0
+    && hasDiagramSource
+  ) {
+    return { label: "Ready to compare", kind: "ready" };
   }
 
   if (
@@ -96,8 +126,25 @@ export function resolveDiagramReconcileBlockedReason(input: {
   readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
   readonly selectedSnapshotId: string;
   readonly modelNodeCount: number | null;
+  readonly mermaidDraft: string;
 }): string | null {
-  if (input.sealedRecord.kind === "idle" || input.sealedRecord.kind === "invalid-id") {
+  if (isAdvisoryDiagramComparisonPath(input.sealedRecord)) {
+    if (input.selectedSnapshotId.trim().length === 0) {
+      return "Needs an inventory snapshot.";
+    }
+
+    const hasDiagramSource =
+      (input.modelNodeCount != null && input.modelNodeCount > 0)
+      || input.mermaidDraft.trim().length > 0;
+
+    if (!hasDiagramSource) {
+      return "Needs a structured diagram draft or uploaded source.";
+    }
+
+    return null;
+  }
+
+  if (input.sealedRecord.kind === "invalid-id") {
     return "Needs a valid sealed review record ID.";
   }
 
@@ -126,4 +173,10 @@ export function resolveDiagramReconcileBlockedReason(input: {
   }
 
   return null;
+}
+
+export function isDiagramReconcileAdvisoryComparisonPath(
+  sealedRecord: DiagramReconcileSealedReviewRecordState,
+): boolean {
+  return isAdvisoryDiagramComparisonPath(sealedRecord);
 }

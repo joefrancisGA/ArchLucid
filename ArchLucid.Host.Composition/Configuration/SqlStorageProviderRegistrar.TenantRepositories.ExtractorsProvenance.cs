@@ -86,6 +86,8 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IRunStoredEvidenceFileRepository, SqlRunStoredEvidenceFileRepository>();
         services.AddScoped<IArchitectureDiagramModelRepository, SqlArchitectureDiagramModelRepository>();
         services.AddScoped<IArchitectureDiagramReconciliationRepository, SqlArchitectureDiagramReconciliationRepository>();
+        services.AddScoped<IInfrastructureDiagramComparisonRepository, SqlInfrastructureDiagramComparisonRepository>();
+        services.AddScoped<IInfrastructureDiagramNodeMappingRepository, SqlInfrastructureDiagramNodeMappingRepository>();
         services.AddScoped<SqlTenantBrandingProfileRepository>();
         services.AddScoped<ITenantBrandingProfileRepository>(static sp =>
             new TenantBrandingProfileRepositoryWithCacheInvalidation(
