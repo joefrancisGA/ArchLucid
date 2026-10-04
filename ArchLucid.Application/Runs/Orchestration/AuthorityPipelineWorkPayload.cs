@@ -107,7 +107,7 @@ public sealed class AuthorityPipelineWorkPayload
 
         ContextIngestionRequest request = ContextIngestionRequest;
 
-        request.InlineRequirements = MaterializeStringList(request.InlineRequirements);
+        request.InlineRequirements = MaterializeReferenceStringList(request.InlineRequirements);
         request.Documents = MaterializeDocumentList(request.Documents);
         request.PolicyReferences = MaterializeReferenceStringList(request.PolicyReferences);
         request.TopologyHints = MaterializeReferenceStringList(request.TopologyHints);
@@ -149,7 +149,7 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableIdentifierText(document.Name) && HasSubstantiveText(document.Content);
+        HasUsableIdentifierText(document.Name) && HasUsableIdentifierText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -164,6 +164,6 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableIdentifierText(declaration.Name) && HasSubstantiveText(declaration.Content);
+        return HasUsableIdentifierText(declaration.Name) && HasUsableIdentifierText(declaration.Content);
     }
 }

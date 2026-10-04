@@ -250,6 +250,56 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_inline_requirements_when_entry_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["must-use-https\u0300", "must-use-https"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("must-use-https");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_document_when_content_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("10101010-1010-1010-1010-101010101010");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diagram", "contentType": "text/plain", "content": "source\u0300 text" },
+                  { "name": "keep", "contentType": "text/plain", "content": "clean source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_constraints_when_entry_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -3925,13 +3925,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 27
-- **bugs-found:** 19
+- **hunts:** 28
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — embedded combining marks in constraints/assumptions survived substantive-text-only materialization
+- **last-bug:** 2026-10-04 — combining marks in inlineRequirements and document/declaration content survived substantive-text-only materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (hit): promoted inlineRequirements and document-content combining-mark parity; `InlineRequirements` still used `MaterializeStringList` and document/declaration `content` used `HasSubstantiveText` only, so embedded combining marks survived materialization and broke stable requirement/document canonicalization; fixed by routing `InlineRequirements` through `MaterializeReferenceStringList` and requiring `HasUsableIdentifierText` on document and infrastructure declaration content; regressions `Deserialize_filters_inline_requirements_when_entry_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_contains_embedded_combining_mark`; 32 scoped payload JSON tests passed.
 
 2026-10-04 seed hunt (hit): promoted constraints/assumptions combining-mark parity candidate; `EnsureMutableCollections` routed `Constraints` and `Assumptions` through `MaterializeStringList` so entries such as `https-only\u0300` survived materialization while reference lists already used `MaterializeReferenceStringList`; fixed by routing both through `MaterializeReferenceStringList`; regressions `Deserialize_filters_constraints_when_entry_contains_embedded_combining_mark` and `Deserialize_filters_assumptions_when_entry_contains_embedded_combining_mark`; 30 scoped payload JSON tests passed.
 
