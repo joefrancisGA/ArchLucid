@@ -250,6 +250,52 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_constraints_when_entry_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "constraints": ["https-only\u0300", "https-only"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Constraints.Should().Equal("https-only");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_assumptions_when_entry_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "assumptions": ["single-region\u0300", "single-region"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Assumptions.Should().Equal("single-region");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_required_capabilities_when_entry_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

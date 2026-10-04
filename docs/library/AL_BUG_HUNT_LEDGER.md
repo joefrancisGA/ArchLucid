@@ -3925,13 +3925,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 26
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-28
-- **last-bug:** 2026-09-28 — embedded combining marks in requiredCapabilities survived substantive-text-only materialization
+- **hunts:** 27
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — embedded combining marks in constraints/assumptions survived substantive-text-only materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 seed hunt (hit): promoted constraints/assumptions combining-mark parity candidate; `EnsureMutableCollections` routed `Constraints` and `Assumptions` through `MaterializeStringList` so entries such as `https-only\u0300` survived materialization while reference lists already used `MaterializeReferenceStringList`; fixed by routing both through `MaterializeReferenceStringList`; regressions `Deserialize_filters_constraints_when_entry_contains_embedded_combining_mark` and `Deserialize_filters_assumptions_when_entry_contains_embedded_combining_mark`; 30 scoped payload JSON tests passed.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.EnsureMutableCollections` — `constraints` and `assumptions` entries with embedded combining marks passed `MaterializeStringList` — **hit 2026-10-04 seed hunt:** route both through `MaterializeReferenceStringList`; regressions above.
 
 - [x] (proven) `AuthorityPipelineWorkPayload.EnsureMutableCollections` / `MaterializeStringList` — `requiredCapabilities` entries with embedded combining marks (for example `messaging\u0300`) passed `HasSubstantiveText` but broke capability slug parity vs `MaterializeReferenceStringList` used for policy/topology/security-baseline hints — **hit 2026-09-28 seed hunt (seed→hit):** route `RequiredCapabilities` through `MaterializeReferenceStringList`; regression `Deserialize_filters_required_capabilities_when_entry_contains_embedded_combining_mark`.
 
