@@ -15,7 +15,10 @@ export function formatGovernanceResolutionResultsSummaryLabel(
     return "Not loaded";
   }
 
-  return `${data.decisions.length} decisions · ${data.conflicts.length} conflicts`;
+  const decisionsLabel = Array.isArray(data.decisions) ? `${data.decisions.length} decisions` : "Decisions not returned";
+  const conflictsLabel = Array.isArray(data.conflicts) ? `${data.conflicts.length} conflicts` : "Conflicts not returned";
+
+  return `${decisionsLabel} · ${conflictsLabel}`;
 }
 
 export function formatGovernanceResolutionSectionCountLabel(
