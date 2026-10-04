@@ -27272,7 +27272,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-30
@@ -27560,6 +27560,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 seed hunt (seed-only): re-read the three picker paths and ownership/orchestrator tests after recent churn. Repeated pre-acquire checks are intentional race guards already covered by deletion, commit, and schedule-clear regressions; renewal/release candidates lack a concrete wrong outcome. The scoped ownership/orchestrator suite passed 54/54; no candidate was promoted or proven.
 
 2026-10-04 thorough hunt (dry): cheap-disproved the two repeated pre-acquire validation candidates as intentional race guards already covered by run-deletion, commit-transition, and live-schedule regressions. The scoped ownership/orchestrator suite passed 54/54; no failing repro and no code change.
+
+2026-10-04 thorough hunt (dry): revalidated the two repeated pre-acquire validation candidates; both remain intentional race guards with existing transition regressions, and the scoped ownership/orchestrator suite passed 54/54. No failing repro or code change.
 
 ### Hypotheses
 
