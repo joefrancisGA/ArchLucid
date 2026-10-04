@@ -4,6 +4,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
 
@@ -301,6 +302,9 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                 cancellationToken: cancellationToken));
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime explorer filter SQL; CloudResourceIdentities scope via ScopeContext parameters.")]
     public async Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
         ScopeContext scope,
         string? namePrefix,

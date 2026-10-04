@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -22,6 +23,9 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
     private readonly IAuthorityRunListConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime demo filter segment; Runs scope bound via @TenantId within tenant catalog.")]
     /// <inheritdoc />
     public async Task<IReadOnlyList<ReferenceEvidenceRunCandidate>> ListRecentCommittedRunsAsync(
         Guid tenantId,
