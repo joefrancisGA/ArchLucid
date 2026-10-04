@@ -188,7 +188,7 @@ public sealed class DiagramForestCanvasLabelContext
             lines.Add($"{node.ExternalLinkedServiceType.Trim()} link");
         }
 
-        if (node.ExternalFactoryNames.Count > 1)
+        if (node.ExternalFactoryNames.Count > 0)
         {
             lines.Add(FormatExternalFactoriesLine(node.ExternalFactoryNames));
         }
