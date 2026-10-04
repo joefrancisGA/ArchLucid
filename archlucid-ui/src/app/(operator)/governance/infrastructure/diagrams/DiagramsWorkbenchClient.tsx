@@ -5,11 +5,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
+import {
+  ArchitectureDiagramViewer,
+  type ArchitectureDiagramMermaidViewerProps,
+} from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { SecureNowQuestionQueue } from "@/components/infra-evidence/SecureNowQuestionQueue";
+import {
+  SecureNowQuestionQueueDrawer,
+  SecureNowQuestionQueueHero,
+  SecureNowQuestionQueueProvider,
+  useSecureNowQuestionSubjectNodeId,
+} from "@/components/infra-evidence/SecureNowQuestionQueue";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
 import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/OperatorInferredConnectionsPanel";
 import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
@@ -1704,8 +1712,11 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <SecureNowQuestionQueue snapshotId={selectedSnapshotId} />
-      ) : null}
+        <SecureNowQuestionQueueProvider
+          snapshotId={selectedSnapshotId}
+          onFocusResourceForQuestion={applySeedNode}
+        >
+          <SecureNowQuestionQueueHero />
 
       {loadError != null
       && !(
@@ -2574,7 +2585,8 @@ export function DiagramsWorkbenchClient() {
               ) : null}
             </div>
           ) : null}
-          <ArchitectureDiagramViewer
+          <SecureNowQuestionQueueDrawer />
+          <DiagramsWorkbenchSecureNowAwareDiagramViewer
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
             textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
@@ -2614,6 +2626,9 @@ export function DiagramsWorkbenchClient() {
             </Button>
           }
         />
+      ) : null}
+
+        </SecureNowQuestionQueueProvider>
       ) : null}
 
         <DiagramsClaimOrientationStrip />
@@ -2670,5 +2685,18 @@ export function DiagramsWorkbenchClient() {
         </AlertDialogContent>
       </AlertDialog>
     </OperatorPageContainer>
+  );
+}
+
+function DiagramsWorkbenchSecureNowAwareDiagramViewer(
+  props: ArchitectureDiagramMermaidViewerProps,
+): React.JSX.Element {
+  const questionSubjectNodeId = useSecureNowQuestionSubjectNodeId();
+
+  return (
+    <ArchitectureDiagramViewer
+      {...props}
+      questionSubjectNodeId={questionSubjectNodeId}
+    />
   );
 }

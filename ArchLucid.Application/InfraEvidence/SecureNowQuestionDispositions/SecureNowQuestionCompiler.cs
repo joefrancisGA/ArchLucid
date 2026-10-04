@@ -5,6 +5,8 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
+using static ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions.SecureNowQuestionDisplayCopy;
+
 namespace ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 
 public sealed record SecureNowDiagramQuestionCandidate
@@ -14,6 +16,7 @@ public sealed record SecureNowDiagramQuestionCandidate
     public string QuestionKey { get; init; } = string.Empty;
     public string QuestionText { get; init; } = string.Empty;
     public string ProblemText { get; init; } = string.Empty;
+    public string ResourceType { get; init; } = string.Empty;
     public SecureNowQuestionScopeKind ScopeKind { get; init; } = SecureNowQuestionScopeKind.Resource;
     public bool IsOrphanIntent { get; init; }
     public bool IsUnknownEvidence { get; init; }
@@ -43,6 +46,9 @@ public sealed class SecureNowQuestionCompiler
                 StringComparer.OrdinalIgnoreCase);
         List<SecureNowQuestionRecord> questions = [];
         HashSet<string> emitted = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesById = snapshot.Resources
+            .GroupBy(resource => Normalize(resource.AzureResourceId), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
 
         foreach (OperatorInferredConnectionRecord inferred in inferredConnections
                      .Where(record => record.Status == OperatorInferredConnectionStatus.Proposed)
@@ -76,7 +82,9 @@ public sealed class SecureNowQuestionCompiler
                     EvidenceFingerprint = fingerprint,
                     Status = SecureNowQuestionDispositionStatus.Open,
                 },
-                now);
+                now,
+                resourcesById,
+                null);
         }
 
         foreach (SecureNowDiagramQuestionCandidate candidate in diagramCandidates)
@@ -115,7 +123,9 @@ public sealed class SecureNowQuestionCompiler
                     EvidenceFingerprint = fingerprint,
                     Status = SecureNowQuestionDispositionStatus.Open,
                 },
-                now);
+                now,
+                resourcesById,
+                candidate.ResourceType);
         }
 
         return questions;
@@ -126,7 +136,9 @@ public sealed class SecureNowQuestionCompiler
         HashSet<string> emitted,
         IReadOnlyDictionary<string, SecureNowQuestionDispositionRecord> dispositions,
         SecureNowQuestionRecord question,
-        DateTime now)
+        DateTime now,
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesById,
+        string? preferredResourceType = null)
     {
         string identity = Identity(question.SubscriptionId, question.ResourceId, question.QuestionKey);
         if (!emitted.Add(identity))
@@ -150,7 +162,29 @@ public sealed class SecureNowQuestionCompiler
             };
         }
 
+        question = ApplyIdentity(question, resourcesById, preferredResourceType);
         questions.Add(question);
+    }
+
+    private static SecureNowQuestionRecord ApplyIdentity(
+        SecureNowQuestionRecord question,
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesById,
+        string? preferredResourceType = null)
+    {
+        string normalizedResourceId = Normalize(question.ResourceId);
+
+        if (normalizedResourceId.Length == 0)
+            return WithNoResourceIdentity(question);
+
+        string resourceType = preferredResourceType?.Trim() ?? string.Empty;
+
+        if (resourceType.Length == 0
+            && resourcesById.TryGetValue(normalizedResourceId, out AzureInventoryResourceRecord? resource))
+        {
+            resourceType = resource.ResourceType;
+        }
+
+        return WithResourceIdentity(question, resourceType, question.ResourceId);
     }
 
     private static string Identity(string subscriptionId, string resourceId, string questionKey) =>
