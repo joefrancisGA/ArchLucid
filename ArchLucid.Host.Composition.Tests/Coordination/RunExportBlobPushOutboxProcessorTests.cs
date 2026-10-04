@@ -236,6 +236,71 @@ public sealed class RunExportBlobPushOutboxProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExportBlobPushOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunExportBlobPushOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    DestinationSasUrl = "https://127.0.0.1/evil?sas=token",
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox
+            .Setup(o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        outbox
+            .Setup(o => o.RecordBackoffAfterProcessingFailureAsync(
+                outboxId,
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit sink unavailable"));
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => audit.Object);
+        services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
+        services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RunExportBlobPushOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RunExportBlobPushOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RunExportBlobPushOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_marks_processed_when_manifest_compare_succeeds_once_without_guard_requery()
     {
         Guid outboxId = Guid.NewGuid();

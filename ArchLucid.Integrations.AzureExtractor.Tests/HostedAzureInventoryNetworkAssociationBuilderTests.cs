@@ -79,6 +79,31 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_vmss_to_subnet_row_with_vmss_association_type()
+    {
+        HostedAzureArmResourceRecord vmss = new(
+            ResourceType: "Microsoft.Compute/virtualMachineScaleSets",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachineScaleSets/scale-set-1",
+            Name: "scale-set-1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["ipConfiguration.subnet.id[0]"] =
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([vmss]);
+
+        Assert.Contains(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.VmssToSubnet
+                   && row.FromResourceId == vmss.ResourceId);
+    }
+
+    [Fact]
     public void Build_emits_vm_to_nic_and_two_nic_to_subnet_rows_for_multi_ipconfig_nic()
     {
         HostedAzureArmResourceRecord vm = new(
@@ -470,7 +495,39 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
             HostedAzureInventoryNetworkAssociationBuilder.Build([workspace]);
 
         Assert.Single(associations);
-        Assert.Equal(AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, associations[0].AssociationType);
+        Assert.Equal(
+            AzureInventoryRelationshipAssociationTypes.DatabricksWorkspaceToSubnet,
+            associations[0].AssociationType);
         Assert.Equal(subnetId, associations[0].ToResourceId);
+    }
+
+    [Fact]
+    public void Build_does_not_label_databricks_workspace_to_subnet_as_app_service()
+    {
+        const string vnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string workspaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/dbx1";
+
+        HostedAzureArmResourceRecord workspace = new(
+            ResourceType: "Microsoft.Databricks/workspaces",
+            ResourceId: workspaceId,
+            Name: "dbx1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["parameters.customVirtualNetworkId"] = vnetId,
+                ["parameters.customPrivateSubnetName"] = "private-subnet",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([workspace]);
+
+        Assert.DoesNotContain(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet
+                   && row.FromResourceId == workspaceId);
     }
 }

@@ -152,7 +152,9 @@ public sealed class SecureNowQuestionDispositionService(
             AnswerCode = existing.AnswerCode,
             AnswerText = existing.AnswerText,
             Reason = existing.Reason,
-            ExpirationUtc = existing.ExpirationUtc,
+            ExpirationUtc = existing.ExpirationUtc > now
+                ? existing.ExpirationUtc
+                : now.Add(MaximumDispositionLifetime),
             EvidenceFingerprint = existing.EvidenceFingerprint,
             ActorKey = actorKey.Trim(),
             UpdatedUtc = now,
@@ -300,6 +302,8 @@ public sealed class SecureNowQuestionDispositionService(
             return "QuestionKey must end with a positive version such as @v1.";
         if (questionKey.Trim().Length > MaximumQuestionKeyLength)
             return "QuestionKey is too long.";
+        if (string.IsNullOrWhiteSpace(resourceId))
+            return "ResourceId is required.";
         if (string.IsNullOrWhiteSpace(reason))
             return "Reason is required.";
         if (string.IsNullOrWhiteSpace(actorKey))

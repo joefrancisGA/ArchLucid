@@ -27,4 +27,14 @@ public sealed class AwsIamRoleArnTests
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public void EnsureAccountMatches_rejects_an_iam_policy_arn_as_a_role_arn()
+    {
+        const string policyArn = "arn:aws:iam::123456789012:policy/ReadOnly";
+
+        Action act = () => AwsIamRoleArn.EnsureAccountMatches("123456789012", policyArn);
+
+        act.Should().Throw<ArgumentException>();
+    }
 }

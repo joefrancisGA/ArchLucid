@@ -136,7 +136,7 @@ internal static partial class RunExplanationAggregateJsonReader
     {
         if (element.ValueKind == JsonValueKind.Number)
         {
-            if (element.TryGetInt32(out value))
+            if (element.TryGetInt32(out value) && value >= 0)
                 return true;
 
             if (element.TryGetDouble(out double numeric)

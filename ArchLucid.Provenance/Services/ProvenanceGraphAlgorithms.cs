@@ -65,6 +65,19 @@ public static class ProvenanceGraphAlgorithms
             includedNodes.Add(edge.ToNodeId);
         }
 
+        HashSet<Guid> supportingFindingIds = includedEdges
+            .Where(edge => edge.Type == ProvenanceEdgeType.SupportedBy)
+            .Select(edge => edge.FromNodeId == decisionInternalNodeId ? edge.ToNodeId : edge.FromNodeId)
+            .ToHashSet();
+        foreach (ProvenanceEdge edge in full.Edges.Where(edge =>
+                     edge.Type == ProvenanceEdgeType.InfluencedByGraphNode
+                     && supportingFindingIds.Contains(edge.ToNodeId)))
+        {
+            includedEdges.Add(edge);
+            includedNodes.Add(edge.FromNodeId);
+            includedNodes.Add(edge.ToNodeId);
+        }
+
         return new DecisionProvenanceGraph
         {
             Id = full.Id,

@@ -580,7 +580,7 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
                 keys,
                 resource.ResourceId,
                 subnetId,
-                AzureInventoryRelationshipAssociationTypes.NicToSubnet);
+                AzureInventoryRelationshipAssociationTypes.VmssToSubnet);
         }
     }
 
@@ -842,7 +842,7 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             keys,
             resource.ResourceId,
             subnetId,
-            AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet);
+            AzureInventoryRelationshipAssociationTypes.DatabricksWorkspaceToSubnet);
     }
 
     private static void AddPeDnsZoneGroupAssociations(

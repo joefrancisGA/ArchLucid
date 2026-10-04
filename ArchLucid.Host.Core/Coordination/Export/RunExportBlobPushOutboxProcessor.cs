@@ -286,12 +286,24 @@ public sealed class RunExportBlobPushOutboxProcessor(
     [InformationalAudit]
     private static async Task LogDeadLetterAuditAsync(IAuditService auditService, Guid runId, CancellationToken ct)
     {
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RunExportBlobPushDeadLettered,
-                RunId = runId
-            },
-            ct);
+        try
+        {
+            await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.RunExportBlobPushDeadLettered,
+                        RunId = runId
+                    },
+                    ct)
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The terminal outbox state is already persisted; audit failure must not schedule a retry.
+        }
     }
 }
