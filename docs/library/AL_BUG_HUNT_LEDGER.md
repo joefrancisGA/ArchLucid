@@ -6319,6 +6319,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-10-04 seed hunt #35 (seed→hit): reseeded extraction-router; proved `owner` matched as a bounded token before an email `@` (`owner@example.com`) while `unowned` appeared elsewhere, falsely emitting Unowned component; fixed with `IsValidMarkerEndBoundary` rejecting `@` local-part joins; regression `Extract_does_not_emit_ownership_gap_for_email_local_owner_with_unowned`; 31 scoped DifficultyBasedExtractionRouter tests passed.
+
 2026-10-04 seed hunt #34 (seed→hit): reseeded extraction-router; proved `owner` matched as a bounded token after a URI colon (`api:owner.prod`) while `unowned` appeared elsewhere, falsely emitting Unowned component (same class as DNS dot #26); fixed with `IsValidMarkerStartBoundary` rejecting `:` segment joins; regression `Extract_does_not_emit_ownership_gap_for_uri_owner_label_with_unowned`; 30 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded extraction-router; proved `owner` matched as a bounded token after a DNS dot (`api.owner.prod`) while `unowned` appeared elsewhere, falsely emitting Unowned component; fixed with `IsValidMarkerStartBoundary` rejecting `.` and `/` segment joins (end boundary unchanged so `the owner.` still matches); regression `Extract_does_not_emit_ownership_gap_for_dns_owner_label_with_unowned`; 51 scoped DifficultyBasedExtractionRouter tests passed.
