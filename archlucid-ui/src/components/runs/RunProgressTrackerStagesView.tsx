@@ -183,10 +183,30 @@ export function RunProgressTrackerStagesView({
           <EnterpriseTable ariaLabel="Assessment stage timing" className="mt-3">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Started</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Completed</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Duration</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Stage</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The named stage in this review.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Started</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    When this stage started.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Completed</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    When this stage finished.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Duration</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How long this stage took.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>
