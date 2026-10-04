@@ -66,25 +66,20 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             .BuildEvidenceFromRelatedNodes(match.RelatedNodeIds)
             .ToList();
 
-        string? ruleId = null;
-        string? ruleName = null;
+        string? appliedRuleIdsJson = null;
 
-        if (detail.AuthorityTrace is RuleAuditTraceDto ruleAudit)
+        if (detail.AuthorityTrace is RuleAuditTraceDto ruleAudit
+            && ruleAudit.RuleAudit.AppliedRuleIds is { Count: > 0 } appliedRuleIds)
         {
-            RuleAuditTracePayload payload = ruleAudit.RuleAudit;
-
-            if (payload.AppliedRuleIds is { Count: > 0 })
-            {
-                ruleId = payload.AppliedRuleIds[0];
-                ruleName = ruleId;
-            }
+            appliedRuleIdsJson = JsonSerializer.Serialize(appliedRuleIds);
         }
 
-        if (ruleId is null && match.Trace.RulesApplied is { Count: > 0 })
-        {
-            ruleId = match.Trace.RulesApplied[0];
-            ruleName = ruleId;
-        }
+        string? firstRuleText = match.Trace?.RulesApplied is { Count: > 0 } rules
+            ? rules[0]
+            : null;
+
+        (string? ruleId, string? ruleName) =
+            FindingInspectReadRepositoryCore.ResolveRuleFields(appliedRuleIdsJson, firstRuleText);
 
         JsonElement? typed = includeTypedPayload
             ? TryPayloadElement(match)
@@ -106,7 +101,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             SemanticSupportBand = match.SemanticSupportBand
                 ?? FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed),
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName,
+            DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = recommendedActions,
             AuditRowId = null,
@@ -126,7 +121,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
                 ResolveInspectReasoningTrace(match)),
             ReasoningTraceDigestSha256 = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
-                match.Trace.ReasoningTraceDigestSha256),
+                match.Trace?.ReasoningTraceDigestSha256),
             AssignedToUserId = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.AssignedToUserId),
             RemediationDueUtc = match.RemediationDueUtc,
             RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,

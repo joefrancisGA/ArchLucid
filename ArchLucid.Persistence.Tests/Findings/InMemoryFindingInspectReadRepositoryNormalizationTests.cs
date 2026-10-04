@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Interfaces;
@@ -94,5 +95,49 @@ public sealed class InMemoryFindingInspectReadRepositoryNormalizationTests
 
         response.Should().NotBeNull();
         response!.RecommendedActions.Should().Equal("Rotate keys");
+    }
+
+    [Fact]
+    public async Task GetInspectAsync_resolves_decision_rule_fields_like_sql_inspect_mapper()
+    {
+        Guid runId = Guid.Parse("cccccccccccccccccccccccccccccccc");
+        string findingId = $"finding-demo-{runId:N}-primary";
+        ScopeContext scope = new();
+
+        Finding finding = new()
+        {
+            FindingId = findingId,
+            FindingType = "test",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Info,
+            Title = "Title",
+            Rationale = "Rationale",
+            Trace = new ExplainabilityTrace { RulesApplied = [" trace-fallback\u200B "] },
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
+            AuthorityTrace = RuleAuditTraceDto.From(
+                new RuleAuditTracePayload
+                {
+                    AppliedRuleIds = ["\u200B", "  policy-42  "],
+                }),
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingInspectReadRepository repository = new(authority.Object);
+
+        FindingInspectResponse? response = await repository.GetInspectAsync(scope, findingId, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.DecisionRuleId.Should().Be("policy-42");
+        response.DecisionRuleName.Should().Be("policy-42");
     }
 }
