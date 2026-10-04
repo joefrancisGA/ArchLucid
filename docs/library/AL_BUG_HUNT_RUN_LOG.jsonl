@@ -1,4 +1,3 @@
-{"at":"2026-09-04T16:13:06.4898161Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-09-04T16:22:34.5770406Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-09-04T16:27:37.8677894Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-04T16:39:06.5199453Z","zoneId":"scope-binding-middleware","outcome":"hit"}
@@ -8717,3 +8716,4 @@
 {"at":"2026-10-04T15:31:50.5284299Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-04T15:48:43.2664369Z","zoneId":"ui-auth-proxy","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-04T16:06:18.7433575Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-04T16:19:11.4275141Z","zoneId":"host-core-jobs","outcome":"seed-only","productLine":"archlucid-shared"}
