@@ -5,6 +5,7 @@ import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-vie
 import { governanceFindingsGroupByHrefFromSearch } from "@/lib/governance/governance-findings-group-by-url";
 import { governanceFindingsNlFacetsHrefFromSearch } from "@/lib/governance/governance-findings-queue-nl-facets-url";
 import { reviewFindingsJobViewHrefFromSearch } from "@/lib/findings/review-findings-job-view-url";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 
 export type FindingsSavedViewFilters = {
   registerFilter?: RiskRegisterFilter;
@@ -41,6 +42,7 @@ export function governanceFindingsWorkspaceSavedViewHref(
   const params = new URLSearchParams(href.includes("?") ? href.split("?")[1] ?? "" : "");
   params.delete("runId");
   params.delete("architectureId");
+  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   const nextQuery = params.toString();
 
