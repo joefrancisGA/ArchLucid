@@ -11,7 +11,32 @@ cd "${REPO_ROOT}"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_NOLOGO=1
 export NUGET_PACKAGES="${NUGET_PACKAGES:-${HOME}/.nuget/packages}"
-export PATH="/usr/local/bin:${PATH}"
+export PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
+
+avail_root_mb() {
+  local avail_kb
+  avail_kb="$(df -Pk / | awk 'NR==2 {print $4}')"
+  echo $((avail_kb / 1024))
+}
+
+prune_bootstrap_disk() {
+  local min_mb="${1:-400}"
+  local avail_mb
+  avail_mb="$(avail_root_mb)"
+  if ((avail_mb >= min_mb)); then
+    return 0
+  fi
+
+  echo "Low disk on / (${avail_mb}MB free); pruning bootstrap temp and caches..."
+  rm -f /tmp/node.tar.xz /tmp/dotnet-install.sh 2>/dev/null || true
+  if [[ -x /usr/local/bin/node ]] && ! /usr/local/bin/node -v >/dev/null 2>&1; then
+    echo "Removing corrupted /usr/local Node binary..."
+    sudo rm -f /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack 2>/dev/null || true
+  fi
+  if command -v npm >/dev/null 2>&1; then
+    npm cache clean --force 2>/dev/null || true
+  fi
+}
 
 NODE_VERSION="22.23.3"
 PWSH_VERSION="7.4.6"
@@ -79,7 +104,9 @@ install_dotnet() {
     echo "dotnet SDK ${sdk_version} already installed at ${INSTALL_DIR}"
   fi
 
-  sudo ln -sf "${INSTALL_DIR}/dotnet" /usr/local/bin/dotnet
+  mkdir -p "${HOME}/.local/bin"
+  ln -sf "${INSTALL_DIR}/dotnet" "${HOME}/.local/bin/dotnet"
+  sudo ln -sf "${INSTALL_DIR}/dotnet" /usr/local/bin/dotnet 2>/dev/null || true
   "${INSTALL_DIR}/dotnet" --version
 }
 
@@ -96,9 +123,9 @@ install_pwsh() {
   fi
 
   ln -sf "${pwsh_root}/pwsh" "${HOME}/.local/bin/pwsh"
-  sudo ln -sf "${pwsh_root}/pwsh" /usr/local/bin/pwsh
+  sudo ln -sf "${pwsh_root}/pwsh" /usr/local/bin/pwsh 2>/dev/null || true
 
-  /usr/local/bin/pwsh -NoProfile -Command "
+  "${HOME}/.local/bin/pwsh" -NoProfile -Command "
     \$pester = Get-Module -ListAvailable -Name Pester |
       Where-Object { \$_.Version -ge [version]'5.0.0' -and \$_.Version -lt [version]'6.0.0' } |
       Select-Object -First 1
@@ -116,19 +143,29 @@ export DOTNET_ROOT="${HOME}/.dotnet"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_NOLOGO=1
 export NUGET_PACKAGES="${HOME}/.nuget/packages"
-export PATH="/usr/local/bin:${DOTNET_ROOT}:${HOME}/.local/bin:${PATH}"
+export PATH="${HOME}/.local/bin:/usr/local/bin:${DOTNET_ROOT}:${PATH}"
 EOF
 }
+
+prune_bootstrap_disk 400
 
 install_node
 install_dotnet
 install_pwsh
 write_profile
 
-echo "Restoring and building ArchLucid.Api (Debug)..."
-dotnet restore ArchLucid.Api/ArchLucid.Api.csproj
-dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --verbosity minimal
+export PATH="${HOME}/.local/bin:/usr/local/bin:${DOTNET_ROOT}:${PATH}"
 
+prune_bootstrap_disk 350
+if (( "$(avail_root_mb)" >= 250 )); then
+  echo "Restoring and building ArchLucid.Api (Debug)..."
+  dotnet restore ArchLucid.Api/ArchLucid.Api.csproj
+  dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --verbosity minimal
+else
+  echo "Skipping ArchLucid.Api restore/build (less than 250MB free on /)."
+fi
+
+prune_bootstrap_disk 300
 echo "Installing archlucid-ui dependencies..."
 npm ci --prefix archlucid-ui
 python3 scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix archlucid-ui
