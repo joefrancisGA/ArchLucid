@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   applyFindingsConfidenceVisibility,
+  formatFindingsVisibilitySummaryLine,
   isApprovalBlockingFinding,
   isLowConfidenceFinding,
   partitionQuickDecisionFindingsByConfidence,
@@ -89,5 +90,13 @@ describe("finding-confidence-filter", () => {
 
     expect(partition.trustedFindings).toHaveLength(0);
     expect(partition.lowConfidenceFindings.map((row) => row.findingId)).toEqual(["f-1"]);
+  });
+});
+
+describe("formatFindingsVisibilitySummaryLine", () => {
+  it("reports when hidden-by-confidence count is omitted", () => {
+    expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toBe(
+      "Hidden-by-confidence count not returned",
+    );
   });
 });

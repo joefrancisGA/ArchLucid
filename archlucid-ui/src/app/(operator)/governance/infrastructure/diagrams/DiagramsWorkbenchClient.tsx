@@ -756,8 +756,15 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
+  const dataFlowEdgeCount =
+    metrics !== undefined && metrics !== null && "edgeCount" in metrics
+      ? metrics.edgeCount
+      : undefined;
+  const dataFlowEdgeCountKnown = typeof dataFlowEdgeCount === "number" && Number.isFinite(dataFlowEdgeCount);
   const dataFlowHasNoConnections =
-    selectedMode === "dataFlow" && (metrics?.edgeCount ?? 0) === 0;
+    selectedMode === "dataFlow" && dataFlowEdgeCountKnown && dataFlowEdgeCount === 0;
+  const dataFlowEdgeCountNotReturned =
+    selectedMode === "dataFlow" && metrics !== undefined && metrics !== null && !dataFlowEdgeCountKnown;
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy
@@ -2503,14 +2510,18 @@ export function DiagramsWorkbenchClient() {
       ) : showGenericEmptyContent ? (
         <EnterpriseCompactEmptyState
           title={
-            dataFlowHasNoConnections
-              ? "This data-flow canvas is empty."
-              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
+            dataFlowEdgeCountNotReturned
+              ? "Connection count not returned for this data-flow view."
+              : dataFlowHasNoConnections
+                ? "This data-flow canvas is empty."
+                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={
-            dataFlowHasNoConnections
-              ? "The snapshot has inventory and no declared connection to draw."
-              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
+            dataFlowEdgeCountNotReturned
+              ? "The snapshot did not include an edge count, so an empty canvas is not implied."
+              : dataFlowHasNoConnections
+                ? "The snapshot has inventory and no declared connection to draw."
+                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
           }
           testId="infra-diagrams-empty-content"
         />

@@ -39,22 +39,23 @@ function scoreForTrace(
 }
 
 function ratioText(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value))
-    return " — ";
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "Ratio not returned";
+  }
 
   return value.toFixed(2);
 }
 
 function wallClockDeltaFromPriorAgent(prevIso: string | null, curIso: string): string {
   if (!prevIso) {
-    return " — ";
+    return "No prior stage time";
   }
 
   const prevMs = Date.parse(prevIso);
   const curMs = Date.parse(curIso);
 
   if (!Number.isFinite(prevMs) || !Number.isFinite(curMs) || curMs < prevMs) {
-    return " — ";
+    return "Stage gap not readable";
   }
 
   const sec = Math.round((curMs - prevMs) / 1000);

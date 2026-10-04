@@ -15,7 +15,7 @@ function formatRecordedAt(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return " — ";
+    return "Date not recorded";
   }
 
   const ms = Date.parse(raw);
