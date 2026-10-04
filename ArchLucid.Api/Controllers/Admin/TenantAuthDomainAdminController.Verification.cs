@@ -22,9 +22,18 @@ public sealed partial class TenantAuthDomainAdminController
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
 
-        TenantSignInEmailDomainRecord record = await _adminService
-            .BeginVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
-            .ConfigureAwait(false);
+        TenantSignInEmailDomainRecord record;
+
+        try
+        {
+            record = await _adminService
+                .BeginVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -51,9 +60,18 @@ public sealed partial class TenantAuthDomainAdminController
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
 
-        TenantSignInEmailDomainRecord record = await _adminService
-            .CheckVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
-            .ConfigureAwait(false);
+        TenantSignInEmailDomainRecord record;
+
+        try
+        {
+            record = await _adminService
+                .CheckVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         await _auditService.LogAsync(
             new AuditEvent

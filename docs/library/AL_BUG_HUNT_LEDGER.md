@@ -25065,11 +25065,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 56
-- **bugs-found:** 48
-- **consecutive-dry-hunts:** 2
+- **hunts:** 57
+- **bugs-found:** 49
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-26 — security-trust publication audit field surrogate guard gap
+- **last-bug:** 2026-10-04 — tenant auth domain verification missing-domain 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25079,9 +25079,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-04 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths. No candidate was promoted because the scoped controller test command was blocked before test discovery by pre-existing ARCH006/ARCH006a analyzer errors in unrelated persistence files. Seeded the verification-route error-mapping candidate for a future repro.
 
+2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `TenantAuthDomainAdminController.StartVerificationAsync` / `CheckVerificationAsync` let `RequireDomainAsync` `InvalidOperationException` bubble when the route `normalizedDomain` is not registered for the tenant (stale admin link), unlike sibling `ProposeAsync` / `MarkRoutingTestedAsync`; map to `400 ValidationFailed`; regressions `StartVerificationAsync_returns_bad_request_when_domain_not_registered_for_tenant` and `CheckVerificationAsync_returns_bad_request_when_domain_not_registered_for_tenant`; 16 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
+
 ### Hypotheses
 
-- (candidate) `TenantAuthDomainAdminController.Verification` `StartVerificationAsync` / `CheckVerificationAsync` — an admin UI action can submit a stale or tampered `normalizedDomain` route value, and `RequireDomainAsync` throws `InvalidOperationException` for a missing tenant-owned domain; the controller does not map that exception to a 404/400 response, so the reachable action may return a 500 instead of a client error.
+- [x] (proven) `TenantAuthDomainAdminController.Verification` `StartVerificationAsync` / `CheckVerificationAsync` — missing tenant-owned `normalizedDomain` surfaced `InvalidOperationException` as an unhandled 500 — **hit 2026-10-04 thorough hunt:** catch `InvalidOperationException` and return `BadRequestProblem` like `ProposeAsync`; regressions in `TenantAuthDomainAdminControllerVerificationTests`.
+
+- [x] (valid-no-repro) `AdminQuickScanSafetyController.PutAsync` — `Enum.Parse` on post-override `snapshot.OperationalMode` — **cheap-disproof 2026-10-04 thorough hunt:** `QuickScanSafetyOperationalAdminService.Map` always sets `OperationalMode` from `QuickScanSafetyOperationalMode.ToString()` after `ParseMode` validated the request; no out-of-band string can reach the audit parse without store corruption outside this controller path.
+
+- [x] (valid-no-repro) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — null JSON answer values — **cheap-disproof 2026-10-04 thorough hunt:** `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` and `UnicodeTextValidation.IsValidUnicodeText` treat null/empty as valid at the controller gate; no unhandled null path was reproduced on the validation loop.
 
 - [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` accepts attacker-controlled `RecordAgentModelCatalogEvaluationRequest.EvidenceJson` and forwards it without a controller-side size bound — cheap-disproof 2026-10-02 thorough hunt: `dbo.AgentModelCatalogEvaluation.EvidenceJson` is intentionally `NVARCHAR(MAX)`, and the selected files provide no concrete maximum-size contract or observed failure to falsify; no failing repro was justified.
 
