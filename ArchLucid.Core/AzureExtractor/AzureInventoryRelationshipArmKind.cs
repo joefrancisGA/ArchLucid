@@ -53,4 +53,6 @@ public enum AzureInventoryRelationshipArmKind
 
     /// <summary>Recovery Services vault (RSV-03).</summary>
     RecoveryServicesVault = 33,
+
+    VirtualMachineScaleSet = 36,
 }

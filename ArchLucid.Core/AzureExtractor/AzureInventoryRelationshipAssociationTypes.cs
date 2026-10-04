@@ -20,6 +20,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string VmToNic = "vmToNic";
 
+    public const string VmssToSubnet = "vmssToSubnet";
+
+    public const string DatabricksWorkspaceToSubnet = "databricksWorkspaceToSubnet";
+
     public const string NicToNsg = "nicToNsg";
 
     public const string SubnetToNsg = "subnetToNsg";
@@ -133,6 +137,8 @@ public static class AzureInventoryRelationshipAssociationTypes
         // nsgAllowRule is a subnet→storage heuristic from NSG rule text, not a cited ARM association id.
         Inferred(NsgAllowRule, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.StorageAccount, "ROUTES_TO", "inventory-nsg-allow-rule", ProvenanceKind.DeterministicInference),
         Observed(VmToNic, AzureInventoryRelationshipArmKind.VirtualMachine, AzureInventoryRelationshipArmKind.NetworkInterface, "CONNECTS_TO", "inventory-vm-nic"),
+        Observed(VmssToSubnet, AzureInventoryRelationshipArmKind.VirtualMachineScaleSet, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-vmss-subnet"),
+        Observed(DatabricksWorkspaceToSubnet, AzureInventoryRelationshipArmKind.DatabricksWorkspace, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-databricks-workspace-subnet"),
         Observed(NicToNsg, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.NetworkSecurityGroup, "APPLIES_TO", "inventory-nic-nsg"),
         Observed(SubnetToNsg, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.NetworkSecurityGroup, "APPLIES_TO", "inventory-subnet-nsg"),
         Observed(SubnetToRouteTable, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.RouteTable, "APPLIES_TO", "inventory-subnet-route-table"),

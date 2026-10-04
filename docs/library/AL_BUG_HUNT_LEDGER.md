@@ -24484,10 +24484,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
 - **hunts:** 71
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 3
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
+- **last-bug:** 2026-10-04 — VMSS and Databricks subnet associations used incompatible generic source kinds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24513,9 +24513,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — pages are appended without ARN deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Resource Explorer provider behavior or reachable fixture establishes duplicate ARNs across pages; collector pagination/loop guards passed existing tests; no failing repro.
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — pages are appended without asset-name deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Asset Inventory provider behavior or reachable fixture establishes duplicate asset names across pages; raw-page pagination tests passed; no failing repro.
 
-- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet is emitted with `nicToSubnet` even though the source resource is a `Microsoft.Compute/virtualMachineScaleSets` resource; verify whether graph materialization drops or misclassifies the VMSS-to-subnet association because the association type declares a network-interface source.
-- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP; verify whether hosted inventory diagrams omit Bastion public exposure.
-- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters are emitted with the generic `appServiceToSubnet` association type; verify whether downstream graph consumers reject or misclassify the Databricks workspace source kind.
+- [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet was emitted with `nicToSubnet` even though the source resource was a `Microsoft.Compute/virtualMachineScaleSets` resource — **hit 2026-10-04:** added `vmssToSubnet` with `VirtualMachineScaleSet → Subnet` catalog metadata; regression `Build_emits_vmss_to_subnet_row_with_vmss_association_type`.
+- [x] (invalid) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP — **cheap-disproof 2026-10-04:** selected extractor files define no expected Bastion public-IP association contract or catalog relationship, so no wrong outcome was established.
+- [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters were emitted with the generic `appServiceToSubnet` association type even though the source resource was a `Microsoft.Databricks/workspaces` resource — **hit 2026-10-04:** added `databricksWorkspaceToSubnet` with `DatabricksWorkspace → Subnet` catalog metadata; regression `Build_emits_databricks_workspace_to_subnet_association`.
+
+2026-10-04 thorough hunt (hit): proved and fixed VMSS and Databricks source-kind mismatches in hosted Azure subnet associations; cheap-disproved the unsupported Bastion public-IP contract. Azure association builder tests passed 16/16 and Core association catalog tests passed 14/14. The scoped compile-check script was inconclusive because its Linux path join prepended `/workspace` twice; no compile errors were observed in the test builds.
 
 2026-10-04 seed hunt (seed-only): re-read the selected Azure network-association builder, ARM property expander, AWS/GCP collectors and packagers, and focused extractor tests. The three reachable association-typing/exposure candidates remain candidates because downstream graph validation or the expected Bastion public-IP contract is outside this zone's selected files; no failing repro was attempted.
 

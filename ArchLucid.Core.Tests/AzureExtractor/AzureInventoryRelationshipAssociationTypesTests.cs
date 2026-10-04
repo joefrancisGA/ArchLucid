@@ -56,6 +56,18 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     }
 
     [Fact]
+    public void Vmss_to_subnet_catalog_entry_declares_vmss_source_kind()
+    {
+        AzureInventoryRelationshipAssociationTypes.TryGet(
+            AzureInventoryRelationshipAssociationTypes.VmssToSubnet,
+            out AzureInventoryRelationshipAssociationTypeDefinition? vmssToSubnet).Should().BeTrue();
+
+        vmssToSubnet!.FromArmKind.Should().Be(AzureInventoryRelationshipArmKind.VirtualMachineScaleSet);
+        vmssToSubnet.ToArmKind.Should().Be(AzureInventoryRelationshipArmKind.Subnet);
+        vmssToSubnet.DefaultGraphEdgeType.Should().Be("CONNECTS_TO");
+    }
+
+    [Fact]
     public void Lookup_is_case_insensitive_for_valid_types()
     {
         AzureInventoryRelationshipAssociationTypes.IsKnown("NICTOSUBNET").Should().BeTrue();
@@ -102,6 +114,8 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [InlineData("synapseReadsFrom")]
     [InlineData("eventHubCapture")]
     [InlineData("avdSessionHostToVm")]
+    [InlineData("vmssToSubnet")]
+    [InlineData("databricksWorkspaceToSubnet")]
     public void New_association_types_are_known_members(string associationType)
     {
         AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
