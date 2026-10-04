@@ -90,4 +90,27 @@ public sealed class BuyerProofPackCommitGuardTests
         demoWarning.Should().BeTrue();
         error.Should().BeNull();
     }
+
+    [Fact]
+    public void TryValidateDeltasJson_accepts_string_boolean_is_demo_tenant_without_throwing()
+    {
+        const string json = """{"isDemoTenant":"true","proofPackageCompleteness":{"runInCommittedStatus":true}}""";
+
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out bool demoWarning, out string? error);
+
+        ok.Should().BeTrue();
+        demoWarning.Should().BeTrue();
+        error.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryValidateDeltasJson_when_is_demo_tenant_malformed_returns_false_instead_of_throwing()
+    {
+        const string json = """{"isDemoTenant":{"unexpected":1},"proofPackageCompleteness":{"runInCommittedStatus":true}}""";
+
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out _, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("isDemoTenant");
+    }
 }
