@@ -530,6 +530,102 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
     }
 
     [Fact]
+    public async Task ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_after_invalid_payload_log()
+    {
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IServiceScopeFactory> scopeFactory = new();
+        int getAsyncCalls = 0;
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory.Object,
+            new OperationCancellationRegistry(),
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage(
+            "bad-cancel-post-log",
+            "rcpt-bad-cancel-post-log",
+            "job-bad-cancel-post-log",
+            1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        BackgroundJobRow runningRow = new()
+        {
+            JobId = "job-bad-cancel-post-log",
+            WorkUnitJson = "   ",
+            RetryCount = 0,
+            MaxRetries = 3,
+            State = "Running",
+        };
+
+        BackgroundJobRow canceledRow = new()
+        {
+            JobId = "job-bad-cancel-post-log",
+            WorkUnitJson = "   ",
+            RetryCount = 0,
+            MaxRetries = 3,
+            State = "Canceled",
+        };
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-bad-cancel-post-log", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, runningRow));
+
+        repo.Setup(r => r.GetAsync("job-bad-cancel-post-log", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                getAsyncCalls++;
+
+                return getAsyncCalls <= 2 ? runningRow : canceledRow;
+            });
+
+        queueClient.Setup(q => q.DeleteMessageAsync("bad-cancel-post-log", "rcpt-bad-cancel-post-log", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await Task.Delay(150);
+
+        repo.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        getAsyncCalls.Should().BeGreaterThan(2, "invalid payload handling should re-read cancel state after logging");
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
     public async Task ProcessOneMessageAsync_schedules_retry_when_executor_fails_within_max_retries()
     {
         Mock<QueueClient> queueClient = new();

@@ -10022,15 +10022,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 26
-- **bugs-found:** 22
+- **hunts:** 27
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-27 — in-memory retry capacity-exhausted terminal path lacked second cancel re-read before Failed assignment
+- **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-04 seed hunt (seed-only): reseeded host-core-jobs; reviewed worker drain and execute-ownership hosted boundaries; no new hunt-ready rows; 74 scoped host-core-jobs tests passed.
+2026-10-04 seed hunt (seed→hit): reseeded host-core-jobs; proved invalid WorkUnitJson branch logged before post-log cancel re-reads (parity gap vs exhausted-retry terminal path); 74 scoped Host.Core + 25 processor tests passed.
 
 2026-09-27 thorough hunt (hit): proved `InMemoryBackgroundJobQueue` retry capacity-exhausted and writer-rejected branches logged before the second `_info` cancel re-read (parity gap vs terminal-failure and durable capacity terminal paths); second re-read before `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`; 85 scoped host-core-jobs + in-memory queue tests passed.
 
@@ -10090,6 +10091,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / terminal second-read fixes) — **hit 2026-09-27 seed hunt (seed→hit):** second `GetAsync` before notify-failure terminal assignment; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
 - [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — `MarkFailedTerminalAsync` on notify failure without any `GetAsync` cancel check overwrote `Canceled` when user canceled a just-inserted `Pending` row while `SendJobIdAsync` was in flight (parity gap vs watchdog/processor second-read pattern) — **hit 2026-09-27 thorough hunt:** second `GetAsync` before notify-failure terminal assignment (parity with watchdog); regressions `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling` and `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
 - [x] (proven) `InMemoryBackgroundJobQueue` retry capacity-exhausted and queue-writer-rejected failure branches assigned `Failed` after a single `_info` cancel re-read when cancel landed between the read and assignment (parity gap vs terminal-failure second-read and durable processor capacity terminal path) — **hit 2026-09-27 thorough hunt:** pre-log and post-log `_info` re-reads before capacity/writer terminal `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch — pre-log cancel re-reads then `LogError` before `MarkFailedTerminalAsync` let cancel land after logging and overwrite `Canceled` with `Failed` (parity gap vs exhausted-retry terminal post-log second-read fixes) — **hit 2026-10-04 seed hunt (seed→hit):** second pair of `GetAsync` cancel checks after invalid-payload log; regression `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_after_invalid_payload_log`.
 
 2026-09-27 seed hunt (seed-only): reseeded host-core-jobs after durable enqueue fix; scoped processor/watchdog/enqueue cancel parity; seeded in-memory retry capacity/writer terminal single-read candidate; 74 scoped host-core-jobs tests passed.
 
