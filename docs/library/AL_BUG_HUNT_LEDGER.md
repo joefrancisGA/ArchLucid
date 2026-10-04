@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload` materialization and outbox JSON boundaries; cheap-disproved infrastructure `content` combining marks, `infrastructureDeclarations: [null]`, string `workKind` enum literals (full `TryDeserialize` reject), and empty payload `runId` (worker overwrites from outbox `entry.RunId` like non-authoritative `projectId`); 34 scoped payload JSON tests passed.
+
 2026-10-04 seed hunt (seed→hit): `authority-pipeline-payload` — infrastructure `format` and document `contentType` were not validated with `HasUsableIdentifierText`, so embedded combining marks (for example `json\u0300`) survived materialization and broke declaration/parser routing parity with `name`/`content`; extended `HasSubstantiveInfrastructureDeclaration` and `HasSubstantiveDocument`; regressions `Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_type_contains_embedded_combining_mark`; 34 scoped payload JSON tests passed.
 
 2026-10-04 seed hunt (seed→hit): `host-composition` — `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` when Redis L2 was enabled, throwing `NullReferenceException` instead of the documented configuration error; null-safe trim now surfaces `InvalidOperationException`; regression `RegisterHotPathReadCaching_null_redis_connection_reports_configuration_error`; 409 scoped host-composition tests passed.
@@ -3939,15 +3941,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — combining marks in infrastructure format and document contentType survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 - [x] (proven) `HasSubstantiveInfrastructureDeclaration` / `HasSubstantiveDocument` — `format` and `contentType` were not scanned for embedded combining marks, so declarations/documents with valid `name`/`content` but corrupted routing metadata survived materialization — **hit 2026-10-04 seed hunt:** apply `HasUsableIdentifierText` to `format` and `contentType`; regressions `Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_type_contains_embedded_combining_mark`.
+
+2026-10-04 seed hunt (seed-only): re-read combining-mark parity on infrastructure declaration `content`, null declaration array elements, string `workKind` JSON, and empty payload `runId`; no new hunt-ready repro; 34 scoped payload JSON tests passed.
+
+- [x] (valid-no-repro) `AuthorityPipelineWorkPayload.IsValidForProcessing` — empty `ContextIngestionRequest.RunId` passes the gate — **cheap-disproof 2026-10-04:** `AuthorityPipelineExecuteWorkHandler` overwrites `request.RunId` from the outbox entry before orchestration (same non-authoritative pattern as blank `projectId`).
+- [x] (valid-no-repro) `MaterializeInfrastructureDeclarationList` — `infrastructureDeclarations: [null]` — **cheap-disproof 2026-10-04:** null array elements are already stripped at materialization (parity with `documents: [null]`).
+- [ ] (candidate) `AuthorityPipelineWorkPayloadJson.TryDeserialize` — string `workKind` values (`"Commit"`, `"execute"`) throw `JsonException` and fail the entire deserialize instead of returning a payload that `IsValidForProcessing` discards; reachable when hand-edited or third-party outbox JSON uses string enums while numeric invalid values already follow the discard path.
 
 2026-10-04 seed hunt (hit): promoted inlineRequirements and document-content combining-mark parity; `InlineRequirements` still used `MaterializeStringList` and document/declaration `content` used `HasSubstantiveText` only, so embedded combining marks survived materialization and broke stable requirement/document canonicalization; fixed by routing `InlineRequirements` through `MaterializeReferenceStringList` and requiring `HasUsableIdentifierText` on document and infrastructure declaration content; regressions `Deserialize_filters_inline_requirements_when_entry_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_contains_embedded_combining_mark`; 32 scoped payload JSON tests passed.
 
