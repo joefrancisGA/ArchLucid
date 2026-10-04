@@ -93,6 +93,11 @@ export function SecureNowQuestionQueue(
     () => new Set(),
   );
 
+  useEffect(() => {
+    setVisitedQuestionKeys(new Set());
+    setSessionSkippedQuestionKeys(new Set());
+  }, [snapshotId]);
+
   const loadQuestions = useCallback(async () => {
     if (snapshotId.trim().length === 0) return;
     setLoading(true);

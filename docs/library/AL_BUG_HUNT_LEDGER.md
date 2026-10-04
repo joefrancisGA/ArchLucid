@@ -28206,10 +28206,10 @@ ABQ-09 churn hotspot.
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **hunts:** 9
-- **bugs-found:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — question queue skip state collapsed distinct resources sharing a question key
+- **last-bug:** 2026-10-04 — question queue retained skipped state across snapshot changes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28226,6 +28226,7 @@ ABQ-09 churn hotspot.
 2026-10-04 seed hunt (hit): proved `SecureNowQuestionQueue` keyed skipped and visited state only by `questionKey`, so choosing `NotSure` for one resource hid other resources sharing `unknown-evidence@v1` or `orphan-still-needed@v1`; keyed state by subscription/resource/question identity and added `keeps another resource with the same question key after skipping one`. The focused UI suite passed 7/7.
 
 2026-10-04 seed hunt (seed-only): re-read question candidate construction, mutation mapping, and queue state after the resource-identity fix; no candidate met the full same-run repro bar. Seeded two bounded follow-ups; no product test was added.
+2026-10-04 seed hunt (hit): proved `SecureNowQuestionQueue` retained skipped and visited question state when `snapshotId` changed, hiding a same-identity question in the next snapshot; reset per-snapshot state and added `clears skipped question state when the snapshot changes`. The focused UI suite passed 8/8.
 
 2026-10-04 thorough hunt (dry): cheap-disproved the missing-parent candidate because the selected compiler contract explicitly suppresses known missing Azure objects; closed the numeric-enum candidate as valid-no-repro because numeric strings map to defined enum values but no user-visible wrong outcome was established. No hunt-ready hypothesis remained and no failing repro was attempted.
 
@@ -28244,6 +28245,7 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `SecureNowQuestionDispositionService.ReopenAsync` — reopening an expired disposition preserves its past `ExpirationUtc`, so the persisted record can remain expired after a successful reopen; input is a reachable reopen request for an expired ignored or answered disposition.
 - [x] (invalid) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — a resource with a non-empty `ParentResourceId` absent from the snapshot resource set is skipped before it can become an orphan question — **cheap-disproof 2026-10-04 thorough hunt:** the selected `SecureNowQuestionCompiler` contract explicitly suppresses `IsKnownMissingAzureObject` candidates, so missing-parent inventory objects are intentionally excluded from the queue.
 - [x] (valid-no-repro) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` — **cheap-disproof 2026-10-04 thorough hunt:** the values map to defined enum members and the selected files establish no harmful persistence or user-visible wrong outcome.
+- [x] (proven) `SecureNowQuestionQueue` — `sessionSkippedQuestionKeys` and `visitedQuestionKeys` survived a `snapshotId` change, so a same-identity question in the next snapshot could remain hidden and the visit cap could carry over; reset both sets when the snapshot changes, with regression `clears skipped question state when the snapshot changes`.
 
 ## Zone: infra-evidence-diagrams
 

@@ -149,6 +149,18 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("clears skipped question state when the snapshot changes", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
+    fireEvent.click(screen.getByRole("button", { name: "NotSure" }));
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+
+    expect(await screen.findByText(question.questionText)).toBeInTheDocument();
+  });
+
   it("requires a reason before ignoring a question", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
 
