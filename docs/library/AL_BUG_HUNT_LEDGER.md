@@ -24935,8 +24935,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `SupportBundleController.DownloadSupportBundle` — `AuditService.EnrichAuditEvent` fills empty tenant/workspace/project fields from the authenticated HTTP scope provider, and `SupportBundleAssembler` emits only host environment/build/reference data rather than tenant-scoped records; no attribution or cross-tenant repro remains.
 
+- [ ] (candidate) `AdminQuickScanSafetyController.PutAsync` — parses `snapshot.OperationalMode` with `Enum.Parse` after the admin service returns; a reachable persisted or service-produced mode value outside `QuickScanSafetyOperationalMode` could surface a 500 instead of a conservative validation response, pending proof that the service/store contract cannot emit an unknown mode.
+- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — iterates `request.Answers` and reads each `answer.Value` as non-null text; a reachable JSON object containing a null answer value could reach `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` and fail with an unhandled null path, pending the request DTO deserialization/nullability contract.
+
 2026-10-03 seed hunt (seed-only): re-read Authority/Admin controller policy, scope, input, and audit boundaries; seeded the support-bundle scope/audit attribution candidate. 14 focused controller tests passed; 5 SQL-backed integration tests were blocked because no SQL Server was available.
 2026-10-04 thorough hunt (dry): cheap-disproved the support-bundle scope/audit candidate; audit enrichment supplies request scope and the assembler has no tenant-scoped data access. Fourteen focused tests passed; five SQL-backed integration tests were blocked by unavailable SQL Server, with no failing repro.
+2026-10-04 seed hunt (seed-only): re-read recent Authority/Admin controller inputs and persistence boundaries; no candidate met the hunt-ready bar in the selected files, so seeded two candidates for later contract proof and stopped without a regression.
 
 ---
 
