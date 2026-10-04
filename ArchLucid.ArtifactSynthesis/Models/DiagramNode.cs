@@ -82,6 +82,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Factory names for a collapsed ADF external-host rollup card.</summary>
+    public List<string> ExternalFactoryNames
+    {
+        get;
+        set;
+    } = [];
+
     public string? ExternalTargetHost
     {
         get;

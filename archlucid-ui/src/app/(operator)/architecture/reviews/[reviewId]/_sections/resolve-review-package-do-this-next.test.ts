@@ -13,6 +13,7 @@ const baseInput = {
   runCompleted: false,
   showProgressTracker: false,
   openClarificationGapCount: 0,
+  findingsCount: 0,
   correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-abc",
   useCreateHomeWorkspaceTabs: true,
   evidenceCoverageLinkedCount: 0,
@@ -129,6 +130,25 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.href).toContain("reviewTab=activity");
+  });
+
+  it("blocks the loop when clarification count is not returned", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      openClarificationGapCount: undefined,
+    });
+
+    expect(next.sentence).toContain("Clarification count not returned");
+  });
+
+  it("blocks the loop when findings count is not returned", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      openClarificationGapCount: 0,
+      findingsCount: undefined,
+    });
+
+    expect(next.sentence).toContain("Findings count not returned");
   });
 
   it("prioritizes open clarifications on create-home packages", () => {

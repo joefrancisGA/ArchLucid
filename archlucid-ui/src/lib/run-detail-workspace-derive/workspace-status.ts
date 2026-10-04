@@ -26,6 +26,7 @@ import {
   resolveWorkingPipelineCompleteReviewLabel,
   resolveWorkingPipelineCompleteStatusTagKind,
 } from "@/lib/runs/pipeline-complete-career-honesty-copy";
+import { resolveBlockingFindingCountPresentation } from "@/lib/run-detail-workspace-derive/blocking-finding-count-display";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 
 const PRODUCT_BRAND_NAME = "ArchLucid";
@@ -121,7 +122,9 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Awaiting decision", kind: "awaiting-decision", statusTagKind: "needs-attention" };
     }
 
-    const blockingCount = input.blockingFindingCount ?? 0;
+    const blockingPresentation = resolveBlockingFindingCountPresentation(input.blockingFindingCount);
+    const blockingCount = blockingPresentation.value;
+    const blockingCountKnown = blockingPresentation.known;
     const governancePending =
       gateLabel === "Pending" ||
       gateLabel === "Status not recognized" ||
@@ -137,6 +140,14 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized;
 
     if (isFinalized) {
+      if (!blockingCountKnown) {
+        return {
+          label: "Finalized · blocking count not returned",
+          kind: "finalized",
+          statusTagKind: "needs-attention",
+        };
+      }
+
       if (blockingCount > 0) {
         return {
           label: "Finalized · approval blocked",
@@ -158,6 +169,10 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       }
 
       return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
+    }
+
+    if (!blockingCountKnown) {
+      return resolveReviewCompleteWorkspaceStatus(input, "blocking count not returned");
     }
 
     if (blockingCount > 0) {

@@ -1,14 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { formatAdminTenantHealthMetric } from "@/lib/tenant-health-admin-display";
+import { presentTenantHealthAdminCount } from "./tenant-health-admin-display";
 
-describe("formatAdminTenantHealthMetric", () => {
+describe("presentTenantHealthAdminCount", () => {
   it("returns Not returned for missing values", () => {
-    expect(formatAdminTenantHealthMetric(null)).toBe("Not returned");
-    expect(formatAdminTenantHealthMetric(undefined)).toBe("Not returned");
+    expect(presentTenantHealthAdminCount(null)).toBe("Not returned");
+    expect(presentTenantHealthAdminCount(undefined)).toBe("Not returned");
+    expect(presentTenantHealthAdminCount(Number.NaN)).toBe("Not returned");
   });
 
-  it("formats finite numbers", () => {
-    expect(formatAdminTenantHealthMetric(42)).toBe("42");
+  it("formats finite integers", () => {
+    expect(presentTenantHealthAdminCount(0)).toBe("0");
+    expect(presentTenantHealthAdminCount(12)).toBe("12");
+    expect(presentTenantHealthAdminCount(42)).toBe("42");
   });
 });

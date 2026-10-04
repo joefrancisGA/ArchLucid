@@ -56,6 +56,19 @@ describe("ExplainabilityTraceTree", () => {
     expect(screen.getByText("1 structured source supports this finding.")).toBeInTheDocument();
   });
 
+  it("distinguishes omitted evidence from an empty evidence list", () => {
+    const withoutEvidenceObject: FindingExplainability = {
+      ...sample,
+      evidence: undefined,
+    };
+
+    render(<ExplainabilityTraceTree data={withoutEvidenceObject} />);
+
+    expect(screen.getByText("Sources not returned for this finding.")).toBeInTheDocument();
+    expect(screen.queryByText(EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY)).not.toBeInTheDocument();
+    expect(screen.getByText(/supporting sources were not returned/)).toBeInTheDocument();
+  });
+
   it("explains heuristic vs evidence-backed findings when evidence references are empty (TB-514)", () => {
     const withoutEvidenceRefs: FindingExplainability = {
       ...sample,

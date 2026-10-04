@@ -43,4 +43,7 @@ public interface IAzureSearchClient
 
     /// <summary>Removes all chunks for <paramref name="documentId" /> within the tenant scope in <paramref name="scope" />.</summary>
     Task RemoveChunksForDocumentAsync(string documentId, RetrievalQuery scope, CancellationToken ct);
+
+    /// <summary>Deletes chunks by <c>chunkId</c> key values.</summary>
+    Task RemoveChunkIdsAsync(IReadOnlyList<string> chunkIds, CancellationToken ct);
 }

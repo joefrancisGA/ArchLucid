@@ -96,7 +96,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         showProgressTracker={m.showProgressTracker}
         legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
         isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
-        openClarificationGapCount={architectureCreatedHomeModel?.clarificationGaps.length ?? 0}
+        openClarificationGapCount={architectureCreatedHomeModel?.clarificationGaps?.length}
         correctionHref={architectureEditHref}
         useCreateHomeWorkspaceTabs
         hasGoldenManifest={Boolean(m.manifestId)}

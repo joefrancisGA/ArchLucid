@@ -5,13 +5,13 @@ export type IntegrationEventOutboxDeadLetterRow = components["schemas"]["Integra
 
 export function formatAgeUtc(deadLetteredUtc: string | undefined | null): string {
   if (deadLetteredUtc === undefined || deadLetteredUtc === null || deadLetteredUtc === "") {
-    return " — ";
+    return "Age not recorded";
   }
 
   const deadLetteredMs = Date.parse(deadLetteredUtc);
 
   if (Number.isNaN(deadLetteredMs)) {
-    return " — ";
+    return "Age not readable";
   }
 
   const ageMs = Math.max(0, Date.now() - deadLetteredMs);
@@ -34,7 +34,7 @@ export function formatAgeUtc(deadLetteredUtc: string | undefined | null): string
 
 export function truncateErrorMessage(message: string | undefined | null): string {
   if (message === undefined || message === null || message.trim() === "") {
-    return " — ";
+    return "Error not recorded";
   }
 
   return truncateMiddle(message, 96);

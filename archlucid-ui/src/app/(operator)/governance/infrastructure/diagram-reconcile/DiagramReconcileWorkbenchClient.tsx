@@ -25,12 +25,14 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
+  compareInfrastructureDiagramAdvisory,
   fetchArchitectureDiagramModel,
   fetchArchitectureDiagramReconciliation,
   formatInfraEvidenceDiagramReconcileApiError,
   ingestArchitectureDiagram,
   ingestOperationalSecurityFindings,
   reconcileArchitectureDiagram,
+  saveInfrastructureDiagramNodeMapping,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
@@ -46,6 +48,7 @@ import {
   writeDiagramReconcileSessionDraft,
 } from "@/lib/infra-evidence/diagram-reconcile-session-draft";
 import {
+  isDiagramReconcileAdvisoryComparisonPath,
   resolveDiagramReconcileBlockedReason,
   resolveDiagramReconcileDiagramSourceStepReadiness,
   resolveDiagramReconcileReconcileStepReadiness,
@@ -163,6 +166,15 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
   { value: "Probable", label: "Probable" },
 ];
 
+function normalizeDiagramLabelForMapping(label: string): string {
+  const trimmed = label.trim();
+  const parenIndex = trimmed.indexOf("(");
+
+  const namePart = parenIndex > 0 ? trimmed.slice(0, parenIndex).trim() : trimmed;
+
+  return namePart.toLowerCase();
+}
+
 function buildDiagramReconcileCorrespondenceAskHref(
   pathname: string,
   currentSearch: string,
@@ -272,6 +284,9 @@ export function DiagramReconcileWorkbenchClient() {
   const [ingestBusy, setIngestBusy] = useState(false);
   const [ingestConfirmOpen, setIngestConfirmOpen] = useState(false);
   const [reconcileBusy, setReconcileBusy] = useState(false);
+  const [comparisonId, setComparisonId] = useState<string | null>(null);
+  const [confirmedMappingPick, setConfirmedMappingPick] = useState<Record<string, string>>({});
+  const [mappingBusyId, setMappingBusyId] = useState<string | null>(null);
   const mermaidInputRef = useRef<HTMLTextAreaElement | null>(null);
   const hydratedDraftRunIdRef = useRef<string | null>(null);
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
@@ -310,6 +325,7 @@ export function DiagramReconcileWorkbenchClient() {
     ],
   );
   const mutationsAllowed = diagramReconcileMutationsAllowed(sealedReviewRecord);
+  const advisoryComparisonPath = isDiagramReconcileAdvisoryComparisonPath(sealedReviewRecord);
   const validRunId = isDiagramReconcileRunIdInputValid(runId);
   const validMermaidInput = diagramMermaid.trim().length > 0;
 
@@ -358,10 +374,12 @@ export function DiagramReconcileWorkbenchClient() {
         sealedRecord: sealedReviewRecord,
         selectedSnapshotId,
         modelNodeCount,
+        mermaidDraft: diagramMermaid,
         reconciliationSaved: reconciliation != null,
         loadingReconciliation,
       }),
     [
+      diagramMermaid,
       loadingReconciliation,
       modelNodeCount,
       reconciliation,
@@ -375,8 +393,9 @@ export function DiagramReconcileWorkbenchClient() {
         sealedRecord: sealedReviewRecord,
         selectedSnapshotId,
         modelNodeCount,
+        mermaidDraft: diagramMermaid,
       }),
-    [modelNodeCount, sealedReviewRecord, selectedSnapshotId],
+    [diagramMermaid, modelNodeCount, sealedReviewRecord, selectedSnapshotId],
   );
   const snapshotSelectionSummary = useMemo(
     () =>
@@ -400,6 +419,17 @@ export function DiagramReconcileWorkbenchClient() {
       });
     },
     [pathname, router, searchParams],
+  );
+
+  const infrastructureOnlyRows = useMemo(
+    () =>
+      (reconciliation?.rows ?? []).filter(
+        (row) =>
+          row.matchKind === "InfrastructureOnly"
+          && row.cloudResourceId != null
+          && row.cloudResourceId.trim().length > 0,
+      ),
+    [reconciliation?.rows],
   );
 
   const filteredRows = useMemo(() => {
@@ -608,6 +638,12 @@ export function DiagramReconcileWorkbenchClient() {
   }, [mutationsAllowed, runId, workbenchRetryNonce]);
 
   useEffect(() => {
+    if (advisoryComparisonPath) {
+      setReconciliationLoadState("idle");
+      setReconciliationLoadError(null);
+      return;
+    }
+
     if (runId.trim().length === 0 || selectedSnapshotId.trim().length === 0) {
       setReconciliation(null);
       setReconciliationLoadState("idle");
@@ -673,7 +709,7 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId, workbenchRetryNonce]);
+  }, [advisoryComparisonPath, matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId, workbenchRetryNonce]);
 
   const handleRunIdChange = useCallback(
     (nextRunId: string) => {
@@ -804,7 +840,7 @@ export function DiagramReconcileWorkbenchClient() {
       return;
     }
 
-    if (runId.trim().length === 0 || selectedSnapshotId.trim().length === 0) {
+    if (selectedSnapshotId.trim().length === 0) {
       setReconcileActionError(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR);
       return;
     }
@@ -814,8 +850,29 @@ export function DiagramReconcileWorkbenchClient() {
     setReconcileActionError(null);
 
     try {
-      const result = await reconcileArchitectureDiagram(runId.trim(), selectedSnapshotId.trim());
+      const result = advisoryComparisonPath
+        ? await compareInfrastructureDiagramAdvisory({
+          snapshotId: selectedSnapshotId.trim(),
+          sources: [
+            {
+              name:
+                diagramSourceName.trim().length > 0
+                  ? diagramSourceName.trim()
+                  : GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCE_NAME_PLACEHOLDER,
+              format: "text/vnd.mermaid",
+              content: diagramMermaid,
+            },
+          ],
+        })
+        : await reconcileArchitectureDiagram(runId.trim(), selectedSnapshotId.trim());
+
       setReconciliation(result);
+      setComparisonId(result.comparisonId ?? null);
+      if (advisoryComparisonPath) {
+        const activeNodes = result.diagramNodeCount;
+        setModelNodeCount(activeNodes);
+      }
+
       setReconciliationLoadState("loaded");
       setReconciliationLoadError(null);
       showSuccess(`Reconciliation complete — ${result.rows.length} correspondence row(s) generated.`);
@@ -832,7 +889,54 @@ export function DiagramReconcileWorkbenchClient() {
     } finally {
       setReconcileBusy(false);
     }
-  }, [reconcileBlockedReason, runId, selectedSnapshotId]);
+  }, [
+    advisoryComparisonPath,
+    diagramMermaid,
+    diagramSourceName,
+    reconcileBlockedReason,
+    runId,
+    selectedSnapshotId,
+  ]);
+
+  const saveConfirmedNodeMapping = useCallback(
+    async (row: DiagramInfrastructureCorrespondenceRow) => {
+      if (comparisonId == null || comparisonId.trim().length === 0) {
+        return;
+      }
+
+      const pickedCloudResourceId = confirmedMappingPick[row.correspondenceId]?.trim() ?? "";
+      if (pickedCloudResourceId.length === 0) {
+        return;
+      }
+
+      const diagramLabel = row.diagramNodeLabel?.trim() ?? "";
+      if (diagramLabel.length === 0) {
+        return;
+      }
+
+      setMappingBusyId(row.correspondenceId);
+      setRowActionError(null);
+
+      try {
+        const result = await saveInfrastructureDiagramNodeMapping(comparisonId, {
+          normalizedDiagramLabel: normalizeDiagramLabelForMapping(diagramLabel),
+          diagramNodeId: row.diagramNodeId,
+          cloudResourceId: pickedCloudResourceId,
+        });
+        setReconciliation(result);
+        setComparisonId(result.comparisonId ?? comparisonId);
+        showSuccess("Confirmed mapping saved and comparison refreshed.");
+      } catch (error: unknown) {
+        setRowActionError({
+          correspondenceId: row.correspondenceId,
+          message: formatInfraEvidenceDiagramReconcileApiError(error),
+        });
+      } finally {
+        setMappingBusyId(null);
+      }
+    },
+    [comparisonId, confirmedMappingPick],
+  );
 
   const selectAdjacentCorrespondenceRow = useCallback(
     (delta: number) => {
@@ -1002,7 +1106,9 @@ export function DiagramReconcileWorkbenchClient() {
         testId="infra-diagram-reconcile-selection-announcer"
       />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-honesty-line">
-        This compares the saved diagram with inventory evidence. It does not change either one.
+        {advisoryComparisonPath
+          ? "Advisory documentation accuracy. This is not a sealed review record."
+          : "This compares the saved diagram with inventory evidence. It does not change either one."}
       </p>
 
       {loadError != null ? (
@@ -1561,6 +1667,61 @@ export function DiagramReconcileWorkbenchClient() {
                             </Link>
                           </Button>
                         ) : null}
+                        {advisoryComparisonPath
+                          && comparisonId != null
+                          && row.matchKind === "DiagramOnly"
+                          && infrastructureOnlyRows.length > 0 ? (
+                          <div
+                            className="flex flex-col gap-1"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <Label
+                              className={OPERATOR_TYPOGRAPHY.helper}
+                              htmlFor={`infra-diagram-reconcile-this-box-is-${row.correspondenceId}`}
+                            >
+                              This box is
+                            </Label>
+                            <select
+                              id={`infra-diagram-reconcile-this-box-is-${row.correspondenceId}`}
+                              className={cnField}
+                              data-testid={`infra-diagram-reconcile-this-box-is-${row.correspondenceId}`}
+                              value={confirmedMappingPick[row.correspondenceId] ?? ""}
+                              onChange={(event) => {
+                                setConfirmedMappingPick((current) => ({
+                                  ...current,
+                                  [row.correspondenceId]: event.target.value,
+                                }));
+                              }}
+                            >
+                              <option value="">Select inventory resource</option>
+                              {infrastructureOnlyRows.map((candidate) => (
+                                <option
+                                  key={`${row.correspondenceId}-${candidate.correspondenceId}`}
+                                  value={candidate.cloudResourceId ?? ""}
+                                >
+                                  {formatDiagramReconcileResourceLabelForDisplay(candidate)}
+                                </option>
+                              ))}
+                            </select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={
+                                mappingBusyId === row.correspondenceId
+                                || (confirmedMappingPick[row.correspondenceId]?.trim().length ?? 0) === 0
+                              }
+                              onClick={() => {
+                                void saveConfirmedNodeMapping(row);
+                              }}
+                            >
+                              {mappingBusyId === row.correspondenceId ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                              ) : null}
+                              Save mapping
+                            </Button>
+                          </div>
+                        ) : null}
                       </div>
                     </EnterpriseTableCell>
                   </EnterpriseTableRow>
@@ -1568,6 +1729,35 @@ export function DiagramReconcileWorkbenchClient() {
               })}
             </EnterpriseTableBody>
           </EnterpriseTable>
+
+          {(reconciliation.edgeGaps?.length ?? 0) > 0 ? (
+            <div className="flex flex-col gap-2">
+              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Connector gaps</h2>
+              <EnterpriseTable ariaLabel="Diagram connector gap rows">
+                <EnterpriseTableHead>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableHeaderCell>Drawing</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Inventory</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Gap</EnterpriseTableHeaderCell>
+                  </EnterpriseTableRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {reconciliation.edgeGaps?.map((gap) => (
+                    <EnterpriseTableRow
+                      key={gap.edgeGapId}
+                      data-testid={`infra-diagram-reconcile-edge-gap-${gap.edgeGapId}`}
+                    >
+                      <EnterpriseTableCell>
+                        {gap.fromCloudResourceId ?? "—"} → {gap.toCloudResourceId ?? "—"}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>{gap.associationType ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>{gap.explainText}</EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ))}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

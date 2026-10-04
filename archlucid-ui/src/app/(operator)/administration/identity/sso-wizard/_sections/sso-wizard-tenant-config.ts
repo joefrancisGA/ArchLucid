@@ -27,7 +27,7 @@ function resolveProtocolLabel(protocol: SsoWizardProtocol | null): string {
     return "SAML 2.0";
   }
 
-  return " — ";
+  return "Protocol not recorded";
 }
 
 function parseClaimMappingJson(claimMappingJson: string | undefined): ClaimMappingJsonDocument | null {

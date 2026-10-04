@@ -29,7 +29,7 @@ import {
   fetchAdminTenantHealthList,
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
-import { formatAdminTenantHealthMetric } from "@/lib/tenant-health-admin-display";
+import { presentTenantHealthAdminCount } from "@/lib/tenant-health-admin-display";
 import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-severity";
 
 function formatUtc(iso: string | null): string {
@@ -161,23 +161,24 @@ export function TenantHealthAdminPageClient() {
               <EnterpriseTableCell>
                 {row.engagementScore === null ? (
                   <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    {formatAdminTenantHealthMetric(row.engagementScore)}
+                    {presentTenantHealthAdminCount(row.engagementScore)}
                   </span>
                 ) : (
                   <>
                     <SeverityTag
+                      severity={null}
                       kind={engagementScoreSeverityKind(row.engagementScore)}
                       label="Engagement risk"
                     />
                     <span className={cn("ml-2 tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                      {formatAdminTenantHealthMetric(row.engagementScore)}
+                      {presentTenantHealthAdminCount(row.engagementScore)}
                     </span>
                   </>
                 )}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{formatAdminTenantHealthMetric(row.governanceScore)}</EnterpriseTableCell>
+              <EnterpriseTableCell>{presentTenantHealthAdminCount(row.governanceScore)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.pilotFunnelStage || "Not returned"}</EnterpriseTableCell>
-              <EnterpriseTableCell>{formatAdminTenantHealthMetric(row.runsLast7d)}</EnterpriseTableCell>
+              <EnterpriseTableCell>{presentTenantHealthAdminCount(row.runsLast7d)}</EnterpriseTableCell>
               <EnterpriseTableCell>{formatUtc(row.lastActivityUtc)}</EnterpriseTableCell>
             </EnterpriseTableRow>
           ))}

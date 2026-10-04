@@ -39,8 +39,9 @@ function scoreForTrace(
 }
 
 function ratioText(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value))
-    return " — ";
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "Ratio not returned";
+  }
 
   return value.toFixed(2);
 }

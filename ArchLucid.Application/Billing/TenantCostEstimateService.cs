@@ -17,6 +17,10 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
         if (tenant is null)
             return null;
+
+        if (!Enum.IsDefined(tenant.Tier))
+            return null;
+
         BillingUnitRatesOptions rates = _ratesMonitor.CurrentValue;
         List<string> factors = [$"Tenant tier: {tenant.Tier}.", "Band widened to cover optional Azure OpenAI attach for authority runs."];
         (decimal low, decimal high) = tenant.Tier switch
@@ -24,7 +28,7 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
             TenantTier.Standard => (rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
             TenantTier.Enterprise => (rates.EnterpriseMonthlyUsdLow, rates.EnterpriseMonthlyUsdHigh),
             TenantTier.Free => (0, 0),
-            _ => (rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh)
+            _ => throw new InvalidOperationException("Tenant tier is not defined."),
         };
         if (tenant.Tier is TenantTier.Free)
             factors.Add("Free tier: guidance defaults to zero — activate a commercial plan for a non-zero band.");

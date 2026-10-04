@@ -23,7 +23,7 @@ export type ReviewPackageValidationRow = {
 };
 
 /** Shown when no package owner can be resolved for a review row. */
-export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = " — ";
+export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = "Owner not recorded";
 
 /** Legacy draft-registry placeholder for the signed-in operator — replaced with username when known. */
 export const REVIEW_PACKAGE_SELF_OWNER_PLACEHOLDER = "You";
@@ -63,7 +63,7 @@ export function reviewPackageStatusLabel(run: RunSummary): string {
 
 export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
   if (run.hasGoldenManifest !== true) {
-    return " — ";
+    return "Not finalized";
   }
 
   return formatRecurrenceScheduleUtcLabel(run.createdUtc);

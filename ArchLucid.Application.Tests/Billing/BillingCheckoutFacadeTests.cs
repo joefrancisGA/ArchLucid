@@ -308,6 +308,55 @@ public sealed class BillingCheckoutFacadeTests
     }
 
     [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCheckoutResult
+            {
+                CheckoutUrl = "https://checkout.example/session",
+                ProviderSessionId = "cs_lower_tier",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "team",
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.Success);
+        provider.Verify(
+            p => p.CreateCheckoutSessionAsync(
+                It.Is<BillingCheckoutRequest>(request => request.TargetTier == BillingCheckoutTier.Team),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task CreateCheckoutSessionAsync_requires_target_tier()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

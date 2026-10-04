@@ -1,13 +1,6 @@
-/** Per-theme count from sponsor ROI summary — omitting a field is not a measured zero. */
-export function presentBusinessImpactThemeCount(value: number | undefined): string {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Not returned";
-  }
+import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 
-  return String(Math.max(0, Math.trunc(value)));
-}
-
-export type BusinessImpactThemeCountsPresentation = {
+export type BusinessImpactThemeCountsDisplay = {
   readonly security: string;
   readonly compliance: string;
   readonly securityCompliance: string;
@@ -17,27 +10,43 @@ export type BusinessImpactThemeCountsPresentation = {
   readonly other: string;
 };
 
-export function presentBusinessImpactThemeCounts(
-  counts: {
-    readonly securityThemeCount?: number;
-    readonly complianceThemeCount?: number;
-    readonly securityComplianceThemeCount?: number;
-    readonly reliabilityThemeCount?: number;
-    readonly costThemeCount?: number;
-    readonly governanceThemeCount?: number;
-    readonly otherThemeCount?: number;
-  } | null
-  | undefined,
-): BusinessImpactThemeCountsPresentation {
-  const c = counts ?? {};
+function themeCountDisplay(
+  counts: SponsorRoiSummary["businessImpactCategoryCounts"] | null | undefined,
+  field:
+    | "securityThemeCount"
+    | "complianceThemeCount"
+    | "securityComplianceThemeCount"
+    | "reliabilityThemeCount"
+    | "costThemeCount"
+    | "governanceThemeCount"
+    | "otherThemeCount",
+): string {
+  if (counts === null || counts === undefined) {
+    return "Not returned";
+  }
+
+  const raw = counts[field];
+
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return "Not returned";
+  }
+
+  return String(Math.max(0, Math.floor(raw)));
+}
+
+/** Theme KPI tiles — missing API fields must not read as zero (UU-543). */
+export function readBusinessImpactThemeCountsDisplay(
+  data: SponsorRoiSummary | null,
+): BusinessImpactThemeCountsDisplay {
+  const counts = data?.businessImpactCategoryCounts ?? null;
 
   return {
-    security: presentBusinessImpactThemeCount(c.securityThemeCount),
-    compliance: presentBusinessImpactThemeCount(c.complianceThemeCount),
-    securityCompliance: presentBusinessImpactThemeCount(c.securityComplianceThemeCount),
-    reliability: presentBusinessImpactThemeCount(c.reliabilityThemeCount),
-    cost: presentBusinessImpactThemeCount(c.costThemeCount),
-    governance: presentBusinessImpactThemeCount(c.governanceThemeCount),
-    other: presentBusinessImpactThemeCount(c.otherThemeCount),
+    security: themeCountDisplay(counts, "securityThemeCount"),
+    compliance: themeCountDisplay(counts, "complianceThemeCount"),
+    securityCompliance: themeCountDisplay(counts, "securityComplianceThemeCount"),
+    reliability: themeCountDisplay(counts, "reliabilityThemeCount"),
+    cost: themeCountDisplay(counts, "costThemeCount"),
+    governance: themeCountDisplay(counts, "governanceThemeCount"),
+    other: themeCountDisplay(counts, "otherThemeCount"),
   };
 }

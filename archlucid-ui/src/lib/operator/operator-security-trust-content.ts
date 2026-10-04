@@ -219,7 +219,7 @@ export function resolveOperatorSecurityTrustMaterialReviewedLabel(docSlug: strin
 /** Honest availability from registry `pdfStatus` — in-product `/help/*` is not a public download. */
 export function resolveOperatorSecurityTrustMaterialAvailability(docSlug: string | undefined): string {
   if (docSlug === undefined || docSlug.trim().length === 0) {
-    return " — ";
+    return "Availability not recorded";
   }
 
   const entry = getProductDocumentationEntry(docSlug);

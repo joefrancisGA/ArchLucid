@@ -107,13 +107,15 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
       : (data.evidence?.conclusion?.trim() ?? "No decision recorded in trace.");
 
   const confidenceLabel = normalizeFindingConfidenceLevel(data.confidenceLevel ?? null);
-  const evidenceRefs = data.evidence?.evidenceRefs ?? [];
+  const evidenceRefs = data.evidence?.evidenceRefs;
   const rules = data.rulesApplied.length > 0 ? data.rulesApplied : data.evidence?.ruleId ? [data.evidence.ruleId] : [];
   const missingTraceFields = data.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
+  const evidenceRefCount =
+    evidenceRefs === null || evidenceRefs === undefined ? null : evidenceRefs.length;
 
   const confidence = findingConfidenceExplanation({
     level: confidenceLabel,
-    evidenceRefCount: evidenceRefs.length,
+    evidenceRefCount,
     missingTraceFieldCount: missingTraceFields.length,
   });
 
@@ -140,7 +142,11 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         defaultOpen
         onOpenChange={setOpenSectionKey}
       >
-        {evidenceRefs.length === 0 ? (
+        {evidenceRefs === null || evidenceRefs === undefined ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            {findingEvidenceCountPlainLine(null)}
+          </p>
+        ) : evidenceRefs.length === 0 ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY}</p>
         ) : (
           <>

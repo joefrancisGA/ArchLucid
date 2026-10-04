@@ -9,4 +9,6 @@ public static class DiagramInfrastructureMatchKinds
     public const string InfrastructureOnly = "InfrastructureOnly";
     public const string Conflict = "Conflict";
     public const string Unknown = "Unknown";
+
+    public const string Confirmed = "Confirmed";
 }

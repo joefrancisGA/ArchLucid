@@ -177,6 +177,26 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_trailing_slash_root_health_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_skips_health_paths()
     {
         DefaultHttpContext context = CreateContext("/health/live");
@@ -197,9 +217,123 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_development_default_tenant_claim_on_authorized_health_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/detailed");
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", ScopeIds.DefaultTenant.ToString("D")),
+                new Claim("workspace_id", Guid.NewGuid().ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "Bearer"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_healthcare_prefixed_path()
+    {
+        DefaultHttpContext context = CreateContext("/healthcare");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path()
+    {
+        DefaultHttpContext context = CreateContext("/openapifoo");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_skips_openapi_paths()
     {
         DefaultHttpContext context = CreateContext("/openapi/v1.json");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("/robots.txt/")]
+    [InlineData("/sitemap.xml/")]
+    public async Task InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths(string path)
+    {
+        DefaultHttpContext context = CreateContext(path);
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("/ROBOTS.TXT")]
+    [InlineData("/Sitemap.xml")]
+    public async Task InvokeAsync_staging_host_skips_public_crawler_hint_paths_case_insensitive(string path)
+    {
+        DefaultHttpContext context = CreateContext(path);
         bool nextCalled = false;
 
         await RunMiddlewareAsync(

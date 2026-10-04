@@ -23,4 +23,8 @@ describe("demo-preview-present", () => {
 
     expect(duration).toBe("24 days");
   });
+
+  it("labels unreadable duration bounds honestly", () => {
+    expect(computeDemoReviewDurationLabel([], "not-a-date")).toBe("Duration not readable");
+  });
 });

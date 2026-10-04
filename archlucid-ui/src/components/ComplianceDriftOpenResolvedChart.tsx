@@ -1,14 +1,23 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
-import {
-  formatComplianceDriftActivityCountDisplay,
-  parseComplianceDriftActivityCount,
-} from "@/lib/compliance-drift-open-resolved-count";
 
 export type ComplianceDriftOpenResolvedChartProps = {
   points: ComplianceDriftTrendPoint[];
 };
+
+type SeriesCount = {
+  readonly value: number;
+  readonly missing: boolean;
+};
+
+function parseDriftSeriesCount(value: unknown): SeriesCount {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return { value: 0, missing: true };
+  }
+
+  return { value: Math.max(0, Math.floor(value)), missing: false };
+}
 
 function formatBucketLabel(isoUtc: string): string {
   const d = new Date(isoUtc);
@@ -35,14 +44,21 @@ export function ComplianceDriftOpenResolvedChart(props: ComplianceDriftOpenResol
     );
   }
 
-  const normalized = points.map((p) => ({
-    bucketUtc: p.bucketUtc,
-    openCount: parseComplianceDriftActivityCount(p.openFindingsCount),
-    resolvedCount: parseComplianceDriftActivityCount(p.resolvedFindingsCount),
-  }));
+  const normalized = points.map((p) => {
+    const open = parseDriftSeriesCount(p.openFindingsCount);
+    const resolved = parseDriftSeriesCount(p.resolvedFindingsCount);
+
+    return {
+      bucketUtc: p.bucketUtc,
+      openCount: open.value,
+      resolvedCount: resolved.value,
+      openMissing: open.missing,
+      resolvedMissing: resolved.missing,
+    };
+  });
 
   const maxStack = Math.max(
-    ...normalized.map((p) => (p.openCount ?? 0) + (p.resolvedCount ?? 0)),
+    ...normalized.map((p) => (p.openMissing || p.resolvedMissing ? 0 : p.openCount + p.resolvedCount)),
     1,
   );
   const barMaxPx = 120;
@@ -70,8 +86,10 @@ export function ComplianceDriftOpenResolvedChart(props: ComplianceDriftOpenResol
 
 type NormalizedPoint = {
   bucketUtc: string;
-  openCount: number | null;
-  resolvedCount: number | null;
+  openCount: number;
+  resolvedCount: number;
+  openMissing: boolean;
+  resolvedMissing: boolean;
 };
 
 function OpenResolvedStackedBars(props: {
@@ -88,32 +106,40 @@ function OpenResolvedStackedBars(props: {
       aria-label="Compliance drift findings trend: stacked bars show opened vs resolved counts per day"
     >
       {normalized.map((point) => {
-        const open = point.openCount ?? 0;
-        const resolved = point.resolvedCount ?? 0;
-        const stack = open + resolved;
-        const stackPx = stack === 0 ? 0 : Math.max(2, (stack / maxStack) * barMaxPx);
-        const openPx = stack === 0 ? 0 : (open / stack) * stackPx;
+        const countsMissing = point.openMissing || point.resolvedMissing;
+        const stack = point.openCount + point.resolvedCount;
+        const stackPx =
+          countsMissing || stack === 0 ? 0 : Math.max(2, (stack / maxStack) * barMaxPx);
+        const openPx = stack === 0 ? 0 : (point.openCount / stack) * stackPx;
         const resolvedPx = stackPx - openPx;
-        const barAriaLabel = `Opened ${formatComplianceDriftActivityCountDisplay(point.openCount)}, resolved ${formatComplianceDriftActivityCountDisplay(point.resolvedCount)}`;
+        const barAriaLabel = countsMissing
+          ? "Count not returned"
+          : `Opened ${point.openCount}, resolved ${point.resolvedCount}`;
 
         return (
           <div
             key={point.bucketUtc}
             className="flex min-h-[144px] min-w-0 flex-1 flex-col items-center justify-end gap-1"
           >
-            <div
-              className="flex w-full max-w-[2rem] flex-col justify-end overflow-hidden rounded-t"
-              style={{ height: stackPx }}
-              tabIndex={0}
-              aria-label={barAriaLabel}
-            >
-              {resolvedPx > 0 ? (
-                <div className="w-full bg-teal-700/90 dark:bg-teal-500/90" style={{ height: resolvedPx }} />
-              ) : null}
-              {openPx > 0 ? (
-                <div className="w-full bg-amber-500/90" style={{ height: openPx }} />
-              ) : null}
-            </div>
+            {countsMissing ? (
+              <span className={cn("text-center text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
+                Count not returned
+              </span>
+            ) : (
+              <div
+                className="flex w-full max-w-[2rem] flex-col justify-end overflow-hidden rounded-t"
+                style={{ height: stackPx }}
+                tabIndex={0}
+                aria-label={barAriaLabel}
+              >
+                {resolvedPx > 0 ? (
+                  <div className="w-full bg-teal-700/90 dark:bg-teal-500/90" style={{ height: resolvedPx }} />
+                ) : null}
+                {openPx > 0 ? (
+                  <div className="w-full bg-amber-500/90" style={{ height: openPx }} />
+                ) : null}
+              </div>
+            )}
             <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
               {formatBucketLabel(point.bucketUtc)}
             </span>

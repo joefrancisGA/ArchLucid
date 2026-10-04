@@ -11,6 +11,9 @@ public sealed class SecureNowQuestionResponse
     public string ScopeKind { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public string QuestionText { get; init; } = string.Empty;
+    public string ResourceType { get; init; } = string.Empty;
+    public string ResourceName { get; init; } = string.Empty;
+    public string ReasonText { get; init; } = string.Empty;
     public string SourceLine { get; init; } = string.Empty;
     public IReadOnlyList<string> AnswerCodes { get; init; } = [];
     public string EvidenceFingerprint { get; init; } = string.Empty;

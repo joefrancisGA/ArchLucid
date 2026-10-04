@@ -10,6 +10,8 @@ public static class AzureInventoryAdfExternalSourceNodeFactory
 {
     public const string NodeKeyPrefix = "adf-external:";
 
+    public const string HostRollupNodeKeyPrefix = "adf-external-host:";
+
     public const string ExternalSourcePropertyKey = "arm.externalSource";
 
     public const string ExternalSourcePropertyValue = "adf-linked-service";
@@ -23,6 +25,26 @@ public static class AzureInventoryAdfExternalSourceNodeFactory
     public const string ExternalIntegrationRuntimePropertyKey = "arm.externalIntegrationRuntime";
 
     public const string ExternalHostInKeyVaultPropertyKey = "arm.externalHostInKeyVault";
+
+    public const string ExternalFactoryNamesPropertyKey = "arm.externalFactoryNames";
+
+    public static string BuildHostRollupNodeKey(string? linkedServiceType, string host)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(host);
+
+        string normalizedType = string.IsNullOrWhiteSpace(linkedServiceType)
+            ? "external"
+            : linkedServiceType.Trim();
+        string normalizedHost = host.Trim().ToLowerInvariant();
+
+        return $"{HostRollupNodeKeyPrefix}{normalizedType}|{normalizedHost}";
+    }
+
+    public static bool IsExternalHostRollupNodeId(string? nodeId)
+    {
+        return !string.IsNullOrWhiteSpace(nodeId)
+            && nodeId.StartsWith(HostRollupNodeKeyPrefix, StringComparison.OrdinalIgnoreCase);
+    }
 
     public static string BuildNodeKey(string factoryResourceId, string linkedServiceName)
     {

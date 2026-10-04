@@ -85,7 +85,11 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
 }
 
 export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | undefined | null): string {
-  const n = evidenceRefs?.length ?? 0;
+  if (evidenceRefs === null || evidenceRefs === undefined) {
+    return "Sources not returned for this finding.";
+  }
+
+  const n = evidenceRefs.length;
 
   if (n <= 0) {
     return "No structured sources were recorded for this finding.";
@@ -180,11 +184,16 @@ export type FindingConfidenceExplanation = {
 
 export type FindingConfidenceExplanationInput = {
   readonly level: string | null | undefined;
-  readonly evidenceRefCount: number;
+  /** `null` when the explainability payload omitted the evidence object. */
+  readonly evidenceRefCount: number | null;
   readonly missingTraceFieldCount: number;
 };
 
-function evidenceSourceClause(count: number): string {
+function evidenceSourceClause(count: number | null): string {
+  if (count === null) {
+    return "supporting sources were not returned";
+  }
+
   if (count <= 0) {
     return "no supporting source was recorded";
   }

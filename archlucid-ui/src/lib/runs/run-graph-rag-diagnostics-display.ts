@@ -1,58 +1,65 @@
-import {
-  formatRetrievalGroundingCount,
-  formatRetrievalGroundingRatioPercent,
-} from "@/lib/runs/run-retrieval-grounding-summary-display";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
-export const GRAPH_RAG_NEIGHBOR_HIT_RATE_SCOPE_LINE =
-  "Neighbor chunks with a citation link ÷ neighbor chunks added on this run (not the citation-coverage percent above)." as const;
+export const GRAPH_RAG_NEIGHBOR_HIT_RATE_HELPER =
+  "Share of graph neighbor expansion that returned chunks — not citation coverage on the review." as const;
 
 export const GRAPH_RAG_REVIEW_RETRIEVAL_SCOPE_LINE =
-  "Metrics describe this review’s retrieval pass only — not tenant-wide search quality." as const;
+  "Counts reflect graph-RAG neighbor expansion for this review retrieval pass — not every citation on the package." as const;
 
-export function resolveGraphRagPilotFloorLabel(
-  disposition: string | null | undefined,
-): string {
-  const trimmed = disposition?.trim() ?? "";
+export const GRAPH_RAG_NEIGHBOR_HIT_RATE_SCOPE_LINE =
+  "Neighbor hit rate measures expansion yield, not whether findings cite those neighbors." as const;
+
+function finiteMetric(value: unknown): number | null {
+  const numeric =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim().length > 0
+        ? Number(value)
+        : Number.NaN;
+
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+export function formatGraphRagDiagnosticCount(value: number | null | undefined): string {
+  const finite = finiteMetric(value);
+
+  if (finite === null) {
+    return "Not returned";
+  }
+
+  return String(finite);
+}
+
+export function formatGraphRagNeighborHitRate(value: number | string | null | undefined): string {
+  const finite = finiteMetric(value);
+
+  if (finite === null) {
+    return "Not returned";
+  }
+
+  const pct = finite > 0 && finite <= 1 ? Math.round(finite * 100) : Math.round(finite);
+
+  return `${pct}%`;
+}
+
+export function formatGraphRagPilotFloorDisposition(value: string | null | undefined): string {
+  const trimmed = value?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Pilot floor not returned";
+    return "Not returned";
   }
 
   return trimmed.toUpperCase();
 }
 
-export function summaryHasGraphRagDiagnosticFields(summary: RunRetrievalGroundingSummary): boolean {
+/** True when the summary includes any graph-RAG field (including explicit zeros). */
+export function runGraphRagDiagnosticsStripHasSignal(summary: RunRetrievalGroundingSummary): boolean {
   return (
-    summary.totalGraphRagNeighborsAdded !== undefined
-    || summary.totalGraphRagSeedHits !== undefined
-    || summary.graphRagNeighborHitRate !== undefined
-    || summary.totalRetrievalTokensIn !== undefined
-    || summary.graphRagPilotFloorDisposition !== undefined
-    || summary.graphRagQualityPosture !== undefined
+    summary.totalGraphRagNeighborsAdded !== undefined ||
+    summary.totalGraphRagSeedHits !== undefined ||
+    summary.totalRetrievalTokensIn !== undefined ||
+    summary.graphRagNeighborHitRate !== undefined ||
+    summary.graphRagPilotFloorDisposition !== undefined ||
+    summary.graphRagQualityPosture !== undefined
   );
-}
-
-export function shouldRenderGraphRagDiagnosticsStrip(summary: RunRetrievalGroundingSummary): boolean {
-  if (summaryHasGraphRagDiagnosticFields(summary)) {
-    return true;
-  }
-
-  const neighbors = summary.totalGraphRagNeighborsAdded;
-  const seeds = summary.totalGraphRagSeedHits;
-  const tokensIn = summary.totalRetrievalTokensIn;
-
-  return (
-    (typeof neighbors === "number" && neighbors > 0)
-    || (typeof seeds === "number" && seeds > 0)
-    || (typeof tokensIn === "number" && tokensIn > 0)
-  );
-}
-
-export function formatGraphRagNeighborHitRateDisplay(summary: RunRetrievalGroundingSummary): string {
-  return formatRetrievalGroundingRatioPercent(summary.graphRagNeighborHitRate);
-}
-
-export function formatGraphRagCountField(value: number | null | undefined): string {
-  return formatRetrievalGroundingCount(value);
 }

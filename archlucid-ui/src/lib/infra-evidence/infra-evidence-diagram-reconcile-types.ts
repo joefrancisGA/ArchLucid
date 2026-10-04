@@ -8,6 +8,7 @@ export const DIAGRAM_INFRASTRUCTURE_MATCH_KINDS = {
   infrastructureOnly: "InfrastructureOnly",
   conflict: "Conflict",
   unknown: "Unknown",
+  confirmed: "Confirmed",
 } as const;
 
 export type DiagramInfrastructureMatchKind =
@@ -39,12 +40,35 @@ export type DiagramInfrastructureCorrespondenceRow = {
   securityDiscrepancy: boolean;
 };
 
+export type DiagramInfrastructureEdgeGapRow = {
+  edgeGapId: string;
+  fromCloudResourceId: string | null;
+  toCloudResourceId: string | null;
+  diagramEdgeId: string | null;
+  associationType: string | null;
+  gapKind: string;
+  explainText: string;
+};
+
 export type DiagramInfrastructureReconciliationResult = {
+  comparisonId?: string | null;
   runId: string;
   snapshotId: string;
   rows: DiagramInfrastructureCorrespondenceRow[];
   diagramNodeCount: number;
   inventoryResourceCount: number;
+  edgeGaps?: DiagramInfrastructureEdgeGapRow[];
+};
+
+export type InfrastructureDiagramComparisonCreateRequest = {
+  snapshotId: string;
+  sources: DiagramSourceReference[];
+};
+
+export type InfrastructureDiagramNodeMappingSaveRequest = {
+  normalizedDiagramLabel: string;
+  diagramNodeId?: string | null;
+  cloudResourceId: string;
 };
 
 export type StructuredDiagramIngestRequest = {

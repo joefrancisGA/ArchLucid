@@ -104,8 +104,16 @@ export function applyFindingsConfidenceVisibility(
 export function formatFindingsVisibilitySummaryLine(
   shownCount: number,
   toolbarFilteredCount: number,
-  hiddenByConfidenceCount: number,
+  hiddenByConfidenceCount: number | null | undefined,
 ): string | null {
+  if (hiddenByConfidenceCount === null || hiddenByConfidenceCount === undefined) {
+    if (shownCount === toolbarFilteredCount) {
+      return null;
+    }
+
+    return `Showing ${shownCount} of ${toolbarFilteredCount} — hidden count not returned`;
+  }
+
   if (hiddenByConfidenceCount <= 0 && shownCount === toolbarFilteredCount) {
     return null;
   }

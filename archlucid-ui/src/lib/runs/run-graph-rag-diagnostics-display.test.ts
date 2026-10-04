@@ -1,26 +1,29 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatGraphRagNeighborHitRateDisplay,
-  resolveGraphRagPilotFloorLabel,
-  shouldRenderGraphRagDiagnosticsStrip,
+  formatGraphRagDiagnosticCount,
+  formatGraphRagNeighborHitRate,
+  formatGraphRagPilotFloorDisposition,
+  runGraphRagDiagnosticsStripHasSignal,
 } from "@/lib/runs/run-graph-rag-diagnostics-display";
-import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
 describe("run-graph-rag-diagnostics-display", () => {
-  it("renders when graph fields are present even if counts are zero", () => {
-    const summary = {
-      totalGraphRagNeighborsAdded: 0,
-    } as RunRetrievalGroundingSummary;
-
-    expect(shouldRenderGraphRagDiagnosticsStrip(summary)).toBe(true);
+  it("labels missing counts as not returned", () => {
+    expect(formatGraphRagDiagnosticCount(undefined)).toBe("Not returned");
+    expect(formatGraphRagPilotFloorDisposition(null)).toBe("Not returned");
   });
 
-  it("does not coerce missing hit rate to 0%", () => {
-    expect(formatGraphRagNeighborHitRateDisplay({} as RunRetrievalGroundingSummary)).toBe("Not recorded");
+  it("normalizes neighbor hit rate", () => {
+    expect(formatGraphRagNeighborHitRate(0.42)).toBe("42%");
+    expect(formatGraphRagNeighborHitRate(42)).toBe("42%");
   });
 
-  it("does not default pilot floor to PASS", () => {
-    expect(resolveGraphRagPilotFloorLabel(undefined)).toBe("Pilot floor not returned");
+  it("detects graph-RAG signal without fabricating zeros", () => {
+    expect(
+      runGraphRagDiagnosticsStripHasSignal({
+        totalGraphRagNeighborsAdded: 0,
+      } as never),
+    ).toBe(true);
+    expect(runGraphRagDiagnosticsStripHasSignal({} as never)).toBe(false);
   });
 });

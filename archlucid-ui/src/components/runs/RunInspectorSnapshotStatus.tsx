@@ -10,7 +10,11 @@ function snapshotLabel(ok: boolean | undefined): string {
     return "✓";
   }
 
-  return " — ";
+  if (ok === false) {
+    return "Not captured";
+  }
+
+  return "Not returned";
 }
 
 export type RunInspectorSnapshotStatusProps = {

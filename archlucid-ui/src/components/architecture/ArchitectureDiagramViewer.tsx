@@ -76,6 +76,7 @@ import {
   resolveMermaidViewportDefaultZoom,
   sanitizeMermaidRenderId,
 } from '@/lib/help/help-mermaid';
+import { applySecureNowQuestionSubjectHighlight } from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
@@ -107,6 +108,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly focusNodeIds?: readonly string[];
   /** Increment when focus selection changes so camera refits. */
   readonly focusNonce?: number;
+  /** When set, highlights only this node (not neighbors) for an open SecureNow question. */
+  readonly questionSubjectNodeId?: string | null;
   /** Logical inventory outline used for click-focus neighborhood membership. */
   readonly outline?: InfraEvidenceMermaidOutline | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
@@ -495,6 +498,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     viewportControlsLayout = 'overlay',
     focusNodeIds = EMPTY_FOCUS_NODE_IDS,
     focusNonce = 0,
+    questionSubjectNodeId = null,
     outline = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
   } = props;
@@ -685,6 +689,22 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   useEffect(() => {
     props.onExportableSvgMarkupChange?.(sanitizedSvg);
   }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
+
+  useEffect(() => {
+    const host = svgHostRef.current;
+
+    if (host === null || sanitizedSvg === null) {
+      return;
+    }
+
+    const svg = host.querySelector('svg');
+
+    if (!(svg instanceof SVGSVGElement)) {
+      return;
+    }
+
+    applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+  }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
 
   const syncInlineViewportCamera = useCallback((): boolean => {
     const host = svgHostRef.current;

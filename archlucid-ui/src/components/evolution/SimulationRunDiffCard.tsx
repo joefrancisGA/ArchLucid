@@ -24,12 +24,12 @@ const monoCls = cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper);
 
 function formatScore(n: string | number | null | undefined): string {
   if (n === null || n === undefined) {
-    return " — ";
+    return "Score not returned";
   }
 
   const numeric = typeof n === "number" ? n : Number(n);
 
-  return Number.isFinite(numeric) ? numeric.toFixed(4) : " — ";
+  return Number.isFinite(numeric) ? numeric.toFixed(4) : "Score not returned";
 }
 
 export type SimulationRunDiffCardProps = {

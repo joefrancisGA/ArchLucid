@@ -108,6 +108,13 @@ public sealed class DiagramForestLayoutOptions
         init;
     } = DefaultDataFlowColumnGutter;
 
+    /// <summary>One-line stage count summary painted above stage titles on data-flow canvases.</summary>
+    public int DataFlowStageSummaryBand
+    {
+        get;
+        init;
+    } = DefaultDataFlowStageSummaryBand;
+
     /// <summary>Title band above the first card in each data-flow column.</summary>
     public int DataFlowStageLabelBand
     {
@@ -123,6 +130,8 @@ public sealed class DiagramForestLayoutOptions
     } = DefaultDataFlowSkyLaneHeight;
 
     public const int DefaultDataFlowColumnGutter = 64;
+
+    public const int DefaultDataFlowStageSummaryBand = 20;
 
     public const int DefaultDataFlowStageLabelBand = 28;
 

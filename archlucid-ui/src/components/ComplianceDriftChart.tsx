@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { presentComplianceDriftChangeCount } from "@/lib/compliance-drift-change-count-display";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export interface ComplianceDriftChartProps {
@@ -56,13 +57,20 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
     );
   }
 
-  const normalized = points.map((p) => ({
-    bucketUtc: p.bucketUtc,
-    changeCount: safeNonNegativeCount(p.changeCount),
-    changesByType: sanitizedChangesByType(p.changesByType ?? {}),
-  }));
+  const normalized = points.map((p) => {
+    const change = presentComplianceDriftChangeCount(p.changeCount);
 
-  const maxCount = Math.max(...normalized.map((p) => p.changeCount), 1);
+    return {
+      bucketUtc: p.bucketUtc,
+      changeCountKnown: change.known,
+      changeCountLabel: change.display,
+      changeCount: change.numeric,
+      changesByType: sanitizedChangesByType(p.changesByType ?? {}),
+    };
+  });
+
+  const knownCounts = normalized.filter((p) => p.changeCountKnown).map((p) => p.changeCount);
+  const maxCount = Math.max(...knownCounts, 1);
   const barMaxPx = 120;
 
   return (
@@ -73,9 +81,13 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
     >
       {normalized.map((point) => {
         const barPx =
-          point.changeCount === 0 ? 0 : Math.max(2, (point.changeCount / maxCount) * barMaxPx);
+          !point.changeCountKnown || point.changeCount === 0
+            ? 0
+            : Math.max(2, (point.changeCount / maxCount) * barMaxPx);
 
-        const title = `${point.changeCount} changes — ${topChangeTypesSummary(point.changesByType)}`;
+        const title = point.changeCountKnown
+          ? `${point.changeCount} changes — ${topChangeTypesSummary(point.changesByType)}`
+          : `Change count not returned — ${topChangeTypesSummary(point.changesByType)}`;
 
         return (
           <div

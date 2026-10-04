@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.DiagramReconciliation;
@@ -11,10 +12,14 @@ public static class DiagramInfrastructureMatcher
         ArchitectureDiagramModelRecord diagram,
         AzureInventorySnapshotDetailReadModel snapshot,
         Guid runId,
-        Guid snapshotId)
+        Guid snapshotId,
+        IReadOnlyList<InfrastructureDiagramNodeMappingPersistRecord>? confirmedMappings = null,
+        Guid? comparisonId = null)
     {
         ArgumentNullException.ThrowIfNull(diagram);
         ArgumentNullException.ThrowIfNull(snapshot);
+
+        confirmedMappings ??= [];
 
         snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
 
@@ -36,9 +41,24 @@ public static class DiagramInfrastructureMatcher
         foreach (ArchitectureDiagramNodeRecord node in activeNodes)
         {
             DiagramInfrastructureLabelProfile labelProfile = DiagramInfrastructureLabelParser.Parse(node.Label);
-            List<InventoryResourceProfile> candidates = FindCandidates(labelProfile, resourceProfiles.Values);
+            DiagramInfrastructureCorrespondenceRow row;
 
-            DiagramInfrastructureCorrespondenceRow row = ClassifyNodeMatch(node, labelProfile, candidates, resourcesByRowId);
+            if (TryBuildConfirmedRow(
+                    node,
+                    labelProfile,
+                    confirmedMappings,
+                    resourceProfiles,
+                    resourcesByRowId,
+                    out DiagramInfrastructureCorrespondenceRow? confirmedRow))
+            {
+                row = confirmedRow;
+            }
+            else
+            {
+                List<InventoryResourceProfile> candidates = FindCandidates(labelProfile, resourceProfiles.Values);
+                row = ClassifyNodeMatch(node, labelProfile, candidates, resourcesByRowId);
+            }
+
             rows.Add(row);
 
             if (row.CloudResourceId is Guid cloudResourceId)
@@ -74,14 +94,79 @@ public static class DiagramInfrastructureMatcher
             });
         }
 
+        List<DiagramInfrastructureCorrespondenceRow> orderedRows =
+            rows.OrderBy(row => row.CorrespondenceId, StringComparer.Ordinal).ToList();
+
         return new DiagramInfrastructureReconciliationResult
         {
+            ComparisonId = comparisonId,
             RunId = runId,
             SnapshotId = snapshotId,
-            Rows = rows.OrderBy(row => row.CorrespondenceId, StringComparer.Ordinal).ToList(),
+            Rows = orderedRows,
             DiagramNodeCount = activeNodes.Count,
             InventoryResourceCount = snapshot.Resources.Count,
+            EdgeGaps = DiagramInfrastructureEdgeGapMatcher.MatchEdgeGaps(diagram, snapshot, orderedRows),
         };
+    }
+
+    private static bool TryBuildConfirmedRow(
+        ArchitectureDiagramNodeRecord node,
+        DiagramInfrastructureLabelProfile labelProfile,
+        IReadOnlyList<InfrastructureDiagramNodeMappingPersistRecord> confirmedMappings,
+        Dictionary<Guid, InventoryResourceProfile> resourceProfiles,
+        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId,
+        out DiagramInfrastructureCorrespondenceRow confirmedRow)
+    {
+        InfrastructureDiagramNodeMappingPersistRecord? mapping = FindConfirmedMapping(node, labelProfile, confirmedMappings);
+
+        if (mapping is null)
+        {
+            confirmedRow = null!;
+            return false;
+        }
+
+        InventoryResourceProfile? resource = resourceProfiles.Values
+            .FirstOrDefault(profile => profile.CloudResourceId == mapping.CloudResourceId);
+
+        if (resource is null)
+        {
+            confirmedRow = null!;
+            return false;
+        }
+
+        confirmedRow = BuildMatchedRow(
+            node,
+            labelProfile,
+            resource,
+            resourcesByRowId,
+            DiagramInfrastructureMatchKinds.Confirmed,
+            "An architect confirmed this diagram node is this inventory resource.");
+
+        return true;
+    }
+
+    private static InfrastructureDiagramNodeMappingPersistRecord? FindConfirmedMapping(
+        ArchitectureDiagramNodeRecord node,
+        DiagramInfrastructureLabelProfile labelProfile,
+        IReadOnlyList<InfrastructureDiagramNodeMappingPersistRecord> confirmedMappings)
+    {
+        InfrastructureDiagramNodeMappingPersistRecord? byNodeId = confirmedMappings
+            .FirstOrDefault(mapping =>
+                !string.IsNullOrWhiteSpace(mapping.DiagramNodeId)
+                && string.Equals(mapping.DiagramNodeId, node.Id, StringComparison.Ordinal));
+
+        if (byNodeId is not null)
+        {
+            return byNodeId;
+        }
+
+        if (string.IsNullOrWhiteSpace(labelProfile.NormalizedName))
+        {
+            return null;
+        }
+
+        return confirmedMappings.FirstOrDefault(mapping =>
+            string.Equals(mapping.NormalizedDiagramLabel, labelProfile.NormalizedName, StringComparison.Ordinal));
     }
 
     private static DiagramInfrastructureCorrespondenceRow ClassifyNodeMatch(
@@ -344,6 +429,7 @@ public static class DiagramInfrastructureMatcher
 
         return matchKind switch
         {
+            DiagramInfrastructureMatchKinds.Confirmed => DiagramInfrastructureConfidenceBands.Confirmed,
             DiagramInfrastructureMatchKinds.Exact => DiagramInfrastructureConfidenceBands.Confirmed,
             DiagramInfrastructureMatchKinds.Probable => DiagramInfrastructureConfidenceBands.Likely,
             DiagramInfrastructureMatchKinds.Possible => DiagramInfrastructureConfidenceBands.Possible,

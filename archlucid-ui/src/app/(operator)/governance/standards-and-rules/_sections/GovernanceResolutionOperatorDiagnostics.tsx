@@ -27,10 +27,12 @@ import {
   governanceResolutionRawOutputDisclosureHrefFromSearch,
   parseGovernanceResolutionRawOutputOpenFromSearch,
 } from "@/lib/governance/governance-resolution-raw-output-disclosure-url";
+import { governanceResolutionSectionCountHeading } from "@/lib/governance/governance-resolution-collection-count-display";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveStandardsRulesPolicyPackProvenanceLabel } from "@/lib/standards-rules-rows";
 
+import { formatGovernanceResolutionSectionCountLabel } from "@/lib/governance/governance-resolution-results-label";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
@@ -132,13 +134,15 @@ export function GovernanceResolutionOperatorDiagnostics(
     <>
       <section className="mb-7" aria-labelledby="governance-conflicts-heading">
         <h3 id="governance-conflicts-heading" className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Policy pack conflicts ({m.data?.conflicts.length ?? 0})
+          Policy pack conflicts ({formatGovernanceResolutionSectionCountLabel(m.loading, m.data, "conflicts")})
         </h3>
         <p className={cn("mt-1 mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           When multiple assigned packs define the same governance item, the higher-precedence pack wins. Use the table to see
           which pack was selected, why, and open losing packs to change their assignment.
         </p>
-        {(m.data?.conflicts ?? []).length === 0 ? (
+        {!Array.isArray(m.data?.conflicts) ? (
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Conflict list not returned for this scope.</p>
+        ) : m.data!.conflicts.length === 0 ? (
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No conflicts detected for the current scope.</p>
         ) : (
           <GovernanceConflictsTable
@@ -208,10 +212,13 @@ export function GovernanceResolutionOperatorDiagnostics(
             : governanceResolutionResolutionDetailsHeadingReader}
         </h3>
         <h4 className={cn("mt-2 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Resolution decisions ({m.data?.decisions.length ?? 0})
+          Resolution decisions ({formatGovernanceResolutionSectionCountLabel(m.loading, m.data, "decisions")})
         </h4>
         <div className="grid gap-2.5">
-          {(m.data?.decisions ?? []).map((d, i) => {
+          {!Array.isArray(m.data?.decisions) ? (
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Decision list not returned for this scope.</p>
+          ) : null}
+          {(Array.isArray(m.data?.decisions) ? m.data!.decisions : []).map((d, i) => {
             const candidatesItemKey = `${d.itemType}:${d.itemKey}`;
 
             return (

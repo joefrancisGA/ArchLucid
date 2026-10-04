@@ -49,13 +49,13 @@ function isNormalizedHistoryPoint(point: SponsorRoiHistoryPoint): point is Norma
 
 function formatMonth(isoUtc: string | undefined): string {
   if (isoUtc === undefined || isoUtc.trim().length === 0) {
-    return " — ";
+    return "Month not returned";
   }
 
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return date.toLocaleDateString(undefined, { month: "short", year: "2-digit", timeZone: "UTC" });

@@ -30,8 +30,8 @@ describe("finding-explainability-summary", () => {
   });
 
   it("summarizes evidence ref counts deterministically", () => {
-    expect(findingEvidenceCountPlainLine(undefined)).toContain("No structured");
-    expect(findingEvidenceCountPlainLine(null)).toContain("No structured");
+    expect(findingEvidenceCountPlainLine(undefined)).toContain("not returned");
+    expect(findingEvidenceCountPlainLine(null)).toContain("not returned");
     expect(findingEvidenceCountPlainLine([])).toContain("No structured");
     expect(findingEvidenceCountPlainLine(["a"])).toContain("1 structured");
     expect(findingEvidenceCountPlainLine(["a", "b"])).toContain("2 structured");
@@ -164,6 +164,17 @@ describe("finding-explainability-summary", () => {
 
       expect(explanation.label).toBeNull();
       expect(explanation.reason).toContain("did not score confidence");
+    });
+
+    it("does not claim zero sources when evidence was omitted", () => {
+      const explanation = findingConfidenceExplanation({
+        level: "Low",
+        evidenceRefCount: null,
+        missingTraceFieldCount: 0,
+      });
+
+      expect(explanation.reason).toContain("supporting sources were not returned");
+      expect(explanation.reason).not.toContain("no supporting source was recorded");
     });
 
     it("treats unrecognized levels as unscored", () => {

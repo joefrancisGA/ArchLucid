@@ -5,16 +5,7 @@ import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-toke
 import { useOperatorTaskSuccessRatesQuery } from "@/hooks/use-operator-task-success-rates-query";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import { presentOperatorSessionsToFinalizedPercent } from "@/lib/operator/operator-sessions-to-finalized-percent-display";
-
-function safeNonNegativeWholeDisplay(value: unknown): string {
-  const numeric = typeof value === "number" ? value : Number(value);
-
-  if (!Number.isFinite(numeric) || numeric < 0) {
-    return "Not returned";
-  }
-
-  return String(Math.floor(numeric));
-}
+import { safeNonNegativeWholeDisplay } from "@/lib/operator/operator-task-success-counter-display";
 
 /** Small operator-home tile for pilot adoption counters (process lifetime; resets on API restart). */
 export function OperatorTaskSuccessTile() {

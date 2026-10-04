@@ -131,7 +131,8 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
   const traceCompleteness =
     data !== null ? resolveFindingTraceCompletenessDisplay(data.traceCompletenessRatio) : null;
 
-  const evidenceRefs = data?.evidence?.evidenceRefs ?? [];
+  const evidenceRefs =
+    data?.evidence === null || data?.evidence === undefined ? null : data.evidence.evidenceRefs;
   const unavailableCopy =
     failure !== null
       ? resolveFindingOptionalArtifactUnavailableCopy("explainability-trace", failure, {
