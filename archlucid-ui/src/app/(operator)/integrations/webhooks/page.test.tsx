@@ -1013,6 +1013,29 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 
+  it("lists webhook subscriptions when API returns case-variant OnCallWebhook channelType", async () => {
+    const subscriptionId = "sub-channel-case-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "oncallwebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+  });
+
   it("closes enable confirmation when manual refresh fails after subscriptions were loaded", async () => {
     const subscriptionId = "sub-enable-refresh-1";
     apiMocks.list
