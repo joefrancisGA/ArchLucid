@@ -51,11 +51,12 @@ internal sealed class ScopeResolutionGuardMiddleware(
     private static bool ShouldSkip(HttpContext context)
     {
         string path = context.Request.Path.Value ?? string.Empty;
+        PathString pathString = context.Request.Path;
 
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (path.StartsWith("/health", StringComparison.OrdinalIgnoreCase))
+        if (IsPublicHealthProbePath(pathString))
             return true;
 
         // Canonical OpenAPI document (MapOpenApi) — contract probes must not require tenant scope.
@@ -76,4 +77,10 @@ internal sealed class ScopeResolutionGuardMiddleware(
 
         return false;
     }
+
+    private static bool IsPublicHealthProbePath(PathString path) =>
+        path.StartsWithSegments("/health/live", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/health/ready", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/health/version", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/health", StringComparison.OrdinalIgnoreCase);
 }

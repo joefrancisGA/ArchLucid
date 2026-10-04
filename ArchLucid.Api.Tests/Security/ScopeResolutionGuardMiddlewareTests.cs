@@ -197,6 +197,55 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_development_default_tenant_claim_on_authorized_health_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/detailed");
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", ScopeIds.DefaultTenant.ToString("D")),
+                new Claim("workspace_id", Guid.NewGuid().ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "Bearer"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_healthcare_prefixed_path()
+    {
+        DefaultHttpContext context = CreateContext("/healthcare");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_skips_openapi_paths()
     {
         DefaultHttpContext context = CreateContext("/openapi/v1.json");

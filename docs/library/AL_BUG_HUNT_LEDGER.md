@@ -7975,13 +7975,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 44
-- **bugs-found:** 6
+- **hunts:** 45
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
+- **last-bug:** 2026-10-04 — blanket `/health` prefix skip bypassed TB-304 on authorized health routes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 thorough hunt (hit): promoted `/health` prefix skip candidate; `ScopeResolutionGuardMiddleware` skipped all `/health*` paths including `RequireAuthorization` probes (`/health/detailed`, `/health/diagnostics`), letting development-default claim scope bypass TB-304; narrowed skip to anonymous public probes via `IsPublicHealthProbePath`; regressions `InvokeAsync_staging_host_rejects_development_default_tenant_claim_on_authorized_health_path` and `InvokeAsync_staging_host_does_not_skip_healthcare_prefixed_path`; 74 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
 2026-10-04 seed hunt (seed-only): re-read `ScopeIdentityBindingMiddleware`, `ScopeResolutionGuardMiddleware`, and `RouteTenantScopeBindingFilter`; cheap-disproof closed comma-separated single-header escalation and `AuthorizeFilter`-only policy skip; seeded one segment-boundary `/health` skip candidate; 72 scoped unit tests passed (6 `ScopeIdentityBindingIntegrationTests` failed — no SQL Server in cloud VM).
 
@@ -8080,7 +8082,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) Cookie-authenticated principal steers scope via `x-tenant-id` without bound claim — **cheap-disproof 2026-09-12 seed hunt #1956:** SAML session cookies use `DefaultSignInScheme` only; API `[Authorize]` resolves `DefaultAuthenticateScheme` (Bearer/ApiKey), not Cookies; `RequiresBoundScopeClaimsForHeaders` omission is unreachable for JSON API traffic.
 
-- [ ] (candidate) `ScopeResolutionGuardMiddleware` `/health` prefix skip is segment-blind — **locus:** `ShouldSkip` uses `path.StartsWith("/health")` (line 58) while peer middleware uses `StartsWithSegments("/health")`; **input:** staging-like host request to a root `/health*` path outside `MapHealthChecks` maps; **wrong outcome:** TB-304 trusted-scope guard skipped; **reachability:** `PipelineExtensions.HealthDocs.cs` only maps `/health`, `/health/live`, `/health/ready`, `/health/version`, `/health/diagnostics`, `/health/detailed` — no broader `/health*` API surface today.
+- [x] (proven) `ScopeResolutionGuardMiddleware` `/health` prefix skip bypassed TB-304 on authorized health routes — **hit 2026-10-04:** `ShouldSkip` used `path.StartsWith("/health")`, skipping `/health/detailed` and `/health/diagnostics` so development-default JWT scope reached authorized probes while `/v1/*` was rejected; fixed with segment-bound `IsPublicHealthProbePath` for anonymous probes only; regressions `InvokeAsync_staging_host_rejects_development_default_tenant_claim_on_authorized_health_path` and `InvokeAsync_staging_host_does_not_skip_healthcare_prefixed_path`.
 - [x] (valid-no-repro) Single `x-tenant-id` header value with comma-separated GUIDs bypasses header-only escalation — **cheap-disproof 2026-10-04 seed hunt:** `TryParseHeaderGuid` cannot parse `"guid,guid"`; `ValidateHeaderOnlyScopeEscalation` returns Ok, but `HttpScopeContextProvider` also fails to parse so scope stays `ScopeSource.Default` and `ScopeResolutionGuard` rejects Default on production-like hosts; no cross-tenant steering on staging.
 - [x] (invalid) `RouteTenantScopeBindingFilter.HasPolicy` misses `PlatformTenantDeletionAuthority` when policy is filter-only — **cheap-disproof 2026-10-04 seed hunt:** tenant deletion uses class-level `[Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]` on `AdminTenantsController`; regression `OnActionExecutionAsync_platform_lifecycle_policy_skips_binding`.
 
