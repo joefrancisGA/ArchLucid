@@ -129,7 +129,7 @@ public sealed class PilotValueReportService(
 
         if (runDetailsTruncated)
         {
-            runsForDetails = committedRuns.Take(DefaultRunDetailCap).ToList();
+            runsForDetails = committedRuns.TakeLast(DefaultRunDetailCap).ToList();
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {
