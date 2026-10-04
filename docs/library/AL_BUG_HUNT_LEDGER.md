@@ -24474,7 +24474,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -24504,9 +24504,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — pages are appended without ARN deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Resource Explorer provider behavior or reachable fixture establishes duplicate ARNs across pages; collector pagination/loop guards passed existing tests; no failing repro.
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — pages are appended without asset-name deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Asset Inventory provider behavior or reachable fixture establishes duplicate asset names across pages; raw-page pagination tests passed; no failing repro.
 
-- (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet is emitted with `nicToSubnet` even though the source resource is a `Microsoft.Compute/virtualMachineScaleSets` resource; verify whether graph materialization drops or misclassifies the VMSS-to-subnet association because the association type declares a network-interface source.
-- (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP; verify whether hosted inventory diagrams omit Bastion public exposure.
-- (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters are emitted with the generic `appServiceToSubnet` association type; verify whether downstream graph consumers reject or misclassify the Databricks workspace source kind.
+- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet is emitted with `nicToSubnet` even though the source resource is a `Microsoft.Compute/virtualMachineScaleSets` resource; verify whether graph materialization drops or misclassifies the VMSS-to-subnet association because the association type declares a network-interface source.
+- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP; verify whether hosted inventory diagrams omit Bastion public exposure.
+- [ ] (candidate) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters are emitted with the generic `appServiceToSubnet` association type; verify whether downstream graph consumers reject or misclassify the Databricks workspace source kind.
+
+2026-10-04 seed hunt (seed-only): re-read the selected Azure network-association builder, ARM property expander, AWS/GCP collectors and packagers, and focused extractor tests. The three reachable association-typing/exposure candidates remain candidates because downstream graph validation or the expected Bastion public-IP contract is outside this zone's selected files; no failing repro was attempted.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
