@@ -13888,6 +13888,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-04 seed hunt #52 (seed→hit): reseeded retrieval; proved `IndexDocumentsAsync` removed all reindexed document vectors before a batched `UpsertChunksAsync`, so upsert failures left every document in the batch unsearchable without catalog rollback; fixed by upserting first and running remove-then-reupsert only when `IndexedChunkCount` exceeds the new chunk count (content shrink); regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`; 353 scoped retrieval/indexing tests passed.
+
 2026-10-04 seed hunt #51 (seed→hit): reseeded retrieval; proved `RetrievalIndexingService.IndexDocumentsAsync` removed prior vectors for an earlier document in the same batch before `EmbedManyAsync` completed for a later document, so embedding failures left earlier documents unsearchable without catalog rollback; fixed by deferring `RemoveChunksForDocumentAsync` until all embeddings succeed and immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`; 352 scoped retrieval/indexing tests passed.
 
 2026-10-01 seed hunt (seed-only): extended the retrieval source review across Azure Search adapters, scope validation, summarization, chunking, and embedding caching; the exact picker filter passed 351 tests and no new reachable mechanism-backed candidate was found or promoted.
@@ -13912,11 +13914,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 51
+- **hunts:** 52
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 21
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — multi-document batch removed vectors before later-document embed failure
+- **last-bug:** 2026-10-04 — batch upsert failure deleted vectors before catalog rollback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13979,6 +13981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AdminRagHealthQuery.GetRagHealth` — `ChunkCount` reflected indexed document count instead of vector chunk totals — **hit 2026-09-27 thorough hunt #37:** catalog records per-document `IndexedChunkCount`; corpus freshness exposes `ChunkCount` sum; admin health maps that field; regressions `IndexDocumentsAsync_records_chunk_count_in_corpus_freshness_summary` and `AdminRagHealthQuery_marks_fresh_stale_and_null_last_indexed`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — chunk-cap validation ran after `RemoveChunksForDocumentAsync`, so cap failures left documents without vectors while unchanged-hash retries skipped re-index — **hit 2026-09-27 seed hunt #38:** defer document chunk removal until after `MaxChunksPerIndexOperation` passes; regression `IndexDocumentsAsync_when_chunk_cap_exceeded_after_prior_index_does_not_leave_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — batched reindex removed prior vectors for every document before `UpsertChunksAsync`, so upsert failures left the whole batch without searchable vectors while catalog hashes stayed stale — **hit 2026-10-04 seed hunt #52:** upsert new chunks first and remove-then-reupsert only when catalog `IndexedChunkCount` exceeds the new chunk count; regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
