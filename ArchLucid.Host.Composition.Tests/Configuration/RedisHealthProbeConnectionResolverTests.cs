@@ -160,6 +160,20 @@ public sealed class RedisHealthProbeConnectionResolverTests
     }
 
     [Fact]
+    public void TryResolve_returns_null_when_hot_path_redis_is_explicitly_null()
+    {
+        RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(
+                new ConfigurationBuilder()
+                    .AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        [$"{HotPathCacheOptions.SectionName}:RedisConnectionString"] = null,
+                    })
+                    .Build())
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
     public void TryResolve_returns_null_when_only_whitespace()
     {
         RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(
