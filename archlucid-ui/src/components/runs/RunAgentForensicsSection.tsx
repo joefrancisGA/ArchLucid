@@ -292,11 +292,26 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
               <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Model alias</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Model alias</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The approved model alias recorded for this agent.
+                </span>
+              </EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Wall Δ (prior agent)</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Trace ID</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Parse OK</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Blob upload</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Parse OK</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Whether the agent&apos;s result could be read as structured output.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Blob upload</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Whether the full trace was stored. A failed upload can leave the detailed trace unavailable.
+                </span>
+              </EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>
                 <ForensicsTableHeaderLabel label="Semantic overall" hint={semanticOverallTooltip} />

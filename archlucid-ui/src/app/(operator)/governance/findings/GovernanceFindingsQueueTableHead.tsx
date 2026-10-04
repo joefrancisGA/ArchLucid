@@ -195,7 +195,12 @@ export function GovernanceFindingsQueueTableHead(props: {
                 The person recorded as responsible for this finding.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Disposition</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The recorded decision for this finding.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Age</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -214,7 +219,12 @@ export function GovernanceFindingsQueueTableHead(props: {
                 Last time this finding was reviewed in this queue.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Status</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Where this finding is in the review workflow.
+              </span>
+            </EnterpriseTableHeaderCell>
           </>
         )}
         <EnterpriseTableHeaderCell>
