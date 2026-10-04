@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `governanceFindingsClearReviewScopeHref` left `governanceFindingsResourceGroupKey` after clearing review scope, so group-by could keep an exclusive disclosure tied to the prior run-scoped queue; strip the disclosure param with bulk clears; regression `clears stale resource-group disclosure when clearing review scope`; 4 clear-review-scope URL tests and 3 scope-section tests passed.
+
 2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `governanceFindingsClearAllFiltersHref` (and pick-review / saved-view URL builders) left `governanceFindingsResourceGroupKey` on the queue URL after clear-all, pick-review, or saved-view navigation, so re-enabling group-by could exclusive-open a stale resource group; strip the disclosure param alongside bulk and facet clears; regressions `clears stale resource-group disclosure keys when clearing filters` and pick-review/saved-view URL tests; 12 scoped governance-findings URL helper tests passed.
 
 2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` treated any non-empty `governanceFindingsResourceGroupKey` as exclusive disclosure state, so when queue filters removed the open resource group every remaining group rendered collapsed; ignore stale keys and clear the URL when the open group is absent from `displayRows`; regression `keeps remaining resource groups expanded when disclosure URL references a filtered-out group`; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
@@ -28240,11 +28242,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 25
-- **bugs-found:** 23
+- **hunts:** 26
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — resource-group disclosure param survived clear-all / saved-view navigation
+- **last-bug:** 2026-10-04 — resource-group disclosure survived clear review scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28339,6 +28341,10 @@ ABQ-09 churn hotspot.
 2026-10-04 seed hunt (seed→hit): promoted resource-group disclosure candidate; proved stale `governanceFindingsResourceGroupKey` collapsed all groups after filter removed the open resource; fixed disclosure open-state + URL cleanup; regression above; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
 
 2026-10-04 seed hunt (seed→hit): proved resource-group disclosure URL keys survived clear-all and pick-review navigation; extended URL helpers to strip `governanceFindingsResourceGroupKey`; 12 scoped governance-findings URL helper tests passed.
+
+2026-10-04 seed hunt (seed→hit): proved `governanceFindingsClearReviewScopeHref` omitted resource-group disclosure cleanup; extended helper; regression above; 7 scoped clear-review-scope and scope-section tests passed.
+
+- [x] (proven) `governanceFindingsClearReviewScopeHref` — `governanceFindingsResourceGroupKey` survived clear review scope — **hit 2026-10-04 seed hunt:** delete disclosure param with bulk clears; regression `clears stale resource-group disclosure when clearing review scope`.
 
 ---
 
