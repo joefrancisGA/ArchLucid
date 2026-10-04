@@ -90,7 +90,8 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
         [hashtable] $Seen,
         [string] $NicResourceId,
         [object] $IpConfigurationsJson,
-        [string] $NetworkSecurityGroupId = $null
+        [string] $NetworkSecurityGroupId = $null,
+        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
     )
 
     foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray $IpConfigurationsJson))
@@ -129,6 +130,19 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
                 -FromResourceId $publicIpId `
                 -ToResourceId $NicResourceId `
                 -AssociationType 'publicIpToNic'
+
+            if ($null -ne $PublicIpIpConfigurationFacts)
+            {
+                [string]$ipConfigName = "$(Get-ArchLucidArgNestedProperty $ipConfig 'name')".Trim()
+
+                if (-not ([string]::IsNullOrWhiteSpace($ipConfigName)))
+                {
+                    [void]$PublicIpIpConfigurationFacts.Add([ordered]@{
+                            resourceId = $publicIpId
+                            ipConfigurationId = "$NicResourceId/ipConfigurations/$ipConfigName"
+                        })
+                }
+            }
         }
     }
 
@@ -159,26 +173,43 @@ function Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord
     }
 
     [object]$ipConfiguration = $IpConfigurationJson
+    [string]$ipConfigurationId = ''
 
     if ($ipConfiguration -is [string])
     {
-        if ([string]::IsNullOrWhiteSpace($ipConfiguration))
+        [string]$ipConfigurationText = $ipConfiguration.Trim()
+
+        if ([string]::IsNullOrWhiteSpace($ipConfigurationText))
         {
             return
         }
 
-        try
+        [bool]$ipConfigurationTextIsArmId = $ipConfigurationText.IndexOf(
+            '/ipConfigurations/',
+            [System.StringComparison]::OrdinalIgnoreCase) -ge 0
+
+        if ($ipConfigurationTextIsArmId -and -not $ipConfigurationText.StartsWith('{'))
         {
-            $ipConfiguration = ConvertFrom-Json -InputObject $ipConfiguration -ErrorAction Stop
+            $ipConfigurationId = $ipConfigurationText
         }
-        catch
+        else
         {
-            return
+            try
+            {
+                $ipConfiguration = ConvertFrom-Json -InputObject $ipConfigurationText -ErrorAction Stop
+            }
+            catch
+            {
+                return
+            }
         }
     }
 
-    [object]$ipConfigurationIdRef = Get-ArchLucidArgNestedProperty $ipConfiguration 'id'
-    [string]$ipConfigurationId = "$ipConfigurationIdRef".Trim()
+    if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
+    {
+        [object]$ipConfigurationIdRef = Get-ArchLucidArgNestedProperty $ipConfiguration 'id'
+        $ipConfigurationId = "$ipConfigurationIdRef".Trim()
+    }
 
     if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
     {
@@ -406,6 +437,10 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
             Query = "Resources | where type =~ 'microsoft.network/networkinterfaces' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations, networkSecurityGroupId = properties.networkSecurityGroup.id"
         }
         [pscustomobject]@{
+            Kind = 'vmssNetworkInterface'
+            Query = "Resources | where type =~ 'microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations, networkSecurityGroupId = properties.networkSecurityGroup.id"
+        }
+        [pscustomobject]@{
             Kind = 'bastionHost'
             Query = "Resources | where type =~ 'microsoft.network/bastionhosts' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations"
         }
@@ -528,7 +563,17 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -Seen $seen `
                             -NicResourceId $resourceId `
                             -IpConfigurationsJson $Row.ipConfigurations `
-                            -NetworkSecurityGroupId "$( $Row.networkSecurityGroupId )".Trim()
+                            -NetworkSecurityGroupId "$( $Row.networkSecurityGroupId )".Trim() `
+                            -PublicIpIpConfigurationFacts $PublicIpIpConfigurationFacts
+                    }
+                    'vmssNetworkInterface' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromNicRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -NicResourceId $resourceId `
+                            -IpConfigurationsJson $Row.ipConfigurations `
+                            -NetworkSecurityGroupId "$( $Row.networkSecurityGroupId )".Trim() `
+                            -PublicIpIpConfigurationFacts $PublicIpIpConfigurationFacts
                     }
                     'bastionHost' {
                         Add-ArchLucidArgNetworkAssociationRowsFromBastionRecord `
