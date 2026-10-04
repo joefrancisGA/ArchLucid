@@ -51,6 +51,8 @@ Canonical wave doc: [`docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md`](../.
 | **Evidence filters** | Declared, guessed, and confirmed edges are one picture. | Four checkboxes, on by default, hide Observed, App settings, From config, or Inferred edges. Cards stay. | **DFV-17** |
 | **Reading a card** | The words on a card do not say which line is the name, the type, or a status. | Composer only. One sentence under the data-flow caption explains those lines. The SVG is unchanged. | **DFV-20** |
 | **Source type rollup** | After one card per host, Source can still be a stack of one connector type with different neighbors. | Hold until DFV-12 is on `master` and Source is still hard to read. Source rolls up more than three cards of one type even when neighbors differ. Other stages keep DFV-14. | **DFV-21** |
+| **Collect direction** | A static dataset name with parameters is dropped, so the package has linked services and no Reads from or Writes to. | Keep that dataset name. Also read source, sink, and dataset slots on `typeProperties`. Re-collect after this ships. | **DFV-22** |
+| **Paint direction** | The canvas says direction was not in the package whenever directional edges are missing. | **Reads from** and **Writes to** when those edges exist. Keep the re-collect sentence only when they do not. | **DFV-23** |
 
 ## What this set does not change
 
@@ -58,7 +60,7 @@ Keep the evidence catalog's exclusions. Do not put diagnostic settings, NIC, VNe
 
 ## Run order
 
-**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session at a time: **16**, **20** (Composer), **12**, then **17** if edges are still noisy. **21** stays unpasted until **12** has shipped and Source is still hard to read. Do not run two of these in one session.
+**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session at a time: **22**, then **23**. Re-collect after **22**. Readability sessions stay **16**, **20** (Composer), **12**, then **17**. **21** stays unpasted until **12** has shipped and Source is still hard to read. Do not run two of these in one session.
 
 Each implementation prompt ends **before commit**. The owner looks, then says whether to commit.
 
@@ -87,3 +89,5 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 17 | `data-flow-diagram-17-evidence-filters.md` | `dfv/17-evidence-filters` |
 | 20 | `data-flow-diagram-20-reading-the-cards.md` | `dfv/20-reading-the-cards` |
 | 21 | `data-flow-diagram-21-source-type-rollup.md` | `dfv/21-source-type-rollup` |
+| 22 | `data-flow-diagram-22-collect-pipeline-direction.md` | `dfv/22-collect-pipeline-direction` |
+| 23 | `data-flow-diagram-23-paint-pipeline-direction.md` | `dfv/23-paint-pipeline-direction` |

@@ -32,10 +32,12 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 | **DFV-17** | [data-flow-diagram-17-evidence-filters.md](../../.cursor/prompts/data-flow-diagram-17-evidence-filters.md) | Four checkboxes, on by default, hide Observed, App settings, From config, or Inferred edges. Cards stay. |
 | **DFV-20** | [data-flow-diagram-20-reading-the-cards.md](../../.cursor/prompts/data-flow-diagram-20-reading-the-cards.md) | Composer, not Luna. Under the data-flow caption, one sentence says the first line is the name, the next line is the type, and the status lines are consumer or factory identity. |
 | **DFV-21** | [data-flow-diagram-21-source-type-rollup.md](../../.cursor/prompts/data-flow-diagram-21-source-type-rollup.md) | Hold until DFV-12 is on `master` and Source is still hard to read. In Source only, more than three cards of one connector type become one card even when neighbors differ. |
+| **DFV-22** | [data-flow-diagram-22-collect-pipeline-direction.md](../../.cursor/prompts/data-flow-diagram-22-collect-pipeline-direction.md) | Keep a static dataset name even when the activity passes parameters. Also read source, sink, and dataset slots on `typeProperties`. Re-collect after this ships. |
+| **DFV-23** | [data-flow-diagram-23-paint-pipeline-direction.md](../../.cursor/prompts/data-flow-diagram-23-paint-pipeline-direction.md) | Label resolved factory edges **Reads from** or **Writes to**. Keep the re-collect sentence only when those edges are absent. |
 
 ## Run order
 
-**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session at a time: **16** (stage counts), **20** (Composer card-reading sentence), **12** (one card per external host), then **17** (evidence filters) if edges are still noisy. **21** stays unpasted until **12** has shipped and the Source column is still hard to read. **08**, **09**, **10**, **11**, and **15** stay available when their own dependencies on `master` are met. Do not run two of these in one session.
+**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session at a time: **22** (collect pipeline direction), then **23** (paint Reads from / Writes to). Re-collect Azure inventory after **22** before judging **23**. Readability sessions stay **16**, **20** (Composer), **12**, then **17** if edges are still noisy. **21** stays unpasted until **12** has shipped and the Source column is still hard to read. Do not run two of these in one session.
 
 ## After PR 4128
 
