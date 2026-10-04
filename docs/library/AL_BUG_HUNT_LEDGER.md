@@ -6154,6 +6154,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-04 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` actionable gating vs `ArchitectureRecommendationTradeOffBuilder` provenance-aware trade-off gating, `FindRecommendationForDimension` attachment, and declared-priority negation patterns; no row met hunt-ready bar for same-run proof; persisted four bounded candidates; exact Alternatives/ProposedChange filter passed 40/40.
+
 2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed again and no reachable mechanism-backed candidate emerged.
 
 2026-10-01 seed hunt (seed-only): repeated the exact architecture-recommendation filter; all 40 focused tests passed, with no reachable mechanism-backed candidate.
@@ -6213,6 +6215,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
 
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForDimension` — `FirstOrDefault` on `AffectedRequirementOrQualityAttribute` attaches each Security/Cost (or other pair) trade-off only to the first recommendation when multiple actionable findings share a dimension; reachable when a specialist review emits two Fail rows in the same quality dimension plus a competing-dimension Fail.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — negation covers `non-` / `no-` / `not-` plus `unreliability` but not `anti-{dimension}` or `without {dimension}` declared-priority phrases operators may enter in review workbooks; wrong outcome would be false Cost-first or Security-first resolution when those phrases appear.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` makes trade-off identity non-deterministic across rebuilds of the same finding set; reachable on every `BuildRecommendations` call and may break diff/telemetry keyed by stable trade-off ids (needs consumer citation before hunt-ready promotion).
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — copies full `declaredPriorities` into each recommendation's `Dependencies` even when trade-off resolution already consumed priorities; reachable on multi-finding reviews and may overstate per-recommendation dependency edges in exported manifests.
+
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `no-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `Low-Cost` remains a valid Cost preference; generalized negated dimension detection via `no-` / `non-` prefixes for all trade-off dimension tokens; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost` and `BuildRecommendations_prefers_cost_first_when_priority_mentions_low_cost_design`; 27 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `no-cost` declared priorities falsely prefer Cost — **hit 2026-09-27 seed hunt:** `no-` negation must mirror `non-` handling without blocking legitimate `Low-Cost` mentions; regressions in `ArchitectureRecommendationTradeOffBuilderTests`
@@ -6240,7 +6247,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 38
+- **hunts:** 39
 - **last-hunt:** 2026-10-04
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
