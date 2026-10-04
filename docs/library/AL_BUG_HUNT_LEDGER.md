@@ -3460,7 +3460,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **hunts:** 26
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-11 — signup readiness hint mislabeled fractional team size and overlong industry Other optional-field failures
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
@@ -7071,7 +7071,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-27 — product-context load failure hid intake despite paste/fixture recovery copy
+- **last-bug:** 2026-10-04 — deep-linked review exposed publish action before reasoning result existed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -2036,6 +2036,52 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toBeInTheDocument();
   });
 
+  it("keeps publish disabled for a deep-linked review before reasoning produces a result", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Deep-linked review without a reasoning result.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Deep-linked review without a reasoning result.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
+  });
+
   it("shows intake form when product context load failure panel is visible", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {
