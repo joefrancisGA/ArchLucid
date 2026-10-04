@@ -274,6 +274,14 @@ export function RunDetailOutcomeCards({
           ) : null}
         </div>
       ) : null}
+      {governanceGateFootnote !== null ? (
+        <p
+          className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}
+          data-testid="buyer-governance-gate-footnote"
+        >
+          {governanceGateFootnote}
+        </p>
+      ) : null}
       {!hidePromotedStatus ? (
       <p
         className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -412,11 +420,6 @@ export function RunDetailOutcomeCards({
             <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               <span className="font-medium text-neutral-800 dark:text-neutral-200">{approvalStatusLabel}:</span>{" "}
               {governanceGateLabel}
-            </p>
-          ) : null}
-          {governanceGateFootnote !== null ? (
-            <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
-              {governanceGateFootnote}
             </p>
           ) : null}
           {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
