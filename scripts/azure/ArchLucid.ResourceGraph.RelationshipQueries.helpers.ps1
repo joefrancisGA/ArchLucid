@@ -143,6 +143,37 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
     }
 }
 
+function Add-ArchLucidArgNetworkAssociationRowsFromBastionRecord
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $BastionResourceId,
+        [object] $IpConfigurationsJson
+    )
+
+    foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray $IpConfigurationsJson))
+    {
+        [string]$subnetId = ''
+        [object]$subnetRef = Get-ArchLucidArgNestedProperty $ipConfig.properties 'subnet'
+
+        if ($null -ne $subnetRef)
+        {
+            $subnetId = "$( $subnetRef.id )".Trim()
+        }
+
+        if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+        {
+            Add-ArchLucidNetworkAssociationRow `
+                -Rows $Rows `
+                -Seen $Seen `
+                -FromResourceId $BastionResourceId `
+                -ToResourceId $subnetId `
+                -AssociationType 'bastionToSubnet'
+        }
+    }
+}
+
 function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
 {
     param(
@@ -305,6 +336,10 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
             Query = "Resources | where type =~ 'microsoft.network/networkinterfaces' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations, networkSecurityGroupId = properties.networkSecurityGroup.id"
         }
         [pscustomobject]@{
+            Kind = 'bastionHost'
+            Query = "Resources | where type =~ 'microsoft.network/bastionhosts' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations"
+        }
+        [pscustomobject]@{
             Kind = 'virtualNetwork'
             Query = "Resources | where type =~ 'microsoft.network/virtualnetworks' $rgFilter | project id, type, subnets = properties.subnets, peerings = properties.virtualNetworkPeerings"
         }
@@ -418,6 +453,13 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -NicResourceId $resourceId `
                             -IpConfigurationsJson $Row.ipConfigurations `
                             -NetworkSecurityGroupId "$( $Row.networkSecurityGroupId )".Trim()
+                    }
+                    'bastionHost' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromBastionRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -BastionResourceId $resourceId `
+                            -IpConfigurationsJson $Row.ipConfigurations
                     }
                     'virtualNetwork' {
                         Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord `
