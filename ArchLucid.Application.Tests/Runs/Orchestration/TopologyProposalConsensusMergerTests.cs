@@ -283,6 +283,49 @@ public sealed class TopologyProposalConsensusMergerTests
         };
 
         TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_endpoint_whitespace_differs_between_models()
+    {
+        static AgentTopologyProposal Proposal(string sourceId) =>
+            new()
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = sourceId,
+                        TargetId = "ds-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            };
+
+        TopologyProposalConsensusMergeResult result =
+            TopologyProposalConsensusMerger.Merge(Proposal(" svc-api "), Proposal("svc-api"));
 
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
     }
