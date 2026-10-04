@@ -180,11 +180,14 @@ public sealed class RetrievalIndexingService(
 
         if (chunks.Count > 0)
         {
-            foreach ((RetrievalDocument doc, _, _) in work)
+            await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
+
+            foreach ((RetrievalDocument doc, IReadOnlyList<string> split, _) in work)
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (_indexCatalog.TryGet(doc.DocumentId, out _))
+                if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
+                    && prior.IndexedChunkCount > split.Count)
                 {
                     await _vectorIndex.RemoveChunksForDocumentAsync(
                         doc.DocumentId,
@@ -192,10 +195,14 @@ public sealed class RetrievalIndexingService(
                         doc.WorkspaceId,
                         doc.ProjectId,
                         ct).ConfigureAwait(false);
+
+                    IReadOnlyList<RetrievalChunk> documentChunks = chunks
+                        .Where(chunk => string.Equals(chunk.DocumentId, doc.DocumentId, StringComparison.Ordinal))
+                        .ToList();
+
+                    await _vectorIndex.UpsertChunksAsync(documentChunks, ct).ConfigureAwait(false);
                 }
             }
-
-            await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
         }
 
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
