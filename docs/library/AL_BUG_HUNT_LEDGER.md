@@ -7435,9 +7435,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
@@ -7451,9 +7451,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-04 seed hunt (seed-only): reread the selected Stripe and Marketplace controller paths, wallet processor, replay guard, and their focused callers. No candidate met the hunt-ready bar for a failing repro; seeded three bounded candidates around unsupported Marketplace actions, replay-key normalization of provider-supplied identifiers, and replay-guard process-local claims.
 
-- [ ] (candidate) `AzureMarketplaceBillingProvider.DispatchMarketplaceActionAsync` / `BillingMarketplaceWebhookController.MarketplaceAsync` — an authenticated Marketplace webhook with an unsupported `action` is classified as `PublishIntegrationEnvelope` and can be returned as a successful `MarketplaceWebhookReceived` event; a provider-supplied unknown action may therefore be published to integration consumers instead of being rejected or acknowledged as an ignored no-op.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — the replay key lowercases provider-supplied event IDs, so a reachable Marketplace or Stripe identifier whose provider contract is case-sensitive could cause two distinct deliveries to share one replay claim and incorrectly reject the later event.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — `_claimedKeys` is process-local while the fallback cache is memory-local; a replay delivered to separate API instances can bypass this guard before the shared billing ledger rejects or accepts it, leaving a provider-specific duplicate-mutation gap if ledger dedupe is not atomic for that route.
+- [x] (invalid) `AzureMarketplaceBillingProvider.DispatchMarketplaceActionAsync` / `BillingMarketplaceWebhookController.MarketplaceAsync` — an authenticated Marketplace webhook with an unsupported `action` is classified as `PublishIntegrationEnvelope` and can be returned as a successful `MarketplaceWebhookReceived` event; **cheap-disproof 2026-10-04 thorough hunt:** the selected controller only publishes the provider's explicit `MarketplaceWebhookReceived` result, while the selected files contain no Azure Marketplace action contract showing an unsupported action is reachable or should be ignored.
+- [x] (invalid) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — the replay key lowercases provider-supplied event IDs, so a reachable Marketplace or Stripe identifier whose provider contract is case-sensitive could cause two distinct deliveries to share one replay claim and incorrectly reject the later event; **cheap-disproof 2026-10-04 thorough hunt:** the selected files establish no case-sensitive identifier contract or reachable case-variant provider input.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard` — `_claimedKeys` is process-local while the fallback cache is memory-local; a replay delivered to separate API instances can bypass this guard before the shared billing ledger rejects or accepts it, leaving a provider-specific duplicate-mutation gap if ledger dedupe is not atomic for that route. **Cheap-disproof 2026-10-04 thorough hunt:** provider paths perform shared ledger insertion and in-flight duplicate rejection before mutation; no bypass path was reachable from the selected controllers.
+- [x] (invalid) `BillingStripeWebhookController.HandleStripeWebhookAsync` — an inbound Stripe request body at or above the bounded-reader limit is rejected before provider signature verification; **cheap-disproof 2026-10-04 thorough hunt:** the selected files provide no Stripe payload-size contract showing that a valid provider payload can exceed the shared 65,536-byte limit.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — the atomic replay claim is process-local while the memory cache is also node-local; input is the same valid signed webhook delivered concurrently to two API instances. **Cheap-disproof 2026-10-04 thorough hunt:** existing provider tests cover in-flight `Received` ledger rejection and `MemoryCacheBillingWebhookReplayGuardTests.TryRegisterEventAsync_only_first_concurrent_caller_wins`; no failing repro remained.
+
+2026-10-04 thorough hunt (dry): cheap-disproved all five billing-webhook candidates; no reachable failing repro or product change.
 2026-09-12 seed hunt #1907 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
 
 2026-09-12 seed hunt #1906 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
