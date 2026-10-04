@@ -13,21 +13,11 @@ import {
 } from "@/components/ui/enterprise-table";
 import {
   formatDecisionPipelineBuyerLabel,
-  normalizeDecisionConfidencePercent,
+  formatRecordedDecisionConfidenceWithPipeline,
   resolveRecordedDecisionConfidenceNote,
 } from "@/lib/decision-explainability-buyer-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
-
-function formatConfidence(confidence: number | null): string {
-  const normalized = normalizeDecisionConfidencePercent(confidence);
-
-  if (normalized === null) {
-    return "Unknown";
-  }
-
-  return `${normalized}%`;
-}
 
 function SnapshotIdList(props: { readonly label: string; readonly value: string | null }): ReactElement | null {
   if (props.value === null) {
@@ -63,6 +53,9 @@ export function RunDecisionExplainabilitySection(props: {
         pipeline so operators know which engine produced it.
       </p>
 
+      <p className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        Decision rows below were computed from the snapshots listed here when those ids were recorded on the review.
+      </p>
       <ul className={cn("m-0 mb-4 list-none space-y-1 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <SnapshotIdList label="Context snapshot" value={model.snapshotIds.contextSnapshotId} />
         <SnapshotIdList label="Graph snapshot" value={model.snapshotIds.graphSnapshotId} />
@@ -157,7 +150,7 @@ export function RunDecisionExplainabilitySection(props: {
                     </EnterpriseTableCell>
                     <EnterpriseTableCell className="align-top">{row.selectedOption}</EnterpriseTableCell>
                     <EnterpriseTableCell className="align-top">
-                      {formatConfidence(row.confidence)}
+                      {formatRecordedDecisionConfidenceWithPipeline(row.confidence, row.pipeline)}
                       {confidenceNote !== null ? (
                         <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
                           {confidenceNote}
@@ -193,7 +186,9 @@ export function RunDecisionExplainabilitySection(props: {
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.topic}</p>
                   <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.rationale}</p>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="align-top">{formatConfidence(row.confidence)}</EnterpriseTableCell>
+                <EnterpriseTableCell className="align-top">
+                  {formatRecordedDecisionConfidenceWithPipeline(row.confidence, row.pipeline)}
+                </EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                   {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
                 </EnterpriseTableCell>

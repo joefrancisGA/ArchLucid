@@ -4,8 +4,8 @@ import { formatCompareCostEstimateCell } from "@/lib/compare-cost-estimate-forma
 
 describe("formatCompareCostEstimateCell", () => {
   it("returns bare numeric values without inventing currency or period", () => {
-    expect(formatCompareCostEstimateCell(100)).toEqual({ display: "100", unitUnknown: true });
-    expect(formatCompareCostEstimateCell("120")).toEqual({ display: "120", unitUnknown: true });
+    expect(formatCompareCostEstimateCell(100)).toEqual({ display: "Unit not recorded", unitUnknown: true });
+    expect(formatCompareCostEstimateCell("120")).toEqual({ display: "Unit not recorded", unitUnknown: true });
   });
 
   it("preserves values that already include currency markers", () => {

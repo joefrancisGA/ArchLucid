@@ -23,6 +23,7 @@ import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { runAgentForensicsBlockedReason } from "@/lib/runs/run-agent-forensics-blocked-reason";
+import { formatRunAgentForensicsEvaluationFooter } from "@/lib/runs/run-agent-forensics-evaluation-footer";
 import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationScoreRow,
@@ -136,19 +137,18 @@ function EvaluationSummaryFooter(props: {
   if (!perspective)
     return null;
 
+  const footerLead = formatRunAgentForensicsEvaluationFooter({
+    evaluatedAtLabel: formatInstantForLocale(evaluationPayload.evaluatedAtUtc),
+    perspective,
+  });
+
   return (
     <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-      Evaluated at {formatInstantForLocale(evaluationPayload.evaluatedAtUtc)} · skipped traces:{" "}
-      {perspective.tracesSkippedCount}
-      {perspective.averageStructuralCompletenessRatio !== null &&
-      perspective.averageStructuralCompletenessRatio !== undefined
-        ? ` · avg structural: ${perspective.averageStructuralCompletenessRatio.toFixed(2)}`
-        : ""}
+      {footerLead}
       {perspective.averageSemanticScore !== null &&
       perspective.averageSemanticScore !== undefined ? (
         <>
           {" "}
-          · avg semantic: {perspective.averageSemanticScore.toFixed(2)}
           <FieldHelpTooltip label="Average semantic score" hint={semanticOverallTooltip} />
         </>
       ) : null}

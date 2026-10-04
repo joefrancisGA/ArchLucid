@@ -568,8 +568,12 @@ export function DeclaredConnectionsWorkbenchClient() {
             </p>
           ) : filteredRows.length === 0 && loadError == null && !loading ? (
             <EnterpriseCompactEmptyState
-              title="No declared connections yet"
-              description="Save a HumanAssertion edge when inventory alone cannot prove connectivity."
+              title={rows.length === 0 ? "No declared connections yet" : "No declarations in this status"}
+              description={
+                rows.length === 0
+                  ? "Save a HumanAssertion edge when inventory alone cannot prove connectivity."
+                  : "Change the status filter or clear it to see other declarations loaded in this workspace view."
+              }
               testId="infra-declared-connections-empty-state"
             />
           ) : (

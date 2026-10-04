@@ -1597,7 +1597,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </div>
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
-                            {item.severity != null ? <SeverityTag severity={item.severity} /> : "—"}
+                            {item.severity != null ? <SeverityTag severity={item.severity} /> : "Severity not recorded"}
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
                             {item.status != null ? (

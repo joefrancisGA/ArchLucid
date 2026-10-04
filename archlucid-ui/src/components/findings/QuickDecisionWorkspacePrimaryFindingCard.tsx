@@ -183,7 +183,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             {finding.confidenceLevel === "High" ||
             finding.confidenceLevel === "Medium" ||
             finding.confidenceLevel === "Low" ? (
-              <FindingConfidenceBadge level={finding.confidenceLevel} />
+              <FindingConfidenceBadge level={finding.confidenceLevel} showScopeLine />
             ) : (
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Not scored</span>
             )}

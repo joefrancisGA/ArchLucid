@@ -31,8 +31,8 @@ export function resolveSponsorScorecardHoursSavedDisplay(input: {
 
   if (input.reviewsCount <= 0) {
     return {
-      valueText: " — ",
-      caption: "Not enough severity data",
+      valueText: "Not estimated",
+      caption: "No committed reviews in scope for a severity-weighted estimate.",
     };
   }
 
@@ -40,8 +40,8 @@ export function resolveSponsorScorecardHoursSavedDisplay(input: {
 
   if (input.buyerPolished) {
     return {
-      valueText: " — ",
-      caption: "Not enough severity data to estimate hours saved",
+      valueText: "Not estimated",
+      caption: "Severity-weighted hours were not returned — not enough severity data to estimate.",
     };
   }
 

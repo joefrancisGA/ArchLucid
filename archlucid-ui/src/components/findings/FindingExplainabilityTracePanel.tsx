@@ -17,10 +17,11 @@ import { getFindingExplainability } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
+import { findingEvidenceCountPlainLine } from "@/lib/findings/finding-explainability-summary";
 import {
-  findingEvidenceCountPlainLine,
-  findingTraceCompletenessPlainEnglish,
-} from "@/lib/findings/finding-explainability-summary";
+  FINDING_TRACE_FIELD_FILL_LABEL,
+  resolveFindingTraceCompletenessDisplay,
+} from "@/lib/findings/finding-trace-completeness-display";
 import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -127,10 +128,8 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
     void load();
   }, [load]);
 
-  const ratioPct =
-    data !== null && Number.isFinite(data.traceCompletenessRatio)
-      ? Math.round(Math.min(1, Math.max(0, data.traceCompletenessRatio)) * 100)
-      : 0;
+  const traceCompleteness =
+    data !== null ? resolveFindingTraceCompletenessDisplay(data.traceCompletenessRatio) : null;
 
   const evidenceRefs = data?.evidence?.evidenceRefs ?? [];
   const unavailableCopy =
@@ -190,11 +189,19 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
       {!loading && failure === null && data !== null ? (
         <div className="mt-4 space-y-3">
           <div className="space-y-2">
-            <div className={cn("flex items-center justify-between gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              <span>{findingTraceCompletenessPlainEnglish(ratioPct)}</span>
-              <span>{ratioPct}%</span>
-            </div>
-            <Progress value={ratioPct} aria-label="Trace completeness" />
+            {traceCompleteness?.recorded === true && traceCompleteness.ratioPct !== null ? (
+              <>
+                <div className={cn("flex items-center justify-between gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  <span>{traceCompleteness.summaryLine}</span>
+                  <span>{traceCompleteness.ratioPct}%</span>
+                </div>
+                <Progress value={traceCompleteness.ratioPct} aria-label={FINDING_TRACE_FIELD_FILL_LABEL} />
+              </>
+            ) : (
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {traceCompleteness?.summaryLine ?? "Not recorded"}
+              </p>
+            )}
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {findingEvidenceCountPlainLine(evidenceRefs)}
             </p>
@@ -216,7 +223,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
           failure !== null
             ? unavailableCopy?.body ?? "Explainability trace unavailable."
             : data !== null
-              ? findingTraceCompletenessPlainEnglish(ratioPct)
+              ? traceCompleteness?.summaryLine ?? "Not recorded"
               : "Deterministic pipeline evidence for this finding."
         }
       >

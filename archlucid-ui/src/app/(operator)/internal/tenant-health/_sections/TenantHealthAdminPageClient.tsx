@@ -14,7 +14,6 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -29,7 +28,6 @@ import {
   fetchAdminTenantHealthList,
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
-import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-severity";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
@@ -142,11 +140,10 @@ export function TenantHealthAdminPageClient() {
                 {row.tenantId}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
-                <SeverityTag
-                  severity={String(row.engagementScore)}
-                  kind={engagementScoreSeverityKind(row.engagementScore)}
-                  label={`${row.engagementScore}`}
-                />
+                <span className={cn("tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  {row.engagementScore}
+                </span>
+                <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Engagement score</span>
               </EnterpriseTableCell>
               <EnterpriseTableCell>{row.governanceScore}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.pilotFunnelStage}</EnterpriseTableCell>

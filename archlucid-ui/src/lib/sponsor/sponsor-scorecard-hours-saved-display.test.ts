@@ -26,11 +26,11 @@ describe("sponsor-scorecard-hours-saved-display (TB-1534)", () => {
       precommitBlocksExact: true,
     });
 
-    expect(display.valueText).toBe(" — ");
+    expect(display.valueText).toBe("Not estimated");
     expect(display.valueText).not.toBe(
       `${4 * SPONSOR_SCORECARD_AVERAGE_MANUAL_REVIEW_HOURS} h`,
     );
-    expect(display.caption).toContain("Not enough severity data");
+    expect(display.caption).toContain("Severity-weighted");
   });
 
   it("labels operator-shell fallback estimates explicitly", () => {

@@ -14,7 +14,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
-import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -140,10 +140,7 @@ export function RagHealthAdminPageClient() {
               <EnterpriseTableCell>{formatUtc(row.lastIndexedUtc)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.embeddingDimension}</EnterpriseTableCell>
               <EnterpriseTableCell>
-                <SeverityTag
-                  severity={row.isStale ? "High" : "Low"}
-                  label={row.isStale ? "Stale" : "Fresh"}
-                />
+                <StatusTag kind={row.isStale ? "needs-attention" : "ready"} label={row.isStale ? "Stale index" : "Fresh index"} />
               </EnterpriseTableCell>
             </EnterpriseTableRow>
           ))}

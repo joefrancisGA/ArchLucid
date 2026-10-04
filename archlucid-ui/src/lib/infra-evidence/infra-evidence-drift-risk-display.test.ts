@@ -47,11 +47,12 @@ function buildChange(
 }
 
 describe("infra-evidence-drift-risk-display", () => {
-  it("treats empty risk as none and unknown as unknown", () => {
-    expect(resolveInfraEvidenceDriftRiskKey(null)).toBe("none");
-    expect(resolveInfraEvidenceDriftRiskKey("")).toBe("none");
+  it("treats empty risk as not-recorded, explicit none as none, and unknown as unknown", () => {
+    expect(resolveInfraEvidenceDriftRiskKey(null)).toBe("not-recorded");
+    expect(resolveInfraEvidenceDriftRiskKey("")).toBe("not-recorded");
     expect(resolveInfraEvidenceDriftRiskKey("none")).toBe("none");
     expect(resolveInfraEvidenceDriftRiskKey("unknown")).toBe("unknown");
+    expect(formatInfraEvidenceDriftRiskLabel("not-recorded")).toBe("Not recorded");
     expect(formatInfraEvidenceDriftRiskLabel("none")).toBe("None");
     expect(formatInfraEvidenceDriftRiskLabel("unknown")).toBe("Unknown");
   });

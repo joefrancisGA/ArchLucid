@@ -8,19 +8,19 @@ import {
 } from "@/lib/infra-evidence/format-azure-resource-display";
 
 describe("formatAzureResourceDisplay", () => {
-  it("returns an empty placeholder when the id is missing", () => {
+  it("returns Name not recorded when the id is missing", () => {
     expect(formatAzureResourceDisplay(null)).toEqual({
-      name: "—",
+      name: "Name not recorded",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "—",
+      primaryLabel: "Name not recorded",
       secondaryLabel: null,
     });
     expect(formatAzureResourceDisplay("   ")).toEqual({
-      name: "—",
+      name: "Name not recorded",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "—",
+      primaryLabel: "Name not recorded",
       secondaryLabel: null,
     });
   });

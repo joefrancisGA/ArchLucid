@@ -21,10 +21,10 @@ export function presentSponsorKpiCount(
 
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     return {
-      display: " — ",
+      display: "Not returned",
       state: "missing",
       footnote: isBuyerPolishedOperatorShellEnv()
-        ? "Not available for this workspace yet."
+        ? "Not available for this workspace yet — the sponsor ROI summary did not return a count for this window."
         : "Not returned by the sponsor ROI summary API for this tenant.",
     };
   }

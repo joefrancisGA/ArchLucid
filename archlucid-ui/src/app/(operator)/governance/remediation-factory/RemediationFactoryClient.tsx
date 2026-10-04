@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
+import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
 import type {
   RemediationFactoryMetrics,
   RemediationPrioritizedFinding,
@@ -225,7 +226,7 @@ function PriorityTable(props: {
             <EnterpriseTableHeaderCell>
               <span>Rank</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                1 is the first finding in this queue.
+                Server rank when recorded; otherwise row order in this view.
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
@@ -266,10 +267,17 @@ function PriorityTable(props: {
               onClick={() => props.onSelect(row.findingId)}
               onKeyDown={(event) => handleRowKeyDown(event, index)}
             >
-              <EnterpriseTableCell>{index + 1}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.totalScore.toFixed(4)}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.rankOrder ?? index + 1}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <span className="tabular-nums">{row.totalScore.toFixed(4)}</span>
+                <p className={cn("m-0 mt-0.5 font-normal", OPERATOR_TYPOGRAPHY.micro)}>
+                  {formatRemediationPrioritySortKeyLine(row.totalScore)}
+                </p>
+              </EnterpriseTableCell>
               <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                {row.patternKey == null ? "No pattern key recorded" : "Pattern"}
+              </EnterpriseTableCell>
               <CompareDiffExpandableValueCell value={row.explanationSummary} />
             </EnterpriseTableRow>
           ))}

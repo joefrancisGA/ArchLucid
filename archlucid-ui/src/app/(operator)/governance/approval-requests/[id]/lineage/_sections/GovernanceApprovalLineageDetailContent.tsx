@@ -42,7 +42,7 @@ import {
   parseApprovalLineageRecordDigestOpenFromSearch,
 } from "@/lib/governance/approval-lineage-record-digest-disclosure-url";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
-import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
+import { formatGovernanceLineageTraceFieldFill } from "@/lib/governance/governance-lineage-trace-field-fill";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
@@ -283,8 +283,7 @@ export function GovernanceApprovalLineageDetailContent({
                     </Link>
                   </div>
                   <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                    {finding.engineType} · trace completeness{" "}
-                    {formatGovernanceLineageCompletenessPercent(finding.traceCompletenessRatio)}
+                    {finding.engineType} · {formatGovernanceLineageTraceFieldFill(finding.traceCompletenessRatio)}
                   </div>
                 </li>
               ))}

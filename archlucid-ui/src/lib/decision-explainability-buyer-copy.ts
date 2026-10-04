@@ -12,6 +12,39 @@ export function normalizeDecisionConfidencePercent(confidence: number | null): n
   return Math.round(confidence);
 }
 
+function decisionConfidenceEncodingNote(confidence: number): string {
+  if (confidence > 1) {
+    return "recorded on a 0–100 scale";
+  }
+
+  return "recorded as a 0–1 fraction";
+}
+
+/** Labels confidence with encoding so 1.0 is not confused with 100 points (UU-425). */
+export function formatRecordedDecisionConfidence(confidence: number | null): string {
+  if (confidence === null || !Number.isFinite(confidence)) {
+    return "Not recorded";
+  }
+
+  const percent = normalizeDecisionConfidencePercent(confidence);
+
+  if (percent === null) {
+    return "Not recorded";
+  }
+
+  return `${percent}% (${decisionConfidenceEncodingNote(confidence)})`;
+}
+
+export function formatRecordedDecisionConfidenceWithPipeline(
+  confidence: number | null,
+  pipeline: string,
+): string {
+  const base = formatRecordedDecisionConfidence(confidence);
+  const pipelineLabel = formatDecisionPipelineBuyerLabel(pipeline);
+
+  return `${base} · ${pipelineLabel}`;
+}
+
 export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
   const normalized = pipeline.trim().toLowerCase();
 
@@ -46,10 +79,11 @@ export function resolveRecordedDecisionConfidenceNote(input: {
     return null;
   }
 
-  const isRecordedDisposition =
-    selected.includes("accept") || selected.includes("approv") || selected.includes("record");
+  if (confidencePercent >= LOW_RECORDED_DECISION_CONFIDENCE_THRESHOLD) {
+    return null;
+  }
 
-  if (!isRecordedDisposition || confidencePercent >= LOW_RECORDED_DECISION_CONFIDENCE_THRESHOLD) {
+  if (selected.length === 0) {
     return null;
   }
 

@@ -26,7 +26,7 @@ export function formatCompareCostEstimateCell(value: unknown): CompareCostEstima
 
   if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
     return {
-      display: s,
+      display: "Unit not recorded",
       unitUnknown: true,
     };
   }

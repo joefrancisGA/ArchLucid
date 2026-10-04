@@ -22,11 +22,11 @@ const CHANGE_TYPE_INDEX_TO_KEY: readonly string[] = [
 ];
 
 const CHANGE_TYPE_LABELS: Readonly<Record<string, string>> = {
-  ResourceAdded: "Resource added",
-  ResourceRemoved: "Resource removed",
+  ResourceAdded: "Present in later snapshot (resource)",
+  ResourceRemoved: "Absent in later snapshot (resource)",
   ResourceModified: "Resource modified",
-  RelationshipAdded: "Relationship added",
-  RelationshipRemoved: "Relationship removed",
+  RelationshipAdded: "Present in later snapshot (relationship)",
+  RelationshipRemoved: "Absent in later snapshot (relationship)",
   IdentityChanged: "Identity changed",
   PermissionChanged: "Permission changed",
   NetworkExposureChanged: "Network exposure changed",
@@ -55,7 +55,8 @@ export const INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS: readonly { value: 
 
 export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string; label: string }[] = [
   { value: "", label: "All risk levels" },
-  { value: "none", label: "None" },
+  { value: "not-recorded", label: "Not recorded (unclassified)" },
+  { value: "none", label: "None (classified)" },
   { value: "unknown", label: "Unknown" },
   { value: "elevated", label: "Elevated" },
   { value: "critical", label: "Critical" },
@@ -98,6 +99,9 @@ export function formatInfraEvidenceChangeTypeLabel(changeType: string | number |
 
   return CHANGE_TYPE_LABELS[key] ?? key;
 }
+
+export const INFRA_EVIDENCE_DRIFT_SNAPSHOT_DIFF_HONESTY_LINE =
+  "Snapshot comparison only — labels do not delete or change resources in Azure." as const;
 
 export function isInfraEvidenceResourceRemovedChange(changeType: string | number | null | undefined): boolean {
   return normalizeInfraEvidenceChangeTypeKey(changeType) === "ResourceRemoved";
