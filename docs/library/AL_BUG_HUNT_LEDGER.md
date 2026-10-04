@@ -10030,13 +10030,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 thorough hunt (dry): cheap-disproved all four seeded candidates — in-memory terminal/capacity paths use pre-log plus post-log `_info` re-reads with cancel-during-log regressions; durable retry scheduling already dual post-log `GetAsync` (missing after-log test is coverage-only); invalid-payload `RetryCount+1` uses the prepare snapshot on a single-threaded poll with no reachable concurrent retry mutation; 74 Host.Core + 25 processor + 11 in-memory queue tests passed.
 
 2026-10-04 seed hunt (seed-only): re-read durable processor cancel re-read paths, in-memory retry/terminal branches, watchdog notify-failure handling, and integration DLQ retry pagination; no row met hunt-ready bar for same-run proof; persisted four bounded candidates; 74 Host.Core + 39 Api scoped tests passed.
 
@@ -10053,10 +10055,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — single `_info` re-read after the `moving to DLQ` `LogError` before writing `Failed`, while `BackgroundJobQueueProcessorHostedService` exhausted-retry uses dual post-log `GetAsync`; reachable when `MarkCanceledAsync` races between the post-log read and `Failed` assignment (cancel-during-log regression exists; cancel-between-reads window untested).
-- [ ] (candidate) `InMemoryBackgroundJobQueue` retry capacity-exhausted branch — single post-log `_info` re-read after the `pending capacity exhausted` `LogError` vs durable processor dual post-log `GetAsync` before `MarkFailedTerminalAsync` (same in-memory/durable parity shape as terminal failure).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry scheduling — no regression mirroring `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_after_invalid_payload_log` for cancel visible after the `scheduling retry` `LogWarning` (durable code already performs two post-log `GetAsync` calls; gap is test/process coverage only).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` invalid `WorkUnitJson` branch — `MarkFailedTerminalAsync` passes `row.RetryCount + 1` from the `TryPrepareQueuedJobAsync` snapshot rather than re-reading the live row retry count before terminal failure; reachable only if repository retry state changes between prepare and invalid-payload handling on the same poll.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — **valid-no-repro 2026-10-04 dry:** pre-log `_info` re-read before `LogError` plus post-log re-read before `Failed` assignment; `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read` covers cancel during log; cancel-between-reads on the single consumer thread matches prior retry-scheduling race classification.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue` retry capacity-exhausted branch — **valid-no-repro 2026-10-04 dry:** pre-log re-read before capacity `LogError` plus post-log re-read before terminal `Failed`; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` retry scheduling — **invalid 2026-10-04 dry:** product code already performs two post-log `GetAsync` cancel checks after `scheduling retry` `LogWarning`; missing mirrored regression is test coverage only, not a defect.
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` invalid `WorkUnitJson` branch — **invalid 2026-10-04 dry:** `row.RetryCount` comes from the same `TryPrepareQueuedJobAsync` claim on one processor thread with no reachable repository retry mutation before invalid-payload terminal failure on that poll.
 
 - [x] (proven) Job dequeue runs work without re-binding tenant scope from the job payload — `BackgroundJobWorkUnitExecutor` resolves scope via `BackgroundJobWorkUnitScopeResolver` and pushes `AmbientScopeContext` before run-scoped reads
 - [x] Leader-elected hosted service runs the same outbox drain on every replica â€” retired: intentional when `HostLeaderElection:Enabled` is false; default is enabled
