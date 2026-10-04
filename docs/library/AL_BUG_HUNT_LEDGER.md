@@ -7975,13 +7975,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 46
-- **bugs-found:** 8
+- **hunts:** 47
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — `/health/` trailing slash failed public health probe skip
+- **last-bug:** 2026-10-04 — segment-blind `/openapi` prefix skip in scope guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 thorough hunt (hit): promoted `/openapi` prefix skip candidate; `ShouldSkip` used `path.StartsWith("/openapi")`, skipping TB-304 for impostor paths like `/openapifoo`; aligned with peer middleware via `PathString.StartsWithSegments("/openapi")`; regression `InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path`; 76 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
 2026-10-04 seed hunt (hit): `IsPublicHealthProbePath` only matched exact `/health`, so `/health/` hit TB-304 on staging-like hosts; fixed with `IsRootHealthAggregateProbe` trim; regression `InvokeAsync_staging_host_skips_trailing_slash_root_health_path`; 75 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
@@ -8085,7 +8087,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Cookie-authenticated principal steers scope via `x-tenant-id` without bound claim — **cheap-disproof 2026-09-12 seed hunt #1956:** SAML session cookies use `DefaultSignInScheme` only; API `[Authorize]` resolves `DefaultAuthenticateScheme` (Bearer/ApiKey), not Cookies; `RequiresBoundScopeClaimsForHeaders` omission is unreachable for JSON API traffic.
 
 - [x] (proven) `IsPublicHealthProbePath` rejected `/health/` trailing-slash aggregate probe — **hit 2026-10-04:** `PathString.Equals("/health")` did not match `/health/`; staging-like hosts returned 403 before anonymous SQL/redis probe; `IsRootHealthAggregateProbe` trims trailing slash; regression `InvokeAsync_staging_host_skips_trailing_slash_root_health_path`.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware` `/openapi` prefix skip is segment-blind — **locus:** `ShouldSkip` uses `path.StartsWith("/openapi")` while peers use `StartsWithSegments`; **input:** staging-like host request to a root `/openapi*` path outside `MapOpenApi()`; **wrong outcome:** TB-304 skipped; **reachability:** `PipelineExtensions.BeforeSerilog.cs` maps anonymous `MapOpenApi()` only (typically `/openapi/v1.json`).
+- [x] (proven) `ScopeResolutionGuardMiddleware` `/openapi` prefix skip was segment-blind — **hit 2026-10-04:** `path.StartsWith("/openapi")` skipped TB-304 for `/openapifoo` impostor paths; `MapOpenApi()` only serves under the `/openapi/` segment (`/openapi/v1.json`); fixed with `pathString.StartsWithSegments("/openapi")`; regression `InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path`.
 - [x] (proven) `ScopeResolutionGuardMiddleware` `/health` prefix skip bypassed TB-304 on authorized health routes — **hit 2026-10-04:** `ShouldSkip` used `path.StartsWith("/health")`, skipping `/health/detailed` and `/health/diagnostics` so development-default JWT scope reached authorized probes while `/v1/*` was rejected; fixed with segment-bound `IsPublicHealthProbePath` for anonymous probes only; regressions `InvokeAsync_staging_host_rejects_development_default_tenant_claim_on_authorized_health_path` and `InvokeAsync_staging_host_does_not_skip_healthcare_prefixed_path`.
 - [x] (valid-no-repro) Single `x-tenant-id` header value with comma-separated GUIDs bypasses header-only escalation — **cheap-disproof 2026-10-04 seed hunt:** `TryParseHeaderGuid` cannot parse `"guid,guid"`; `ValidateHeaderOnlyScopeEscalation` returns Ok, but `HttpScopeContextProvider` also fails to parse so scope stays `ScopeSource.Default` and `ScopeResolutionGuard` rejects Default on production-like hosts; no cross-tenant steering on staging.
 - [x] (invalid) `RouteTenantScopeBindingFilter.HasPolicy` misses `PlatformTenantDeletionAuthority` when policy is filter-only — **cheap-disproof 2026-10-04 seed hunt:** tenant deletion uses class-level `[Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]` on `AdminTenantsController`; regression `OnActionExecutionAsync_platform_lifecycle_policy_skips_binding`.
