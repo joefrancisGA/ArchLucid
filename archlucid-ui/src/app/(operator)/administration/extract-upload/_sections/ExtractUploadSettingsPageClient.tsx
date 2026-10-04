@@ -62,6 +62,7 @@ import {
   EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE,
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
+  EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
   EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
@@ -196,6 +197,7 @@ function ExtractUploadSettingsPageClientInner() {
           hasInventoryOnFile={hasInventoryOnFile}
           extractorScriptVersion={extractorScriptVersion}
           associateRunId={associateRunId}
+          uploadBusy={upload.busy}
         />
 
         {!buyerPolishedShell ? (
@@ -384,6 +386,7 @@ function ExtractUploadSettingsPageClientInner() {
                       <AzureExtractorZipDropZone
                         ariaLabel={EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL}
                         busy={upload.busy}
+                        busyLabel={EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL}
                         testId="extract-upload-drop-zone"
                         hint={
                           folderZip.selectedFileLabel !== null ? (
@@ -468,7 +471,9 @@ function ExtractUploadSettingsPageClientInner() {
                       void demo.onTryDemoData();
                     }}
                   >
-                    Try with Demo Data
+                    {upload.busy
+                      ? EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL
+                      : "Try with Demo Data"}
                   </Button>
                 </div>
               </section>

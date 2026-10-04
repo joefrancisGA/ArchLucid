@@ -50,7 +50,7 @@ describe("AzureExtractorZipDropZone", () => {
     });
   });
 
-  it("shows progress while busy", () => {
+  it("shows in-target progress while busy without fading the surface", () => {
     render(
       <AzureExtractorZipDropZone
         ariaLabel="Upload ZIP"
@@ -61,6 +61,24 @@ describe("AzureExtractorZipDropZone", () => {
       />,
     );
 
-    expect(screen.getByTestId("drop-zone-progress")).toBeInTheDocument();
+    const surface = screen.getByTestId("drop-zone-surface");
+
+    expect(surface).toContainElement(screen.getByTestId("drop-zone-progress"));
+    expect(surface).toHaveTextContent("Uploading…");
+    expect(surface).not.toHaveTextContent("Drag and drop your inventory ZIP here");
+    expect(surface.className).not.toMatch(/opacity-60/);
+  });
+
+  it("shows idle drop copy when not busy", () => {
+    render(
+      <AzureExtractorZipDropZone
+        ariaLabel="Upload ZIP"
+        testId="drop-zone"
+        onZipSelected={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("drop-zone-surface")).toHaveTextContent("Drag and drop your inventory ZIP here");
+    expect(screen.queryByTestId("drop-zone-progress")).not.toBeInTheDocument();
   });
 });

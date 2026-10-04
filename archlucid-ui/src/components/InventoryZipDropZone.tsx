@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { UploadCloud } from "lucide-react";
 import { useId, useRef, useState, type ReactNode } from "react";
@@ -14,6 +14,8 @@ export type InventoryZipDropZoneProps = {
   ariaLabel: string;
   busy?: boolean;
   busyLabel?: string;
+  /** 0–100 when known; omit for indeterminate progress while busy. */
+  percent?: number | null;
   disabled?: boolean;
   hint?: ReactNode;
   testId?: string;
@@ -29,6 +31,7 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
     ariaLabel,
     busy = false,
     busyLabel = "Reading inventory package…",
+    percent,
     disabled = false,
     hint,
     testId,
@@ -43,6 +46,8 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
   const [dragActive, setDragActive] = useState(false);
 
   const isDisabled = disabled || busy;
+  const fadeWhenDisabledOnly = disabled && !busy;
+  const progressTestId = testId ? `${testId}-progress` : "inventory-zip-drop-progress";
 
   async function handleFile(file: File | null | undefined): Promise<void> {
     if (file === null || file === undefined || isDisabled) {
@@ -68,10 +73,11 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
         data-testid={testId ? `${testId}-surface` : "inventory-zip-drop-surface"}
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors",
-          dragActive
+          dragActive && !busy
             ? "border-neutral-400 bg-al-surface-raised dark:border-neutral-600"
             : "border-neutral-300 bg-neutral-50/80 hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-900/40 dark:hover:border-neutral-500",
-          isDisabled && "cursor-not-allowed opacity-60",
+          busy && "cursor-not-allowed",
+          fadeWhenDisabledOnly && "cursor-not-allowed opacity-60",
         )}
         onClick={() => {
           if (!isDisabled) {
@@ -118,13 +124,24 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
           void handleFile(file);
         }}
       >
-        <UploadCloud className="mb-2 h-8 w-8 text-neutral-500 dark:text-neutral-400" aria-hidden />
-        <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-          Drag and drop your inventory ZIP here
-        </p>
-        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          or click to browse (.zip{onFolderSelected !== undefined ? " or folder" : ""})
-        </p>
+        {busy ? (
+          <AzureExtractorUploadProgressBar
+            label={busyLabel}
+            percent={percent}
+            testId={progressTestId}
+            className="w-full max-w-md"
+          />
+        ) : (
+          <>
+            <UploadCloud className="mb-2 h-8 w-8 text-neutral-500 dark:text-neutral-400" aria-hidden />
+            <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+              Drag and drop your inventory ZIP here
+            </p>
+            <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              or click to browse (.zip{onFolderSelected !== undefined ? " or folder" : ""})
+            </p>
+          </>
+        )}
       </div>
       <input
         id={inputId}
@@ -176,12 +193,6 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
             Select extractor folder instead of ZIP
           </Button>
         </>
-      ) : null}
-      {busy ? (
-        <AzureExtractorUploadProgressBar
-          label={busyLabel}
-          testId={testId ? `${testId}-progress` : "inventory-zip-drop-progress"}
-        />
       ) : null}
       {hint}
     </div>

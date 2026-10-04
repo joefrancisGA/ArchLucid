@@ -19,6 +19,7 @@ import {
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+  EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   extractUploadSettingsPageSubtitle,
 } from "@/lib/extract-upload-settings-page-copy";
@@ -32,12 +33,18 @@ export type ExtractUploadSettingsPageHeaderProps = {
   readonly hasInventoryOnFile: boolean | null;
   readonly extractorScriptVersion: string | null;
   readonly associateRunId: string | null;
+  readonly uploadBusy?: boolean;
 };
 
 function inventoryStatusPresentation(
+  uploadBusy: boolean,
   baselineLoading: boolean,
   hasInventoryOnFile: boolean | null,
 ): { kind: EnterpriseStatusKind; label: string } | null {
+  if (uploadBusy) {
+    return { kind: "in-progress", label: EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL };
+  }
+
   if (baselineLoading && hasInventoryOnFile !== true) {
     return { kind: "in-progress", label: EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL };
   }
@@ -59,7 +66,11 @@ export function ExtractUploadSettingsPageHeader(
   const pathname = usePathname();
   const { productLine } = useProductLine();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
+  const inventoryStatus = inventoryStatusPresentation(
+    props.uploadBusy === true,
+    props.baselineLoading,
+    props.hasInventoryOnFile,
+  );
   const navHref = extractUploadSettingsNavHrefForPath(pathname);
 
   return (
