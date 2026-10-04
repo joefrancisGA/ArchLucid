@@ -89,7 +89,7 @@ export function buildAdvisoryScheduleListItemView(
     nextRunPrimary: next.primary,
     nextRunUtcSecondary: next.utcSecondary,
     lastRunPrimary: last.primary,
-    lastOutcome: " — ",
+    lastOutcome: "No runs yet",
     statusKind: schedule.isEnabled ? "ready" : "draft",
     statusLabel: schedule.isEnabled ? "Ready" : "Draft",
     isEnabled: schedule.isEnabled,
@@ -99,13 +99,13 @@ export function buildAdvisoryScheduleListItemView(
 
 export function summarizeExecutionOutcome(execution: AdvisoryScanExecution | undefined): string {
   if (execution === undefined) {
-    return " — ";
+    return "No runs yet";
   }
 
   const status = execution.status.trim();
 
   if (status.length === 0) {
-    return " — ";
+    return "Outcome not returned";
   }
 
   if (execution.errorMessage && execution.errorMessage.trim().length > 0) {

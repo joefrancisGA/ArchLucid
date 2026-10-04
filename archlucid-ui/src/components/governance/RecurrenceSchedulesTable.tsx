@@ -157,7 +157,7 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
           <EnterpriseTableHeaderCell>
             <span>Status</span>
             <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              Whether this schedule is currently active.
+              Auto-disabled only after five returned consecutive failures — a missing failure count is not a clean run.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>

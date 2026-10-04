@@ -21,10 +21,12 @@ export type RecurrenceStatusPresentation = {
 export function recurrenceRunStatusPresentation(
   schedule: ArchitectureReviewRecurrenceSchedule,
 ): RecurrenceStatusPresentation {
-  const lastStatus = schedule.lastRunStatus?.trim().toLowerCase() ?? "never";
-  const failures = schedule.consecutiveFailureCount ?? 0;
+  const failuresRaw = schedule.consecutiveFailureCount;
+  const failuresKnown = typeof failuresRaw === "number" && Number.isFinite(failuresRaw);
+  const failures = failuresKnown ? failuresRaw : 0;
+  const lastStatusRaw = schedule.lastRunStatus?.trim() ?? "";
 
-  if (!schedule.isEnabled && failures >= 5) {
+  if (!schedule.isEnabled && failuresKnown && failures >= 5) {
     return {
       kind: "danger",
       label: "Auto-disabled",
@@ -34,10 +36,16 @@ export function recurrenceRunStatusPresentation(
     };
   }
 
+  if (lastStatusRaw.length === 0) {
+    return { kind: "muted", label: "Last run status not returned" };
+  }
+
+  const lastStatus = lastStatusRaw.toLowerCase();
+
   if (lastStatus === "failed") {
     return {
       kind: "danger",
-      label: failures > 0 ? `Failed (${failures})` : "Failed",
+      label: failuresKnown ? (failures > 0 ? `Failed (${failures})` : "Failed") : "Failed (failure count not returned)",
       title: schedule.lastErrorMessage ?? undefined,
     };
   }
@@ -46,7 +54,11 @@ export function recurrenceRunStatusPresentation(
     return { kind: "ready", label: "Last run OK" };
   }
 
-  return { kind: "muted", label: "Never run" };
+  if (lastStatus === "never") {
+    return { kind: "muted", label: "Never run" };
+  }
+
+  return { kind: "muted", label: "Last run status not returned" };
 }
 
 export function scheduleStatusKind(

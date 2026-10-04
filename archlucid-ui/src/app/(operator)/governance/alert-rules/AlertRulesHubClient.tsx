@@ -63,7 +63,7 @@ function alertRulesHubTabLabel(tabId: AlertRulesHubTabId, count: number | undefi
   const baseLabel = TAB_CONFIG[tabId].label;
 
   if (count === undefined) {
-    return baseLabel;
+    return tabId === "rules" ? `${baseLabel} (Not returned)` : baseLabel;
   }
 
   return `${baseLabel} (${count})`;
@@ -93,7 +93,7 @@ function AlertRulesHubTabPanel(props: {
 
 function AlertRulesHubTabsList(): React.JSX.Element {
   const { tabCounts } = useAlertRulesHubRefresh();
-  const rulesCount = tabCounts.rules ?? 0;
+  const rulesCount = tabCounts.rules;
   const testAlertsDisabled = rulesCount === 0;
   const testAlertsDisabledReason = whyDisabledNeedsPrerequisite("at least one alert rule");
 
@@ -182,7 +182,7 @@ function AlertRulesHubTabShell(props: {
     rulesConfigChange,
     compositeRulesConfigChange,
   } = useAlertRulesHubRefresh();
-  const rulesCount = tabCounts.rules ?? 0;
+  const rulesCount = tabCounts.rules;
 
   useEffect(() => {
     if (props.activeTab === "test-alerts" && rulesCount === 0) {
@@ -195,7 +195,7 @@ function AlertRulesHubTabShell(props: {
     (id: string) => {
       const nextTab = alertRulesHubTabFromSearchParam(id);
 
-      if (nextTab === "test-alerts" && rulesCount === 0) {
+      if (nextTab === "test-alerts" && rulesCount === 0 && rulesCount !== undefined) {
         return;
       }
 

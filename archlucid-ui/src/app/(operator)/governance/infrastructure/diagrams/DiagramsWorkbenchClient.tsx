@@ -756,8 +756,9 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
+  const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
   const dataFlowHasNoConnections =
-    selectedMode === "dataFlow" && (metrics?.edgeCount ?? 0) === 0;
+    selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const renderInFlight = loadingPreview || loadingRender;
   const exportsDisabled =
     exportBusy
@@ -2503,14 +2504,18 @@ export function DiagramsWorkbenchClient() {
       ) : showGenericEmptyContent ? (
         <EnterpriseCompactEmptyState
           title={
-            dataFlowHasNoConnections
-              ? "This data-flow canvas is empty."
-              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
+            dataFlowEdgeCountUnknown
+              ? "Edge count not returned"
+              : dataFlowHasNoConnections
+                ? "This data-flow canvas is empty."
+                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={
-            dataFlowHasNoConnections
-              ? "The snapshot has inventory and no declared connection to draw."
-              : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
+            dataFlowEdgeCountUnknown
+              ? "Diagram metrics were not returned for this snapshot — an empty canvas does not mean zero edges."
+              : dataFlowHasNoConnections
+                ? "The snapshot has inventory and no declared connection to draw."
+                : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
           }
           testId="infra-diagrams-empty-content"
         />

@@ -14,7 +14,11 @@ export function GovernanceAssignedToMeFindingsNavBadge() {
     return <GovernanceAssignedToMeCountBlockedCallout failure={countQuery.failure} />;
   }
 
-  const count = countQuery.data ?? 0;
+  if (countQuery.isPending || countQuery.data === undefined) {
+    return null;
+  }
+
+  const count = countQuery.data;
 
   if (count <= 0) {
     return null;

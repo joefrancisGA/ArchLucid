@@ -2,30 +2,35 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  formatGraphRagDiagnosticCount,
+  formatGraphRagNeighborHitRate,
+  formatGraphRagPilotFloorDisposition,
+  GRAPH_RAG_NEIGHBOR_HIT_RATE_HELPER,
+  runGraphRagDiagnosticsStripHasSignal,
+} from "@/lib/runs/run-graph-rag-diagnostics-display";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
-
-function formatPercent(value: number): string {
-  return `${Math.round(value * 100)}%`;
-}
 
 type RunRetrievalGraphRagDiagnosticsStripProps = {
   readonly summary: RunRetrievalGroundingSummary;
 };
 
-/** Graph-RAG retrieval quality rollup behind run-detail technical disclosure (V1 §2.20). */
+/** Graph-RAG retrieval quality rollup behind run-detail technical disclosure (V1 §2.20, UU-521). */
 export function RunRetrievalGraphRagDiagnosticsStrip(
   props: RunRetrievalGraphRagDiagnosticsStripProps,
 ): ReactElement | null {
   const summary = props.summary;
-  const neighbors = summary.totalGraphRagNeighborsAdded ?? 0;
-  const seeds = summary.totalGraphRagSeedHits ?? 0;
-  const hitRate = typeof summary.graphRagNeighborHitRate === "number" ? summary.graphRagNeighborHitRate : 0;
-  const tokensIn = summary.totalRetrievalTokensIn ?? 0;
-  const pilotFloor = (summary.graphRagPilotFloorDisposition ?? "PASS").toUpperCase();
-  const qualityPosture = summary.graphRagQualityPosture?.toLowerCase() ?? null;
 
-  if (neighbors === 0 && seeds === 0 && tokensIn === 0)
+  if (!runGraphRagDiagnosticsStripHasSignal(summary)) {
     return null;
+  }
+
+  const neighborsLabel = formatGraphRagDiagnosticCount(summary.totalGraphRagNeighborsAdded);
+  const seedsLabel = formatGraphRagDiagnosticCount(summary.totalGraphRagSeedHits);
+  const hitRateLabel = formatGraphRagNeighborHitRate(summary.graphRagNeighborHitRate);
+  const tokensInLabel = formatGraphRagDiagnosticCount(summary.totalRetrievalTokensIn);
+  const pilotFloor = formatGraphRagPilotFloorDisposition(summary.graphRagPilotFloorDisposition);
+  const qualityPosture = summary.graphRagQualityPosture?.toLowerCase() ?? null;
 
   return (
     <div
@@ -38,13 +43,18 @@ export function RunRetrievalGraphRagDiagnosticsStrip(
       <p className="m-0 font-medium text-al-text-primary">Graph-RAG retrieval diagnostics</p>
       <dl className="m-0 mt-2 grid gap-1 sm:grid-cols-[minmax(10rem,auto)_1fr] sm:gap-x-4">
         <dt>Neighbor chunks added</dt>
-        <dd className="m-0 tabular-nums sm:justify-self-end">{neighbors}</dd>
+        <dd className="m-0 tabular-nums sm:justify-self-end">{neighborsLabel}</dd>
         <dt>Graph seed hits</dt>
-        <dd className="m-0 tabular-nums sm:justify-self-end">{seeds}</dd>
-        <dt>Neighbor hit rate</dt>
-        <dd className="m-0 tabular-nums sm:justify-self-end">{formatPercent(hitRate)}</dd>
+        <dd className="m-0 tabular-nums sm:justify-self-end">{seedsLabel}</dd>
+        <dt>
+          Neighbor hit rate
+          <span className={cn("block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+            {GRAPH_RAG_NEIGHBOR_HIT_RATE_HELPER}
+          </span>
+        </dt>
+        <dd className="m-0 tabular-nums sm:justify-self-end">{hitRateLabel}</dd>
         <dt>Retrieval tokens in</dt>
-        <dd className="m-0 tabular-nums sm:justify-self-end">{tokensIn}</dd>
+        <dd className="m-0 tabular-nums sm:justify-self-end">{tokensInLabel}</dd>
         <dt>Pilot floor</dt>
         <dd className="m-0 sm:justify-self-end">{pilotFloor}</dd>
         {qualityPosture ? (

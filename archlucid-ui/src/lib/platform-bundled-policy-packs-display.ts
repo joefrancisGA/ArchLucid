@@ -22,13 +22,13 @@ export const PLATFORM_BUNDLED_POLICY_PACK_CATEGORY_OPTIONS: ReadonlyArray<{
 
 export function formatPlatformBundledPolicyPackUtc(iso: string | null | undefined): string {
   if (iso == null || iso.trim().length === 0) {
-    return " — ";
+    return "Published time not returned";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";
