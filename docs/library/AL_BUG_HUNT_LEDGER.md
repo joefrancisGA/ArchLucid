@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotRunDeltaComputer.TryLoadFindingsSnapshotAsync` treated a persisted zero-row findings snapshot as unavailable (`null`), so buyer `pilot-run-deltas.json` kept stale agent severity buckets and top-finding pointers; empty snapshots now load authoritatively and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` sorted committed runs ascending then `Take(DefaultRunDetailCap)`, so tenants with more than 400 committed pilots in-window loaded the oldest runs for findings/timeline aggregation and dropped newer committed activity; cap now uses `TakeLast` so detail loading prefers the newest runs; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-04 seed hunt (seed→hit): `ui-webhooks-settings` — `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` matched `OnCallWebhook` with exact case while alert-routing API treats outbound webhook channel types case-insensitively, so rows such as `oncallwebhook` disappeared from `webhookRows` and the subscriptions table; normalized with trim + lowercase compare; regression `lists webhook subscriptions when API returns case-variant OnCallWebhook channelType`; 60 scoped webhooks folder tests passed.
@@ -11750,11 +11752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 34
-- **bugs-found:** 22
+- **hunts:** 35
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — value report run-detail cap loaded oldest committed runs
+- **last-bug:** 2026-10-04 — empty persisted findings snapshot left stale agent deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11877,7 +11879,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — malformed `isDemoTenant` JSON types throw from `GetBoolean` instead of returning the fail-closed validation result; input originates from the serialized deltas contract and needs a reachable non-boolean producer.
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
 - [x] (proven) `PilotValueReportService.BuildAsync` — run-detail cap used `Take` on ascending-sorted committed runs, omitting newest pilots from findings/timeline aggregation — **hit 2026-10-04 seed hunt:** `TakeLast(DefaultRunDetailCap)`; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`.
-- (candidate) `PilotRunDeltaComputer.ComputeAsync` — a persisted findings snapshot with zero rows is treated as unavailable, so stale agent-result findings can remain in buyer deltas instead of honoring an authoritative empty snapshot; input originates from a committed run linked to an empty persisted findings snapshot.
+- [x] (proven) `PilotRunDeltaComputer.ComputeAsync` / `TryLoadFindingsSnapshotAsync` — zero-row persisted snapshot treated as unavailable, leaving stale agent severity/top findings in buyer deltas — **hit 2026-10-04 seed hunt:** load empty snapshots and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`.
 - (candidate) `PilotValueReportService.BuildAsync` — an audit export containing exactly `AuditExportMaxRows` rows is marked truncated even when the repository has no additional rows, overstating incompleteness in the buyer value report; input originates from a tenant whose scoped audit export has exactly the configured cap.
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; no candidate met the same-run repro bar. Seeded two reachable receipt-gate candidates; 22 scoped BuyerProofPack/BoardPack tests passed.
@@ -11896,6 +11898,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read the same pilot report and delta-selection candidates; no candidate reached the hunt-ready bar or produced a failing repro, and no additional reachable mechanism was identified. No production code changed.
 
 2026-10-04 seed hunt (seed→hit): promoted run-detail cap candidate; proved oldest-first `Take` dropped the newest committed run from capped findings aggregation; fixed with `TakeLast`; regression above; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
+
+2026-10-04 seed hunt (seed→hit): promoted empty persisted findings-snapshot candidate; proved zero-row snapshots were nulled in `TryLoadFindingsSnapshotAsync`, leaving stale agent severity in buyer deltas; fixed authoritative empty snapshot handling; regression above; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
 
 ---
 
