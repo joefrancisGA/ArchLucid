@@ -181,6 +181,8 @@
 
 ## Zone: topology-proposal-merge
 
+2026-10-04 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.IntersectControls` compared raw control strings, so dual-model proposals with equivalent `RequiredControls` but different surrounding whitespace dropped the control and inflated disagreement; trim-aware intersection with dedupe; regression `Merge_intersects_required_controls_when_whitespace_differs_between_models`. Scoped topology-proposal-merge filter passed 1,599/1,599.
+
 2026-09-30 seed hunt (seed→hit): uncategorized inventory node indexed before a same-label Data node claimed `ds-{label}` via the omit-category both-prefix registration; `PreferCategorizedSyntheticAlias` restores the categorized node's primary prefix after indexing. Regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`. 1588 scoped topology-proposal-merge tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the four selected topology merge files and focused tests; no new mechanism-backed reachable candidate survived cheap-disproof; 1,590 focused topology-proposal-merge tests passed.
@@ -202,6 +204,8 @@
 2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` used an untrimmed endpoint membership pre-check, dropping agent-proposed relationships whose declared endpoint IDs had surrounding whitespace; reused the trim-aware endpoint validator and added `Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace`. The scoped topology-proposal-merge filter passed 1,590/1,590.
 
 2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.RelationshipKey` compared raw endpoint IDs, so two model proposals with equivalent relationships but different surrounding whitespace failed consensus intersection; trimmed relationship endpoints before key construction and added `Merge_intersects_relationships_when_models_pad_endpoint_ids_differently`. The scoped topology-proposal-merge filter passed 1,590/1,590.
+
+- [x] (proven) `TopologyProposalConsensusMerger.IntersectControls` — compared raw `RequiredControls` strings so padded control ids failed dual-model intersection — **hit 2026-10-04 seed hunt:** trim-aware control intersection with dedupe; regression `Merge_intersects_required_controls_when_whitespace_differs_between_models`.
 
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics` — omitted-category node registers both `svc-` and `ds-` prefixes and `TryAdd` blocks the later categorized node's primary alias — **hit 2026-09-30:** categorized primary prefix overwrites the fallback after the index is built; regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`.
 
@@ -2970,16 +2974,13 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1604
+- **hunts:** 1605
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 974
+- **bugs-found:** 975
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **bugs-found:** 974
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — consensus intersection ignored endpoint whitespace normalization
+- **last-bug:** 2026-10-04 — consensus intersection ignored required-control whitespace
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-13 seed hunt #2369 (seed→hit): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; proved `azurerm_chaos_studio_target.main` Compute-category node omitted `ds-` synthetic alias; regressions `FilterValidatedProposals_keeps_relationship_when_chaos_studio_target_node_has_compute_category_but_synthetic_datastore_id_used` and graph-merge parity.
 
