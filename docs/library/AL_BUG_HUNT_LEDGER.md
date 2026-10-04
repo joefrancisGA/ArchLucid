@@ -27262,7 +27262,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-30
@@ -27521,13 +27521,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — selective schedule clear / full execute run vanish immediately before ownership acquire
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-04 seed hunt (seed-only): re-read the selected execute orchestrator and ownership lease sources; repeated pre-acquire guards are covered by prior race regressions but no new wrong outcome met the hunt-ready bar, so two contract-dependent candidates were seeded without product changes.
 
 2026-10-03 seed hunt (seed-only): re-read the execute orchestrator, ownership lease service, renewal scope, and focused ownership tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering repeated pre-acquire validation, dynamic lease-option changes, renewal-scope admission races, release-result handling, and renewal cancellation/disposal ordering.
 
@@ -27601,6 +27603,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ExecuteSelectiveRunAsync` — run could commit or vanish after the final pre-acquire forced-task validation but before `AcquireAsync` — **hit 2026-09-27 seed hunt #23:** fifth `EnsureSelectiveExecuteStillEligibleAsync` immediately before acquire; regressions `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_commits_immediately_before_acquire` and `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
 - [x] (proven) `ExecuteSelectiveRunAsync` — live schedule could clear after the final pre-acquire `EnsureSelectiveExecuteStillEligibleAsync` but before `AcquireAsync` — **hit 2026-09-27 seed hunt #24:** sixth `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_final_eligibility_check`.
 - [x] (proven) `ExecuteRunAsync` — run row could vanish after the first `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` but before `AcquireAsync` — **hit 2026-09-27 seed hunt #24:** second pre-acquire eligibility reload immediately before acquire; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
+
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the ownership-enabled path performs the same pre-acquire eligibility reload twice before `AcquireAsync`; a reachable run transition between the two reads may cause an extra database read or fail closed before lease admission, pending a contract showing whether the repeated guard is intentional and observable.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — the ownership-enabled path repeats selective eligibility and forced-task resolution three times before `AcquireAsync`; a reachable schedule/run transition during these reads may cause unnecessary rejection or database load, pending a contract for the repeated race guards.
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
