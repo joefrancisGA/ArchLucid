@@ -1,4 +1,3 @@
-{"at":"2026-09-04T04:04:18.8155485Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T04:09:44.1275074Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T04:15:31.1598456Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T04:21:03.6135057Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8707,4 +8706,5 @@
 {"at":"2026-10-04T03:58:01.5559568Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-04T03:58:56.0306895Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
 {"at":"2026-10-04T04:03:44.4854208Z","zoneId":"api-authority-admin-controllers","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/;ArchLucid.Api/Controllers/Admin/"]}
+{"at":"2026-10-04T04:05:16.9920993Z","zoneId":"api-authority-admin-controllers","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/,ArchLucid.Api/Controllers/Admin/"]}
 {"at":"2026-10-04T04:07:40.6437268Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
