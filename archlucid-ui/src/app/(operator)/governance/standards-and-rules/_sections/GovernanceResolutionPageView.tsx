@@ -42,6 +42,7 @@ import {
 } from "@/lib/governance-standards-rules-page-copy";
 import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { formatGovernanceResolutionResultsSummaryLabel } from "@/lib/governance/governance-resolution-results-label";
 import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -343,7 +344,7 @@ export function GovernanceResolutionPageView(props: Props) {
       data-testid="standards-rules-scope-status"
     />
   );
-  const workingResultsLabel = formatGovernanceResolutionWorkingResultsLabel(m.loading, m.data);
+  const workingResultsLabel = formatGovernanceResolutionResultsSummaryLabel(m.loading, m.data);
 
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>

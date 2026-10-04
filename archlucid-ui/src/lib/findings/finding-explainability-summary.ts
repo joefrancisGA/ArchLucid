@@ -85,8 +85,8 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
 }
 
 export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | undefined | null): string {
-  if (evidenceRefs === undefined || evidenceRefs === null) {
-    return "Evidence sources not returned";
+  if (evidenceRefs === null || evidenceRefs === undefined) {
+    return "Sources not returned for this finding.";
   }
 
   const n = evidenceRefs.length;

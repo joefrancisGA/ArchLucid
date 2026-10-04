@@ -73,8 +73,11 @@ export type ReviewPackageSponsorHandoffStripProps = {
 export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {
-  const lowExtractionPresentation = resolveLowExtractionConfidenceCount(props.lowExtractionConfidenceCount);
-  const lowExtractionConfidenceCount = lowExtractionPresentation.value;
+  const lowExtractionConfidenceCountKnown =
+    props.lowExtractionConfidenceCount !== null && props.lowExtractionConfidenceCount !== undefined;
+  const lowExtractionConfidenceCount = lowExtractionConfidenceCountKnown
+    ? Math.max(0, Math.trunc(props.lowExtractionConfidenceCount!))
+    : 0;
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
   const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
     parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(null),
@@ -84,7 +87,7 @@ export function ReviewPackageSponsorHandoffStrip(
   const [docxExportBusy, setDocxExportBusy] = useState(false);
   const [extractionCaveatAcknowledged, setExtractionCaveatAcknowledged] = useState(false);
   const extractionGateSatisfied =
-    lowExtractionPresentation.known &&
+    lowExtractionConfidenceCountKnown &&
     isExtractionFidelityGateSatisfied({
       lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
       extractionCaveatAcknowledged,
@@ -160,15 +163,16 @@ export function ReviewPackageSponsorHandoffStrip(
         {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
-      {!lowExtractionPresentation.known ? (
+      {!lowExtractionConfidenceCountKnown ? (
         <p
-          className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="review-package-extraction-count-not-loaded"
+          className={cn("m-0 mt-3 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          data-testid="review-package-extraction-count-not-returned"
         >
-          {LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL} — sponsor export stays blocked until the count loads.
+          Low-confidence field count not returned — sponsor export stays blocked until the API returns this count.
         </p>
       ) : null}
-      {lowExtractionPresentation.known && lowExtractionConfidenceCount > 0 ? (
+      {lowExtractionConfidenceCountKnown && lowExtractionConfidenceCount > 0 ? (
         <div
           className="mt-3 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900/50 dark:bg-amber-950/30"
           data-testid="review-package-extraction-fidelity-gate"

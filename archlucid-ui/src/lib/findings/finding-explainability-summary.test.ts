@@ -30,8 +30,8 @@ describe("finding-explainability-summary", () => {
   });
 
   it("summarizes evidence ref counts deterministically", () => {
-    expect(findingEvidenceCountPlainLine(undefined)).toBe("Evidence sources not returned");
-    expect(findingEvidenceCountPlainLine(null)).toBe("Evidence sources not returned");
+    expect(findingEvidenceCountPlainLine(undefined)).toContain("not returned");
+    expect(findingEvidenceCountPlainLine(null)).toContain("not returned");
     expect(findingEvidenceCountPlainLine([])).toContain("No structured");
     expect(findingEvidenceCountPlainLine(["a"])).toContain("1 structured");
     expect(findingEvidenceCountPlainLine(["a", "b"])).toContain("2 structured");

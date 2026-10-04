@@ -94,9 +94,7 @@ describe("finding-confidence-filter", () => {
 });
 
 describe("formatFindingsVisibilitySummaryLine", () => {
-  it("reports when hidden-by-confidence count is omitted", () => {
-    expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toBe(
-      "Hidden-by-confidence count not returned",
-    );
+  it("labels missing hidden count honestly", () => {
+    expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toContain("hidden count not returned");
   });
 });

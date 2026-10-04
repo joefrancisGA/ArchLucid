@@ -18,7 +18,7 @@ export function formatGovernanceLineageWholeCount(value: unknown): string {
 export function formatGovernanceLineageCompletenessPercent(value: unknown): string {
   if (typeof value !== "number" || !Number.isFinite(value))
   {
-    return "Not recorded";
+    return "Not returned";
   }
 
   return formatRemediationFactoryPercentDisplay(value);
