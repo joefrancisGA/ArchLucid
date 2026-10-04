@@ -37,10 +37,6 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
-            else if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
-            {
-                verdict = TenantIsolationNegativeTestVerdict.Skip;
-            }
             else if (probe.RunListPayloadScannable == false
                      || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
             {
