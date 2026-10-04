@@ -26,13 +26,26 @@ internal static class AzureInventorySnapshotExternalSourceHostConsolidator
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
+        Dictionary<Guid, IReadOnlyDictionary<string, string>> propertiesByResourceRowId = snapshot.Properties
+            .Where(property => !string.IsNullOrWhiteSpace(property.PropertyKey)
+                && !string.IsNullOrWhiteSpace(property.PropertyValue))
+            .GroupBy(property => property.ResourceRowId)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyDictionary<string, string>)group
+                    .GroupBy(property => property.PropertyKey, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(
+                        keyGroup => keyGroup.Key,
+                        keyGroup => keyGroup.Last().PropertyValue!,
+                        StringComparer.OrdinalIgnoreCase));
         List<AzureExtractorExtendedResourceRow> extendedResources = snapshot.Resources
             .Select(resource => new AzureExtractorExtendedResourceRow
             {
                 AzureResourceId = resource.AzureResourceId,
                 ResourceType = resource.ResourceType,
                 Name = ReadResourceName(resource.AzureResourceId),
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal),
+                Properties = propertiesByResourceRowId.GetValueOrDefault(resource.ResourceRowId)
+                    ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
             })
             .ToList();
 
