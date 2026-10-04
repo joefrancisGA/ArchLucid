@@ -20,6 +20,10 @@ export type PolicyPacksMetricStripProps = {
 export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
   const { buyerPolishedShell, packCount, workspaceAssignmentCount, effective, selectedPackSummary } = props;
   const effectiveLayerCount = effective?.packs.length ?? 0;
+  const effectiveLayersDisplay =
+    effective === null
+      ? "Not returned"
+      : String(effectiveLayerCount);
   const effectiveLayersHelper = resolvePolicyPacksEffectiveLayersHelper({
     effectiveLayerCount,
     registeredPackCount: packCount,
@@ -44,7 +48,7 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{effective?.packs.length ?? 0}</p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{effectiveLayersDisplay}</p>
           <p
             className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}
             data-testid="policy-packs-effective-layers-helper"
@@ -61,7 +65,7 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
         </CardHeader>
         <CardContent className="pt-0">
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {selectedPackSummary !== undefined ? selectedPackSummary.name : " — "}
+            {selectedPackSummary !== undefined ? selectedPackSummary.name : "No pack selected"}
           </p>
           {selectedPackSummary !== undefined ? (
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>

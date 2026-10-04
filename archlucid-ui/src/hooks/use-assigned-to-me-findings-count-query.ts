@@ -25,7 +25,7 @@ export function useAssignedToMeFindingsCountQuery(options?: { readonly enabled?:
     queryFn: async () => {
       const payload = await getGovernanceAssignedToMeFindingsCount(projectId);
 
-      return payload.count ?? 0;
+      return typeof payload.count === "number" && Number.isFinite(payload.count) ? payload.count : null;
     },
     enabled,
     staleTime: OPERATOR_QUERY_STALE_MS,

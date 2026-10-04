@@ -76,20 +76,22 @@ import { SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_EMPTY_BODY } from "@/lib/s
 
 function ArchitectureHubFilterChip(props: {
   readonly option: { id: ArchitectureHubFilterId; label: string };
-  readonly count: number;
+  readonly count: number | null;
   readonly selected: boolean;
   readonly href: string;
 }): React.JSX.Element {
-  const disabled = props.option.id !== "all" && props.count === 0;
+  const countKnown = props.count !== null;
+  const disabled = props.option.id !== "all" && countKnown && props.count === 0;
   const disabledReasonId = `architecture-hub-filter-${props.option.id}-disabled-reason`;
-  const labelWithCount = `${props.option.label} (${props.count})`;
+  const labelWithCount =
+    countKnown && props.option.id !== "all" ? `${props.option.label} (${props.count})` : props.option.label;
 
   return (
     <span className="inline-flex">
       <FilterChip
         href={disabled ? undefined : props.href}
         scroll={false}
-        className={buyerFilterChipClass(props.selected, disabled, props.count === 0)}
+        className={buyerFilterChipClass(props.selected, disabled, countKnown && props.count === 0)}
         aria-current={props.selected ? "page" : undefined}
         aria-label={`Filter architectures: ${labelWithCount}`}
         aria-describedby={disabled ? disabledReasonId : undefined}
@@ -242,7 +244,11 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
             <ArchitectureHubFilterChip
               key={option.id}
               option={option}
-              count={filterCounts.get(option.id) ?? 0}
+              count={
+                filterCounts.has(option.id)
+                  ? (filterCounts.get(option.id) ?? 0)
+                  : null
+              }
               selected={activeFilter === option.id}
               href={architecturesHubFilterHrefFromSearch(currentSearch, option.id)}
             />
