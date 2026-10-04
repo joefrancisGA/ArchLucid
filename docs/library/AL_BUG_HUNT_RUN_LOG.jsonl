@@ -1,4 +1,3 @@
-{"at":"2026-09-04T03:45:33.4928566Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T03:51:16.2300386Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T03:58:00.7630994Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T04:04:18.8155485Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8696,8 +8695,9 @@
 {"at":"2026-10-04T03:23:00.1517666Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs,ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs,ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs"]}
 {"at":"2026-10-04T03:24:41.8146552Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs,ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs,ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs"]}
 {"at":"2026-10-04T03:27:06.6617382Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
-{"at":"2026-10-04T03:29:49.2482980Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
+{"at":"2026-10-04T03:29:49.248298Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
 {"at":"2026-10-04T03:36:00.5946233Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-04T03:38:24.7574367Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
-{"at":"2026-10-04T03:37:58.5470660Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/RecoverableOutboxFailureHandler.cs,ArchLucid.Host.Core.Tests/Coordination/RecoverableOutboxFailureHandlerTests.cs"]}
+{"at":"2026-10-04T03:37:58.547066Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/RecoverableOutboxFailureHandler.cs,ArchLucid.Host.Core.Tests/Coordination/RecoverableOutboxFailureHandlerTests.cs"]}
 {"at":"2026-10-04T03:41:27.5464189Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-10-04T03:45:50.1793324Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}

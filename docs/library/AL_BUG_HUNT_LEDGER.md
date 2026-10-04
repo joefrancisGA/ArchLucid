@@ -19043,7 +19043,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 23
+- **hunts:** 26
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-27
@@ -26913,6 +26913,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 seed hunt (seed-only): reread the changed shared failure handler, processor isolation shell, and sibling dead-letter paths after the fix; no fresh reachable mechanism-backed candidate emerged beyond the closed hook-isolation row. No code changes.
 
 2026-10-04 seed hunt (seed-only): repeated the selected coordination source review after the dead-letter hook isolation fix; no new reachable candidate emerged. No code changes.
+
+2026-10-04 seed hunt (seed-only): reread `RecoverableOutboxFailureHandler`, `RecoverableOutboxProcessorBase`, and the regression test after the fix; no new reachable candidate emerged. No code changes.
 
 ### Hypotheses
 
