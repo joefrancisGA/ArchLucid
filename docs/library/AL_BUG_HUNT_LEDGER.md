@@ -93,6 +93,8 @@
 
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read continue-from-existing-run cache manifests, pin scopes, and cache-hit finalization; no reachable wrong outcome emerged; 62 picker-scoped tests passed.
 
+2026-10-04 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read continue-run coalescing, pin scopes, and coalesced cache-hit finalization paths; no mechanism-backed reachable candidate emerged; 62 picker-scoped tests passed.
+
 2026-10-04 seed hunt (seed-only): `host-core-jobs` — re-read `WorkerHostDrainHostedService` shutdown/drain signaling and execute-ownership hosted registration boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
 2026-10-03 seed hunt (seed-only): `architecture-intelligence-orchestrator` — rechecked pinned expiry and deferred invalidation behavior; no reachable wrong outcome emerged; 62 picker-scoped tests passed.
@@ -27689,15 +27691,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-04 seed hunt (seed-only): reseeded architecture-intelligence-orchestrator; reviewed continue coalescing and cache-hit finalize paths; no new hunt-ready rows; 62 scoped tests passed.
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator/cache slice; 61 scoped tests passed; retained two concrete cache candidates for the next repro pass.
 
