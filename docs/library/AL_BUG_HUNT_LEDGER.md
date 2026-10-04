@@ -8,6 +8,8 @@
 
 2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` treated any non-empty `governanceFindingsResourceGroupKey` as exclusive disclosure state, so when queue filters removed the open resource group every remaining group rendered collapsed; ignore stale keys and clear the URL when the open group is absent from `displayRows`; regression `keeps remaining resource groups expanded when disclosure URL references a filtered-out group`; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
 
+2026-10-04 seed hunt (seed→hit): `application-pilots` — `BuyerProofPackCommitGuard.TryValidateDeltasJson` called `JsonElement.GetBoolean` on `isDemoTenant` and `runInCommittedStatus`, so string or object-shaped deltas JSON threw instead of fail-closed validation and could abort buyer proof ZIP generation; parse booleans safely and reject malformed `isDemoTenant`; regressions `TryValidateDeltasJson_accepts_string_boolean_is_demo_tenant_without_throwing` and `TryValidateDeltasJson_when_is_demo_tenant_malformed_returns_false_instead_of_throwing`; 24 scoped BuyerProofPack/BoardPack tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `WhyArchLucidSnapshotService.BuildAsync` set `AuditRowCountTruncated` when `GetByScopeAsync` returned exactly `AuditRowCountCap` rows even though no additional default-scope audit events existed, overstating truncation on the why-ArchLucid proof snapshot; over-fetch one row and mark truncated only when count exceeds the cap; regressions `BuildAsync_when_audit_rows_equal_cap_does_not_mark_truncated` and `BuildAsync_marks_audit_row_count_as_truncated_when_more_than_cap_exist`; 5 `WhyArchLucidSnapshotServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` marked `AuditExportTruncated` when the scoped audit export returned exactly `AuditExportMaxRows` rows even though no additional audit events existed, overstating incompleteness in the buyer value report; fetch `AuditExportMaxRows + 1` and treat truncation only when the repository returns more than the cap; regression `BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated`; 11 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
@@ -11764,11 +11766,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 37
-- **bugs-found:** 25
+- **hunts:** 38
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — why-ArchLucid snapshot audit count at exact cap falsely marked truncated
+- **last-bug:** 2026-10-04 — proof-pack deltas JSON boolean parsing threw on non-boolean isDemoTenant
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11888,7 +11890,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — non-GUID `runId` values skip the application-level sealed export receipt verification before packaging a buyer artifact; input originates from the public sponsor-proof-pack route's `{runId}` path and needs a committed non-GUID run fixture.
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — the returned ZIP filename includes the raw route `runId`, so a route token containing filename-significant characters could produce an unsafe `Content-Disposition` name; input originates from the public `{runId}` route and needs an ASP.NET `File` result/header repro.
 - (candidate) `BoardPackQuarterWindow.Resolve` — supplying only one of `PeriodStartUtc` or `PeriodEndUtc` silently discards the supplied bound and uses the full calendar quarter; input originates from the public board-pack request body and needs confirmation of the partial-window contract.
-- (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — malformed `isDemoTenant` JSON types throw from `GetBoolean` instead of returning the fail-closed validation result; input originates from the serialized deltas contract and needs a reachable non-boolean producer.
+- [x] (proven) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — malformed or string `isDemoTenant` JSON types threw from `GetBoolean` instead of fail-closed validation — **hit 2026-10-04 seed hunt:** `TryParseJsonBoolean` for `isDemoTenant` and `runInCommittedStatus`; regressions `TryValidateDeltasJson_accepts_string_boolean_is_demo_tenant_without_throwing` and `TryValidateDeltasJson_when_is_demo_tenant_malformed_returns_false_instead_of_throwing`.
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
 - [x] (proven) `PilotValueReportService.BuildAsync` — run-detail cap used `Take` on ascending-sorted committed runs, omitting newest pilots from findings/timeline aggregation — **hit 2026-10-04 seed hunt:** `TakeLast(DefaultRunDetailCap)`; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`.
 - [x] (proven) `PilotRunDeltaComputer.ComputeAsync` / `TryLoadFindingsSnapshotAsync` — zero-row persisted snapshot treated as unavailable, leaving stale agent severity/top findings in buyer deltas — **hit 2026-10-04 seed hunt:** load empty snapshots and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`.
@@ -11918,6 +11920,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WhyArchLucidSnapshotService.BuildAsync` — default-scope audit row count at exactly `AuditRowCountCap` marked truncated with no extra rows — **hit 2026-10-04 seed hunt:** over-fetch one row via `GetByScopeAsync`; regressions `BuildAsync_when_audit_rows_equal_cap_does_not_mark_truncated` and `BuildAsync_marks_audit_row_count_as_truncated_when_more_than_cap_exist`.
 
 2026-10-04 seed hunt (seed→hit): re-read pilot audit cap paths after value-report fix; proved the same `>= cap` truncation bug on why-ArchLucid snapshot; fixed; 5 `WhyArchLucidSnapshotServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
+
+2026-10-04 seed hunt (seed→hit): promoted `BuyerProofPackCommitGuard` deltas JSON boolean candidate; proved `GetBoolean` threw on string/object `isDemoTenant`; fixed with safe parsing; 24 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
