@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `ui-architecture-diagram` — promoted duplicate-label resolution: a system-to-system flow `Gateway -> API` attached to the stakeholder `API` node when a system `API` also existed because `findNodeIdByLabel` always picked the first case-insensitive match; resolve ambiguous labels using the upstream endpoint node kind and added regression `resolves duplicate labels to the endpoint in the same node kind as the source`; 51 focused lib architecture-diagram tests passed.
+
 2026-10-03 seed hunt (seed-only): `cli-terraform-evidence` — reread the static Terraform root list, report consumer, apply-saas ordering sources, and synchronization tests; no new reachable mechanism-backed candidate emerged beyond the already-closed drift and documentation rows. The scoped test build was blocked by an existing `CS1705` Azure.Core assembly-version conflict.
 
 2026-10-03 seed hunt (seed-only): `application-pilots` — reread buyer-proof, board-pack, receipt-gate, and delta paths; existing non-GUID receipt, filename, partial-window, malformed-JSON, and degraded-summary candidates remain reachable lenses, but no row met the failing-repro bar in this pass. The scoped test build was blocked by existing `ARCH006` / `ARCH006a` analyzer errors in `ArchLucid.Persistence`.
@@ -28624,16 +28626,16 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 7
-- **bugs-found:** 4
+- **hunts:** 8
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
 - [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
 - [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow endpoints containing the word `to`, including `Order to Cash -> Billing`, were split before the explicit arrow and dropped; known node-label fragments are now merged before endpoint resolution; regressions cover both `Token: API` and `Order to Cash -> Billing`.
-- (candidate) `findNodeIdByLabel` in `architecture-diagram-model.ts` — a generated-content flow naming two entities with the same case-insensitive label resolves both endpoint references to the first live node, potentially attaching the flow to the wrong entity; input originates from user-authored/generated `users-and-stakeholders` and `systems-and-services` sections plus `data-flows`.
+- [x] (proven) `findNodeIdByLabel` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — duplicate case-insensitive labels across stakeholder and system entities made `Gateway -> API` attach to the first `API` node (stakeholder) instead of the system service; ambiguous targets now prefer the same node kind as the resolved source; regression `resolves duplicate labels to the endpoint in the same node kind as the source`.
 - (candidate) `addFlowEdges` in `architecture-diagram-model.ts` — a data-flow entity with a non-empty `detail` is rewritten as `label -> detail` before parsing, so a structured row whose label is an endpoint and detail is endpoint-plus-description can conflate the target with the description; input originates from pipe-delimited generated-content rows in `## Data flows`.
 - (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
@@ -28642,4 +28644,3 @@ ABQ-09 churn hotspot.
 - [x] (proven) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returned only the seed and missed its one-hop neighbors because this helper compared raw strings; normalized comparisons and added regression `matches seed and outline endpoint ids case-insensitively`.
 - [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
 - [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
-- [ ] (candidate) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed by positional ids such as `edge_0` can target a different flow after generated flow ordering changes; input originates from device-local version restoration after edited architecture content changes.
