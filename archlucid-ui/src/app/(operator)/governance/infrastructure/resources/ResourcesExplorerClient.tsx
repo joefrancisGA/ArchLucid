@@ -581,7 +581,12 @@ export function ResourcesExplorerClient() {
               sortDirection={resourcesExplorerTableSortDirection("lastSeen", urlSortKey, urlSortAsc)}
               onSort={onSort}
             />
-            <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Actions</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Open this resource or show its identifier. These actions do not change Azure.
+              </span>
+            </EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>

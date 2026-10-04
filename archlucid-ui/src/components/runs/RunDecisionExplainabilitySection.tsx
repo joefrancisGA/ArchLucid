@@ -115,10 +115,30 @@ export function RunDecisionExplainabilitySection(props: {
           <EnterpriseTable ariaLabel="Review record decisions" className={OPERATOR_TYPOGRAPHY.helper}>
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Review record decision</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Selected</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Pipeline</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Review record decision</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The decision recorded in the sealed review record.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Selected</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The option recorded as the decision.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Confidence</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How strongly the recorded evidence supports this decision. It is not a probability that the decision is correct.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Pipeline</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The review pipeline that produced this decision.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>

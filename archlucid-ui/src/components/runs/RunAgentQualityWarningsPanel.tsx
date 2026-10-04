@@ -56,13 +56,48 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           <EnterpriseTable ariaLabel="AI quality warning traces" className={OPERATOR_TYPOGRAPHY.body}>
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Semantic</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Grounding</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell className="min-w-[12rem]">Reject reason</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell className="min-w-[12rem]">Threshold notes</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Agent</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The agent whose result triggered this warning or rejection.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Status</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Rejected means the result was blocked. Warned means the result remains available with a recorded quality concern.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Structural</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How complete the agent&apos;s structured result was. This is a ratio, not a percentage.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Semantic</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How well the result&apos;s meaning matched the quality check. A dash means no semantic score was recorded.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>
+                  <span>Grounding</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    How much of the result was supported by cited evidence. A dash means no grounding score was recorded.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell className="min-w-[12rem]">
+                  <span>Reject reason</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    The recorded reason a result was rejected. A dash means this row was warned rather than rejected.
+                  </span>
+                </EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell className="min-w-[12rem]">
+                  <span>Threshold notes</span>
+                  <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                    Which recorded quality thresholds this result missed.
+                  </span>
+                </EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>

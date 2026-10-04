@@ -74,9 +74,24 @@ export function RemediationFactoryRankedPathsTable(props: {
                 1 is the first path to inspect.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>What this means</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Band</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>What this means</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                A plain-language summary of why this path is ranked here.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Kind</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The kind of path this row describes.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Band</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The evidence-strength band for this path. It is not a percentage.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Score</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
