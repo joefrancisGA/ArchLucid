@@ -88,7 +88,8 @@ internal static class HostedAzureArmNextLinkValidator
         string normalizedIdentityResourceId = identityResourceId.Trim();
         string expectedPathPrefix = normalizedIdentityResourceId + FederatedIdentityCredentialsPathSuffix;
 
-        if (!uri.AbsolutePath.StartsWith(expectedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!uri.AbsolutePath.Equals(expectedPathPrefix, StringComparison.OrdinalIgnoreCase)
+            && !uri.AbsolutePath.StartsWith(expectedPathPrefix + "/", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
                 "Hosted Azure extractor stopped federated credential listing because nextLink targets a different identity.");

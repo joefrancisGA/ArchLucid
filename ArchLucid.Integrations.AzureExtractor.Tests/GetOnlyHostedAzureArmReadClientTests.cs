@@ -405,6 +405,58 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListFederatedCredentialsAsync_rejects_next_link_with_federated_credentials_prefix_collision()
+    {
+        const string identityResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami1";
+        string prefixCollisionNextLink =
+            $"https://management.azure.com{identityResourceId}/federatedIdentityCredentialsEvil?api-version=2023-01-31";
+        string firstPageBody = """
+                               {
+                                 "value": [],
+                                 "nextLink": "PREFIX_COLLISION_LINK"
+                               }
+                               """.Replace("PREFIX_COLLISION_LINK", prefixCollisionNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                Interlocked.Increment(ref requestCount);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(firstPageBody)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListFederatedCredentialsAsync(
+                "token-abc",
+                [
+                    new HostedAzureArmResourceRecord(
+                        "Microsoft.ManagedIdentity/userAssignedIdentities",
+                        identityResourceId,
+                        "uami1",
+                        "eastus",
+                        null,
+                        null,
+                        new Dictionary<string, object?>
+                        {
+                            ["principalId"] = "11111111-1111-1111-1111-111111111111",
+                        }),
+                ],
+                CancellationToken.None));
+
+        Assert.Contains("identity", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_resource_id()
     {
         const string factoryResourceId =
