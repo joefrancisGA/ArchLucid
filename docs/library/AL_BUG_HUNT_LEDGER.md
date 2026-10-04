@@ -23857,7 +23857,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
