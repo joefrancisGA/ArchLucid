@@ -1454,6 +1454,55 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListDiagnosticSettingsAsync_rejects_next_link_with_diagnostic_settings_prefix_collision()
+    {
+        const string storageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        string prefixCollisionNextLink =
+            $"https://management.azure.com{storageResourceId}/providers/Microsoft.Insights/diagnosticSettingsEvil?api-version=2021-05-01-preview";
+        string firstPageBody = """
+                               {
+                                 "value": [],
+                                 "nextLink": "PREFIX_COLLISION_LINK"
+                               }
+                               """.Replace("PREFIX_COLLISION_LINK", prefixCollisionNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                Interlocked.Increment(ref requestCount);
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(firstPageBody)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListDiagnosticSettingsAsync(
+                "token-abc",
+                [
+                    new HostedAzureArmResourceRecord(
+                        "Microsoft.Storage/storageAccounts",
+                        storageResourceId,
+                        "sa1",
+                        "eastus",
+                        null,
+                        null,
+                        new Dictionary<string, object?>()),
+                ],
+                CancellationToken.None));
+
+        Assert.Contains("resource", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListDiagnosticSettingsAsync_maps_workspace_targets_for_path_relevant_resources()
     {
         const string storageResourceId =
