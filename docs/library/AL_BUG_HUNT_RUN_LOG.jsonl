@@ -8708,3 +8708,4 @@
 {"at":"2026-10-04T04:07:40.6437268Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
 {"at":"2026-10-04T04:14:32.4205337Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx"]}
 {"at":"2026-10-04T04:15:53.0682599Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx"]}
+{"at":"2026-10-04T04:19:21.5513982Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx"]}

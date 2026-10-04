@@ -7067,11 +7067,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 33
-- **bugs-found:** 23
+- **hunts:** 34
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — deep-linked review exposed publish action before reasoning result existed
+- **last-bug:** 2026-10-04 — golden-test result exposed publish action intended only for reasoning output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7091,6 +7091,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — a deep-linked review populated `activeRunId` before any analysis result existed, enabling “Publish to findings/advisory”; the button now also requires non-null `runState`; regression `keeps publish disabled for a deep-linked review before analysis produces a result`.
 
 2026-10-04 seed→hit: promoted and proved the publish-without-result-state candidate; the focused repro initially failed because the publish gate checked only `activeRunId`, then passed after requiring `runState`. The full page-client suite passed 50/50.
+
+- [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — a completed golden test populated `runState` with `kind: "golden"`, enabling “Publish to findings/advisory” even though `publishRun` only publishes a reasoning run; the gate now requires `runState.kind === "reasoning"`; regression `keeps publish disabled for a golden test result`.
+
+2026-10-04 seed→hit: promoted and proved the golden-result publish candidate; the focused repro initially failed because the gate accepted any non-null `runState`, then passed after requiring a reasoning result. The full page-client suite passed 52/52.
 
 - [x] (invalid) `ArchitectureIntelligencePageClient` scope banner and review links — cheap-disproof 2026-10-03 thorough hunt: this component consumes `activeRunId` from `useArchitectureIntelligencePage`; URL parsing/normalization is outside the picked zone file, so a whitespace-only URL value is not a reachable input established here.
 - [x] (invalid) `ArchitectureIntelligencePageClient` publish action gate — cheap-disproof 2026-10-03 thorough hunt: same absent URL-normalization prerequisite; the component has no evidence that `activeRunId` can be whitespace-only at this boundary.
