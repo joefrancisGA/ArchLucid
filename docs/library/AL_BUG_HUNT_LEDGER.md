@@ -24828,7 +24828,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 294
+- **hunts:** 295
 - **last-hunt:** 2026-10-03
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
@@ -24843,6 +24843,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; no source-level candidate could meet the reachability bar. The focused filter ran 154 tests: 137 passed and 17 SQL-backed/default-double environment failures; no production files changed.
 
 2026-10-04 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; the ledger supplied no new reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
