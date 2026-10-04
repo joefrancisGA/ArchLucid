@@ -19,7 +19,7 @@ function formatSnapshotShortId(snapshotId: string): string {
   const trimmed = snapshotId.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   return trimmed.length > 8 ? `${trimmed.slice(0, 8)}…` : trimmed;

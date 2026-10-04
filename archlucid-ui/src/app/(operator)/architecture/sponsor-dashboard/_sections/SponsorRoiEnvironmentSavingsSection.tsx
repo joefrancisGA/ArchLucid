@@ -16,6 +16,24 @@ import {
 
 const SLICE_COLORS = ["#059669", "#2563eb", "#d97706", "#7c3aed", "#dc2626", "#64748b"];
 
+function finiteEnvironmentSavingsUsd(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return value;
+}
+
+function formatEnvironmentSavingsUsd(value: unknown): string {
+  const amount = finiteEnvironmentSavingsUsd(value);
+
+  if (amount === null) {
+    return "Amount not returned";
+  }
+
+  return `$${Math.round(amount).toLocaleString()}`;
+}
+
 /** Pie-style breakdown of estimated savings by environment tag. */
 export function SponsorRoiEnvironmentSavingsSection() {
   const savingsQuery = useSponsorRoiEnvironmentSavingsQuery();
@@ -57,15 +75,18 @@ export function SponsorRoiEnvironmentSavingsSection() {
         {!loading && failure === null && slices.length > 0 ? (
           <div className="space-y-3" data-testid="exec-roi-environment-pie">
             <div className="flex h-4 overflow-hidden rounded-full" aria-hidden="true">
-              {slices.map((slice, index) => (
-                <div
-                  key={slice.environment}
-                  style={{
-                    flex: `${Math.max(Number(slice.estimatedUsdSavings) || 0, 1)} 1 0%`,
-                    backgroundColor: SLICE_COLORS[index % SLICE_COLORS.length],
-                  }}
-                />
-              ))}
+              {slices
+                .map((slice, index) => ({ slice, index, savings: finiteEnvironmentSavingsUsd(slice.estimatedUsdSavings) }))
+                .filter((entry) => entry.savings !== null)
+                .map((entry) => (
+                  <div
+                    key={entry.slice.environment}
+                    style={{
+                      flex: `${Math.max(entry.savings!, 1)} 1 0%`,
+                      backgroundColor: SLICE_COLORS[entry.index % SLICE_COLORS.length],
+                    }}
+                  />
+                ))}
             </div>
             <ul className={cn("m-0 space-y-1 p-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {slices.map((slice, index) => (
@@ -77,7 +98,7 @@ export function SponsorRoiEnvironmentSavingsSection() {
                     />
                     {slice.environment}
                   </span>
-                  <span className="font-mono tabular-nums">${Math.round(Number(slice.estimatedUsdSavings) || 0).toLocaleString()}</span>
+                  <span className="font-mono tabular-nums">{formatEnvironmentSavingsUsd(slice.estimatedUsdSavings)}</span>
                 </li>
               ))}
             </ul>

@@ -118,7 +118,7 @@ export function FindingDetailPageView(props: Props) {
             ruleName: inspectPayload.decisionRuleName,
             ruleId: inspectPayload.decisionRuleId,
             severityLabel: severityHeadline,
-            evidenceRefCount: inspectPayload.evidence?.length ?? 0,
+            evidenceRefCount: inspectPayload.evidence == null ? null : inspectPayload.evidence.length,
             reasoningSummary: inspectPayload.reasoningSummary,
           });
 
