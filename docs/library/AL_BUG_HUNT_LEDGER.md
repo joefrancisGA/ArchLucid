@@ -25065,11 +25065,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 59
-- **bugs-found:** 51
+- **hunts:** 60
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — tenant auth domain recovery-admin remove missing-domain 500
+- **last-bug:** 2026-10-04 — quick scan safety audit Enum.Parse on corrupt snapshot mode
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25078,6 +25078,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-02 thorough hunt (dry): cheap-disproved the model-catalog evaluation evidence-size candidate; the persistence schema intentionally stores `EvidenceJson` as `NVARCHAR(MAX)`, and no concrete bounded-input failure or configured size contract was present to support a failing repro; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server.
 
 2026-10-04 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths. No candidate was promoted because the scoped controller test command was blocked before test discovery by pre-existing ARCH006/ARCH006a analyzer errors in unrelated persistence files. Seeded the verification-route error-mapping candidate for a future repro.
+
+2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `AdminQuickScanSafetyController.PutAsync` used `Enum.Parse` on post-mutation `snapshot.OperationalMode` for audit logging, so an unparseable snapshot string (e.g. contract/store skew) could throw after a successful override; resolve mode with `TryParse` falling back to the validated request mode; regression `PutAsync_returns_ok_when_snapshot_operational_mode_is_unparseable_but_request_mode_is_valid`; re-confirmed valid-no-repro on null clarification-answer values; 19 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
 
 2026-10-04 thorough hunt (hit): `api-authority-admin-controllers` — `TenantAuthDomainAdminController.RemoveRecoveryAdminAsync` let `RequireDomainAsync` `InvalidOperationException` bubble for an unknown route `normalizedDomain`; map to `400 ValidationFailed`; regression `RemoveRecoveryAdminAsync_returns_bad_request_when_domain_not_registered_for_tenant`; re-confirmed valid-no-repro on picker Quick Scan `Enum.Parse` and null clarification-answer candidates; 18 scoped Authority/Admin controller unit tests passed (5 SQL integration tests skipped — no SQL Server in cloud VM).
 
@@ -25093,7 +25095,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `TenantAuthDomainAdminController.Verification` `StartVerificationAsync` / `CheckVerificationAsync` — missing tenant-owned `normalizedDomain` surfaced `InvalidOperationException` as an unhandled 500 — **hit 2026-10-04 thorough hunt:** catch `InvalidOperationException` and return `BadRequestProblem` like `ProposeAsync`; regressions in `TenantAuthDomainAdminControllerVerificationTests`.
 
-- [x] (valid-no-repro) `AdminQuickScanSafetyController.PutAsync` — `Enum.Parse` on post-override `snapshot.OperationalMode` — **cheap-disproof 2026-10-04 thorough hunt:** `QuickScanSafetyOperationalAdminService.Map` always sets `OperationalMode` from `QuickScanSafetyOperationalMode.ToString()` after `ParseMode` validated the request; no out-of-band string can reach the audit parse without store corruption outside this controller path.
+- [x] (proven) `AdminQuickScanSafetyController.PutAsync` — `Enum.Parse` on post-override `snapshot.OperationalMode` for audit logging — **hit 2026-10-04 thorough hunt:** unparseable snapshot mode after successful `SetOverrideAsync` threw instead of returning the mutation response; `ResolveOperationalModeForAudit` uses `TryParse` with request-mode fallback; regression `PutAsync_returns_ok_when_snapshot_operational_mode_is_unparseable_but_request_mode_is_valid`.
 
 - [x] (valid-no-repro) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — null JSON answer values — **cheap-disproof 2026-10-04 thorough hunt:** `DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength` and `UnicodeTextValidation.IsValidUnicodeText` treat null/empty as valid at the controller gate; no unhandled null path was reproduced on the validation loop.
 
