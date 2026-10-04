@@ -27533,7 +27533,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -27566,6 +27566,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 thorough hunt (dry): revalidated the two repeated pre-acquire validation candidates; both remain intentional race guards with existing transition regressions, and the scoped ownership/orchestrator suite passed 54/54. No failing repro or code change.
 
 2026-10-04 thorough hunt (dry): repeated cheap-disproof of the same two pre-acquire validation candidates; existing run-deletion, commit-transition, and schedule-clear regressions cover the reachable races, and all 54 scoped tests passed. No failing repro or code change.
+
+2026-10-04 thorough hunt (dry): rechecked the same repeated pre-acquire validation candidates; no distinct wrong outcome or failing repro emerged, and all 54 scoped ownership/orchestrator tests passed. No code change.
 
 ### Hypotheses
 
