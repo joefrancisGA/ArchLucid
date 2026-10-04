@@ -31,7 +31,7 @@ export type CompareGovernanceDiffPanelProps = {
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
   if (ruleSetId === null) {
-    return " — ";
+    return "Rule set not returned";
   }
 
   if (ruleSetVersion !== null && ruleSetVersion.length > 0) {
