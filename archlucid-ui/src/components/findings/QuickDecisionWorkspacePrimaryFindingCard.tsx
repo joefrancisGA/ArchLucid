@@ -159,7 +159,12 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       </header>
       <dl className={cn("m-0 mt-4 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Owner</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">
+            <span>Owner</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The person recorded as responsible for this finding.
+            </span>
+          </dt>
           <dd
             className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200"
             data-testid={`finding-owner-${finding.findingId}`}
@@ -168,7 +173,12 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Confidence</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">
+            <span>Confidence</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              How strongly the cited evidence supports this finding. It is not a probability that the finding is correct.
+            </span>
+          </dt>
           <dd className="m-0 mt-0.5">
             {finding.confidenceLevel === "High" ||
             finding.confidenceLevel === "Medium" ||
@@ -180,13 +190,23 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Evidence</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">
+            <span>Evidence</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              How many evidence references support this finding.
+            </span>
+          </dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
             {evidenceRefCount} reference{evidenceRefCount === 1 ? "" : "s"}
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Decision state</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">
+            <span>Decision state</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The decision recorded for this finding. Opening this card does not record a new decision.
+            </span>
+          </dt>
           <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">
             {reviewStatus?.label ?? "Not recorded"}
           </dd>

@@ -281,11 +281,21 @@ export function FindingExplainabilityDialog({
                     </h3>
                     <dl className={cn("m-0 space-y-2 text-sky-950 dark:text-sky-50", OPERATOR_TYPOGRAPHY.helper)}>
                       <div>
-                        <dt className="font-semibold text-sky-900 dark:text-sky-200">Rule id</dt>
+                        <dt className="font-semibold text-sky-900 dark:text-sky-200">
+                          <span>Rule id</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            The rule that produced this conclusion.
+                          </span>
+                        </dt>
                         <dd className="m-0 font-mono">{data.evidence.ruleId}</dd>
                       </div>
                       <div>
-                        <dt className="font-semibold text-sky-900 dark:text-sky-200">Conclusion (from finding rationale)</dt>
+                        <dt className="font-semibold text-sky-900 dark:text-sky-200">
+                          <span>Conclusion (from finding rationale)</span>
+                          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                            The recorded conclusion, drawn from the finding rationale.
+                          </span>
+                        </dt>
                         <dd className="m-0 whitespace-pre-wrap leading-relaxed">{data.evidence.conclusion}</dd>
                       </div>
                       <div>

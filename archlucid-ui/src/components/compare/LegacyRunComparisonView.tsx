@@ -121,11 +121,31 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         <EnterpriseTable ariaLabel="Review-level diffs" className="mt-2">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Section</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Kind</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Whether this item was added, removed, or changed.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Section</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The part of the review this difference belongs to.
+                </span>
+              </EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Before</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>After</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Before</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The value recorded in the earlier review.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>After</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The value recorded in the later review.
+                </span>
+              </EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
@@ -182,11 +202,31 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
             <EnterpriseTable ariaLabel="Review manifest diffs" className="mt-2">
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
-                  <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Section</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Kind</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      Whether this item was added, removed, or changed.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Section</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The part of the review this difference belongs to.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Before</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>After</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>Before</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The value recorded in the earlier review.
+                    </span>
+                  </EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>
+                    <span>After</span>
+                    <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                      The value recorded in the later review.
+                    </span>
+                  </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Notes</EnterpriseTableHeaderCell>
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
