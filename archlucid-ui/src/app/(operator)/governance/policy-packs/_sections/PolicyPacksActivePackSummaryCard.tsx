@@ -93,9 +93,11 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
           {formatActivePolicyPackSummaryBody(packName, enforcedRuleCount)}
         </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Resolved active pack for this workspace scope — not every registered catalog pack.
-        </p>
+        {effective !== null && effective.packs.length > 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Resolved active pack for this workspace scope — not every registered catalog pack.
+          </p>
+        ) : null}
         <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
           <div>
             <dt className="text-al-text-secondary">Scope</dt>
