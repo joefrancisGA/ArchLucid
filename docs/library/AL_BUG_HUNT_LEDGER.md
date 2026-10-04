@@ -10211,10 +10211,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — consumed OTP return URL bypassed safe-path validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10274,6 +10274,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read the complete selected auth/proxy failure, storage, redirect, and matcher surfaces; no new reachable wrong outcome or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read the selected auth/proxy source index; no new reachable wrong outcome or bounded candidate emerged. No code changes.
 2026-10-03 seed hunt (seed-only): re-read the selected auth/proxy source surfaces; no hunt-ready row emerged. Persisted one candidate for pinned demo-run scope overriding bearer-derived scope; no code changes.
+2026-10-04 thorough hunt (dry): cheap-disproved pinned demo-run scope overriding bearer-derived scope on `/api/proxy/v1/architecture/run/{pinned-demo-run-id}/…`; merge matches `resolveServerScopeHeadersForRun` RSC parity and fixture-bound demo workspace GUIDs only; 176 scoped auth/proxy vitest tests passed; no code changes.
 
 - [x] (proven) `POST /api/auth/bff-session/refresh` — rejected refresh (`invalid_grant`) returned 401 without clearing HttpOnly BFF/CSRF cookies — **hit 2026-09-25 seed hunt (seed→hit):** stale expired session cookie persisted and kept blocking proxy reads until explicit DELETE; fixed with `buildBffSessionClearCookieHeaders` on rejection path; regression `clears BFF session cookies when the refresh token is rejected`
 - [x] (proven) `POST /api/auth/bff-session/activity` — absolute expiry (`Date.now() >= payload.exp`) returned 401 without clearing cookies while idle-timeout path already cleared — **hit 2026-09-25 seed hunt (seed→hit):** presenter/print keepalive on expired session left stale cookie blocking proxy reads; fixed with `buildBffSessionClearCookieHeaders` on absolute-expiry path; regression `clears BFF session cookies when the session is past absolute expiry`
@@ -10284,7 +10285,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `isPublicAnonymousProxyPath` / `isAnonymousMarketingProxyPath` OpenAPI parity — **valid-no-repro 2026-09-26 seed hunt:** re-grepped `paths.generated.ts` `/v1/marketing/*` (nine routes) and pre-auth `v1/auth/*` buyer flows against `proxy-anonymous-marketing-paths.ts`; UI `/api/proxy/` callers match; process risk only when new anonymous routes ship without allowlist update
 - [x] (invalid) `POST /api/auth/bff-session/refresh` — unparseable session cookie leaves stale HttpOnly cookies — **invalid 2026-09-26 seed hunt:** `refresh/route.ts` appends `buildBffSessionClearCookieHeaders` when `cookieValue` is present and `payload === null` (same bar as activity route)
 - [x] (invalid) Unsigned visitor stale `archlucid_operator_scope_v1` poisons anonymous marketing `/api/proxy` scope headers — **invalid 2026-09-26 seed hunt:** `clearOidcSession()` clears operator scope storage; registration-scope priority after sign-out covered in 2026-09-25 hit; marketing controllers are `[AllowUnscopedRoute]`
-- [ ] (candidate) `resolveProxyUpstreamScopeHeaders` merges pinned demo-run scope after bearer-derived tenant/workspace/project claims — input is an authenticated browser request to a reachable `/api/proxy/v1/architecture/run/{pinned-demo-run-id}/...` route; the upstream scope can be forced to the default demo tenant despite the bearer claims, requiring a repro against the API authorization/scope contract.
+- [x] (valid-no-repro) `resolveProxyUpstreamScopeHeaders` merges pinned demo-run scope after bearer-derived tenant/workspace/project claims — **valid-no-repro 2026-10-04 thorough hunt:** production-like proxy intentionally mirrors `resolveServerScopeHeadersForRun` so SQL-backed product-tour runs (`demo-workspace-scope.ts` manifest run ids only) send demo tenant/workspace/project headers on browser `/api/proxy` tails including `v1/architecture/run/{runId}/…`; bearer JWT scope differs during signed-in demo viewing; no arbitrary tenant pivot and no failing repro against proxy scope contract in-zone.
 
 2026-09-26 seed hunt (seed-only): reseeded ui-auth-proxy after unparseable-cookie hit wave; cheap-disproved trial/local dev-verify allowlist gap, refresh unparseable stale-cookie regression, and unsigned stale-operator marketing scope; reaffirmed OpenAPI marketing + pre-auth allowlist parity; 90 scoped proxy/BFF/return-path vitest tests passed.
 
