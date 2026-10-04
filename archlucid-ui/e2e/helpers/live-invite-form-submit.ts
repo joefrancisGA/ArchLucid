@@ -2,7 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
-import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-access";
+import { primePrivateBetaBrowserSessionIfJwtMode, waitForOperatorAuthMeProxyOk } from "./live-private-beta-access";
 
 const LIVE_ADMIN_USERS_TAB_PATH = "/administration/users?tab=users";
 
@@ -32,9 +32,12 @@ export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
     await gotoAdminUsersTabAndWaitForMe(page);
   }
 
+  await waitForOperatorAuthMeProxyOk(page);
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
   await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
-  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
+  await expect(async () => {
+    await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: 90_000 });
 }
 
 async function openInviteForm(page: Page): Promise<Locator> {

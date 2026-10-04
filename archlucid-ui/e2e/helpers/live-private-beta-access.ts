@@ -206,6 +206,21 @@ export async function writeJwtBrowserSession(page: Page, accessToken: string): P
   }
 }
 
+/** Waits for a successful operator `/me` via the UI proxy (JwtBearer CI access-path). */
+export async function waitForOperatorAuthMeProxyOk(page: Page, timeoutMs = 90_000): Promise<void> {
+  const matchesMe = (response: { url(): string; request(): { method(): string }; ok(): boolean }): boolean =>
+    response.url().includes("/api/proxy/api/auth/me") &&
+    response.request().method() === "GET" &&
+    response.ok();
+
+  try {
+    await page.waitForResponse(matchesMe, { timeout: timeoutMs });
+  } catch {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForResponse(matchesMe, { timeout: timeoutMs });
+  }
+}
+
 /** Clears OIDC session hints to simulate expiry / signed-out state. */
 export async function clearJwtBrowserSession(page: Page): Promise<void> {
   const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";

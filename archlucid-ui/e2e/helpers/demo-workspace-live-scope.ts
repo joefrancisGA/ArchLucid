@@ -19,6 +19,7 @@ import {
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
   stubEmptyArchitectureDraftListRoute,
+  waitForOperatorAuthMeProxyOk,
 } from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
@@ -178,6 +179,7 @@ export async function injectDefaultTenantOperatorScope(page: Page): Promise<void
   // Init script only runs on navigations after registration — reload once so scope is committed
   // before the first /administration/users RSC flight.
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await waitForOperatorAuthMeProxyOk(page);
 }
 
 /**

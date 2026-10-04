@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
-import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
+import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv, waitForOperatorAuthMeProxyOk } from "./helpers/live-private-beta-access";
 import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
@@ -32,6 +32,8 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
+    await waitForOperatorAuthMeProxyOk(page);
+
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("scim-identity-providers-vocabulary")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("scim-identity-providers-vocabulary-peer-link")).toBeVisible({
@@ -53,6 +55,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
+    await waitForOperatorAuthMeProxyOk(page);
     await expect(page).toHaveURL(/\/administration\/scim-provisioning(?:[/?#]|$)/, { timeout: 30_000 });
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
 
