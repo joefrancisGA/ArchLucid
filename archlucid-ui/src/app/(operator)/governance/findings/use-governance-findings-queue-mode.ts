@@ -93,7 +93,7 @@ export function useGovernanceFindingsQueueMode({
     isAssignedToMe,
     loading,
     loadFailed,
-    assignedToMeCountData: assignedToMeCountQuery.data,
+    assignedToMeCountData: assignedToMeCountQuery.data ?? undefined,
     assignedToMeLoadedFindingCount,
   });
 

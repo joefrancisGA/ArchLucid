@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -29,6 +30,7 @@ import {
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
 import { presentTenantHealthAdminCount } from "@/lib/tenant-health-admin-display";
+import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-severity";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
@@ -157,6 +159,7 @@ export function TenantHealthAdminPageClient() {
                 ) : (
                   <>
                     <SeverityTag
+                      severity={null}
                       kind={engagementScoreSeverityKind(row.engagementScore)}
                       label="Engagement risk"
                     />

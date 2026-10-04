@@ -313,7 +313,7 @@ export default function GovernanceFindingsQueueClient({
         onPickReviewForTriage={onPickReviewForTriage}
         onSetJobView={setJobView}
         assignedToMeCountMismatch={assignedToMeCountMismatch}
-        assignedToMeCountData={assignedToMeCountQuery.data}
+        assignedToMeCountData={assignedToMeCountQuery.data ?? undefined}
         assignedToMeLoadedFindingCount={assignedToMeLoadedFindingCount}
         scopeRecordProjectId={scopeRecord?.projectId}
         filterBarVisible={synopsis.filterBarVisible}

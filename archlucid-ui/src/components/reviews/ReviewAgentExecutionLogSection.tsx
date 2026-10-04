@@ -164,7 +164,7 @@ export function ReviewAgentExecutionLogSection({
                         {formatAgentExecutionConfidenceLabel(result)}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="tabular-nums">
-                        {result.findings === undefined
+                        {result.findings === undefined || result.findings === null
                           ? "Not returned"
                           : String(result.findings.length)}
                       </EnterpriseTableCell>

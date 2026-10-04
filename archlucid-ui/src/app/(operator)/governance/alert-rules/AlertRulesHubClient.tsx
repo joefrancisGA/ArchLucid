@@ -189,6 +189,7 @@ function AlertRulesHubTabShell(props: {
     compositeRulesConfigChange,
   } = useAlertRulesHubRefresh();
   const rulesCount = tabCounts.rules;
+  const rulesCountKnown = rulesCount !== undefined;
 
   useEffect(() => {
     if (props.activeTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {

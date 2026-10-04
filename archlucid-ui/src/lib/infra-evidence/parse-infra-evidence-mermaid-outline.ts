@@ -686,7 +686,10 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
-  const dropGateRows: InfraEvidenceMermaidOutline["dropGateRows"][number][] = [];
+  type InfraEvidenceMermaidDropGateRow = NonNullable<
+    InfraEvidenceMermaidOutline["dropGateRows"]
+  >[number];
+  const dropGateRows: InfraEvidenceMermaidDropGateRow[] = [];
   const ledgerDrops: InfraEvidenceMermaidLedgerDrop[] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();

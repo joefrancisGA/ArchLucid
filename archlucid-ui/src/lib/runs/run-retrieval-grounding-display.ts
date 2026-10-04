@@ -9,7 +9,7 @@ export function formatRunRetrievalCitationCoverage(citationCoverage: number | nu
 
 export function formatRunRetrievalGroundingScoresLabel(
   scoreMetadataMalformed: boolean,
-  scoreSummaries: ReadonlyArray<{ chunkId: string; score: number | null | undefined }>,
+  scoreSummaries: ReadonlyArray<{ chunkId: string; score?: number | null }>,
 ): string {
   if (scoreMetadataMalformed) {
     return "degraded";
