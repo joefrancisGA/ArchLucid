@@ -49,7 +49,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         }
         else
         {
-            verdict = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(ResolveObservedStatusCode(probe));
+            verdict = ResolveDenyReplayVerdict(probe);
         }
 
         return new TenantIsolationNegativeTestProbeResult
@@ -81,6 +81,33 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             return false;
 
         return observedOutcome.Contains("foreign runId present", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static TenantIsolationNegativeTestVerdict ResolveDenyReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        TenantIsolationNegativeTestVerdict fromStatusCode = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(
+            probe.ObservedStatusCode ?? 0);
+
+        if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
+            return fromStatusCode;
+
+        TenantIsolationNegativeTestVerdict fromOutcome =
+            TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(outcomeStatusCode);
+
+        return WorstIsolationVerdict(fromStatusCode, fromOutcome);
+    }
+
+    private static TenantIsolationNegativeTestVerdict WorstIsolationVerdict(
+        TenantIsolationNegativeTestVerdict left,
+        TenantIsolationNegativeTestVerdict right)
+    {
+        if (left == TenantIsolationNegativeTestVerdict.Fail || right == TenantIsolationNegativeTestVerdict.Fail)
+            return TenantIsolationNegativeTestVerdict.Fail;
+
+        if (left == TenantIsolationNegativeTestVerdict.Skip || right == TenantIsolationNegativeTestVerdict.Skip)
+            return TenantIsolationNegativeTestVerdict.Skip;
+
+        return TenantIsolationNegativeTestVerdict.Pass;
     }
 
     private static int ResolveObservedStatusCode(TenantIsolationNegativeTestManifestProbe probe)
