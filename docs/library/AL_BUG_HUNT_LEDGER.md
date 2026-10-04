@@ -2964,7 +2964,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1603
+- **hunts:** 1604
 - **last-hunt:** 2026-10-04
 - **bugs-found:** 973
 - **consecutive-dry-hunts:** 0
@@ -3183,9 +3183,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows emit duplicate `GraphEdge` objects that could create unstable duplicate committed edges — **cheap-disproof 2026-10-03 thorough hunt:** mapper intentionally emits one edge per relationship row, while `AgentTopologyProposalGraphMerge.AppendUniqueEdges` deduplicates by directed `(fromNodeId, toNodeId, edgeType)` before commit; 978 scoped edge-mapper/graph-merge tests passed.
 - [x] (proven) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — a relationship using the accepted synthetic form `svc-  api` / `ds-  sql` passed endpoint-index validation but was dropped by a preceding raw-key check; removed the inconsistent precheck and added `Merge_keeps_relationships_when_synthetic_endpoints_have_internal_whitespace`.
 - [x] (proven) `TopologyProposalConsensusMerger.IntersectRelationships` — equivalent relationships with surrounding endpoint whitespace failed the consensus intersection before endpoint validation; normalized trimmed and synthetic endpoint identities, with regression `Merge_intersects_relationships_when_endpoint_whitespace_differs_between_models`.
+- [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — consensus identity normalizes outer whitespace and synthetic prefixes but not other non-canonical ARM resource-ID separators; input is two reachable agent proposals whose relationship endpoints use equivalent ARM IDs with separator variation.
+- [ ] (candidate) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names are copied into generated `svc-`/`ds-` node IDs; input is a reachable topology proposal with an outer-whitespace service or datastore name, potentially persisting a malformed synthetic node identity.
 
 2026-10-04 seed hunt (hit): proved consensus merge dropped reachable relationships whose synthetic endpoint references contained internal whitespace, despite the shared endpoint validator accepting them; removed the dual-path raw lookup and passed 1,595 scoped topology merge tests.
 2026-10-04 seed hunt (hit): proved consensus intersection dropped equivalent relationships when the two agent models differed only by endpoint whitespace; normalized relationship-key endpoints and passed 1,596 scoped topology merge tests.
+2026-10-04 seed hunt (seed-only): re-read topology endpoint claiming, graph merge materialization, Terraform/ARM aliasing, and consensus identity after the normalization fixes; no new candidate met the same-run reachability and wrong-outcome bar. Seeded two bounded follow-ups; no product code changed.
 
 2026-09-27 seed hunt (seed→hit): reseeded arm-terraform-source-ids; proved declared alias synthetic-value normalization gap; 306 scoped edge-mapper/graph-merge tests passed.
 
