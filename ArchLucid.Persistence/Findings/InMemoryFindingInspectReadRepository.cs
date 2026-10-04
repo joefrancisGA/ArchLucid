@@ -90,8 +90,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ? TryPayloadElement(match)
             : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(match.Title, match.Rationale);
 
-        List<string> recommendedActions = match.RecommendedActions
-            .Where(static a => !string.IsNullOrWhiteSpace(a))
+        List<string> recommendedActions = FindingInspectReadRepositoryCore
+            .FilterRecommendedActions(match.RecommendedActions)
             .ToList();
 
         return new FindingInspectResponse

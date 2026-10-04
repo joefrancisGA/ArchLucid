@@ -57,4 +57,42 @@ public sealed class InMemoryFindingInspectReadRepositoryNormalizationTests
         response.AssignedToUserId.Should().BeNull();
         response.ReasoningTrace.Should().BeNull();
     }
+
+    [Fact]
+    public async Task GetInspectAsync_filters_recommended_actions_like_sql_inspect_join()
+    {
+        Guid runId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        string findingId = $"finding-demo-{runId:N}-primary";
+        ScopeContext scope = new();
+
+        Finding finding = new()
+        {
+            FindingId = findingId,
+            FindingType = "test",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Info,
+            Title = "Title",
+            Rationale = "Rationale",
+            RecommendedActions = ["\u200B", "  Rotate keys  ", "patch\u200Bgap"],
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingInspectReadRepository repository = new(authority.Object);
+
+        FindingInspectResponse? response = await repository.GetInspectAsync(scope, findingId, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.RecommendedActions.Should().Equal("Rotate keys");
+    }
 }
