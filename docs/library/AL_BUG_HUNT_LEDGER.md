@@ -5558,7 +5558,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-03
@@ -26915,6 +26915,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 seed hunt (seed-only): repeated the selected coordination source review after the dead-letter hook isolation fix; no new reachable candidate emerged. No code changes.
 
 2026-10-04 seed hunt (seed-only): reread the shared dead-letter handler, retry calculator, and options verifier after the concurrent direct-export dead-letter fix; no new reachable candidate emerged. No code changes.
+
+2026-10-04 seed hunt (seed-only): reread `RecoverableOutboxFailureHandler` after the recent dead-letter fixes; no new reachable candidate emerged. No code changes.
 
 2026-10-04 seed hunt (seed-only): reread `RecoverableOutboxFailureHandler`, `RecoverableOutboxProcessorBase`, and the regression test after the fix; no new reachable candidate emerged. No code changes.
 2026-10-04 seed hunt (hit): proved the direct destination-policy dead-letter path in `RunExportBlobPushOutboxProcessor` bypassed the shared best-effort handler; an audit failure after `RecordDeadLetterAsync` caused the base processor to schedule backoff for the same terminal row. Centralized cancellation-aware best-effort audit handling and added `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure`; export processor tests passed 10/10 and the Host.Core coordination scope passed 20/20.
