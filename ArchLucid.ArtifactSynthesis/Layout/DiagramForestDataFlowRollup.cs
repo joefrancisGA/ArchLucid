@@ -141,7 +141,7 @@ internal static class DiagramForestDataFlowRollup
         DiagramNode first = members[0];
         string typeCaption = DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(first)
             ?? "resource";
-        string title = $"{members.Count} {PluralizeTypeCaption(typeCaption)} [{ordinal}]";
+        string title = $"{members.Count} {PluralizeTypeCaption(typeCaption)}";
         int used = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)
             ? $"{used} used · {members.Count - used} no consumer found"
@@ -165,6 +165,7 @@ internal static class DiagramForestDataFlowRollup
             IncludeResourceGroupInCaption = false,
             HasPrivateEndpointAccess = members.Any(member => member.HasPrivateEndpointAccess),
             IsDataFlowRollup = true,
+            DataFlowRollupOrdinal = ordinal,
             DataFlowRollupMemberIds = members.Select(member => member.NodeId).ToList(),
             DataFlowRollupMemberNames = members.Select(BuildMemberName).ToList(),
             DataFlowRollupStatusLine = statusLine,

@@ -107,6 +107,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Stable one-based marker used to identify this rollup in exports.</summary>
+    public int DataFlowRollupOrdinal
+    {
+        get;
+        set;
+    }
+
     /// <summary>Original node ids represented by a data-flow rollup card.</summary>
     public List<string> DataFlowRollupMemberIds
     {

@@ -69,7 +69,7 @@ public static class DiagramForestLegendSvgEmitter
 
         foreach (DiagramNode rollup in input.RollupNodes)
         {
-            rows.Add(rollup.Label);
+            rows.Add($"[{rollup.DataFlowRollupOrdinal}] {rollup.Label}");
             rows.AddRange(rollup.DataFlowRollupMemberNames.Select(member => $"  {member}"));
         }
 

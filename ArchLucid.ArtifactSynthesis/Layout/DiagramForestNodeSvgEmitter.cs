@@ -143,6 +143,20 @@ public static class DiagramForestNodeSvgEmitter
 
         group.Add(text);
 
+        if (node?.IsDataFlowRollup == true)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(width - options.NodePaddingX)),
+                new XAttribute("y", Format(firstLineBaseline)),
+                new XAttribute("text-anchor", "end"),
+                new XAttribute("font-size", "10"),
+                new XAttribute("font-weight", "700"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape($"[{node.DataFlowRollupOrdinal}]")));
+        }
+
         int linesAfterName = metrics.NameLines.Count;
         if (metrics.DataFlowTypeLine is not null)
         {

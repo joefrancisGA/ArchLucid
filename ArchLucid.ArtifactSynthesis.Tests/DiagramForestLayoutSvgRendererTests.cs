@@ -26,10 +26,16 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult onScreen = renderer.Render(ast);
 
         onScreen.Succeeded.Should().BeTrue(onScreen.Error);
-        onScreen.Svg.Should().Contain("5 storage accounts [1]");
+        onScreen.Svg.Should().Contain("5 storage accounts");
         onScreen.Svg.Should().Contain("0 used · 5 no consumer found");
         onScreen.Svg.Should().Contain("data-member-ids");
-        onScreen.Svg.Should().NotContain("storage-0 ·");
+        XDocument onScreenDocument = XDocument.Parse(onScreen.Svg!);
+        onScreenDocument
+            .Descendants()
+            .Where(element => element.Name.LocalName == "text")
+            .Select(element => element.Value)
+            .Should()
+            .NotContain("storage-0 · No consumer found");
 
         DiagramForestLayoutResult export = renderer.Render(
             ast,

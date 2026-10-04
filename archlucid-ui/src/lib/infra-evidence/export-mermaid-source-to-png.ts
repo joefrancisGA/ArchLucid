@@ -33,10 +33,10 @@ function appendDataFlowRollupMemberLegend(svgMarkup: string): string {
 
   const rowHeight = 16;
   const topPadding = 12;
-  const rows = rollups.flatMap((rollup) => {
+  const rows = rollups.flatMap((rollup, index) => {
     const title = rollup.querySelector("title")?.textContent?.trim() ?? "Rollup";
     const members = (rollup.getAttribute("data-member-names") ?? "").split("|").filter(Boolean);
-    return [title, ...members.map((member) => `  ${member}`)];
+    return [`[${index + 1}] ${title}`, ...members.map((member) => `  ${member}`)];
   });
   const legendHeight = topPadding * 2 + rows.length * rowHeight;
   const legendGroup = parsed.createElementNS(SVG_NS, "g");
