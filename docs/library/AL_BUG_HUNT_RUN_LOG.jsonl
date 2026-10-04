@@ -8717,3 +8717,4 @@
 {"at":"2026-10-04T19:31:10.7536489Z","zoneId":"api-key-auth","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-04T19:41:52.1461547Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs,ArchLucid.Api.Tests/Security/ScopeResolutionGuardMiddlewareTests.cs)"]}
 {"at":"2026-10-04T19:49:58.8417694Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs,ArchLucid.Api.Tests/Security/ScopeResolutionGuardMiddlewareTests.cs)"]}
+{"at":"2026-10-04T19:56:19.6933423Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/AzureExtractor/AzureInventoryAdfDatasetLocationExtractor.cs,ArchLucid.Core.Tests/AzureExtractor/AzureInventoryAdfDatasetLocationExtractorTests.cs)"]}
