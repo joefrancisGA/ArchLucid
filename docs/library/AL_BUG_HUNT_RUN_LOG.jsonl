@@ -1,4 +1,3 @@
-{"at":"2026-09-04T22:24:55.9695342Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T22:30:36.2967951Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T22:38:35.5504834Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T22:43:36.3633432Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8733,3 +8732,4 @@
 {"at":"2026-10-04T22:11:46.5786054Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-04T22:16:39.7185637Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-04T22:22:16.3085095Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-04T22:26:44.7138216Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
