@@ -20,7 +20,7 @@ import { COMPOSITE_RULES_TAB_LABEL } from "@/lib/enterprise-controls-context-cop
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
@@ -93,8 +93,9 @@ function AlertRulesHubTabPanel(props: {
 
 function AlertRulesHubTabsList(): React.JSX.Element {
   const { tabCounts } = useAlertRulesHubRefresh();
-  const rulesCount = tabCounts.rules ?? 0;
-  const testAlertsDisabled = rulesCount === 0;
+  const rulesCountKnown = tabCounts.rules !== undefined;
+  const rulesCount = rulesCountKnown ? tabCounts.rules! : 0;
+  const testAlertsDisabled = rulesCountKnown && rulesCount === 0;
   const testAlertsDisabledReason = whyDisabledNeedsPrerequisite("at least one alert rule");
 
   return (
@@ -116,6 +117,11 @@ function AlertRulesHubTabsList(): React.JSX.Element {
           );
         })}
       </TabsList>
+      {!rulesCountKnown ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="alert-rules-count-not-returned">
+          Rule count not returned — test alerts stay available until the hub returns a count.
+        </p>
+      ) : null}
       {testAlertsDisabled ? (
         <WhyDisabledCtaHint
           id="alert-rules-test-alerts-disabled-hint"
@@ -182,27 +188,28 @@ function AlertRulesHubTabShell(props: {
     rulesConfigChange,
     compositeRulesConfigChange,
   } = useAlertRulesHubRefresh();
-  const rulesCount = tabCounts.rules ?? 0;
+  const rulesCountKnown = tabCounts.rules !== undefined;
+  const rulesCount = rulesCountKnown ? tabCounts.rules! : 0;
 
   useEffect(() => {
-    if (props.activeTab === "test-alerts" && rulesCount === 0) {
+    if (props.activeTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {
       props.onActiveTabChange("rules");
       writeAlertRulesHubTabToUrl("rules", props.scopedRunId);
     }
-  }, [props.activeTab, props.onActiveTabChange, props.scopedRunId, rulesCount]);
+  }, [props.activeTab, props.onActiveTabChange, props.scopedRunId, rulesCount, rulesCountKnown]);
 
   const onSelectTab = useCallback(
     (id: string) => {
       const nextTab = alertRulesHubTabFromSearchParam(id);
 
-      if (nextTab === "test-alerts" && rulesCount === 0) {
+      if (nextTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {
         return;
       }
 
       props.onActiveTabChange(nextTab);
       writeAlertRulesHubTabToUrl(nextTab, props.scopedRunId);
     },
-    [props.onActiveTabChange, props.scopedRunId, rulesCount],
+    [props.onActiveTabChange, props.scopedRunId, rulesCount, rulesCountKnown],
   );
 
   return (

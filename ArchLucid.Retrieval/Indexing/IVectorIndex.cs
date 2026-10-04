@@ -32,4 +32,7 @@ public interface IVectorIndex
         Guid workspaceId,
         Guid projectId,
         CancellationToken ct);
+
+    /// <summary>Removes indexed chunks by <see cref="RetrievalChunk.ChunkId" /> (e.g. stale ordinals after a shrink reindex).</summary>
+    Task RemoveChunkIdsAsync(IReadOnlyList<string> chunkIds, CancellationToken ct);
 }

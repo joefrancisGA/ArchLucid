@@ -14,6 +14,11 @@ describe("policyPackTypeDisplayLabel", () => {
   it("falls back to raw unknown types", () => {
     expect(policyPackTypeDisplayLabel("ExperimentalCustom")).toBe("ExperimentalCustom");
   });
+
+  it("labels empty pack type as not recorded", () => {
+    expect(policyPackTypeDisplayLabel("")).toBe("Pack type not recorded");
+    expect(policyPackTypeDisplayLabel("   ")).toBe("Pack type not recorded");
+  });
 });
 
 describe("isBundledPlatformDefaultPackType", () => {

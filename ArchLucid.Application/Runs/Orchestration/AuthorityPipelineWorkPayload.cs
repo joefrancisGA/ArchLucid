@@ -107,15 +107,15 @@ public sealed class AuthorityPipelineWorkPayload
 
         ContextIngestionRequest request = ContextIngestionRequest;
 
-        request.InlineRequirements = MaterializeStringList(request.InlineRequirements);
+        request.InlineRequirements = MaterializeReferenceStringList(request.InlineRequirements);
         request.Documents = MaterializeDocumentList(request.Documents);
         request.PolicyReferences = MaterializeReferenceStringList(request.PolicyReferences);
         request.TopologyHints = MaterializeReferenceStringList(request.TopologyHints);
         request.SecurityBaselineHints = MaterializeReferenceStringList(request.SecurityBaselineHints);
         request.InfrastructureDeclarations = MaterializeInfrastructureDeclarationList(request.InfrastructureDeclarations);
         request.RequiredCapabilities = MaterializeReferenceStringList(request.RequiredCapabilities);
-        request.Constraints = MaterializeStringList(request.Constraints);
-        request.Assumptions = MaterializeStringList(request.Assumptions);
+        request.Constraints = MaterializeReferenceStringList(request.Constraints);
+        request.Assumptions = MaterializeReferenceStringList(request.Assumptions);
     }
 
     private static List<string> MaterializeStringList(List<string>? values)
@@ -149,7 +149,7 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableIdentifierText(document.Name) && HasSubstantiveText(document.Content);
+        HasUsableIdentifierText(document.Name) && HasUsableIdentifierText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -164,6 +164,6 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableIdentifierText(declaration.Name) && HasSubstantiveText(declaration.Content);
+        return HasUsableIdentifierText(declaration.Name) && HasUsableIdentifierText(declaration.Content);
     }
 }

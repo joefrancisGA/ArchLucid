@@ -159,7 +159,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
   const visibilitySummaryLine = formatFindingsVisibilitySummaryLine(
     props.renderedFindingCount ?? props.findings.length,
     props.toolbarFilteredCount ?? props.findings.length,
-    props.hiddenByConfidenceCount ?? 0,
+    props.hiddenByConfidenceCount,
   );
   const jobViewToggle = (
     <FindingJobViewToggleBar

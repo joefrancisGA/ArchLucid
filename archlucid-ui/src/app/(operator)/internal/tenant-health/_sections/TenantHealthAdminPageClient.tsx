@@ -28,6 +28,7 @@ import {
   fetchAdminTenantHealthList,
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
+import { presentTenantHealthAdminCount } from "@/lib/tenant-health-admin-display";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
@@ -165,9 +166,9 @@ export function TenantHealthAdminPageClient() {
                   </>
                 )}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.governanceScore}</EnterpriseTableCell>
+              <EnterpriseTableCell>{presentTenantHealthAdminCount(row.governanceScore)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.pilotFunnelStage}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.runsLast7d}</EnterpriseTableCell>
+              <EnterpriseTableCell>{presentTenantHealthAdminCount(row.runsLast7d)}</EnterpriseTableCell>
               <EnterpriseTableCell>{formatUtc(row.lastActivityUtc)}</EnterpriseTableCell>
             </EnterpriseTableRow>
           ))}

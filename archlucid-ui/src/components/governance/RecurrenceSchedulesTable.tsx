@@ -178,9 +178,17 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
         {schedules.map((schedule) => {
           const statusKind = scheduleStatusKind(schedule);
           const runStatus = recurrenceRunStatusPresentation(schedule);
+<<<<<<< HEAD
           const failuresRaw = schedule.consecutiveFailureCount;
           const failuresKnown = typeof failuresRaw === "number" && Number.isFinite(failuresRaw);
           const autoDisabled = !schedule.isEnabled && failuresKnown && failuresRaw >= 5;
+=======
+          const failureCount = schedule.consecutiveFailureCount;
+          const failureCountKnown =
+            typeof failureCount === "number" && Number.isFinite(failureCount);
+          const autoDisabled =
+            !schedule.isEnabled && failureCountKnown && failureCount >= 5;
+>>>>>>> origin/master
           const isEditing = editingId === schedule.scheduleId;
 
           return (
