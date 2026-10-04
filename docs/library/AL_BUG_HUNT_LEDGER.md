@@ -3218,7 +3218,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **hunts:** 77
 - **bugs-found:** 63
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -27759,11 +27759,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 32
-- **bugs-found:** 20
-- **consecutive-dry-hunts:** 2
+- **hunts:** 33
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — whitespace source architecture query suppressed nested-route fallback
+- **last-bug:** 2026-10-04 — out-of-range wizard step remained non-canonical in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27773,10 +27773,12 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-03 thorough hunt (dry): cheap-disproved out-of-range `step` URL normalization because `useNewRunWizardSteps` clamps the rendered state correctly and no canonical-query contract requires rewriting the deep link; query-prefill retry was disproved because the example effect checks full-wizard mode and step 2 before marking its run-once ref, while accelerator/preset effects are immediately applicable; 5 focused wizard-hook tests passed.
 
-- [x] (valid-no-repro) `useNewRunWizardSteps` — an out-of-range `step` query remains non-canonical in the URL after rendering clamps it — **cheap-disproof 2026-10-03 thorough hunt:** `useWizardStepNavigation.goToStep` clamps every parsed URL value before rendering; no canonical-query contract requires rewriting the deep link; focused step-sync tests passed.
+- [x] (proven) `useNewRunWizardSteps` — an out-of-range `step` query remains non-canonical in the URL after rendering clamps it — **hit 2026-10-04 thorough hunt:** initial and popstate URL synchronization now rewrite numeric values above the active step count to the clamped index; regression `canonicalizes an out-of-range deep-linked step in the URL`.
 - [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — an example/preset query is consumed before the wizard reaches its required step — **cheap-disproof 2026-10-03 thorough hunt:** the example effect marks its ref only after `wizardMode === "full"` and `stepIndex === 2`; accelerator/preset effects independently guard invalid or baseline paths; focused prefill tests passed.
 
 2026-10-03 thorough hunt (dry): repeated cheap-disproof of the two review-intake URL/prefill candidates; 3 focused hook tests passed. The broader example/preset integration tests had 3 harness/assertion failures (stale “Evidence” label and missing mocked App Router).
+
+2026-10-04 thorough hunt (hit): proved `useNewRunWizardSteps` clamped an out-of-range `step` query only in rendered state while leaving the copied/bookmarked URL non-canonical; canonicalized invalid numeric step values during URL synchronization and passed the regression `canonicalizes an out-of-range deep-linked step in the URL`. The query-prefill candidate remained valid-no-repro; its focused hook test passed, while broader integration coverage retained the known stale-label/App-Router harness failures.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 

@@ -1,4 +1,4 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { renderHook, type ReactNode, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -114,5 +114,18 @@ describe("useNewRunWizardSteps", () => {
     rerender();
 
     expect(result.current.stepIndex).toBe(0);
+  });
+
+  it("canonicalizes an out-of-range deep-linked step in the URL", async () => {
+    wizardSearchParamsHarness.state.query = "step=999";
+    const { result } = renderHook(() => useNewRunWizardSteps(baseOptions), {
+      wrapper: WizardSearchParamsRerenderHost,
+    });
+
+    await waitFor(() => {
+      expect(result.current.stepIndex).toBe(8);
+    });
+
+    expect(wizardSearchParamsHarness.state.query).toBe("step=8");
   });
 });
