@@ -17,6 +17,10 @@ export type InsightDensityBandPresentation = {
 export const INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE =
   "Checklist coverage stays on the package when the insight-density gate demotes a finding." as const;
 
+/** Raw score is an engine metric; the band is what gates quick-decision prominence (UU-406). */
+export const INSIGHT_DENSITY_BAND_VS_SCORE_LINE =
+  "Band is decision-grade / review / generic. The integer is the engine score — not a buyer percentage." as const;
+
 const BAND_PRESENTATIONS: Readonly<Record<InsightDensityBandId, InsightDensityBandPresentation>> = {
   "decision-grade": {
     id: "decision-grade",
@@ -60,7 +64,7 @@ export function formatInsightDensityBandLabel(score: number | null | undefined):
     return null;
   }
 
-  return `${band.label} (${Math.trunc(score ?? 0)})`;
+  return `${band.label} band · score ${Math.trunc(score ?? 0)}`;
 }
 
 export { INSIGHT_DENSITY_GENERIC_THRESHOLD };

@@ -252,7 +252,10 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
     expect(screen.getByText("Where you could break this path.")).toBeInTheDocument();
-    expect(screen.getByText("Why this path scored the way it did. Not the table row number alone.")).toBeInTheDocument();
+    expect(screen.getByTestId("security-evidence-path-rank-lead")).toHaveTextContent(
+      "High privilege depth with public exposure.",
+    );
+    expect(screen.getByTestId("security-evidence-path-band-weakest-hop-limit")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
     expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent("At least one hop is inferred");
