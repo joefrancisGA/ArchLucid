@@ -94,6 +94,7 @@ function AlertRulesHubTabPanel(props: {
 function AlertRulesHubTabsList(): React.JSX.Element {
   const { tabCounts } = useAlertRulesHubRefresh();
   const rulesCount = tabCounts.rules;
+  const rulesCountKnown = rulesCount !== undefined;
   const testAlertsDisabled = rulesCount === 0;
   const testAlertsDisabledReason = whyDisabledNeedsPrerequisite("at least one alert rule");
 
