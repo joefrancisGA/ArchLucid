@@ -44,4 +44,20 @@ public sealed class TenantCostEstimateServiceTests
         result.EstimatedMonthlyUsdHigh.Should().Be(20);
         result.Tier.Should().Be(TenantTier.Standard);
     }
+
+    [SkippableFact]
+    public async Task TryGetEstimateAsync_unknown_tier_returns_null()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Tier = (TenantTier)99 });
+
+        BillingUnitRatesOptions rates = new() { Currency = "USD", StandardMonthlyUsdLow = 10, StandardMonthlyUsdHigh = 20, };
+
+        TenantCostEstimateService sut = new(tenants.Object, new BillingOptionsTestMonitor<BillingUnitRatesOptions>(rates));
+
+        TenantCostEstimate? result = await sut.TryGetEstimateAsync(Guid.NewGuid());
+
+        result.Should().BeNull();
+    }
 }
