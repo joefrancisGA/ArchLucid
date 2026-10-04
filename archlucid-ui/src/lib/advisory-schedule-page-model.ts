@@ -127,7 +127,7 @@ export function withLatestExecutionOutcome(
 
   return {
     ...view,
-    lastOutcome: summarizeExecutionOutcome(latest),
+    lastOutcome: executions === undefined ? "History not loaded" : summarizeExecutionOutcome(latest),
   };
 }
 

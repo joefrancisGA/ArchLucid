@@ -85,10 +85,12 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
         <div className="flex flex-wrap items-center gap-2">
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{packName}</p>
           <StatusTag kind={isEnabled ? "ready" : "neutral"} label={isEnabled ? "Enabled in workspace" : "Not in scope"} />
-          <StatusTag
-            kind="neutral"
-            label={packVersion === "Version not returned" ? packVersion : `Version ${packVersion}`}
-          />
+          {effective?.packs[0] !== undefined || selectedPack !== undefined ? (
+            <StatusTag
+              kind="neutral"
+              label={packVersion === "Version not returned" ? packVersion : `Version ${packVersion}`}
+            />
+          ) : null}
         </div>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
           {formatActivePolicyPackSummaryBody(packName, enforcedRuleCount)}
