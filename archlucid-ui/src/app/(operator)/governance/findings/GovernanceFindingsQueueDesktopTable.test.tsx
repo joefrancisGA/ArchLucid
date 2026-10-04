@@ -4,11 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable";
 import { GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS } from "@/app/(operator)/governance/findings/governance-findings-queue-virtualization";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
+
+let searchQuery = "";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return extendNextNavigationVitestMock(importOriginal);
+  return extendNextNavigationVitestMock(importOriginal, {
+    useSearchParams: () => new URLSearchParams(searchQuery),
+  });
 });
 
 vi.mock("@/hooks/use-agent-execution-mode", () => ({
@@ -34,8 +39,22 @@ function sampleRow(index: number): GovernanceFindingQueueRow {
   };
 }
 
+const resourceGroupA =
+  "/subscriptions/sub/resourceGroups/rg-a/providers/Microsoft.Storage/storageAccounts/sa1";
+const resourceGroupB =
+  "/subscriptions/sub/resourceGroups/rg-b/providers/Microsoft.Storage/storageAccounts/sa2";
+
+function rowForResource(index: number, resourceId: string): GovernanceFindingQueueRow {
+  return {
+    ...sampleRow(index),
+    resourceId,
+  };
+}
+
 describe("GovernanceFindingsQueueDesktopTable", () => {
   beforeEach(() => {
+    searchQuery = "";
+
     globalThis.ResizeObserver = class {
       observe(): void {}
       unobserve(): void {}
@@ -86,5 +105,30 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     const renderedRows = within(table).getAllByRole("row");
 
     expect(renderedRows).toHaveLength(rows.length + 1);
+  });
+
+  it("keeps remaining resource groups expanded when disclosure URL references a filtered-out group", () => {
+    const staleGroupKey = `resource:${resourceGroupA}`;
+    searchQuery = `${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=${encodeURIComponent(staleGroupKey)}`;
+
+    const { rerender } = render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[rowForResource(0, resourceGroupA), rowForResource(1, resourceGroupB)]}
+        buyerPolishedShell={false}
+        groupByResource
+      />,
+    );
+
+    rerender(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[rowForResource(1, resourceGroupB)]}
+        buyerPolishedShell={false}
+        groupByResource
+      />,
+    );
+
+    const remainingGroupKey = `resource:${resourceGroupB}`;
+    const remainingGroup = screen.getByTestId(`governance-findings-resource-group-${remainingGroupKey}`);
+    expect(remainingGroup).toHaveAttribute("open");
   });
 });
