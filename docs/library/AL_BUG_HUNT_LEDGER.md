@@ -6403,6 +6403,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline deny-status replay false-passed when `observedStatusCode` was 404 but `observedOutcome` still recorded `HTTP 200`; fixed `TenantIsolationNegativeTestOfflineRunner` to merge deny verdicts from status code and outcome text (fail-closed worst of Pass/Skip/Fail); regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`; 50 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — deny-status `observedStatusCode` 404 with `HTTP 200` outcome false-passed — **hit 2026-10-04 seed hunt:** `ResolveDenyReplayVerdict` worst-of status code and parsed outcome; regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`.
+
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay SKIPped exclude-run-id probes when manifest `verdict` was `skip` but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner` to derive exclude verdicts from observed status/outcome only (removed manifest skip short-circuit; scan-incomplete SKIP still comes from observed copy); regression `RunOffline_PassesExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeIsVerifiedAbsent`; 49 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — exclude-run-id manifest `verdict: skip` with verified absent list outcome SKIPped — **hit 2026-10-04 seed hunt:** derive exclude probes from observed status/outcome instead of manifest skip; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeIsVerifiedAbsent`.
@@ -6447,11 +6451,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 39
-- **bugs-found:** 20
+- **hunts:** 40
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — offline exclude replay honored manifest skip over verified absent outcome
+- **last-bug:** 2026-10-04 — offline deny replay ignored HTTP 200 outcome when status code was 404
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
