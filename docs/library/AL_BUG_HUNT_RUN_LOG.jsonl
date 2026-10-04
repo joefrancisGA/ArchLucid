@@ -1,7 +1,3 @@
-{"at":"2026-09-04T15:17:34.7937128Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-04T15:21:44.7965308Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-04T15:26:24.0529568Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-04T15:29:39.7736756Z","zoneId":"archlucid-core","outcome":"dry"}
 {"at":"2026-09-04T15:40:11.4091136Z","zoneId":"review-recurrence","outcome":"seed-only"}
 {"at":"2026-09-04T15:50:54.1226405Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-04T15:56:06.8294869Z","zoneId":"context-ingestion","outcome":"hit"}
@@ -8722,3 +8718,4 @@
 {"at":"2026-10-04T15:01:33.9186496Z","zoneId":"architecture-intelligence-orchestrator","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs,ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs)"]}
 {"at":"2026-10-04T15:09:38.9941148Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-04T15:15:03.6285204Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-04T15:31:50.5284299Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared"}

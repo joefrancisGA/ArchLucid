@@ -10219,7 +10219,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
@@ -10227,9 +10227,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-04 seed hunt (seed-only): re-read sign-in routing, email-OTP session, live-seat bootstrap redirect, and `proxy.ts` matcher boundaries after the demo-scope dry hunt; no row met the hunt-ready bar for same-run proof; seeded four bounded candidates; scoped auth/proxy vitest passed 218 tests with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
+
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `evaluateAuthSignInRouting` / `AuthSignInRoutingApiResponse.returnPath` — the routing evaluate API can return a normalized `returnPath` in JSON, but the in-zone sign-in client currently consumes only `ssoRequired` and `message`; a future caller that navigates using the response field without `isSafeReturnPath` could diverge from `AuthSignInReturnPathGuard` unless parity is enforced at the UI boundary.
+- [ ] (candidate) `proxy.ts` `config.matcher` — the catch-all negative lookahead skips any pathname ending in `.json`, so split-site `decideHostGateRedirect` and demo-run alias redirects never run for a `.json` suffix route; reachable only if an operator or marketing bookmark used a `.json` pathname segment.
+- [ ] (candidate) `readEmailOtpChallengeSession` — restores a session when `maskedEmail` and `email` are present but `challengeId` is absent (`null`); the sign-in flow blocks verify without a challenge id today, but tampered sessionStorage could surface a code step without a bound challenge until verify is attempted.
+- [ ] (candidate) `runSignedInDedicatedScopeBootstrap` — when `bootstrapDedicatedWorkspaceScope` fails while stored scope is still the sample workspace and the sample visit flag is inactive, the helper hard-navigates to `/auth/bootstrap`; reachable on signed-in live-seat entry (LS-010) and may evict the operator from a non-bootstrap desk path before dedicated scope is proven impossible vs transient bootstrap failure.
 
 - [x] (valid-no-repro) `isAnonymousMarketingProxyPathNormalized` treats every `v1/marketing/quick-scan/` and `v1/marketing/trust-center/` descendant as anonymous; the current OpenAPI catalog contains only the anonymous quick-scan/status/sample and trust-center evidence-pack descendants, and the UI proxy callers match that set. No concrete protected descendant exists to drive a failing repro; this remains process risk when a new marketing endpoint ships without an allowlist update.
 - [x] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path - invalid: server bearer stripped on allowlisted marketing paths; cookies are not copied upstream
