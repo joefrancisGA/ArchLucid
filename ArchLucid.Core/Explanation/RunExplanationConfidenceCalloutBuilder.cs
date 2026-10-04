@@ -208,7 +208,7 @@ public static class RunExplanationConfidenceCalloutBuilder
             return item.ValueKind == JsonValueKind.True ? 1 : 0;
 
         if (item.ValueKind == JsonValueKind.Number
-            && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out _))
+            && RunExplanationAggregateJsonReader.TryReadWholeNumber(item, out _))
         {
             return 1;
         }

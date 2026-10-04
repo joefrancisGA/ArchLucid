@@ -447,6 +447,22 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_ignores_negative_numeric_citation_entries()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": [-1]
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(0);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
     public void FromAggregateJson_flattens_nested_array_citations_for_disposition()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
@@ -530,6 +546,28 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.FaithfulnessSupportRatio.Should().Be(0.95);
         RunExplanationCostCalloutBuilder.TryParseDecisionCount(
             JsonDocument.Parse("""{"decisionCount":"1e20"}""").RootElement).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromAggregateJson_ignores_negative_whole_number_counts_without_throwing()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "decisionCount": -1,
+              "unresolvedIssueCount": -2,
+              "complianceGapCount": -3
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":-1}""").RootElement).Should().BeNull();
+        RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(
+            JsonDocument.Parse("""{"unresolvedIssueCount":-2}""").RootElement).Should().BeNull();
+        RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(
+            JsonDocument.Parse("""{"complianceGapCount":-3}""").RootElement).Should().BeNull();
     }
 
     [Fact]

@@ -38,6 +38,10 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
+function questionIdentity(question: SecureNowQuestion): string {
+  return `${normalize(question.subscriptionId)}|${normalize(question.resourceId)}|${normalize(question.questionKey)}`;
+}
+
 function isDismissed(question: SecureNowQuestion): boolean {
   return question.status === "Ignored" || question.status === "Dismissed";
 }
@@ -88,6 +92,11 @@ export function SecureNowQuestionQueue(
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+
+  useEffect(() => {
+    setVisitedQuestionKeys(new Set());
+    setSessionSkippedQuestionKeys(new Set());
+  }, [snapshotId]);
 
   const loadQuestions = useCallback(async () => {
     if (snapshotId.trim().length === 0) return;
@@ -141,7 +150,7 @@ export function SecureNowQuestionQueue(
   );
   const filteredQuestions = useMemo(
     () => filterQuestions(questions, filter).filter(
-      (question) => !sessionSkippedQuestionKeys.has(question.questionKey),
+      (question) => !sessionSkippedQuestionKeys.has(questionIdentity(question)),
     ),
     [filter, questions, sessionSkippedQuestionKeys],
   );
@@ -149,17 +158,18 @@ export function SecureNowQuestionQueue(
 
   useEffect(() => {
     if (!drawerOpen || currentQuestion == null) return;
+    const identity = questionIdentity(currentQuestion);
     setVisitedQuestionKeys((current) => {
-      if (current.has(currentQuestion.questionKey) || current.size >= VISIT_CAP) return current;
+      if (current.has(identity) || current.size >= VISIT_CAP) return current;
       const next = new Set(current);
-      next.add(currentQuestion.questionKey);
+      next.add(identity);
       return next;
     });
   }, [currentQuestion, drawerOpen]);
 
   const advanceWithoutPersistence = useCallback(() => {
     if (currentQuestion == null) return;
-    setSessionSkippedQuestionKeys((current) => new Set(current).add(currentQuestion.questionKey));
+    setSessionSkippedQuestionKeys((current) => new Set(current).add(questionIdentity(currentQuestion)));
     setSelectedAnswer(null);
     setReason("");
     setCurrentIndex((current) => Math.min(current, Math.max(filteredQuestions.length - 2, 0)));

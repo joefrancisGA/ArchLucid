@@ -24,7 +24,15 @@ internal static class DiagramForestDataFlowEdgeRouter
 
         if (from.ColumnIndex > to.ColumnIndex)
         {
-            return TryRoute(to, from, columns, allBounds, toNodeId, fromNodeId, options);
+            DiagramForestOrthogonalEdgeRouter.RouteResult? reverseRoute = TryRoute(
+                to,
+                from,
+                columns,
+                allBounds,
+                toNodeId,
+                fromNodeId,
+                options);
+            return reverseRoute is null ? null : ReverseRoute(reverseRoute);
         }
 
         IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> orderedColumns = columns
@@ -135,6 +143,19 @@ internal static class DiagramForestDataFlowEdgeRouter
             BuildPathData(segments),
             segments,
             UsedFallback: false);
+    }
+
+    private static DiagramForestOrthogonalEdgeRouter.RouteResult ReverseRoute(
+        DiagramForestOrthogonalEdgeRouter.RouteResult route)
+    {
+        List<(double X1, double Y1, double X2, double Y2)> segments = route.Segments
+            .Reverse()
+            .Select(segment => (segment.X2, segment.Y2, segment.X1, segment.Y1))
+            .ToList();
+        return new DiagramForestOrthogonalEdgeRouter.RouteResult(
+            BuildPathData(segments),
+            segments,
+            route.UsedFallback);
     }
 
     private static List<DiagramForestOrthogonalEdgeRouter.Rect> BuildObstacles(

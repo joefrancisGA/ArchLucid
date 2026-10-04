@@ -160,7 +160,15 @@ public static class TopologyProposalConsensusMerger
     }
 
     private static string RelationshipKey(ManifestRelationship relationship) =>
-        $"{relationship.SourceId}|{relationship.TargetId}|{relationship.RelationshipType}";
+        $"{NormalizeRelationshipEndpoint(relationship.SourceId)}|{NormalizeRelationshipEndpoint(relationship.TargetId)}|{relationship.RelationshipType}";
+
+    private static string NormalizeRelationshipEndpoint(string endpoint)
+    {
+        string trimmed = endpoint.Trim();
+
+        return TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
+               ?? trimmed;
+    }
 
     private static List<ManifestRelationship> PruneRelationshipsToDeclaredEndpoints(
         IReadOnlyList<ManifestService> services,
@@ -180,9 +188,6 @@ public static class TopologyProposalConsensusMerger
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            if (!endpointKeys.Contains(relationship.SourceId) || !endpointKeys.Contains(relationship.TargetId))
-                continue;
-
             if (!TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(relationship, endpointKeys))
                 continue;
 

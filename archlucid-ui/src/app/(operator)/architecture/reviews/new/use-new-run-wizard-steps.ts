@@ -124,7 +124,10 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
       urlStepIndex === null ? 0 : clampWizardStepIndex(urlStepIndex, stepDefinitions.length);
 
     goToStep(nextStep);
-  }, [urlStepIndex, goToStep, stepDefinitions.length]);
+    if (urlStepIndex !== null && nextStep !== urlStepIndex) {
+      syncStepToUrl(nextStep);
+    }
+  }, [urlStepIndex, goToStep, stepDefinitions.length, syncStepToUrl]);
 
   useEffect(() => {
     const syncStepFromUrl = (): void => {
@@ -135,6 +138,9 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
         parsedStep === null ? 0 : clampWizardStepIndex(parsedStep, stepDefinitions.length);
 
       goToStep(nextStep);
+      if (parsedStep !== null && nextStep !== parsedStep) {
+        syncStepToUrl(nextStep);
+      }
     };
 
     syncStepFromUrl();
@@ -143,7 +149,7 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
     return () => {
       window.removeEventListener("popstate", syncStepFromUrl);
     };
-  }, [goToStep, stepDefinitions.length]);
+  }, [goToStep, stepDefinitions.length, syncStepToUrl]);
 
   const macroStep: number = macroWizardStepIndex(stepIndex);
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);

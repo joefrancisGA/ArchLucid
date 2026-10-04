@@ -196,4 +196,192 @@ public sealed class TopologyProposalConsensusMergerTests
         result.MergedProposal.AddedRelationships.Should().BeEmpty(
             "service intersection dropped svc-worker so api→worker must not survive consensus merge");
     }
+
+    [Fact]
+    public void Merge_keeps_relationships_when_synthetic_endpoints_have_internal_whitespace()
+    {
+        static AgentTopologyProposal Proposal() =>
+            new()
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-  api",
+                        TargetId = "ds-  sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            };
+
+        TopologyProposalConsensusMergeResult result =
+            TopologyProposalConsensusMerger.Merge(Proposal(), Proposal());
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "worker",
+                    ServiceId = "svc-worker",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "  svc-api  ",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = primary.AddedServices,
+            AddedRelationships = primary.AddedRelationships,
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_endpoint_whitespace_differs_between_models()
+    {
+        static AgentTopologyProposal Proposal(string sourceId) =>
+            new()
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = sourceId,
+                        TargetId = "ds-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            };
+
+        TopologyProposalConsensusMergeResult result =
+            TopologyProposalConsensusMerger.Merge(Proposal(" svc-api "), Proposal("svc-api"));
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_models_pad_endpoint_ids_differently()
+    {
+        static List<ManifestService> Services() =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = "svc-api",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+            new ManifestService
+            {
+                ServiceName = "worker",
+                ServiceId = "svc-worker",
+                ServiceType = ServiceType.Worker,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "  svc-api  ",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
 }

@@ -117,6 +117,47 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_normalizes_surrounding_whitespace_on_trace_fallback_correlation()
+    {
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "find-trace-fallback",
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "compliance",
+                    Severity = FindingSeverity.Warning,
+                    Title = "AI finding",
+                    Rationale = "r",
+                    Trace = new ExplainabilityTrace
+                    {
+                        SourceAgentExecutionTraceId = "  abc123def456  ",
+                    },
+                },
+            ],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode findingNode =
+            graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Finding).Subject;
+        findingNode.AgentExecutionTraceId.Should().Be("abc123def456");
+        findingNode.Metadata[ProvenanceMetadataKeys.AgentExecutionTraceId].Should().Be("abc123def456");
+    }
+
+    [Fact]
     public void Build_full_chain_materializes_nodes_and_all_edge_types()
     {
         const string graphNodeId = "gn-1";

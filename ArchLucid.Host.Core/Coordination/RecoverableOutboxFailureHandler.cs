@@ -33,7 +33,7 @@ public static class RecoverableOutboxFailureHandler
         if (fault is ConflictException)
         {
             await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, cancellationToken).ConfigureAwait(false);
-            await onDeadLetterAsync().ConfigureAwait(false);
+            await InvokeDeadLetterHookBestEffortAsync(onDeadLetterAsync, cancellationToken).ConfigureAwait(false);
 
             return;
         }
@@ -43,7 +43,7 @@ public static class RecoverableOutboxFailureHandler
                 retryOptions.MaxAttemptsBeforeDeadLetter))
         {
             await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, cancellationToken).ConfigureAwait(false);
-            await onDeadLetterAsync().ConfigureAwait(false);
+            await InvokeDeadLetterHookBestEffortAsync(onDeadLetterAsync, cancellationToken).ConfigureAwait(false);
 
             return;
         }
@@ -59,5 +59,23 @@ public static class RecoverableOutboxFailureHandler
             .ConfigureAwait(false);
 
         await onRetryScheduledAsync().ConfigureAwait(false);
+    }
+
+    private static async Task InvokeDeadLetterHookBestEffortAsync(
+        Func<Task> onDeadLetterAsync,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await onDeadLetterAsync().ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The terminal outbox state is already persisted; audit/metric hooks must not abort batch isolation.
+        }
     }
 }

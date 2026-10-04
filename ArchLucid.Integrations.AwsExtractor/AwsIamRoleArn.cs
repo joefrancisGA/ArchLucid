@@ -38,6 +38,16 @@ internal static class AwsIamRoleArn
                 return false;
         }
 
+        int resourceStart = colonAfterAccount + 1;
+        ReadOnlySpan<char> resource = trimmed.AsSpan(resourceStart);
+
+        if (!resource.StartsWith("role/", StringComparison.OrdinalIgnoreCase)
+            || resource.Length == "role/".Length)
+        {
+            accountId = string.Empty;
+            return false;
+        }
+
         return true;
     }
 

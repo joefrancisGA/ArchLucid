@@ -22,6 +22,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyDefinitions?api-version={PolicyDefinitionsApiVersion}",
             subscriptionId,
             validateSubscriptionNextLink: true,
+            subscriptionListingRelativePath: null,
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -36,6 +37,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             $"https://management.azure.com/providers/Microsoft.Authorization/policyDefinitions?api-version={PolicyDefinitionsApiVersion}",
             scopeKey: "builtIn",
             validateSubscriptionNextLink: false,
+            subscriptionListingRelativePath: null,
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -52,6 +54,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
             subscriptionId,
             validateSubscriptionNextLink: true,
+            subscriptionListingRelativePath:
+                $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments",
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -60,6 +64,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         string initialUrl,
         string scopeKey,
         bool validateSubscriptionNextLink,
+        string? subscriptionListingRelativePath,
         CancellationToken cancellationToken)
     {
         List<JsonElement> documents = [];
@@ -134,7 +139,16 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                 {
                     if (validateSubscriptionNextLink)
                     {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, scopeKey);
+                        if (subscriptionListingRelativePath is null)
+                        {
+                            HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, scopeKey);
+                        }
+                        else
+                        {
+                            HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                                candidateNextLink,
+                                subscriptionListingRelativePath);
+                        }
                     }
                     else
                     {

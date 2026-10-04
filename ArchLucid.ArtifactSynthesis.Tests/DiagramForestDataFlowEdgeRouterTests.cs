@@ -81,6 +81,39 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
     }
 
     [Fact]
+    public void TryRoute_preserves_direction_for_a_right_to_left_data_flow_edge()
+    {
+        DiagramForestLayoutOptions options = new();
+        DiagramForestDataFlowColumnLayout.Result layout = BuildThreeColumnLayout(options);
+        DiagramForestDataFlowColumnLayout.NodePlacement source = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "source-node", StringComparison.Ordinal));
+        DiagramForestDataFlowColumnLayout.NodePlacement storage = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, "storage-node", StringComparison.Ordinal));
+        List<DiagramResourceGroupPacker.NodePlacementBounds> bounds = layout.Placements
+            .Select(placement => new DiagramResourceGroupPacker.NodePlacementBounds(
+                placement.Node,
+                placement.X,
+                placement.Y,
+                placement.Width,
+                placement.Height,
+                FrameCellId: null))
+            .ToList();
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult? route = DiagramForestDataFlowEdgeRouter.TryRoute(
+            storage,
+            source,
+            layout.Columns,
+            bounds,
+            storage.Node.NodeId,
+            source.Node.NodeId,
+            options);
+
+        route.Should().NotBeNull();
+        route!.Segments[0].X1.Should().BeApproximately(storage.X, 0.001d);
+        route.Segments[^1].X2.Should().BeApproximately(source.X + source.Width, 0.001d);
+    }
+
+    [Fact]
     public void Render_data_flow_source_to_storage_edge_avoids_application_card()
     {
         DiagramAst ast = BuildDataFlowRoutingAst();

@@ -243,7 +243,12 @@ export function ArchitectureIntelligencePageClient() {
               type="button"
               variant="outline"
               data-testid="architecture-intelligence-publish-button"
-              disabled={isBusy || activeRunId === null || blocksLlmExecution}
+              disabled={
+                isBusy ||
+                activeRunId === null ||
+                runState?.kind !== "reasoning" ||
+                blocksLlmExecution
+              }
               onClick={() => void publishRun()}
             >
               {loadingAction === "publish" ? "Publishing…" : "Publish to findings/advisory"}

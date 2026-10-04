@@ -130,6 +130,37 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });
 
+  it("keeps another resource with the same question key after skipping one", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      {
+        ...question,
+        resourceId: "/subscriptions/sub/other-resource",
+        questionText: "Should the other resource connect to a peer, or stand alone?",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
+    fireEvent.click(screen.getByRole("button", { name: "NotSure" }));
+
+    expect(
+      await screen.findByText("Should the other resource connect to a peer, or stand alone?"),
+    ).toBeInTheDocument();
+  });
+
+  it("clears skipped question state when the snapshot changes", async () => {
+    mocks.listQuestions.mockResolvedValue([question]);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
+    fireEvent.click(screen.getByRole("button", { name: "NotSure" }));
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+
+    expect(await screen.findByText(question.questionText)).toBeInTheDocument();
+  });
+
   it("requires a reason before ignoring a question", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
 
