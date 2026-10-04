@@ -233,7 +233,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!string.IsNullOrWhiteSpace(finding.AgentExecutionTraceId))
                 return finding.AgentExecutionTraceId.Trim();
 
-            return finding.Trace?.SourceAgentExecutionTraceId;
+            return finding.Trace?.SourceAgentExecutionTraceId?.Trim();
         }
 
         Guid AddNode(string key, ProvenanceNode node)

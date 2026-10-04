@@ -23854,11 +23854,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 37
-- **bugs-found:** 28
+- **hunts:** 38
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — decision provenance subgraphs omitted graph evidence for supporting findings
+- **last-bug:** 2026-10-04 — provenance trace fallback preserved surrounding whitespace
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23902,6 +23902,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-03 thorough hunt (dry): cheap-disproved the opaque artifact-hash whitespace candidate as lacking semantic-equivalence evidence and the padded agent-trace candidate against its trim implementation and regression; no hunt-ready row remained and no production code changed. Focused Provenance tests passed.
 2026-10-04 seed hunt (hit): proved `ProvenanceGraphAlgorithms.ExtractDecisionSubgraph` kept only edges incident to the decision, dropping `GraphNode -> Finding` evidence for supporting findings; included those graph-influence edges and added `ExtractDecisionSubgraph_includes_graph_evidence_for_supporting_findings`. The 49 scoped Provenance tests passed.
+2026-10-04 seed hunt (hit): promoted the reachable trace-fallback normalization candidate; `ProvenanceBuilder` trimmed direct agent trace ids but returned padded `ExplainabilityTrace.SourceAgentExecutionTraceId` unchanged. Fixed fallback normalization; regression `Build_normalizes_surrounding_whitespace_on_trace_fallback_correlation`. ProvenanceBuilder tests passed 16/16 and graph projector tests passed 7/7.
 2026-09-12 seed hunt #2162 (seed-only): reseeded knowledge-graph-provenance with `-Hint knowledge-graph-provenance`; no new hunt-ready rows.
 
 
@@ -23913,6 +23914,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — persisted artifact `ContentHash` values with surrounding whitespace — cheap-disproof 2026-10-03 thorough hunt: `ContentHash` is an opaque identity field in the selected provenance input; the selected files do not establish that surrounding whitespace is semantically equivalent, so no wrong outcome or failing repro is supported.
 - [x] (valid-no-repro) `ProvenanceBuilder.ResolveAgentExecutionTraceId` — a non-empty but padded `AgentExecutionTraceId` takes precedence over the trace fallback without trimming — cheap-disproof 2026-10-03 thorough hunt: `ResolveAgentExecutionTraceId` trims the primary value before fallback, and `Build_normalizes_surrounding_whitespace_on_agent_execution_trace_correlation` covers the reachable input.
 - [x] (proven) `ProvenanceGraphAlgorithms.ExtractDecisionSubgraph` — supporting findings were included, but their reachable `GraphNode -> Finding` evidence edges were omitted because the subgraph retained only edges incident to the decision — hit 2026-10-04 seed hunt: included `InfluencedByGraphNode` edges for supporting findings in either `SupportedBy` orientation; regression `ExtractDecisionSubgraph_includes_graph_evidence_for_supporting_findings`.
+- [x] (proven) `ProvenanceBuilder.ResolveAgentExecutionTraceId` — a padded `ExplainabilityTrace.SourceAgentExecutionTraceId` fallback was exposed unchanged in provenance node correlation metadata — **hit 2026-10-04 seed hunt:** trim the fallback path to parity with direct `Finding.AgentExecutionTraceId`; regression `Build_normalizes_surrounding_whitespace_on_trace_fallback_correlation`.
 
 - [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
 - [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes
