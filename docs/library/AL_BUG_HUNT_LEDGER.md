@@ -6154,6 +6154,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-04 seed hunt (seed→hit): promoted declared-priority negation gap for `anti-cost` workbook phrasing; proved `Anti-cost` priorities still preferred Cost in Security/Cost trade-offs because dimension-word matching hit the `cost` token inside `anti-cost`; extended `IsNegatedDimensionMention` with `anti-` and `without {dimension}` patterns; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_anti_cost`; exact Alternatives/ProposedChange filter passed 42/42.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `anti-{dimension}` and `without {dimension}` phrases not negated — **hit 2026-10-04 seed hunt:** `anti-cost` falsely preferred Cost-first resolution; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_anti_cost`.
+
 2026-10-04 seed hunt (seed→hit): promoted `FindRecommendationForDimension` attachment when an unverified Security Fail precedes a verified Security Fail plus Cost Fail; proved Security/Cost trade-offs attached to the evidence-only recommendation instead of the verified Security row; fixed `FindRecommendationForTradeOff` to prefer trade-off-eligible findings matched by `Problem`/title; regression `BuildRecommendations_security_cost_trade_off_attaches_to_verified_security_when_unverified_is_first`; exact Alternatives/ProposedChange filter passed 41/41.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForDimension` — `FirstOrDefault` on dimension attached trade-offs to the first recommendation when multiple Fail rows share a dimension — **hit 2026-10-04 seed hunt:** unverified Security finding listed before verified Security+Cost pair left trade-offs on evidence-only copy; `FindRecommendationForTradeOff` prefers provenance-eligible findings; regression `BuildRecommendations_security_cost_trade_off_attaches_to_verified_security_when_unverified_is_first`.
@@ -6219,7 +6223,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
 
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — negation covers `non-` / `no-` / `not-` plus `unreliability` but not `anti-{dimension}` or `without {dimension}` declared-priority phrases operators may enter in review workbooks; wrong outcome would be false Cost-first or Security-first resolution when those phrases appear.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` makes trade-off identity non-deterministic across rebuilds of the same finding set; reachable on every `BuildRecommendations` call and may break diff/telemetry keyed by stable trade-off ids (needs consumer citation before hunt-ready promotion).
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — copies full `declaredPriorities` into each recommendation's `Dependencies` even when trade-off resolution already consumed priorities; reachable on multi-finding reviews and may overstate per-recommendation dependency edges in exported manifests.
 
@@ -6250,11 +6253,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 40
+- **hunts:** 41
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 17
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — trade-offs attached to unverified Security recommendation when verified Security row followed
+- **last-bug:** 2026-10-04 — `anti-cost` priorities falsely preferred Cost in trade-offs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
