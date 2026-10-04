@@ -57,7 +57,9 @@ public static class DiagramNodeHumanCaptionFactory
         string resourceName = string.IsNullOrWhiteSpace(node.Label)
             ? node.NodeId
             : MermaidDiagramRenderer.EscapeLabel(node.Label);
-        string? typeCaption = DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+        string? typeCaption = node.IsDataFlowRollup
+            ? null
+            : DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
         string combined = string.IsNullOrWhiteSpace(typeCaption)
             ? resourceName
             : $"{resourceName} ({typeCaption})";
