@@ -5097,6 +5097,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-04 seed hunt (seed→hit): `finding-inspect-sql` — `DapperFindingInspectReadRepository.MapInspectResponse` copied `ModelDeploymentName`, `ModelAlias`, `PromptTemplateVersion`, and `ReasoningTraceDigestSha256` without `NormalizeInspectDisplayText`, so persisted zero-width/format characters could reach the inspect API as misleading model metadata while mute reason and reasoning trace were sanitized; apply display normalization on those fields (in-memory inspect parity); regression `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters`; 422 scoped FindingInspectReadModelMapper/Sql/RepositoryCore tests passed.
+
 ## Zone: finding-inspect-sql
 
 - **id:** finding-inspect-sql
@@ -5105,11 +5107,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 73
-- **bugs-found:** 16
+- **hunts:** 74
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-26 — undefined insight-density TINYINT storage blocked typed-payload fallback on inspect
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — inspect model metadata skipped display-text normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5124,8 +5126,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `FindingInspectReadSql.FollowUpBatch` — trace-rule rows are ordered only by `tra.SortOrder`; persisted ties could make `ReadSingleOrDefaultAsync<string>()` return nondeterministic rule text for the same inspect request. Reachability is the SQL-selected `FindingTraceRulesApplied` rows associated with an inspected finding.
 - (candidate) `FindingInspectReadSql.FollowUpBatch` — related-node rows are ordered only by `frn.SortOrder`; persisted ties could reorder evidence items between identical inspect reads. Reachability is the SQL-selected `FindingRelatedNodes` rows associated with an inspected finding.
 
-- (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ModelDeploymentName` and `PromptTemplateVersion` are copied without the display-text normalization used for `MuteReason`, `ReasoningTrace`, and `AssignedToUserId`; a persisted value containing a zero-width/control character could reach the inspect response as misleading metadata. Reachability is the SQL-selected `FindingRecords` fields and the finding-inspect API response.
-- (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ReasoningTraceDigestSha256` is copied without shape or display normalization while the trace text is normalized; a malformed persisted digest could be presented as a valid-looking evidence fingerprint. Reachability is the SQL-selected `FindingRecords.ReasoningTraceDigestSha256` field and the inspect response.
+- [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — model metadata and digest fields skipped `NormalizeInspectDisplayText` — **hit 2026-10-04 seed hunt:** sanitize `ModelDeploymentName`, `ModelAlias`, `PromptTemplateVersion`, and `ReasoningTraceDigestSha256`; in-memory inspect parity; regression `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters`.
 
 - [x] Inspect read returns a finding whose tenant does not match the request scope Î“Ã‡Ã¶ fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
 - [x] Mapper drops evidence fields so inspect shows success with empty trail Î“Ã‡Ã¶ retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
