@@ -166,6 +166,27 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             }
 
             logger.LogError("Job {JobId} has invalid WorkUnitJson; failing permanently.", LogSanitizer.Sanitize(jobId));
+
+            current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
+            current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
             await repository.MarkFailedTerminalAsync(jobId, "Invalid job payload.", row.RetryCount + 1, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
