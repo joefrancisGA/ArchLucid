@@ -329,4 +329,59 @@ public sealed class TopologyProposalConsensusMergerTests
 
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_models_pad_endpoint_ids_differently()
+    {
+        static List<ManifestService> Services() =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = "svc-api",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+            new ManifestService
+            {
+                ServiceName = "worker",
+                ServiceId = "svc-worker",
+                ServiceType = ServiceType.Worker,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "  svc-api  ",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
 }

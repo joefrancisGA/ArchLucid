@@ -197,6 +197,8 @@
 
 2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` used an untrimmed endpoint membership pre-check, dropping agent-proposed relationships whose declared endpoint IDs had surrounding whitespace; reused the trim-aware endpoint validator and added `Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace`. The scoped topology-proposal-merge filter passed 1,590/1,590.
 
+2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.RelationshipKey` compared raw endpoint IDs, so two model proposals with equivalent relationships but different surrounding whitespace failed consensus intersection; trimmed relationship endpoints before key construction and added `Merge_intersects_relationships_when_models_pad_endpoint_ids_differently`. The scoped topology-proposal-merge filter passed 1,590/1,590.
+
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics` — omitted-category node registers both `svc-` and `ds-` prefixes and `TryAdd` blocks the later categorized node's primary alias — **hit 2026-09-30:** categorized primary prefix overwrites the fallback after the index is built; regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`.
 
 2026-09-29 seed hunt #3055 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows; cheap-disproof closed #3051×#3054 diagonal for mixed node-id/ARM combined `endpointAliases` with **hybrid** relationships when node-id alias targets, ARM alias values, **and** the direct relationship ARM endpoint all use uppercase casing; fourteen regressions under prefix `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_`; 1412 scoped topology-proposal-merge tests passed.
@@ -2966,7 +2968,10 @@
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 1604
 - **last-hunt:** 2026-10-04
-- **bugs-found:** 973
+- **bugs-found:** 974
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
+- **bugs-found:** 974
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-04 — consensus intersection ignored endpoint whitespace normalization
 - **related-pd-tb:** none
@@ -3103,6 +3108,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` — equivalent model relationships with surrounding whitespace in endpoint IDs failed consensus intersection; trimmed both endpoint IDs before key construction; regression `Merge_intersects_relationships_when_models_pad_endpoint_ids_differently`.
 
 - [x] (proven) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — the untrimmed endpoint membership pre-check dropped a reachable agent-proposed relationship with surrounding whitespace in `SourceId` or `TargetId`; reused `RelationshipEndpointsAreKnown` as the single trim- and ARM-aware check; regression `Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace`.
 
