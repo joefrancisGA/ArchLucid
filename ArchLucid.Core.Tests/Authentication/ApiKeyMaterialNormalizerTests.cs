@@ -79,4 +79,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u00AD").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_no_break_space_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u00A0ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_no_break_space_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u00A0").Should().BeEmpty();
+    }
 }
