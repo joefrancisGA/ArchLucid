@@ -23,7 +23,8 @@ describe("policyPackBuyerLabel", () => {
   });
 
   it("returns dash when empty", () => {
-    expect(policyPackBuyerLabel("", "")).toBe(" — ");
+    expect(policyPackBuyerLabel("", "")).toBe("Pack id not recorded");
+    expect(policyPackBuyerLabel("custom-rules", "")).toBe("custom-rules · version not recorded");
   });
 });
 

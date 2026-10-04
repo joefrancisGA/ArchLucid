@@ -25,8 +25,12 @@ describe("formatGovernanceLineageCompletenessPercent", () => {
     expect(formatGovernanceLineageCompletenessPercent(0.42)).toBe("42%");
   });
 
-  it("returns em dash for unusable inputs", () => {
-    expect(formatGovernanceLineageCompletenessPercent(NaN)).toBe(" — ");
-    expect(formatGovernanceLineageCompletenessPercent(null)).toBe(" — ");
+  it("returns Not recorded for unusable inputs", () => {
+    expect(formatGovernanceLineageCompletenessPercent(NaN)).toBe("Not recorded");
+    expect(formatGovernanceLineageCompletenessPercent(null)).toBe("Not recorded");
+  });
+
+  it("accepts 0–100 percents from the API", () => {
+    expect(formatGovernanceLineageCompletenessPercent(87)).toBe("87%");
   });
 });

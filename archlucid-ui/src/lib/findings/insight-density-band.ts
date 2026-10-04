@@ -64,7 +64,7 @@ export function formatInsightDensityBandLabel(score: number | null | undefined):
     return null;
   }
 
-  return `${band.label} band · score ${Math.trunc(score ?? 0)}`;
+  return `${band.label} band · score ${Math.trunc(score as number)}`;
 }
 
 export { INSIGHT_DENSITY_GENERIC_THRESHOLD };

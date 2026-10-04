@@ -30,7 +30,7 @@ export type RunToolInvocationForensicsPanelProps = {
 
 function formatDuration(durationMs: number | null | undefined): string {
   if (durationMs === null || durationMs === undefined || Number.isNaN(durationMs)) {
-    return " — ";
+    return "Duration not recorded";
   }
 
   if (durationMs < 1000) {

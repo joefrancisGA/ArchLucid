@@ -10,7 +10,14 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
-import { deterministicFallbackBadgeClass, modelConfidenceDescriptor, riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/runs/RunExplanationSection";
+import {
+  deterministicFallbackBadgeClass,
+  modelConfidenceDescriptor,
+  presentModelConfidence,
+  riskPostureBadgeClass,
+  riskPostureBadgeColors,
+  RunExplanationSection,
+} from "@/components/runs/RunExplanationSection";
 import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -86,6 +93,19 @@ describe("modelConfidenceDescriptor", () => {
     expect(modelConfidenceDescriptor(0.82)).toBe("High model confidence");
     expect(modelConfidenceDescriptor(0.55)).toBe("Moderate model confidence");
     expect(modelConfidenceDescriptor(0.2)).toBe("Low model confidence");
+  });
+
+  it("returns null for non-finite confidence", () => {
+    expect(modelConfidenceDescriptor(Number.NaN)).toBeNull();
+  });
+});
+
+describe("presentModelConfidence", () => {
+  it("includes percent and honesty line when confidence is recorded", () => {
+    const presentation = presentModelConfidence(0.82);
+
+    expect(presentation?.headline).toContain("82%");
+    expect(presentation?.honestyLine).toContain("retrieval grounding");
   });
 });
 

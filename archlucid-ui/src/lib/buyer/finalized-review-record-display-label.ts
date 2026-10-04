@@ -47,5 +47,11 @@ export function finalizedReviewRecordDisplayLabel(
 
   const trimmedManifestId = (manifestId ?? "").trim();
 
-  return trimmedManifestId.length > 0 ? trimmedManifestId : " — ";
+  if (trimmedManifestId.length > 0) {
+    return trimmedManifestId;
+  }
+
+  return buyerTitle.length === 0 || buyerTitle === "Untitled review"
+    ? "Untitled review"
+    : "Manifest id not recorded";
 }
