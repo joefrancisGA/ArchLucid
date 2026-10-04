@@ -16,4 +16,8 @@ describe("finiteIntegerCountDisplay", () => {
     expect(finiteIntegerCountDisplay(3.9)).toBe("3");
     expect(finiteIntegerCountDisplay(-2.1)).toBe("-2");
   });
+
+  it("can label missing counts as Not returned", () => {
+    expect(finiteIntegerCountDisplay(null, { missingLabel: "not-returned" })).toBe("Not returned");
+  });
 });

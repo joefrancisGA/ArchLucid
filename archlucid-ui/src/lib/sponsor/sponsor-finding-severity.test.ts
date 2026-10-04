@@ -3,13 +3,14 @@ import { describe, expect, it } from "vitest";
 import { severityFromTrace, severitySortRank } from "./sponsor-finding-severity";
 
 describe("severityFromTrace", () => {
-  it("maps empty to em dash", () => {
-    expect(severityFromTrace("")).toBe(" — ");
-    expect(severityFromTrace(null)).toBe(" — ");
+  it("maps empty to Not recorded", () => {
+    expect(severityFromTrace("")).toBe("Not recorded");
+    expect(severityFromTrace(null)).toBe("Not recorded");
   });
 
-  it("maps critical/high/severe to High (legacy display bucket)", () => {
-    expect(severityFromTrace("Critical")).toBe("High");
+  it("keeps critical and severe distinct from high", () => {
+    expect(severityFromTrace("Critical")).toBe("Critical");
+    expect(severityFromTrace("severe")).toBe("Severe");
     expect(severityFromTrace("high")).toBe("High");
   });
 

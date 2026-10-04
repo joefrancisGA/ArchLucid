@@ -19,6 +19,7 @@ function SummaryMetricCard(props: {
   readonly testId: string;
   readonly onClick?: () => void;
   readonly pressed?: boolean;
+  readonly actionHint?: string;
 }) {
   const interactive = props.onClick !== undefined;
 
@@ -41,13 +42,17 @@ function SummaryMetricCard(props: {
           >
             <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
             <p className={cn("m-0 mt-1 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>this workspace</p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {props.actionHint ?? "this workspace"}
+            </p>
           </button>
         ) : (
           <>
             <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
             <p className={cn("m-0 mt-1 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>this workspace</p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {props.actionHint ?? "this workspace"}
+            </p>
           </>
         )}
       </CardContent>
@@ -102,6 +107,7 @@ export function StandardsRulesSummaryStrip(props: StandardsRulesSummaryStripProp
         testId="standards-rules-summary-evidence"
         value={`${summary.evidencedRules}/${summary.rulesEnforced} (${summary.evidenceCoverageLabel})`}
         label={STANDARDS_RULES_SUMMARY_EVIDENCE_COVERAGE_LABEL}
+        actionHint="Click to show rules without evidence"
         onClick={() => {
           onApplyFilter({ evidenceCoverage: "unevidenced" });
         }}

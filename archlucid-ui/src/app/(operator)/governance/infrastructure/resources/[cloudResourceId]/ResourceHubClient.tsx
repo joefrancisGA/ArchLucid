@@ -126,6 +126,7 @@ import type {
 import {
   formatResourceHubFindingStreamCaption,
   remediationInstanceStatusTagKind,
+  formatDiagramCorrespondenceConfidenceBandLabel,
   resolveDiagramCorrespondenceConfidenceStatusKind,
   resolveDiagramCorrespondenceStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
@@ -1378,7 +1379,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   />
                   <StatusTag
                     kind={resolveDiagramCorrespondenceConfidenceStatusKind(hub.diagramCorrespondence.confidenceBand)}
-                    label={hub.diagramCorrespondence.confidenceBand}
+                    label={formatDiagramCorrespondenceConfidenceBandLabel(hub.diagramCorrespondence.confidenceBand)}
                   />
                 </div>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

@@ -28,6 +28,7 @@ import {
   parseCorePilotDiagnosticsChecklistOpenFromSearch,
 } from "@/lib/operator/core-pilot-diagnostics-checklist-disclosure-url";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { presentOperatorSessionsToFinalizedPercent } from "@/lib/operator/operator-sessions-to-finalized-percent-display";
 
 /**
  * Progressive-disclosure checklist summary: aligns Core Pilot titles with `/v1/diagnostics/operator-task-success-rates`
@@ -125,9 +126,12 @@ export function OperatorCorePilotDiagnosticsChecklist() {
             <div className={cn("rounded-md border border-neutral-200 dark:border-neutral-700", OPERATOR_CARD.nested)}>
               <dt className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>Conversion</dt>
               <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>
-                {rates.firstSessionCompletedTotal > 0
-                  ? `${Math.round(rates.firstRunCommittedPerSessionRatio * 100)}%`
-                  : " — "}
+                {
+                  presentOperatorSessionsToFinalizedPercent(
+                    rates.firstRunCommittedPerSessionRatio,
+                    rates.firstSessionCompletedTotal,
+                  ).display
+                }
               </dd>
             </div>
           </dl>

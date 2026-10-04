@@ -92,6 +92,7 @@ import {
   parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch,
 } from "@/lib/infra-evidence/infra-diagram-reconcile-resource-id-disclosure-url";
 import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
+import { formatDiagramCorrespondenceConfidenceBandLabel } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   hasStaleInfraEvidenceAuditUrlParams,
@@ -1479,7 +1480,9 @@ export function DiagramReconcileWorkbenchClient() {
                     }}
                   >
                     <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
-                    <EnterpriseTableCell>{row.confidenceBand}</EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      {formatDiagramCorrespondenceConfidenceBandLabel(row.confidenceBand)}
+                    </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       <div>{formatDiagramReconcileResourceLabelForDisplay(row)}</div>
                       {row.matchKind === "Conflict" && row.azureResourceId != null ? (

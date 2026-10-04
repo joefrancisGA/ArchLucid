@@ -10,8 +10,17 @@ import { downloadRunRetrievalGroundingJson } from "@/lib/api/downloads-blob-trig
 import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
 import { showError } from "@/lib/toast";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
+import {
+  formatRetrievalGroundingCount,
+  formatRetrievalGroundingRatioPercent,
+  resolveRetrievalGroundingDispositionPresentation,
+} from "@/lib/runs/run-retrieval-grounding-summary-display";
 
-function dispositionClass(disposition: string): string {
+function dispositionClass(disposition: string | null): string {
+  if (disposition === null) {
+    return operatorSemanticSurface("neutral");
+  }
+
   switch (disposition.toUpperCase()) {
     case "PASS":
       return operatorConfidenceSurface("high");
@@ -27,10 +36,6 @@ function dispositionClass(disposition: string): string {
   }
 }
 
-function formatPercent(value: number): string {
-  return `${Math.round(value * 100)}%`;
-}
-
 /** Operator rollup of persisted retrieval grounding traces on run detail (assessment #5). */
 export function RunRetrievalGroundingSummaryCard(props: {
   readonly summary: RunRetrievalGroundingSummary | null | undefined;
@@ -41,26 +46,30 @@ export function RunRetrievalGroundingSummaryCard(props: {
   if (summary === null || summary === undefined)
     return null;
 
-  const disposition = (summary.disposition ?? "WARN").toUpperCase();
+  const dispositionPresentation = resolveRetrievalGroundingDispositionPresentation(summary.disposition);
   const agentsWithTraces = summary.agentsWithTraces ?? [];
   const missingAgents = summary.expectedAgentsMissingTraces ?? [];
 
   return (
-    <Card className={`rounded-lg border shadow-sm ${dispositionClass(disposition)}`}>
+    <Card
+      className={`rounded-lg border shadow-sm ${dispositionClass(dispositionPresentation.dispositionKey)}`}
+    >
       <CardHeader className="pb-2">
         <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
-          Retrieval grounding — {disposition}
+          Retrieval grounding — {dispositionPresentation.titleSuffix}
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
         <dl className="m-0 grid gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4">
           <dt>Trace rows</dt>
-          <dd className="m-0 tabular-nums sm:justify-self-end">{summary.traceCount ?? 0}</dd>
+          <dd className="m-0 tabular-nums sm:justify-self-end">{formatRetrievalGroundingCount(summary.traceCount)}</dd>
           <dt>Retrieved chunks</dt>
-          <dd className="m-0 tabular-nums sm:justify-self-end">{summary.totalRetrievedChunks ?? 0}</dd>
+          <dd className="m-0 tabular-nums sm:justify-self-end">
+            {formatRetrievalGroundingCount(summary.totalRetrievedChunks)}
+          </dd>
           <dt>Avg citation coverage</dt>
           <dd className="m-0 tabular-nums sm:justify-self-end">
-            {formatPercent(typeof summary.averageCitationCoverage === "number" ? summary.averageCitationCoverage : 0)}
+            {formatRetrievalGroundingRatioPercent(summary.averageCitationCoverage)}
           </dd>
         </dl>
 

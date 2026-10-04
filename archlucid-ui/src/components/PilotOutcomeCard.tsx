@@ -45,33 +45,13 @@ export function PilotOutcomeCard() {
     );
   }
 
-  const runsParsed = Number.isFinite(Number(summary.runsInPeriod)) ? Number(summary.runsInPeriod) : 0;
-
-  if (!Number.isFinite(runsParsed) || runsParsed < 1) {
-    return (
-      <section
-        aria-labelledby="pilot-outcome-heading"
-        className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
-      >
-        <h2 id="pilot-outcome-heading" className={cn("font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Pilot health (last 30 days)
-        </h2>
-        <p className={cn("mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          After your first finalized review, this panel will show success rates, finalized manifests, and
-          time-to-finalization trends.
-        </p>
-      </section>
-    );
-  }
-
   const inPeriod = Number.isFinite(summary.runsInPeriod) ? Math.max(0, summary.runsInPeriod) : 0;
   const withManifest = Number.isFinite(summary.runsWithCommittedManifest)
     ? Math.max(0, summary.runsWithCommittedManifest)
     : 0;
 
-  const successRate = inPeriod > 0 ? Math.round((withManifest / inPeriod) * 100) : 0;
-
-  const displaySuccessRate = Number.isFinite(successRate) ? Math.min(100, Math.max(0, successRate)) : 0;
+  const successRateDisplay =
+    inPeriod > 0 ? `${Math.min(100, Math.max(0, Math.round((withManifest / inPeriod) * 100)))}%` : "No reviews in window";
 
   return (
     <section
@@ -83,7 +63,7 @@ export function PilotOutcomeCard() {
       </h2>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
         <div>
-          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{displaySuccessRate}%</dd>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{successRateDisplay}</dd>
           <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Success rate</dt>
         </div>
         <div>
@@ -95,6 +75,9 @@ export function PilotOutcomeCard() {
           <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Finalized</dt>
         </div>
       </dl>
+      <p className={cn("mt-2 text-center text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        Success rate = finalized review records ÷ reviews with activity in the window below.
+      </p>
       <p className={cn("mt-2 text-center font-mono text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>
         {summary.periodStart} → {summary.periodEnd}
       </p>

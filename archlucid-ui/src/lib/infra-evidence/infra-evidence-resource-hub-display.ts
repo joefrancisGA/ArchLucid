@@ -41,9 +41,30 @@ export function resolveDiagramCorrespondenceStatusKind(
   return "neutral";
 }
 
+/** Operator label for diagram correspondence confidence bands (UU-480). */
+export function formatDiagramCorrespondenceConfidenceBandLabel(confidenceBand: string | null | undefined): string {
+  const normalized = (confidenceBand ?? "").trim();
+
+  if (normalized.length === 0) {
+    return "Confidence not recorded";
+  }
+
+  const known = new Set(["Confirmed", "Likely", "Possible", "InsufficientEvidence"]);
+
+  if (known.has(normalized)) {
+    return normalized;
+  }
+
+  return normalized;
+}
+
 /** Confidence band tag kind for diagram correspondence rows. */
 export function resolveDiagramCorrespondenceConfidenceStatusKind(confidenceBand: string): EnterpriseStatusKind {
   const normalized = confidenceBand.trim();
+
+  if (normalized.length === 0) {
+    return "neutral";
+  }
 
   if (normalized === "Confirmed" || normalized === "Likely") {
     return "ready";

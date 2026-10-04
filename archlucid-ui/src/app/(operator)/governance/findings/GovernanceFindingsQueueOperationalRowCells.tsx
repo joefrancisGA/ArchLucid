@@ -49,13 +49,13 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
   const raw = (utc ?? "").trim();
 
   if (raw.length === 0) {
-    return " — ";
+    return "No due date";
   }
 
   const parsed = Date.parse(raw);
 
   if (Number.isNaN(parsed)) {
-    return raw;
+    return "Date not readable";
   }
 
   return new Date(parsed).toLocaleDateString(undefined, {
