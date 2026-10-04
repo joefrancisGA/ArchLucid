@@ -1,4 +1,3 @@
-{"at":"2026-09-04T14:46:13.7227682Z","zoneId":"artifact-synthesis","outcome":"hit"}
 {"at":"2026-09-04T14:52:07.0778097Z","zoneId":"host-composition","outcome":"seed-only"}
 {"at":"2026-09-04T14:57:29.0240809Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
 {"at":"2026-09-04T15:08:41.9575275Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8721,3 +8720,4 @@
 {"at":"2026-10-04T14:35:49.1685008Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/BackgroundJobQueueProcessorHostedService.cs)"]}
 {"at":"2026-10-04T14:40:57.3621275Z","zoneId":"host-core-jobs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/)"]}
 {"at":"2026-10-04T14:45:07.2334121Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/)"]}
+{"at":"2026-10-04T14:49:37.0355354Z","zoneId":"run-execute-ownership","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs)"]}
