@@ -2,7 +2,7 @@ export type AdminTenantHealthSummaryItem = {
   tenantId: string;
   workspaceId: string;
   projectId: string;
-  engagementScore: number;
+  engagementScore: number | null;
   governanceScore: number;
   pilotFunnelStage: string;
   runsLast7d: number;
@@ -43,7 +43,10 @@ export async function fetchAdminTenantHealthList(): Promise<AdminTenantHealthLis
     tenantId: row.tenantId ?? "",
     workspaceId: row.workspaceId ?? "",
     projectId: row.projectId ?? "",
-    engagementScore: row.engagementScore ?? 0,
+    engagementScore:
+      typeof row.engagementScore === "number" && Number.isFinite(row.engagementScore)
+        ? row.engagementScore
+        : null,
     governanceScore: row.governanceScore ?? 0,
     pilotFunnelStage: row.pilotFunnelStage ?? "",
     runsLast7d: row.runsLast7d ?? 0,

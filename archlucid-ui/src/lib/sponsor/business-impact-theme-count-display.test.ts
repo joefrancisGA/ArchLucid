@@ -12,6 +12,17 @@ describe("readBusinessImpactThemeCountsDisplay", () => {
     expect(display.cost).toBe("Not returned");
   });
 
+  it("labels omitted theme counts as Not returned", () => {
+    const display = readBusinessImpactThemeCountsDisplay({
+      businessImpactCategoryCounts: {
+        securityThemeCount: 2,
+      },
+    } as never);
+
+    expect(display.security).toBe("2");
+    expect(display.compliance).toBe("Not returned");
+  });
+
   it("formats finite theme counts", () => {
     const display = readBusinessImpactThemeCountsDisplay({
       businessImpactCategoryCounts: {

@@ -300,7 +300,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
           </summary>
           <div className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-800">
             <p className={cn("max-w-3xl text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
-              Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence
+              Symbols in the product columns (✓ / partial / No) summarize capability depth; each row links to diligence
               references.
             </p>
             <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">

@@ -76,14 +76,15 @@ import { SYSTEM_NOT_JOB_WORKING_PORTFOLIO_OPEN_DRAFTS_EMPTY_BODY } from "@/lib/s
 
 function ArchitectureHubFilterChip(props: {
   readonly option: { id: ArchitectureHubFilterId; label: string };
-  readonly count: number | undefined;
+  readonly count: number | null;
   readonly selected: boolean;
   readonly href: string;
 }): React.JSX.Element {
-  const countKnown = props.count !== undefined;
+  const countKnown = props.count !== null;
   const disabled = props.option.id !== "all" && countKnown && props.count === 0;
   const disabledReasonId = `architecture-hub-filter-${props.option.id}-disabled-reason`;
-  const labelWithCount = countKnown ? `${props.option.label} (${props.count})` : props.option.label;
+  const labelWithCount =
+    countKnown && props.option.id !== "all" ? `${props.option.label} (${props.count})` : props.option.label;
 
   return (
     <span className="inline-flex">
@@ -243,7 +244,11 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
             <ArchitectureHubFilterChip
               key={option.id}
               option={option}
-              count={filterCounts.get(option.id)}
+              count={
+                filterCounts.has(option.id)
+                  ? (filterCounts.get(option.id) ?? 0)
+                  : null
+              }
               selected={activeFilter === option.id}
               href={architecturesHubFilterHrefFromSearch(currentSearch, option.id)}
             />

@@ -157,6 +157,9 @@ export function AdvisorySchedulesTable(props: AdvisorySchedulesTableProps): Reac
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag kind={view.statusKind} label={view.statusLabel} />
+                <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {view.statusHelperText}
+                </p>
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <div className="flex flex-wrap gap-2">

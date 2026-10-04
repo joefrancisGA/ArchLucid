@@ -18,6 +18,10 @@ import {
   parseRunExplanationProvenanceOpenFromSearch,
   runExplanationProvenanceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-explanation-provenance-disclosure-url";
+import {
+  presentRunExplanationHeadlineCount,
+  resolveRunExplanationFindingCountForHeadline,
+} from "@/lib/runs/run-explanation-headline-stats-display";
 
 export type RunExplanationSectionProps = {
   summary: RunExplanationSummary | null;
@@ -88,14 +92,18 @@ export function riskPostureBadgeColors(posture: string): { background: string; c
   return { background: "#dcfce7", color: "#166534", borderColor: "#bbf7d0" };
 }
 
-function confidencePercent(confidence: number | string): number {
+function confidencePercent(confidence: number | string): number | null {
   const normalized = typeof confidence === "number" ? confidence : Number(confidence);
 
   if (!Number.isFinite(normalized)) {
-    return 0;
+    return null;
   }
 
-  const pct = normalized <= 1 ? Math.round(normalized * 100) : Math.round(normalized);
+  const pct = normalized > 0 && normalized <= 1 ? Math.round(normalized * 100) : Math.round(normalized);
+
+  if (!Number.isFinite(pct)) {
+    return null;
+  }
 
   return Math.min(100, Math.max(0, pct));
 }
@@ -108,6 +116,10 @@ export function modelConfidenceDescriptor(confidence: number | string | null | u
 
   const pct = confidencePercent(confidence);
 
+  if (pct === null) {
+    return null;
+  }
+
   if (pct >= 80) {
     return "High model confidence";
   }
@@ -117,6 +129,33 @@ export function modelConfidenceDescriptor(confidence: number | string | null | u
   }
 
   return "Low model confidence";
+}
+
+export type ModelConfidencePresentation = {
+  readonly headline: string;
+  readonly honestyLine: string;
+};
+
+/** UU-482 / UU-493 — model self-report with finite percent when recorded. */
+export function presentModelConfidence(
+  confidence: number | string | null | undefined,
+): ModelConfidencePresentation | null {
+  if (confidence === null || confidence === undefined) {
+    return null;
+  }
+
+  const descriptor = modelConfidenceDescriptor(confidence);
+  const pct = confidencePercent(confidence);
+
+  if (descriptor === null || pct === null) {
+    return null;
+  }
+
+  return {
+    headline: `${descriptor} (${pct}%)`,
+    honestyLine:
+      "Model self-report from persisted explanation JSON — not retrieval grounding and not a sponsor-ready verdict.",
+  };
 }
 
 /** API payloads sometimes omit `explanation`; avoid crashing the review detail client subtree. */
@@ -270,10 +309,13 @@ export function RunExplanationSection({
     return null;
   }
 
-  const findingCountForStats =
-    displayFindingCount !== undefined && displayFindingCount !== null && Number.isFinite(displayFindingCount)
-      ? Math.trunc(displayFindingCount)
-      : summary.findingCount;
+  const findingCountForStats = resolveRunExplanationFindingCountForHeadline(
+    displayFindingCount,
+    summary.findingCount,
+  );
+  const decisionCountForStats = presentRunExplanationHeadlineCount(summary.decisionCount);
+  const unresolvedCountForStats = presentRunExplanationHeadlineCount(summary.unresolvedIssueCount);
+  const complianceGapCountForStats = presentRunExplanationHeadlineCount(summary.complianceGapCount);
 
   const expl = explanationBody(summary);
   const themeSummaries = summary.themeSummaries ?? [];
@@ -282,9 +324,9 @@ export function RunExplanationSection({
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
   const deterministicFallback = isDeterministicExplanationFallback(summary);
   const conf = expl.confidence;
-  const modelConfidenceLabel =
+  const modelConfidencePresentation =
     conf !== null && conf !== undefined && (typeof conf === "number" || typeof conf === "string")
-      ? modelConfidenceDescriptor(conf)
+      ? presentModelConfidence(conf)
       : null;
   const prov = expl.provenance;
   const faith = normalizeFiniteRatio(summary.faithfulnessSupportRatio);
@@ -314,8 +356,8 @@ export function RunExplanationSection({
         </span>
         <span className={cn("ml-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
-            ? `${summary.decisionCount} approval decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
-            : `${summary.decisionCount} decisions · ${findingCountForStats} findings · ${summary.unresolvedIssueCount} unresolved · ${summary.complianceGapCount} compliance gaps`}
+            ? `${decisionCountForStats} approval decisions · ${findingCountForStats} risk findings · ${unresolvedCountForStats} open items`
+            : `${decisionCountForStats} decisions · ${findingCountForStats} findings · ${unresolvedCountForStats} unresolved · ${complianceGapCountForStats} compliance gaps`}
         </span>
         {deterministicFallback ? (
           <span
@@ -338,7 +380,11 @@ export function RunExplanationSection({
             (token overlap vs finding traces — see docs)
           </span>
         </p>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Faithfulness ratio not recorded for this explanation.
+        </p>
+      )}
 
       {deterministicFallback && !buyerPolishedShell ? (
         <p
@@ -383,7 +429,7 @@ export function RunExplanationSection({
           </h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Citations not returned</p>
         </div>
-      ) : (summary.citations.length ?? 0) > 0 ? (
+      ) : summary.citations.length > 0 ? (
         <div id="doc-explanation-evidence-cited">
           <h3 className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Evidence cited
@@ -393,7 +439,21 @@ export function RunExplanationSection({
           </h3>
           <CitationChips citations={summary.citations} runId={runId} />
         </div>
-      ) : null}
+      ) : (
+        <div id="doc-explanation-evidence-cited">
+          <h3 className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Evidence cited
+            <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              This explanation only — not the full review evidence graph.
+            </span>
+          </h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {buyerPolishedShell
+              ? "No cited evidence lines returned for this review."
+              : "No explanation citations returned for this review."}
+          </p>
+        </div>
+      )}
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">
@@ -435,7 +495,7 @@ export function RunExplanationSection({
         </div>
       ) : null}
 
-      {modelConfidenceLabel !== null ? (
+      {modelConfidencePresentation !== null ? (
         <div id="doc-explanation-confidence" className="mb-4">
           <p id="doc-explanation-confidence-label" className={cn("m-0 mb-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Model confidence
@@ -444,7 +504,10 @@ export function RunExplanationSection({
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
             aria-labelledby="doc-explanation-confidence-label"
           >
-            {modelConfidenceLabel} — not a completion or readiness score.
+            {modelConfidencePresentation.headline}
+          </p>
+          <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {modelConfidencePresentation.honestyLine}
           </p>
         </div>
       ) : null}

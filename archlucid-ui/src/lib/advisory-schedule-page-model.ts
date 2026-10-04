@@ -20,6 +20,7 @@ export type AdvisoryScheduleListItemView = {
   readonly lastOutcome: string;
   readonly statusKind: "ready" | "draft";
   readonly statusLabel: "Ready" | "Draft";
+  readonly statusHelperText: string;
   readonly isEnabled: boolean;
   readonly cronExpression: string;
 };
@@ -92,6 +93,9 @@ export function buildAdvisoryScheduleListItemView(
     lastOutcome: " — ",
     statusKind: schedule.isEnabled ? "ready" : "draft",
     statusLabel: schedule.isEnabled ? "Ready" : "Draft",
+    statusHelperText: schedule.isEnabled
+      ? "Enabled — next run is scheduled"
+      : "Disabled — this schedule will not run",
     isEnabled: schedule.isEnabled,
     cronExpression: schedule.cronExpression,
   };
@@ -99,13 +103,13 @@ export function buildAdvisoryScheduleListItemView(
 
 export function summarizeExecutionOutcome(execution: AdvisoryScanExecution | undefined): string {
   if (execution === undefined) {
-    return " — ";
+    return "No run recorded";
   }
 
   const status = execution.status.trim();
 
   if (status.length === 0) {
-    return " — ";
+    return "Status not returned";
   }
 
   if (execution.errorMessage && execution.errorMessage.trim().length > 0) {
@@ -150,6 +154,7 @@ export function buildAdvisoryScheduleExamplePreviewView(
     lastOutcome: "Completed",
     statusKind: "ready",
     statusLabel: "Ready",
+    statusHelperText: "Enabled — next run is scheduled",
     isEnabled: true,
     cronExpression: EXAMPLE_WEEKLY_CRON_EXPRESSION,
   };
