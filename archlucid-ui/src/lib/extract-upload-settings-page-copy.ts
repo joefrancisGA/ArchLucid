@@ -56,6 +56,8 @@ export const EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL = "No inventory on file" a
 
 export const EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL = "Checking inventory…" as const;
 
+export const EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL = "Uploading package…" as const;
+
 export const EXTRACT_UPLOAD_BASELINE_STATUS_PENDING_MESSAGE =
   "Wait until inventory baseline status finishes loading before uploading a replacement package." as const;
 

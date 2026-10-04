@@ -46,6 +46,7 @@ import {
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+  EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
@@ -511,5 +512,131 @@ describe("ExtractUploadSettingsPageClient", () => {
     });
 
     expect(screen.queryByTestId("extract-upload-baseline-overwrite-dialog")).not.toBeInTheDocument();
+  });
+
+  function validSchemaV2ZipBytes(): Uint8Array {
+    return zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 2,
+          scriptVersion: "0.4.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+  }
+
+  it("shows uploading status on the header and inside the drop target while upload is in flight", async () => {
+    let resolveUpload: ((response: Response) => void) | undefined;
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: true, extractorScriptVersion: "1.0.0" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("1.0.0");
+      }
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Promise<Response>((resolve) => {
+          resolveUpload = resolve;
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+      );
+    });
+
+    const file = new File([validSchemaV2ZipBytes()], "archlucid-azure-package.zip", { type: "application/zip" });
+    fireEvent.change(screen.getByTestId("extract-upload-drop-zone-input"), { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
+      );
+    });
+
+    const surface = screen.getByTestId("extract-upload-drop-zone-surface");
+    expect(surface).toContainElement(screen.getByTestId("extract-upload-drop-zone-progress"));
+    expect(surface).not.toHaveTextContent("Drag and drop your inventory ZIP here");
+
+    resolveUpload?.(
+      new Response(JSON.stringify({ packageId: "pkg-hung-complete" }), {
+        status: 202,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+      );
+    });
+
+    expect(screen.getByTestId("extract-upload-accepted-drop-summary")).toHaveTextContent("Package accepted");
+  });
+
+  it("shows uploading status on the demo button while demo upload is in flight", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: true, extractorScriptVersion: "1.0.0" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("1.0.0");
+      }
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Promise<Response>(() => {
+          /* hung */
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("extract-upload-try-demo-data"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-demo-confirm-dialog")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("extract-upload-demo-confirm-action"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-try-demo-data")).toHaveTextContent(
+        EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
+      );
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
+      );
+    });
   });
 });
