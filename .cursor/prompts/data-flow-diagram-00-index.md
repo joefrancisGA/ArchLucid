@@ -18,7 +18,7 @@
      summarize the stages, and filter edges by evidence.
      Do not implement from this index. -->
 
-# Data flow diagram — Luna prompt set (DFV-01–DFV-21)
+# Data flow diagram — Luna prompt set (DFV-01–DFV-23)
 
 **Do not implement from this index.** Paste **one** numbered `.cursor/prompts/data-flow-diagram-*.md` file per GPT-5.6 Luna session.
 

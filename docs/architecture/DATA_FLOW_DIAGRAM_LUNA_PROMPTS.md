@@ -69,7 +69,7 @@ The July 2026 zip has no icon for `Microsoft.Databricks/accessConnectors`, `Micr
 - Hiding unconnected cards, or collapsing workspace tabs.
 - Putting diagnostic, NIC, VNet, subnet, or NSG attachment edges on Data flow.
 - Storing a connection string, password, account key, or secret name.
-- Pipeline and dataset cards. ADF pipeline direction is already mapped.
+- Pipeline and dataset cards. DFV-22 collects direction onto the factory edge. DFV-23 paints **Reads from** and **Writes to**. Neither prompt adds pipeline or dataset nodes.
 
 ## Do not pull into these sessions
 
