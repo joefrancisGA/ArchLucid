@@ -358,6 +358,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 : ReadNodeProperty(
                     node,
                     AzureInventoryAdfExternalSourceNodeFactory.ExternalFactoryNamePropertyKey),
+            ExternalFactoryNames = isOverflow
+                ? []
+                : ReadExternalFactoryNames(node),
             ExternalTargetHost = isOverflow
                 ? null
                 : ReadNodeProperty(
@@ -386,6 +389,22 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             && !string.IsNullOrWhiteSpace(value)
             ? value
             : null;
+    }
+
+    private static List<string> ReadExternalFactoryNames(GraphNode node)
+    {
+        if (!node.Properties.TryGetValue(
+                AzureInventoryAdfExternalSourceNodeFactory.ExternalFactoryNamesPropertyKey,
+                out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return [];
+        }
+
+        return raw
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(name => name.Length > 0)
+            .ToList();
     }
 
     private static void AddDropGateRows(

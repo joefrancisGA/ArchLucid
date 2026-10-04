@@ -276,6 +276,9 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
   return option?.label ?? mode;
 }
 
+const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION =
+  "Reading a card: the first line is the name. The next line is the type. Used by N or No consumer found says whether a store has a consumer. Factory, host, and runtime lines describe a Data Factory link.";
+
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
     case "dataArchitecture":
@@ -290,6 +293,25 @@ function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
     default:
       return null;
   }
+}
+
+function infraDiagramModeJobCaptionBlock(mode: string): React.ReactNode | null {
+  const caption = infraDiagramModeJobCaption(mode);
+
+  if (caption == null) {
+    return null;
+  }
+
+  return (
+    <>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{caption}</p>
+      {mode === "dataFlow" ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION}
+        </p>
+      ) : null}
+    </>
+  );
 }
 
 function FallbackCard(props: {
@@ -1899,11 +1921,7 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
-              {infraDiagramModeJobCaption(diagramTypePickerValue) != null ? (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {infraDiagramModeJobCaption(diagramTypePickerValue)}
-                </p>
-              ) : null}
+              {infraDiagramModeJobCaptionBlock(diagramTypePickerValue)}
             </div>
             {selectedSnapshot != null ? (
               <div
@@ -2021,11 +2039,7 @@ export function DiagramsWorkbenchClient() {
                   </option>
                 ))}
               </select>
-              {infraDiagramModeJobCaption(diagramTypePickerValue) != null ? (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {infraDiagramModeJobCaption(diagramTypePickerValue)}
-                </p>
-              ) : null}
+              {infraDiagramModeJobCaptionBlock(diagramTypePickerValue)}
             </div>
             {selectedSnapshot != null ? (
               <div
