@@ -13934,8 +13934,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 461
-- **last-hunt:** 2026-10-03
+- **hunts:** 462
+- **last-hunt:** 2026-10-04
 - **bugs-found:** 3502
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
@@ -13947,6 +13947,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the picked zone and its existing test context; the configured path remains only this ledger, with no source-backed hunt-ready candidate or promotable row. No product hypothesis was invented, and no bug or fix was recorded.
 
 2026-10-03 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; no source-level candidate could meet the reachability bar. The focused filter ran 7,163 tests: 7,162 passed and 1 existing Core test failed; no production files changed.
+
+2026-10-04 seed hunt (seed-only): the picker still exposed only the ledger path, so no reachable candidate was justified or promoted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than ArchLucid.Core source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
@@ -24474,10 +24476,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — subscription policy-assignment list followed policyDefinitions nextLink within same subscription
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24510,7 +24512,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-04 seed hunt (seed-only): re-read the selected Azure network-association builder, ARM property expander, AWS/GCP collectors and packagers, and focused extractor tests. The three reachable association-typing/exposure candidates remain candidates because downstream graph validation or the expected Bastion public-IP contract is outside this zone's selected files; no failing repro was attempted.
 
-2026-10-04 thorough hunt (dry): cheap-disproved promotion of the three association candidates because the selected extractor files do not establish the downstream graph rejection or the expected Bastion public-IP contract; no hunt-ready hypothesis remained and no failing repro was attempted.
+2026-10-04 thorough hunt (dry): cheap-disproved promotion of the three association candidates because the selected extractor files do not establish the downstream graph rejection or the expected Bastion public-IP contract; no hunt-ready hypothesis remained and no failing repro was attempted. The focused association-builder suite passed 14/14.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
@@ -24828,8 +24830,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 295
-- **last-hunt:** 2026-10-03
+- **hunts:** 301
+- **last-hunt:** 2026-10-04
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
@@ -24845,6 +24847,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (seed-only): picker still exposed only this ledger path for the retired mega-zone; the ledger supplied no new reachable mechanism-backed candidate, so no controller source or repro was attempted.
 
 2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope after the `master` merge; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope again; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope once more; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope again after the latest bugsmash sync; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope again; it still supplied no reachable mechanism-backed candidate, so no controller source or repro was attempted.
+
+2026-10-04 seed hunt (seed-only): re-read the ledger-only mega-zone scope after the latest branch sync; it still supplied no source-level locus or reachable mechanism-backed candidate, so no controller source or repro was attempted.
 
 2026-09-30 seed hunt (seed-only): inspected the picked zone, but its configured path is only this ledger (`docs/library/AL_BUG_HUNT_LEDGER.md`) rather than the Governance/Tenancy controller source files; no new reachable mechanism-backed candidate could be seeded without inventing a product hypothesis.
 
@@ -28139,10 +28153,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 4
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
+- **hunts:** 5
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — oversized question keys reached persistence without matching the `NVARCHAR(256)` column limit
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28152,12 +28167,15 @@ ABQ-09 churn hotspot.
 2026-10-03 thorough hunt (hit): proved blank inferred-connection source endpoint selection discarded a populated target endpoint; fixed fallback selection and passed 7 compiler tests.
 2026-10-03 thorough hunt (dry): cheap-disproved the blank-resource-identity candidate because `AzureInventoryResources.AzureResourceId` is `NOT NULL` at the persistence boundary; the 15 scoped SecureNowQuestion tests passed when unrelated ARCH006 analyzer errors were disabled.
 
+2026-10-04 seed hunt (hit): proved `SecureNowQuestionDispositionService.ValidateIdentity` accepted a reachable versioned `QuestionKey` longer than the persistence column, allowing an oversized API mutation to reach a database truncation failure; added a 256-character guard and regression `Question_key_cannot_exceed_the_persistence_column_limit`. The 16 scoped SecureNowQuestion tests passed with unrelated ARCH006 analyzers disabled.
+
 ### Hypotheses
 
 - [x] (proven) `SecureNowQuestionQueue.loadQuestions` — `Promise.all` rejected the whole queue when `listOperatorInferredConnections(snapshotId)` failed even after `listSecureNowQuestions(snapshotId)` succeeded, hiding reachable inventory questions; fixed with independent `Promise.allSettled` handling; regression `keeps inventory questions visible when inferred connections fail to load`
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateWriteRequest` / `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — an API mutation payload with numeric or unknown `ScopeKind` such as `0` passed `Enum.TryParse` without `Enum.IsDefined` and could persist an invalid scope; fixed with service and controller enum validation; regression `Scope_kind_must_be_a_defined_value`
 - [x] (invalid) `SecureNowQuestionService.BuildDiagramCandidates` / `SecureNowQuestionCompiler.AddQuestion` — two inventory resources with no `AzureResourceId` cannot reach the persisted inventory path: `AzureInventoryResourceRecord.AzureResourceId` is non-nullable and `dbo.AzureInventoryResources.AzureResourceId` is `NOT NULL`; the scoped candidate is retired without a repro.
 - [x] (proven) `SecureNowQuestionCompiler` inferred-connection projection — a proposed record with an empty `FromArmId` and a populated `ToArmId` selected the empty string instead of the usable endpoint, producing an unaddressable question identity; fixed with whitespace-aware endpoint fallback; regression `Inferred_question_uses_the_populated_endpoint_when_the_source_arm_id_is_blank`
+- [x] (proven) `SecureNowQuestionDispositionService.ValidateIdentity` — a reachable versioned `QuestionKey` over 256 characters passed service validation even though `dbo.SecureNowQuestionDispositions.QuestionKey` is `NVARCHAR(256)`, allowing a persistence truncation failure; fixed with a class-level length guard and regression `Question_key_cannot_exceed_the_persistence_column_limit`
 
 ## Zone: infra-evidence-diagrams
 

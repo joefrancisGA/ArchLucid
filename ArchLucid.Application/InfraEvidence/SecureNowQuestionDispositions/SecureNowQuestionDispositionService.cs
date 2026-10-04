@@ -16,6 +16,7 @@ public sealed class SecureNowQuestionDispositionService(
 {
     private readonly SecureNowQuestionCompiler questionCompiler = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
+    private const int MaximumQuestionKeyLength = 256;
     private static readonly Regex VersionedQuestionKey = new(
         @"@v[1-9][0-9]*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -297,6 +298,8 @@ public sealed class SecureNowQuestionDispositionService(
             return "SubscriptionId is required.";
         if (string.IsNullOrWhiteSpace(questionKey) || !VersionedQuestionKey.IsMatch(questionKey.Trim()))
             return "QuestionKey must end with a positive version such as @v1.";
+        if (questionKey.Trim().Length > MaximumQuestionKeyLength)
+            return "QuestionKey is too long.";
         if (string.IsNullOrWhiteSpace(reason))
             return "Reason is required.";
         if (string.IsNullOrWhiteSpace(actorKey))

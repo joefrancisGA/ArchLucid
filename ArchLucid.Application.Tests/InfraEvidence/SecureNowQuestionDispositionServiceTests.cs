@@ -176,6 +176,26 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Question_key_cannot_exceed_the_persistence_column_limit()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = $"{new string('q', 300)}@v1",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("QuestionKey is too long.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Scope_kind_must_be_a_defined_value()
     {
         InMemoryDispositionRepository repository = new();
