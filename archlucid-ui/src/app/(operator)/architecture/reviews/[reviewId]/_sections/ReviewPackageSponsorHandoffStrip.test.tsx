@@ -2,11 +2,22 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { ManifestSummary } from "@/types/authority";
+
 import { ReviewPackageSponsorHandoffStrip } from "./ReviewPackageSponsorHandoffStrip";
 
+const committedManifestSummary = {
+  manifestId: "manifest-1",
+  status: "Committed",
+} as ManifestSummary;
+
 vi.mock("@/components/GoldenManifestExportMenu", () => ({
-  GoldenManifestExportMenu: () => (
-    <button type="button" data-testid="review-package-sponsor-handoff-markdown-download">
+  GoldenManifestExportMenu: (props: { exportBlockedReason?: string | null }) => (
+    <button
+      type="button"
+      data-testid="review-package-sponsor-handoff-markdown-download"
+      disabled={props.exportBlockedReason != null && props.exportBlockedReason.length > 0}
+    >
       Download review summary
     </button>
   ),
@@ -52,10 +63,11 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
         runId="run-abc"
         manifestId="manifest-1"
         goldenManifestJsonForExport={{}}
-        manifestSummary={null}
+        manifestSummary={committedManifestSummary}
         trustEvidenceCard={null}
         usedStaticDemoRun={false}
         showExtendedSponsorBriefing
+        lowExtractionConfidenceCount={0}
       />,
     );
 
@@ -76,10 +88,11 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
         runId="run-abc"
         manifestId="manifest-1"
         goldenManifestJsonForExport={{}}
-        manifestSummary={null}
+        manifestSummary={committedManifestSummary}
         trustEvidenceCard={null}
         usedStaticDemoRun={false}
         showExtendedSponsorBriefing
+        lowExtractionConfidenceCount={0}
       />,
     );
 
@@ -99,14 +112,36 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
         runId="run-abc"
         manifestId="manifest-1"
         goldenManifestJsonForExport={{}}
-        manifestSummary={null}
+        manifestSummary={committedManifestSummary}
         trustEvidenceCard={null}
         usedStaticDemoRun={false}
         showExtendedSponsorBriefing={false}
+        lowExtractionConfidenceCount={0}
       />,
     );
 
     expect(screen.getByTestId("sponsor-roi-baseline-gate-notice")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).not.toBeDisabled();
+  });
+
+  it("blocks docx and markdown export when low-confidence count is omitted", () => {
+    render(
+      <ReviewPackageSponsorHandoffStrip
+        runId="run-abc"
+        manifestId="manifest-1"
+        goldenManifestJsonForExport={{}}
+        manifestSummary={null}
+        trustEvidenceCard={null}
+        usedStaticDemoRun={false}
+        showExtendedSponsorBriefing
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-extraction-count-not-returned")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeDisabled();
+
+    fireEvent.click(screen.getByText("More sponsor exports"));
+
+    expect(screen.getByTestId("review-package-sponsor-handoff-markdown-download")).toBeDisabled();
   });
 });

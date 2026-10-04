@@ -4,11 +4,8 @@ import {
   buildAdvisoryScheduleExamplePreviewView,
   buildAdvisoryScheduleListItemView,
   resolveExampleWeeklyMondayInstants,
-<<<<<<< HEAD
   summarizeExecutionOutcome,
-=======
   withLatestExecutionOutcome,
->>>>>>> 8eb03cf74e1d08f8c3c3528466988815aa74cbf3
 } from "@/lib/advisory-schedule-page-model";
 
 describe("resolveExampleWeeklyMondayInstants", () => {
@@ -45,8 +42,8 @@ describe("resolveExampleWeeklyMondayInstants", () => {
 
 describe("summarizeExecutionOutcome", () => {
   it("distinguishes no run from empty status", () => {
-    expect(summarizeExecutionOutcome(undefined)).toBe("No run recorded");
-    expect(summarizeExecutionOutcome({ status: "  ", errorMessage: null } as never)).toBe("Status not returned");
+    expect(summarizeExecutionOutcome(undefined)).toBe("No runs yet");
+    expect(summarizeExecutionOutcome({ status: "  ", errorMessage: null } as never)).toBe("Outcome not returned");
   });
 });
 

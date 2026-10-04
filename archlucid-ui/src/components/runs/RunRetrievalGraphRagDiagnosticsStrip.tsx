@@ -7,6 +7,8 @@ import {
   formatGraphRagNeighborHitRate,
   formatGraphRagPilotFloorDisposition,
   GRAPH_RAG_NEIGHBOR_HIT_RATE_HELPER,
+  GRAPH_RAG_NEIGHBOR_HIT_RATE_SCOPE_LINE,
+  GRAPH_RAG_REVIEW_RETRIEVAL_SCOPE_LINE,
   runGraphRagDiagnosticsStripHasSignal,
 } from "@/lib/runs/run-graph-rag-diagnostics-display";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";

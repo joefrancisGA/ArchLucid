@@ -45,8 +45,8 @@ describe("RunRetrievalGraphRagDiagnosticsStrip", () => {
     ).toBeInTheDocument();
   });
 
-  it("returns null when no graph-rag activity recorded", () => {
-    const { container } = render(
+  it("renders explicit zero graph-rag metrics as signal", () => {
+    render(
       <RunRetrievalGraphRagDiagnosticsStrip
         summary={{
           totalGraphRagNeighborsAdded: 0,
@@ -55,6 +55,13 @@ describe("RunRetrievalGraphRagDiagnosticsStrip", () => {
         }}
       />,
     );
+
+    expect(screen.getByTestId("run-retrieval-graph-rag-diagnostics")).toBeInTheDocument();
+    expect(screen.getAllByText("0").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("returns null when no graph-rag fields were returned", () => {
+    const { container } = render(<RunRetrievalGraphRagDiagnosticsStrip summary={{}} />);
 
     expect(container.firstChild).toBeNull();
   });

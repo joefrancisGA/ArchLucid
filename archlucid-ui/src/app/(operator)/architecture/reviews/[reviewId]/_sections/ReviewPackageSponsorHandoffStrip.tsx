@@ -38,10 +38,7 @@ import {
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
 } from "@/lib/runs/run-detail-deliverables-copy";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
-import {
-  LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL,
-  resolveLowExtractionConfidenceCount,
-} from "@/lib/review-quality/low-extraction-confidence-count";
+import { LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL } from "@/lib/review-quality/low-extraction-confidence-count";
 import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
@@ -98,6 +95,11 @@ export function ReviewPackageSponsorHandoffStrip(
     manifestVersion: sealedManifestVersion,
   });
   const docxExportAllowed = extractionGateSatisfied && collateralExportBlockedReason === null;
+  const sponsorMarkdownExportBlockedReason = extractionGateSatisfied
+    ? null
+    : !lowExtractionConfidenceCountKnown
+      ? `${LOW_EXTRACTION_CONFIDENCE_COUNT_NOT_LOADED_LABEL} — sponsor export stays blocked until the count loads.`
+      : "Acknowledge the extraction fidelity caveat before sponsor export.";
   const { callerAuthorityRank } = useOperatorNavAuthority();
   const canInviteReviewer = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
@@ -295,6 +297,7 @@ export function ReviewPackageSponsorHandoffStrip(
             graphSnapshot={props.graphSnapshot ?? null}
             findingsSnapshot={props.findingsSnapshot ?? null}
             markdownDownloadTestId="review-package-sponsor-handoff-markdown-download"
+            exportBlockedReason={sponsorMarkdownExportBlockedReason}
           />
           {props.showExtendedSponsorBriefing ? (
             <Button variant="outline" size="sm" asChild data-testid="review-package-sponsor-handoff-more">

@@ -76,6 +76,8 @@ export type GoldenManifestExportMenuProps = {
    * does not resolve two elements.
    */
   markdownDownloadTestId?: string;
+  /** When set, Markdown export actions stay disabled (sponsor extraction gate, etc.). */
+  exportBlockedReason?: string | null;
 };
 
 /**
@@ -96,7 +98,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     trustEvidenceCard,
     buyerMarkdownAsPrimaryButton = false,
     markdownDownloadTestId = "golden-manifest-markdown-download-button",
+    exportBlockedReason = null,
   } = props;
+  const sponsorExportBlocked =
+    exportBlockedReason !== null && exportBlockedReason !== undefined && exportBlockedReason.trim().length > 0;
   const workingDesk = useProductionDeskChrome();
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
@@ -120,6 +125,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   }
 
   async function downloadMarkdownSummary(): Promise<void> {
+    if (sponsorExportBlocked) {
+      return;
+    }
+
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId,
       manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
@@ -219,6 +228,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   }
 
   async function downloadServerMarkdownSummary(): Promise<void> {
+    if (sponsorExportBlocked) {
+      return;
+    }
+
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId,
       manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
@@ -306,6 +319,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           size="sm"
           className="h-9"
           data-testid={markdownDownloadTestId}
+          disabled={sponsorExportBlocked}
           onClick={() => {
             void downloadMarkdownSummary();
           }}
@@ -336,7 +350,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     {sealedReviewSponsorCopy}
     <Select
       key={exportMenuKey}
+      disabled={sponsorExportBlocked}
       onValueChange={(value: string) => {
+        if (sponsorExportBlocked) {
+          return;
+        }
+
         if (value === "markdown-summary") {
           downloadMarkdownSummary();
           return;
@@ -352,6 +371,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           buyerPolishedShell ? "h-9 w-[12rem] opacity-60" : "h-9 w-[14rem]",
           buyerPolishedShell && "text-neutral-600 dark:text-neutral-400",
         )}
+        disabled={sponsorExportBlocked}
         aria-label={
           buyerPolishedShell
             ? "More export formats for this review"
