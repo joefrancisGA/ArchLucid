@@ -4811,10 +4811,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-27
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -4869,6 +4869,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2175 (seed-only): reseeded sql-run-repository with `-Hint sql run -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+2026-10-04 seed hunt (seed-only): reread `SqlRunRepository` and its save/query partials plus the selected SQL shape tests. The wrapper and current partials expose no fresh reachable scope or transaction mismatch beyond the closed normalization and representative-selection rows; no new candidate met the seed-hunt bar. No code changes.
 
 - [x] (valid-no-repro) Get-by-id returns a run that belongs to a different tenant — `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant`
 - [x] (valid-no-repro) List query omits tenant predicate when workspace filter is empty — `RunListWarningFlagSql.ScopeWhereTail` always binds `r.TenantId`
