@@ -6703,7 +6703,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 23
+- **hunts:** 24
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
@@ -26909,6 +26909,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-03 thorough hunt (dry): cheap-disproved the five picker candidates around empty RunId handling, payload ProjectId binding, conflict dead-letter classification, and unknown work types; no failing repro emerged; 30 focused Host.Composition coordination/outbox tests and 19 Host.Core coordination/outbox tests passed.
 
 2026-10-04 seed hunt (hit): promoted the dead-letter hook failure candidate and proved that `RecoverableOutboxFailureHandler` propagated an audit/metric hook exception after persisting terminal dead-letter state; changed hooks to best-effort while preserving cancellation, with `RecoverableOutboxFailureHandlerTests.HandleAsync_does_not_escape_dead_letter_hook_failure_after_recording_terminal_state`. Focused regression passed and 20 coordination/outbox tests passed.
+
+2026-10-04 seed hunt (seed-only): reread the changed shared failure handler, processor isolation shell, and sibling dead-letter paths after the fix; no fresh reachable mechanism-backed candidate emerged beyond the closed hook-isolation row. No code changes.
 
 ### Hypotheses
 
