@@ -24505,11 +24505,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 71
-- **bugs-found:** 33
+- **hunts:** 72
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — VMSS and Databricks subnet associations used incompatible generic source kinds
+- **last-bug:** 2026-10-04 — diagnostic-settings pagination accepted a prefix-collision next link
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24534,6 +24534,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `HostedAzureArmResourceRecordMerger.MergeByResourceId` — duplicate `indexResources` IDs that differ only by case or surrounding whitespace could throw before typed records merge — **cheap-disproof 2026-10-03 thorough hunt:** typed enrichment is downstream of ARM list responses, but no live ARM response or provider contract establishes duplicate resource IDs across the index page; no failing repro.
 - [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — pages are appended without ARN deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Resource Explorer provider behavior or reachable fixture establishes duplicate ARNs across pages; collector pagination/loop guards passed existing tests; no failing repro.
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — pages are appended without asset-name deduplication — **cheap-disproof 2026-10-03 thorough hunt:** no Asset Inventory provider behavior or reachable fixture establishes duplicate asset names across pages; raw-page pagination tests passed; no failing repro.
+- [x] (proven) `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource` — an ARM `nextLink` path ending in `diagnosticSettingsEvil` passed the diagnostic-settings prefix check and could be followed as a collection cursor — **hit 2026-10-04 seed hunt:** required the exact path or a slash-delimited descendant; regression `ListDiagnosticSettingsAsync_rejects_next_link_with_diagnostic_settings_prefix_collision`.
 
 - [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.AddVmssAssociations` — a reachable Azure VMSS network profile subnet was emitted with `nicToSubnet` even though the source resource was a `Microsoft.Compute/virtualMachineScaleSets` resource — **hit 2026-10-04:** added `vmssToSubnet` with `VirtualMachineScaleSet → Subnet` catalog metadata; regression `Build_emits_vmss_to_subnet_row_with_vmss_association_type`.
 - [x] (invalid) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP — **cheap-disproof 2026-10-04:** selected extractor files define no expected Bastion public-IP association contract or catalog relationship, so no wrong outcome was established.
@@ -24544,6 +24545,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (seed-only): re-read the selected Azure network-association builder, ARM property expander, AWS/GCP collectors and packagers, and focused extractor tests. The three reachable association-typing/exposure candidates remain candidates because downstream graph validation or the expected Bastion public-IP contract is outside this zone's selected files; no failing repro was attempted.
 
 2026-10-04 thorough hunt (dry): cheap-disproved promotion of the three association candidates because the selected extractor files do not establish the downstream graph rejection or the expected Bastion public-IP contract; no hunt-ready hypothesis remained and no failing repro was attempted. The focused association-builder suite passed 14/14.
+
+2026-10-04 seed hunt (hit): proved `HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource` accepted `diagnosticSettingsEvil` via an unbounded path prefix, allowing an ARM pagination cursor outside the intended diagnostic-settings collection; required an exact path or slash-delimited descendant and added `ListDiagnosticSettingsAsync_rejects_next_link_with_diagnostic_settings_prefix_collision`. The focused Azure read-client suite passed 33/33.
 
 2026-09-27 seed hunt (seed→hit): reseeded cloud-extractors; proved `ListSubscriptionRoleEligibilitySchedulesAsync` followed same-subscription `nextLink` to `roleAssignments` (subscription-only guard); fixed with `EnsureTargetsArmRelativeListingPath` on role-eligibility listing path; regression `ListSubscriptionRoleEligibilitySchedulesAsync_rejects_next_link_for_different_role_listing_path`; 97 Azure + 51 AWS/GCP scoped extractor tests passed.
 
