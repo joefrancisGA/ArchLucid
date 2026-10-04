@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `host-composition` — `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` when Redis L2 was enabled, throwing `NullReferenceException` instead of the documented configuration error; null-safe trim now surfaces `InvalidOperationException`; regression `RegisterHotPathReadCaching_null_redis_connection_reports_configuration_error`; 409 scoped host-composition tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-billing-logic` — `BillingCheckoutFacade.TryParseCheckoutTier` matched checkout `TargetTier` labels case-sensitively, so a reachable JSON body with `team` was rejected as missing/unknown tier; tier parsing now uses ordinal case-insensitive comparison; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`; 28 scoped billing tests passed.
 
 2026-10-04 seed hunt (seed→hit): `application-billing-logic` — promoted unknown persisted `TenantTier` handling: `TenantCostEstimateService.TryGetEstimateAsync` fell back to the Standard monthly band for out-of-range enum values from `ITenantRepository`; now returns null when the tier is not defined; regression `TryGetEstimateAsync_unknown_tier_returns_null`; cheap-disproof closed the zero-token positive-cost top-run candidate because `AgentExecutionTraceRunLlmCostAggregator` skips zero-token slices before estimating; 27 scoped billing tests passed.
@@ -24565,11 +24567,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 51
-- **bugs-found:** 30
+- **hunts:** 52
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — null-bound hot-path Redis in health probe resolver caused unclassified `NullReferenceException`
+- **last-bug:** 2026-10-04 — null-bound hot-path Redis in reference-data registrar caused unclassified `NullReferenceException`
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
