@@ -28,7 +28,7 @@ export function formatAgentQualityRatioCell(
 
 /** Hint when a persisted ratio is outside the expected 0–1 range (UU-510). */
 export function agentQualityRatioOutOfRangeHint(value: number | null): string | null {
-  if (value === null || Number.isNaN(value) || value <= 1) {
+  if (value === null || Number.isNaN(value) || (value >= 0 && value <= 1)) {
     return null;
   }
 
