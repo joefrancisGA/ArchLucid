@@ -23,7 +23,7 @@ export type ReviewPackageValidationRow = {
 };
 
 /** Shown when no package owner can be resolved for a review row. */
-export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = " — ";
+export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = "Owner not recorded";
 
 /** Legacy draft-registry placeholder for the signed-in operator — replaced with username when known. */
 export const REVIEW_PACKAGE_SELF_OWNER_PLACEHOLDER = "You";

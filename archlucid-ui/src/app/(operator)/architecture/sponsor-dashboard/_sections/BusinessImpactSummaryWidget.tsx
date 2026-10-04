@@ -19,8 +19,8 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { readBusinessImpactThemeCountsDisplay } from "@/lib/sponsor/business-impact-theme-count-display";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
-import { presentBusinessImpactThemeCounts } from "@/lib/sponsor/business-impact-theme-count-display";
 
 function formatUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -61,7 +61,7 @@ export function BusinessImpactSummaryWidget({
   }
 
   const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
-  const businessImpactCounts = presentBusinessImpactThemeCounts(data?.businessImpactCategoryCounts);
+  const businessImpactCounts = readBusinessImpactThemeCountsDisplay(data);
   const themeCards = [
     { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
     { key: "compliance", label: "Compliance themes", value: businessImpactCounts.compliance, icon: Scale },
@@ -78,7 +78,7 @@ export function BusinessImpactSummaryWidget({
           Business impact summary
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Theme counts from finalized reviews in this workspace.
+          Theme counts from the latest sponsor ROI summary.
           {!hasCommittedRuns && !isLoading ? " Finalize a review to populate these cards." : null}
         </p>
       </div>
@@ -141,7 +141,7 @@ export function BusinessImpactSummaryWidget({
                   <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
                 ) : (
                   <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                    {hasCommittedRuns ? card.value : " — "}
+                    {hasCommittedRuns ? card.value : "Not returned"}
                   </p>
                 )}
               </CardContent>

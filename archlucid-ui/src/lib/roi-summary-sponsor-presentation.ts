@@ -227,8 +227,12 @@ export function computeRoiSummaryPeriodMetrics(
 }
 
 export function formatRoiSummaryHoursDisplay(hours: number): string {
-  if (!Number.isFinite(hours) || hours <= 1e-9) {
-    return " — ";
+  if (!Number.isFinite(hours)) {
+    return "Hours not returned";
+  }
+
+  if (hours <= 1e-9) {
+    return "0 hrs";
   }
 
   return formatHours(hours);
@@ -236,7 +240,7 @@ export function formatRoiSummaryHoursDisplay(hours: number): string {
 
 export function formatRoiSummaryUsdDisplay(hours: number, usdEstimate: number, showUsdEstimate: boolean): string {
   if (!showUsdEstimate) {
-    return " — ";
+    return "Estimate withheld";
   }
 
   return formatUsd(usdEstimate);
