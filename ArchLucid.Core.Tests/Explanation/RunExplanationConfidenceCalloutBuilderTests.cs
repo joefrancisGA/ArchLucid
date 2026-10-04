@@ -533,6 +533,28 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_ignores_negative_whole_number_counts_without_throwing()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "decisionCount": -1,
+              "unresolvedIssueCount": -2,
+              "complianceGapCount": -3
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":-1}""").RootElement).Should().BeNull();
+        RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(
+            JsonDocument.Parse("""{"unresolvedIssueCount":-2}""").RootElement).Should().BeNull();
+        RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(
+            JsonDocument.Parse("""{"complianceGapCount":-3}""").RootElement).Should().BeNull();
+    }
+
+    [Fact]
     public void FromAggregateJson_returns_null_for_non_object_root()
     {
         RunExplanationConfidenceSignals? signals =
