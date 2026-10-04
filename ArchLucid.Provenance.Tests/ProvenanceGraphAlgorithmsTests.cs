@@ -101,6 +101,44 @@ public sealed class ProvenanceGraphAlgorithmsTests
     }
 
     [Fact]
+    public void ExtractDecisionSubgraph_includes_graph_evidence_for_supporting_findings()
+    {
+        DecisionProvenanceGraph graph = SampleGraph();
+        Guid decisionId = graph.Nodes[0].Id;
+        Guid findingId = graph.Nodes[1].Id;
+        Guid graphNodeId = Guid.Parse("60606060-6060-6060-6060-606060606060");
+        graph.Nodes.Add(
+            new ProvenanceNode
+            {
+                Id = graphNodeId,
+                Type = ProvenanceNodeType.GraphNode,
+                ReferenceId = "resource-1",
+                Name = "Resource",
+            });
+        graph.Edges[0] = new ProvenanceEdge
+        {
+            Id = graph.Edges[0].Id,
+            FromNodeId = findingId,
+            ToNodeId = decisionId,
+            Type = ProvenanceEdgeType.SupportedBy,
+        };
+        graph.Edges.Add(
+            new ProvenanceEdge
+            {
+                Id = Guid.Parse("70707070-7070-7070-7070-707070707070"),
+                FromNodeId = graphNodeId,
+                ToNodeId = findingId,
+                Type = ProvenanceEdgeType.InfluencedByGraphNode,
+            });
+
+        DecisionProvenanceGraph sub = ProvenanceGraphAlgorithms.ExtractDecisionSubgraph(graph, decisionId);
+
+        sub.Nodes.Select(node => node.Id).Should().Contain([decisionId, findingId, graphNodeId]);
+        sub.Edges.Should().HaveCount(2);
+        sub.Edges.Should().Contain(edge => edge.Type == ProvenanceEdgeType.InfluencedByGraphNode);
+    }
+
+    [Fact]
     public void ExtractNeighborhood_ReturnsEmpty_WhenStartUnknown()
     {
         DecisionProvenanceGraph graph = SampleGraph();
