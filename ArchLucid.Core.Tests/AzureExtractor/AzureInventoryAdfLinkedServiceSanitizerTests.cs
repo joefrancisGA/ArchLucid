@@ -224,4 +224,54 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
 
         row!.TargetResourceId.Should().Be(storageId);
     }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_marks_blob_linked_service_unresolved_when_service_endpoint_is_json_object()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/BlobLS",
+              "name": "BlobLS",
+              "properties": {
+                "type": "AzureBlobStorage",
+                "typeProperties": {
+                  "serviceEndpoint": {
+                    "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1"
+                  }
+                }
+              }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(FactoryId, linkedService, out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetResourceId.Should().BeNull();
+        row.TargetHost.Should().BeNull();
+        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved);
+    }
+
+    [Fact]
+    public void TrySanitizeFromArmResource_leaves_key_vault_resource_id_null_when_base_url_resolves()
+    {
+        JsonElement linkedService = JsonDocument.Parse(
+            """
+            {
+              "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/linkedservices/KvLS",
+              "name": "KvLS",
+              "properties": {
+                "type": "AzureKeyVault",
+                "typeProperties": { "baseUrl": "https://kv1.vault.azure.net/" }
+              }
+            }
+            """).RootElement;
+
+        AzureInventoryAdfLinkedServiceSanitizer.TrySanitizeFromArmResource(FactoryId, linkedService, out AzureInventoryAdfLinkedServiceRow? row)
+            .Should().BeTrue();
+
+        row!.TargetHost.Should().Be("kv1.vault.azure.net");
+        row.KeyVaultResourceId.Should().BeNull();
+        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded);
+    }
 }
