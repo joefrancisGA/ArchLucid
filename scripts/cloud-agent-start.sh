@@ -11,7 +11,7 @@ export DOTNET_ROOT="${DOTNET_ROOT:-${HOME}/.dotnet}"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_NOLOGO=1
 export NUGET_PACKAGES="${NUGET_PACKAGES:-${HOME}/.nuget/packages}"
-export PATH="/usr/local/bin:${DOTNET_ROOT}:${HOME}/.local/bin:${PATH}"
+export PATH="${HOME}/.local/bin:/usr/local/bin:${DOTNET_ROOT}:${PATH}"
 
 API_URL="http://127.0.0.1:5128/health/live"
 UI_URL="http://127.0.0.1:3000/help"
@@ -35,9 +35,9 @@ ensure_session() {
   echo "Started ${name}"
 }
 
-API_CMD="cd ${REPO_ROOT} && export DOTNET_ROOT=\"\${HOME}/.dotnet\" && export PATH=\"/usr/local/bin:\${DOTNET_ROOT}:\${PATH}\" && export DOTNET_CLI_TELEMETRY_OPTOUT=1 && export DOTNET_NOLOGO=1 && export NUGET_PACKAGES=\"\${HOME}/.nuget/packages\" && export ASPNETCORE_ENVIRONMENT=Development && export ArchLucid__StorageProvider=InMemory && export ArchLucidAuth__AllowTestActorHeaders=true && export DataConsistency__InitialDelaySeconds=0 && export HostLeaderElection__Enabled=false && exec dotnet run --project ArchLucid.Api/ArchLucid.Api.csproj --no-launch-profile --urls http://127.0.0.1:5128 >>/tmp/archlucid-api.log 2>&1"
+API_CMD="cd ${REPO_ROOT} && export DOTNET_ROOT=\"\${HOME}/.dotnet\" && export PATH=\"\${HOME}/.local/bin:/usr/local/bin:\${DOTNET_ROOT}:\${PATH}\" && export DOTNET_CLI_TELEMETRY_OPTOUT=1 && export DOTNET_NOLOGO=1 && export NUGET_PACKAGES=\"\${HOME}/.nuget/packages\" && export ASPNETCORE_ENVIRONMENT=Development && export ArchLucid__StorageProvider=InMemory && export ArchLucidAuth__AllowTestActorHeaders=true && export DataConsistency__InitialDelaySeconds=0 && export HostLeaderElection__Enabled=false && exec dotnet run --project ArchLucid.Api/ArchLucid.Api.csproj --no-launch-profile --urls http://127.0.0.1:5128 >>/tmp/archlucid-api.log 2>&1"
 
-UI_CMD="cd ${REPO_ROOT}/archlucid-ui && export PATH=\"/usr/local/bin:\${PATH}\" && exec npm run dev -- --hostname 0.0.0.0 --port 3000 >>/tmp/archlucid-ui.log 2>&1"
+UI_CMD="cd ${REPO_ROOT}/archlucid-ui && export PATH=\"\${HOME}/.local/bin:/usr/local/bin:\${PATH}\" && exec npm run dev -- --hostname 0.0.0.0 --port 3000 >>/tmp/archlucid-ui.log 2>&1"
 
 ensure_session archlucid_api "${API_URL}" "${API_CMD}"
 ensure_session archlucid_ui "${UI_URL}" "${UI_CMD}"

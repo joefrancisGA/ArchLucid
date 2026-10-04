@@ -12,9 +12,9 @@ After `npm ci` in `archlucid-ui`, CI asserts a single resolved `@tanstack/query-
 
 ## Cursor Cloud specific instructions
 
-Cursor Cloud Agent VMs are **Linux**. **`python3` is preinstalled**. The base image does not include the .NET SDK or PowerShell. **`scripts/cloud-agent-install.sh`** (Cloud Agent `install`) installs the SDK pinned in **`global.json`**, Node.js 22 under **`/usr/local`**, PowerShell 7 + Pester 5, restores and Debug-builds **`ArchLucid.Api`**, and runs **`npm ci`** in **`archlucid-ui`**. **`scripts/cloud-agent-start.sh`** (Cloud Agent `start`) launches the API on port **5128** with **`ArchLucid__StorageProvider=InMemory`** (no SQL) and the Next.js dev server on port **3000**. Open the UI at **`http://localhost:3000`**. Next.js blocks dev assets when the browser host is **`127.0.0.1`**. Repo scripts and Pester suites expect PowerShell 7 + Pester 5 (same band as CI `azure-extractor-pester`). The manual steps below are what that install script runs when a tool is missing.
+Cursor Cloud Agent VMs are **Linux**. **`python3` is preinstalled**. The base image does not include the .NET SDK, Node.js, or PowerShell. **`.cursor/environment.json`** runs **`scripts/cloud-agent-install.sh`**: pinned **.NET SDK**, **Node.js 22** in **`$HOME/.local/node`**, **PowerShell 7 + Pester 5** in **`$HOME/.local/pwsh`**, **`npm ci`** in **`archlucid-ui`**, and (when disk allows) Debug **`ArchLucid.Api`**. **`scripts/cloud-agent-start.sh`** launches the API on **5128** (`ArchLucid__StorageProvider=InMemory`) and Next.js on **3000**. Open the UI at **`http://localhost:3000`** (not **`127.0.0.1`** for dev assets). Pester suites match CI `azure-extractor-pester`. If tools are missing, run **`./scripts/cloud-agent-install.sh`** from repo root with **`export PATH="$HOME/.local/bin:$HOME/.dotnet:$PATH"`**.
 
-**One-time per VM (user prefix, no root):**
+**Manual PowerShell only** (fallback):
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -25,7 +25,7 @@ ln -sf "$HOME/.local/pwsh/pwsh" "$HOME/.local/bin/pwsh"
 pwsh -NoProfile -Command "Install-Module Pester -Scope CurrentUser -Force -SkipPublisherCheck -MinimumVersion 5.0.0 -MaximumVersion 5.99.99"
 ```
 
-Do not commit the extracted tree under `$HOME/.local/pwsh`.
+Do not commit extracted trees under **`$HOME/.local/pwsh`** or **`$HOME/.local/node`**. Keep this section in sync with **`docs/engineering/AGENTS.md`**.
 
 **Run repo scripts from repo root:**
 
