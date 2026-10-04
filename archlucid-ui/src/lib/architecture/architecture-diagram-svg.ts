@@ -693,6 +693,8 @@ export function sanitizeArchitectureDiagramSvg(
       "data-bundle-to",
       "data-focus-node",
       "data-neighborhood-id",
+      "data-member-ids",
+      "data-member-names",
     ],
   });
 }

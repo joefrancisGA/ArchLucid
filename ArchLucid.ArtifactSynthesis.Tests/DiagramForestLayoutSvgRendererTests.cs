@@ -19,6 +19,108 @@ public sealed class DiagramForestLayoutSvgRendererTests
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
 
     [Fact]
+    public void Render_data_flow_rolls_up_repeated_storage_cards_and_keeps_members_for_export()
+    {
+        DiagramAst ast = BuildStorageRollupAst(5);
+
+        DiagramForestLayoutResult onScreen = renderer.Render(ast);
+
+        onScreen.Succeeded.Should().BeTrue(onScreen.Error);
+        onScreen.Svg.Should().Contain("5 storage accounts [1]");
+        onScreen.Svg.Should().Contain("0 used · 5 no consumer found");
+        onScreen.Svg.Should().Contain("data-member-ids");
+        onScreen.Svg.Should().NotContain("storage-0 ·");
+
+        DiagramForestLayoutResult export = renderer.Render(
+            ast,
+            new DiagramForestLayoutOptions
+            {
+                IncludeDataFlowRollupMembersInLegend = true,
+            });
+
+        export.Succeeded.Should().BeTrue(export.Error);
+        export.Svg.Should().Contain("storage-0 ·");
+        export.Svg.Should().Contain("storage-4 ·");
+    }
+
+    [Fact]
+    public void Render_data_flow_keeps_three_cards_and_different_neighbors_outside_rollup()
+    {
+        DiagramAst ast = BuildStorageRollupAst(5);
+        ast.Nodes.AddRange(
+        [
+            new DiagramNode
+            {
+                NodeId = "consumer-a",
+                Label = "consumer-a",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Web/sites",
+                SubgraphId = "storage",
+                OrderKey = 20,
+            },
+            new DiagramNode
+            {
+                NodeId = "consumer-b",
+                Label = "consumer-b",
+                NodeType = "TopologyResource",
+                ArmResourceType = "Microsoft.Web/sites",
+                SubgraphId = "storage",
+                OrderKey = 21,
+            },
+        ]);
+        ast.Edges.Add(new DiagramEdge
+        {
+            FromNodeId = "storage-3",
+            ToNodeId = "consumer-a",
+            Label = "uses",
+        });
+        ast.Edges.Add(new DiagramEdge
+        {
+            FromNodeId = "storage-4",
+            ToNodeId = "consumer-b",
+            Label = "uses",
+        });
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().NotContain("5 storage accounts");
+        result.Svg.Should().Contain("storage-0");
+        result.Svg.Should().Contain("storage-1");
+        result.Svg.Should().Contain("storage-2");
+        result.Svg.Should().Contain("storage-3");
+        result.Svg.Should().Contain("storage-4");
+    }
+
+    private static DiagramAst BuildStorageRollupAst(int storageCount)
+    {
+        return new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "storage",
+                    Label = "Storage",
+                    OrderKey = 0,
+                },
+            ],
+            Nodes = Enumerable.Range(0, storageCount)
+                .Select(index => new DiagramNode
+                {
+                    NodeId = $"storage-{index}",
+                    Label = $"storage-{index}",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "storage",
+                    OrderKey = index,
+                })
+                .ToList(),
+        };
+    }
+
+    [Fact]
     public void Render_data_flow_shows_human_type_captions_without_changing_other_modes()
     {
         DiagramAst ast = new()

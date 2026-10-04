@@ -88,6 +88,18 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             DiagramForestSingletonTailPlanner.Apply(ast.Title, renderableNodes, visibleEdges);
         renderableNodes = singletonResult.Nodes.ToList();
         visibleEdges = singletonResult.Edges;
+        IReadOnlyList<DiagramNode> dataFlowRollupNodes = [];
+
+        if (IsDataFlowTitle(ast.Title))
+        {
+            DiagramForestDataFlowRollup.Result rollupResult =
+                DiagramForestDataFlowRollup.Apply(renderableNodes, visibleEdges);
+            renderableNodes = rollupResult.Nodes.ToList();
+            visibleEdges = rollupResult.Edges;
+            dataFlowRollupNodes = renderableNodes
+                .Where(node => node.IsDataFlowRollup)
+                .ToList();
+        }
 
         DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
             renderableNodes,
@@ -155,7 +167,14 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             return DiagramForestLayoutResult.Failed("Forest layout produced no component placements.");
         }
 
-        string svg = EmitSvg(placements, visibleEdges, renderableNodes, ast.Title, resolvedOptions, dataFlowColumns);
+        string svg = EmitSvg(
+            placements,
+            visibleEdges,
+            renderableNodes,
+            ast.Title,
+            resolvedOptions,
+            dataFlowColumns,
+            dataFlowRollupNodes);
 
         if (string.IsNullOrWhiteSpace(svg))
         {
@@ -1401,7 +1420,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<DiagramNode> renderableNodes,
         string title,
         DiagramForestLayoutOptions options,
-        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo>? dataFlowColumns = null)
+        IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo>? dataFlowColumns = null,
+        IReadOnlyList<DiagramNode>? dataFlowRollupNodes = null)
     {
         if (placements.Count == 0)
         {
@@ -1714,7 +1734,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 placement.Width,
                 placement.Height,
                 placement.Metrics,
-                options);
+                options,
+                placement.Node);
             nodeGroup.Add(new XAttribute(
                 "transform",
                 string.Create(
@@ -1731,7 +1752,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 usedKinds,
                 hasPrivateEndpointAccess,
                 hasDashedPeering,
-                frameBounds.Count > 0),
+                frameBounds.Count > 0,
+                options.IncludeDataFlowRollupMembersInLegend
+                    ? dataFlowRollupNodes ?? []
+                    : []),
             legendAnchorX,
             legendAnchorY);
         root.Add(legendLayout.Group);

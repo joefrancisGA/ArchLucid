@@ -508,7 +508,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
-  const [clickFocus, setClickFocus] = useState<{ id: string; name: string } | null>(null);
+  const [clickFocus, setClickFocus] = useState<{
+    id: string;
+    name: string;
+    memberNames?: readonly string[];
+  } | null>(null);
   const [diagramSurface, setDiagramSurface] = useState<'map' | 'plate' | 'neighborhood'>('plate');
   const [openNeighborhoodId, setOpenNeighborhoodId] = useState<string | null>(null);
   const [renderGeneration, setRenderGeneration] = useState(0);
@@ -1012,9 +1016,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       const title = node.querySelector('title')?.textContent?.trim() ?? id;
+      const memberNames = (node.getAttribute('data-member-names') ?? '')
+        .split('|')
+        .map((member) => member.trim())
+        .filter(Boolean);
       setClickFocus({
         id,
         name: title.replace(/\s+—\s+Private endpoint access$/u, ''),
+        memberNames: memberNames.length > 0 ? memberNames : undefined,
       });
     };
 
@@ -1200,13 +1209,20 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       ) : null}
 
       {clickFocus !== null ? (
-        <p
+        <div
           className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
           data-testid="diagram-click-focus-status"
           aria-live="polite"
         >
-          {`Showing connections for ${clickFocus.name}.`}
-        </p>
+          <p className="m-0">{`Showing connections for ${clickFocus.name}.`}</p>
+          {clickFocus.memberNames !== undefined ? (
+            <ul className="m-0 mt-1 list-disc pl-5">
+              {clickFocus.memberNames.map((memberName) => (
+                <li key={memberName}>{memberName}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       ) : null}
 
       {questionableNode?.questionableReason != null ? (

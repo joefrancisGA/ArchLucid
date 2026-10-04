@@ -76,7 +76,11 @@ public sealed class DiagramForestCanvasLabelContext
             _peerResourceNames,
             _options,
             textColumnMaxWidth);
-        _consumerStatusByNodeId.TryGetValue(node.NodeId, out string? consumerStatusLine);
+        string? consumerStatusLine = node.DataFlowRollupStatusLine;
+        if (consumerStatusLine is null)
+        {
+            _consumerStatusByNodeId.TryGetValue(node.NodeId, out consumerStatusLine);
+        }
         string? dataFlowTypeLine = _isDataFlow
             ? DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node)
             : null;

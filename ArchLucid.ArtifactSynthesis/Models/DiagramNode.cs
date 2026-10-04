@@ -100,6 +100,34 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>True when this node represents a repeated-card rollup on a data-flow canvas.</summary>
+    public bool IsDataFlowRollup
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Original node ids represented by a data-flow rollup card.</summary>
+    public List<string> DataFlowRollupMemberIds
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Human-readable member details for data-flow rollup focus and export.</summary>
+    public List<string> DataFlowRollupMemberNames
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Aggregated consumer status painted on a data-flow rollup card.</summary>
+    public string? DataFlowRollupStatusLine
+    {
+        get;
+        set;
+    }
+
     public string? ArmResourceGroup
     {
         get;

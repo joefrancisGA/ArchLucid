@@ -15,7 +15,8 @@ public static class DiagramForestNodeSvgEmitter
         double width,
         double height,
         DiagramForestNodeMetrics metrics,
-        DiagramForestLayoutOptions options)
+        DiagramForestLayoutOptions options,
+        DiagramNode? node = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(metrics);
@@ -29,6 +30,17 @@ public static class DiagramForestNodeSvgEmitter
             svgNamespace + "g",
             new XAttribute("class", "node"),
             new XAttribute("id", $"node-{nodeId}"));
+        if (node?.IsDataFlowRollup == true)
+        {
+            group.Add(
+                new XAttribute(
+                    "data-member-ids",
+                    string.Join("|", node.DataFlowRollupMemberIds)));
+            group.Add(
+                new XAttribute(
+                    "data-member-names",
+                    string.Join("|", node.DataFlowRollupMemberNames)));
+        }
         string? questionableTitle = metrics.IsQuestionable
             ? $"{accessibilityTitle} — Questionable; select the resource for the reason and recommended action"
             : null;
