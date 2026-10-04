@@ -19,7 +19,7 @@ export function formatAgentQualityRatioCell(
     return NOT_SCORED_LABEL;
   }
 
-  if (value > 1) {
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
     return "Not usable";
   }
 
