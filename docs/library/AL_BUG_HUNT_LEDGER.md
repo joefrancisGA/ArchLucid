@@ -4811,9 +4811,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
@@ -4871,7 +4871,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 2026-10-04 seed hunt (seed-only): reread `SqlRunRepository` and its save/query partials plus the selected SQL shape tests. The wrapper and current partials expose no fresh reachable scope or transaction mismatch beyond the closed normalization and representative-selection rows; no new candidate met the seed-hunt bar. No code changes.
-- [ ] (candidate) `SqlRunRepository` primary-constructor dependencies `ISqlConnectionFactory` and `IAuthorityRunListConnectionFactory` are accepted without the explicit null guards used for `ITenantRepository`; a reachable misconfigured DI composition could defer failure to the first repository call instead of failing construction, but the selected file does not contain a real registration/configuration path that supplies null.
+
+2026-10-04 thorough hunt (dry): cheap-disproved the constructor-null candidate; the production DI graph resolves both connection-factory dependencies before repository construction, and no reachable registration supplies null. Scoped tests passed 135 with 1 SQL integration test skipped; no failing repro.
+- [x] (invalid) `SqlRunRepository` primary-constructor dependencies `ISqlConnectionFactory` and `IAuthorityRunListConnectionFactory` are accepted without the explicit null guards used for `ITenantRepository`; no production registration supplies null, and the selected DI registrations resolve both dependencies before constructing the repository, so no reachable deferred-failure repro exists.
 
 - [x] (valid-no-repro) Get-by-id returns a run that belongs to a different tenant — `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant`
 - [x] (valid-no-repro) List query omits tenant predicate when workspace filter is empty — `RunListWarningFlagSql.ScopeWhereTail` always binds `r.TenantId`
