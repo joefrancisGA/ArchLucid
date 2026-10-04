@@ -26896,7 +26896,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -26918,6 +26918,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-04 seed hunt (seed-only): reread `RecoverableOutboxFailureHandler`, `RecoverableOutboxProcessorBase`, and the regression test after the fix; no new reachable candidate emerged. No code changes.
 2026-10-04 seed hunt (hit): proved the direct destination-policy dead-letter path in `RunExportBlobPushOutboxProcessor` bypassed the shared best-effort handler; an audit failure after `RecordDeadLetterAsync` caused the base processor to schedule backoff for the same terminal row. Centralized cancellation-aware best-effort audit handling and added `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure`; export processor tests passed 10/10 and the Host.Core coordination scope passed 20/20.
+
+2026-10-04 seed hunt (seed-only): reread coordination processor isolation, retry/dead-letter handling, export package failure boundaries, and post-commit provenance dispatch; no new hunt-ready defect met the reachable-input bar. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests; source rebuild remained blocked by unrelated ARCH006/ARCH006a analyzer errors.
 
 ### Hypotheses
 
@@ -26968,6 +26970,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `OutboxProcessorRetryCalculator.RetryDelayAfterFailure` — malformed negative/extreme attempt counts are not emitted by the recoverable-outbox persistence path, and the calculator clamps ordinary overflow to its configured cap.
 - [x] (valid-no-repro) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — returning the number dequeued is the method contract; cancellation propagates rather than claiming successful completion, while each entry remains independently leased/processed.
 - [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy dead-letter handling deliberately performs the required audit and metric calls; existing destination-policy tests cover the observable behavior.
+- [ ] (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — an exception from `IRunExportPackageBuilder.BuildAsync` outside the explicit push `InvalidOperationException` handler could retry a persistently invalid export package instead of reaching the processor's direct dead-letter path; reachable input is malformed or unavailable persisted run-export state returned by the package builder; requires a concrete builder exception contract before promotion.
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — after the manifest-compare read succeeds, a reachable run-detail read that returns a DTO with no `GoldenManifest` is passed to `TryMaterializeSnapshotAsync` rather than being explicitly skipped; input is a post-commit run-detail projection with missing manifest data during persistence cleanup; requires the materializer's null-manifest behavior before promotion.
 
 2026-10-03 thorough hunt (dry): cheap-disproved all five coordination candidates; no reachable wrong outcome remained for a failing repro.
 
