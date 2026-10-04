@@ -277,12 +277,17 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
   return option?.label ?? mode;
 }
 
-function infraDiagramModeJobCaption(mode: string): string | null {
+function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
     case "dataArchitecture":
       return "This diagram shows what stores data.";
     case "dataFlow":
-      return "This diagram shows what may connect. It is not observed traffic.";
+      return (
+        <>
+          This diagram shows what <span className="font-semibold">may</span> connect. It is not{" "}
+          <span className="font-semibold">observed</span> traffic.
+        </>
+      );
     default:
       return null;
   }

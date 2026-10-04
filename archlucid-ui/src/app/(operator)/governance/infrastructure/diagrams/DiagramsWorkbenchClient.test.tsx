@@ -360,6 +360,21 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-executive-always-show")).toBeInTheDocument();
   });
 
+  it("emphasizes may and observed in the data flow diagram type caption", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "dataFlow" },
+    });
+
+    const caption = screen.getByText(/This diagram shows what/);
+    expect(caption).toHaveTextContent("This diagram shows what may connect. It is not observed traffic.");
+    expect(caption.querySelectorAll(".font-semibold")).toHaveLength(2);
+    expect(caption.querySelector(".font-semibold")?.textContent).toBe("may");
+    expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
+  });
+
   it("shows an all-resource-groups picker after subscription and snapshot selection", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
