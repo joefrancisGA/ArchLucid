@@ -68,6 +68,7 @@ export type UseWebhooksSettingsResult = {
   readonly webhookRows: AlertRoutingSubscription[];
   readonly activeSubscriptionCount: number;
   readonly load: () => Promise<boolean>;
+  readonly refreshSubscriptions: () => Promise<boolean>;
   readonly onTestWebhook: (routingSubscriptionId: string) => Promise<void>;
   readonly onToggle: (routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) => Promise<void>;
   readonly confirmEnableSubscription: () => Promise<void>;
@@ -130,6 +131,21 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
   });
   mutationResetRef.current = mutations.resetMutationState;
 
+  const refreshSubscriptions = useCallback(async (): Promise<boolean> => {
+    mutations.setPendingEnable(null);
+    mutations.setPendingDisable(null);
+    mutations.setEnableErrorMessage(null);
+    mutations.setDisableErrorMessage(null);
+
+    return await loadState.load();
+  }, [
+    loadState.load,
+    mutations.setPendingDisable,
+    mutations.setPendingEnable,
+    mutations.setDisableErrorMessage,
+    mutations.setEnableErrorMessage,
+  ]);
+
   const watchedEventTypes = useWatch({ control, name: "eventTypes" });
   const watchedFormValues = useWatch({ control }) as WebhookSettingsFormValues;
   const formReadinessMessage = useMemo(() => {
@@ -178,6 +194,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     webhookRows: loadState.webhookRows,
     activeSubscriptionCount: loadState.activeSubscriptionCount,
     load: loadState.load,
+    refreshSubscriptions,
     onTestWebhook: connectionTest.onTestWebhook,
     onToggle: mutations.onToggle,
     confirmEnableSubscription: mutations.confirmEnableSubscription,
