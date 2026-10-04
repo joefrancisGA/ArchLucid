@@ -22,6 +22,7 @@ describe("diagram-reconcile-readiness", () => {
         sealedRecord: SEALED_RECORD,
         selectedSnapshotId: "",
         modelNodeCount: 3,
+        mermaidDraft: "",
       }),
     ).toBe("Needs an inventory snapshot.");
   });
@@ -32,9 +33,32 @@ describe("diagram-reconcile-readiness", () => {
         sealedRecord: SEALED_RECORD,
         selectedSnapshotId: "11111111-1111-1111-1111-111111111111",
         modelNodeCount: 3,
+        mermaidDraft: "",
         reconciliationSaved: false,
         loadingReconciliation: false,
       }).label,
     ).toBe("Ready to reconcile");
+  });
+
+  it("allows advisory compare when sealed review id is blank and a mermaid draft exists", () => {
+    expect(
+      resolveDiagramReconcileBlockedReason({
+        sealedRecord: { kind: "idle" },
+        selectedSnapshotId: "11111111-1111-1111-1111-111111111111",
+        modelNodeCount: null,
+        mermaidDraft: "flowchart LR\n  a --> b",
+      }),
+    ).toBeNull();
+
+    expect(
+      resolveDiagramReconcileReconcileStepReadiness({
+        sealedRecord: { kind: "idle" },
+        selectedSnapshotId: "11111111-1111-1111-1111-111111111111",
+        modelNodeCount: null,
+        mermaidDraft: "flowchart LR\n  a --> b",
+        reconciliationSaved: false,
+        loadingReconciliation: false,
+      }).label,
+    ).toBe("Ready to compare");
   });
 });

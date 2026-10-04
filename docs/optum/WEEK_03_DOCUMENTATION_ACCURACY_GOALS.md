@@ -294,11 +294,11 @@ Resume the [primary week-3 goals](#proposed-week-3-feature-goals) in order: snap
 
 | Goal | Suggested tracking |
 | --- | --- |
-| Snapshot-scoped reconcile | New infra-evidence prompt or IE-UX extension; parallel to IE-19 |
-| Operator-confirmed mapping | Persistence table + matcher precedence over heuristics |
-| Edge reconciliation | IE-19 extension or IE-20 family |
-| Scorecard + export | IE-UX + `ArchLucid.ArtifactSynthesis` export |
-| Canvas overlay | DAU-08 (`.cursor/prompts/diagram-ai-usability-08-reconcile-overlay.md`) |
+| Snapshot-scoped reconcile | **DIC-01** — [`.cursor/prompts/diagram-import-comparison-01-snapshot-reconcile.md`](../../.cursor/prompts/diagram-import-comparison-01-snapshot-reconcile.md) |
+| Operator-confirmed mapping | **DIC-02** — [`.cursor/prompts/diagram-import-comparison-02-confirmed-mapping.md`](../../.cursor/prompts/diagram-import-comparison-02-confirmed-mapping.md) |
+| Edge reconciliation | **DIC-03** — [`.cursor/prompts/diagram-import-comparison-03-edge-gaps.md`](../../.cursor/prompts/diagram-import-comparison-03-edge-gaps.md) |
+| Scorecard + export | **DIC-04** — [`.cursor/prompts/diagram-import-comparison-04-scorecard-export.md`](../../.cursor/prompts/diagram-import-comparison-04-scorecard-export.md) |
+| Canvas overlay on the imported drawing | **DIC-05** — [`.cursor/prompts/diagram-import-comparison-05-canvas-overlay.md`](../../.cursor/prompts/diagram-import-comparison-05-canvas-overlay.md). Inventory-canvas overlay stays **DAU-08**. |
 | **Fallback:** drift report export | Drift workbench + `InfraEvidenceDiffsController` / narrative export |
 | **Fallback:** documentation gap report | Inventory metadata + orphan classifiers; aggregated export |
 | **Fallback:** diagram PNG packs | `InfraEvidenceSnapshotMermaidService` export bundling |

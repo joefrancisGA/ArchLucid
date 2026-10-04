@@ -3,10 +3,12 @@ import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram
 import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
-import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { proxyJsonGet, proxyJsonPost, proxyJsonPut } from "@/lib/proxy-json-client";
 import type {
   ArchitectureDiagramModelRecord,
   DiagramInfrastructureReconciliationResult,
+  InfrastructureDiagramComparisonCreateRequest,
+  InfrastructureDiagramNodeMappingSaveRequest,
   OperationalSecurityFindingBatchIngestResult,
   OperationalSecurityFindingIngestRequest,
   StructuredDiagramIngestRequest,
@@ -44,6 +46,32 @@ export async function fetchArchitectureDiagramReconciliation(
   const params = new URLSearchParams({ snapshotId });
   return proxyJsonGet<DiagramInfrastructureReconciliationResult>(
     `${diagramsBasePath(runId)}/reconciliation?${params.toString()}`,
+  );
+}
+
+const ADVISORY_DIAGRAM_COMPARISONS_BASE = "/api/proxy/v1/infrastructure/diagram-comparisons";
+
+export async function compareInfrastructureDiagramAdvisory(
+  request: InfrastructureDiagramComparisonCreateRequest,
+): Promise<DiagramInfrastructureReconciliationResult> {
+  return proxyJsonPost<DiagramInfrastructureReconciliationResult>(ADVISORY_DIAGRAM_COMPARISONS_BASE, request);
+}
+
+export async function fetchInfrastructureDiagramComparison(
+  comparisonId: string,
+): Promise<DiagramInfrastructureReconciliationResult> {
+  return proxyJsonGet<DiagramInfrastructureReconciliationResult>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}`,
+  );
+}
+
+export async function saveInfrastructureDiagramNodeMapping(
+  comparisonId: string,
+  request: InfrastructureDiagramNodeMappingSaveRequest,
+): Promise<DiagramInfrastructureReconciliationResult> {
+  return proxyJsonPut<DiagramInfrastructureReconciliationResult>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/node-mappings`,
+    request,
   );
 }
 
