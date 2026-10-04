@@ -127,16 +127,6 @@ public sealed class RetrievalIndexingService(
         {
             ct.ThrowIfCancellationRequested();
 
-            if (_indexCatalog.TryGet(doc.DocumentId, out _))
-            {
-                await _vectorIndex.RemoveChunksForDocumentAsync(
-                    doc.DocumentId,
-                    doc.TenantId,
-                    doc.WorkspaceId,
-                    doc.ProjectId,
-                    ct).ConfigureAwait(false);
-            }
-
             List<float[]> embeddings = [];
 
             for (int offset = 0; offset < split.Count; offset += batchSize)
@@ -189,7 +179,25 @@ public sealed class RetrievalIndexingService(
         }
 
         if (chunks.Count > 0)
+        {
             await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
+
+            foreach ((RetrievalDocument doc, IReadOnlyList<string> split, _) in work)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
+                    && prior.IndexedChunkCount > split.Count)
+                {
+                    List<string> staleChunkIds = [];
+
+                    for (int ordinal = split.Count; ordinal < prior.IndexedChunkCount; ordinal++)
+                        staleChunkIds.Add($"{doc.DocumentId}-chunk-{ordinal}");
+
+                    await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
+                }
+            }
+        }
 
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {

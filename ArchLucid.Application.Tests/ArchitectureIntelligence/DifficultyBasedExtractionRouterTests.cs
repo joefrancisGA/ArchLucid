@@ -143,6 +143,42 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_uri_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Endpoint https://api:owner.prod resolves. Legacy subnets remain unowned.",
+            "src-uri-owner-label");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_email_local_owner_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Escalation goes to owner@example.com while legacy subnets remain unowned.",
+            "src-email-owner-local");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_path_owner_segment_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The owner/prod slice handles failover. Legacy nodes remain unowned.",
+            "src-path-owner-segment");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(

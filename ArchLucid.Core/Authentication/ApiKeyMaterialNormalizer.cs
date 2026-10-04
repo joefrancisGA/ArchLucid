@@ -1,10 +1,10 @@
+using System.Globalization;
+
 namespace ArchLucid.Core.Authentication;
 
 /// <summary>Normalizes API key material from configuration and inbound headers (trim + strip invisible Unicode).</summary>
 public static class ApiKeyMaterialNormalizer
 {
-    private const string InvisibleKeyMaterialChars = "\uFEFF\u200B\u200C\u200D\u2060";
-
     public static string Normalize(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -34,5 +34,11 @@ public static class ApiKeyMaterialNormalizer
     }
 
     private static bool IsInvisibleKeyMaterialChar(char character)
-        => InvisibleKeyMaterialChars.IndexOf(character) >= 0;
+    {
+        if (char.GetUnicodeCategory(character) == UnicodeCategory.Format)
+            return true;
+
+        // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
+        return character != ' ' && char.GetUnicodeCategory(character) == UnicodeCategory.SpaceSeparator;
+    }
 }
