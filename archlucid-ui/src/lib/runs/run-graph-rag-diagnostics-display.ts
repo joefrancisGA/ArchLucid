@@ -3,6 +3,12 @@ import type { RunRetrievalGroundingSummary } from "@/types/authority";
 export const GRAPH_RAG_NEIGHBOR_HIT_RATE_HELPER =
   "Share of graph neighbor expansion that returned chunks — not citation coverage on the review." as const;
 
+export const GRAPH_RAG_REVIEW_RETRIEVAL_SCOPE_LINE =
+  "Counts reflect graph-RAG neighbor expansion for this review retrieval pass — not every citation on the package." as const;
+
+export const GRAPH_RAG_NEIGHBOR_HIT_RATE_SCOPE_LINE =
+  "Neighbor hit rate measures expansion yield, not whether findings cite those neighbors." as const;
+
 function finiteMetric(value: unknown): number | null {
   const numeric =
     typeof value === "number"

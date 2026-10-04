@@ -166,6 +166,17 @@ describe("finding-explainability-summary", () => {
       expect(explanation.reason).toContain("did not score confidence");
     });
 
+    it("does not claim zero sources when evidence was omitted", () => {
+      const explanation = findingConfidenceExplanation({
+        level: "Low",
+        evidenceRefCount: null,
+        missingTraceFieldCount: 0,
+      });
+
+      expect(explanation.reason).toContain("supporting sources were not returned");
+      expect(explanation.reason).not.toContain("no supporting source was recorded");
+    });
+
     it("treats unrecognized levels as unscored", () => {
       expect(
         findingConfidenceExplanation({ level: "Unknown", evidenceRefCount: 0, missingTraceFieldCount: 0 }).label,
