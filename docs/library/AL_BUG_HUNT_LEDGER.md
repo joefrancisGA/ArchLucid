@@ -24179,11 +24179,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 29
-- **last-hunt:** 2026-10-03
-- **bugs-found:** 37
+- **hunts:** 30
+- **last-hunt:** 2026-10-04
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-01 — incomplete data-flow traversal path preserved a direct source-to-target bridge
+- **last-bug:** 2026-10-04 — right-to-left data-flow routes were emitted in the opposite direction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24232,6 +24232,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-01 seed hunt (seed→hit): promoted and proved incomplete data-flow traversal path bridging in `InventoryDiagramDataFlowTraversalHopProjector`; fixed partial-path selection; 7 focused traversal tests passed. The full picker filter then reported 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-10-03 seed hunt (seed-only): re-read recent AVD boundary/view-filter and diagram caption changes; no mechanism-backed reachable candidate survived cheap-disproof. Targeted issue-metadata parity regression passed; full focused filter reported 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+2026-10-04 seed hunt (hit): proved `DiagramForestDataFlowEdgeRouter.TryRoute` reversed column order recursively without reversing the returned segments, so a reachable right-to-left graph edge was rendered left-to-right; fixed route direction and added `TryRoute_preserves_direction_for_a_right_to_left_data_flow_edge`. The focused router suite passed 7/7.
+
+- [x] (proven) `DiagramForestDataFlowEdgeRouter.TryRoute` — a DataFlow graph edge whose source is in a later column was returned in left-to-right path order after recursive endpoint swapping, so the rendered arrow pointed opposite the graph direction; fixed by reversing segments and path data for right-to-left routes; regression `TryRoute_preserves_direction_for_a_right_to_left_data_flow_edge`
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
