@@ -43,7 +43,8 @@ public sealed class AuthorityPipelineWorkPayload
                && Enum.IsDefined(WorkKind);
     }
 
-    private static bool HasUsableEvidenceBundleId(string? value) => HasUsableIdentifierText(value);
+    private static bool HasUsableEvidenceBundleId(string? value) =>
+        HasUsableIdentifierText(value) && HasNoInternalWhitespace(value);
 
     private static bool HasUsableIdentifierText(string? value)
     {
@@ -61,6 +62,22 @@ public sealed class AuthorityPipelineWorkPayload
         }
 
         return true;
+    }
+
+    private static bool HasNoInternalWhitespace(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        string trimmed = value.Trim();
+
+        foreach (char character in trimmed)
+        {
+            if (char.IsWhiteSpace(character))
+                return false;
+        }
+
+        return trimmed.Length > 0;
     }
 
     /// <summary>

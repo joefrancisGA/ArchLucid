@@ -127,6 +127,23 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id()
+    {
+        AuthorityPipelineWorkPayload payload = new()
+        {
+            ContextIngestionRequest = new ContextIngestionRequest
+            {
+                RunId = Guid.NewGuid(),
+                ProjectId = "default",
+            },
+            EvidenceBundleId = "bundle\u00A01",
+        };
+
+        payload.IsValidForProcessing().Should().BeFalse(
+            "embedded no-break space survives Trim() and breaks evidence bundle lookup after the worker gate");
+    }
+
+    [SkippableFact]
     public void IsValidForProcessing_rejects_embedded_combining_mark_in_evidence_bundle_id()
     {
         AuthorityPipelineWorkPayload payload = new()
@@ -631,6 +648,25 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
               },
               "evidenceBundleId": "bundle-1",
               "workKind": 99
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.IsValidForProcessing().Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public void Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp()
+    {
+        const string json = """
+            {
+              "contextIngestionRequest": {
+                "runId": "11111111-1111-1111-1111-111111111111",
+                "projectId": "default"
+              },
+              "evidenceBundleId": "bundle\u00A01"
             }
             """;
 
