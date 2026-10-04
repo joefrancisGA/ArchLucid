@@ -27759,10 +27759,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained non-canonical in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -27779,6 +27779,8 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-03 thorough hunt (dry): repeated cheap-disproof of the two review-intake URL/prefill candidates; 3 focused hook tests passed. The broader example/preset integration tests had 3 harness/assertion failures (stale “Evidence” label and missing mocked App Router).
 
 2026-10-04 thorough hunt (hit): proved `useNewRunWizardSteps` clamped an out-of-range `step` query only in rendered state while leaving the copied/bookmarked URL non-canonical; canonicalized invalid numeric step values during URL synchronization and passed the regression `canonicalizes an out-of-range deep-linked step in the URL`. The query-prefill candidate remained valid-no-repro; its focused hook test passed, while broader integration coverage retained the known stale-label/App-Router harness failures.
+
+2026-10-04 thorough hunt (dry): revalidated the two picker-listed candidates against the current code; the step candidate is already fixed and its 3 tests passed, while the query-prefill guard remained valid-no-repro and its focused test passed. No new failing repro was found; the picker’s duplicate candidate rows were classified in the hypothesis ledger.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
@@ -27865,7 +27867,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 2026-09-07 thorough hunt #1219 (hit): proved session-restore confirm could treat unloaded clarifications as persisted; proved stale detailed wizard URL params survived path switches; cheap-disproved mode-probe flip on embedded detailed path.
 
 - [x] (proven) `useGuidedIntakeWizard.sourceArchitectureId` — a nested review route carries a whitespace-only `sourceArchitectureId` query value — `.trim()` produced an empty string and `??` prevented fallback to the nested route architecture id, so the intake lost its source-architecture linkage; **hit 2026-10-03:** use the trimmed query value only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`.
-- [ ] (candidate) `useNewRunWizardSteps` URL synchronization — a deep link supplies an out-of-range `step` value — the hook clamps the rendered step but leaves the invalid value in the URL, so copied/bookmarked links retain a non-canonical step and can repeatedly re-enter the clamp path; input is reachable from the wizard `step` query parameter.
+- [x] (proven) `useNewRunWizardSteps` URL synchronization — a deep link supplies an out-of-range `step` value — the hook originally clamped the rendered step but left the invalid value in the URL; fixed 2026-10-04 by canonicalizing numeric values during initial and popstate synchronization, with regression `canonicalizes an out-of-range deep-linked step in the URL`.
 - [ ] (candidate) `useNewRunWizardQueryPrefill` — a valid example/preset query is present while the wizard is not yet on its required step — the run-once ref can mark a prefill before a later route/mode transition makes the effect applicable, leaving a deep-linked form partially unfilled; input is reachable from review-intake query parameters and path switching.
 
 ---
