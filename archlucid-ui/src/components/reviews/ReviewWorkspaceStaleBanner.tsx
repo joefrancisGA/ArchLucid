@@ -27,6 +27,11 @@ export function ReviewWorkspaceStaleBanner(props: ReviewWorkspaceStaleBannerProp
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
+    baselineFingerprintRef.current = null;
+    setShowBanner(false);
+  }, [props.runId]);
+
+  useEffect(() => {
     if (query.data === undefined) {
       return;
     }
