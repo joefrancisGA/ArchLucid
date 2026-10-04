@@ -27850,6 +27850,8 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-04 seed hunt (seed-only): re-read the selected workspace header, tab URL synchronization, workbench selection, and stale-summary paths after the stale-banner fix; no additional hunt-ready mechanism emerged. The scoped suite remained 22 passed with the same 1 invalid presenter harness assertion; existing contract-dependent candidates remain queued.
 
+2026-10-04 seed hunt (seed-only): repeated the selected workspace review after the stale-banner fix; no new reachable wrong outcome or mechanism-backed candidate emerged. The scoped suite reported 22 passed and the same invalid presenter harness assertion.
+
 ---
 
 ## Zone: ui-review-intake-wizards
