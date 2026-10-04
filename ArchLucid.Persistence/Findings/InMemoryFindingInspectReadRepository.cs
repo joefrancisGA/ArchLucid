@@ -112,9 +112,11 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             AuditRowId = null,
             RunId = runId,
             ManifestVersion = detail.Run.CurrentManifestVersion,
-            ModelDeploymentName = match.ModelDeploymentName,
-            ModelAlias = match.ModelAlias,
-            PromptTemplateVersion = match.PromptTemplateVersion,
+            ModelDeploymentName =
+                FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.ModelDeploymentName),
+            ModelAlias = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.ModelAlias),
+            PromptTemplateVersion =
+                FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.PromptTemplateVersion),
             ConfidenceScore = match.ConfidenceScore,
             EvaluationConfidenceScore = match.EvaluationConfidenceScore,
             ConfidenceLevel = match.ConfidenceLevel,
@@ -122,7 +124,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             IsMuted = match.IsMuted,
             MuteReason = match.MuteReason,
             ReasoningTrace = ResolveInspectReasoningTrace(match),
-            ReasoningTraceDigestSha256 = match.Trace.ReasoningTraceDigestSha256,
+            ReasoningTraceDigestSha256 = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
+                match.Trace.ReasoningTraceDigestSha256),
             AssignedToUserId = match.AssignedToUserId,
             RemediationDueUtc = match.RemediationDueUtc,
             RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,

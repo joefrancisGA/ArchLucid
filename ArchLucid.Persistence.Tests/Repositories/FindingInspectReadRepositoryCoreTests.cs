@@ -2782,6 +2782,15 @@ public sealed class FindingInspectReadRepositoryCoreTests
         FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(" user-1 ").Should().Be("user-1");
     }
 
+    [Theory]
+    [InlineData("gpt\u200B-4")]
+    [InlineData("v\u200B2")]
+    [InlineData("sha256\u200Bdeadbeef")]
+    public void NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters(string value)
+    {
+        FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(value).Should().BeNull();
+    }
+
     [Fact]
     public void ResolveRuleFields_when_applied_rule_ids_json_contains_invisible_unicode_then_valid_rule_uses_first_substantive_id()
     {
