@@ -19057,7 +19057,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -19068,6 +19068,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after kebab-case fix; proved dotted JSON property names (`api.key`, `credentials.api_key`) bypassed delimiter tokenization; fixed by dot-delimiter splits and recursive `IsSensitiveConfigPropertyName` on split tokens; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`; 1044 scoped Configuration tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the configuration summary redaction, effective-value resolver, deployment options, OTP normalization, and configuration tests; no new candidate met the wrong-outcome and product-contract bar for same-run proof.
+
+2026-10-04 seed hunt (seed-only): re-read `ConfigurationSensitiveConfigPathMatcher`, `ConfigurationSensitiveConfigValueScanner`, `ConfigurationEffectiveValueResolver`, and the configuration tests; no new reachable mechanism-backed candidate emerged. The built configuration-filtered run was blocked by existing ARCH006/ARCH006a diagnostics in `ArchLucid.Persistence`; the existing no-build binary passed 1,045 configuration tests.
 
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after snake_case fix; proved kebab-case `api-key` bypassed `IsSensitiveConfigPropertyName` for the same admin JSON effective-value path class; fixed by hyphen-delimiter tokenization alongside underscore splits; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`; 1042 scoped Configuration tests passed.
 
