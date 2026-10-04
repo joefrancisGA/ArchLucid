@@ -8,6 +8,8 @@
 
 2026-10-04 seed hunt (seed→hit): `ui-governance-findings-queue` — `GovernanceFindingsQueueDesktopTable.isResourceGroupOpen` treated any non-empty `governanceFindingsResourceGroupKey` as exclusive disclosure state, so when queue filters removed the open resource group every remaining group rendered collapsed; ignore stale keys and clear the URL when the open group is absent from `displayRows`; regression `keeps remaining resource groups expanded when disclosure URL references a filtered-out group`; 3 `GovernanceFindingsQueueDesktopTable` tests passed.
 
+2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` marked `AuditExportTruncated` when the scoped audit export returned exactly `AuditExportMaxRows` rows even though no additional audit events existed, overstating incompleteness in the buyer value report; fetch `AuditExportMaxRows + 1` and treat truncation only when the repository returns more than the cap; regression `BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated`; 11 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
+
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotRunDeltaComputer.TryLoadFindingsSnapshotAsync` treated a persisted zero-row findings snapshot as unavailable (`null`), so buyer `pilot-run-deltas.json` kept stale agent severity buckets and top-finding pointers; empty snapshots now load authoritatively and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
 
 2026-10-04 seed hunt (seed→hit): `application-pilots` — `PilotValueReportService.BuildAsync` sorted committed runs ascending then `Take(DefaultRunDetailCap)`, so tenants with more than 400 committed pilots in-window loaded the oldest runs for findings/timeline aggregation and dropped newer committed activity; cap now uses `TakeLast` so detail loading prefers the newest runs; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
@@ -11760,11 +11762,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 35
-- **bugs-found:** 23
+- **hunts:** 36
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — empty persisted findings snapshot left stale agent deltas
+- **last-bug:** 2026-10-04 — audit export at exact cap falsely marked truncated
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11888,7 +11890,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
 - [x] (proven) `PilotValueReportService.BuildAsync` — run-detail cap used `Take` on ascending-sorted committed runs, omitting newest pilots from findings/timeline aggregation — **hit 2026-10-04 seed hunt:** `TakeLast(DefaultRunDetailCap)`; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`.
 - [x] (proven) `PilotRunDeltaComputer.ComputeAsync` / `TryLoadFindingsSnapshotAsync` — zero-row persisted snapshot treated as unavailable, leaving stale agent severity/top findings in buyer deltas — **hit 2026-10-04 seed hunt:** load empty snapshots and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`.
-- (candidate) `PilotValueReportService.BuildAsync` — an audit export containing exactly `AuditExportMaxRows` rows is marked truncated even when the repository has no additional rows, overstating incompleteness in the buyer value report; input originates from a tenant whose scoped audit export has exactly the configured cap.
+- [x] (proven) `PilotValueReportService.BuildAsync` — audit export at exactly `AuditExportMaxRows` rows marked truncated with no additional rows — **hit 2026-10-04 seed hunt:** over-fetch one row and set `AuditExportTruncated` only when count exceeds cap; regression `BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated`.
 
 2026-10-03 seed hunt (seed-only): re-read buyer-proof, board-pack, committed-manifest, and delta-selection paths; no candidate met the same-run repro bar. Seeded two reachable receipt-gate candidates; 22 scoped BuyerProofPack/BoardPack tests passed.
 - [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — a non-GUID `runId` skips `ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync`; `ArchitectureRun.RunId` is contractually a lowercase 32-character hex identifier and the route/test corpus uses that shape, so no reachable non-GUID production input was found.
@@ -11908,6 +11910,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-04 seed hunt (seed→hit): promoted run-detail cap candidate; proved oldest-first `Take` dropped the newest committed run from capped findings aggregation; fixed with `TakeLast`; regression above; 10 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-04 seed hunt (seed→hit): promoted empty persisted findings-snapshot candidate; proved zero-row snapshots were nulled in `TryLoadFindingsSnapshotAsync`, leaving stale agent severity in buyer deltas; fixed authoritative empty snapshot handling; regression above; 23 scoped BuyerProofPack/BoardPack/PilotRunDelta tests passed.
+
+2026-10-04 seed hunt (seed→hit): promoted audit-export cap candidate; proved exact-cap audit exports set `AuditExportTruncated` without an extra row; fixed with cap+1 fetch; regression above; 11 `PilotValueReportServiceTests` and 22 scoped BuyerProofPack/BoardPack tests passed.
 
 ---
 
