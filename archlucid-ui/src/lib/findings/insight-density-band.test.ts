@@ -15,9 +15,9 @@ describe("insight-density-band (LI-01)", () => {
   });
 
   it("formats band labels with the numeric score", () => {
-    expect(formatInsightDensityBandLabel(82)).toBe("Decision-grade (82)");
-    expect(formatInsightDensityBandLabel(55)).toBe("Review (55)");
-    expect(formatInsightDensityBandLabel(12)).toBe("Generic (12)");
+    expect(formatInsightDensityBandLabel(82)).toBe("Decision-grade band · score 82");
+    expect(formatInsightDensityBandLabel(55)).toBe("Review band · score 55");
+    expect(formatInsightDensityBandLabel(12)).toBe("Generic band · score 12");
   });
 
   it("returns null when score is missing", () => {

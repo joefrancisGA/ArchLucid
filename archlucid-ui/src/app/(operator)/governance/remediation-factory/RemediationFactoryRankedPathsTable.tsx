@@ -89,7 +89,7 @@ export function RemediationFactoryRankedPathsTable(props: {
             <EnterpriseTableHeaderCell>
               <span>Band</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                The evidence-strength band for this path. It is not a percentage.
+                Path evidence band — capped by the weakest hop, not a percentage.
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
@@ -132,8 +132,14 @@ export function RemediationFactoryRankedPathsTable(props: {
                     kind={securityEvidencePathConfidenceBandStatusKind(row.pathConfidenceBand)}
                     label={formatSecurityEvidencePathConfidenceBandLabel(row.pathConfidenceBand)}
                   />
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.micro)}>
+                    Open inspect for weakest-hop band limits.
+                  </p>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="tabular-nums">{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
+                <EnterpriseTableCell className="tabular-nums">
+                  <span className="tabular-nums">{row.compositeSortScore.toFixed(4)}</span>
+                  <p className={cn("m-0 mt-1 font-normal", OPERATOR_TYPOGRAPHY.micro)}>Sort key only</p>
+                </EnterpriseTableCell>
               </EnterpriseTableInteractiveRow>
             );
           })}

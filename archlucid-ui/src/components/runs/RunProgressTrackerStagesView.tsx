@@ -177,9 +177,12 @@ export function RunProgressTrackerStagesView({
         })}
       </ul>
 
-      {buyerAssessmentCopy && stageTimeline.length > 0 ? (
+      {stageTimeline.length > 0 ? (
         <div className="mt-6" data-testid="run-progress-stage-timeline-table">
           <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Stage timing</h4>
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Recorded pipeline timestamps for this review. Durations are diagnostic — not SLA commitments.
+          </p>
           <EnterpriseTable ariaLabel="Assessment stage timing" className="mt-3">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>

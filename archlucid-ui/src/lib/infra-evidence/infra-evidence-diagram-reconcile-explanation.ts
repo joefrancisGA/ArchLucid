@@ -22,6 +22,9 @@ export function formatDiagramReconcileResourceLabelForDisplay(
   return row.correspondenceId;
 }
 
+export const DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE =
+  "Reconciliation notes and AI rationale do not raise the confidence band." as const;
+
 /** Deterministic explanation column — AI rationale only on Possible/Unknown rows. */
 export function formatDiagramReconcileExplanation(row: DiagramInfrastructureCorrespondenceRow): string {
   const parts: string[] = [];
@@ -40,6 +43,10 @@ export function formatDiagramReconcileExplanation(row: DiagramInfrastructureCorr
 
   if (row.securityDiscrepancy) {
     parts.push("Security discrepancy flagged between diagram label and inventory posture.");
+  }
+
+  if (includeAiRationale && row.aiRationale != null && row.aiRationale.trim().length > 0) {
+    parts.push(DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE);
   }
 
   return parts.join(" ");

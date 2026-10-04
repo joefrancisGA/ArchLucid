@@ -95,7 +95,7 @@ export function RunsListWorkQueueTable(props: RunsListWorkQueueTableProps): Reac
                 <EnterpriseTableHeadRow>
                   {props.showCompareSelection ? (
                     <EnterpriseTableHeaderCell className="w-10">
-                      <span className="sr-only">Compare</span>
+                      <span className="sr-only">Include in two-review compare</span>
                     </EnterpriseTableHeaderCell>
                   ) : null}
                   <EnterpriseTableHeaderCell>
@@ -155,7 +155,7 @@ export function RunsListWorkQueueTable(props: RunsListWorkQueueTableProps): Reac
                               type="checkbox"
                               className="h-4 w-4 rounded border-neutral-300 text-neutral-700 focus:ring-neutral-400"
                               checked={props.compareSelection.includes(run.runId)}
-                              aria-label={`Select ${title} for comparison`}
+                              aria-label={`Include ${title} in two-review compare (does not change Azure)`}
                               onChange={() => {
                                 props.toggleCompareSelection(run.runId);
                               }}

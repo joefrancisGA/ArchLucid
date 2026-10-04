@@ -25,23 +25,13 @@ import {
   runAgentExecutionLogDisclosureHrefFromSearch,
 } from "@/lib/runs/run-agent-execution-log-disclosure-url";
 import type { RunDetailAgentResult } from "@/types/authority";
+import { formatAgentExecutionConfidenceLabel } from "@/lib/reviews/agent-confidence-display";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 
 export type ReviewAgentExecutionLogSectionProps = {
   readonly results: readonly RunDetailAgentResult[] | null | undefined;
 };
-
-function confidenceLabel(confidence: number | string | null | undefined): string {
-  if (confidence === null || confidence === undefined) return " — ";
-
-  const n = typeof confidence === "string" ? parseFloat(confidence) : confidence;
-
-  if (!Number.isFinite(n)) return " — ";
-
-  return `${Math.round(n * 100)}%`;
-}
-
 
 /**
  * Collapsed execution log for each agent that ran in this review.
@@ -138,7 +128,7 @@ export function ReviewAgentExecutionLogSection({
                   <EnterpriseTableHeaderCell>
                     <span>Confidence</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                      How strongly this agent recorded support for its result. It is not a probability that the result is correct.
+                      Calibrated confidence is adjusted when recorded; raw confidence is the agent output. Neither is a probability the result is correct.
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>
@@ -171,7 +161,7 @@ export function ReviewAgentExecutionLogSection({
                     <EnterpriseTableRow key={result.resultId}>
                       <EnterpriseTableCell className="font-mono">{buyerLabelForAgentType(result.agentType)}</EnterpriseTableCell>
                       <EnterpriseTableCell className="tabular-nums">
-                        {confidenceLabel(result.calibratedConfidence ?? result.confidence)}
+                        {formatAgentExecutionConfidenceLabel(result)}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="tabular-nums">{result.findings?.length ?? 0}</EnterpriseTableCell>
                       <EnterpriseTableCell className="tabular-nums">{result.evidenceRefs?.length ?? 0}</EnterpriseTableCell>

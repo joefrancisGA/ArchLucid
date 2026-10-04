@@ -20,6 +20,10 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import type { AgentQualityConcernRow } from "@/lib/agent-quality-warnings-presenter";
 import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_PATH } from "@/lib/agent-quality-warnings-presenter";
+import {
+  agentQualityRatioFloorHint,
+  formatAgentQualityRatioCell,
+} from "@/lib/agent-quality-ratio-display";
 
 export type RunAgentQualityWarningsPanelProps = {
   readonly runId: string;
@@ -77,13 +81,13 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                 <EnterpriseTableHeaderCell>
                   <span>Semantic</span>
                   <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                    How well the result&apos;s meaning matched the quality check. A dash means no semantic score was recorded.
+                    How well the result&apos;s meaning matched the quality check. Not scored means no semantic score was recorded.
                   </span>
                 </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>
                   <span>Grounding</span>
                   <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                    How much of the result was supported by cited evidence. A dash means no grounding score was recorded.
+                    How much of the result was supported by cited evidence. Not scored means no grounding score was recorded.
                   </span>
                 </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell className="min-w-[12rem]">
@@ -112,13 +116,23 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                     )}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                    {row.structuralCompletenessRatio.toFixed(2)}
+                    <div>{formatAgentQualityRatioCell(row.structuralCompletenessRatio, "structural", row.status)}</div>
+                    {agentQualityRatioFloorHint(row.structuralCompletenessRatio, "structural", row.status) != null ? (
+                      <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
+                        {agentQualityRatioFloorHint(row.structuralCompletenessRatio, "structural", row.status)}
+                      </p>
+                    ) : null}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                    {row.semanticScore === null ? " — " : row.semanticScore.toFixed(2)}
+                    <div>{formatAgentQualityRatioCell(row.semanticScore, "semantic", row.status)}</div>
+                    {agentQualityRatioFloorHint(row.semanticScore, "semantic", row.status) != null ? (
+                      <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
+                        {agentQualityRatioFloorHint(row.semanticScore, "semantic", row.status)}
+                      </p>
+                    ) : null}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                    {row.faithfulnessScore === null ? " — " : row.faithfulnessScore.toFixed(2)}
+                    {formatAgentQualityRatioCell(row.faithfulnessScore, "faithfulness", row.status)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.rejectReasonLabel ?? " — "}
@@ -140,7 +154,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                 data-testid="ai-quality-warnings-re-run-review"
               />
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                Re-invokes agent execution for this review (same run id).
+                Re-run starts a new agent attempt on this review (same run id). It does not change Azure; fix evidence or context first when scores failed gates.
               </p>
             </div>
           </div>
