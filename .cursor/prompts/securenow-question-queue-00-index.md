@@ -3,9 +3,9 @@
      empty inference questionnaire while the plate still had diagram-evidence
      questions. Do not implement from this index. -->
 
-# SecureNow question queue — Luna prompt set (SN-QQ-01–SN-QQ-08)
+# SecureNow question queue — prompt set (SN-QQ-01–SN-QQ-09)
 
-One subscription has one question queue. Paste **one** numbered file per GPT-5.6 Luna session, in order.
+One subscription has one question queue. Paste **one** numbered file per session, in order. SN-QQ-01 through SN-QQ-08 were written for GPT-5.6 Luna. **SN-QQ-09** runs on Composer 2.5 slow (`composer-2.5`).
 
 Copy-paste docs index: [`docs/architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../../docs/architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md).
 
@@ -19,6 +19,7 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS
 | 6 | **SN-QQ-06** | An asserting answer expires as `HumanAssertion`. Ignore does not. |
 | 7 | **SN-QQ-07** | A failed load shows the API reason. A GET does not use the governance save copy. |
 | 8 | **SN-QQ-08** | Map the questions controller so Diagrams stops 500ing `Unmapped API controller`. |
+| 9 | **SN-QQ-09** | Name the resource, say why SecureNow is asking, and show its highlighted neighborhood. |
 | — | **SN-QQ-HOLD** | Stop list. Paste only when a session drifts. |
 
 **SN-QQ-HOLD** is not a build step.
