@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): repeated the selected topology merge and endpoint-resolution review; no new mechanism-backed reachable candidate emerged; 1,590 focused topology-proposal-merge tests passed.
 
+2026-10-04 seed hunt (hit): proved `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` used an untrimmed endpoint membership pre-check, dropping agent-proposed relationships whose declared endpoint IDs had surrounding whitespace; reused the trim-aware endpoint validator and added `Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace`. The scoped topology-proposal-merge filter passed 1,590/1,590.
+
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics` — omitted-category node registers both `svc-` and `ds-` prefixes and `TryAdd` blocks the later categorized node's primary alias — **hit 2026-09-30:** categorized primary prefix overwrites the fallback after the index is built; regression `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`.
 
 2026-09-29 seed hunt #3055 (seed-only): reseeded topology-proposal-merge; no new hunt-ready rows; cheap-disproof closed #3051×#3054 diagonal for mixed node-id/ARM combined `endpointAliases` with **hybrid** relationships when node-id alias targets, ARM alias values, **and** the direct relationship ARM endpoint all use uppercase casing; fourteen regressions under prefix `MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_with_uppercase_node_id_and_arm_alias_values_and_uppercase_direct_relationship_arm_but_relationship_uses_renamed_`; 1412 scoped topology-proposal-merge tests passed.
@@ -2966,7 +2968,11 @@
 - **last-hunt:** 2026-10-04
 - **bugs-found:** 972
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — consensus merger dropped normalized synthetic endpoint relationships
+- **hunts:** 1603
+- **last-hunt:** 2026-10-04
+- **bugs-found:** 973
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-04 — consensus merge dropped normalized synthetic endpoint relationships
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3101,6 +3107,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — the untrimmed endpoint membership pre-check dropped a reachable agent-proposed relationship with surrounding whitespace in `SourceId` or `TargetId`; reused `RelationshipEndpointsAreKnown` as the single trim- and ARM-aware check; regression `Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace`.
 
 - [x] (proven) `azurerm_security_center_automation` omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 #2288:** `security_center_automation` parity fix; regression `FilterValidatedProposals_keeps_relationship_when_security_center_automation_node_has_data_category_but_synthetic_service_id_used`.
 - [x] (proven) `azurerm_monitor_workspace` omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-09-13 #2287:** `monitor_workspace` parity fix; regression `FilterValidatedProposals_keeps_relationship_when_monitor_workspace_node_has_data_category_but_synthetic_service_id_used`.

@@ -240,4 +240,53 @@ public sealed class TopologyProposalConsensusMergerTests
 
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void Merge_keeps_relationship_when_endpoint_ids_have_surrounding_whitespace()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "worker",
+                    ServiceId = "svc-worker",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "  svc-api  ",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = primary.AddedServices,
+            AddedRelationships = primary.AddedRelationships,
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
 }
