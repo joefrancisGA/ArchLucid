@@ -829,6 +829,56 @@ public sealed class ArchitectureRecommendationProposedChangeTests
     }
 
     [Fact]
+    public void BuildRecommendations_security_cost_trade_off_attaches_to_verified_security_when_unverified_is_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding unverifiedSecurityFinding = new()
+        {
+            FindingId = "f-sec-unverified",
+            Dimension = QualityDimension.Security,
+            Title = "Unverified public exposure claim",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+            EvidenceCondition = EvidenceCondition.Unverified,
+        };
+
+        SpecialistReviewFinding verifiedSecurityFinding = new()
+        {
+            FindingId = "f-sec",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistReviewFinding costFinding = new()
+        {
+            FindingId = "f-cost",
+            Dimension = QualityDimension.Cost,
+            Title = "Spend exceeds stated ceiling",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [unverifiedSecurityFinding, verifiedSecurityFinding, costFinding],
+            ["Security-first delivery"]);
+
+        ArchitectureRecommendation unverifiedSecurityRecommendation = recommendations.Single(
+            recommendation => recommendation.Problem == unverifiedSecurityFinding.Title);
+        ArchitectureRecommendation verifiedSecurityRecommendation = recommendations.Single(
+            recommendation => recommendation.Problem == verifiedSecurityFinding.Title);
+
+        unverifiedSecurityRecommendation.TradeOffs.Should().BeEmpty();
+        verifiedSecurityRecommendation.TradeOffs.Should().ContainSingle();
+        verifiedSecurityRecommendation.TradeOffs[0].CompetingPositions.Should().Contain("Security-first");
+    }
+
+    [Fact]
     public void BuildRecommendations_security_cost_trade_off_stays_on_security_when_cost_is_first()
     {
         ArchitectureRecommendationEngine sut = new();

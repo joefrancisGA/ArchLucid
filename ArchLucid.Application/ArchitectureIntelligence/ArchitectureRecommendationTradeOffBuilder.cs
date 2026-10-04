@@ -80,8 +80,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             return;
         }
 
-        ArchitectureRecommendation target = FindRecommendationForDimension(recommendations, firstDimension)
-            ?? FindRecommendationForDimension(recommendations, secondDimension)
+        ArchitectureRecommendation target = FindRecommendationForTradeOff(recommendations, findings, firstDimension)
+            ?? FindRecommendationForTradeOff(recommendations, findings, secondDimension)
             ?? throw new InvalidOperationException(
                 $"No recommendation exists for trade-off dimensions {firstDimension} and {secondDimension}.");
 
@@ -186,11 +186,27 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         return ProvenancePresentationMapper.MapFinding(finding) != ProvenancePresentationBucket.Unverified;
     }
 
-    private static ArchitectureRecommendation? FindRecommendationForDimension(
+    private static ArchitectureRecommendation? FindRecommendationForTradeOff(
         IReadOnlyList<ArchitectureRecommendation> recommendations,
+        IReadOnlyList<SpecialistReviewFinding> findings,
         QualityDimension dimension)
     {
         string dimensionLabel = dimension.ToString();
+
+        foreach (SpecialistReviewFinding finding in findings)
+        {
+            if (finding.Dimension != dimension || !IsActionableForTradeOff(finding))
+                continue;
+
+            ArchitectureRecommendation? match = recommendations.FirstOrDefault(
+                recommendation => recommendation.AffectedRequirementOrQualityAttribute.Equals(
+                    dimensionLabel,
+                    StringComparison.Ordinal)
+                    && string.Equals(recommendation.Problem, finding.Title, StringComparison.Ordinal));
+
+            if (match is not null)
+                return match;
+        }
 
         return recommendations.FirstOrDefault(
             recommendation => recommendation.AffectedRequirementOrQualityAttribute.Equals(
