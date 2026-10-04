@@ -7448,6 +7448,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-04 seed hunt (seed-only): reread the four picker-selected webhook and replay-guard paths; no new candidate met the same-run hunt-ready reachability and wrong-outcome bar. Seeded two bounded follow-ups around payload-size contract parity and multi-instance replay claims; no product code changed.
 
 ### Hypotheses
+
+2026-10-04 seed hunt (seed-only): reread the selected Stripe and Marketplace controller paths, wallet processor, replay guard, and their focused callers. No candidate met the hunt-ready bar for a failing repro; seeded three bounded candidates around unsupported Marketplace actions, replay-key normalization of provider-supplied identifiers, and replay-guard process-local claims.
+
+- [ ] (candidate) `AzureMarketplaceBillingProvider.DispatchMarketplaceActionAsync` / `BillingMarketplaceWebhookController.MarketplaceAsync` — an authenticated Marketplace webhook with an unsupported `action` is classified as `PublishIntegrationEnvelope` and can be returned as a successful `MarketplaceWebhookReceived` event; a provider-supplied unknown action may therefore be published to integration consumers instead of being rejected or acknowledged as an ignored no-op.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — the replay key lowercases provider-supplied event IDs, so a reachable Marketplace or Stripe identifier whose provider contract is case-sensitive could cause two distinct deliveries to share one replay claim and incorrectly reject the later event.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — `_claimedKeys` is process-local while the fallback cache is memory-local; a replay delivered to separate API instances can bypass this guard before the shared billing ledger rejects or accepts it, leaving a provider-specific duplicate-mutation gap if ledger dedupe is not atomic for that route.
 2026-09-12 seed hunt #1907 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
 
 2026-09-12 seed hunt #1906 (seed-only): reseeded billing-webhooks; scoped tests passed (8 unit tests); no hunt-ready defect proven this pass.
