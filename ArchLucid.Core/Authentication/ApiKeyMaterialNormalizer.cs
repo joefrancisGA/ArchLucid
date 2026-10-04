@@ -3,7 +3,7 @@ namespace ArchLucid.Core.Authentication;
 /// <summary>Normalizes API key material from configuration and inbound headers (trim + strip invisible Unicode).</summary>
 public static class ApiKeyMaterialNormalizer
 {
-    private const string InvisibleKeyMaterialChars = "\uFEFF\u200B\u200C\u200D\u2060";
+    private const string InvisibleKeyMaterialChars = "\uFEFF\u200B\u200C\u200D\u200E\u200F\u2060";
 
     public static string Normalize(string value)
     {

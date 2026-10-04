@@ -7659,6 +7659,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-28 seed hunt #55 (seed→hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded zero-width space (U+200B) still showed configured in admin snapshot while `MatchesAnyCommaSeparatedKey` compared against material that still contained the invisible character and rejected the visible key; extended `ApiKeyMaterialNormalizer` to remove invisible key-material characters anywhere in the segment (not only leading/trailing); regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`, `GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured`; 53 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
 
+- [x] (proven) `ApiKeyMaterialNormalizer` left embedded left-to-right mark (U+200E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** bidi marks were outside the invisible set; fixed by adding `\u200E`/`\u200F`; regressions `When_admin_key_config_has_embedded_left_to_right_mark_still_authenticates`, `Normalize_strips_embedded_left_to_right_mark_from_key_material`, `GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded zero-width space in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-09-28 seed hunt #55:** normalization only trimmed invisible characters at segment edges; fixed by stripping the full invisible set throughout each segment; regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`.
 
 2026-09-27 seed hunt #54 (seed→hit): reseeded api-key-auth; proved zero-width space (U+200B) only `ReadOnlyKey` still showed configured in admin snapshot and Append rotate while auth rejected all keys; extended `ApiKeyMaterialNormalizer` to trim invisible key-material characters (BOM + ZWSP family); regressions `GetSnapshot_treats_zero_width_space_only_readonly_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_is_zero_width_space_only`, `When_readonly_key_config_is_only_zero_width_space_returns_invalid_key`; 51 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
@@ -7673,13 +7674,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 66
-- **bugs-found:** 13
+- **hunts:** 67
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-28 — embedded zero-width space in configured API key material broke authentication
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-04 — embedded left-to-right mark (U+200E) in configured API key material broke authentication
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-04 seed hunt (hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded U+200E left-to-right mark still showed configured in admin snapshot while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` invisible set with `\u200E`/`\u200F`; regressions `When_admin_key_config_has_embedded_left_to_right_mark_still_authenticates`, `Normalize_strips_embedded_left_to_right_mark_from_key_material`, `GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured`; 55 scoped handler/service unit tests passed (2 `AdminApiKeySettingsEndpointTests` failed — no SQL Server in cloud VM).
 
 2026-10-03 seed hunt (seed-only): repeated the selected API-key authentication, key rotation masking, and admin audit review; no new reachable mechanism-backed candidate emerged; 53 focused handler/service tests passed.
 

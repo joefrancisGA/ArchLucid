@@ -31,4 +31,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u200C").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_left_to_right_mark_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u200Eret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_left_to_right_mark_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u200E").Should().BeEmpty();
+    }
 }

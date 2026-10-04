@@ -363,6 +363,21 @@ public sealed class AdminApiKeySettingsServiceTests
         sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u200E"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "left-to-right mark-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
