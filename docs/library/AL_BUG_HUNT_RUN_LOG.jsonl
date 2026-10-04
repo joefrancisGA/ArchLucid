@@ -8685,3 +8685,4 @@
 {"at":"2026-10-03T23:49:50.2309117Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-03T23:50:58.8383405Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
 {"at":"2026-10-03T23:56:51.3021141Z","zoneId":"api-policy-packs","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs"]}
+{"at":"2026-10-04T00:00:18.3327511Z","zoneId":"api-policy-packs","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs"]}
