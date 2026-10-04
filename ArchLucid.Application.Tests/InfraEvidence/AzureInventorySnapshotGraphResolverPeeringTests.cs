@@ -227,6 +227,91 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
     }
 
     [Fact]
+    public async Task TryResolveGraphAsync_copies_public_ip_ip_configuration_id()
+    {
+        Guid publicIpRow = Guid.Parse("55555555-1111-4000-8000-000000000001");
+        Guid nicRow = Guid.Parse("55555555-1111-4000-8000-000000000002");
+        const string publicIpId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip1";
+        const string nicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+        const string ipConfigurationId = nicId + "/ipConfigurations/ipconfig1";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = publicIpRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = publicIpId,
+                        ResourceType = "Microsoft.Network/publicIPAddresses",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = nicRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = nicId,
+                        ResourceType = "Microsoft.Network/networkInterfaces",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                ],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = publicIpRow,
+                        PropertyKey = "ipConfiguration.id",
+                        PropertyValue = ipConfigurationId,
+                    },
+                ],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        GraphNode publicIp = result.Graph!.Nodes.Single(node => node.Properties["arm.id"] == publicIpId);
+
+        publicIp.Properties["ipConfiguration.id"].Should().Be(ipConfigurationId);
+        InventoryDiagramConnectionStateResult classification =
+            InventoryDiagramOrphanedStateClassifier.Classify(publicIp, result.Graph, false);
+        classification.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        classification.MissingRequirementMessage.Should().NotContain("no IP configuration or parent reference");
+    }
+
+    [Fact]
+    public async Task TryResolveGraphAsync_leaves_public_ip_without_ip_configuration_id_unhydrated()
+    {
+        Guid publicIpRow = Guid.Parse("66666666-1111-4000-8000-000000000001");
+        const string publicIpId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/unattached";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = publicIpRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = publicIpId,
+                        ResourceType = "Microsoft.Network/publicIPAddresses",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                ],
+                [],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        GraphNode publicIp = result.Graph!.Nodes.Single(node => node.Properties["arm.id"] == publicIpId);
+
+        publicIp.Properties.ContainsKey("ipConfiguration.id").Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Executive_mermaid_renders_owner_shape_peerings_from_vnet_properties_only()
     {
         (int from, int to)[] peerings =

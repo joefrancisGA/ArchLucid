@@ -338,8 +338,11 @@ public sealed class AzureInventorySnapshotGraphResolver(
             bool isVirtualNetworkSubnetsProperty =
                 AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resourceType)
                 && property.PropertyKey.Equals("subnets", StringComparison.OrdinalIgnoreCase);
+            bool isPublicIpIpConfigurationProperty =
+                resourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
+                && property.PropertyKey.Equals("ipConfiguration.id", StringComparison.OrdinalIgnoreCase);
 
-            if (isBastionSubnetProperty || isVirtualNetworkSubnetsProperty)
+            if (isBastionSubnetProperty || isVirtualNetworkSubnetsProperty || isPublicIpIpConfigurationProperty)
             {
                 node.Properties[property.PropertyKey] = property.PropertyValue;
             }
