@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `AgentExecution:Mode` caused `RegisterExecutorWiring` to register `RealAgentExecutor` even though `EffectiveAgentExecutionModeAccessor` treats missing/invalid mode as Simulator, so hosts with an explicit null mode key wired real executor infrastructure without Azure keys; normalize null/invalid mode to Simulator at registration time; regression `AgentCompositionModule_null_agent_execution_mode_registers_simulator_executor`; 413 scoped host-composition tests passed.
+
 2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `SchemaValidation:AgentResultSchemaPath` with `AzureOpenAI:UseJsonSchemaResponseFormat` enabled caused `AgentCompletionResolutionHelper` and `TenantAzureOpenAiStructuredOutputSchema` to call `.Trim()` on null when resolving structured-output schema bytes, aborting BYO/managed completion client wiring with `NullReferenceException` instead of the default schema path; null-safe trim now falls back to `schemas/agentresult.schema.json`; regressions `ResolveStructuredOutputAgentResultSchema_null_bound_schema_path_falls_back_without_null_reference` and `TenantAzureOpenAiStructuredOutputSchema_null_bound_schema_path_falls_back_without_null_reference`; 412 scoped host-composition tests passed.
 
 2026-10-04 seed hunt (seed→hit): `host-composition` — configuration binding left `HotPathCache:Provider` null while hot-path caching was enabled, so `HotPathCacheProviderResolver.ResolveEffectiveProvider` called `.Trim()` on null during `RegisterHotPathReadCaching` and failed host startup with `NullReferenceException` instead of the default Memory provider; null/whitespace provider now falls back to Memory; regressions `RegisterHotPathReadCaching_null_provider_does_not_throw_at_composition` and `ResolveEffectiveProvider_null_or_whitespace_provider_falls_back_to_memory`; 410 scoped host-composition tests passed.
@@ -24644,11 +24646,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 54
-- **bugs-found:** 33
+- **hunts:** 55
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — null-bound `SchemaValidation:AgentResultSchemaPath` crashed structured-output schema resolution
+- **last-bug:** 2026-10-04 — null-bound `AgentExecution:Mode` registered Real executor instead of Simulator
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
@@ -24687,6 +24689,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` — Redis hot-path registration called `.Trim()` on a null-bound `HotPathCache:RedisConnectionString` before the configuration guard — **hit 2026-10-04:** null-safe trim reaches the documented `InvalidOperationException`; regression `RegisterHotPathReadCaching_null_redis_connection_reports_configuration_error`.
 - [x] (proven) `HotPathCacheProviderResolver.ResolveEffectiveProvider` — null-bound `HotPathCache:Provider` from configuration binding called `.Trim()` on null during `RegisterHotPathReadCaching` — **hit 2026-10-04:** null/whitespace provider falls back to Memory; regressions `RegisterHotPathReadCaching_null_provider_does_not_throw_at_composition` and `ResolveEffectiveProvider_null_or_whitespace_provider_falls_back_to_memory`.
 - [x] (proven) `AgentCompletionResolutionHelper.ResolveStructuredOutputAgentResultSchema` / `TenantAzureOpenAiStructuredOutputSchema.Resolve` — null-bound `SchemaValidation:AgentResultSchemaPath` called `.Trim()` on null when JSON-schema response format was enabled — **hit 2026-10-04:** null-safe trim falls back to default agent-result schema path; regressions `ResolveStructuredOutputAgentResultSchema_null_bound_schema_path_falls_back_without_null_reference` and `TenantAzureOpenAiStructuredOutputSchema_null_bound_schema_path_falls_back_without_null_reference`.
+- [x] (proven) `AgentExecutionCompositionModule.RegisterExecutorWiring` — null-bound `AgentExecution:Mode` registered `RealAgentExecutor` while runtime mode accessor defaults to Simulator — **hit 2026-10-04:** `NormalizeAgentExecutionModeForRegistration` aligns DI with `EffectiveAgentExecutionModeAccessor`; regression `AgentCompositionModule_null_agent_execution_mode_registers_simulator_executor`.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForLlmCompletionIfNeeded` returns early for any pre-registered `IDistributedCache`, even when `LlmCompletionCache:Provider=Distributed` has no shared Redis backing — **cheap-disproof 2026-10-03:** production composition registers only Redis-backed `IDistributedCache`; `AddDistributedMemoryCache` appears only in test fixtures.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded` reuses any pre-registered `IDistributedCache` while graph projection is configured as distributed — **cheap-disproof 2026-10-03:** the memory-backed pre-registration prerequisite is test-only; production storage registrars use the shared Redis registration path.
 - [x] (invalid) `ArchLucidDistributedCacheRegistrar.RegisterLlmCompletionResponseStore` creates a distributed response store whenever the provider label is `Distributed` without independently asserting that the resolved `IDistributedCache` is cross-process — **cheap-disproof 2026-10-03:** no production composition path registers a process-local `IDistributedCache` before this registrar.
