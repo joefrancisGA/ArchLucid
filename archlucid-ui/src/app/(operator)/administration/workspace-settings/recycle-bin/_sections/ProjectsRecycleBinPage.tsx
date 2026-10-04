@@ -142,8 +142,18 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
       <EnterpriseTable ariaLabel={`Deleted projects in ${workspace.name}`}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
-            <EnterpriseTableHeaderCell>Project name</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Deleted on</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Project name</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The stored project waiting in the recycle bin.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Deleted on</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                When this project was removed from the active list.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Permanently removed on</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>

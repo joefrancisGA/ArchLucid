@@ -62,10 +62,30 @@ function DecisionDeltasTable(props: {
     <EnterpriseTable ariaLabel="Decision comparison deltas" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
-          <EnterpriseTableHeaderCell className={cellCls}>Decision</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell className={cellCls}>Baseline</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell className={cellCls}>Updated</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell className={cellCls}>Change</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>
+            <span>Decision</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The decision being compared between the two reviews.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>
+            <span>Baseline</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The decision recorded in the earlier review.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>
+            <span>Updated</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              The decision recorded in the later review.
+            </span>
+          </EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell className={cellCls}>
+            <span>Change</span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+              How the recorded decision differs between the two reviews.
+            </span>
+          </EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>

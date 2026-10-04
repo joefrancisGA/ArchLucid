@@ -88,7 +88,12 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
   return (
     <EnterpriseTableHead>
       <EnterpriseTableHeadRow>
-        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>
+          <span>Review</span>
+          <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            Open this architecture review.
+          </span>
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
           <span>Status</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
