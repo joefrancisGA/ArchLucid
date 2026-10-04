@@ -8704,3 +8704,4 @@
 {"at":"2026-10-04T00:55:27.9457358Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/"]}
 {"at":"2026-10-04T01:01:26.9900082Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-04T00:58:10.0437720Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"securenow","paths":["@(ArchLucid.Integrations.AzureExtractor/,ArchLucid.Core/AzureExtractor/)"]}
+{"at":"2026-10-04T01:10:43.0182295Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/;ArchLucid.Provenance/"]}
