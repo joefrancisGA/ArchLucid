@@ -6553,9 +6553,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
 - **related-pd-tb:** none
@@ -6582,14 +6582,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ResolveMustQuestionsAsync` skip/answer paths omit `CliScopeResponseValidator` after `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` return a draft body — **hit 2026-09-04 (#772):** create/patch/admit validated scope but MUST-question skip/answer continued with cross-tenant drift; fixed by validating returned draft bodies in `DraftNewCommandMustQuestionLoop`; regression in `RunCoreAsync_draft_scope_mismatch_after_skip_must_question_returns_operation_failed`.
 - [x] (proven) `DraftNewCommandConnectStage` validates prompted intent length before trimming — **hit 2026-10-03:** whitespace-padded prompted input could satisfy the raw-length check while remaining shorter than the documented 100-character minimum after trim; trim prompted input before validation; regression `RunCoreAsync_prompted_intent_text_validates_length_after_trim`.
 - [x] (valid-no-repro) `DraftNewCommand.RunAsync` validates/parses arguments and writes usage before forwarding a caller-supplied cancellation token to the intake loop — malformed CLI input is handled deterministically as a usage error before intake cancellation is observed; the selected file and existing `RunAsync_unknown_flag_returns_usage_error` test provide no failing wrong outcome.
-- [ ] (candidate) `DraftNewCommand.RunAsync` — a parser failure writes both the parse error and usage text through global `Console.Out`, which could contaminate machine-readable output for malformed `--json` invocations; reachable input is an invalid argument set at the CLI boundary, but the selected file does not establish whether parse failures promise JSON output.
-- [ ] (candidate) `DraftNewCommand.RunCoreAsync` — direct internal callers can construct `DraftNewCommandOptions` without passing through `DraftNewCommandOptions.Parse`; reachable input is a production command integration invoking the internal wrapper with malformed option state, but no such production caller or wrong outcome is shown in the selected file.
+- [x] (valid-no-repro) `DraftNewCommand.RunAsync` — parser failures write parse error and usage through `Console.Out`, but the CLI contract says `--json` is supported only “where supported,” and this selected wrapper has no JSON parse-error promise; the existing `RunAsync_unknown_flag_returns_usage_error` regression covers the reachable invalid-argument path without establishing a wrong outcome.
+- [x] (invalid) `DraftNewCommand.RunCoreAsync` — direct internal callers can construct malformed `DraftNewCommandOptions`, but the selected files show no production caller bypassing `DraftNewCommandOptions.Parse`; this is test-only reachability.
 
 2026-09-04 thorough hunt #772: proved MUST-question skip/answer scope-validation parity gap.
 
 2026-10-03 seed hunt (seed-only): re-read the selected command wrapper and focused core tests; no hunt-ready row met the reachable wrong-outcome bar. Seeded one cancellation-versus-argument-validation candidate. No code changes.
 
 2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and the focused core tests; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, and no second reachable mechanism was found in the selected wrapper. No code changes.
+
+2026-10-04 thorough hunt (dry): cheap-disproved the malformed-`--json` parser-output candidate as contract-ambiguous (`--json` is only supported where documented) and the direct `RunCoreAsync` malformed-options candidate as test-only reachability. The selected `DraftNewCommandCoreTests` test command was blocked during build by an existing Azure.Core 1.60.0 vs 1.55.0 reference conflict before test discovery; no failing repro was possible and no code changed.
 
 2026-10-03 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` and `DraftNewCommandCoreTests`; the existing cancellation-versus-argument-validation candidate remains contract-ambiguous, no second reachable mechanism was found in the selected wrapper, and all 16 focused tests passed.
 
