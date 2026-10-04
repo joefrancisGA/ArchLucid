@@ -378,6 +378,21 @@ public sealed class AdminApiKeySettingsServiceTests
         sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_left_to_right_embedding_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u202A"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "left-to-right embedding-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().ReadOnly.MaskedSegments.Should().BeEmpty();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
