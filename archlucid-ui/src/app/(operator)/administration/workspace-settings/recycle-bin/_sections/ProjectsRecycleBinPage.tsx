@@ -114,7 +114,13 @@ type WorkspaceRecycleBinTableProps = Readonly<{
   canRestoreExecute: boolean;
   buyerPolishedShell: boolean;
   restoreBusyRow: string | null;
-  onRequestRestore: (workspaceId: string, workspaceName: string, projectId: string, projectName: string) => void;
+  onRequestRestore: (
+    workspaceId: string,
+    workspaceName: string,
+    projectId: string,
+    projectName: string,
+    purgeAfterUtcIso: string,
+  ) => void;
 }>;
 
 function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
@@ -142,8 +148,18 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
       <EnterpriseTable ariaLabel={`Deleted projects in ${workspace.name}`}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
-            <EnterpriseTableHeaderCell>Project name</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Deleted on</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Project name</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                The stored project waiting in the recycle bin.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Deleted on</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                When this project was removed from the active list.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Permanently removed on</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -210,7 +226,13 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                       disabled={!canRestoreExecute || restoreBusyRow === rowKey}
                       onClick={() => {
                         writeRecycleBinProjectLastViewedId(project.projectId);
-                        onRequestRestore(workspace.workspaceId, workspace.name, project.projectId, project.name);
+                        onRequestRestore(
+                          workspace.workspaceId,
+                          workspace.name,
+                          project.projectId,
+                          project.name,
+                          project.purgeAfterUtcIso,
+                        );
                       }}
                     >
                       Restore
@@ -316,6 +338,7 @@ export function ProjectsRecycleBinPage() {
         workspaceName: workspace.name,
         projectId: project.projectId,
         projectName: project.name,
+        purgeAfterUtcIso: project.purgeAfterUtcIso,
       };
 
       if (
@@ -399,6 +422,7 @@ export function ProjectsRecycleBinPage() {
       workspaceName: target.workspaceName,
       projectId: target.projectId,
       projectName: target.projectName,
+      purgeAfterUtcIso: target.purgeAfterUtcIso,
     });
   }
 
@@ -523,12 +547,13 @@ export function ProjectsRecycleBinPage() {
                     canRestoreExecute={canRestoreExecute}
                     buyerPolishedShell={buyerPolishedShell}
                     restoreBusyRow={restoreBusyRow}
-                    onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
+                    onRequestRestore={(workspaceId, workspaceName, projectId, projectName, purgeAfterUtcIso) => {
                       setPendingRestore({
                         workspaceId,
                         workspaceName,
                         projectId,
                         projectName,
+                        purgeAfterUtcIso,
                       });
                     }}
                   />
@@ -604,12 +629,13 @@ export function ProjectsRecycleBinPage() {
                   canRestoreExecute={canRestoreExecute}
                   buyerPolishedShell={buyerPolishedShell}
                   restoreBusyRow={restoreBusyRow}
-                  onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
+                  onRequestRestore={(workspaceId, workspaceName, projectId, projectName, purgeAfterUtcIso) => {
                     setPendingRestore({
                       workspaceId,
                       workspaceName,
                       projectId,
                       projectName,
+                      purgeAfterUtcIso,
                     });
                   }}
                 />

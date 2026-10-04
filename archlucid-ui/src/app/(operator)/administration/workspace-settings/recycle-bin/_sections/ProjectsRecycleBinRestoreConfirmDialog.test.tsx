@@ -14,6 +14,9 @@ describe("projects-recycle-bin-restore-confirm-copy", () => {
     expect(projectsRecycleBinRestoreConfirmDescription("Contoso Core", "Production")).toContain("Contoso Core");
     expect(projectsRecycleBinRestoreConfirmDescription("Contoso Core", "Production")).toContain("Production");
     expect(projectsRecycleBinRestoreConfirmDescription("Contoso Core", "Production")).toContain("active projects");
+    expect(projectsRecycleBinRestoreConfirmDescription("Contoso Core", "Production", "Jul 31, 2026")).toContain(
+      "Permanent removal is scheduled",
+    );
   });
 });
 
@@ -27,6 +30,7 @@ describe("ProjectsRecycleBinRestoreConfirmDialog", () => {
           workspaceName: "Production",
           projectId: "proj-1",
           projectName: "Contoso Core",
+          purgeAfterUtcIso: "2026-07-31T12:00:00.000Z",
         }}
         onCancel={() => undefined}
         onConfirm={() => undefined}
@@ -34,9 +38,8 @@ describe("ProjectsRecycleBinRestoreConfirmDialog", () => {
     );
 
     expect(screen.getByRole("heading", { name: PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_TITLE })).toBeInTheDocument();
-    expect(
-      screen.getByText(projectsRecycleBinRestoreConfirmDescription("Contoso Core", "Production")),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Permanent removal is scheduled/)).toBeInTheDocument();
+    expect(screen.getByText(/Contoso Core/)).toBeInTheDocument();
     expect(screen.getByTestId("recycle-restore-consequence-preview")).toBeInTheDocument();
   });
 
@@ -51,6 +54,7 @@ describe("ProjectsRecycleBinRestoreConfirmDialog", () => {
           workspaceName: "Production",
           projectId: "proj-1",
           projectName: "Contoso Core",
+          purgeAfterUtcIso: "2026-07-31T12:00:00.000Z",
         }}
         onCancel={vi.fn()}
         onConfirm={onConfirm}

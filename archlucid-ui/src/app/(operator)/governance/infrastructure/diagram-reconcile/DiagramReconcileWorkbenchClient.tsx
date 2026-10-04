@@ -1392,7 +1392,7 @@ export function DiagramReconcileWorkbenchClient() {
                 <EnterpriseTableHeaderCell>
                   <span>Confidence</span>
                   <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                    How strongly the recorded correspondence supports this match. It is not a percentage.
+                    Recorded evidence band for this match. Explanation notes do not raise the band.
                   </span>
                 </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>

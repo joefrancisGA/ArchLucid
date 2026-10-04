@@ -26,6 +26,10 @@ import {
   parseRunRetrievalGroundingOpenFromSearch,
   runRetrievalGroundingDisclosureHrefFromSearch,
 } from "@/lib/runs/run-retrieval-grounding-disclosure-url";
+import {
+  formatRunRetrievalCitationCoverage,
+  formatRunRetrievalGroundingScoresLabel,
+} from "@/lib/runs/run-retrieval-grounding-display";
 
 type RunRetrievalGroundingPanelProps = {
   payload: RunRetrievalGroundingPayload | null;
@@ -34,10 +38,6 @@ type RunRetrievalGroundingPanelProps = {
   sectionId?: string;
   title?: string;
 };
-
-function pct(value: number): string {
-  return `${Math.round(value * 100)}%`;
-}
 
 function optionalNumber(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value))
@@ -68,24 +68,6 @@ function graphRagSummary(row: RunRetrievalGroundingRow): string {
     parts.push(`${Math.round(latency)} ms`);
 
   return parts.length > 0 ? parts.join(" · ") : "-";
-}
-
-function scoreText(row: RunRetrievalGroundingRow): string {
-  if (row.scoreMetadataMalformed)
-    return "degraded";
-
-  if (row.scoreSummaries.length === 0)
-    return "-";
-
-  return row.scoreSummaries
-    .slice(0, 2)
-    .map((score) => {
-      if (score.score === null || score.score === undefined || Number.isNaN(score.score))
-        return score.chunkId;
-
-      return `${score.chunkId}: ${score.score.toFixed(4)}`;
-    })
-    .join(", ");
 }
 
 /** Redaction-safe forensic panel: chunk ids and metadata only, never raw prompt or retrieved text. */
@@ -151,7 +133,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
     <div id={sectionId} className="scroll-mt-24">
       <CollapsibleSection title={sectionTitle} open={open} onToggle={setOpen}>
         <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Retrieval traces show which chunks each agent retrieved, the corpus kind, citation coverage, and token counts.
+          Each row is one agent retrieval trace. Citation coverage and scores apply to that trace only — not whole-review completeness.
           Raw prompts and retrieved content stay redacted at this edge.
         </p>
 
@@ -267,8 +249,12 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {row.documentMetadataMalformed ? "degraded" : row.documentIds.length > 0 ? row.documentIds.join(", ") : "-"}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scoreText(row)}</EnterpriseTableCell>
-                  <EnterpriseTableCell className="whitespace-nowrap">{pct(row.citationCoverage)}</EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {formatRunRetrievalGroundingScoresLabel(row.scoreMetadataMalformed, row.scoreSummaries)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {formatRunRetrievalCitationCoverage(row.citationCoverage)}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
                   </EnterpriseTableCell>

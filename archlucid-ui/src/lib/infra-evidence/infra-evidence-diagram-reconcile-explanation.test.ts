@@ -26,6 +26,7 @@ describe("infra-evidence-diagram-reconcile-explanation", () => {
     };
 
     expect(formatDiagramReconcileExplanation(possibleRow)).toContain("AI rationale:");
+    expect(formatDiagramReconcileExplanation(possibleRow)).toContain("do not raise the confidence band");
     expect(formatDiagramReconcileExplanation({
       ...possibleRow,
       matchKind: "Conflict",

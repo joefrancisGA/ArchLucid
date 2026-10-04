@@ -605,7 +605,7 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell colSpan={7}>
                 <EnterpriseCompactEmptyState
                   title="No matching resources"
-                  description="Adjust filters or clear the work queue to widen the explorer results."
+                  description="No resources in this snapshot match the current filters. Widen filters or clear the work queue — an empty table is not proof the subscription has zero resources."
                   testId="infra-resource-explorer-empty-state"
                 />
               </EnterpriseTableCell>

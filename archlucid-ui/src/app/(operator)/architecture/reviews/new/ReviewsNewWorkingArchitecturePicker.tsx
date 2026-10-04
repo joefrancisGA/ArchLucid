@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { startReviewFromArchitectureNestedGuidedHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export const REVIEWS_NEW_WORKING_ARCHITECTURE_PICKER_TITLE = "Pick an architecture to start a review";
 
@@ -52,8 +53,18 @@ export function ReviewsNewWorkingArchitecturePicker(): React.JSX.Element {
         <EnterpriseTable ariaLabel="Architectures" data-testid="reviews-new-working-architecture-picker-table">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Architecture</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Architecture</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The architecture this new review will use.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Action</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  Start a review for this architecture. Starting a review does not change Azure.
+                </span>
+              </EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>

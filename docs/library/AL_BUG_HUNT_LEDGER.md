@@ -10022,15 +10022,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 26
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
+- **hunts:** 29
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-27 — in-memory retry capacity-exhausted terminal path lacked second cancel re-read before Failed assignment
+- **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-04 seed hunt (seed-only): reseeded host-core-jobs; reviewed worker drain and execute-ownership hosted boundaries; no new hunt-ready rows; 74 scoped host-core-jobs tests passed.
+2026-10-04 seed hunt (seed→hit): reseeded host-core-jobs; proved invalid WorkUnitJson branch logged before post-log cancel re-reads (parity gap vs exhausted-retry terminal path); 74 scoped Host.Core + 25 processor tests passed.
+2026-10-04 seed hunt (seed-only): reseeded host-core-jobs after invalid-payload fix; reviewed drain gate vs durable processor loop and in-memory retry parity; persisted four bounded candidates; 74 scoped host-core-jobs tests passed.
+2026-10-04 thorough hunt (dry): cheap-disproved all four seeded candidates (processor drain vs `stoppingToken`, in-memory retry dual-read race, unbounded-channel writer reject, shutdown `CancellationToken.None`); 74 scoped host-core-jobs tests passed; no code changes.
 
 2026-09-27 thorough hunt (hit): proved `InMemoryBackgroundJobQueue` retry capacity-exhausted and writer-rejected branches logged before the second `_info` cancel re-read (parity gap vs terminal-failure and durable capacity terminal paths); second re-read before `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`; 85 scoped host-core-jobs + in-memory queue tests passed.
 
@@ -10090,6 +10093,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` notify-failure handler — single `GetAsync` cancel re-read before `MarkFailedTerminalAsync` let cancel land after the read and overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / terminal second-read fixes) — **hit 2026-09-27 seed hunt (seed→hit):** second `GetAsync` before notify-failure terminal assignment; regression `RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
 - [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — `MarkFailedTerminalAsync` on notify failure without any `GetAsync` cancel check overwrote `Canceled` when user canceled a just-inserted `Pending` row while `SendJobIdAsync` was in flight (parity gap vs watchdog/processor second-read pattern) — **hit 2026-09-27 thorough hunt:** second `GetAsync` before notify-failure terminal assignment (parity with watchdog); regressions `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling` and `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`.
 - [x] (proven) `InMemoryBackgroundJobQueue` retry capacity-exhausted and queue-writer-rejected failure branches assigned `Failed` after a single `_info` cancel re-read when cancel landed between the read and assignment (parity gap vs terminal-failure second-read and durable processor capacity terminal path) — **hit 2026-09-27 thorough hunt:** pre-log and post-log `_info` re-reads before capacity/writer terminal `Failed` assignment; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` invalid WorkUnitJson branch — pre-log cancel re-reads then `LogError` before `MarkFailedTerminalAsync` let cancel land after logging and overwrite `Canceled` with `Failed` (parity gap vs exhausted-retry terminal post-log second-read fixes) — **hit 2026-10-04 seed hunt (seed→hit):** second pair of `GetAsync` cancel checks after invalid-payload log; regression `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_after_invalid_payload_log`.
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — Azure queue receive loop does not consult `IWorkerHostDrainGate` after `WorkerHostDrainSignal.BeginIfNeeded` on `ApplicationStopping` — **invalid 2026-10-04 thorough hunt:** `IWorkerHostDrainGate` documents execute-ownership / new-work admission (TB-961); the processor `BackgroundService` loop exits on host `stoppingToken`, and in-flight exports completing during drain match graceful shutdown intent; no failing repro.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue` retry-scheduling branch — single `_info` re-read after the scheduling `LogWarning` before writing `Pending` vs durable dual post-log `GetAsync` — **valid-no-repro 2026-10-04 thorough hunt:** cancel-during-log regression `MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending` covers reachable `MarkCanceledAsync` races; no deterministic failing repro for cancel between read and assign on the single-threaded assignment window without inventing test hooks.
+- [x] (invalid) `InMemoryBackgroundJobQueue` queue-writer-rejected terminal branch — missing writer-rejected cancel regression — **invalid 2026-10-04 thorough hunt:** queue uses `Channel.CreateUnbounded` and never completes the writer in host lifetime, so `TryWrite` false is not reachable in production; capacity-exhausted path remains the exercised retry terminal branch.
+- [x] (valid-no-repro) `RunExecuteOwnershipShutdownReleaseHostedService` — `ReleaseAllHeldByThisInstanceAsync(CancellationToken.None)` on `ApplicationStopping` — **valid-no-repro 2026-10-04 thorough hunt:** shutdown callback intentionally runs release to completion; `WorkerHostDrainHostedService` forced-kill telemetry documents platform timeout when release outlives host stop budget; existing tests verify release is invoked on stopping.
 
 2026-09-27 seed hunt (seed-only): reseeded host-core-jobs after durable enqueue fix; scoped processor/watchdog/enqueue cancel parity; seeded in-memory retry capacity/writer terminal single-read candidate; 74 scoped host-core-jobs tests passed.
 
@@ -10211,7 +10219,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
@@ -10219,9 +10227,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-04 seed hunt (seed-only): re-read sign-in routing, email-OTP session, live-seat bootstrap redirect, and `proxy.ts` matcher boundaries after the demo-scope dry hunt; no row met the hunt-ready bar for same-run proof; seeded four bounded candidates; scoped auth/proxy vitest passed 218 tests with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
+
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `evaluateAuthSignInRouting` / `AuthSignInRoutingApiResponse.returnPath` — the routing evaluate API can return a normalized `returnPath` in JSON, but the in-zone sign-in client currently consumes only `ssoRequired` and `message`; a future caller that navigates using the response field without `isSafeReturnPath` could diverge from `AuthSignInReturnPathGuard` unless parity is enforced at the UI boundary.
+- [ ] (candidate) `proxy.ts` `config.matcher` — the catch-all negative lookahead skips any pathname ending in `.json`, so split-site `decideHostGateRedirect` and demo-run alias redirects never run for a `.json` suffix route; reachable only if an operator or marketing bookmark used a `.json` pathname segment.
+- [ ] (candidate) `readEmailOtpChallengeSession` — restores a session when `maskedEmail` and `email` are present but `challengeId` is absent (`null`); the sign-in flow blocks verify without a challenge id today, but tampered sessionStorage could surface a code step without a bound challenge until verify is attempted.
+- [ ] (candidate) `runSignedInDedicatedScopeBootstrap` — when `bootstrapDedicatedWorkspaceScope` fails while stored scope is still the sample workspace and the sample visit flag is inactive, the helper hard-navigates to `/auth/bootstrap`; reachable on signed-in live-seat entry (LS-010) and may evict the operator from a non-bootstrap desk path before dedicated scope is proven impossible vs transient bootstrap failure.
 
 - [x] (valid-no-repro) `isAnonymousMarketingProxyPathNormalized` treats every `v1/marketing/quick-scan/` and `v1/marketing/trust-center/` descendant as anonymous; the current OpenAPI catalog contains only the anonymous quick-scan/status/sample and trust-center evidence-pack descendants, and the UI proxy callers match that set. No concrete protected descendant exists to drive a failing repro; this remains process risk when a new marketing endpoint ships without an allowlist update.
 - [x] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path - invalid: server bearer stripped on allowlisted marketing paths; cookies are not copied upstream
@@ -18779,13 +18794,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 43
+- **hunts:** 45
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-03 — negative dependency event counts were accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-04 thorough hunt (dry): cheap-disproved all five reseeded candidates (Event Hub capture boolean contract, ADF scalar-only typeProperties on hosted ARM collector path, ARM camelCase identity JSON, ADF string linked-service reference names, Key Vault linked-service host-only parity with collector script); no failing repro; scoped `AzureExtractor` tests passed 1449/1449 (1422 Core + 27 Application).
+
+2026-10-04 seed hunt (seed-only): re-read ADF linked-service/dataset sanitizers, messaging capture extraction, compute-identity principal indexing, and dependency-observation parsing after the 2026-10-03 ADF and telemetry hits; no row met the hunt-ready bar for same-run proof; seeded five mechanism-backed candidates; scoped `AzureExtractor` tests passed 1443/1443 (1416 Core + 27 Application).
 
 2026-10-03 thorough hunt (dry): cheap-disproved the three ADF reseed candidates; the selected source and focused tests provide no reachable schema evidence that `container` and `fileSystem` coexist with type-specific precedence, that location `fileName` should lose to top-level `folderPath`, or that the deliberate 260-character bound is incorrect; no failing repro was warranted.
 
@@ -18814,6 +18833,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `AzureInventoryMessagingAssociationExtractor.IsEnabled` — string `"true"` for `captureDescription.enabled` does not enable capture while absent `enabled` defaults to on — **cheap-disproof 2026-10-04 thorough hunt:** Event Hub ARM capture metadata uses boolean `enabled`; string tokens are not a reachable collector contract; regression `TryExtractEventHub_ignores_capture_when_enabled_is_string_true`.
+- [x] (valid-no-repro) `AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar` / `AzureInventoryAdfLinkedServiceTargetExtractor.TryExtractTargetResourceId` — JSON object `serviceEndpoint` values are ignored and leave blob linked services `TargetUnresolved` — **cheap-disproof 2026-10-04 thorough hunt:** `HostedAzureInventoryAdfLinkedServiceCollector` feeds raw ADF ARM `typeProperties` scalars only; object ARM-reference blobs are not on this path; regression `TrySanitizeFromArmResource_marks_blob_linked_service_unresolved_when_service_endpoint_is_json_object`.
+- [x] (valid-no-repro) `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` — PascalCase `PrincipalId` is ignored while camelCase `principalId` indexes compute resources — **cheap-disproof 2026-10-04 thorough hunt:** inventory `identity` JSON follows ARM camelCase keys from package serialization; regressions `BuildPrincipalToComputeArmIds_reads_camel_case_identity_json`, `BuildPrincipalToComputeArmIds_ignores_pascal_case_principal_id_property`.
+- [x] (invalid) `AzureInventoryAdfDatasetSanitizer.TryReadLinkedServiceReferenceName` — numeric `linkedServiceName.referenceName` coerces to a static name token — **cheap-disproof 2026-10-04 thorough hunt:** ADF dataset ARM metadata requires string `referenceName`; numeric tokens are not emitted by the linked-service reference contract; regression `TrySanitizeFromArmResource_coerces_numeric_linked_service_reference_name_to_string_token`.
+- [x] (valid-no-repro) `AzureInventoryAdfLinkedServiceSanitizer.TryExtractKeyVaultResourceId` — `KeyVaultResourceId` stays null when `baseUrl` supplies `TargetHost` — **cheap-disproof 2026-10-04 thorough hunt:** collector script parity leaves `keyVaultResourceId` empty for `AzureKeyVault` linked services; vault host identity is carried on `TargetHost`, not an ARM id in `typeProperties`; regression `TrySanitizeFromArmResource_leaves_key_vault_resource_id_null_when_base_url_resolves`.
 
 - [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a source graph with an incomplete traversal branch that does not directly continue to the target reports a false unresolved gap — **hit 2026-10-03 seed hunt:** removing the `HasDirectContinuationToTarget` guard caused `ProjectPath_records_missing_intermediate_hop_without_bridging_gap` to fail; restored the guard so only partial branches with a direct target continuation are surfaced.
 - [x] (proven) `InventoryDiagramOrphanedStateClassifier.ReadEvidenceCurrency` — numeric `"99"` was accepted as an undefined enum and made `IsCurrentEvidence` false, suppressing orphan classification for a current connection with a missing endpoint — **hit 2026-10-03 thorough hunt:** added `Enum.IsDefined` validation so undefined values use the existing `Current` fallback; regression `Classify_numeric_unknown_evidence_currency_with_missing_endpoint_uses_current_fallback`.
@@ -27542,9 +27567,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-27 — selective schedule clear / full execute run vanish immediately before ownership acquire
 - **code-changed-since:** yes
@@ -27579,6 +27604,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 thorough hunt (dry): rechecked the same repeated pre-acquire validation candidates; no distinct wrong outcome or failing repro emerged, and all 54 scoped ownership/orchestrator tests passed. No code change.
 
 2026-10-04 thorough hunt (dry): repeated cheap-disproof of both repeated pre-acquire validation candidates; the existing race regressions still cover the reachable transitions, with 54 scoped tests passing and no code change.
+2026-10-04 thorough hunt (dry): re-closed duplicate open candidate rows for repeated pre-acquire guards; intentional race guards per hits #22–#24 and listed regressions; 54 scoped ownership/orchestrator tests passed; no code change.
 
 ### Hypotheses
 
@@ -27635,8 +27661,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ExecuteSelectiveRunAsync` — live schedule could clear after the final pre-acquire `EnsureSelectiveExecuteStillEligibleAsync` but before `AcquireAsync` — **hit 2026-09-27 seed hunt #24:** sixth `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire; regression `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_final_eligibility_check`.
 - [x] (proven) `ExecuteRunAsync` — run row could vanish after the first `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` but before `AcquireAsync` — **hit 2026-09-27 seed hunt #24:** second pre-acquire eligibility reload immediately before acquire; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
 
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the ownership-enabled path performs the same pre-acquire eligibility reload twice before `AcquireAsync`; a reachable run transition between the two reads may cause an extra database read or fail closed before lease admission, pending a contract showing whether the repeated guard is intentional and observable.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — the ownership-enabled path repeats selective eligibility and forced-task resolution three times before `AcquireAsync`; a reachable schedule/run transition during these reads may cause unnecessary rejection or database load, pending a contract for the repeated race guards.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reload before `AcquireAsync` — **valid-no-repro 2026-10-04 thorough hunt:** second read is the shipped fix for run deletion immediately before acquire (hit #24); extra read is intentional fail-closed guard, not a defect (`ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task resolution before `AcquireAsync` — **valid-no-repro 2026-10-04 thorough hunt:** repeated checks are intentional race guards from hits #22–#24; regressions cover commit/delete/schedule-clear transitions; no separate wrong outcome from redundant reads.
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context parity and post-acquire lease-pin candidates; seeded stale forced-task snapshot row; 43 scoped ownership/orchestrator tests passed.
 
@@ -27692,9 +27718,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 16
+- **hunts:** 18
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
 - **related-pd-tb:** none
@@ -27703,6 +27729,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
 2026-10-04 seed hunt (seed-only): reseeded architecture-intelligence-orchestrator; reviewed continue coalescing and cache-hit finalize paths; no new hunt-ready rows; 62 scoped tests passed.
+2026-10-04 seed hunt (seed-only): re-read orchestrator finalize, continue dual-manifest pin scope, and tombstone invalidation caps; seeded three bounded candidates; 62 scoped orchestrator/cache tests passed.
+2026-10-04 thorough hunt (dry): cheap-disproved tombstone-cap saturation (pin-cap prevents 65th pinned invalidation path; existing `AddTombstonedRunId_skips_fifo_drop` + deferred flush), continue dual-manifest race (single-threaded snapshot builds), and `Set` tombstone TOCTOU (re-check under `_evictionLock`); 62 scoped tests passed; no code changes.
 
 2026-09-30 seed hunt (seed-only): re-read the orchestrator/cache slice; 61 scoped tests passed; retained two concrete cache candidates for the next repro pass.
 
@@ -27728,6 +27756,9 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` sorts duplicate source texts only by file name/content type, so two upload-order permutations with the same duplicate names/types may produce different cache keys — **cheap-disproved 2026-09-30:** the files expose no contract that duplicate source ordering is semantically interchangeable; a cache miss alone is not a proven wrong outcome for an ordered source list.
 - [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` allows no-`RunId`, non-publishing requests to reuse a cached result created under another generated run id, which may return an identity that does not belong to the current request — **hit 2026-09-30:** cache manifests intentionally omit generated run ids, and cache-hit finalization preserved the cached identity for a request that generated a new run id; fixed by always applying the current resolved run id to the isolated result and model; regression `RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` / `AddTombstonedRunId` — tombstone FIFO saturation while every queued tombstone still has pinned entries — **valid-no-repro 2026-10-04 thorough hunt:** pinned invalidation already tombstones servable rows (`TryGet_misses_when_run_id_is_tombstoned_even_if_entry_is_pinned`); when a 65th distinct pin cannot be acquired (`MaxDistinctPinnedStorageKeys`), `InvalidateForRun` removes the unpinned row instead of leaving a stale hit; regression `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
+- [x] (invalid) `RunContinueFromExistingReviewAsync` — dual-manifest `PinScope` vs `continueManifest`-only probes with concurrent persistence mutation — **invalid 2026-10-04 thorough hunt:** `existing`/`ledgerEntries` load once and both manifests build synchronously on the same snapshots; `BuildContinueFromExistingRunCoalesceManifest` embeds `contentManifest.ContentHash`; both keys are pinned via `PinScope(continueManifest, contentManifest)`.
+- [x] (invalid) `ReviewResultCache.Set` — tombstone check before `_evictionLock` vs concurrent `InvalidateForRun` — **invalid 2026-10-04 thorough hunt:** `Set` re-checks `IsRunIdTombstonedUnlocked` inside the lock after clone/sanitize; regressions `Set_skips_insert_when_sanitized_run_id_matches_tombstone` and `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 

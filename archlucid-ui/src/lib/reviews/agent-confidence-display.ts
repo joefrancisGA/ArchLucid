@@ -18,6 +18,7 @@ function formatConfidencePercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
+/** Distinguish calibrated confidence from raw agent confidence when both are recorded (UU-409). */
 export function formatAgentExecutionConfidenceLabel(result: RunDetailAgentResult): string {
   const raw = parseConfidence(result.confidence);
   const calibrated = parseConfidence(result.calibratedConfidence);

@@ -128,7 +128,7 @@ export function ReviewAgentExecutionLogSection({
                   <EnterpriseTableHeaderCell>
                     <span>Confidence</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                      Calibrated vs raw when both are recorded. Not recorded means no confidence was persisted. Not a probability the result is correct.
+                      Calibrated vs raw when both are recorded. Not recorded means no confidence was persisted. Neither is a probability the result is correct.
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>

@@ -98,4 +98,31 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
         row!.ForwardToName.Should().Be("archive");
         row.ForwardDeadLetteredMessagesToName.Should().Be("deadletters");
     }
+
+    [Fact]
+    public void TryExtractEventHub_ignores_capture_when_enabled_is_string_true()
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+                                                            {
+                                                              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ns/eventhubs/orders",
+                                                              "name": "orders",
+                                                              "properties": {
+                                                                "captureDescription": {
+                                                                  "enabled": "true",
+                                                                  "destination": {
+                                                                    "storageAccountResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                            """);
+
+        AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ns",
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        row.Should().NotBeNull();
+        row!.CaptureStorageAccountId.Should().BeNull();
+    }
 }

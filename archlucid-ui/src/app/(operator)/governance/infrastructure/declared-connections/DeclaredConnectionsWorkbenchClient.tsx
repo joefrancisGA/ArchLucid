@@ -542,6 +542,9 @@ export function DeclaredConnectionsWorkbenchClient() {
             <h2 id="declared-connections-table-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
               Active and historical declarations
             </h2>
+            <p className={cn("m-0 w-full", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-declared-connections-filter-count-honesty">
+              Filter counts reflect declarations loaded in this workspace view, not tenant-wide totals.
+            </p>
             <div className="flex flex-wrap gap-2" data-testid="infra-declared-connections-status-filters">
               {(["all", "Active", "NearExpiry", "Expired", "Revoked"] as const).map((filter) => (
                 <InteractiveChip

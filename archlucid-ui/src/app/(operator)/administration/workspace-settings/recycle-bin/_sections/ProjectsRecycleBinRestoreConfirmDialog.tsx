@@ -2,6 +2,7 @@
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { RecycleRestoreConsequencePreview } from "@/components/RecycleRestoreConsequencePreview";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_CANCEL_LABEL,
@@ -14,6 +15,7 @@ export type ProjectsRecycleBinPendingRestore = Readonly<{
   workspaceName: string;
   projectId: string;
   projectName: string;
+  purgeAfterUtcIso: string;
 }>;
 
 export type ProjectsRecycleBinRestoreConfirmDialogProps = {
@@ -30,7 +32,11 @@ export function ProjectsRecycleBinRestoreConfirmDialog(
   const description =
     props.pending === null
       ? ""
-      : projectsRecycleBinRestoreConfirmDescription(props.pending.projectName, props.pending.workspaceName);
+      : projectsRecycleBinRestoreConfirmDescription(
+          props.pending.projectName,
+          props.pending.workspaceName,
+          formatInstantForLocale(props.pending.purgeAfterUtcIso),
+        );
 
   return (
     <ConfirmationDialog

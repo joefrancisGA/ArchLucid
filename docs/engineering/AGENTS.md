@@ -71,9 +71,16 @@ Scoped compile check for agents: `.\scripts\ci\agent-compile-check.ps1` (see `.c
 
 ## Cursor Cloud specific instructions
 
-Cursor Cloud Agent VMs are **Linux**. **`python3` is preinstalled**. The base image does not include the .NET SDK or PowerShell. **`scripts/cloud-agent-install.sh`** (Cloud Agent `install`) installs the SDK pinned in **`global.json`**, Node.js 22 under **`/usr/local`**, PowerShell 7 + Pester 5, restores and Debug-builds **`ArchLucid.Api`**, and runs **`npm ci`** in **`archlucid-ui`**. **`scripts/cloud-agent-start.sh`** (Cloud Agent `start`) launches the API on port **5128** with **`ArchLucid__StorageProvider=InMemory`** (no SQL) and the Next.js dev server on port **3000**. Open the UI at **`http://localhost:3000`**. Next.js blocks dev assets when the browser host is **`127.0.0.1`**. Repo scripts and Pester suites expect PowerShell 7 + Pester 5 (same band as CI `azure-extractor-pester` in `.github/workflows/ci.yml`). The manual steps below are what that install script runs when a tool is missing.
+Cursor Cloud Agent VMs are **Linux**. **`python3` is preinstalled**. The base image does not include the .NET SDK, Node.js, or PowerShell. **`.cursor/environment.json`** runs **`scripts/cloud-agent-install.sh`** on environment build / install: pinned **.NET SDK** (`global.json`), **Node.js 22** under **`$HOME/.local/node`** (symlinked in **`$HOME/.local/bin`**), **PowerShell 7 + Pester 5** under **`$HOME/.local/pwsh`**, **`npm ci`** in **`archlucid-ui`**, and (when disk allows) a Debug build of **`ArchLucid.Api`**. **`scripts/cloud-agent-start.sh`** launches the API on port **5128** with **`ArchLucid__StorageProvider=InMemory`** (no SQL) and the Next.js dev server on port **3000**. Open the UI at **`http://localhost:3000`**. Next.js blocks dev assets when the browser host is **`127.0.0.1`**. Repo scripts and Pester suites expect PowerShell 7 + Pester 5 (same band as CI `azure-extractor-pester` in `.github/workflows/ci.yml`). Root **`/`** is small (~9 GB); the install script prunes temp/caches and skips the API build when free space is critically low.
 
-**One-time per VM (user prefix, no root):**
+**If `install` did not run or tools are missing**, re-run from repo root (same steps the script uses):
+
+```bash
+export PATH="$HOME/.local/bin:$HOME/.dotnet:$PATH"
+./scripts/cloud-agent-install.sh
+```
+
+**Manual PowerShell only** (when you cannot rerun the full install):
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -84,7 +91,7 @@ ln -sf "$HOME/.local/pwsh/pwsh" "$HOME/.local/bin/pwsh"
 pwsh -NoProfile -Command "Install-Module Pester -Scope CurrentUser -Force -SkipPublisherCheck -MinimumVersion 5.0.0 -MaximumVersion 5.99.99"
 ```
 
-Do not commit the extracted tree under `$HOME/.local/pwsh`.
+Do not commit extracted trees under **`$HOME/.local/pwsh`** or **`$HOME/.local/node`**.
 
 **Run repo scripts from repo root:**
 

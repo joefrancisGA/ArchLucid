@@ -72,9 +72,14 @@ import type {
   SecurityEvidencePathHop,
   SecurityEvidencePathRankDetail,
   SecurityEvidencePathRankSummary,
+  SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
 import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
+import {
+  formatSecurityEvidencePathCompositeSortKeyLine,
+  formatSecurityEvidencePathRankLead,
+} from "@/lib/security-evidence-path-rank-display";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
@@ -220,6 +225,27 @@ function PathHopsTable(props: {
   );
 }
 
+function PathBandWeakestHopLimitNote(props: {
+  readonly pathBand: string;
+  readonly weakestHop: SecurityEvidencePathWeakestHop | null | undefined;
+}): React.JSX.Element | null {
+  if (props.weakestHop == null) {
+    return null;
+  }
+
+  const hopBandLabel = formatSecurityEvidencePathConfidenceBandLabel(props.weakestHop.hopConfidenceBand);
+
+  return (
+    <p
+      className={cn("m-0 w-full basis-full", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="security-evidence-path-band-weakest-hop-limit"
+    >
+      Path band {formatSecurityEvidencePathConfidenceBandLabel(props.pathBand)} is capped by weakest hop{" "}
+      {props.weakestHop.hopOrdinal} ({hopBandLabel}). Stronger path bands are not claimed.
+    </p>
+  );
+}
+
 function PathConfidenceWhy(props: { readonly band: string }): React.JSX.Element | null {
   if (props.band !== "InsufficientEvidence" && props.band !== "Possible") {
     return null;
@@ -256,11 +282,13 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        Why this path scored the way it did. Not the table row number alone.
+        Rank prose is authoritative for why this path sorts here. The composite key is ordering only.
       </p>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-        Composite score {props.rank.compositeSortScore.toFixed(4)} · Sort key. Not a percentage. ·{" "}
-        {props.rank.explanationSummary}
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-rank-lead">
+        {formatSecurityEvidencePathRankLead(props.rank)}
+      </p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+        {formatSecurityEvidencePathCompositeSortKeyLine(props.rank.compositeSortScore)}
       </p>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
@@ -455,8 +483,13 @@ function InspectSelectionIdentityHeader(props: {
     return (
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          Path rank {props.pathSummary.rankOrder} · score {props.pathSummary.compositeSortScore.toFixed(4)} ·{" "}
-          {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
+          Path rank {props.pathSummary.rankOrder} · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
+        </p>
+        {props.pathSummary.explanationSummary.trim().length > 0 ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{props.pathSummary.explanationSummary.trim()}</p>
+        ) : null}
+        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+          {formatSecurityEvidencePathCompositeSortKeyLine(props.pathSummary.compositeSortScore)}
         </p>
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
@@ -712,6 +745,7 @@ export function SecurityEvidencePathInspectPanel(props: {
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
             />
             <PathConfidenceWhy band={pathQuery.data.pathConfidenceBand} />
+            <PathBandWeakestHopLimitNote pathBand={pathQuery.data.pathConfidenceBand} weakestHop={pathQuery.data.weakestHop} />
           </div>
 
           {decisionReadiness != null ? (

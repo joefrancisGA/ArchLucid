@@ -9,10 +9,16 @@ export type RecycleBinContinueLastTarget = {
   readonly projectName: string;
   readonly workspaceId: string;
   readonly workspaceName: string;
+  readonly purgeAfterUtcIso: string;
 };
 
-export type RecycleBinContinueLastProjectInput = RecycleBinContinueLastTarget & {
+export type RecycleBinContinueLastProjectInput = {
+  readonly projectId: string;
+  readonly projectName: string;
+  readonly workspaceId: string;
+  readonly workspaceName: string;
   readonly deletedUtcIso: string;
+  readonly purgeAfterUtcIso: string;
 };
 
 function readStoredProjectId(): string | null {
@@ -53,6 +59,7 @@ export function flattenRecycleBinProjects(
       workspaceId: workspace.workspaceId,
       workspaceName: workspace.name,
       deletedUtcIso: project.deletedUtcIso,
+      purgeAfterUtcIso: project.purgeAfterUtcIso,
     })),
   );
 }
@@ -63,6 +70,7 @@ function toTarget(project: RecycleBinContinueLastProjectInput): RecycleBinContin
     projectName: project.projectName.trim().length > 0 ? project.projectName : project.projectId,
     workspaceId: project.workspaceId,
     workspaceName: project.workspaceName,
+    purgeAfterUtcIso: project.purgeAfterUtcIso,
   };
 }
 
@@ -82,7 +90,8 @@ export function resolveContinueLastRecycleBinProject(
       && typeof project?.projectName === "string"
       && typeof project?.workspaceId === "string"
       && typeof project?.workspaceName === "string"
-      && typeof project?.deletedUtcIso === "string",
+      && typeof project?.deletedUtcIso === "string"
+      && typeof project?.purgeAfterUtcIso === "string",
   );
 
   if (validProjects.length === 0) {

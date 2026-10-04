@@ -208,7 +208,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 prefetch={false}
                 data-testid={`finding-record-disposition-${finding.findingId}`}
               >
-                Record disposition
+                Record finding disposition
               </Link>
             </Button>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>

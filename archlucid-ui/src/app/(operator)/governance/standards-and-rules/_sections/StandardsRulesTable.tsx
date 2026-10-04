@@ -168,7 +168,12 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
                 The policy pack that supplied this rule.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Linked findings</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Linked findings</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Findings in this review that cite this rule.
+              </span>
+            </EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
