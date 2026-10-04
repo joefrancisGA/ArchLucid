@@ -218,6 +218,9 @@ export function StructuredComparisonView(props: {
     target: formatCompareCostEstimateCell(c.targetCost),
   }));
   const costHasUnitUnknown = costFormattedRows.some((row) => row.base.unitUnknown || row.target.unitUnknown);
+  const costAllUnitUnknown =
+    golden.costChanges.length > 0
+    && costFormattedRows.every((row) => row.base.unitUnknown && row.target.unitUnknown);
 
   return (
     <section id="compare-structured" className="mt-7">
@@ -411,23 +414,33 @@ export function StructuredComparisonView(props: {
                 setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.projectedCostImpact : null)
               }
             >
-              <EnterpriseTable ariaLabel="Projected cost impact" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
-                <EnterpriseTableHead>
-                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <EnterpriseTableHeaderCell className={cellCls}>Baseline cost estimate</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell className={cellCls}>Updated cost estimate</EnterpriseTableHeaderCell>
-                  </EnterpriseTableHeadRow>
-                </EnterpriseTableHead>
-                <EnterpriseTableBody>
-                  {golden.costChanges.map((c, i) => (
-                    <EnterpriseTableRow key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
-                      <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.base.display ?? " — "}</EnterpriseTableCell>
-                      <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.target.display ?? " — "}</EnterpriseTableCell>
-                    </EnterpriseTableRow>
-                  ))}
-                </EnterpriseTableBody>
-              </EnterpriseTable>
-              {costHasUnitUnknown ? (
+              {costAllUnitUnknown ? (
+                <p
+                  className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="compare-cost-unit-not-recorded"
+                >
+                  The comparison payload returned numeric cost values without currency or billing period. No baseline-vs-updated
+                  delta is shown — unit not recorded.
+                </p>
+              ) : (
+                <EnterpriseTable ariaLabel="Projected cost impact" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                  <EnterpriseTableHead>
+                    <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                      <EnterpriseTableHeaderCell className={cellCls}>Baseline cost estimate</EnterpriseTableHeaderCell>
+                      <EnterpriseTableHeaderCell className={cellCls}>Updated cost estimate</EnterpriseTableHeaderCell>
+                    </EnterpriseTableHeadRow>
+                  </EnterpriseTableHead>
+                  <EnterpriseTableBody>
+                    {golden.costChanges.map((c, i) => (
+                      <EnterpriseTableRow key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
+                        <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.base.display ?? " — "}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.target.display ?? " — "}</EnterpriseTableCell>
+                      </EnterpriseTableRow>
+                    ))}
+                  </EnterpriseTableBody>
+                </EnterpriseTable>
+              )}
+              {costHasUnitUnknown && !costAllUnitUnknown ? (
                 <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Numeric values are shown as returned by the comparison payload — currency and billing period were not
                   declared, so no unit is inferred.

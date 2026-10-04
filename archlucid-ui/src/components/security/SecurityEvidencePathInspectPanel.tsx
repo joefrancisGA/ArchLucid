@@ -74,6 +74,7 @@ import type {
   SecurityEvidencePathRankSummary,
 } from "@/lib/security-evidence-path-types";
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
+import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
@@ -478,8 +479,10 @@ function InspectSelectionIdentityHeader(props: {
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <InlineGlossaryChip nounId="finding">Finding</InlineGlossaryChip> rank{" "}
-          {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"} · score{" "}
-          {props.findingSummary.totalScore.toFixed(4)}
+          {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"}
+        </p>
+        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+          {formatRemediationPrioritySortKeyLine(props.findingSummary.totalScore)}
         </p>
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
@@ -841,19 +844,12 @@ export function SecurityEvidencePathInspectPanel(props: {
 
           <div className="space-y-2" data-testid="security-evidence-path-what-could-break">
             <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>What could break</h3>
-            {[
-              ...pathQuery.data.relatedCutPoints
-                .map((cutPoint) => cutPoint.explanationSummary.trim())
-                .filter((summary) => summary.length > 0),
-              pathRankQuery.data?.dimensionProse.blastRadius.trim() ?? "",
-            ].filter((summary) => summary.length > 0).length > 0 ? (
+            {pathQuery.data.relatedCutPoints
+              .map((cutPoint) => cutPoint.explanationSummary.trim())
+              .filter((summary) => summary.length > 0).length > 0 ? (
               <ul className="m-0 list-disc space-y-1 pl-5">
-                {[
-                  ...pathQuery.data.relatedCutPoints
-                    .map((cutPoint) => cutPoint.explanationSummary.trim())
-                    .filter((summary) => summary.length > 0),
-                  pathRankQuery.data?.dimensionProse.blastRadius.trim() ?? "",
-                ]
+                {pathQuery.data.relatedCutPoints
+                  .map((cutPoint) => cutPoint.explanationSummary.trim())
                   .filter((summary) => summary.length > 0)
                   .map((summary) => (
                     <li key={summary} className={OPERATOR_TYPOGRAPHY.body}>
@@ -863,7 +859,7 @@ export function SecurityEvidencePathInspectPanel(props: {
               </ul>
             ) : (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                No dependent or shared control is cited for this change.
+                No cut-point summaries are cited. Blast radius prose stays in Path rank when recorded.
               </p>
             )}
           </div>

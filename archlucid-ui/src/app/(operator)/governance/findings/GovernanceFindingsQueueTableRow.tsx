@@ -116,9 +116,9 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             ) : row.traceConfidenceLevel === "High" ||
               row.traceConfidenceLevel === "Medium" ||
               row.traceConfidenceLevel === "Low" ? (
-              <FindingConfidenceBadge level={row.traceConfidenceLevel} />
+              <FindingConfidenceBadge level={row.traceConfidenceLevel} showScopeLine />
             ) : (
-              <span className="text-al-text-secondary">—</span>
+              <span className="text-al-text-secondary">Not scored</span>
             )}
           </EnterpriseTableCell>
           <EnterpriseTableCell className="text-al-text-primary">

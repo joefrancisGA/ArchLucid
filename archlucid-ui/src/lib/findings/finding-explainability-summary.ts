@@ -70,18 +70,18 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
   }
 
   if (r >= 90) {
-    return "Strong — ArchLucid recorded nearly everything it uses to justify a finding.";
+    return "Strong — most trace fields used for explainability were populated.";
   }
 
   if (r >= 60) {
-    return "Moderate — direct evidence exists, but some supporting detail was not captured.";
+    return "Moderate — core trace fields exist; some optional detail was not captured.";
   }
 
   if (r >= 30) {
     return "Thin — read the technical audit below before relying on this finding on its own.";
   }
 
-  return "Minimal — treat this finding as a prompt to look further, not as a settled conclusion.";
+  return "Minimal — sparse trace fields; use as a prompt to inspect evidence, not as a settled conclusion.";
 }
 
 export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | undefined | null): string {

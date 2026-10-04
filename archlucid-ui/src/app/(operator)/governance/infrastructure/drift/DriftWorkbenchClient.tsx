@@ -48,6 +48,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceChangeTypeLabel,
+  INFRA_EVIDENCE_DRIFT_SNAPSHOT_DIFF_HONESTY_LINE,
   resolveInfraEvidenceChangeTypeStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
 import {
@@ -1250,6 +1251,20 @@ export function DriftWorkbenchClient() {
       );
     }
 
+    if (hasActiveTableFilters && changes.length > 0) {
+      return (
+        <EnterpriseTableRow>
+          <EnterpriseTableCell colSpan={changesTableColumnCount}>
+            <EnterpriseCompactEmptyState
+              title="No changes match this filter"
+              description="Clear table filters or widen the change-type and risk filters. Other changes may still exist for this snapshot pair."
+              testId="infra-drift-changes-empty-filtered"
+            />
+          </EnterpriseTableCell>
+        </EnterpriseTableRow>
+      );
+    }
+
     return (
       <EnterpriseTableRow>
         <EnterpriseTableCell colSpan={changesTableColumnCount}>
@@ -1703,7 +1718,11 @@ export function DriftWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-inventory-view-scope">
             This view shows the selected snapshot’s inventory, not changes between snapshots.
           </p>
-        ) : null}
+        ) : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshot-diff-honesty">
+            {INFRA_EVIDENCE_DRIFT_SNAPSHOT_DIFF_HONESTY_LINE}
+          </p>
+        )}
         <EnterpriseTable
           ariaLabel={
             isViewingSnapshotInventory

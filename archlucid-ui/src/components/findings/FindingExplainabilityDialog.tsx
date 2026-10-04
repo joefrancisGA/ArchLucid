@@ -29,8 +29,12 @@ import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-block
 import {
   findingRationalePreview,
   findingSeverityAudienceCopy,
-  findingTraceCompletenessPlainEnglish,
 } from "@/lib/findings/finding-explainability-summary";
+import {
+  FINDING_TRACE_FIELD_FILL_LABEL,
+  FINDING_TRACE_FIELD_FILL_SCOPE_LINE,
+  resolveFindingTraceCompletenessDisplay,
+} from "@/lib/findings/finding-trace-completeness-display";
 import {
   findingExplainabilityTechnicalDisclosureHrefFromSearch,
   parseFindingExplainabilityTechnicalOpenFromSearch,
@@ -143,10 +147,8 @@ export function FindingExplainabilityDialog({
     void load();
   }, [open, findingId, load]);
 
-  const ratioPct =
-    data !== null && Number.isFinite(data.traceCompletenessRatio)
-      ? Math.round(Math.min(1, Math.max(0, data.traceCompletenessRatio)) * 100)
-      : 0;
+  const traceCompleteness =
+    data !== null ? resolveFindingTraceCompletenessDisplay(data.traceCompletenessRatio) : null;
 
   const missingFields = data?.missingTraceFields?.filter((s) => s.trim().length > 0) ?? [];
 
@@ -232,7 +234,11 @@ export function FindingExplainabilityDialog({
                 <span className="font-semibold">Suggested next step:</span> {severityInspect.suggestedNext}
               </p>
               <p className={cn("m-0 mt-1.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-semibold">Evidence completeness:</span> {findingTraceCompletenessPlainEnglish(ratioPct)}
+                <span className="font-semibold">{FINDING_TRACE_FIELD_FILL_LABEL}:</span>{" "}
+                {traceCompleteness?.summaryLine ?? "Not recorded"}
+              </p>
+              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {FINDING_TRACE_FIELD_FILL_SCOPE_LINE}
               </p>
             </section>
 
@@ -319,21 +325,11 @@ export function FindingExplainabilityDialog({
                     </dl>
                   </section>
                 ) : null}
-                <div className="space-y-1">
-                  <div className={cn("flex items-center justify-between gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    <span>Trace completeness</span>
-                    <span>{ratioPct}%</span>
-                  </div>
-                  <Progress
-                    value={ratioPct}
-                    className="h-2"
-                    aria-label={`Trace completeness ${ratioPct} percent`}
-                  />
-                </div>
                 {missingFields.length > 0 ? (
                   <section
                     aria-label="Missing trace fields"
                     className={cn("rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS)}
+                    data-testid="finding-explainability-missing-trace-fields"
                   >
                     <p className="m-0 font-semibold">Not populated in trace</p>
                     <ul className="m-0 mt-1 list-disc space-y-0.5 pl-5">
@@ -342,6 +338,23 @@ export function FindingExplainabilityDialog({
                       ))}
                     </ul>
                   </section>
+                ) : null}
+                {traceCompleteness?.recorded === true && traceCompleteness.ratioPct !== null ? (
+                  <div className="space-y-1" data-testid="finding-explainability-trace-field-fill-bar">
+                    <div className={cn("flex items-center justify-between gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      <span>{FINDING_TRACE_FIELD_FILL_LABEL}</span>
+                      <span>{traceCompleteness.ratioPct}%</span>
+                    </div>
+                    <Progress
+                      value={traceCompleteness.ratioPct}
+                      className="h-2"
+                      aria-label={`${FINDING_TRACE_FIELD_FILL_LABEL} ${traceCompleteness.ratioPct} percent`}
+                    />
+                  </div>
+                ) : traceCompleteness?.recorded === false ? (
+                  <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {traceCompleteness.summaryLine}
+                  </p>
                 ) : null}
                 {data.narrativeText.trim().length > 0 ? (
                   <section aria-labelledby="finding-narrative-heading">
