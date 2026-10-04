@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
+import {
+  buyerGovernanceApprovalDisplayLabel,
+  governanceGateLabelFromManifestStatus,
+  governanceGateOperatorFootnote,
+  governanceGatePersistedStatusHint,
+} from "@/lib/governance/governance-gate-display";
 
 describe("governanceGateLabelFromManifestStatus", () => {
   it("returns Not configured for empty status", () => {
@@ -28,9 +33,21 @@ describe("governanceGateLabelFromManifestStatus", () => {
     expect(governanceGateLabelFromManifestStatus("skipped")).toBe("Not required");
   });
 
-  it("defaults other statuses to Pending", () => {
-    expect(governanceGateLabelFromManifestStatus("Draft")).toBe("Pending");
-    expect(governanceGateLabelFromManifestStatus("InReview")).toBe("Pending");
+  it("labels unrecognized statuses honestly", () => {
+    expect(governanceGateLabelFromManifestStatus("Draft")).toBe("Status not recognized");
+    expect(governanceGateLabelFromManifestStatus("InReview")).toBe("Status not recognized");
+  });
+});
+
+describe("governanceGatePersistedStatusHint", () => {
+  it("includes the raw manifest status", () => {
+    expect(governanceGatePersistedStatusHint("Draft")).toBe("Persisted manifest status: Draft");
+  });
+});
+
+describe("governanceGateOperatorFootnote", () => {
+  it("surfaces operator gate when buyer copy differs", () => {
+    expect(governanceGateOperatorFootnote("Passed", "Approved with monitoring")).toBe("Operator gate: Passed");
   });
 });
 
@@ -44,9 +61,9 @@ describe("buyerGovernanceApprovalDisplayLabel", () => {
     expect(buyerGovernanceApprovalDisplayLabel("Failed")).toBe("Failed");
   });
 
-  it("returns dash for empty strings", () => {
-    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe(" — ");
-    expect(buyerGovernanceApprovalDisplayLabel("")).toBe(" — ");
-    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe(" — ");
+  it("returns Not configured for empty strings", () => {
+    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("Not configured");
+    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("Not configured");
+    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("Not configured");
   });
 });

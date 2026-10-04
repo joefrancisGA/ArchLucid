@@ -15,13 +15,13 @@ function formatRecordedAt(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return " — ";
+    return "Not recorded";
   }
 
   const ms = Date.parse(raw);
 
   if (Number.isNaN(ms)) {
-    return raw;
+    return "Date not readable";
   }
 
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(ms));
@@ -89,9 +89,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           </div>
           <div>
             <dt className="text-al-text-secondary">
-              <span>Recorded date</span>
+              <span>Recorded at</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                When this decision was recorded. Opening the card does not record a new decision.
+                When this decision was recorded. Not recorded matches confidence when no timestamp was persisted.
               </span>
             </dt>
             <dd className="m-0 font-medium text-al-text-primary">{formatRecordedAt(decision.recordedAtUtc)}</dd>

@@ -11,12 +11,12 @@ describe("formatGovernanceLineageWholeCount", () => {
     expect(formatGovernanceLineageWholeCount(3.6)).toBe("4");
   });
 
-  it("returns em dash for unusable inputs", () => {
-    expect(formatGovernanceLineageWholeCount(NaN)).toBe(" — ");
-    expect(formatGovernanceLineageWholeCount(Number.POSITIVE_INFINITY)).toBe(" — ");
-    expect(formatGovernanceLineageWholeCount("42")).toBe(" — ");
-    expect(formatGovernanceLineageWholeCount(null)).toBe(" — ");
-    expect(formatGovernanceLineageWholeCount(undefined)).toBe(" — ");
+  it("returns Not returned for unusable inputs", () => {
+    expect(formatGovernanceLineageWholeCount(NaN)).toBe("Not returned");
+    expect(formatGovernanceLineageWholeCount(Number.POSITIVE_INFINITY)).toBe("Not returned");
+    expect(formatGovernanceLineageWholeCount("42")).toBe("Not returned");
+    expect(formatGovernanceLineageWholeCount(null)).toBe("Not returned");
+    expect(formatGovernanceLineageWholeCount(undefined)).toBe("Not returned");
   });
 });
 

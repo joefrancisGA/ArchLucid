@@ -124,6 +124,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     const blockingCount = input.blockingFindingCount ?? 0;
     const governancePending =
       gateLabel === "Pending" ||
+      gateLabel === "Status not recognized" ||
       /pending/i.test(governanceDecision) ||
       shouldShowRunDetailGovernanceCta({
         runId: input.run.runId,

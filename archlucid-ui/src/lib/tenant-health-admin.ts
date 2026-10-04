@@ -2,13 +2,21 @@ export type AdminTenantHealthSummaryItem = {
   tenantId: string;
   workspaceId: string;
   projectId: string;
-  engagementScore: number;
-  governanceScore: number;
+  engagementScore: number | null;
+  governanceScore: number | null;
   pilotFunnelStage: string;
-  runsLast7d: number;
-  commitsLast7d: number;
+  runsLast7d: number | null;
+  commitsLast7d: number | null;
   lastActivityUtc: string | null;
 };
+
+function finiteAdminMetric(value: number | undefined): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return value;
+}
 
 export type AdminTenantHealthListResponse = {
   items: AdminTenantHealthSummaryItem[];
@@ -43,11 +51,11 @@ export async function fetchAdminTenantHealthList(): Promise<AdminTenantHealthLis
     tenantId: row.tenantId ?? "",
     workspaceId: row.workspaceId ?? "",
     projectId: row.projectId ?? "",
-    engagementScore: row.engagementScore ?? 0,
-    governanceScore: row.governanceScore ?? 0,
+    engagementScore: finiteAdminMetric(row.engagementScore),
+    governanceScore: finiteAdminMetric(row.governanceScore),
     pilotFunnelStage: row.pilotFunnelStage ?? "",
-    runsLast7d: row.runsLast7d ?? 0,
-    commitsLast7d: row.commitsLast7d ?? 0,
+    runsLast7d: finiteAdminMetric(row.runsLast7d),
+    commitsLast7d: finiteAdminMetric(row.commitsLast7d),
     lastActivityUtc: row.lastActivityUtc ?? null,
   }));
 

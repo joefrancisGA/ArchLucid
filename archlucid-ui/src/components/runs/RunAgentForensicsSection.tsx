@@ -47,14 +47,14 @@ function ratioText(value: number | null | undefined): string {
 
 function wallClockDeltaFromPriorAgent(prevIso: string | null, curIso: string): string {
   if (!prevIso) {
-    return " — ";
+    return "First agent in this list";
   }
 
   const prevMs = Date.parse(prevIso);
   const curMs = Date.parse(curIso);
 
   if (!Number.isFinite(prevMs) || !Number.isFinite(curMs) || curMs < prevMs) {
-    return " — ";
+    return "Delta not usable";
   }
 
   const sec = Math.round((curMs - prevMs) / 1000);
@@ -343,7 +343,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <EnterpriseTableRow key={t.traceId}>
                   <EnterpriseTableCell className="whitespace-nowrap">{buyerLabelForAgentType(t.agentType)}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap font-mono text-neutral-600 dark:text-neutral-400">
-                    {t.modelAlias?.trim() ? t.modelAlias : " — "}
+                    {t.modelAlias?.trim() ? t.modelAlias : "Alias not recorded"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap text-neutral-600 dark:text-neutral-400">
                     {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
@@ -351,7 +351,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</EnterpriseTableCell>
                   <EnterpriseTableCell>{t.parseSucceeded ? "yes" : "no"}</EnterpriseTableCell>
                   <EnterpriseTableCell>
-                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : " — "}
+                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "Upload not recorded"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {sc

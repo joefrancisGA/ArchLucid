@@ -19,7 +19,20 @@ export function formatAgentQualityRatioCell(
     return NOT_SCORED_LABEL;
   }
 
+  if (value > 1) {
+    return "Not usable";
+  }
+
   return value.toFixed(2);
+}
+
+/** Hint when a persisted ratio is outside the expected 0–1 range (UU-510). */
+export function agentQualityRatioOutOfRangeHint(value: number | null): string | null {
+  if (value === null || Number.isNaN(value) || value <= 1) {
+    return null;
+  }
+
+  return `Recorded value ${value.toFixed(2)} is outside the expected 0–1 range`;
 }
 
 /** Display-only floor hint when a ratio is below the mirrored server gate (UU-405). */
