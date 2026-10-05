@@ -24,6 +24,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, service.ServiceName, nodeId);
         AddResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(service.ServiceName), nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(service.ServiceId),
+            nodeId);
     }
 
     public static void AddDeclaredManifestServiceEndpointAliases(

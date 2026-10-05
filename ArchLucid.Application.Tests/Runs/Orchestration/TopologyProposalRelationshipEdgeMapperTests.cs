@@ -809,6 +809,68 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_leaf_terraform_address_from_overlay_service_aliases_when_topology_nodes_omit_compute()
+    {
+        const string rootTerraformAddress = "azurerm_app_service.main";
+        const string moduleQualifiedSourceId = $"module.wrapper.{rootTerraformAddress}";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = moduleQualifiedSourceId,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> overlayAliases = new(StringComparer.OrdinalIgnoreCase);
+        ManifestService overlayService = new()
+        {
+            ServiceId = moduleQualifiedSourceId,
+            ServiceName = "api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(
+            overlayAliases,
+            overlayService,
+            graphNodes);
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            [graphNodes[1]],
+            [
+                new ManifestRelationship
+                {
+                    SourceId = rootTerraformAddress,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+            overlayAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_synthetic_service_id_when_terraform_module_name_contains_azurerm_token()
     {
         List<GraphNode> nodes =

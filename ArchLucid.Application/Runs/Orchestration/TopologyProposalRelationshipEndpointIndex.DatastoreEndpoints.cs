@@ -24,6 +24,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(datastore.DatastoreId),
+            nodeId);
     }
 
     public static void AddDeclaredManifestDatastoreEndpointAliases(
