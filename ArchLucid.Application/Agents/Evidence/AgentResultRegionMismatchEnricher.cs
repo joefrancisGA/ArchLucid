@@ -58,7 +58,7 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
     {
         List<string> regions = [];
 
-        foreach (string constraint in request.Constraints)
+        foreach (string constraint in request.Constraints ?? [])
         {
             if (!constraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
                 continue;
