@@ -54,7 +54,7 @@ public static class ReviewCacheManifestBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        string normalizedTenantId = ClosedLoopTenantIdNormalizer.NormalizeRequired(tenantId);
+        string normalizedTenantId = ClosedLoopTenantIdNormalizer.NormalizeForHash(tenantId);
         string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
 
         ReviewCacheDependencyManifest contentManifest =

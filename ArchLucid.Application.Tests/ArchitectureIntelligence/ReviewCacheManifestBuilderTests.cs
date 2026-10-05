@@ -295,6 +295,27 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+
+        ReviewCacheDependencyManifest lowerTenant =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "run-continue");
+
+        ReviewCacheDependencyManifest upperTenant =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+                "run-continue");
+
+        lowerTenant.ContentHash.Should().Be(upperTenant.ContentHash);
+    }
+
+    [Fact]
     public void BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

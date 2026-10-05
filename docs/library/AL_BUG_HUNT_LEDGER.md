@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — proved `BuildContinueFromExistingRunCoalesceManifest` used trim-only tenant id in `continue|tenant|run|…` hash while scope hashes canonicalize GUIDs; use `NormalizeForHash` for tenant segment; regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing`; 65 scoped orchestrator/cache tests passed.
+
 2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `TenantConfigurationHash` split on workspace GUID hex letter casing; canonicalize GUID scope ids in `ClosedLoopScopeIdHashNormalizer` for tenant/workspace/project hash inputs; regression `Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing`; cheap-disproof closed three lingering `(candidate)` rows; 64 scoped orchestrator/cache tests passed.
 
 2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `ReviewCacheManifestBuilder` content hash split on GUID hex letter casing while `ClosedLoopRunIdComparer` invalidates case-insensitively; lowercase hex in `ClosedLoopRunIdComparer.Normalize`; regression `Build_matches_content_hash_when_run_id_differs_only_by_hex_letter_casing`; cheap-disproof closed seven other open `(candidate)` rows; 63 scoped orchestrator/cache tests passed.
@@ -28724,15 +28726,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 22
-- **bugs-found:** 8
+- **hunts:** 23
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — tenant configuration hash split on workspace GUID hex casing
+- **last-bug:** 2026-10-05 — continue coalesce manifest split on tenant GUID hex casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-05 seed hunt (seed→hit): continue coalesce tenant GUID casing; `NormalizeForHash` in `BuildContinueFromExistingRunCoalesceManifest`; 65 scoped tests passed.
 
 2026-10-05 thorough hunt (hit): workspace GUID hex casing in `TenantConfigurationHash`; `ClosedLoopScopeIdHashNormalizer`; closed three open candidates; 64 scoped tests passed.
 
@@ -28783,6 +28787,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (invalid) `RunContinueFromExistingReviewAsync` — dual-manifest `PinScope` vs `continueManifest`-only probes with concurrent persistence mutation — **invalid 2026-10-04 thorough hunt:** `existing`/`ledgerEntries` load once and both manifests build synchronously on the same snapshots; `BuildContinueFromExistingRunCoalesceManifest` embeds `contentManifest.ContentHash`; both keys are pinned via `PinScope(continueManifest, contentManifest)`.
 - [x] (invalid) `ReviewResultCache.Set` — tombstone check before `_evictionLock` vs concurrent `InvalidateForRun` — **invalid 2026-10-04 thorough hunt:** `Set` re-checks `IsRunIdTombstonedUnlocked` inside the lock after clone/sanitize; regressions `Set_skips_insert_when_sanitized_run_id_matches_tombstone` and `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
 
+- [x] (proven) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — trim-only tenant id in continue coalesce `ContentHash` split on GUID hex letter casing — **hit 2026-10-05 seed hunt:** use `ClosedLoopTenantIdNormalizer.NormalizeForHash` for the `continue|tenant|…` segment; regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing`.
 - [x] (proven) `ReviewCacheManifestBuilder.HashTenantConfiguration` / scope id `NormalizeForHash` — workspace GUID hex letter casing produced different `TenantConfigurationHash` and cache keys — **hit 2026-10-05 thorough hunt:** canonicalize parsed GUID scope ids to lowercase `D` format via `ClosedLoopScopeIdHashNormalizer`; regression `Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing`.
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time `modelfp`/`ledgerfp` snapshot vs post-persist mutations — **cheap-disproof 2026-10-05 thorough hunt:** each request rebuilds manifest from reloaded baseline/ledger; no stale hit without manifest miss (seed 2026-10-05).
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap eviction — **cheap-disproof 2026-10-05 thorough hunt:** `PinScope_reports_not_pinned_when_distinct_key_cap_reached`, `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
