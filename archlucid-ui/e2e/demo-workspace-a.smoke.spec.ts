@@ -146,14 +146,15 @@ test.describe(
       // Buyer-polished DevelopmentBypass may omit SeverityTag on the quick-decision primary row.
     }
 
-    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
-
     const manifestSection = page.locator("#manifest-summary");
 
-    await expect(manifestSection).toBeVisible({ timeout: 90_000 });
-    await manifestSection.scrollIntoViewIfNeeded();
+    await expect(async () => {
+      await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
+      await expect(manifestSection).toBeVisible({ timeout: 30_000 });
+      await manifestSection.scrollIntoViewIfNeeded();
+      await expect(manifestSection.getByText(/Finalized review record/i)).toBeVisible({ timeout: 15_000 });
+    }).toPass({ timeout: 120_000 });
 
-    await expect(manifestSection.getByText(/Finalized review record/i)).toBeVisible({ timeout: 60_000 });
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
 
     const manifestDecisionCount = manifestSection.getByTestId("run-detail-manifest-decision-count");

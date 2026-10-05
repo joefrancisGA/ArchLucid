@@ -7,6 +7,7 @@ import {
   getAuthorityRunDetailWithTransientRetries,
   getPilotRunDeltasRaw,
   getPilotRunDeltasWithTransientRetries,
+  ensureRunExportLineageAttestedRaw,
   liveE2eCommitWaitMs,
   liveJsonHeaders,
   resolveLiveApiBase,
@@ -216,4 +217,14 @@ export async function ensureDemoWorkspaceSeedReady(
   await postDemoSeedWithTransientRetries(request);
 
   await waitForDemoWorkspaceSeedConvergence(request, workspaceChecks);
+
+  for (const check of workspaceChecks) {
+    if (check.probe !== "B") {
+      continue;
+    }
+
+    await ensureRunExportLineageAttestedRaw(request, check.runId, check.scope, {
+      timeoutMs: liveE2eCommitWaitMs(90_000),
+    });
+  }
 }
