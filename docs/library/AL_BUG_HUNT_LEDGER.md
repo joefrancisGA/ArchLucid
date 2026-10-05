@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — `TrialTenantBootstrapService` committed self-service trial start/expiry with `TimeProvider.System` instead of DI clock; inject `TimeProvider`; regression `TryBootstrapAfterSelfRegistrationAsync_commits_trial_window_using_injected_clock`; 131 scoped tenancy tests passed.
+
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — `TenantTrialFacade.GetTrialStatusAsync` computed `DaysRemaining` with `TimeProvider.System` instead of the host-injected clock, so trial-status disagreed with `TrialLimitGate` under frozen or shifted time; inject `TimeProvider`; regression `GetTrialStatusAsync_reports_days_remaining_using_injected_clock`; 130 scoped tenancy tests passed.
 
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — vertical tab (U+000B) and next-line (U+0085) control characters between phrase words still blocked `managed identity` after ASCII whitespace normalization; map `UnicodeCategory.Control` (except NUL) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_vertical_tab_separates_words`, `HasManagedIdentityConstraint_returns_true_when_next_line_character_separates_words`; 879 scoped RequestConstraint tests passed.
@@ -27260,13 +27262,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 37
-- **bugs-found:** 23
+- **hunts:** 38
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — trial-status `DaysRemaining` ignored injected `TimeProvider`
+- **last-bug:** 2026-10-05 — trial bootstrap ignored injected `TimeProvider` for trial window
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle after facade clock fix; proved `TrialTenantBootstrapService` used `TimeProvider.System` when persisting trial start/expiry; fixed by injecting `TimeProvider`; regression `TryBootstrapAfterSelfRegistrationAsync_commits_trial_window_using_injected_clock`; 131 scoped tenancy tests passed.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — trial commit used `TimeProvider.System` instead of host-injected clock — **hit 2026-10-05 seed hunt:** inject `TimeProvider` for `CommitSelfServiceTrialAsync` window; regression `TryBootstrapAfterSelfRegistrationAsync_commits_trial_window_using_injected_clock`.
 
 2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved `TenantTrialFacade.GetTrialStatusAsync` used `TimeProvider.System` for lifecycle display math while `TrialLimitGate` uses DI `TimeProvider`; fixed by injecting `TimeProvider` into the facade; regression `GetTrialStatusAsync_reports_days_remaining_using_injected_clock`; 130 scoped tenancy tests passed.
 

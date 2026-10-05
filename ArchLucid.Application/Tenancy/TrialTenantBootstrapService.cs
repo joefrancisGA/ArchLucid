@@ -19,6 +19,7 @@ public sealed class TrialTenantBootstrapService(
     IAuditService auditService,
     ITrialBootstrapEmailVerificationPolicy emailVerificationPolicy,
     ISelfServiceTrialAiBudgetPolicyProvisioner trialAiBudgetPolicyProvisioner,
+    TimeProvider timeProvider,
     ILogger<TrialTenantBootstrapService> logger) : ITrialTenantBootstrapService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -32,6 +33,7 @@ public sealed class TrialTenantBootstrapService(
 
     private readonly ILogger<TrialTenantBootstrapService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc/>
     public async Task TryBootstrapAfterSelfRegistrationAsync(TenantProvisioningResult result, string auditActorEmail,
@@ -125,7 +127,7 @@ public sealed class TrialTenantBootstrapService(
 
             try
             {
-                DateTimeOffset start = TimeProvider.System.GetUtcNow();
+                DateTimeOffset start = _timeProvider.GetUtcNow();
                 DateTimeOffset expires = start.AddDays(14);
                 await _tenantRepository.CommitSelfServiceTrialAsync(
                     result.TenantId,
