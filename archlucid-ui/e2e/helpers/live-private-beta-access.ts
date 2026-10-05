@@ -216,7 +216,8 @@ export async function waitForOperatorAuthMeProxyOk(page: Page, timeoutMs = 90_00
   try {
     await page.waitForResponse(matchesMe, { timeout: timeoutMs });
   } catch {
-    await page.reload({ waitUntil: "domcontentloaded" });
+    const origin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+    await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
     await page.waitForResponse(matchesMe, { timeout: timeoutMs });
   }
 }

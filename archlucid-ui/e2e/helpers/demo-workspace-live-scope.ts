@@ -8,6 +8,7 @@ import {
   OPERATOR_SCOPE_COOKIE_NAME,
   serializeOperatorScopeCookiePayload,
 } from "@/lib/operator/operator-scope-cookie";
+import { OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY } from "@/lib/operator/operator-sample-workspace-visit";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import {
@@ -74,6 +75,7 @@ async function writeOperatorScopeToBrowser(
     (
       payload: {
         readonly key: string;
+        readonly sampleVisitKey: string;
         readonly tenantId: string;
         readonly workspaceId: string;
         readonly projectId: string;
@@ -90,10 +92,12 @@ async function writeOperatorScopeToBrowser(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
+      window.sessionStorage.setItem(payload.sampleVisitKey, "1");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
       key: OPERATOR_SCOPE_STORAGE_KEY,
+      sampleVisitKey: OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY,
       tenantId: scope.tenantId,
       workspaceId: scope.workspaceId,
       projectId: scope.projectId,
@@ -110,6 +114,7 @@ async function writeOperatorScopeToBrowser(
     (
       payload: {
         readonly key: string;
+        readonly sampleVisitKey: string;
         readonly tenantId: string;
         readonly workspaceId: string;
         readonly projectId: string;
@@ -126,10 +131,12 @@ async function writeOperatorScopeToBrowser(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
+      window.sessionStorage.setItem(payload.sampleVisitKey, "1");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
       key: OPERATOR_SCOPE_STORAGE_KEY,
+      sampleVisitKey: OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY,
       tenantId: scope.tenantId,
       workspaceId: scope.workspaceId,
       projectId: scope.projectId,
@@ -159,6 +166,7 @@ export async function injectDemoWorkspaceOperatorScope(
   // Init script only runs on navigations after registration — reload once so localStorage and
   // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await waitForOperatorAuthMeProxyOk(page);
 }
 
 /** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */

@@ -15,7 +15,7 @@ async function gotoAdminUsersTabAndWaitForMe(page: Page): Promise<void> {
     { timeout: 90_000 },
   );
 
-  await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded" });
+  await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded", timeout: 90_000 });
   await authMeSettled.catch(() => undefined);
 }
 
