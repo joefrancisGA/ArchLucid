@@ -29036,13 +29036,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 21
-- **bugs-found:** 5
+- **hunts:** 22
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — failed inventory diff still ran incremental SecureNow post-materialize
+- **last-bug:** 2026-10-05 — empty prior snapshot id skipped full SecureNow post-materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` registered by the module; proved `TryGetPriorMaterializedSnapshotIdAsync` returning `Guid.Empty` skipped diff computation yet left `priorSnapshotId` non-null so incremental mode ran downstream-only SecureNow engines; normalize empty prior to null (SQL repository already maps Empty→null); regression `OnSnapshotMaterializedAsync_when_prior_snapshot_id_is_empty_guid_runs_full_securenow_pipeline`; 5 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` registered by the module; proved incremental post-materialize still ran downstream-only SecureNow engines when `IAzureInventoryDiffService.ComputeAndPersistDiffAsync` returned `Succeeded: false` for a reachable prior snapshot pair, skipping full path engines; treat diff failure like missing prior for `FullRecompute`; regression `OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline`; 4 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
@@ -29088,6 +29090,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService.PersistEmptyDiffAsync` — when consecutive Azure inventory snapshots share the same `ContentHashSha256`, the diff service short-circuits to an empty persisted diff without notifying registered consumers, so post-materialize “no changes” captures never reach `AuditContinuousReadinessDiffConsumer` or `SecureNowArchitectDiffConsumer` — **hit 2026-10-05 seed hunt (seed→hit):** notify consumers after empty diff insert; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize carry-forward required `WasExisting: false` on zero-change diffs, so a rematerialize retry after the diff row already existed skipped `ISecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` even when neighborhoods were never carried forward — **hit 2026-10-05 seed hunt (seed→hit):** carry forward on any succeeded empty diff; regression `OnSnapshotMaterializedAsync_when_empty_diff_already_persisted_still_carries_forward_neighborhoods`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — when a prior materialized snapshot exists but inventory diff computation fails, incremental mode still ran downstream-only SecureNow engines instead of the full post-materialize pipeline — **hit 2026-10-05 seed hunt (seed→hit):** full recompute when `diffResult.Succeeded` is false; regression `OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline`.
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — `TryGetPriorMaterializedSnapshotIdAsync` returning `Guid.Empty` skipped diff computation while `priorSnapshotId` stayed non-null, so incremental post-materialize ran downstream-only SecureNow engines without a diff or carry-forward — **hit 2026-10-05 seed hunt (seed→hit):** normalize empty prior to null before mode selection; regression `OnSnapshotMaterializedAsync_when_prior_snapshot_id_is_empty_guid_runs_full_securenow_pipeline`.
 
 2026-10-05 thorough hunt (hit): proved inventory diff consumer fan-out gap on persisted snapshot pairs; cheap-disproved branding-cache race, worker-only missing-repo, and admin invalidation candidates; 2 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false` due to pre-existing ARCH006 persistence analyzer noise).
 

@@ -50,7 +50,12 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
                 snapshotId,
                 cancellationToken);
 
-            if (priorSnapshotId is not null && priorSnapshotId != Guid.Empty)
+            if (priorSnapshotId == Guid.Empty)
+            {
+                priorSnapshotId = null;
+            }
+
+            if (priorSnapshotId is not null)
             {
                 diffResult = await diffService.ComputeAndPersistDiffAsync(
                     scope,
