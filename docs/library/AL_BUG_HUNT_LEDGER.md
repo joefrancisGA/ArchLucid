@@ -28320,15 +28320,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 41
-- **bugs-found:** 22
+- **hunts:** 42
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — duplicate local AcquireAsync renewed SQL ownership and admitted overlapping execute on one replica
+- **last-bug:** 2026-10-05 — release dropped pinned holder before repository release, breaking retry after transient failure when process instance id rotated
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
+2026-10-05 seed hunt (seed→hit): promoted release pin-order candidate; proved `ReleaseAsync` removed the pinned holder from `_activeHolderInstanceIds` before `TryReleaseAsync`, so a transient release failure after `IHostProcessInstanceId` rotation retried with the wrong holder and left the SQL lease pinned; fixed by clearing the pin only after a successful repository release; regression `ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`; 61 scoped ownership/orchestrator tests passed.
+
 2026-10-05 seed hunt (seed→hit): promoted duplicate local acquire candidate; proved a second `AcquireAsync` for the same run on one process treated repository renew as success and admitted overlapping execute batches; fixed with in-process hold tracking before repository claim and `TryAdd` after successful acquire; regression `AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim`; 61 scoped ownership/orchestrator tests passed.
+
 
 2026-10-05 seed hunt (seed→hit): promoted process-instance identity rotation candidate; proved `ReleaseAsync`/`RenewAsync` read `IHostProcessInstanceId.Value` at call time so a rotated identity skipped cleanup of the holder recorded at acquire; fixed by pinning holder instance id per run through acquire and using it for renew/release and shutdown drain aggregation; regression `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`; 60 scoped ownership/orchestrator tests passed.
 
@@ -28374,7 +28377,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads are intentional race guards; the existing run-deleted-immediately-before-acquire regression establishes the second read's fail-closed purpose, with no separate wrong outcome from the extra read.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations are intentional race guards; existing commit/delete/schedule-clear regressions establish the checks prevent ownership admission during transitions, with no separate wrong outcome from the repeated reads.
 - [x] (proven) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — dynamic disable between `AcquireAsync` and `BeginRenewalScope` returned a no-op scope while the lease remained held — **closed 2026-10-05** with the disabled-renew hit (`BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`).
-- (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — release result is ignored, so an ownership-loss or repository failure can leave the orchestrator reporting successful completion without surfacing that cleanup failed; reachable when the lease repository returns an unsuccessful release during execute finalization.
+- [x] (proven) `RunExecuteOwnershipLeaseService.ReleaseAsync` — pinned holder id was removed before `TryReleaseAsync`, so a transient release failure after process-instance rotation retried with the wrong holder and left the SQL lease pinned — **hit 2026-10-05 seed hunt (seed→hit):** clear the pin only after successful repository release; regression `ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal waits for a renewal task that may be blocked in a repository call despite cancellation, delaying release and extending the lease pin; reachable when renewal storage does not promptly honor the linked cancellation token.
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunCoreInnerAsync` — after incomplete-pipeline resume, the reloaded run can lose deferred context or agent work before the final execute gate while the resume result remains authoritative; reachable when `TryResumeAsync` mutates the run before its reload.
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — live forced-task re-resolution can use a later schedule snapshot than the run-status snapshot, leading to result deletion for tasks after a concurrent run-state transition; reachable between owned-core run reload and live task fetch.

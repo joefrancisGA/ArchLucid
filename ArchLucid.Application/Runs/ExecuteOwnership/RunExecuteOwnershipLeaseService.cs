@@ -149,14 +149,16 @@ public sealed class RunExecuteOwnershipLeaseService(
     }
 
     /// <inheritdoc />
-    public Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
+    public async Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
     {
         if (_storageMode.IsInMemory)
-            return Task.CompletedTask;
+            return;
 
         string holderInstanceId = ResolveHolderInstanceId(runId);
+
+        await _leaseRepository.TryReleaseAsync(runId, holderInstanceId, cancellationToken).ConfigureAwait(false);
+
         _activeHolderInstanceIds.TryRemove(runId, out _);
-        return _leaseRepository.TryReleaseAsync(runId, holderInstanceId, cancellationToken);
     }
 
     /// <inheritdoc />

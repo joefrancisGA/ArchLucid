@@ -64,6 +64,47 @@ public sealed class RunExecuteOwnershipLeaseReleaseOrderingTests
     }
 
     [Fact]
+    public async Task ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder()
+    {
+        Guid runId = Guid.NewGuid();
+        string currentInstanceId = "instance-a";
+        Mock<IHostProcessInstanceId> instance = new();
+        instance.Setup(i => i.Value).Returns(() => currentInstanceId);
+
+        int releaseAttempts = 0;
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        leases
+            .Setup(l => l.TryReleaseAsync(runId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<Guid, string, CancellationToken>((_, holder, _) =>
+            {
+                releaseAttempts++;
+
+                if (releaseAttempts == 1)
+                    throw new InvalidOperationException("simulated transient release failure");
+
+                if (!string.Equals(holder, "instance-a", StringComparison.Ordinal))
+                    throw new InvalidOperationException($"release retried with wrong holder '{holder}'.");
+
+                return Task.CompletedTask;
+            });
+
+        RunExecuteOwnershipLeaseService service = CreateService(leases.Object, instance);
+
+        await service.AcquireAsync(runId, CancellationToken.None);
+        currentInstanceId = "instance-b";
+
+        Func<Task> firstRelease = () => service.ReleaseAsync(runId, CancellationToken.None);
+        await firstRelease.Should().ThrowAsync<InvalidOperationException>();
+
+        await service.ReleaseAsync(runId, CancellationToken.None);
+
+        releaseAttempts.Should().Be(2);
+    }
+
+    [Fact]
     public async Task Release_before_renewal_scope_dispose_allows_renew_to_recreate_lease()
     {
         Guid runId = Guid.NewGuid();

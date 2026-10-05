@@ -8794,3 +8794,4 @@
 {"at":"2026-10-05T14:57:22.9651048Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs)"]}
 {"at":"2026-10-05T14:49:14.0694990Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:49:34.6954709Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
+{"at":"2026-10-05T14:57:01.9753678Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs"]}
