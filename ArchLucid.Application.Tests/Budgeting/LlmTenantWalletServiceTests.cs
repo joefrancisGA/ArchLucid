@@ -405,6 +405,124 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAutoRefillAsync_retries_wallet_credit_without_second_stripe_charge_when_first_credit_fails()
+    {
+        InMemoryLlmTenantWalletRepository inner = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await inner.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await inner.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await inner.TryCreditRefillAsync(
+            tenantId,
+            5m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        int creditAttempts = 0;
+        Mock<ILlmTenantWalletRepository> repository = new();
+        repository
+            .Setup(r => r.GetOrCreateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, CancellationToken ct) => inner.GetOrCreateAsync(id, ct));
+        repository
+            .Setup(r => r.UpdateSettingsAsync(It.IsAny<LlmTenantWalletUpdateSettingsRequest>(), It.IsAny<CancellationToken>()))
+            .Returns((LlmTenantWalletUpdateSettingsRequest request, CancellationToken ct) => inner.UpdateSettingsAsync(request, ct));
+        repository
+            .Setup(r => r.TryCreditRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<byte[]>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((
+                Guid id,
+                decimal amountUsd,
+                Guid correlationId,
+                string? stripePaymentIntentId,
+                int utcYearMonth,
+                byte[] expectedRowVersion,
+                CancellationToken ct) =>
+            {
+                creditAttempts++;
+
+                if (creditAttempts <= LlmTenantWalletConsumeRetry.MaxOptimisticRetries)
+                    return Task.FromResult(LlmTenantWalletCreditResult.Conflict());
+
+                return inner.TryCreditRefillAsync(
+                    id,
+                    amountUsd,
+                    correlationId,
+                    stripePaymentIntentId,
+                    utcYearMonth,
+                    expectedRowVersion,
+                    ct);
+            });
+        repository
+            .Setup(r => r.TryConsumeAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, decimal amountUsd, Guid correlationId, byte[] expectedRowVersion, CancellationToken ct) =>
+                inner.TryConsumeAsync(id, amountUsd, correlationId, expectedRowVersion, ct));
+        repository
+            .Setup(r => r.TryCreditAdjustmentAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, decimal amountUsd, Guid correlationId, byte[] expectedRowVersion, CancellationToken ct) =>
+                inner.TryCreditAdjustmentAsync(id, amountUsd, correlationId, expectedRowVersion, ct));
+        repository
+            .Setup(r => r.TryInsertStripeWebhookIdempotencyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string stripeEventId, string eventType, CancellationToken ct) =>
+                inner.TryInsertStripeWebhookIdempotencyAsync(stripeEventId, eventType, ct));
+        repository
+            .Setup(r => r.LedgerContainsPaymentIntentAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string stripePaymentIntentId, CancellationToken ct) =>
+                inner.LedgerContainsPaymentIntentAsync(stripePaymentIntentId, ct));
+
+        int chargeCalls = 0;
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref chargeCalls);
+
+                return Task.FromResult(StripeWalletChargeResult.Ok("pi_pending_credit"));
+            });
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository.Object, stripe.Object, queue);
+
+        bool first = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        first.Should().BeFalse();
+        chargeCalls.Should().Be(1);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem queued).Should().BeTrue();
+        queued.Kind.Should().Be(LlmWalletSettlementKind.RefillCredit);
+        queued.StripePaymentIntentId.Should().Be("pi_pending_credit");
+
+        bool second = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        second.Should().BeTrue();
+        chargeCalls.Should().Be(1);
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+    }
+
+    [SkippableFact]
     public async Task TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -644,6 +762,7 @@ public sealed class LlmTenantWalletServiceTests
             stripeGateway,
             audit.Object,
             resolvedTimeProvider,
+            settlementQueue,
             NullLogger<LlmTenantWalletRefillStage>.Instance);
 
         return new LlmTenantWalletService(
