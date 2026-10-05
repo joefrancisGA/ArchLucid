@@ -1,3 +1,5 @@
+"use client";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { findingInspectPrimaryLabels, findingWhyThisMattersText, findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
