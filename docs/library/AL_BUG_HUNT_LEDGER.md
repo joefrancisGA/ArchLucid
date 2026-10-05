@@ -25251,13 +25251,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 301
-- **last-hunt:** 2026-10-04
+- **hunts:** 302
+- **last-hunt:** 2026-10-05
 - **bugs-found:** 509
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/*` and `ArchLucid.Api/Controllers/Tenancy/*` despite the retired mega-zone ledger path; no row met the hunt-ready bar for promotion. Scoped filter `GovernanceController|TenancyController` reported 137 passed and 17 failures from default Moq `ListWorkspacesAsync` returning null (production `DapperTenantRepository` / `InMemoryTenantRepository` return non-null lists). Seeded five mechanism-backed `(candidate)` rows below.
 
 2026-10-01 seed hunt (seed-only): inspected the Governance/Tenancy controller scope despite the picker path containing only this ledger; the exact filter built and ran 154 tests (137 passed, 17 SQL-backed integration cases unavailable on this Linux VM). The two unit failures came from default-Moq repositories returning null from `ListWorkspacesAsync`; both production fallback implementations return non-null lists, so no reachable mechanism-backed candidate was promoted.
 
@@ -25298,6 +25300,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2298 (seed-only): reseeded api-governance-tenancy-controllers; cheap-disproof closed mutation-corrections and insights tenant preflight siblings; 128 scoped Api tests passed (25 SQL integration skipped); no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — `.Any()` throws `ArgumentNullException` and governance/tenancy reads return HTTP 500 instead of workspace-not-found; reachable only when a custom repository implementation violates the contract (production Dapper/in-memory paths return empty lists).
+- [ ] (candidate) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — sealed-manifest guard is skipped before `ListHistoryAsync` while sibling register GETs run per-row guards; input is OpenAPI `GET /governance/stickiness/findings/{findingId}/dispositions` for a finding whose metadata projection omits run id.
+- [ ] (candidate) `GovernanceStickinessController.GetReviewsAwaitingAction` — response recurrence rows carry `SourceRunId` / `RunId` distinct from the latest committed run sealed by `EnsureRegistersSealedManifestAllowedAsync(null)` — endpoint does not call `EnsureRegisterRunsSealedManifestAllowedAsync` on returned run ids (sibling risk/decision register GETs do).
+- [ ] (candidate) `GovernancePreCommitSimulationController.TryParseRunId` — accepts trimmed body `runId` via `Guid.TryParse` without `GovernanceRunIdNormalizer.Normalize`, while sibling promotion/approval routes normalize before sealed-manifest guards; input is OpenAPI `POST` synthetic simulation with the same invisible-prefix run id shapes blocked elsewhere.
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync(scope.TenantId)` loads every active project in the tenant before filtering to `scope.WorkspaceId` in the response DTO — input is authenticated `GET /tenant/workspaces` in a multi-workspace tenant (wrong outcome: foreign workspace project names briefly considered server-side; needs proof of observable harm).
 
 - [x] (proven) `PolicyPacksController.Publish` / `PolicyPacksAppService.TryPublishVersionAsync` — cross-tenant publish: caller scope tenant B + pack id owned by tenant A → HTTP 200 and version row upserted (reads already 404 on scope mismatch; publish omitted tenant/workspace/project check)
 - [x] (invalid) Tenancy suspend endpoint affects a tenant id from the body not the principal — no suspend action under `ArchLucid.Api/Controllers/Tenancy/`
