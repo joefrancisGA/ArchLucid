@@ -146,6 +146,17 @@ internal static class DiagramForestDataFlowRollup
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)
             ? $"{used} used · {members.Count - used} no consumer found"
             : null;
+        List<string> factoryNames = members
+            .SelectMany(member => member.ExternalFactoryNames)
+            .Concat(
+                members
+                    .Select(member => member.ExternalFactoryName)
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Select(name => name!.Trim()))
+            .Where(name => name.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         return new DiagramNode
         {
@@ -157,7 +168,8 @@ internal static class DiagramForestDataFlowRollup
             ArmResourceType = first.ArmResourceType,
             ArmResourceKind = first.ArmResourceKind,
             ExternalLinkedServiceType = first.ExternalLinkedServiceType,
-            ExternalFactoryName = first.ExternalFactoryName,
+            ExternalFactoryName = factoryNames.Count == 1 ? factoryNames[0] : null,
+            ExternalFactoryNames = factoryNames,
             ExternalTargetHost = first.ExternalTargetHost,
             ExternalIntegrationRuntime = first.ExternalIntegrationRuntime,
             ExternalHostInKeyVault = first.ExternalHostInKeyVault,
