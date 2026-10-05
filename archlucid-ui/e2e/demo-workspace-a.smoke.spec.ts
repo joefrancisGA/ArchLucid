@@ -15,6 +15,7 @@ import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailWorkspaceCore,
+  ensureReviewDetailFindingsPresentationExpanded,
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
   quickDecisionSeverityBadge,

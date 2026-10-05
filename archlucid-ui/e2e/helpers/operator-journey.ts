@@ -467,7 +467,7 @@ export function quickDecisionSeverityBadge(quickSummary: Locator): Locator {
   return quickSummary.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL);
 }
 
-async function ensureReviewDetailFindingsPresentationExpanded(page: Page): Promise<void> {
+export async function ensureReviewDetailFindingsPresentationExpanded(page: Page): Promise<void> {
   const lowConfidenceToggle = page.getByTestId("quick-decision-show-low-confidence");
 
   if (await lowConfidenceToggle.isVisible().catch(() => false)) {

@@ -213,8 +213,10 @@ test.describe(
 
     const packInspectOptions = {
       timeoutMs: 90_000,
-      primeRunDetailHref: `/architecture/reviews/${encodeURIComponent(DEMO_WORKSPACE_B_REGULATED_RUN_ID)}?tab=findings`,
-      beforeNavigate: () => refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS),
+      beforeNavigate: async () => {
+        await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
+        await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
+      },
     } as const;
 
     /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
