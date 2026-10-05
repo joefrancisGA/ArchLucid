@@ -28,9 +28,10 @@ describe("useReviewFindingsLastVisitRestore", () => {
   afterEach(() => {
     clearReviewFindingsLastVisitStorage();
     resetReviewFindingsLastVisitRestoreStateForTests();
+    window.history.replaceState({}, "", "/");
   });
 
-  it("restores stored filters on mount when the URL has no toolbar params", () => {
+  it("restores again when the same run remounts with a bare findings URL", () => {
     const replaceState = vi.spyOn(window.history, "replaceState");
 
     patchReviewFindingsLastVisit("run-1", {
@@ -38,6 +39,41 @@ describe("useReviewFindingsLastVisitRestore", () => {
       searchQuery: "auth",
       classificationBand: "checklist",
     });
+
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+
+    const { unmount } = render(<RestoreProbe runId="run-1" />);
+
+    expect(replaceState.mock.calls.some((call) => String(call[2] ?? "").includes("findingsFilter=high"))).toBe(
+      true,
+    );
+
+    unmount();
+    replaceState.mockClear();
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+    replaceState.mockClear();
+
+    render(<RestoreProbe runId="run-1" />);
+
+    expect(replaceState).toHaveBeenCalled();
+    const nextHref = String(replaceState.mock.calls[0]?.[2] ?? "");
+    expect(nextHref).toContain("findingsFilter=high");
+
+    replaceState.mockRestore();
+  });
+
+  it("restores stored filters on mount when the URL has no toolbar params", () => {
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+
+    patchReviewFindingsLastVisit("run-1", {
+      filter: "high",
+      searchQuery: "auth",
+      classificationBand: "checklist",
+    });
+
+    replaceState.mockClear();
 
     render(<RestoreProbe runId="run-1" />);
 
