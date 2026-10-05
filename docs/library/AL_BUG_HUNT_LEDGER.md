@@ -7554,11 +7554,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 20
-- **bugs-found:** 12
+- **hunts:** 21
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — PUT/POST numeric `active` rejected while PATCH accepted numbers
+- **last-bug:** 2026-10-05 — invalid string/array `active` on PATCH silently deactivated or no-op
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7574,7 +7574,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `ScimUserService.ListAsync` — `count=0` returns `totalResults` with zero page items — **cheap-disproof 2026-10-05 seed hunt:** SCIM list count zero is a valid total-only query; regression `ListAsync_count_zero_returns_empty_page_with_total_results`.
 
-- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadActive` — PATCH replace `active` with JSON array/object still falls back to prior `active` instead of `invalidValue`.
+2026-10-05 seed hunt (seed→hit): promoted ledger candidate on PATCH `active` typing; non-boolean string `"not-a-bool"` was treated as inactive via failed `bool.TryParse` short-circuit; JSON array/object/unsupported kinds fell back silently; PUT shared the string bug; both readers now throw `ScimUserResourceParseException`; regressions `PatchAsync_replace_active_invalid_string_throws` and `ReplaceAsync_invalid_string_active_throws`; 18 scoped `ScimUsers` unit + 5 Api tests passed.
+
+- [x] (proven) `ScimUserService.PatchAsync` / `ReadActive` — PATCH replace `active` with non-boolean string or JSON array/object mis-handled — **hit 2026-10-05 seed hunt (seed→hit):** invalid `active` values return `invalidValue`; regressions above.
+
+- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadString` — PATCH replace `userName` with whitespace-only string keeps prior `userName` without `invalidValue` (PUT rejects empty `userName`).
 
 ### Hypotheses
 
