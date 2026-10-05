@@ -9,10 +9,13 @@ import {
   useRef,
   useState,
   type ReactNode} from "react";
+import { useSearchParams } from "next/navigation";
 
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
-  readReviewDetailFindingIdFromWindowLocation} from "@/lib/review-detail-workspace-tabs";
+  readReviewDetailFindingIdFromWindowLocation,
+  REVIEW_DETAIL_FINDING_PARAM,
+} from "@/lib/review-detail-workspace-tabs";
 
 export type ReviewWorkbenchSelectionContextValue = {
   readonly selectedFindingId: string | null;
@@ -37,6 +40,12 @@ export type ReviewWorkbenchSelectionProviderProps = {
 
 /** Shared finding + column selection for the Working-mode three-column workbench (PT-12). */
 export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelectionProviderProps): React.JSX.Element {
+  const searchParams = useSearchParams();
+  const searchParamFindingId = useMemo((): string | null => {
+    const trimmed = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+
+    return trimmed.length > 0 ? trimmed : null;
+  }, [searchParams]);
   const initialSelectedFindingId =
     readReviewDetailFindingIdFromWindowLocation() ?? props.initialFindingId ?? null;
   const [selectedFindingId, setSelectedFindingIdState] = useState<string | null>(initialSelectedFindingId);
@@ -93,6 +102,10 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
     selectedFindingIdRef.current = findingId;
     setSelectedFindingIdState(findingId);
   }, []);
+
+  useEffect(() => {
+    reconcileSelectedFindingId(readReviewDetailFindingIdFromWindowLocation());
+  }, [searchParamFindingId, reconcileSelectedFindingId]);
 
   const setHighlightedNodeId = useCallback((nodeId: string | null) => {
     setHighlightedNodeIdState((current) => (current === nodeId ? current : nodeId));
