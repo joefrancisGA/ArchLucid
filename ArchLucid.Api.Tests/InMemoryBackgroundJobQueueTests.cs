@@ -378,6 +378,56 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
+                {
+                    await Task.Delay(5, ct);
+
+                    throw new InvalidOperationException("retry spam failure");
+                }));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        string jobId = await queueRef.EnqueueAsync(Work("cancel-tryassign-spam"), maxRetries: 3);
+
+        bool sawCanceled = false;
+
+        Task cancelSpam = Task.Run(async () =>
+        {
+            for (int attempt = 0; attempt < 800; attempt++)
+            {
+                await queueRef!.MarkCanceledAsync(jobId);
+                await Task.Delay(0, CancellationToken.None);
+
+                BackgroundJobInfo? snapshot = await queueRef.GetInfoAsync(jobId);
+
+                if (snapshot?.State == BackgroundJobState.Canceled)
+                    sawCanceled = true;
+
+                if (sawCanceled && snapshot?.State == BackgroundJobState.Running)
+                    throw new InvalidOperationException("Running observed after Canceled was visible.");
+            }
+        });
+
+        await Task.WhenAny(cancelSpam, WaitForAnyTerminalStateAsync(queueRef, jobId, TimeSpan.FromSeconds(12)));
+
+        await cancelSpam;
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled);
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task MarkCanceled_during_dequeue_does_not_overwrite_with_running()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();

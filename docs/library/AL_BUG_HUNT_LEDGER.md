@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-05 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: in-memory `MarkCanceledAsync` vs `TryAssignUnlessCanceled` last-writer (`MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled` plus existing dequeue/terminal regressions); processor `ShouldRunExecutor=false` visibility redelivery when `UPDLOCK` claim loses (`ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`); hung execute watchdog `StaleHours` default 2h vs `RunExecuteOwnershipLeaseOptions.LeaseDurationSeconds` default 900s with renewal (watchdog fails `WaitingForResults`, not lease reclaim); integration outbox `DequeuePending` excludes `DeadLetteredUtc` rows (not the 2026-08-23 DLQ list-cap class); 74 Host.Core + 15 in-memory/processor focused tests passed.
+
 2026-10-05 seed hunt (seed→hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` dequeue path still used a direct `_info` indexer for `Running` after `Pending` read, so concurrent `MarkCanceledAsync` could be overwritten before executor start; route Running transition through `TryAssignUnlessCanceled`; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`; reseeded four hosted-loop candidates; 74 Host.Core + 13 in-memory queue tests passed.
 
 2026-10-05 thorough hunt (hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` assigned `Failed`/`Pending`/`Succeeded` after cancel re-reads when `MarkCanceledAsync` landed on a `Running` row after the last read; refuse to overwrite `Canceled` via `TryAssignUnlessCanceled` (`ConcurrentDictionary.AddOrUpdate`); regression `MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed`; cheap-disproof closed processor registry-cancel queue delete, DLQ pass frozen clock, and parallel duplicate-JobId candidates; 74 Host.Core + 12 in-memory queue tests passed.
@@ -10764,13 +10766,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — in-memory queue `Running` dequeue assignment could overwrite `Canceled`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (dry): cheap-disproved four seeded candidates (MarkCanceled vs TryAssignUnlessCanceled, processor not-claimable poll, hung execute watchdog vs execute lease TTL, integration outbox dequeue pagination); 74 Host.Core + 15 focused Api tests passed.
 
 2026-10-05 seed hunt (seed→hit): proved in-memory dequeue `Running` assignment cancel race; reseeded four hosted-loop candidates; 74 Host.Core + 13 in-memory queue tests passed.
 
@@ -10797,10 +10801,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 
-- [ ] (candidate) `InMemoryBackgroundJobQueue.MarkCanceledAsync` — direct `_info[jobId]` assignment can race `TryAssignUnlessCanceled` on another thread when both mutate the same job id concurrently; wrong outcome is transient `Running`/`Pending` after cancel unless cancel wins last-writer race (needs synchronized repro).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — when `TryPrepareQueuedJobAsync` returns `ShouldRunExecutor=false`, the Azure message is left for visibility timeout redelivery while the SQL row may already be `Running` on another replica; duplicate side effects depend on claim/`UPDLOCK` semantics holding under parallel `ProcessorMaxConcurrentJobs` receive.
-- [ ] (candidate) `HungReviewExecuteWatchdogHostedService` — stale execute-ownership reclaim may overlap a live `RunExecuteOwnership` holder if the watchdog threshold is shorter than worst-case review execute duration (needs contract citation from watchdog options vs execute lease TTL).
-- [ ] (candidate) `IntegrationEventOutboxHostedService` leader loop — poison / permanently failed outbox rows that share the first `ListPending` page with fresh work can starve dispatch until manual DLQ hygiene (pagination cap interaction; reachability requires production-like outbox depth).
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.MarkCanceledAsync` vs `TryAssignUnlessCanceled` — **cheap-disproof 2026-10-05 thorough hunt:** executor transitions use `AddOrUpdate` that refuses to overwrite `Canceled`; cancel spam stress `MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled` plus dequeue/terminal regressions; no deterministic failing repro for transient `Running`/`Pending` after cancel.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` not-claimable poll — **cheap-disproof 2026-10-05 thorough hunt:** `TryPrepareQueuedJobAsync` returns `ShouldRunExecutor=false` when `UPDLOCK` claim loses (`affected == 0`); leaving the Azure message for visibility retry is intentional; duplicate execution prevented by claim rules and immediate delete for terminal/`Running` duplicates; regression `ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`.
+- [x] (valid-no-repro) `HungReviewExecuteWatchdogHostedService` vs execute ownership lease — **cheap-disproof 2026-10-05 thorough hunt:** watchdog marks stale `WaitingForResults` runs failed via `HungReviewExecuteWatchdogSql` (`StaleHours` default 2h); it does not reclaim `RunExecuteOwnership` leases; default `LeaseDurationSeconds` 900 with `RunExecuteOwnershipLeaseRenewalScope` renewal is shorter than staleness threshold when renewal is active.
+- [x] (valid-no-repro) `IntegrationEventOutboxHostedService` dequeue pagination — **cheap-disproof 2026-10-05 thorough hunt:** `IntegrationEventOutboxSql.DequeuePending` filters `DeadLetteredUtc IS NULL` and eligible `NextRetryUtc`; dead-lettered rows do not occupy pending dequeue slots; distinct from the proven 2026-08-23 DLQ retry list-cap defect.
 
 - [x] (proven) `InMemoryBackgroundJobQueue` exhausted-retry / retry-scheduling / capacity / writer terminal assignments — **hit 2026-10-05 thorough hunt:** post-log cancel re-reads could still lose to `MarkCanceledAsync` on a `Running` row when cancel landed after the last read; assignments now use `TryAssignUnlessCanceled` so `Canceled` is never overwritten; regression `MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed` plus existing cancel-during-log regressions.
 - [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` registry-cancel path — **cheap-disproof 2026-10-05 thorough hunt:** deleting the Azure notification after a no-op `MarkCanceledAsync` on an already-terminal row is intentional stale-message cleanup; `TryPrepareQueuedJobAsync` returns `ShouldDeleteQueueMessageImmediately` for terminal/`Running` duplicates.
