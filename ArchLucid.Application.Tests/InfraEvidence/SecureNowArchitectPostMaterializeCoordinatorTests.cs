@@ -53,6 +53,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             hasPrior: true,
             emptyDiff: true,
             diffWasExisting: false,
+            diffSucceeded: true,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -113,6 +114,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             hasPrior: true,
             emptyDiff: true,
             diffWasExisting: true,
+            diffSucceeded: true,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -127,6 +129,56 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
 
         neighborhoodRunner.Verify(
             runner => runner.CarryForwardAllAsync(Scope, PriorSnapshotId, SnapshotId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline()
+    {
+        Mock<IPrivilegePathEngine> privilegePathEngine = new();
+        Mock<IIntendedReachabilityEngine> reachabilityEngine = new();
+        Mock<IToxicCombinationEngine> toxicEngine = new();
+        Mock<ICapabilityToFlowEngine> capabilityEngine = new();
+        Mock<ISharedControlBlastRadiusEngine> sharedEngine = new();
+        Mock<IFourRealityDriftEngine> driftEngine = new();
+        Mock<IPathRankingEngine> rankingEngine = new();
+        Mock<ICutPointAnalysisEngine> cutPointEngine = new();
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        SetupSuccessfulEngine(privilegePathEngine);
+        SetupSuccessfulEngine(reachabilityEngine);
+        SetupSuccessfulEngine(toxicEngine);
+        SetupSuccessfulEngine(capabilityEngine);
+        SetupSuccessfulEngine(sharedEngine);
+        SetupSuccessfulEngine(driftEngine);
+        SetupSuccessfulRankingEngine(rankingEngine);
+        SetupSuccessfulCutPointEngine(cutPointEngine);
+
+        AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
+            fullRecompute: false,
+            hasPrior: true,
+            emptyDiff: false,
+            diffWasExisting: false,
+            diffSucceeded: false,
+            privilegePathEngine,
+            reachabilityEngine,
+            toxicEngine,
+            capabilityEngine,
+            sharedEngine,
+            driftEngine,
+            rankingEngine,
+            cutPointEngine,
+            neighborhoodRunner);
+
+        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
+
+        privilegePathEngine.Verify(
+            engine => engine.RunAsync(
+                Scope,
+                SnapshotId,
+                SecureNowArchitectConstants.SystemActorId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<SecureNowArchitectEngineRunScope?>()),
             Times.Once);
     }
 
@@ -157,6 +209,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             hasPrior: true,
             emptyDiff: false,
             diffWasExisting: false,
+            diffSucceeded: true,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -192,6 +245,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         bool hasPrior,
         bool emptyDiff,
         bool diffWasExisting,
+        bool diffSucceeded,
         Mock<IPrivilegePathEngine> privilegePathEngine,
         Mock<IIntendedReachabilityEngine> reachabilityEngine,
         Mock<IToxicCombinationEngine> toxicEngine,
@@ -227,10 +281,11 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new AzureInventoryDiffComputeResult
                 {
-                    Succeeded = true,
+                    Succeeded = diffSucceeded,
                     DiffId = Guid.NewGuid(),
                     Changes = emptyDiff ? [] : [new AzureInventoryChangeRecord()],
                     WasExisting = diffWasExisting,
+                    ErrorMessage = diffSucceeded ? null : "diff failed",
                 });
         }
 

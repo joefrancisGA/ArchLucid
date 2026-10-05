@@ -60,7 +60,9 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             }
         }
 
-        bool fullRecompute = neighborhoodOptions.Value.FullRecompute || priorSnapshotId is null;
+        bool fullRecompute = neighborhoodOptions.Value.FullRecompute
+            || priorSnapshotId is null
+            || diffResult is { Succeeded: false };
 
         if (fullRecompute)
         {
