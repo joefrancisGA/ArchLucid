@@ -97,10 +97,23 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             probe.ForeignRunIdVisible);
 
         if (ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(probe.ObservedOutcome)
-            && outcomeStatusCode is >= 200 and < 300)
+            && outcomeStatusCode is >= 200 and < 300
+            && ShouldTrustVerifiedAbsentOutcomeOverFieldStatus(probe))
             return fromOutcome;
 
         return WorstIsolationVerdict(fromField, fromOutcome);
+    }
+
+    private static bool ShouldTrustVerifiedAbsentOutcomeOverFieldStatus(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (probe.ObservedStatusCode is not int fieldStatusCode)
+            return true;
+
+        if (fieldStatusCode is >= 200 and < 300)
+            return true;
+
+        // Manifests may persist deny-style 404 on list probes while outcome copy captured HTTP 200 absent.
+        return fieldStatusCode == (int)HttpStatusCode.NotFound;
     }
 
     private static bool ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(string observedOutcome)
