@@ -24,7 +24,7 @@ import {
   listFindingTitlesFromAuthorityRunDetailPayload,
   liveApiBase,
   postConsultingAnalysisDocxRaw,
-  verifyRunExportLineageRaw,
+  ensureRunExportLineageAttestedRaw,
   waitForAuthorityBuyerSummaryGoldenManifest,
 } from "./helpers/live-api-client";
 import {
@@ -236,13 +236,12 @@ test.describe(
       // Severity may appear only on card stack rows omitted from buyer quick summary.
     }
 
-    const exportLineageVerify = await verifyRunExportLineageRaw(
+    await ensureRunExportLineageAttestedRaw(
       request,
       DEMO_WORKSPACE_B_REGULATED_RUN_ID,
       DEMO_WORKSPACE_B_LIVE_IDS,
+      { timeoutMs: 90_000 },
     );
-
-    expect(exportLineageVerify.ok(), await exportLineageVerify.text()).toBeTruthy();
 
     const historyRaw = await getRunArchitectureExportHistoryRaw(
       request,

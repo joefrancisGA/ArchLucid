@@ -1711,6 +1711,47 @@ export async function verifyRunExportLineageRaw(
   });
 }
 
+export type RunExportLineageVerificationJson = {
+  status?: string;
+  runId?: string;
+  detail?: string | null;
+};
+
+/** Poll export verify until API reports Match (required before GET export history unblocks). */
+export async function ensureRunExportLineageAttestedRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+  options?: { timeoutMs?: number; pollIntervalMs?: number },
+): Promise<RunExportLineageVerificationJson> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const pollIntervalMs = options?.pollIntervalMs ?? 2_000;
+  const deadline = Date.now() + timeoutMs;
+  let lastBody: RunExportLineageVerificationJson = { status: "NotAttested" };
+
+  while (Date.now() < deadline) {
+    const response = await verifyRunExportLineageRaw(request, runId, tenantScope);
+    const text = await response.text();
+
+    if (!response.ok()) {
+      throw new Error(text.length > 0 ? text : `Export verify failed (HTTP ${response.status()}).`);
+    }
+
+    lastBody = (JSON.parse(text) || {}) as RunExportLineageVerificationJson;
+    const status = (lastBody.status ?? "").trim();
+
+    if (status === "Match") {
+      return lastBody;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+  }
+
+  throw new Error(
+    `Export lineage verify did not reach Match within ${timeoutMs}ms — last status=${lastBody.status ?? "unknown"} detail=${lastBody.detail ?? ""}`,
+  );
+}
+
 /**
  * POST `/v1/architecture/review/{runId}/analysis-report/export/docx/consulting` — consulting-template DOCX
  * (`CanExportConsultingDocx` policy + ExecuteAuthority); returns raw HTTP for Playwright assertions.

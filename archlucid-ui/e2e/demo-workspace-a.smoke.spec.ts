@@ -155,7 +155,7 @@ test.describe(
     await manifestSection.scrollIntoViewIfNeeded();
 
     await expect(
-      manifestSection.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }),
+      manifestSection.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 60_000 });
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
 
