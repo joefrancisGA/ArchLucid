@@ -72,6 +72,84 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
     }
 
     [Fact]
+    public void Evaluate_non_array_evidence_refs_count_as_unresolved()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes scheduling policy","evidenceRefs":"pattern-a"}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:parse");
+    }
+
+    [Fact]
+    public void Evaluate_blank_evidence_ref_entries_count_as_unresolved()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes scheduling policy","evidenceRefs":["pattern-a",""]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:unresolved-ref");
+    }
+
+    [Fact]
+    public void Evaluate_partially_resolved_evidence_refs_count_as_unresolved()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes scheduling policy","evidenceRefs":["pattern-a","does-not-exist"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:unresolved-ref");
+    }
+
+    [Fact]
     public void Evaluate_empty_json_object_has_no_checkable_content_and_zero_ratio()
     {
         AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate("{}", new AgentEvidencePackage());
@@ -191,6 +269,32 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
 
         report.SupportRatio.Should().Be(1.0);
         report.UnsupportedIds.Should().NotContain("claim:citation-fidelity");
+    }
+
+    [Fact]
+    public void Evaluate_finding_category_substring_does_not_count_as_grounded()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "application architecture kubernetes cluster nodes scheduling",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[],"findings":[{"severity":"Low","category":"app","description":"kubernetes cluster nodes scheduling","recommendation":"maintain application architecture standards annually"}]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("finding:grounding");
     }
 
     [Fact]

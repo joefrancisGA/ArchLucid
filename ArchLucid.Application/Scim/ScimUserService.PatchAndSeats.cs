@@ -32,8 +32,8 @@ public sealed partial class ScimUserService
         string? manualFromPatch = TryReadOptionalTrimmed(next, ManualResolvedRoleFlatPath, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, JsonElement> core = ToCoreNextMap(next);
         bool nextActive = ReadActive(core, existing.Active);
-        string externalId = ReadString(core, "externalId", existing.ExternalId);
-        string userName = ReadString(core, "userName", existing.UserName);
+        string externalId = ReadPatchRequiredString(core, "externalId", existing.ExternalId);
+        string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
 
@@ -135,17 +135,26 @@ public sealed partial class ScimUserService
         {
             JsonValueKind.True => true,
             JsonValueKind.False => false,
-            JsonValueKind.String => bool.TryParse(el.GetString(), out bool b) && b,
-            _ => fallback
+            JsonValueKind.String => bool.TryParse(el.GetString(), out bool b)
+                ? b
+                : throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean."),
+            JsonValueKind.Number => el.TryGetInt32(out int n)
+                ? n != 0
+                : throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean."),
+            _ => throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean.")
         };
     }
 
-    private static string ReadString(IReadOnlyDictionary<string, JsonElement> next, string key, string fallback)
+    private static string ReadPatchRequiredString(IReadOnlyDictionary<string, JsonElement> next, string key, string fallback)
     {
-        if (!next.TryGetValue(key, out JsonElement el) || el.ValueKind != JsonValueKind.String)
+        if (!next.TryGetValue(key, out JsonElement el))
             return fallback;
-        string v = el.GetString() ?? fallback;
-        return string.IsNullOrWhiteSpace(v) ? fallback : v.Trim();
+        if (el.ValueKind != JsonValueKind.String)
+            throw new ScimUserResourceParseException("invalidValue", $"Missing or invalid '{key}'.");
+        string? raw = el.GetString();
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new ScimUserResourceParseException("invalidValue", $"'{key}' must be non-empty.");
+        return raw.Trim();
     }
 
     private static string? ReadOptionalString(IReadOnlyDictionary<string, JsonElement> next, string key, string? fallback)

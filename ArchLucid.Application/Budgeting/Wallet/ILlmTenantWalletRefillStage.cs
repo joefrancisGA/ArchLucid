@@ -17,4 +17,9 @@ public interface ILlmTenantWalletRefillStage
     ///     Auto-refill count for the current UTC month; prior-month rows display as zero until the next refill writes.
     /// </summary>
     int VisibleAutoRefillsThisUtcMonth(LlmTenantWalletStateReadModel state);
+
+    Task EnqueueAutoRefillIfBalanceBelowTriggerAsync(
+        Guid tenantId,
+        Guid correlationId,
+        CancellationToken cancellationToken = default);
 }

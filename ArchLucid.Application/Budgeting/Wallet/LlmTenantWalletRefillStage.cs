@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
@@ -13,8 +15,13 @@ public sealed class LlmTenantWalletRefillStage(
     IStripeWalletGateway stripeWalletGateway,
     IAuditService auditService,
     TimeProvider timeProvider,
+    ILlmWalletSettlementQueue settlementQueue,
     ILogger<LlmTenantWalletRefillStage> logger) : ILlmTenantWalletRefillStage
 {
+    private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> AutoRefillTenantGates = new();
+
+    private static readonly ConcurrentDictionary<Guid, PendingStripeRefillCredit> PendingRefillCredits = new();
+
     private readonly LlmTenantWalletRefillAuditor _refillAuditor = new(auditService, timeProvider);
 
     private readonly ILlmTenantWalletRepository _repository =
@@ -28,51 +35,84 @@ public sealed class LlmTenantWalletRefillStage(
     private readonly ILogger<LlmTenantWalletRefillStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly ILlmWalletSettlementQueue _settlementQueue =
+        settlementQueue ?? throw new ArgumentNullException(nameof(settlementQueue));
+
+    private sealed record PendingStripeRefillCredit(string PaymentIntentId, decimal AmountUsd, Guid CorrelationId);
+
     public async Task<bool> TryAutoRefillAsync(Guid tenantId, Guid correlationId, CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             return false;
 
-        LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        SemaphoreSlim gate = AutoRefillTenantGates.GetOrAdd(tenantId, static _ => new SemaphoreSlim(1, 1));
 
-        if (!CanAutoRefill(state))
-            return false;
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-        if (string.IsNullOrWhiteSpace(state.StripeCustomerId) || string.IsNullOrWhiteSpace(state.StripePaymentMethodId))
-            return false;
+        try
+        {
+            if (PendingRefillCredits.TryGetValue(tenantId, out PendingStripeRefillCredit? pending))
+            {
+                LlmTenantWalletCreditResult pendingCredit = await CreditRefillWithRetryAsync(
+                    tenantId,
+                    pending.AmountUsd,
+                    pending.CorrelationId,
+                    pending.PaymentIntentId,
+                    cancellationToken).ConfigureAwait(false);
 
-        StripeWalletChargeResult charge = await _stripeWalletGateway
-            .ChargeRefillAsync(
+                return await FinalizeRefillCreditAsync(
+                    tenantId,
+                    pending.AmountUsd,
+                    pending.CorrelationId,
+                    pending.PaymentIntentId,
+                    pendingCredit,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+            if (!CanAutoRefill(state))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(state.StripeCustomerId) || string.IsNullOrWhiteSpace(state.StripePaymentMethodId))
+                return false;
+
+            StripeWalletChargeResult charge = await _stripeWalletGateway
+                .ChargeRefillAsync(
+                    tenantId,
+                    state.StripeCustomerId,
+                    state.StripePaymentMethodId,
+                    state.RefillIncrementUsd,
+                    correlationId,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!charge.Succeeded || string.IsNullOrWhiteSpace(charge.PaymentIntentId))
+            {
+                await _refillAuditor.LogRefillFailedAsync(tenantId, charge.DeclineCode, charge.ErrorMessage, cancellationToken).ConfigureAwait(false);
+
+                return false;
+            }
+
+            LlmTenantWalletCreditResult credit = await CreditRefillWithRetryAsync(
                 tenantId,
-                state.StripeCustomerId,
-                state.StripePaymentMethodId,
                 state.RefillIncrementUsd,
                 correlationId,
-                cancellationToken)
-            .ConfigureAwait(false);
+                charge.PaymentIntentId,
+                cancellationToken).ConfigureAwait(false);
 
-        if (!charge.Succeeded || string.IsNullOrWhiteSpace(charge.PaymentIntentId))
-        {
-            await _refillAuditor.LogRefillFailedAsync(tenantId, charge.DeclineCode, charge.ErrorMessage, cancellationToken).ConfigureAwait(false);
-
-            return false;
+            return await FinalizeRefillCreditAsync(
+                tenantId,
+                state.RefillIncrementUsd,
+                correlationId,
+                charge.PaymentIntentId,
+                credit,
+                cancellationToken).ConfigureAwait(false);
         }
-
-        LlmTenantWalletCreditResult credit = await CreditRefillWithRetryAsync(
-            tenantId,
-            state.RefillIncrementUsd,
-            correlationId,
-            charge.PaymentIntentId,
-            cancellationToken).ConfigureAwait(false);
-
-        if (!credit.Succeeded)
-            return false;
-
-        ArchLucidInstrumentation.RecordLlmWalletRefillUsd(state.RefillIncrementUsd);
-        RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
-        await _refillAuditor.LogRefillSucceededAsync(tenantId, charge.PaymentIntentId, state.RefillIncrementUsd, cancellationToken).ConfigureAwait(false);
-
-        return true;
+        finally
+        {
+            gate.Release();
+        }
     }
 
     public async Task<LlmTenantWalletCreditResult> CreditRefillWithRetryAsync(
@@ -129,6 +169,56 @@ public sealed class LlmTenantWalletRefillStage(
         }
 
         return state.AutoRefillsThisUtcMonthCount;
+    }
+
+    public async Task EnqueueAutoRefillIfBalanceBelowTriggerAsync(
+        Guid tenantId,
+        Guid correlationId,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty)
+            return;
+
+        LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (state.BalanceUsd < state.RefillTriggerThresholdUsd)
+            _settlementQueue.EnqueueAutoRefill(tenantId, correlationId);
+    }
+
+    private async Task<bool> FinalizeRefillCreditAsync(
+        Guid tenantId,
+        decimal amountUsd,
+        Guid correlationId,
+        string paymentIntentId,
+        LlmTenantWalletCreditResult credit,
+        CancellationToken cancellationToken)
+    {
+        if (!credit.Succeeded)
+        {
+            if (credit.DuplicatePaymentIntent)
+            {
+                PendingRefillCredits.TryRemove(tenantId, out _);
+
+                return true;
+            }
+
+            PendingRefillCredits[tenantId] = new(paymentIntentId, amountUsd, correlationId);
+            _settlementQueue.EnqueueRefillCredit(tenantId, amountUsd, correlationId, paymentIntentId);
+
+            _logger.LogWarning(
+                "LLM wallet refill credit pending for tenant {TenantId}; queued credit retry for payment intent {PaymentIntentId}.",
+                tenantId,
+                paymentIntentId);
+
+            return false;
+        }
+
+        PendingRefillCredits.TryRemove(tenantId, out _);
+        ArchLucidInstrumentation.RecordLlmWalletRefillUsd(amountUsd);
+        RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
+        await _refillAuditor.LogRefillSucceededAsync(tenantId, paymentIntentId, amountUsd, cancellationToken).ConfigureAwait(false);
+
+        return true;
     }
 
     private bool CanAutoRefill(LlmTenantWalletStateReadModel state)

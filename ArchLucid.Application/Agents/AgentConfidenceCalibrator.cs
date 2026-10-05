@@ -42,7 +42,8 @@ public sealed class AgentConfidenceCalibrator(
         return ClampUnit(Interpolate(knots, rawConfidence));
     }
 
-    private static double ClampUnit(double value) => Math.Clamp(value, 0.0, 1.0);
+    private static double ClampUnit(double value) =>
+        double.IsFinite(value) ? Math.Clamp(value, 0.0, 1.0) : 0.0;
 
     private static double Interpolate(IReadOnlyList<CalibrationKnot> knots, double rawConfidence)
     {
@@ -89,6 +90,9 @@ public sealed class AgentConfidenceCalibrator(
 
         foreach (AgentConfidenceCalibrationSampleRow sample in ordered)
         {
+            if (!double.IsFinite(sample.RawConfidence) || !double.IsFinite(sample.SemanticScore))
+                continue;
+
             if (bins.Count == 0)
             {
                 bins.Add(new CalibrationBin(sample.RawConfidence, sample.SemanticScore));

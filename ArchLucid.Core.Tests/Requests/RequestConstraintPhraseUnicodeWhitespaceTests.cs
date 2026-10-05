@@ -81,6 +81,94 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
         RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_word_joiner_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2060identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_soft_hyphen_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u00ADidentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_en_dash_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2013identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_nonbreaking_hyphen_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2011identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_unicode_minus_sign_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2212identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_middle_dot_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u00B7identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_tab_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\tidentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_newline_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\nidentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_false_when_negation_uses_tab_before_is_not()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Encryption\tis not required for dev"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_vertical_tab_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u000Bidentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_next_line_character_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u0085identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
     private static ArchitectureRequest CreateRequest(
         List<string>? constraints = null,
         List<string>? capabilities = null)

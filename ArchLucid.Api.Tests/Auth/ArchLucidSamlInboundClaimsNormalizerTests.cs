@@ -152,6 +152,47 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_preserves_case_distinct_role_surface_claims_but_extractor_collapses_for_policy()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", ArchLucidRoles.Admin),
+            new Claim("http://idp.example/role", "admin"));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.Claims.Count(static c => c.Type == "roles").Should().Be(2);
+        identity.Claims.Count(static c => c.Type == ClaimTypes.Role).Should().Be(2);
+
+        HashSet<string> effectiveRoles = ArchLucidRoleClaimExtractor.ExtractRoleValues(new ClaimsPrincipal(identity));
+
+        effectiveRoles.Should().BeEquivalentTo([ArchLucidRoles.Admin]);
+    }
+
+    [Fact]
+    public void Apply_promotes_opaque_directory_object_identifier_onto_oid()
+    {
+        const string directoryKey = "CN=User,OU=Corp,DC=example,DC=com";
+
+        ClaimsIdentity identity = CreateSamlIdentity(new Claim("http://idp.example/oid", directoryKey));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                DirectoryObjectIdClaimType = "http://idp.example/oid",
+            });
+
+        identity.FindFirst("oid")?.Value.Should().Be(directoryKey);
+    }
+
+    [Fact]
     public void Apply_skips_ambiguous_multi_valued_scope_source_claims()
     {
         Guid firstTenantId = Guid.NewGuid();

@@ -20,12 +20,14 @@ internal static class TenantTrialFacadeTestSupport
         IBillingTrialConversionGate gate,
         ITrialIdentityUserRepository trialUsers,
         ISelfServiceTrialAbuseRepository trialAbuseRepository,
-        IOptionsMonitor<TrialLifecycleSchedulerOptions> schedulerOpts) =>
+        IOptionsMonitor<TrialLifecycleSchedulerOptions> schedulerOpts,
+        TimeProvider? timeProvider = null) =>
         new(
             tenants,
             scopeProvider,
             new TenantTrialAbuseGuard(trialUsers, trialAbuseRepository),
             new TenantTrialIdentityHandoffStage(tenants, trialUsers, audit),
             new TenantTrialConversionStage(tenants, scopeProvider, audit, gate),
-            schedulerOpts);
+            schedulerOpts,
+            timeProvider ?? TimeProvider.System);
 }

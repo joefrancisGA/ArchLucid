@@ -31,6 +31,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -110,6 +111,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -204,6 +206,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             budgetProvisioner.Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -271,6 +274,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -346,6 +350,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -397,6 +402,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -456,6 +462,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -531,6 +538,7 @@ public sealed class TrialTenantBootstrapServiceTests
             audit.Object,
             email.Object,
             CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -551,6 +559,86 @@ public sealed class TrialTenantBootstrapServiceTests
         Assert.True(persistAt >= 0);
         Assert.True(seedAt >= 0);
         Assert.True(persistAt < seedAt);
+    }
+
+    [Fact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_commits_trial_window_using_injected_clock()
+    {
+        DateTimeOffset start = DateTimeOffset.Parse("2020-06-01T12:00:00Z");
+        FixedUtcTimeProvider clock = new(start);
+
+        Mock<IDemoSeedService> demo = new();
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.CommitSelfServiceTrialAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        repo.Setup(r => r.EnqueueTrialArchitecturePreseedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            clock,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, null, CancellationToken.None);
+
+        repo.Verify(
+            r => r.CommitSelfServiceTrialAsync(
+                tenantId,
+                start,
+                start.AddDays(14),
+                10,
+                3,
+                It.IsAny<Guid>(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private sealed class FixedUtcTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
     private static Mock<ISelfServiceTrialAiBudgetPolicyProvisioner> CreateTrialAiBudgetProvisionerMock()

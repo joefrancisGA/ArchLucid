@@ -152,7 +152,7 @@ public sealed partial class InMemoryTenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.FromResult(false);
 
-            if (existing.OffboardedUtc is not null)
+            if (existing.OffboardedUtc is not null || existing.SuspendedUtc is null)
                 return Task.FromResult(false);
 
             _byId[tenantId] = TenantRepositoryCore.CopyTenant(existing, clearSuspendedUtc: true);

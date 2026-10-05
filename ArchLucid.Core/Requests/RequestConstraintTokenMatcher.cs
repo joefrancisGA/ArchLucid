@@ -439,6 +439,18 @@ internal static class RequestConstraintTokenMatcher
                 replacement = ' ';
 
                 return true;
+            case '\u2010':
+            case '\u2011':
+            case '\u2012':
+            case '\u2013':
+            case '\u2014':
+            case '\u2015':
+            case '\u2212':
+            case '\u00B7':
+            case '\u2022':
+                replacement = ' ';
+
+                return true;
             case '\u2019':
             case '\u2018':
             case '\u2032':
@@ -451,20 +463,28 @@ internal static class RequestConstraintTokenMatcher
                 replacement = ' ';
 
                 return true;
+            case '\t':
+            case '\n':
+            case '\r':
+                replacement = ' ';
+
+                return true;
             default:
-                if (character is '\t' or '\n' or '\r')
-                {
-                    replacement = default;
-
-                    return false;
-                }
-
                 System.Globalization.UnicodeCategory category = char.GetUnicodeCategory(character);
 
                 if (category is System.Globalization.UnicodeCategory.SpaceSeparator
                     or System.Globalization.UnicodeCategory.LineSeparator
-                    or System.Globalization.UnicodeCategory.ParagraphSeparator)
+                    or System.Globalization.UnicodeCategory.ParagraphSeparator
+                    or System.Globalization.UnicodeCategory.Format
+                    or System.Globalization.UnicodeCategory.Control)
                 {
+                    if (character == '\0')
+                    {
+                        replacement = default;
+
+                        return false;
+                    }
+
                     replacement = ' ';
 
                     return true;

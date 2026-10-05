@@ -192,6 +192,7 @@ public sealed partial class DapperTenantRepository
                            UPDATE dbo.Tenants
                            SET SuspendedUtc = NULL
                            WHERE Id = @Id
+                             AND SuspendedUtc IS NOT NULL
                              AND OffboardedUtc IS NULL;
                            """;
 

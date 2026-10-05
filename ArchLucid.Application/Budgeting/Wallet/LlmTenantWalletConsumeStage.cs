@@ -16,6 +16,9 @@ public sealed class LlmTenantWalletConsumeStage(
     private readonly ILlmTenantWalletRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
 
+    private readonly ILlmWalletSettlementQueue _settlementQueue =
+        settlementQueue ?? throw new ArgumentNullException(nameof(settlementQueue));
+
     public Task<LlmTenantWalletStateReadModel> GetOrCreateAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
         _repository.GetOrCreateAsync(tenantId, cancellationToken);
 
@@ -96,6 +99,9 @@ public sealed class LlmTenantWalletConsumeStage(
             if (result.Succeeded)
             {
                 RecordBalanceGauge(tenantId, result.BalanceAfterUsd);
+
+                if (result.BalanceAfterUsd < state.RefillTriggerThresholdUsd)
+                    _settlementQueue.EnqueueAutoRefill(tenantId, Guid.NewGuid());
 
                 return true;
             }

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using ArchLucid.Contracts.Common;
@@ -38,6 +39,8 @@ public sealed class RunExecuteOwnershipLeaseService(
     private readonly IArchLucidStorageMode _storageMode =
         storageMode ?? throw new ArgumentNullException(nameof(storageMode));
 
+    private readonly ConcurrentDictionary<Guid, string> _activeHolderInstanceIds = new();
+
     /// <inheritdoc />
     public bool IsEnabled => !_storageMode.IsInMemory && _optionsMonitor.CurrentValue.Enabled;
 
@@ -55,14 +58,28 @@ public sealed class RunExecuteOwnershipLeaseService(
 
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
         int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
+        string holderInstanceId = _processInstanceId.Value;
         bool acquired = await _leaseRepository.TryAcquireOrRenewAsync(
             runId,
-            _processInstanceId.Value,
+            holderInstanceId,
             durationSeconds,
             cancellationToken).ConfigureAwait(false);
 
         if (acquired)
+        {
+            if (_drainGate.IsDraining)
+            {
+                await _leaseRepository
+                    .TryReleaseAsync(runId, holderInstanceId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                throw new ConflictException(
+                    "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
+            }
+
+            _activeHolderInstanceIds[runId] = holderInstanceId;
             return;
+        }
 
         throw new ConflictException(
             $"Run '{runId:D}' execute is already owned by another host instance. Retry after the ownership lease expires or reconcile stale ownership.");
@@ -71,15 +88,16 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public async Task RenewAsync(Guid runId, CancellationToken cancellationToken)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return;
 
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
         int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
 
+        string holderInstanceId = ResolveHolderInstanceId(runId);
         bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
             runId,
-            _processInstanceId.Value,
+            holderInstanceId,
             durationSeconds,
             cancellationToken).ConfigureAwait(false);
 
@@ -100,13 +118,14 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public IAsyncDisposable BeginRenewalScope(Guid runId, CancellationTokenSource executeCancellationSource)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return NoOpRunExecuteOwnershipLeaseRenewalScope.Instance;
 
         ArgumentNullException.ThrowIfNull(executeCancellationSource);
 
         RunExecuteOwnershipLeaseRenewalScope? scope = RunExecuteOwnershipLeaseRenewalScope.TryBegin(
             this,
+            _storageMode,
             _optionsMonitor,
             runId,
             executeCancellationSource,
@@ -121,23 +140,34 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return Task.CompletedTask;
 
-        return _leaseRepository.TryReleaseAsync(runId, _processInstanceId.Value, cancellationToken);
+        string holderInstanceId = ResolveHolderInstanceId(runId);
+        _activeHolderInstanceIds.TryRemove(runId, out _);
+        return _leaseRepository.TryReleaseAsync(runId, holderInstanceId, cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task<int> ReleaseAllHeldByThisInstanceAsync(CancellationToken cancellationToken)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return 0;
 
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        int released = await _leaseRepository
-            .ReleaseAllHeldByInstanceAsync(_processInstanceId.Value, cancellationToken)
-            .ConfigureAwait(false);
+        HashSet<string> holderInstanceIds = new(_activeHolderInstanceIds.Values, StringComparer.Ordinal);
+        holderInstanceIds.Add(_processInstanceId.Value);
+
+        int released = 0;
+        foreach (string holderInstanceId in holderInstanceIds)
+        {
+            released += await _leaseRepository
+                .ReleaseAllHeldByInstanceAsync(holderInstanceId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        _activeHolderInstanceIds.Clear();
 
         stopwatch.Stop();
         ArchLucidInstrumentation.WorkerDrainLeaseReleaseDurationMilliseconds.Record(stopwatch.Elapsed.TotalMilliseconds);
@@ -152,4 +182,9 @@ public sealed class RunExecuteOwnershipLeaseService(
 
         return released;
     }
+
+    private string ResolveHolderInstanceId(Guid runId) =>
+        _activeHolderInstanceIds.TryGetValue(runId, out string? holderInstanceId)
+            ? holderInstanceId
+            : _processInstanceId.Value;
 }

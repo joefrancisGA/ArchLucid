@@ -19,12 +19,26 @@ public sealed class LlmWalletSettlementQueue : ILlmWalletSettlementQueue
     {
         _channel.Writer.TryWrite(new LlmWalletSettlementWorkItem(LlmWalletSettlementKind.AutoRefill, tenantId, 0m, correlationId));
     }
+
+    public void EnqueueRefillCredit(Guid tenantId, decimal amountUsd, Guid correlationId, string stripePaymentIntentId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(stripePaymentIntentId);
+
+        _channel.Writer.TryWrite(
+            new LlmWalletSettlementWorkItem(
+                LlmWalletSettlementKind.RefillCredit,
+                tenantId,
+                amountUsd,
+                correlationId,
+                StripePaymentIntentId: stripePaymentIntentId));
+    }
 }
 
 internal enum LlmWalletSettlementKind
 {
     Consume = 0,
     AutoRefill = 1,
+    RefillCredit = 2,
 }
 
 internal readonly record struct LlmWalletSettlementWorkItem(
@@ -32,4 +46,5 @@ internal readonly record struct LlmWalletSettlementWorkItem(
     Guid TenantId,
     decimal AmountUsd,
     Guid CorrelationId,
-    decimal AuthorizedUsd = 0m);
+    decimal AuthorizedUsd = 0m,
+    string? StripePaymentIntentId = null);

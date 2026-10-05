@@ -150,4 +150,20 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .BeTrue();
     }
+
+    [Fact]
+    public void RetryDelay_at_attempt_above_max_remains_linear_without_clamp()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(CommitRunTransientRetryPolicy.MaxAttempts + 1)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * (CommitRunTransientRetryPolicy.MaxAttempts + 1)));
+    }
+
+    [Fact]
+    public void Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget()
+    {
+        TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
+
+        minimumInnerRetryDelays.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
 }

@@ -15,7 +15,8 @@ public sealed class TenantTrialFacade(
     ITenantTrialAbuseGuard abuseGuard,
     ITenantTrialIdentityHandoffStage identityHandoffStage,
     ITenantTrialConversionStage conversionStage,
-    IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : ITenantTrialFacade
+    IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions,
+    TimeProvider timeProvider) : ITenantTrialFacade
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -34,6 +35,9 @@ public sealed class TenantTrialFacade(
 
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleSchedulerOptions =
         trialLifecycleSchedulerOptions ?? throw new ArgumentNullException(nameof(trialLifecycleSchedulerOptions));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
     public async Task<TenantTrialStatusQueryResult> GetTrialStatusAsync(CancellationToken cancellationToken)
@@ -59,7 +63,7 @@ public sealed class TenantTrialFacade(
         {
             daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
                 tenant,
-                TimeProvider.System.GetUtcNow(),
+                _timeProvider.GetUtcNow(),
                 _trialLifecycleSchedulerOptions.CurrentValue);
         }
 

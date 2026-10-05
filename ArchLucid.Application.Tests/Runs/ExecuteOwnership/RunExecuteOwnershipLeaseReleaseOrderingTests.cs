@@ -43,6 +43,27 @@ public sealed class RunExecuteOwnershipLeaseReleaseOrderingTests
     }
 
     [Fact]
+    public async Task ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder()
+    {
+        Guid runId = Guid.NewGuid();
+        InMemoryRunExecuteOwnershipLeaseRepository repository = new();
+        string currentInstanceId = "instance-a";
+        Mock<IHostProcessInstanceId> instance = new();
+        instance.Setup(i => i.Value).Returns(() => currentInstanceId);
+
+        RunExecuteOwnershipLeaseService service = CreateService(repository, instance);
+
+        await service.AcquireAsync(runId, CancellationToken.None);
+        repository.IsHeldBy(runId, "instance-a").Should().BeTrue();
+
+        currentInstanceId = "instance-b";
+        await service.ReleaseAsync(runId, CancellationToken.None);
+
+        repository.IsHeldBy(runId, "instance-a").Should().BeFalse(
+            "release must target the holder instance id used at acquire time, not the rotated process identity");
+    }
+
+    [Fact]
     public async Task Release_before_renewal_scope_dispose_allows_renew_to_recreate_lease()
     {
         Guid runId = Guid.NewGuid();
@@ -71,10 +92,20 @@ public sealed class RunExecuteOwnershipLeaseReleaseOrderingTests
 
     private static RunExecuteOwnershipLeaseService CreateService(
         IRunExecuteOwnershipLeaseRepository repository,
-        string instanceId)
+        string instanceId) =>
+        CreateService(repository, CreateInstanceMock(instanceId));
+
+    private static Mock<IHostProcessInstanceId> CreateInstanceMock(string instanceId)
     {
         Mock<IHostProcessInstanceId> instance = new();
         instance.Setup(i => i.Value).Returns(instanceId);
+        return instance;
+    }
+
+    private static RunExecuteOwnershipLeaseService CreateService(
+        IRunExecuteOwnershipLeaseRepository repository,
+        Mock<IHostProcessInstanceId> instance)
+    {
 
         Mock<IArchLucidStorageMode> storage = new();
         storage.Setup(s => s.IsInMemory).Returns(false);

@@ -278,6 +278,167 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_camel_case_api_key()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"apiKey":"fallback-secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_camel_case_connection_string()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"connectionString":"Server=prod;Password=secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_snake_case_connection_string()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"connection_string":"Server=prod;Password=secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_effective_value_is_json_array_of_connection_strings()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """["Server=prod;Password=secret","Server=dr;Password=other"]""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_connection_string_effective_values()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Server=prod;Password=secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_preserves_plain_scalar_non_credential_effective_values()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "production",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("production");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_cosmos_account_key_connection_string()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] =
+                "AccountEndpoint=https://acct.documents.azure.com:443/;AccountKey=c2VjcmV0LWtleS1tYXRlcmlhbA==",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Password=super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_object_effective_values_when_string_property_contains_connection_string()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"Description":"Server=prod;Password=secret"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_json_array_scalar_effective_values()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """["https://example.com","15"]""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("""["https://example.com","15"]""");
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_json_effective_values()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";

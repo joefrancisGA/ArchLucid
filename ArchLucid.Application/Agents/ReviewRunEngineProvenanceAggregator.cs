@@ -104,10 +104,10 @@ public static class ReviewRunEngineProvenanceAggregator
 
     private static string? DerivePolicyPackVersion(AgentEvidencePackage evidence)
     {
-        if (evidence.Policies.Count == 0)
+        if ((evidence.Policies ?? []).Count == 0)
             return null;
 
-        IEnumerable<string> titles = evidence.Policies
+        IEnumerable<string> titles = (evidence.Policies ?? [])
             .Select(static policy => policy.Title)
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())

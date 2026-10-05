@@ -49,9 +49,18 @@ public sealed partial class TenantWorkspacesController
 
         if (workspace.DefaultProjectId == projectId)
         {
-            return this.BadRequestProblem(
-                "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
-                ProblemTypes.BusinessRuleViolation);
+            IReadOnlyList<ArchitectureProjectRecord> activeProjects =
+                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
+
+            bool defaultProjectIsActive = activeProjects.Any(
+                p => p.WorkspaceId == workspaceId && p.Id == projectId);
+
+            if (defaultProjectIsActive)
+            {
+                return this.BadRequestProblem(
+                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                    ProblemTypes.BusinessRuleViolation);
+            }
         }
 
         ArchitectureProjectSoftDeleteResult outcome = await _architectureProjectRepository.TrySoftDeleteAsync(

@@ -101,6 +101,45 @@ public sealed class AgentResultRegionMismatchEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_validates_each_request_region_constraint_when_service_region_missing()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:westeurope", "region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("qatarcentral");
+    }
+
+    [Fact]
     public async Task EnrichAsync_uses_request_region_constraint_when_service_region_missing()
     {
         ArchitectureRequest request = new()
@@ -213,6 +252,47 @@ public sealed class AgentResultRegionMismatchEnricherTests
 
         await act.Should().NotThrowAsync();
         proposal.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_tolerates_null_constraints_list()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = null!,
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        Func<Task> act = async () =>
+            await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        proposal.Warnings.Should().ContainSingle();
     }
 
     [Fact]
