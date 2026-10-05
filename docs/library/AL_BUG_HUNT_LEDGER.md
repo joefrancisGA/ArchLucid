@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewDetailWorkspaceTabShell.renderTabPanel` mounted `inPipelineBanner` in every hidden tab panel, duplicating pipeline-in-flight banner markup (7 copies for Overview-active); render banner only on the visible panel; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`; 38 scoped review-detail vitest tests passed.
+
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — module-level `reviewFindingsLastVisitRestoredRunIds` never cleared on unmount, so returning to the same review with a bare findings URL skipped DR-13 last-visit toolbar restore; delete run id from the guard on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`; 18 scoped review-detail vitest tests passed.
 
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `RunDetailFindingsWorkspace` kept the prior run’s classification band (and list view) after a client-side `runId` transition when the URL omitted band/list params; re-sync toolbar band + list view from the location on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped review-detail vitest tests passed (findings workspace + workspace tabs).
@@ -28210,11 +28212,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 28
-- **bugs-found:** 19
+- **hunts:** 29
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — findings last-visit restore skipped on same-run remount
+- **last-bug:** 2026-10-05 — duplicate in-pipeline banners on hidden tab panels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28249,7 +28251,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
 - (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
 - (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
-- (candidate) `ReviewDetailWorkspaceTabShell.renderTabPanel` — a non-null `inPipelineBanner` is rendered into every hidden non-activity tab panel as well as the active panel; reachable pipeline-in-flight input could duplicate interactive banner markup or IDs across the workspace, pending a banner contract/test-id check.
+- [x] (proven) `ReviewDetailWorkspaceTabShell.renderTabPanel` — `inPipelineBanner` rendered in hidden tab panels as well as the active panel — **hit 2026-10-05 seed hunt:** omit banner content when `hidden`; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`
 - (candidate) `ReviewDetailWorkspaceTabShell` workbench composition — the evidence vocabulary rail is rendered once inside `WorkbenchLayoutBridge` and again in the hidden evidence tab panel; reachable Working-mode workbench input could duplicate vocabulary navigation or its identifiers, pending focused DOM/accessibility proof.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused failure mocked `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; the hook intentionally reads presenter state from `window.location`, so the failure does not establish a product defect.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused test failure came from mocking `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; `useReviewDetailWorkspaceTabs` intentionally reads presenter state from `window.location`, so this does not establish a reachable product failure.
