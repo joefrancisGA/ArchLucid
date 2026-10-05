@@ -53,14 +53,32 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             return false;
         }
 
-        foreach (string part in propertyName.Split(['_', '-', '.'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        string[] delimiterParts = propertyName.Split(
+            ['_', '-', '.'],
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (string part in delimiterParts)
         {
             if (IsSensitiveConfigPropertyName(part))
                 return true;
         }
 
+        if (delimiterParts.Length > 1
+            && IsSensitiveConfigSegment(ToPascalCaseCompoundFromDelimitedParts(delimiterParts)))
+            return true;
+
         return false;
     }
+
+    private static string ToPascalCaseCompoundFromDelimitedParts(string[] parts) =>
+        string.Concat(
+            parts.Select(static part =>
+            {
+                if (part.Length == 0)
+                    return part;
+
+                return char.ToUpperInvariant(part[0]) + part[1..];
+            }));
 
     private static string ToPascalCaseCompoundFromCamelCase(string propertyName)
     {
