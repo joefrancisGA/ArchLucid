@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — Unicode minus sign (U+2212) and middle dot (U+00B7) between phrase words still blocked `managed identity` matching; map those separators (and bullet U+2022) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_unicode_minus_sign_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_middle_dot_splits_phrase`; 874 scoped RequestConstraint tests passed.
+
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — Word-style en dash (U+2013) and non-breaking hyphen (U+2011) between phrase words still blocked `managed identity` matching while ASCII `-` must stay for compound slugs; map Unicode dash punctuation (U+2010–U+2015) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_en_dash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_nonbreaking_hyphen_splits_phrase`; 872 scoped RequestConstraint tests passed.
 
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — word joiner (U+2060) and soft hyphen (U+00AD) in pasted constraint text still split phrases like `managed identity`; extended `NormalizeConstraintMatchingText` to map `UnicodeCategory.Format` to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_word_joiner_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_soft_hyphen_splits_phrase`; 870 scoped RequestConstraint tests passed.
@@ -19551,11 +19553,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 19
-- **bugs-found:** 18
+- **hunts:** 20
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — Unicode en dash / non-breaking hyphen split multi-word constraint phrases
+- **last-bug:** 2026-10-05 — Unicode minus sign and middle dot split multi-word constraint phrases
+
+2026-10-05 seed hunt #20 (seed→hit): reseeded unicode normalization after dash-punctuation fix; proved minus sign (U+2212) and middle dot (U+00B7) still split phrases like `managed identity`; fixed by mapping U+2212, U+00B7, and bullet U+2022 to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_unicode_minus_sign_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_middle_dot_splits_phrase`; 874 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — Unicode minus sign (U+2212) and middle dot (U+00B7) between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-05 seed hunt #20:** map math/list separators to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`.
 
 2026-10-05 seed hunt #19 (seed→hit): reseeded unicode normalization after format-character fix; proved en dash (U+2013) and non-breaking hyphen (U+2011) still split phrases like `managed identity`; fixed by mapping Unicode dash punctuation U+2010–U+2015 to ASCII space while preserving ASCII hyphen for compound-identifier boundaries; regressions `HasManagedIdentityConstraint_returns_true_when_en_dash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_nonbreaking_hyphen_splits_phrase`; 872 scoped RequestConstraint tests passed.
 
