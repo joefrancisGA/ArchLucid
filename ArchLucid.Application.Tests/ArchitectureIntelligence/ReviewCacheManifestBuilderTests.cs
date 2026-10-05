@@ -247,6 +247,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_run_id_differs_only_by_hex_letter_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.RunId = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA";
+
+        ReviewCacheManifestBuilder.Build(lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources()
     {
         ClosedLoopReasoningRequest runA = CreateRequest("Architecture note.");
