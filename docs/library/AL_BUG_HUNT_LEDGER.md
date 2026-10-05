@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (dry): `saml-jwt-bearer` — cheap-disproof closed SAML role case-duplicate surface claims (`ArchLucidRoleClaimExtractor` collapses for policy) and intentional non-GUID `oid` promotion for opaque directory keys; added multi-`auth_time` fail-closed and latest-fresh regressions; 16 scoped normalizer/step-up tests passed.
+
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
 2026-10-05 thorough hunt (dry): `ui-runs-list` — cheap-disproof closed unknown `inspectorRunId` soft-nav, buyer `scope=` chip parity, and stale compare-notice candidates; regressions `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`, `follows scope= URL changes without a popstate event on buyer scope chips`, `clears compare replacement notice when compareRuns URL changes without a popstate event`; 48 scoped `RunsListClient` tests passed.
@@ -8403,9 +8405,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — step-up ignored later parseable `auth_time` when an earlier `auth_time` claim was garbage
 - **related-pd-tb:** none
@@ -8451,8 +8453,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 seed hunt #812 (hit): reseeded SAML scope ambiguity, custom-role oid/sub alignment, and step-up `auth_time` parse fail-closed gaps.
 
 - [x] (proven) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — multiple `auth_time` claims: first unparseable value made step-up fail closed even when a later `auth_time` was fresh — **hit 2026-10-05 seed hunt:** scan all `auth_time` claims and take the latest parseable instant; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteIncomingRoleValues` — `HasClaim("roles", roleValue)` is case-sensitive so inbound SAML role attributes differing only by case create duplicate `roles` / `ClaimTypes.Role` entries — wrong outcome: inflated claim cardinality before `ArchLucidRoleClaimExtractor` dedupes; reachable when IdP emits `admin` and `Admin` in separate multi-valued role attributes
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — non-GUID directory object ids promote onto canonical `oid` because only tenant/workspace/project skip non-GUID values — wrong outcome: SCIM external-id lookup receives opaque strings; mechanism: `IsGuidScopeClaimType` excludes `oid`; reachable when `DirectoryObjectIdClaimType` maps LDAP `distinguishedName` style values
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer.PromoteIncomingRoleValues` — case-sensitive `HasClaim("roles", roleValue)` can surface duplicate `roles` / `ClaimTypes.Role` entries when IdP emits values differing only by case — **cheap-disproof 2026-10-05:** `ArchLucidRoleClaimExtractor.ExtractRoleValues` and `ArchLucidRoleClaimsTransformation.BuildRoleSet` collapse case-insensitively before policy resolution; regression `Apply_preserves_case_distinct_role_surface_claims_but_extractor_collapses_for_policy`
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — non-GUID directory object ids promote onto canonical `oid` because `IsGuidScopeClaimType` excludes `oid` — **cheap-disproof 2026-10-05:** opaque `oid` strings are the supported external-directory key shape for `RoleSyncService.TryDirectoryObjectKey` / SCIM `GetByExternalIdAsync`; regression `Apply_promotes_opaque_directory_object_identifier_onto_oid`
+
+2026-10-05 thorough hunt (dry): cheap-disproved both open SAML normalizer candidates; hardened multi-`auth_time` step-up regressions.
 
 2026-10-05 seed hunt (seed→hit): promoted multi-valued `auth_time` step-up gap; proved and fixed; reseeded SAML role case-dedup and oid non-GUID promotion candidates.
 
