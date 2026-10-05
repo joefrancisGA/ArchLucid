@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `run-execute-ownership` — `ReleaseAsync` cleared the pinned holder before `TryReleaseAsync`, so a transient release failure after process-instance rotation retried with the wrong holder and left the SQL lease pinned; clear the pin only after successful repository release; regression `ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`; 61 scoped ownership/orchestrator tests passed.
+
 2026-10-05 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed empty nested-aggregate shell, unclamped `RetryDelay` misuse, and inner/outer budget interaction candidates; 55 scoped transient-retry tests passed (37 Persistence + 18 Application).
 
 2026-10-05 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after today's nested-wrapper hit; cheap-disproof closed aggregate-inner wrapper nested-deadlock retry (`SqlTransientDetector` walks wrapper `InnerException` chains); seeded empty nested-aggregate masking, `TryGetParallelPersistInners` fail-fast without outer `SqlTransientDetector` fallthrough, and unclamped `RetryDelay` above `MaxAttempts` misuse candidates; 51 scoped transient-retry tests passed (35 Persistence + 16 Application).
