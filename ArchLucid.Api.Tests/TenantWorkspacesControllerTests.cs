@@ -1994,4 +1994,245 @@ public sealed class TenantWorkspacesControllerTests
         body.Workspaces[0].DefaultProjectId.Should().Be(Guid.Empty);
         body.Workspaces[0].Projects.Should().ContainSingle().Which.ProjectId.Should().Be(scope.ProjectId);
     }
+
+    [Fact]
+    public async Task ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem workspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "w",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { workspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = scope.ProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "p",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                }.AsReadOnly());
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>> retentionMock = new();
+        retentionMock.Setup(o => o.CurrentValue).Returns(new ArchitectureProjectRetentionPurgeOptions { RetentionDays = 500 });
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                retentionMock.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result = await sut.ListAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantWorkspacesListResponse body = ok.Value.Should().BeOfType<TenantWorkspacesListResponse>().Subject;
+        body.RetentionDays.Should().Be(365);
+    }
+
+    [Fact]
+    public async Task ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        DateTimeOffset deletedUtc = new(2026, 1, 1, 12, 0, 0, TimeSpan.Zero);
+        Guid deletedProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem workspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "w",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { workspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.ListSoftDeletedByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = deletedProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "deleted",
+                        CreatedUtc = deletedUtc,
+                        DeletedUtc = deletedUtc,
+                    },
+                }.AsReadOnly());
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>> retentionMock = new();
+        retentionMock.Setup(o => o.CurrentValue).Returns(new ArchitectureProjectRetentionPurgeOptions { RetentionDays = 500 });
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                retentionMock.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result = await sut.ListRecycleBinAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantWorkspacesRecycleBinResponse body =
+            ok.Value.Should().BeOfType<TenantWorkspacesRecycleBinResponse>().Subject;
+        body.RetentionDays.Should().Be(365);
+        body.Workspaces[0].DeletedProjects[0].PurgeAfterUtc
+            .Should()
+            .Be(ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, 500));
+    }
+
+    [Fact]
+    public async Task DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid foreignDefaultProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem workspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "w",
+                DefaultProjectId = foreignDefaultProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { workspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.TrySoftDeleteAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureProjectSoftDeleteResult.Deleted);
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuditService> auditMock = new();
+        auditMock
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                auditMock.Object,
+                Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result =
+            await sut.DeleteProjectAsync(scope.WorkspaceId, scope.ProjectId, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        projectsMock.Verify(
+            r => r.ListActiveByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
