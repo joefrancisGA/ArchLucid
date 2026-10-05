@@ -212,6 +212,7 @@ test.describe(
     expect(packBTitle, "Pack B finding title from authority snapshot").not.toBeNull();
 
     /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
+    await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
     await expectReviewDetailFindingInspectCopyVisible(
       page,
       DEMO_WORKSPACE_B_REGULATED_RUN_ID,
@@ -221,6 +222,7 @@ test.describe(
     );
 
     /** Pack B security baseline posture (public exposure from seed fixtures). */
+    await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
     await expectReviewDetailFindingInspectCopyVisible(
       page,
       DEMO_WORKSPACE_B_REGULATED_RUN_ID,

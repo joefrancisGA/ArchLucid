@@ -129,7 +129,15 @@ test.describe(
     const primaryCard = quickSummaryAfterEvidence.locator('[data-finding-workspace-primary="true"]');
     await expect(primaryCard).toBeVisible({ timeout: 60_000 });
     await primaryCard.scrollIntoViewIfNeeded();
-    await expectQuickDecisionSeverityVisible(quickSummaryAfterEvidence, { timeoutMs: 120_000 });
+
+    const primarySeverity = quickDecisionSeverityBadge(primaryCard).first();
+
+    if (await primarySeverity.isVisible().catch(() => false)) {
+      await expect(primarySeverity).toBeVisible({ timeout: 30_000 });
+    } else {
+      await expectQuickDecisionSeverityVisible(quickSummaryAfterEvidence, { timeoutMs: 90_000 });
+    }
+
     await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
       timeout: 30_000,
     });
