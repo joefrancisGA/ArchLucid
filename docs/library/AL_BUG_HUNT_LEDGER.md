@@ -27251,11 +27251,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 26
-- **bugs-found:** 24
+- **hunts:** 27
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — null ArchitectureRequest.Constraints crashed region mismatch enricher after JSON deserialization
+- **last-bug:** 2026-10-05 — null deserialized agent result/evidence lists crashed curated evidence prompt build
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -27304,6 +27304,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — persisted calibration rows with non-finite raw confidence or semantic scores created non-finite knots and `CalibrateAsync` returned `NaN` — **hit 2026-10-05 thorough hunt:** skip non-finite samples when binning and treat non-finite raw confidence as zero in `ClampUnit`; regression `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`.
 - [x] (invalid) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution — invalid: `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects every stored or catalog allowlist entry that is absent from the alias registry before the resolver receives it
 
+2026-10-05 seed hunt (seed→hit): re-read `AgentCuratedEvidenceProposer`; proved `BuildUserPrompt` and typed-emission gating threw when deserialized `AgentResult`/`AgentEvidencePackage` list properties were null; fixed with null-coalescing on findings, claims, evidence refs, and catalog lists; regression `BuildUserPrompt_tolerates_null_collections_on_result_and_evidence`; 96 scoped Application.Tests.Agents tests passed.
+
 2026-10-05 seed hunt (seed→hit): re-read `AgentResultRegionMismatchEnricher`; proved `ResolveRequestRegions` threw when `ArchitectureRequest.Constraints` was null (reachable from deserialized run requests); fixed with null-coalescing; regression `EnrichAsync_tolerates_null_constraints_list`; 95 scoped Application.Tests.Agents tests passed.
 
 2026-10-05 thorough hunt (hit): proved multi `region:` constraints only checked the first declared region for services without `AzureArmRegion`, missing `qatarcentral` restricted-service warnings; proved calibration samples with `NaN` semantic scores produced non-finite calibrated confidence; regressions `EnrichAsync_validates_each_request_region_constraint_when_service_region_missing` and `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`; 94 scoped Application.Tests.Agents tests passed.
@@ -27328,6 +27330,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-11 seed hunt #1729 (hit): reseeded application-agents; proved invisible-only curated-evidence rationale bypass; restored corrupted `AgentCuratedEvidenceProposerTests` / `ProposedEvidencePayloadValidatorTests` compile health; 80 scoped Application.Tests.Agents tests passed.
 
+- [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` / typed-emission gate — null deserialized `Findings`, `Claims`, `EvidenceRefs`, or evidence catalog lists threw during curated-evidence enrichment — **hit 2026-10-05 seed hunt:** null-coalesce list properties before LINQ/`string.Join`; regression `BuildUserPrompt_tolerates_null_collections_on_result_and_evidence`.
 - [x] (proven) `AgentCuratedEvidenceProposer` / `ProposedEvidencePayloadValidator` accept invisible-only `rationale` text — **hit 2026-09-11 seed hunt #1730 (seed→hit):** title/description guards used `HasSubstantiveText` but rationale was unchecked; fixed in both paths; regressions `NormalizeResponse_returns_null_when_rationale_is_zero_width_space_only` and `TryParseValid_WhenRationaleIsZeroWidthSpaceOnly_ReturnsFalse`
 - [x] (proven) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — duplicate deployment names in `ModelLabel` when trace rows differed only by casing — **hit 2026-09-11 seed hunt #1730 (seed→hit):** measurable deployment set used `StringComparer.Ordinal`; fixed with `OrdinalIgnoreCase` on measurable and fallback deployment sets; regression `Compute_deduplicates_model_label_when_deployment_name_differs_only_by_case`
 
