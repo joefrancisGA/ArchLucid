@@ -32,7 +32,7 @@ public sealed partial class ScimUserService
         string? manualFromPatch = TryReadOptionalTrimmed(next, ManualResolvedRoleFlatPath, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, JsonElement> core = ToCoreNextMap(next);
         bool nextActive = ReadActive(core, existing.Active);
-        string externalId = ReadString(core, "externalId", existing.ExternalId);
+        string externalId = ReadPatchRequiredString(core, "externalId", existing.ExternalId);
         string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
@@ -155,14 +155,6 @@ public sealed partial class ScimUserService
         if (string.IsNullOrWhiteSpace(raw))
             throw new ScimUserResourceParseException("invalidValue", $"'{key}' must be non-empty.");
         return raw.Trim();
-    }
-
-    private static string ReadString(IReadOnlyDictionary<string, JsonElement> next, string key, string fallback)
-    {
-        if (!next.TryGetValue(key, out JsonElement el) || el.ValueKind != JsonValueKind.String)
-            return fallback;
-        string v = el.GetString() ?? fallback;
-        return string.IsNullOrWhiteSpace(v) ? fallback : v.Trim();
     }
 
     private static string? ReadOptionalString(IReadOnlyDictionary<string, JsonElement> next, string key, string? fallback)

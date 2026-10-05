@@ -735,6 +735,70 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_replace_externalId_whitespace_only_throws()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "externalId", "value": "   " }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimUserResourceParseException>();
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.ExternalId.Should().Be("ext-1");
+    }
+
+    [Fact]
+    public async Task PatchAsync_replace_userName_non_string_throws()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "userName", "value": 1 }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimUserResourceParseException>();
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.UserName.Should().Be("alice@example.com");
+    }
+
+    [Fact]
     public async Task ListAsync_normalizes_start_index_below_one()
     {
         Guid tenantId = Guid.NewGuid();
