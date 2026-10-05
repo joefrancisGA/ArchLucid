@@ -721,6 +721,54 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ReconcileOverageInternalAsync_enqueues_auto_refill_when_overage_credit_leaves_balance_below_trigger_threshold()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            65m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 40m, CancellationToken.None);
+        authorized.Should().BeTrue();
+
+        while (queue.Reader.TryRead(out _))
+        {
+        }
+
+        await service.ReconcileOverageInternalAsync(tenantId, 39.99m, 40m, Guid.NewGuid(), CancellationToken.None);
+
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().BeLessThan(LlmTenantWalletDefaults.RefillTriggerThresholdUsd);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue(
+            "overage reconciliation credit must enqueue auto-refill when balance remains below the trigger threshold");
+        item.Kind.Should().Be(LlmWalletSettlementKind.AutoRefill);
+        item.TenantId.Should().Be(tenantId);
+    }
+
+    [SkippableFact]
     public async Task ReconcileOverageInternalAsync_credits_wallet_when_actual_less_than_authorized()
     {
         InMemoryLlmTenantWalletRepository repository = new();
