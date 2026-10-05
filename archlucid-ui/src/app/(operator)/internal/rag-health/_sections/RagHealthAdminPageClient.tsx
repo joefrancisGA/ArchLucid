@@ -94,7 +94,13 @@ export function RagHealthAdminPageClient() {
           <>
             Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
             <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-              {embeddingModelId.trim().length > 0 ? embeddingModelId : "Embedding model not returned"}
+              {loading
+                ? "Loading embedding model…"
+                : error
+                  ? "Embedding model unavailable"
+                  : embeddingModelId.trim().length > 0
+                    ? embeddingModelId
+                    : "Embedding model not returned"}
             </span>
             .
           </>
