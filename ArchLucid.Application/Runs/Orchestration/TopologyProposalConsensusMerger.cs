@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 
@@ -257,6 +258,12 @@ public static class TopologyProposalConsensusMerger
 
         if (endpointCanonicalMap.TryGetValue(trimmed, out canonical))
             return canonical;
+
+        if (TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys))
+            return GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmed);
+
+        if (TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(normalizedSynthetic, knownEndpointKeys))
+            return GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(normalizedSynthetic);
 
         if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(trimmed, knownEndpointKeys))
             return normalizedSynthetic;

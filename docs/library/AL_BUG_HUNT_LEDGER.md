@@ -235,13 +235,15 @@
 
 ## Zone: topology-proposal-merge
 
+2026-10-05 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` did not ARM-normalize relationship endpoints, so dual-model proposals agreeing on the same edge with equivalent ARM resource ids differing only by casing failed consensus intersection; ARM-normalized keys when endpoints are known via `EndpointKeyIsKnownViaArmNormalization`; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_casing_variation`; cheap-disproof closed ReadsFrom+WritesTo `ConnectsTo` collapse as intentional graph projection (manifest relationships remain distinct); 1,602 scoped topology merge + consensus tests passed.
+
+- [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` — ARM endpoint casing variation failed dual-model relationship intersection — **hit 2026-10-05 seed hunt (seed→hit):** ARM-normalized consensus endpoint keys; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_casing_variation`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper` / `AgentTopologyProposalGraphMerge.AppendUniqueEdges` — ReadsFrom and WritesTo collapse to one `ConnectsTo` edge — **cheap-disproof 2026-10-05 seed hunt:** intentional graph edge-type projection; semantic types remain on manifest relationships.
+
 2026-10-05 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.IntersectRelationships` keyed relationships by raw endpoint strings, so dual-model proposals agreeing on the same edge with manifest label versus synthetic `svc-`/`ds-` endpoints failed intersection and inflated disagreement; declared manifest endpoint canonical map for consensus keys; dedupe duplicate intersection rows; regressions `Merge_intersects_relationships_when_models_use_label_versus_synthetic_id_endpoints` and `Merge_intersects_relationships_dedupes_duplicate_rows_from_primary`; 1,600 scoped topology merge + consensus tests passed.
 
 - [x] (proven) `TopologyProposalConsensusMerger.IntersectRelationships` / `RelationshipKey` — dual-model relationships using manifest labels on one proposal and synthetic ids on the other failed consensus intersection — **hit 2026-10-05 seed hunt (seed→hit):** `BuildDeclaredEndpointCanonicalMap` canonicalizes endpoints before relationship keys; regression `Merge_intersects_relationships_when_models_use_label_versus_synthetic_id_endpoints`.
 - [x] (proven) `TopologyProposalConsensusMerger.IntersectRelationships` — duplicate identical relationship rows in the primary proposal were all appended to the intersection — **hit 2026-10-05 seed hunt (seed→hit):** intersection dedupes by canonical relationship key; regression `Merge_intersects_relationships_dedupes_duplicate_rows_from_primary`.
-
-- [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — dual-model relationship intersection does not ARM-normalize endpoint strings, so equivalent Terraform resource ids with casing or separator variation may fail consensus while the merge gate accepts both endpoints.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationshipType` / `AgentTopologyProposalGraphMerge.AppendUniqueEdges` — distinct semantic relationship types that map to the same `ConnectsTo` graph edge type collapse to a single edge when one agent proposal lists ReadsFrom and WritesTo between the same endpoints.
 
 2026-10-04 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.IntersectControls` compared raw control strings, so dual-model proposals with equivalent `RequiredControls` but different surrounding whitespace dropped the control and inflated disagreement; trim-aware intersection with dedupe; regression `Merge_intersects_required_controls_when_whitespace_differs_between_models`. Scoped topology-proposal-merge filter passed 1,599/1,599.
 
@@ -3036,7 +3038,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1606
+- **hunts:** 1607
 - **last-hunt:** 2026-10-05
 - **bugs-found:** 977
 - **consecutive-dry-hunts:** 0
