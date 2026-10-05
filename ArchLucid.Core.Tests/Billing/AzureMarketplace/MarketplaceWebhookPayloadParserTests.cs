@@ -290,6 +290,8 @@ public sealed class MarketplaceWebhookPayloadParserTests
     [InlineData("below-enterprise-plan")]
     [InlineData("neither-enterprise-plan")]
     [InlineData("bare-enterprise-plan")]
+    [InlineData("devoid-enterprise-plan")]
+    [InlineData("free-enterprise-plan")]
     [InlineData("negate-enterprise-plan")]
     [InlineData("devoid-enterprise-plan")]
     [InlineData("free-enterprise-plan")]
