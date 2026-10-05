@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — `TenantTrialFacade.GetTrialStatusAsync` computed `DaysRemaining` with `TimeProvider.System` instead of the host-injected clock, so trial-status disagreed with `TrialLimitGate` under frozen or shifted time; inject `TimeProvider`; regression `GetTrialStatusAsync_reports_days_remaining_using_injected_clock`; 130 scoped tenancy tests passed.
+
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — vertical tab (U+000B) and next-line (U+0085) control characters between phrase words still blocked `managed identity` after ASCII whitespace normalization; map `UnicodeCategory.Control` (except NUL) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_vertical_tab_separates_words`, `HasManagedIdentityConstraint_returns_true_when_next_line_character_separates_words`; 879 scoped RequestConstraint tests passed.
 
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — ASCII tab and newline between phrase words still blocked `managed identity` while U+2028 line separators were already normalized; map `\t`/`\n`/`\r` to ASCII space in `NormalizeConstraintMatchingText`; regressions `HasManagedIdentityConstraint_returns_true_when_tab_separates_words`, `HasManagedIdentityConstraint_returns_true_when_newline_separates_words`, `HasEncryptionConstraint_returns_false_when_negation_uses_tab_before_is_not`; 877 scoped RequestConstraint tests passed.
@@ -27258,13 +27260,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 36
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-02 — concurrent tenant suspend requests duplicated `TenantSuspended` audit events
+- **hunts:** 37
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — trial-status `DaysRemaining` ignored injected `TimeProvider`
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle; proved `TenantTrialFacade.GetTrialStatusAsync` used `TimeProvider.System` for lifecycle display math while `TrialLimitGate` uses DI `TimeProvider`; fixed by injecting `TimeProvider` into the facade; regression `GetTrialStatusAsync_reports_days_remaining_using_injected_clock`; 130 scoped tenancy tests passed.
+
+- [x] (proven) `TenantTrialFacade.GetTrialStatusAsync` — `DaysRemaining` used `TimeProvider.System` instead of host-injected clock — **hit 2026-10-05 seed hunt:** inject `TimeProvider` for `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay`; regression `GetTrialStatusAsync_reports_days_remaining_using_injected_clock`.
 
 2026-10-02 thorough hunt (hit): reproduced duplicate `TenantSuspended` audit events under concurrent suspend requests; shipped atomic repository transition semantics and the 128-test scoped tenancy suite passed.
 
