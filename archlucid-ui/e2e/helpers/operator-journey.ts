@@ -7,6 +7,7 @@ import {
 } from "@/lib/review-detail-workspace-tabs";
 import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
 import { REVIEW_FINDINGS_LIST_VIEW_PARAM } from "@/lib/findings/review-findings-list-view";
+import { RUN_DELIVERABLES_OPEN_PARAM } from "@/lib/runs/run-detail-deliverables-disclosure-url";
 import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
@@ -1325,23 +1326,30 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
     const trimmedRunId = runId?.trim() ?? "";
 
     if (trimmedRunId.length > 0) {
-      await openReviewDetailWorkspaceTab(page, trimmedRunId, "evidence");
+      const deliverablesHref = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "evidence");
+      const url = new URL(deliverablesHref, page.url());
+      url.searchParams.set(RUN_DELIVERABLES_OPEN_PARAM, "1");
+      if (url.hash.length === 0) {
+        url.hash = "artifacts-exports";
+      }
+
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expectReviewDetailWorkspaceTabSurfaceVisible(page, "evidence");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
       await page.getByTestId("review-detail-workspace-tab-evidence").click();
       await expect(reviewDetailWorkspacePanel(page, "evidence")).toBeVisible({ timeout: 60_000 });
+
+      const currentUrl = new URL(page.url());
+      if (currentUrl.searchParams.get(RUN_DELIVERABLES_OPEN_PARAM) !== "1") {
+        currentUrl.searchParams.set(RUN_DELIVERABLES_OPEN_PARAM, "1");
+        await page.goto(currentUrl.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+      }
     } else {
       const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
       if ((await sectionNav.count()) > 0) {
         await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
       }
-    }
-
-    const currentUrl = new URL(page.url());
-
-    if (currentUrl.searchParams.get("runDeliverablesOpen") !== "1") {
-      currentUrl.searchParams.set("runDeliverablesOpen", "1");
-      await page.goto(currentUrl.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
     }
 
     const artifactsSection = page.locator("#artifacts-exports");
