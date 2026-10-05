@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — word joiner (U+2060) and soft hyphen (U+00AD) in pasted constraint text still split phrases like `managed identity`; extended `NormalizeConstraintMatchingText` to map `UnicodeCategory.Format` to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_word_joiner_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_soft_hyphen_splits_phrase`; 870 scoped RequestConstraint tests passed.
+
 2026-10-03 thorough hunt (hit): `core-explanation-json` — out-of-range whole-number strings such as `"1e20"` passed finite/integer checks and converted to `int.MaxValue`, turning malformed persisted explanation counts into valid-looking counts. Added explicit `int.MaxValue` bounds for string and numeric floating-point paths; regression `FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing`; 41 scoped `RunExplanation` tests passed.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — `WebhooksIntegrationEvidenceOrientationStrip` exposed five follow-up links, but the shared job-context cap truncated integration pages to three, dropping the reachable “How alerts work” link and failing the buyer-polished regression. Added an explicit source-list cap override and configured the webhook strip to retain all five links; isolated regression passed.
@@ -19547,11 +19549,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 17
-- **bugs-found:** 16
+- **hunts:** 18
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-27
-- **last-bug:** 2026-09-27 — zero-width spaces split multi-word constraint phrases
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — word joiner and other format characters split multi-word constraint phrases
+
+2026-10-05 seed hunt #18 (seed→hit): reseeded unicode normalization after zero-width joiner fix; proved word joiner (U+2060) and soft hyphen (U+00AD) still split phrases like `managed identity`; fixed by normalizing `UnicodeCategory.Format` to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_word_joiner_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_soft_hyphen_splits_phrase`; 870 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — word joiner (U+2060) and other `UnicodeCategory.Format` characters (e.g. soft hyphen U+00AD) broke `ContainsAffirmativePhrase` — **hit 2026-10-05 seed hunt #18:** map format characters to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`.
 
 2026-09-27 seed hunt #17 (seed→hit): reseeded unicode normalization after line/paragraph separator fix; proved zero-width space/joiners (U+200B/U+200C/U+200D) still split phrases like `managed identity`; fixed by mapping format joiners to ASCII space; regression `HasManagedIdentityConstraint_returns_true_when_zero_width_space_splits_phrase`; cheap-disproof closed curly-apostrophe `isn't` negation (`HasEncryptionConstraint_returns_false_when_contraction_uses_curly_apostrophe_in_negation`); 868 scoped RequestConstraint tests passed.
 
