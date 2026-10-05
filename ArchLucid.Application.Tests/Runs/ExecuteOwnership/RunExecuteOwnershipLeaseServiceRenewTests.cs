@@ -140,6 +140,7 @@ public sealed class RunExecuteOwnershipLeaseServiceRenewTests
             storage.Object,
             new WorkerHostDrainGate(),
             optionsMonitor.Object,
-            NullLogger<RunExecuteOwnershipLeaseService>.Instance);
+            NullLogger<RunExecuteOwnershipLeaseService>.Instance,
+            new RunExecuteOwnershipActiveHolderRegistry());
     }
 }

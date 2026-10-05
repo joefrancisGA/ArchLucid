@@ -3421,11 +3421,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 77
-- **bugs-found:** 63
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
 - **hunts:** 81
 - **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
@@ -12152,9 +12147,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` when snapshot `GovernedCount` exceeds agent; regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 - [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate — **cheap-disproof 2026-09-26 thorough hunt:** bundle entry uses `RunExportSealedManifestHashGuard` per Wave-40; sponsor/first-value PDF paths invoked from the same service call nested builders that enforce sealed receipt verification.
 - [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** filter muted findings before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
-- **hunts:** 24
-- **bugs-found:** 18
-- **last-bug:** 2026-09-26 — equal-count snapshot severity tie in sponsor material findings resolver
 2026-09-26 seed hunt (seed→hit): reseeded application-pilots; proved equal-count snapshot/agent severity tie left decision-delta on agent Warning while deltas JSON used snapshot Error; seeded governed-coverage agent-over-count, reference-evidence receipt gate, and explainability muted-finding candidates; 28 scoped BuyerProofPack/BoardPack/decision-delta tests passed.
 
 2026-09-13 seed hunt #2443 (seed-only): reseeded application-pilots; no new hunt-ready rows.
@@ -27109,7 +27101,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
 - **hunts:** 28
-- **bugs-found:** 15
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-04
@@ -29132,15 +29123,6 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 20
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — post-materialize skipped SecureNow neighborhood carry-forward when empty diff was already persisted
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods unstale after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 - **hunts:** 22
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
@@ -29148,6 +29130,8 @@ ABQ-09 churn hotspot.
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods unstale after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-05 seed hunt (hit): promoted composition-boundary row on `IAzureInventoryDiffConsumer` fan-out registered by `InfraEvidenceCompositionModule`; when `AzureInventoryDiffService` isolated a throwing `IAzureInventoryDiffConsumer`, post-materialize still treated the diff as healthy incremental work and skipped full SecureNow engines; surface `ConsumerFanOutSucceeded` on `AzureInventoryDiffComputeResult` and fall back to full recompute when fan-out fails; regressions `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs` (fan-out flag), `ComputeAndPersistDiffAsync_when_all_consumers_succeed_marks_consumer_fan_out_succeeded`, `OnSnapshotMaterializedAsync_when_diff_consumer_fan_out_fails_runs_full_securenow_pipeline`; 9 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 

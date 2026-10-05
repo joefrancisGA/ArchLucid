@@ -76,6 +76,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));
         services.TryAddSingleton<IWorkerHostDrainGate, WorkerHostDrainGate>();
+        services.AddSingleton<RunExecuteOwnershipActiveHolderRegistry>();
         services.AddScoped<IRunExecuteOwnershipLeaseService, RunExecuteOwnershipLeaseService>();
         services.AddScoped<IRunExecuteOwnershipReconciliationService, RunExecuteOwnershipReconciliationService>();
         services.AddScoped<IStaleInFlightRunRemediator, StaleInFlightRunRemediator>();

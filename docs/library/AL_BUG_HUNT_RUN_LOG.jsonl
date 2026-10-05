@@ -8787,7 +8787,6 @@
 {"at":"2026-10-05T14:33:49.902658Z","zoneId":"arm-terraform-source-ids","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:37:35.9294208Z","zoneId":"arm-terraform-source-ids","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:49:14.069499Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-05T14:49:14.069499Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:49:34.6954709Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
 {"at":"2026-10-05T14:57:22.9651048Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs)"]}
 {"at":"2026-10-05T15:04:46.1308686Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Identity/EmailOtpChallengeRepositoryCore.cs)"]}

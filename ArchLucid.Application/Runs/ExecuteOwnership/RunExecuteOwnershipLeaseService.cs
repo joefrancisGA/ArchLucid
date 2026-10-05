@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using ArchLucid.Contracts.Common;
@@ -19,7 +18,8 @@ public sealed class RunExecuteOwnershipLeaseService(
     IArchLucidStorageMode storageMode,
     IWorkerHostDrainGate drainGate,
     IOptionsMonitor<RunExecuteOwnershipLeaseOptions> optionsMonitor,
-    ILogger<RunExecuteOwnershipLeaseService> logger) : IRunExecuteOwnershipLeaseService
+    ILogger<RunExecuteOwnershipLeaseService> logger,
+    RunExecuteOwnershipActiveHolderRegistry activeHolders) : IRunExecuteOwnershipLeaseService
 {
     private readonly IWorkerHostDrainGate _drainGate =
         drainGate ?? throw new ArgumentNullException(nameof(drainGate));
@@ -39,7 +39,8 @@ public sealed class RunExecuteOwnershipLeaseService(
     private readonly IArchLucidStorageMode _storageMode =
         storageMode ?? throw new ArgumentNullException(nameof(storageMode));
 
-    private readonly ConcurrentDictionary<Guid, string> _activeHolderInstanceIds = new();
+    private readonly RunExecuteOwnershipActiveHolderRegistry _activeHolders =
+        activeHolders ?? throw new ArgumentNullException(nameof(activeHolders));
 
     /// <inheritdoc />
     public bool IsEnabled => !_storageMode.IsInMemory && _optionsMonitor.CurrentValue.Enabled;
@@ -56,23 +57,32 @@ public sealed class RunExecuteOwnershipLeaseService(
                 "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
         }
 
-        if (_activeHolderInstanceIds.ContainsKey(runId))
+        RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
+        int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
+        string holderInstanceId = _processInstanceId.Value;
+
+        // Admit before SQL. A private dictionary on each scoped service let two requests
+        // on one replica both renew the same holder id.
+        if (!_activeHolders.TryAdmit(runId, holderInstanceId))
         {
             throw new ConflictException(
                 $"Run '{runId:D}' execute is already in progress on this host instance. Wait for the in-flight execute to finish or retry on another replica.");
         }
 
-        RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
-        int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
-        string holderInstanceId = _processInstanceId.Value;
-        bool acquired = await _leaseRepository.TryAcquireOrRenewAsync(
-            runId,
-            holderInstanceId,
-            durationSeconds,
-            cancellationToken).ConfigureAwait(false);
-
-        if (acquired)
+        try
         {
+            bool acquired = await _leaseRepository.TryAcquireOrRenewAsync(
+                runId,
+                holderInstanceId,
+                durationSeconds,
+                cancellationToken).ConfigureAwait(false);
+
+            if (!acquired)
+            {
+                throw new ConflictException(
+                    $"Run '{runId:D}' execute is already owned by another host instance. Retry after the ownership lease expires or reconcile stale ownership.");
+            }
+
             if (_drainGate.IsDraining)
             {
                 await _leaseRepository
@@ -82,18 +92,13 @@ public sealed class RunExecuteOwnershipLeaseService(
                 throw new ConflictException(
                     "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
             }
-
-            if (!_activeHolderInstanceIds.TryAdd(runId, holderInstanceId))
-            {
-                throw new ConflictException(
-                    $"Run '{runId:D}' execute is already in progress on this host instance. Wait for the in-flight execute to finish or retry on another replica.");
-            }
-
-            return;
         }
+        catch
+        {
+            _activeHolders.TryRemove(runId);
 
-        throw new ConflictException(
-            $"Run '{runId:D}' execute is already owned by another host instance. Retry after the ownership lease expires or reconcile stale ownership.");
+            throw;
+        }
     }
 
     /// <inheritdoc />
@@ -158,7 +163,7 @@ public sealed class RunExecuteOwnershipLeaseService(
 
         await _leaseRepository.TryReleaseAsync(runId, holderInstanceId, cancellationToken).ConfigureAwait(false);
 
-        _activeHolderInstanceIds.TryRemove(runId, out _);
+        _activeHolders.TryRemove(runId);
     }
 
     /// <inheritdoc />
@@ -169,7 +174,7 @@ public sealed class RunExecuteOwnershipLeaseService(
 
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        HashSet<string> holderInstanceIds = new(_activeHolderInstanceIds.Values, StringComparer.Ordinal);
+        HashSet<string> holderInstanceIds = new(_activeHolders.HolderInstanceIds, StringComparer.Ordinal);
         holderInstanceIds.Add(_processInstanceId.Value);
 
         int released = 0;
@@ -180,7 +185,7 @@ public sealed class RunExecuteOwnershipLeaseService(
                 .ConfigureAwait(false);
         }
 
-        _activeHolderInstanceIds.Clear();
+        _activeHolders.Clear();
 
         stopwatch.Stop();
         ArchLucidInstrumentation.WorkerDrainLeaseReleaseDurationMilliseconds.Record(stopwatch.Elapsed.TotalMilliseconds);
@@ -196,8 +201,11 @@ public sealed class RunExecuteOwnershipLeaseService(
         return released;
     }
 
-    private string ResolveHolderInstanceId(Guid runId) =>
-        _activeHolderInstanceIds.TryGetValue(runId, out string? holderInstanceId)
-            ? holderInstanceId
-            : _processInstanceId.Value;
+    private string ResolveHolderInstanceId(Guid runId)
+    {
+        if (_activeHolders.TryGetHolder(runId, out string? holderInstanceId) && holderInstanceId is not null)
+            return holderInstanceId;
+
+        return _processInstanceId.Value;
+    }
 }

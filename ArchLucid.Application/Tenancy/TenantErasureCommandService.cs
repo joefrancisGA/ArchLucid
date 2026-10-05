@@ -39,7 +39,14 @@ public sealed class TenantErasureCommandService(
             return null;
 
         if (tenant.OffboardedUtc is not null)
-            return TryBuildExistingOffboardResult(tenant);
+        {
+            return await CompleteOffboardSideEffectsAsync(
+                tenant,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                cancellationToken);
+        }
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
         int days = Math.Clamp(_tenantErasureOptions.CurrentValue.QuarantineDays, 1, 3650);
@@ -52,7 +59,15 @@ public sealed class TenantErasureCommandService(
         {
             TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-            return TryBuildExistingOffboardResult(afterMiss);
+            if (afterMiss is null)
+                return null;
+
+            return await CompleteOffboardSideEffectsAsync(
+                afterMiss,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                cancellationToken);
         }
 
         await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
@@ -286,12 +301,54 @@ public sealed class TenantErasureCommandService(
         return true;
     }
 
-    private static TenantErasureOffboardResult? TryBuildExistingOffboardResult(TenantRecord? tenant)
+    /// <summary>
+    /// The offboard marker is written before suspend and audit. A retry must finish those
+    /// steps when suspension never landed, and must not append a second audit once it has.
+    /// </summary>
+    private async Task<TenantErasureOffboardResult?> CompleteOffboardSideEffectsAsync(
+        TenantRecord tenant,
+        string actorUserId,
+        string actorUserName,
+        string? correlationId,
+        CancellationToken cancellationToken)
     {
-        if (tenant?.OffboardedUtc is null || tenant.ErasureEligibleUtc is null)
+        if (tenant.OffboardedUtc is null || tenant.ErasureEligibleUtc is null)
             return null;
 
+        if (tenant.SuspendedUtc is not null)
+            return new TenantErasureOffboardResult(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+
+        await _tenantRepository.SuspendTenantAsync(tenant.Id, cancellationToken);
+
+        int quarantineDays = QuarantineDaysBetween(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+
+        await AppendPlatformAuditAsync(
+            AuditEventTypes.TenantErasureOffboarded,
+            tenant.Id,
+            actorUserId,
+            actorUserName,
+            correlationId,
+            new
+            {
+                priorOffboardedUtc = (DateTimeOffset?)null,
+                priorErasureEligibleUtc = (DateTimeOffset?)null,
+                offboardedUtc = tenant.OffboardedUtc,
+                erasureEligibleUtc = tenant.ErasureEligibleUtc,
+                quarantineDays
+            },
+            cancellationToken);
+
         return new TenantErasureOffboardResult(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+    }
+
+    private static int QuarantineDaysBetween(DateTimeOffset offboardedUtc, DateTimeOffset eligibleUtc)
+    {
+        double days = (eligibleUtc - offboardedUtc).TotalDays;
+
+        if (days < 1)
+            return 1;
+
+        return (int)Math.Round(days, MidpointRounding.AwayFromZero);
     }
 
     private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? normalizedReason)
