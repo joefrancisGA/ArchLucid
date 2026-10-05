@@ -122,7 +122,7 @@ public sealed class AdminQuickScanSafetyController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        QuickScanSafetyOperationalMode newMode = Enum.Parse<QuickScanSafetyOperationalMode>(snapshot.OperationalMode, ignoreCase: true);
+        QuickScanSafetyOperationalMode newMode = ResolveOperationalModeForAudit(snapshot.OperationalMode, request.OperationalMode);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
@@ -145,5 +145,18 @@ public sealed class AdminQuickScanSafetyController(
             cancellationToken).ConfigureAwait(false);
 
         return Ok(snapshot);
+    }
+
+    private static QuickScanSafetyOperationalMode ResolveOperationalModeForAudit(
+        string snapshotOperationalMode,
+        string requestOperationalMode)
+    {
+        if (Enum.TryParse(snapshotOperationalMode, ignoreCase: true, out QuickScanSafetyOperationalMode mode))
+            return mode;
+
+        if (Enum.TryParse(requestOperationalMode, ignoreCase: true, out mode))
+            return mode;
+
+        return QuickScanSafetyOperationalMode.Normal;
     }
 }

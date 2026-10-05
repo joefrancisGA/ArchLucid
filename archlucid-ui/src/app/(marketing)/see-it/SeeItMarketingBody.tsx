@@ -29,11 +29,11 @@ export type SeeItMarketingBodyProps = {
 
 function formatCount(value: number | null | undefined): string {
   if (value === null || value === undefined) {
-    return " — ";
+    return "Not returned";
   }
 
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return " — ";
+    return "Count not readable";
   }
 
   return String(value);

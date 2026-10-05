@@ -73,6 +73,45 @@ public sealed class AdminQuickScanSafetyControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_ok_when_snapshot_operational_mode_is_unparseable_but_request_mode_is_valid()
+    {
+        Mock<IQuickScanSafetyOperationalAdminService> adminService = new(MockBehavior.Strict);
+        Mock<IQuickScanSafetyOperationalStateStore> store = new(MockBehavior.Strict);
+
+        store
+            .Setup(s => s.GetOverrideAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync((QuickScanSafetyOperationalOverrideRow?)null);
+
+        AdminQuickScanSafetyUpdateRequest request = new()
+        {
+            OperationalMode = "EmergencyDisabled",
+            Reason = "Stopping anonymous quick scan traffic",
+        };
+
+        adminService
+            .Setup(s => s.SetOverrideAsync(request, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new AdminQuickScanSafetySnapshotResponse
+                {
+                    OperationalMode = "not-a-real-mode",
+                    AnonymousExecutionAllowed = false,
+                    SampleResultAvailable = false,
+                    PublicMessage = string.Empty,
+                    Reason = request.Reason,
+                    ActorUserId = "admin",
+                    UpdatedUtc = DateTimeOffset.UtcNow,
+                    StoreHealthy = true,
+                });
+
+        AdminQuickScanSafetyController controller = CreateController(adminService.Object, store.Object);
+
+        IActionResult action = await controller.PutAsync(request, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeOfType<AdminQuickScanSafetySnapshotResponse>();
+    }
+
+    [Fact]
     public async Task PutAsync_returns_bad_request_when_reason_contains_invalid_surrogate()
     {
         Mock<IQuickScanSafetyOperationalAdminService> adminService = new(MockBehavior.Strict);

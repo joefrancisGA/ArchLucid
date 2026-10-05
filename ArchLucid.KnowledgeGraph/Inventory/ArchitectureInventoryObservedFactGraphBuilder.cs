@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -20,11 +21,19 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         snapshot = AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
 
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> seenNormalizedArmIds = new(StringComparer.Ordinal);
         List<GraphNode> nodes = [];
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources
                      .OrderBy(candidate => candidate.AzureResourceId, StringComparer.Ordinal))
         {
+            string normalizedArmId = ArmResourceIdNormalizer.Normalize(resource.AzureResourceId);
+
+            if (normalizedArmId.Length == 0 || !seenNormalizedArmIds.Add(normalizedArmId))
+            {
+                continue;
+            }
+
             string nodeId = ResolveNodeId(resource);
             nodeIdByArmId[resource.AzureResourceId] = nodeId;
 

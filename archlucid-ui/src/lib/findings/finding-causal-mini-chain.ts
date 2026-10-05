@@ -136,7 +136,7 @@ export function findingCausalMiniChainFromInspectPayload(
   return buildFindingCausalMiniChain({
     ruleName: payload.decisionRuleName,
     ruleId: payload.decisionRuleId,
-    evidenceRefCount: payload.evidence?.length ?? 0,
+    evidenceRefCount: payload.evidence == null ? null : payload.evidence.length,
     recommendation,
   });
 }

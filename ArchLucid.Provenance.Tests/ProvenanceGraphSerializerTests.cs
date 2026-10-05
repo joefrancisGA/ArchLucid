@@ -48,6 +48,18 @@ public sealed class ProvenanceGraphSerializerTests
     }
 
     [Fact]
+    public void Deserialize_PreservesExplicitNullNodesAndEdgesLists()
+    {
+        const string json = """{"id":"11111111-1111-1111-1111-111111111111","runId":"22222222-2222-2222-2222-222222222222","nodes":null,"edges":null}""";
+
+        DecisionProvenanceGraph? graph = ProvenanceGraphSerializer.Deserialize(json);
+
+        graph.Should().NotBeNull();
+        graph!.Nodes.Should().BeNull();
+        graph.Edges.Should().BeNull();
+    }
+
+    [Fact]
     public void Deserialize_ThrowsInvalidOperation_WhenJsonIsCorrupt()
     {
         Action act = () => ProvenanceGraphSerializer.Deserialize("{ not json");

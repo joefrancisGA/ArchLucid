@@ -1,5 +1,6 @@
 import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { GOVERNANCE_FINDINGS_BULK_PARAM } from "@/lib/governance/governance-findings-bulk-selection-url";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 
 /** Sets review scope on the findings queue URL and clears conflicting architecture scope. */
 export function governanceFindingsPickReviewForTriageHref(
@@ -23,6 +24,7 @@ export function governanceFindingsPickReviewForTriageHref(
   params.delete("architectureId");
   params.delete(GOVERNANCE_FINDINGS_BULK_PARAM);
   params.delete(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM);
+  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   const nextQuery = params.toString();
 

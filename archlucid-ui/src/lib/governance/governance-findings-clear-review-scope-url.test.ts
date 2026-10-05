@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "./governance-findings-bulk-disposition-confirm-url";
 import { GOVERNANCE_FINDINGS_BULK_PARAM } from "./governance-findings-bulk-selection-url";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findings-resource-group-disclosure-url";
 import { governanceFindingsClearReviewScopeHref } from "./governance-findings-clear-review-scope-url";
 
 describe("governanceFindingsClearReviewScopeHref", () => {
@@ -24,6 +25,16 @@ describe("governanceFindingsClearReviewScopeHref", () => {
     );
 
     expect(href).toBe("/governance/findings?architectureId=arch-1&filter=expiring-soon");
+  });
+
+  it("clears stale resource-group disclosure when clearing review scope", () => {
+    const href = governanceFindingsClearReviewScopeHref(
+      `runId=run-1&filter=open&groupBy=resource&${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=resource%3Aabc`,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?filter=open&groupBy=resource");
+    expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   });
 
   it("clears stale bulk selection params tied to the scoped review", () => {

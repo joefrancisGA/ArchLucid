@@ -1013,6 +1013,65 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 
+  it("lists webhook subscriptions when API returns case-variant OnCallWebhook channelType", async () => {
+    const subscriptionId = "sub-channel-case-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "oncallwebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+  });
+
+  it("closes enable confirmation when manual refresh fails after subscriptions were loaded", async () => {
+    const subscriptionId = "sub-enable-refresh-1";
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "PagerDuty alerts",
+          channelType: "OnCallWebhook",
+          destination: "https://example.com/webhooks/archlucid",
+          minimumSeverity: "High",
+          isEnabled: false,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("refresh failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+  });
+
   it("requires confirmation before enabling a disabled webhook subscription", async () => {
     const subscriptionId = "sub-enable-1";
     apiMocks.list.mockResolvedValue([

@@ -106,14 +106,6 @@ export function GovernanceFindingsQueueDesktopTable(
     setOpenResourceGroupKeyState(parseGovernanceFindingsResourceGroupKeyFromSearch(governanceFindingsResourceGroupKeyParam));
   }, [governanceFindingsResourceGroupKeyParam]);
 
-  const isResourceGroupOpen = (groupKey: string, defaultOpen: boolean): boolean => {
-    if (openResourceGroupKey.length > 0) {
-      return openResourceGroupKey === groupKey;
-    }
-
-    return defaultOpen;
-  };
-
   const urlSortKey = parseGovernanceAssignedToMeSortKeyFromSearch(searchParams.get("sort"));
   const urlSortAsc = parseGovernanceAssignedToMeSortAscFromSearch(searchParams.get("dir"));
   const scrollParentRef = useRef<HTMLDivElement>(null);
@@ -136,6 +128,34 @@ export function GovernanceFindingsQueueDesktopTable(
 
     return sortGovernanceAssignedToMeQueueRows(rows, assignedToMeSortKey, assignedToMeSortAsc);
   }, [assignedToMeSortAsc, assignedToMeSortKey, queueMode, rows]);
+  const resourceGroups = useMemo(
+    () => (groupByResource ? groupGovernanceFindingQueueRows(displayRows) : []),
+    [displayRows, groupByResource],
+  );
+  const resourceGroupKeys = useMemo(() => new Set(resourceGroups.map((group) => group.key)), [resourceGroups]);
+
+  const isResourceGroupOpen = (groupKey: string, defaultOpen: boolean): boolean => {
+    if (openResourceGroupKey.length > 0) {
+      if (!resourceGroupKeys.has(openResourceGroupKey)) {
+        return defaultOpen;
+      }
+
+      return openResourceGroupKey === groupKey;
+    }
+
+    return defaultOpen;
+  };
+
+  useEffect(() => {
+    if (!groupByResource || openResourceGroupKey.length === 0) {
+      return;
+    }
+
+    if (!resourceGroupKeys.has(openResourceGroupKey)) {
+      setOpenResourceGroupKey(null);
+    }
+  }, [groupByResource, openResourceGroupKey, resourceGroupKeys, setOpenResourceGroupKey]);
+
   const hasBulkSelect = selectedFindingIds !== undefined && onSelectionChange !== undefined;
   const allSelected =
     hasBulkSelect && displayRows.length > 0 && displayRows.every((r) => selectedFindingIds.has(r.findingId));
@@ -242,7 +262,6 @@ export function GovernanceFindingsQueueDesktopTable(
   }
 
   const ariaLabel = governanceFindingsQueueTableAriaLabel(queueMode);
-  const resourceGroups = groupByResource ? groupGovernanceFindingQueueRows(displayRows) : [];
   const ariaRowCount = displayRows.length + 1;
 
   const tableHead = (

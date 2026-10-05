@@ -32,12 +32,20 @@ public sealed partial class PilotRunDeltaComputer
         bool findingsFromSnapshot = false;
         IReadOnlyList<KeyValuePair<string, int>>? snapshotSeverityBuckets = null;
 
+        bool authoritativeEmptySnapshot = false;
+
         if (run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
         {
             persistedFindingsSnapshot =
                 await TryLoadFindingsSnapshotAsync(scope, findingsSnapshotId, cancellationToken);
 
-            if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindingsList)
+            if (persistedFindingsSnapshot?.Findings is { Count: 0 })
+            {
+                findings = [];
+                findingsFromSnapshot = true;
+                authoritativeEmptySnapshot = true;
+            }
+            else if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindingsList)
             {
                 snapshotSeverityBuckets = AggregateFindingsBySeverity(snapshotFindingsList);
 
@@ -53,7 +61,12 @@ public sealed partial class PilotRunDeltaComputer
         GovernedFindingCoverageMetric agentGovernedCoverage = AggregateGovernedFindingCoverage(detail);
         GovernedFindingCoverageMetric governedCoverage = agentGovernedCoverage;
 
-        if (persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings)
+        if (authoritativeEmptySnapshot && persistedFindingsSnapshot?.Findings is { } emptyCoverageFindings)
+        {
+            governedCoverage = AggregateGovernedFindingCoverage(emptyCoverageFindings);
+            preferSnapshotMaterialFindings = true;
+        }
+        else if (persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings)
         {
             GovernedFindingCoverageMetric snapshotGovernedCoverage =
                 AggregateGovernedFindingCoverage(coverageFindings);
@@ -81,11 +94,12 @@ public sealed partial class PilotRunDeltaComputer
             && !agentMaxSeverityOutranksSnapshot)
             findings = snapshotSeverityBuckets;
 
-        ArchitectureFinding? topAgentFinding = SelectTopSeverityFinding(detail);
+        ArchitectureFinding? topAgentFinding = authoritativeEmptySnapshot ? null : SelectTopSeverityFinding(detail);
         string? topFindingId = topAgentFinding?.FindingId;
         string? topFindingSeverity = topAgentFinding?.Severity.ToString();
 
-        if (!agentMaxSeverityOutranksSnapshot
+        if (!authoritativeEmptySnapshot
+            && !agentMaxSeverityOutranksSnapshot
             && (findingsFromSnapshot || preferSnapshotMaterialFindings)
             && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
         {
@@ -97,7 +111,9 @@ public sealed partial class PilotRunDeltaComputer
                 topFindingSeverity = snapshotTopFinding.Severity.ToString();
             }
         }
-        else if (topFindingId is null && persistedFindingsSnapshot?.Findings is { Count: > 0 } topCandidates)
+        else if (!authoritativeEmptySnapshot
+                 && topFindingId is null
+                 && persistedFindingsSnapshot?.Findings is { Count: > 0 } topCandidates)
         {
             Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(topCandidates);
 
@@ -145,7 +161,8 @@ public sealed partial class PilotRunDeltaComputer
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
         IReadOnlyList<ArchitectureFinding> sponsorNarrativeFindings = [];
 
-        if (persistedFindingsSnapshot?.Findings is { Count: > 0 } narrativeFindings)
+        if (!authoritativeEmptySnapshot
+            && persistedFindingsSnapshot?.Findings is { Count: > 0 } narrativeFindings)
         {
             if (findingsFromSnapshot || topAgentFinding is null || preferSnapshotMaterialFindings)
             {

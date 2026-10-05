@@ -42,9 +42,14 @@ export function SponsorOrphanCandidatesCard({ surface = "operator" }: SponsorOrp
     }
 
     const orphans = summaryQuery.data.orphanCandidates;
+    const countKnown =
+      orphans !== undefined
+      && orphans !== null
+      && typeof orphans.candidateCount === "number"
+      && Number.isFinite(orphans.candidateCount);
 
     return {
-      count: orphans?.candidateCount ?? 0,
+      count: countKnown ? orphans.candidateCount : null,
       savings: orphans?.annualSavingsUsd ?? null,
     };
   }, [summaryQuery.data]);
@@ -102,10 +107,10 @@ export function SponsorOrphanCandidatesCard({ surface = "operator" }: SponsorOrp
           testId="kpi-tile-orphan-candidates-link"
         >
           <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-            {data.count}
+            {data.count === null ? "Not returned" : data.count}
           </p>
         </KpiTileDrillThroughLink>
-        {data.count > 0 ? (
+        {data.count !== null && data.count > 0 ? (
           <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Estimated savings: {formatUsd(data.savings)}/yr
           </p>

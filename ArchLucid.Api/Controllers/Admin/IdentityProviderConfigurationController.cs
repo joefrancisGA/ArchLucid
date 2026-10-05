@@ -70,7 +70,7 @@ public sealed class IdentityProviderConfigurationController(
         IdentityProviderDiscoverResponse response =
             await _discoveryService.DiscoverAsync(request, cancellationToken).ConfigureAwait(false);
 
-        return Ok(response);
+        return Ok(WithCanonicalWizardUris(response));
     }
 
     [HttpPost("test-login")]
@@ -82,9 +82,7 @@ public sealed class IdentityProviderConfigurationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string issuerUri = request.IssuerUri?.Trim() ?? string.Empty;
-
-        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
         {
             return this.BadRequestProblem(
                 "IssuerUri must be an absolute HTTP(S) URL.",
@@ -92,7 +90,15 @@ public sealed class IdentityProviderConfigurationController(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IdentityProviderTestLoginResponse response = _testLoginService.Execute(request, scope);
+        IdentityProviderTestLoginResponse response = _testLoginService.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = request.Protocol,
+                IssuerUri = canonicalIssuerUri,
+                ClaimMapping = request.ClaimMapping,
+                SampleClaimValues = request.SampleClaimValues,
+            },
+            scope);
 
         return Ok(response);
     }
@@ -123,24 +129,36 @@ public sealed class IdentityProviderConfigurationController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
-                ActorUserId = actorId,
-                ActorUserName = User.Identity?.Name ?? actorId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        protocol = request.Protocol,
-                        issuerUri = record.IssuerUri,
-                        keyVaultSecretName = record.KeyVaultSecretName
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
+                    ActorUserId = actorId,
+                    ActorUserName = User.Identity?.Name ?? actorId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            protocol = record.Protocol switch
+                            {
+                                TenantIdentityProtocol.Oidc => "oidc",
+                                TenantIdentityProtocol.Saml => "saml",
+                                _ => record.Protocol.ToString()
+                            },
+                            issuerUri = record.IssuerUri,
+                            keyVaultSecretName = record.KeyVaultSecretName
+                        })
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Configuration is already persisted; audit is best-effort for operator forensics.
+        }
 
         return Ok(
             new IdentityProviderActivateResponse
@@ -169,5 +187,42 @@ public sealed class IdentityProviderConfigurationController(
         }
 
         return Ok(record);
+    }
+
+    private static IdentityProviderDiscoverResponse WithCanonicalWizardUris(IdentityProviderDiscoverResponse response)
+    {
+        if (!response.DiscoverySucceeded)
+            return response;
+
+        string? issuerUri = response.IssuerUri;
+        if (!string.IsNullOrWhiteSpace(issuerUri)
+            && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(issuerUri, out string canonicalIssuer))
+        {
+            issuerUri = canonicalIssuer;
+        }
+
+        string? jwksUri = response.JwksUri;
+        if (!string.IsNullOrWhiteSpace(jwksUri)
+            && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(jwksUri, out string canonicalJwks))
+        {
+            jwksUri = canonicalJwks;
+        }
+
+        if (string.Equals(issuerUri, response.IssuerUri, StringComparison.Ordinal)
+            && string.Equals(jwksUri, response.JwksUri, StringComparison.Ordinal))
+        {
+            return response;
+        }
+
+        return new IdentityProviderDiscoverResponse
+        {
+            Protocol = response.Protocol,
+            IssuerUri = issuerUri,
+            JwksUri = jwksUri,
+            SigningCertificateThumbprints = response.SigningCertificateThumbprints,
+            AvailableClaimNames = response.AvailableClaimNames,
+            DiscoverySucceeded = response.DiscoverySucceeded,
+            DiagnosticSummary = response.DiagnosticSummary,
+        };
     }
 }

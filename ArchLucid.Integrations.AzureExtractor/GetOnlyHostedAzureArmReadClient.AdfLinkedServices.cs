@@ -20,6 +20,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(factoryResourceId);
 
         string trimmedFactoryId = factoryResourceId.Trim().TrimStart('/');
+        string linkedServicesListingPath = $"{trimmedFactoryId}/linkedservices";
         List<JsonElement> linkedServices = [];
         string apiVersion = AzureInventoryFactoryStyleResourceCatalog.IsSynapseWorkspaceArmId(trimmedFactoryId)
             ? "2020-12-01"
@@ -102,9 +103,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsFactoryResource(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        trimmedFactoryId);
+                        linkedServicesListingPath);
                     nextLink = candidateNextLink;
                 }
             }

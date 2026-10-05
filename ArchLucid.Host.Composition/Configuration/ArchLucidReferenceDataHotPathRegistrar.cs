@@ -43,7 +43,7 @@ internal static partial class ArchLucidReferenceDataHotPathRegistrar
 
         if (distributedL2Enabled)
         {
-            string redis = snapshot.RedisConnectionString.Trim();
+            string redis = snapshot.RedisConnectionString?.Trim() ?? string.Empty;
 
             if (string.IsNullOrEmpty(redis))
 

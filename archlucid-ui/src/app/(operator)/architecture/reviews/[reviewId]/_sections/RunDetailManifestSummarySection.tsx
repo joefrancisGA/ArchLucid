@@ -130,18 +130,32 @@ export function RunDetailManifestSummarySection(
                   {manifestSummary.effectiveGovernanceAtCommit.hasEffectivePolicy ? (
                     <>
                       <p className="m-0">
-                        {manifestSummary.effectiveGovernanceAtCommit.packAssignments?.length ?? 0} pack assignment(s) ·{" "}
-                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount ?? 0} compliance rule key(s)
-                        {(manifestSummary.effectiveGovernanceAtCommit.conflictCount ?? 0) > 0
+                        {finiteIntegerCountDisplay(
+                          manifestSummary.effectiveGovernanceAtCommit.packAssignments === undefined
+                          || manifestSummary.effectiveGovernanceAtCommit.packAssignments === null
+                            ? undefined
+                            : manifestSummary.effectiveGovernanceAtCommit.packAssignments.length,
+                          { missingLabel: "not-returned" },
+                        )}{" "}
+                        pack assignment(s) ·{" "}
+                        {finiteIntegerCountDisplay(
+                          manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
+                          { missingLabel: "not-returned" },
+                        )}{" "}
+                        compliance rule key(s)
+                        {typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
+                        && manifestSummary.effectiveGovernanceAtCommit.conflictCount > 0
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
                           : null}
                       </p>
                       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         This is the policy basis recorded when the review was finalized.
                       </p>
-                      {(manifestSummary.effectiveGovernanceAtCommit.packAssignments?.length ?? 0) > 0 ? (
+                      {Array.isArray(manifestSummary.effectiveGovernanceAtCommit.packAssignments)
+                      && manifestSummary.effectiveGovernanceAtCommit.packAssignments.length > 0 ? (
                         <ul className="m-0 list-none space-y-0.5 p-0">
-                          {(manifestSummary.effectiveGovernanceAtCommit.packAssignments ?? []).map((row) => (
+                          {manifestSummary.effectiveGovernanceAtCommit.packAssignments.map((row) => (
                             <li key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`} className={monoValueClass}>
                               {row.policyPackId} · v{row.policyPackVersion} · {row.scopeLevel}
                             </li>

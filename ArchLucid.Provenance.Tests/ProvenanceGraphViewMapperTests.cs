@@ -8,6 +8,33 @@ namespace ArchLucid.Provenance.Tests;
 public sealed class ProvenanceGraphViewMapperTests
 {
     [Fact]
+    public void ToViewModel_TreatsNullNodesAndEdgesAsEmpty()
+    {
+        DecisionProvenanceGraph graph = new() { Nodes = null!, Edges = null! };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().BeEmpty();
+        vm.Edges.Should().BeEmpty();
+        vm.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ToViewModel_AfterDeserializeWithExplicitNullLists_YieldsEmptyView()
+    {
+        const string json =
+            """{"id":"11111111-1111-1111-1111-111111111111","runId":"22222222-2222-2222-2222-222222222222","nodes":null,"edges":null}""";
+
+        DecisionProvenanceGraph graph = ProvenanceGraphSerializer.Deserialize(json)!;
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().BeEmpty();
+        vm.Edges.Should().BeEmpty();
+        vm.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
     public void ToViewModel_EmptyGraph_YieldsEmptyListsAndIsEmpty()
     {
         DecisionProvenanceGraph graph = new();
@@ -50,6 +77,30 @@ public sealed class ProvenanceGraphViewMapperTests
         node.Metadata!.Should().ContainKey("k");
         node.Metadata["k"].Should().Be("v");
         node.Metadata.Should().NotBeSameAs(graph.Nodes[0].Metadata);
+    }
+
+    [Fact]
+    public void ToViewModel_MapsNodes_NullMetadata_AsNull()
+    {
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "Bare",
+                    Type = ProvenanceNodeType.Finding,
+                    ReferenceId = "r",
+                    Metadata = null!
+                }
+            ]
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes[0].Metadata.Should().BeNull();
     }
 
     [Fact]

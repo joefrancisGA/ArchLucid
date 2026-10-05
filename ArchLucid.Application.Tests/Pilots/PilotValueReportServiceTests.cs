@@ -87,7 +87,7 @@ public sealed class PilotValueReportServiceTests
                 Scope.ProjectId,
                 expectedFrom,
                 to,
-                PilotValueReportService.AuditExportMaxRows,
+                PilotValueReportService.AuditExportMaxRows + 1,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -322,6 +322,118 @@ public sealed class PilotValueReportServiceTests
         r.Should().NotBeNull();
         r.TotalRunsCommitted.Should().Be(1);
         runs.Verify(x => x.GetRunDetailForRoiAsync(RunOld, It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        int totalRuns = cap + 1;
+        DateTime createdBase = from.AddHours(1);
+        List<RunSummary> summaries = new(totalRuns);
+        string newestRunId = Guid.NewGuid().ToString("N");
+
+        for (int i = 0; i < totalRuns - 1; i++)
+        {
+            summaries.Add(Summary(Guid.NewGuid().ToString("N"), createdBase.AddMinutes(i), committed: true));
+        }
+
+        summaries.Add(Summary(newestRunId, createdBase.AddMinutes(totalRuns), committed: true));
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((summaries, false, null));
+
+        runs.Setup(r => r.GetRunDetailForRoiAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string runId, CancellationToken _) =>
+            {
+                if (string.Equals(runId, newestRunId, StringComparison.Ordinal))
+                {
+                    return Detail(
+                        newestRunId,
+                        createdBase.AddMinutes(totalRuns),
+                        createdBase.AddMinutes(totalRuns).AddMinutes(5),
+                        [
+                            new ArchitectureFinding
+                            {
+                                Severity = FindingSeverity.Critical,
+                                SourceAgent = AgentType.Topology,
+                                Message = "newest-only",
+                            },
+                        ]);
+                }
+
+                return Detail(runId, createdBase, createdBase.AddMinutes(5), []);
+            });
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report!.TotalRunsCommitted.Should().Be(totalRuns);
+        report.RunDetailsTruncated.Should().BeTrue();
+        report.TotalFindings.Should().Be(1);
+        report.FindingsBySeverity.Critical.Should().Be(1);
+        runs.Verify(
+            r => r.GetRunDetailForRoiAsync(newestRunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        int cap = PilotValueReportService.AuditExportMaxRows;
+        List<AuditEvent> auditRows = new(cap);
+
+        for (int i = 0; i < cap; i++)
+        {
+            auditRows.Add(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RecommendationGenerated,
+                    OccurredUtc = from.AddMinutes(i),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    ActorUserId = "u",
+                    ActorUserName = "n",
+                });
+        }
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], false, null));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                from,
+                to,
+                cap + 1,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(auditRows);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report!.AuditExportTruncated.Should().BeFalse();
+        report.TotalRecommendationsProduced.Should().Be(cap);
     }
 
     [SkippableFact]

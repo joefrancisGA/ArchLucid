@@ -457,6 +457,59 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_child_collection()
+    {
+        const string factoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-a";
+        const string crossCollectionNextLink =
+            $"https://management.azure.com{factoryResourceId}/pipelines?api-version=2018-06-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "BlobLS-a",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-a/linkedservices/BlobLS-a"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_COLLECTION_LINK"
+                               }
+                               """.Replace("CROSS_COLLECTION_LINK", crossCollectionNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: ADF linked-service listing did not stop on cross-collection nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListFactoryLinkedServicesAsync(
+                "token-abc",
+                factoryResourceId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_resource_id()
     {
         const string factoryResourceId =
@@ -529,7 +582,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                 factoryResourceId,
                 CancellationToken.None));
 
-        Assert.Contains("factory", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
     }
 
@@ -759,6 +812,112 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                 CancellationToken.None));
 
         Assert.Contains("policy definition", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionResourcesAsync_rejects_next_link_for_different_subscription_listing_path()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string crossListingNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments?api-version=2022-04-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1",
+                                     "name": "vnet1",
+                                     "type": "Microsoft.Network/virtualNetworks",
+                                     "location": "eastus"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_LISTING_LINK"
+                               }
+                               """.Replace("CROSS_LISTING_LINK", crossListingNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: subscription resource listing did not stop on cross-listing nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionResourcesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task ListSubscriptionPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string crossCollectionNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "def-audit",
+                                     "id": "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyDefinitions/def-audit"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_COLLECTION_LINK"
+                               }
+                               """.Replace("CROSS_COLLECTION_LINK", crossCollectionNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: subscription policy definition listing did not stop on cross-collection nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionPolicyDefinitionDocumentsAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
     }
 
@@ -1103,7 +1262,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                 requestedSubscriptionId,
                 CancellationToken.None));
 
-        Assert.Contains("subscription", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
     }
 
@@ -1316,6 +1475,61 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Single(assignments);
         Assert.Equal("standing", assignments[0].PimEligibilityKind);
         Assert.Contains("managementGroups/corp", assignments[0].Scope, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ListManagementGroupRoleAssignmentsAsync_rejects_next_link_for_different_role_listing_path()
+    {
+        const string crossListingNextLink =
+            "https://management.azure.com/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version=2020-10-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "properties": {
+                                       "scope": "/providers/Microsoft.Management/managementGroups/corp",
+                                       "principalId": "11111111-1111-1111-1111-111111111111",
+                                       "principalType": "User",
+                                       "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_LISTING_LINK"
+                               }
+                               """.Replace("CROSS_LISTING_LINK", crossListingNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: management group role assignment listing did not stop on cross-listing nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListManagementGroupRoleAssignmentsAsync(
+                "token-abc",
+                "corp",
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
     }
 
     [Fact]

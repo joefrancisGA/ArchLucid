@@ -1,3 +1,4 @@
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const GOVERNANCE_FINDINGS_GROUP_BY_PARAM = "groupBy";
@@ -20,6 +21,7 @@ export function governanceFindingsGroupByHrefFromSearch(
 
   if (!groupByResource) {
     params.delete(GOVERNANCE_FINDINGS_GROUP_BY_PARAM);
+    params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   } else {
     params.set(GOVERNANCE_FINDINGS_GROUP_BY_PARAM, GOVERNANCE_FINDINGS_GROUP_BY_RESOURCE_VALUE);
   }

@@ -32,7 +32,7 @@ function sanitizedChangesByType(raw: Record<string, number>): Record<string, num
 function formatBucketLabel(isoUtc: string): string {
   const d = new Date(isoUtc);
   if (Number.isNaN(d.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   const month = String(d.getUTCMonth() + 1).padStart(2, "0");

@@ -32,10 +32,18 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             ContextSnapshot = contextSnapshot,
             Nodes = nodes,
             ContextNodeId = contextNodeId,
-            TopologyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.TopologyResource).ToList(),
-            SecurityNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.SecurityBaseline).ToList(),
-            PolicyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.PolicyControl).ToList(),
-            RequirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList(),
+            TopologyNodes = nodes
+                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                .ToList(),
+            SecurityNodes = nodes
+                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.SecurityBaseline, StringComparison.OrdinalIgnoreCase))
+                .ToList(),
+            PolicyNodes = nodes
+                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.PolicyControl, StringComparison.OrdinalIgnoreCase))
+                .ToList(),
+            RequirementNodes = nodes
+                .Where(x => string.Equals(x.NodeType, GraphNodeTypes.Requirement, StringComparison.OrdinalIgnoreCase))
+                .ToList(),
             NodeById = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase),
         };
 

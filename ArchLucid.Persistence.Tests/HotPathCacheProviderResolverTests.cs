@@ -3,6 +3,15 @@ namespace ArchLucid.Persistence.Tests;
 
 public sealed class HotPathCacheProviderResolverTests
 {
+    [Fact]
+    public void ResolveEffectiveProvider_null_or_whitespace_provider_falls_back_to_memory()
+    {
+        HotPathCacheProviderResolver.ResolveEffectiveProvider(new HotPathCacheOptions { Provider = null! })
+            .Should().Be("Memory");
+        HotPathCacheProviderResolver.ResolveEffectiveProvider(new HotPathCacheOptions { Provider = "   " })
+            .Should().Be("Memory");
+    }
+
     [Theory]
     [InlineData("Memory", 1, "", "Memory")]
     [InlineData("Redis", 1, "localhost:6379", "Redis")]
