@@ -846,6 +846,42 @@ export function countFindingsInAuthorityRunDetailPayload(payload: unknown): numb
   return Array.isArray(findings) ? findings.length : 0;
 }
 
+/** Titles from committed authority run detail (`findingsSnapshot.findings`). */
+export function listFindingTitlesFromAuthorityRunDetailPayload(payload: unknown): string[] {
+  if (payload === null || typeof payload !== "object") {
+    return [];
+  }
+
+  const root = payload as Record<string, unknown>;
+  const snapshot = root.findingsSnapshot;
+
+  if (snapshot === null || typeof snapshot !== "object") {
+    return [];
+  }
+
+  const findings = (snapshot as Record<string, unknown>).findings;
+
+  if (!Array.isArray(findings)) {
+    return [];
+  }
+
+  const titles: string[] = [];
+
+  for (const row of findings) {
+    if (row === null || typeof row !== "object") {
+      continue;
+    }
+
+    const title = (row as Record<string, unknown>).title;
+
+    if (typeof title === "string" && title.trim().length > 0) {
+      titles.push(title.trim());
+    }
+  }
+
+  return titles;
+}
+
 /** GET `/v1/architecture/review/{runId}` — run aggregate including golden manifest id after commit. */
 export async function getRunDetails(
   request: APIRequestContext,

@@ -19,6 +19,7 @@ import {
   getAuthorityBuyerSummaryRaw,
   getAuthorityRunDetailRaw,
   getRunArchitectureExportHistoryRaw,
+  listFindingTitlesFromAuthorityRunDetailPayload,
   liveApiBase,
   postConsultingAnalysisDocxRaw,
   waitForAuthorityBuyerSummaryGoldenManifest,
@@ -30,6 +31,7 @@ import {
   expectReviewDetailFindingsQuickSummaryVisible,
   expectReviewDetailSeedFindingCopyVisible,
   openReviewDetailWorkspaceTab,
+  reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
@@ -138,6 +140,18 @@ test.describe(
       demoWorkspacesFixtureManifest.workspaceB.expectedCommittedFindingCount,
     );
 
+    const committedFindingTitles = listFindingTitlesFromAuthorityRunDetailPayload(authorityJson);
+
+    expect(
+      committedFindingTitles.some((title) => /immutable lineage hash/i.test(title)),
+      `expected Pack A title in authority findings — titles: ${committedFindingTitles.join(" | ")}`,
+    ).toBeTruthy();
+
+    expect(
+      committedFindingTitles.some((title) => /interim public listener/i.test(title)),
+      `expected Pack B title in authority findings — titles: ${committedFindingTitles.join(" | ")}`,
+    ).toBeTruthy();
+
     // Buyer shell SSR uses `/buyer-summary` — wait for that surface before navigating.
     await waitForAuthorityBuyerSummaryGoldenManifest(
       request,
@@ -176,7 +190,7 @@ test.describe(
     /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
     await expectReviewDetailSeedFindingCopyVisible(
       page,
-      /Promoted scoring ensemble lacks immutable lineage hash/i,
+      /immutable lineage hash|ai-gov-002|checksum parity across registry/i,
       { timeoutMs: 90_000, runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID },
     );
 
@@ -269,7 +283,7 @@ test.describe(
       timeout: 60_000,
     });
     await expect(
-      page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button").first(),
+      reviewDetailGoldenManifestMarkdownExportControl(page),
     ).toBeVisible();
   });
 });

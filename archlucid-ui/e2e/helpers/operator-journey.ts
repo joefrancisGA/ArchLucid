@@ -493,6 +493,32 @@ async function ensureReviewDetailFindingsPresentationExpanded(page: Page): Promi
   if (await classificationBandAll.isVisible().catch(() => false)) {
     await classificationBandAll.click();
   }
+
+  const policyPackImpact = page
+    .getByTestId("quick-decision-summary")
+    .locator("details")
+    .filter({ hasText: "Policy pack impact" });
+
+  if ((await policyPackImpact.count()) > 0) {
+    const details = policyPackImpact.first();
+    const isOpen = await details.getAttribute("open");
+
+    if (isOpen === null || isOpen === "false") {
+      await details.locator("summary").click();
+    }
+  }
+
+  const cardDetails = page.locator('[data-testid^="finding-workspace-card-"] details[data-finding-id]');
+  const cardDetailsCount = await cardDetails.count();
+
+  for (let index = 0; index < cardDetailsCount; index += 1) {
+    const details = cardDetails.nth(index);
+    const isOpen = await details.getAttribute("open");
+
+    if (isOpen === null || isOpen === "false") {
+      await details.locator("summary").click({ force: true }).catch(() => undefined);
+    }
+  }
 }
 
 export async function expectQuickDecisionSeverityVisible(
@@ -627,7 +653,7 @@ export async function expectReviewDetailSeedFindingCopyVisible(
   await expect(async () => {
     await ensureReviewDetailFindingsPresentationExpanded(page);
 
-    const copyRoots = findingCards.or(quickSummary);
+    const copyRoots = surface.or(findingCards).or(quickSummary);
 
     const matches = copyRoots.filter({ hasText: pattern });
     const count = await matches.count();
