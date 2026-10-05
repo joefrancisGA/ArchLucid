@@ -8798,4 +8798,8 @@
 {"at":"2026-10-05T17:03:14.5296658Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs,ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs,ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs,ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs"]}
 {"at":"2026-10-05T17:08:44.534788Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
 {"at":"2026-10-05T17:13:22.1915495Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
+<<<<<<< HEAD
 {"at":"2026-10-05T17:18:06.2265395Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestOfflineRunner.cs"]}
+=======
+{"at":"2026-10-05T17:17:40.4491409Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
+>>>>>>> 83e2641c19 (al-bug: ledger for cli-tenant-isolation exclude replay hit)

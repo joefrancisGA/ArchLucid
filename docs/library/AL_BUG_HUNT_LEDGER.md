@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but `observedOutcome` claimed verified `HTTP 200; foreign runId absent` because verified-absent shortcut ignored non-2xx field codes; gate with `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline deny-status replay false-failed when `observedStatusCode` was omitted but `observedOutcome` was `HTTP 404` because `ResolveDenyReplayVerdict` evaluated `observedStatusCode ?? 0` instead of `ResolveObservedStatusCode`; regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner.ResolveExcludeReplayVerdict` to honor verified-absent outcome copy before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -6751,6 +6753,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but outcome claimed verified `HTTP 200; foreign runId absent`; fixed verified-absent trust gating; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id replay — `observedStatusCode` 503 with verified `HTTP 200; foreign runId absent` outcome false-passed — **hit 2026-10-05 seed hunt:** `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`.
+
 2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline deny-status replay false-failed when `observedStatusCode` was omitted but `observedOutcome` was `HTTP 404` (`ResolveDenyReplayVerdict` used `?? 0` instead of `ResolveObservedStatusCode`); regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` deny-status manifest replay — missing `observedStatusCode` with `HTTP 404` outcome false-failed — **hit 2026-10-05 seed hunt:** `ResolveDenyReplayVerdict` uses `ResolveObservedStatusCode` for field evaluation; regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`.
@@ -6813,7 +6819,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
+<<<<<<< HEAD
 - **last-bug:** 2026-10-05 — offline exclude replay false-passed when status field and HTTP 404 outcome disagreed
+=======
+- **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
+>>>>>>> 83e2641c19 (al-bug: ledger for cli-tenant-isolation exclude replay hit)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
