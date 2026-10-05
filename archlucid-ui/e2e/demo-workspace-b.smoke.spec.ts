@@ -193,8 +193,15 @@ test.describe(
       authorityJson,
       /immutable lineage hash/i,
     );
+    const packBFindingId = findFindingIdByTitlePatternInAuthorityRunDetailPayload(
+      authorityJson,
+      /interim public listener/i,
+    );
 
     expect(packAFindingId, "Pack A finding id from authority snapshot").not.toBeNull();
+    expect(packBFindingId, "Pack B finding id from authority snapshot").not.toBeNull();
+
+    await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
     /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
     await expectReviewDetailFindingInspectCopyVisible(
@@ -206,13 +213,13 @@ test.describe(
     );
 
     /** Pack B security baseline posture (public exposure from seed fixtures). */
-    await expectReviewDetailSeedFindingCopyVisible(
+    await expectReviewDetailFindingInspectCopyVisible(
       page,
-      /Inference gateway still advertises interim public listener/i,
-      { timeoutMs: 90_000, runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID },
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      packBFindingId!,
+      /interim public listener/i,
+      { timeoutMs: 90_000 },
     );
-
-    await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
     const historyRaw = await getRunArchitectureExportHistoryRaw(
       request,

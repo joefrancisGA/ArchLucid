@@ -688,7 +688,11 @@ export async function expectReviewDetailFindingInspectCopyVisible(
 
   await expect(async () => {
     await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
-    await expect(page.getByText(pattern).first()).toBeVisible({ timeout: 15_000 });
+
+    const main = page.getByRole("main");
+
+    await expect(main).toBeVisible({ timeout: 30_000 });
+    await expect(main.getByText(pattern).first()).toBeVisible({ timeout: 15_000 });
   }).toPass({ timeout });
 }
 
