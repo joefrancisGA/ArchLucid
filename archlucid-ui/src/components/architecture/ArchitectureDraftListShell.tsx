@@ -250,7 +250,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
               option={option}
               count={
                 filterCounts.has(option.id)
-                  ? (filterCounts.get(option.id) ?? 0)
+                  ? (filterCounts.get(option.id) ?? null)
                   : null
               }
               selected={activeFilter === option.id}

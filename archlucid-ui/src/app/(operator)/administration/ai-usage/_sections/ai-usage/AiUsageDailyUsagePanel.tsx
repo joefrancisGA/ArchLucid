@@ -52,7 +52,11 @@ function formatBucketLabel(isoUtc: string): string {
   return `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 
-function formatMetricValue(metric: AiUsageDailyMetric, value: number, currency: string): string {
+function formatMetricValue(metric: AiUsageDailyMetric, value: number | null, currency: string): string {
+  if (value === null) {
+    return "Not returned";
+  }
+
   if (metric === "cost") {
     return formatCostReportingEstimatedUsd(value, currency);
   }
@@ -82,7 +86,8 @@ export function AiUsageDailyUsagePanel(props: Props) {
     }
 
     const values = dailyBuckets.map((bucket) => dailyMetricValue(bucket, metric));
-    const maxValue = Math.max(...values, metric === "cost" ? 0.01 : 1);
+    const numericValues = values.filter((value): value is number => value !== null);
+    const maxValue = Math.max(...numericValues, metric === "cost" ? 0.01 : 1);
     const barMaxPx = 120;
     const accessibleSummary = dailyMetricAccessibleSummary(dailyBuckets, metric, props.currency);
 
@@ -97,9 +102,10 @@ export function AiUsageDailyUsagePanel(props: Props) {
           aria-label={accessibleSummary}
         >
           {dailyBuckets.map((point, index) => {
-            const value = values[index] ?? 0;
-            const barPx = value === 0 ? 0 : Math.max(2, (value / maxValue) * barMaxPx);
-            const isSpike = value === maxValue && value > 0;
+            const value = values[index] ?? null;
+            const barPx =
+              value === null || value === 0 ? 0 : Math.max(2, (value / maxValue) * barMaxPx);
+            const isSpike = value !== null && value === maxValue && value > 0;
             const title = `${formatBucketLabel(point.bucketUtc)}: ${formatMetricValue(metric, value, props.currency)}`;
 
             return (

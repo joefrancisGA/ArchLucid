@@ -30,6 +30,7 @@ import {
   resolveLatestPublishedVersion,
   resolvePolicyPackDisplayName,
   summarizePolicyImpactGateResult,
+  formatPolicyImpactFailedCheckCount,
   type PolicyImpactPreviewGateSummary,
 } from "@/lib/policy/policy-pack-impact-preview";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
@@ -516,7 +517,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
               </p>
               <div className="mt-2">{gateStatusTag(baselineSummary)}</div>
               <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Failed checks: {baselineSummary.failedCheckCount}
+                Failed checks: {formatPolicyImpactFailedCheckCount(baselineSummary.failedCheckCount)}
               </p>
             </div>
             <div className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50">
@@ -525,7 +526,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
               </p>
               <div className="mt-2">{gateStatusTag(stricterSummary)}</div>
               <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Failed checks: {stricterSummary.failedCheckCount}
+                Failed checks: {formatPolicyImpactFailedCheckCount(stricterSummary.failedCheckCount)}
               </p>
             </div>
           </div>
@@ -563,7 +564,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
                 <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{packALabel}</p>
                 <div className="mt-2">{gateStatusTag(packASummary)}</div>
                 <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Failed checks: {packASummary.failedCheckCount}
+                  Failed checks: {formatPolicyImpactFailedCheckCount(packASummary.failedCheckCount)}
                 </p>
               </div>
               <div className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50">
@@ -573,7 +574,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
                 <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{packBLabel}</p>
                 <div className="mt-2">{gateStatusTag(packBSummary)}</div>
                 <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Failed checks: {packBSummary.failedCheckCount}
+                  Failed checks: {formatPolicyImpactFailedCheckCount(packBSummary.failedCheckCount)}
                 </p>
               </div>
             </div>

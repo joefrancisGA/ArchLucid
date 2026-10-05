@@ -83,4 +83,12 @@ describe("summarizePolicyImpactGateResult", () => {
     expect(summary.failedCheckCount).toBe(1);
     expect(summary.label).toContain("Critical");
   });
+
+  it("returns null failed check count when failedChecks are omitted", () => {
+    const summary = summarizePolicyImpactGateResult("allow", {
+      gateResult: { blocked: false, warnOnly: false },
+    });
+
+    expect(summary.failedCheckCount).toBeNull();
+  });
 });
