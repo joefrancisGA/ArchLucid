@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `api-tenancy-workspaces` — cheap-disproof closed recycle-bin `Guid.Empty` workspace parity candidate; seeded tenant-missing and default-metadata drift candidates; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_id_is_empty`; 31 scoped TenantWorkspaces tests passed.
+
 2026-10-05 seed hunt (seed→hit): `llm-wallet` — `ApplyWebhookPaymentIntentSucceededAsync` credited a Stripe payment intent but did not enqueue auto-refill when the post-credit balance stayed below `RefillTriggerThresholdUsd` (settlement consume / overage paths already did); enqueue via `EnqueueAutoRefillIfBalanceBelowTriggerAsync` after webhook credit; regression `ApplyWebhookPaymentIntentSucceededAsync_enqueues_auto_refill_when_credit_leaves_balance_below_trigger_threshold`; 22 scoped `LlmTenantWalletServiceTests` passed.
 
 2026-10-05 seed hunt (seed→hit): `llm-wallet` — `ReconcileOverageInternalAsync` credited prepaid balance when actual usage was below the authorized estimate but did not enqueue auto-refill when the post-credit balance stayed below `RefillTriggerThresholdUsd` (delta consume path already did); enqueue auto-refill from `CreditAdjustmentInternalAsync` on success; regression `ReconcileOverageInternalAsync_enqueues_auto_refill_when_overage_credit_leaves_balance_below_trigger_threshold`; 21 scoped `LlmTenantWalletServiceTests` passed.
