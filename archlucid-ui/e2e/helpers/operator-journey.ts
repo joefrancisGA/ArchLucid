@@ -458,9 +458,41 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
   }
 }
 
+/** Matches `SeverityTag` aria-labels (`FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT` + legacy labels). */
+const QUICK_DECISION_SEVERITY_ARIA_LABEL =
+  /^Severity: (Critical|Error|Warning|Info|High|Medium|Low|Unclassified)$/i;
+
 /** Severity metadata labels on quick-decision finding rows (`SeverityTag`). */
 export function quickDecisionSeverityBadge(quickSummary: Locator): Locator {
-  return quickSummary.getByLabel(/^Severity: (Critical|High|Medium)$/i);
+  return quickSummary.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL);
+}
+
+async function ensureReviewDetailFindingsPresentationExpanded(page: Page): Promise<void> {
+  const lowConfidenceToggle = page.getByTestId("quick-decision-show-low-confidence");
+
+  if (await lowConfidenceToggle.isVisible().catch(() => false)) {
+    if (!(await lowConfidenceToggle.isChecked().catch(() => false))) {
+      await lowConfidenceToggle.check();
+    }
+  }
+
+  const showAllFindings = page.getByTestId("quick-decision-show-all-findings");
+
+  if (await showAllFindings.isVisible().catch(() => false)) {
+    await showAllFindings.click();
+  }
+
+  const hiddenFilterShowAll = page.getByTestId("findings-hidden-filter-show-all");
+
+  if (await hiddenFilterShowAll.isVisible().catch(() => false)) {
+    await hiddenFilterShowAll.click();
+  }
+
+  const classificationBandAll = page.getByTestId("run-detail-findings-band-all");
+
+  if (await classificationBandAll.isVisible().catch(() => false)) {
+    await classificationBandAll.click();
+  }
 }
 
 export async function expectQuickDecisionSeverityVisible(
@@ -469,9 +501,11 @@ export async function expectQuickDecisionSeverityVisible(
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 30_000;
   const page = quickSummary.page();
-  const severityPattern = /^Severity: (Critical|High|Medium)$/i;
+  const severityPattern = QUICK_DECISION_SEVERITY_ARIA_LABEL;
 
   await expect(async () => {
+    await ensureReviewDetailFindingsPresentationExpanded(page);
+
     const inSummary = quickDecisionSeverityBadge(quickSummary).first();
 
     if (await inSummary.isVisible().catch(() => false)) {
@@ -485,7 +519,10 @@ export async function expectQuickDecisionSeverityVisible(
       .or(page.getByTestId("review-workbench-column-findings"))
       .or(page.getByTestId("run-detail-findings-section"));
 
-    await expect(workspace.getByLabel(severityPattern).first()).toBeVisible({ timeout: 5_000 });
+    const severityBadge = workspace.getByLabel(severityPattern).first();
+
+    await severityBadge.scrollIntoViewIfNeeded();
+    await expect(severityBadge).toBeVisible({ timeout: 5_000 });
   }).toPass({ timeout });
 }
 
@@ -584,20 +621,22 @@ export async function expectReviewDetailSeedFindingCopyVisible(
 
   await expect(surface.first()).toBeVisible({ timeout: 30_000 });
 
-  const showAllFindings = surface.getByTestId("quick-decision-show-all-findings");
-
-  if (await showAllFindings.isVisible().catch(() => false)) {
-    await showAllFindings.click();
-  }
+  const findingCards = page.locator('[data-testid^="finding-workspace-card-"]');
+  const quickSummary = reviewDetailFindingsQuickSummary(page);
 
   await expect(async () => {
-    const matches = surface.getByText(pattern);
+    await ensureReviewDetailFindingsPresentationExpanded(page);
+
+    const copyRoots = findingCards.or(quickSummary);
+
+    const matches = copyRoots.filter({ hasText: pattern });
     const count = await matches.count();
 
     for (let index = 0; index < count; index += 1) {
       const candidate = matches.nth(index);
 
-      if (await candidate.isVisible()) {
+      if (await candidate.isVisible().catch(() => false)) {
+        await candidate.scrollIntoViewIfNeeded();
         await expect(candidate).toBeVisible({ timeout: 5_000 });
 
         return;
