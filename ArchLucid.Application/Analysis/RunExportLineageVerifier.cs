@@ -140,7 +140,8 @@ public sealed class RunExportLineageVerifier(
         {
             RunId = runId,
             EventType = AuditEventTypes.ManifestGenerated,
-            Take = 50
+            Take = 50,
+            IncludeDataJson = true,
         };
 
         IReadOnlyList<AuditEvent> rows = await _auditRepository.GetFilteredAsync(

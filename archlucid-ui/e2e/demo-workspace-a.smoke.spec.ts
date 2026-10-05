@@ -10,7 +10,6 @@ import {
   openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
-import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { liveApiBase, waitForAuthorityBuyerSummaryGoldenManifest } from "./helpers/live-api-client";
 import {
   ensureBuyerDeliverablesSectionExpanded,
@@ -154,11 +153,7 @@ test.describe(
     await expect(manifestSection).toBeVisible({ timeout: 90_000 });
     await manifestSection.scrollIntoViewIfNeeded();
 
-    await expect(async () => {
-      await expect(
-        manifestSection.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }),
-      ).toBeVisible({ timeout: 5_000 });
-    }).toPass({ timeout: 60_000 });
+    await expect(manifestSection.getByText(/Finalized review record/i)).toBeVisible({ timeout: 60_000 });
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
 
     const manifestDecisionCount = manifestSection.getByTestId("run-detail-manifest-decision-count");

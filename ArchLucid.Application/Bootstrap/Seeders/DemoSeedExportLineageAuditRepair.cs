@@ -71,6 +71,7 @@ internal static class DemoSeedExportLineageAuditRepair
             RunId = runId,
             EventType = AuditEventTypes.ManifestGenerated,
             Take = 50,
+            IncludeDataJson = true,
         };
 
         IReadOnlyList<AuditEvent> rows = await deps.AuditRepository.GetFilteredAsync(
