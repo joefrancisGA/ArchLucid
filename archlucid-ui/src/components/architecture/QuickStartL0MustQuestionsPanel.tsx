@@ -198,7 +198,8 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
     }
   }, [props.inferredQuestionKeys]);
 
-  const suggestedDraftCount = props.inferredQuestionKeys?.size ?? 0;
+  const suggestedDraftCount =
+    props.inferredQuestionKeys === undefined ? null : props.inferredQuestionKeys.size;
   const hasRephrasedSuggestions = (props.rephrasedQuestionKeys?.size ?? 0) > 0;
 
   const clarificationOrdinalByKey = useMemo(() => {
@@ -390,7 +391,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
           </p>
         ) : null}
 
-        {suggestedDraftCount > 0 ? (
+        {suggestedDraftCount !== null && suggestedDraftCount > 0 ? (
           <p
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="first-pilot-l0-suggested-draft-count"

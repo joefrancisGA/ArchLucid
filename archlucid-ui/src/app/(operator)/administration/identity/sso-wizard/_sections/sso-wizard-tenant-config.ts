@@ -68,7 +68,7 @@ export function buildSsoWizardExistingConfigSummary(
 
   return {
     protocolLabel: resolveProtocolLabel(protocol),
-    issuerUri: record.issuerUri?.trim() ?? " — ",
+    issuerUri: record.issuerUri?.trim() ?? "Not returned",
     isActive: Boolean(record.isActive),
     updatedUtc: record.updatedUtc ?? null,
     mappedRoleCount,

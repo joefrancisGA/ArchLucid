@@ -76,7 +76,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
                 The recorded category of this decision.
               </span>
             </dt>
-            <dd className="m-0 font-medium text-al-text-primary">{decision.category || " — "}</dd>
+            <dd className="m-0 font-medium text-al-text-primary">{decision.category || "Not returned"}</dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">

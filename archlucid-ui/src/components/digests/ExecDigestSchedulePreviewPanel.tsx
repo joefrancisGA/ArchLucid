@@ -88,7 +88,7 @@ export function ExecDigestSchedulePreviewPanel(props: ExecDigestSchedulePreviewP
           </p>
         ) : null}
         <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
-          <OperatorFormSummaryRow label="Configured schedule" value={props.liveScheduleSummary ?? " — "} />
+          <OperatorFormSummaryRow label="Configured schedule" value={props.liveScheduleSummary ?? "Not returned"} />
           <OperatorFormSummaryRow
             label="Next send"
             value={formatExecDigestNextSendLabel(props.form, props.prefs.isConfigured)}

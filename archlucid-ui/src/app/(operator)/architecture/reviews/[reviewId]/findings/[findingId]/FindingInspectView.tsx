@@ -257,7 +257,7 @@ export function FindingInspectView({
       {!buyerPolishedShell ? (
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
-          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? " — "}</span>
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "Not returned"}</span>
         </p>
       ) : null}
       <p className="m-0">

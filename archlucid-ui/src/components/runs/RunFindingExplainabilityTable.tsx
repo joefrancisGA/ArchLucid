@@ -421,7 +421,7 @@ export function RunFindingExplainabilityTable({
                   {row.ruleId && row.ruleId.trim().length > 0 ? (
                     <FindingPolicyRuleBadge policyRuleId={row.ruleId} />
                   ) : (
-                    " — "
+                    "Not returned"
                   )}
                 </div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -431,7 +431,7 @@ export function RunFindingExplainabilityTable({
                       evidenceRefCount={row.evidenceRefCount}
                     />
                   ) : (
-                    " — "
+                    "Not returned"
                   )}
                 </div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>

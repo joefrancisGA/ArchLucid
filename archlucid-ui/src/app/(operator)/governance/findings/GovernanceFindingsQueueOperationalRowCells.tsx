@@ -239,7 +239,11 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         {governanceQueueDispositionLabel(row)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" && row.agingDays !== undefined ? `${row.agingDays}d` : " — "}
+        {row.recordKind === "finding"
+          ? row.agingDays !== undefined
+            ? `${row.agingDays}d`
+            : "Not returned"
+          : " — "}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : " — "}

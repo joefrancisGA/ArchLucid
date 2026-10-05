@@ -100,7 +100,11 @@ export function AiUsageMonthlyBudgetPanel(props: Props) {
                 {budgetSummaryCopy ?? "Budget summary unavailable"}
               </p>
               <p className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} aria-live="polite">
+<<<<<<< HEAD
+                {props.kpi.budgetPercentUsed !== null ? `${props.kpi.budgetPercentUsed}% used` : "Not returned"}
+=======
                 {utilizationKnown ? `${percentUsed}% used` : "Not returned"}
+>>>>>>> origin/master
               </p>
             </div>
             {utilizationKnown ? (

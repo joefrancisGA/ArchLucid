@@ -2,16 +2,22 @@ import type { LlmCostDailyBucket } from "@/lib/llm-cost-reporting";
 
 import type { AiUsageDailyMetric } from "./ai-usage-dashboard-model-types";
 
-export function dailyMetricValue(bucket: LlmCostDailyBucket, metric: AiUsageDailyMetric): number {
+export function dailyMetricValue(bucket: LlmCostDailyBucket, metric: AiUsageDailyMetric): number | null {
   switch (metric) {
     case "cost":
-      return bucket.estimatedCostUsd;
-    case "tokens":
-      return bucket.promptTokens + bucket.completionTokens;
+      return Number.isFinite(bucket.estimatedCostUsd) ? bucket.estimatedCostUsd : null;
+    case "tokens": {
+      const total = bucket.promptTokens + bucket.completionTokens;
+      return Number.isFinite(total) ? total : null;
+    }
     case "operations":
-      return bucket.promptTokens > 0 || bucket.completionTokens > 0 ? 1 : 0;
+      return Number.isFinite(bucket.promptTokens) && Number.isFinite(bucket.completionTokens)
+        ? bucket.promptTokens > 0 || bucket.completionTokens > 0
+          ? 1
+          : 0
+        : null;
     case "requests":
-      return bucket.estimatedCostUsd > 0 ? 1 : 0;
+      return Number.isFinite(bucket.estimatedCostUsd) ? (bucket.estimatedCostUsd > 0 ? 1 : 0) : null;
     default: {
       const never: never = metric;
       return never;
@@ -42,8 +48,14 @@ export function dailyMetricAccessibleSummary(
   }
 
   const values = daily.map((bucket) => dailyMetricValue(bucket, metric));
-  const total = values.reduce((sum, value) => sum + value, 0);
-  const peak = Math.max(...values);
+  const knownValues = values.filter((value): value is number => value !== null);
+
+  if (knownValues.length === 0) {
+    return `Daily ${metric} totals were not returned for the selected period.`;
+  }
+
+  const total = knownValues.reduce((sum, value) => sum + value, 0);
+  const peak = Math.max(...knownValues);
   const peakIndex = values.indexOf(peak);
   const peakDay = daily[peakIndex]?.bucketUtc ?? "";
 

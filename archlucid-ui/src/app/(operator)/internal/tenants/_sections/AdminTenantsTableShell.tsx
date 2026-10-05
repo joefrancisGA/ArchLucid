@@ -88,11 +88,11 @@ export function AdminTenantsTableShell({
           return (
             <EnterpriseTableRow key={id || row.slug || row.name}>
               <EnterpriseTableCell>
-                <div className="font-medium">{row.name ?? " — "}</div>
-                <div className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{id || " — "}</div>
+                <div className="font-medium">{row.name ?? "Not returned"}</div>
+                <div className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{id || "Not returned"}</div>
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.slug ?? " — "}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.tier ?? " — "}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.slug ?? "Not returned"}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.tier ?? "Not returned"}</EnterpriseTableCell>
               <EnterpriseTableCell>{lifecycleStatusTag(status)}</EnterpriseTableCell>
               <EnterpriseTableCell>{formatUtc(row.createdUtc)}</EnterpriseTableCell>
               <EnterpriseTableCell>
