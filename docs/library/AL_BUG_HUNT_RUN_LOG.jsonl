@@ -1,4 +1,3 @@
-{"at":"2026-09-05T15:24:02.0677135Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:33:02.5847448Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:40:09.5126319Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:46:25.0877491Z","zoneId":"tenant-erasure","outcome":"dry"}
@@ -8799,5 +8798,9 @@
 {"at":"2026-10-05T15:20:27.0373981Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Budgeting/LlmMonthlySpendPlanId.cs,ArchLucid.Core/Billing/AzureMarketplace/MarketplacePlanIdMapper.cs)"]}
 <<<<<<< HEAD
 {"at":"2026-10-05T15:23:34.1420213Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/AzureMarketplace/"]}
+<<<<<<< HEAD
 =======
 >>>>>>> 526363273c (Update core-tenancy-commercial hunt ledger for thorough hunt hit.)
+=======
+{"at":"2026-10-05T15:28:06.2950045Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/AzureMarketplace/"]}
+>>>>>>> b90b05a50d (Consolidate marketplace enterprise negation tokens and add stripped/missing/denied.)

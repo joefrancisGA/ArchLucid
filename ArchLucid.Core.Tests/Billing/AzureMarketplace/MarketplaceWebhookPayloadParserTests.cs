@@ -299,11 +299,22 @@ public sealed class MarketplaceWebhookPayloadParserTests
     [InlineData("absent-enterprise-plan")]
     [InlineData("removed-enterprise-plan")]
     [InlineData("cleared-enterprise-plan")]
+    [InlineData("stripped-enterprise-plan")]
+    [InlineData("missing-enterprise-plan")]
+    [InlineData("denied-enterprise-plan")]
     public void TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs(string planId)
     {
         MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
             .Should()
             .Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_still_maps_enterprise_when_stripe_token_precedes_enterprise()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("contoso-stripe-enterprise-monthly")
+            .Should()
+            .Be(nameof(TenantTier.Enterprise));
     }
 
     [Theory]
