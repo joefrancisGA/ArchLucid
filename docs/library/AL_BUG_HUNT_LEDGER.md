@@ -28254,13 +28254,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 37
-- **bugs-found:** 18
+- **hunts:** 38
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — runtime ownership disable skipped SQL lease release during execute finalization and shutdown drain
+- **last-bug:** 2026-10-05 — runtime ownership disable turned heartbeat renew and renewal scope into no-ops while SQL lease remained held
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-05 seed hunt (seed→hit): promoted disabled-renew candidate; proved `RenewAsync` and `BeginRenewalScope` no-opped when `Enabled` flipped false after acquisition, letting SQL ownership expire without cancelling in-flight execute; fixed by gating renew/scope admission on in-memory storage only (`TryBegin` uses `IArchLucidStorageMode`); regressions `RenewAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`; 58 scoped ownership/orchestrator tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted disabled-release candidate; proved `ReleaseAsync` and `ReleaseAllHeldByThisInstanceAsync` no-opped when `RunExecuteOwnershipLeaseOptions.Enabled` flipped false after acquisition, leaving SQL leases pinned until TTL; fixed by gating release paths on in-memory storage only (not `IsEnabled`); regressions `ReleaseAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `ReleaseAllHeldByThisInstanceAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage`; 56 scoped ownership/orchestrator tests passed.
 
@@ -28299,7 +28301,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads are intentional race guards; the existing run-deleted-immediately-before-acquire regression establishes the second read's fail-closed purpose, with no separate wrong outcome from the extra read.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations are intentional race guards; existing commit/delete/schedule-clear regressions establish the checks prevent ownership admission during transitions, with no separate wrong outcome from the repeated reads.
-- (candidate) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — a dynamic options change between `AcquireAsync` and `BeginRenewalScope` can disable the renewal scope while the lease remains held; reachable when `RunExecuteOwnershipLeaseOptions.Enabled` changes during execute admission.
+- [x] (proven) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — dynamic disable between `AcquireAsync` and `BeginRenewalScope` returned a no-op scope while the lease remained held — **closed 2026-10-05** with the disabled-renew hit (`BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`).
 - (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — release result is ignored, so an ownership-loss or repository failure can leave the orchestrator reporting successful completion without surfacing that cleanup failed; reachable when the lease repository returns an unsuccessful release during execute finalization.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal waits for a renewal task that may be blocked in a repository call despite cancellation, delaying release and extending the lease pin; reachable when renewal storage does not promptly honor the linked cancellation token.
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunCoreInnerAsync` — after incomplete-pipeline resume, the reloaded run can lose deferred context or agent work before the final execute gate while the resume result remains authoritative; reachable when `TryResumeAsync` mutates the run before its reload.
@@ -28307,7 +28309,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — the drain check can pass before shutdown begins and still admit a lease while the repository acquisition is in flight; reachable when `IWorkerHostDrainGate` enters draining during `TryAcquireOrRenewAsync`.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — immediate renewal before the first timer wait can cancel a newly acquired execute on a transient first heartbeat failure even though the lease duration still covers the batch; reachable when the first renewal repository call fails transiently.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — cancellation of the loop can race with a renewal failure that cancels the execute token, leaving disposal classified as clean while the execute cancellation is not surfaced to its caller; reachable when renewal failure and scope disposal overlap.
-- (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — disabling ownership through `IOptionsMonitor` during an active execute turns a renewal call into a silent no-op while the previously acquired lease remains live; reachable when `Enabled` changes after acquisition but before a heartbeat.
+- [x] (proven) `RunExecuteOwnershipLeaseService.RenewAsync` / `BeginRenewalScope` — disabling ownership during an active execute turned renewal into a silent no-op while the SQL lease remained held — **hit 2026-10-05 seed hunt:** renew and renewal scope keep using SQL storage when `Enabled` is false; regressions `RenewAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`.
 - (candidate) `ArchitectureRunExecuteOrchestrator` — a failed lease release is not represented in execute outcome or audit state because `ReleaseAsync` returns no status to the orchestrator; reachable when the repository cannot delete the holder’s lease row during finalization.
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — pre-acquire validation calls use the request cancellation token, so caller cancellation during the final ownership check can bypass the normal lease cleanup path while earlier validation already performed live reads; reachable when cancellation lands between selective validations.
 - (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — shutdown can begin after the drain check and before repository acquisition, admitting new ownership during host drain; reachable when `TryAcquireOrRenewAsync` is delayed while the drain gate flips.

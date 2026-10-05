@@ -71,7 +71,7 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public async Task RenewAsync(Guid runId, CancellationToken cancellationToken)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return;
 
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
@@ -100,13 +100,14 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public IAsyncDisposable BeginRenewalScope(Guid runId, CancellationTokenSource executeCancellationSource)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return NoOpRunExecuteOwnershipLeaseRenewalScope.Instance;
 
         ArgumentNullException.ThrowIfNull(executeCancellationSource);
 
         RunExecuteOwnershipLeaseRenewalScope? scope = RunExecuteOwnershipLeaseRenewalScope.TryBegin(
             this,
+            _storageMode,
             _optionsMonitor,
             runId,
             executeCancellationSource,
