@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Audit;
 
 using ITfoxtec.Identity.Saml2.Schemas;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Auth.Services;
 
@@ -89,6 +91,14 @@ internal static class ArchLucidSaml2SignInAudit
 
         using IServiceScope scope = scopeFactory.CreateScope();
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+
+        if (principal.Identity is ClaimsIdentity claimsIdentity)
+        {
+            IOptions<ArchLucidSamlAuthOptions> samlOptions =
+                scope.ServiceProvider.GetRequiredService<IOptions<ArchLucidSamlAuthOptions>>();
+
+            ArchLucidSamlInboundClaimsNormalizer.Apply(claimsIdentity, samlOptions.Value);
+        }
 
         string? nameId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         string nameIdPrefix = nameId is { Length: > 0 }
