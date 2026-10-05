@@ -80,7 +80,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         out string nodeId) =>
         TopologyProposalGraphNodeMatchers.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out nodeId);
 
-    private static string ResolveDeclaredDatastoreNodeId(ManifestDatastore datastore)
+    internal static string ResolveDeclaredDatastoreNodeId(ManifestDatastore datastore)
     {
         string? datastoreId = TrimManifestEndpointValue(datastore.DatastoreId);
 

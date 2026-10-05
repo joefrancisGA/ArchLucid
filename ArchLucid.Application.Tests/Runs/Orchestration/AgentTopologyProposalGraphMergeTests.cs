@@ -67,6 +67,63 @@ public sealed class AgentTopologyProposalGraphMergeTests
             n.NodeType == GraphNodeTypes.TopologyResource && n.Label == "rag-metadata" && n.Category == GraphTopologyCategories.Data);
     }
 
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_canonical_synthetic_node_ids_when_manifest_names_have_surrounding_whitespace()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceId = string.Empty,
+                        ServiceName = "  api  ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreId = string.Empty,
+                        DatastoreName = "  sql  ",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-api",
+                        TargetId = "ds-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().ContainSingle(n => n.NodeId == "svc-api");
+        merged.Nodes.Should().ContainSingle(n => n.NodeId == "ds-sql");
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-api" &&
+            e.ToNodeId == "ds-sql" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
     [SkippableFact]
     public void WithMergedTopologyProposals_does_not_duplicate_labels_already_in_graph()
     {

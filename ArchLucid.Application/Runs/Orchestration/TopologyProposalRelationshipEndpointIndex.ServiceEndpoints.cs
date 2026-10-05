@@ -80,7 +80,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         out string nodeId) =>
         TopologyProposalGraphNodeMatchers.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out nodeId);
 
-    private static string ResolveDeclaredServiceNodeId(ManifestService service)
+    internal static string ResolveDeclaredServiceNodeId(ManifestService service)
     {
         string? serviceId = TrimManifestEndpointValue(service.ServiceId);
 
