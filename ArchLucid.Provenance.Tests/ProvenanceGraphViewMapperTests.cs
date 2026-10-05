@@ -80,6 +80,30 @@ public sealed class ProvenanceGraphViewMapperTests
     }
 
     [Fact]
+    public void ToViewModel_MapsNodes_NullMetadata_AsNull()
+    {
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "Bare",
+                    Type = ProvenanceNodeType.Finding,
+                    ReferenceId = "r",
+                    Metadata = null!
+                }
+            ]
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes[0].Metadata.Should().BeNull();
+    }
+
+    [Fact]
     public void ToViewModel_MapsNodes_EmptyMetadata_AsNull()
     {
         Guid nodeId = Guid.NewGuid();

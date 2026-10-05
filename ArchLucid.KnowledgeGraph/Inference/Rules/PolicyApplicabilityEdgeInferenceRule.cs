@@ -17,7 +17,7 @@ internal sealed class PolicyApplicabilityEdgeInferenceRule : IGraphEdgeInference
             {
                 foreach (GraphNode resource in context.TopologyNodes)
                 {
-                    if (!targeted.Contains(resource.NodeId))
+                    if (!GraphEdgeInferenceHelpers.TargetedNodeIdsInclude(targeted, resource.NodeId))
                         continue;
 
                     edges.Add(GraphEdgeInferenceHelpers.CreateEdge(

@@ -18,8 +18,8 @@ public static class ProvenanceGraphViewMapper
                     Label = n.Name,
                     Type = n.Type.ToString(),
                     AgentExecutionTraceId = n.AgentExecutionTraceId,
-                    Metadata = n.Metadata.Count > 0
-                        ? new Dictionary<string, string>(n.Metadata)
+                    Metadata = n.Metadata is { Count: > 0 } metadata
+                        ? new Dictionary<string, string>(metadata)
                         : null
                 })
                 .ToList(),

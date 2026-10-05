@@ -163,6 +163,34 @@ public sealed class DefaultGraphEdgeInfererContractTests
     }
 
     [Fact]
+    public void InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesResourceWhenNodeIdHasSurroundingWhitespace()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode topo = new()
+        {
+            NodeId = "res-a ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "a",
+            Category = GraphTopologyCategories.Compute
+        };
+        GraphNode security = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "baseline",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds] = "res-a"
+            }
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [topo, security]);
+
+        edges.Should().ContainSingle(e =>
+            e.EdgeType == GraphEdgeTypes.Protects && e.FromNodeId == "sec-1" && e.ToNodeId == "res-a ");
+    }
+
+    [Fact]
     public void InferEdges_Deduplicate_KeepsEdgeWithHighestWeight()
     {
         ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };

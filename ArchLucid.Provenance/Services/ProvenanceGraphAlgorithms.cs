@@ -10,6 +10,9 @@ public static class ProvenanceGraphAlgorithms
         out Guid decisionInternalNodeId)
     {
         decisionInternalNodeId = Guid.Empty;
+        ArgumentNullException.ThrowIfNull(graph);
+
+        IReadOnlyList<ProvenanceNode> nodes = CoalesceEmpty(graph.Nodes);
         string key = decisionKey?.Trim() ?? string.Empty;
         if (key.Length == 0)
             return false;
@@ -17,7 +20,7 @@ public static class ProvenanceGraphAlgorithms
         if (Guid.TryParse(key, out Guid parsedGuid))
         {
             ProvenanceNode? byId =
-                graph.Nodes.FirstOrDefault(n => n.Type == ProvenanceNodeType.Decision && n.Id == parsedGuid);
+                nodes.FirstOrDefault(n => n.Type == ProvenanceNodeType.Decision && n.Id == parsedGuid);
             if (byId is not null)
             {
                 decisionInternalNodeId = byId.Id;
@@ -26,7 +29,7 @@ public static class ProvenanceGraphAlgorithms
 
             string nFormat = parsedGuid.ToString("N");
             string dFormat = parsedGuid.ToString("D");
-            ProvenanceNode? byRefFromGuid = graph.Nodes.FirstOrDefault(n =>
+            ProvenanceNode? byRefFromGuid = nodes.FirstOrDefault(n =>
                 n.Type == ProvenanceNodeType.Decision &&
                 (string.Equals(n.ReferenceId, nFormat, StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(n.ReferenceId, dFormat, StringComparison.OrdinalIgnoreCase)));
@@ -36,7 +39,7 @@ public static class ProvenanceGraphAlgorithms
             return true;
         }
 
-        ProvenanceNode? byRef = graph.Nodes.FirstOrDefault(n =>
+        ProvenanceNode? byRef = nodes.FirstOrDefault(n =>
             n.Type == ProvenanceNodeType.Decision &&
             string.Equals(n.ReferenceId, key, StringComparison.OrdinalIgnoreCase));
         if (byRef is null)
@@ -49,7 +52,12 @@ public static class ProvenanceGraphAlgorithms
     public static DecisionProvenanceGraph ExtractDecisionSubgraph(DecisionProvenanceGraph full,
         Guid decisionInternalNodeId)
     {
-        if (full.Nodes.All(n => n.Id != decisionInternalNodeId))
+        ArgumentNullException.ThrowIfNull(full);
+
+        IReadOnlyList<ProvenanceNode> nodes = CoalesceEmpty(full.Nodes);
+        IReadOnlyList<ProvenanceEdge> edges = CoalesceEmpty(full.Edges);
+
+        if (nodes.All(n => n.Id != decisionInternalNodeId))
 
             return new DecisionProvenanceGraph { Id = full.Id, RunId = full.RunId, Nodes = [], Edges = [] };
 
@@ -57,7 +65,7 @@ public static class ProvenanceGraphAlgorithms
         HashSet<Guid> includedNodes = [decisionInternalNodeId];
         List<ProvenanceEdge> includedEdges = [];
 
-        foreach (ProvenanceEdge edge in full.Edges.Where(edge =>
+        foreach (ProvenanceEdge edge in edges.Where(edge =>
                      edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId))
         {
             includedEdges.Add(edge);
@@ -69,7 +77,7 @@ public static class ProvenanceGraphAlgorithms
             .Where(edge => edge.Type == ProvenanceEdgeType.SupportedBy)
             .Select(edge => edge.FromNodeId == decisionInternalNodeId ? edge.ToNodeId : edge.FromNodeId)
             .ToHashSet();
-        foreach (ProvenanceEdge edge in full.Edges.Where(edge =>
+        foreach (ProvenanceEdge edge in edges.Where(edge =>
                      edge.Type == ProvenanceEdgeType.InfluencedByGraphNode
                      && supportingFindingIds.Contains(edge.ToNodeId)))
         {
@@ -82,7 +90,7 @@ public static class ProvenanceGraphAlgorithms
         {
             Id = full.Id,
             RunId = full.RunId,
-            Nodes = full.Nodes.Where(n => includedNodes.Contains(n.Id)).ToList(),
+            Nodes = nodes.Where(n => includedNodes.Contains(n.Id)).ToList(),
             Edges = includedEdges
         };
     }
@@ -93,9 +101,13 @@ public static class ProvenanceGraphAlgorithms
     /// </summary>
     public static DecisionProvenanceGraph ExtractNeighborhood(DecisionProvenanceGraph full, Guid startNodeId, int depth)
     {
+        ArgumentNullException.ThrowIfNull(full);
+
+        IReadOnlyList<ProvenanceNode> nodes = CoalesceEmpty(full.Nodes);
+        IReadOnlyList<ProvenanceEdge> edges = CoalesceEmpty(full.Edges);
         depth = Math.Clamp(depth, 0, 10);
 
-        if (full.Nodes.All(n => n.Id != startNodeId))
+        if (nodes.All(n => n.Id != startNodeId))
 
             return new DecisionProvenanceGraph { Id = full.Id, RunId = full.RunId, Nodes = [], Edges = [] };
 
@@ -106,7 +118,7 @@ public static class ProvenanceGraphAlgorithms
         for (int i = 0; i < depth; i++)
         {
             HashSet<Guid> next = [];
-            foreach (ProvenanceEdge edge in full.Edges)
+            foreach (ProvenanceEdge edge in edges)
             {
                 if (frontier.Contains(edge.FromNodeId))
                     next.Add(edge.ToNodeId);
@@ -123,10 +135,12 @@ public static class ProvenanceGraphAlgorithms
         {
             Id = full.Id,
             RunId = full.RunId,
-            Nodes = full.Nodes.Where(n => visited.Contains(n.Id)).ToList(),
-            Edges = full.Edges.Where(e =>
+            Nodes = nodes.Where(n => visited.Contains(n.Id)).ToList(),
+            Edges = edges.Where(e =>
                 visited.Contains(e.FromNodeId) &&
                 visited.Contains(e.ToNodeId)).ToList()
         };
     }
+
+    private static IReadOnlyList<T> CoalesceEmpty<T>(List<T>? items) => items ?? [];
 }
