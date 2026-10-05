@@ -41,9 +41,6 @@ internal static class DemoSeedExportLineageAuditRepair
         if (sealedHash is null || !string.Equals(recomputedHash, sealedHash, StringComparison.OrdinalIgnoreCase))
             return;
 
-        if (await HasMatchingManifestGeneratedAnchorAsync(deps, scope, runId, recomputedHash, cancellationToken))
-            return;
-
         string ruleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? DemoRuleSetId : golden.RuleSetId;
 
         await deps.AuditService.LogAsync(
@@ -58,46 +55,4 @@ internal static class DemoSeedExportLineageAuditRepair
             },
             cancellationToken);
     }
-
-    private static async Task<bool> HasMatchingManifestGeneratedAnchorAsync(
-        DemoSeedSeederDependencies deps,
-        ScopeContext scope,
-        Guid runId,
-        string recomputedHash,
-        CancellationToken cancellationToken)
-    {
-        AuditEventFilter filter = new()
-        {
-            RunId = runId,
-            EventType = AuditEventTypes.ManifestGenerated,
-            Take = 50,
-            IncludeDataJson = true,
-        };
-
-        IReadOnlyList<AuditEvent> rows = await deps.AuditRepository.GetFilteredAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            filter,
-            cancellationToken);
-
-        foreach (AuditEvent row in rows.OrderByDescending(e => e.OccurredUtc).ThenByDescending(e => e.EventId))
-        {
-            if (string.IsNullOrWhiteSpace(row.DataJson))
-                continue;
-
-            ManifestGeneratedAuditPayload? payload = JsonSerializer.Deserialize<ManifestGeneratedAuditPayload>(
-                row.DataJson,
-                AuditJsonSerializationOptions.Instance);
-
-            if (payload is null || string.IsNullOrWhiteSpace(payload.ManifestHash))
-                continue;
-
-            return string.Equals(payload.ManifestHash, recomputedHash, StringComparison.OrdinalIgnoreCase);
-        }
-
-        return false;
-    }
-
-    private sealed record ManifestGeneratedAuditPayload(string ManifestHash, string RuleSetId);
 }

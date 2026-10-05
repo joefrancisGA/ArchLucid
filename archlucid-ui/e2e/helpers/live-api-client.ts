@@ -1728,8 +1728,10 @@ export async function ensureRunExportLineageAttestedRaw(
   const pollIntervalMs = options?.pollIntervalMs ?? 2_000;
   const deadline = Date.now() + timeoutMs;
   let lastBody: RunExportLineageVerificationJson = { status: "NotAttested" };
+  let pollCount = 0;
 
   while (Date.now() < deadline) {
+    pollCount += 1;
     const response = await verifyRunExportLineageRaw(request, runId, tenantScope);
     const text = await response.text();
 
@@ -1742,6 +1744,18 @@ export async function ensureRunExportLineageAttestedRaw(
 
     if (status === "Match") {
       return lastBody;
+    }
+
+    if (status === "NotAttested" && pollCount % 4 === 0) {
+      const reseed = await request.post(`${resolveLiveApiBase()}/v1/demo/seed`, {
+        headers: liveJsonHeaders(),
+        timeout: 120_000,
+      });
+
+      if (reseed.status() !== 204) {
+        const reseedBody = (await reseed.text()).slice(0, 300);
+        throw new Error(`POST /v1/demo/seed during export-lineage poll expected 204 — ${reseed.status()}: ${reseedBody}`);
+      }
     }
 
     await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
