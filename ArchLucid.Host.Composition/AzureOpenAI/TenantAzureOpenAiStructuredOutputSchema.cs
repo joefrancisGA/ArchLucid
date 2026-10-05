@@ -22,7 +22,7 @@ internal static class TenantAzureOpenAiStructuredOutputSchema
             configuration.GetSection(SchemaValidationOptions.SectionName).Get<SchemaValidationOptions>()
             ?? new SchemaValidationOptions();
 
-        string relative = parsed.AgentResultSchemaPath.Trim();
+        string relative = parsed.AgentResultSchemaPath?.Trim() ?? string.Empty;
 
         if (string.IsNullOrEmpty(relative))
         {

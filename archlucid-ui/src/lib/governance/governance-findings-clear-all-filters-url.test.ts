@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "./governance-findings-bulk-disposition-confirm-url";
 import { GOVERNANCE_FINDINGS_BULK_PARAM } from "./governance-findings-bulk-selection-url";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "./governance-findings-resource-group-disclosure-url";
 import { governanceFindingsClearAllFiltersHref, governanceFindingsShowAllFilteredFindingsHref } from "./governance-findings-clear-all-filters-url";
 
 describe("governanceFindingsClearAllFiltersHref", () => {
@@ -23,6 +24,16 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).toBe("/governance/findings?runId=run-1");
     expect(href).not.toContain("filter=");
     expect(href).not.toContain("q=");
+  });
+
+  it("clears stale resource-group disclosure keys when clearing filters", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      `runId=run-1&filter=open&groupBy=resource&${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=resource%3Aabc`,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?runId=run-1");
+    expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   });
 
   it("clears stale bulk selection and confirm params while preserving review scope", () => {

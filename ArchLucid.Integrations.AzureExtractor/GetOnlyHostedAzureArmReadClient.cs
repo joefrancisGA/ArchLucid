@@ -40,8 +40,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
         List<HostedAzureArmResourceRecord> resources = [];
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string listingRelativePath = $"subscriptions/{trimmedSubscriptionId}/resources";
         string? nextLink =
-            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/resources?api-version={ResourcesApiVersion}";
+            $"https://management.azure.com/{listingRelativePath}?api-version={ResourcesApiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -100,9 +102,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        subscriptionId);
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }
@@ -113,7 +115,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             _logger.LogDebug(
                 "Hosted Azure extractor listed {Count} resources for subscription {SubscriptionId}.",
                 resources.Count,
-                subscriptionId);
+                trimmedSubscriptionId);
         }
 
         return resources;
@@ -398,8 +400,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
         List<string> subscriptionIds = [];
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        string trimmedManagementGroupId = managementGroupId.Trim();
+        string subscriptionsListingPath =
+            $"providers/Microsoft.Management/managementGroups/{trimmedManagementGroupId}/subscriptions";
         string? nextLink =
-            $"https://management.azure.com/providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/subscriptions?api-version=2020-05-01";
+            $"https://management.azure.com/{subscriptionsListingPath}?api-version=2020-05-01";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -471,9 +476,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsManagementGroup(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        managementGroupId);
+                        subscriptionsListingPath);
                     nextLink = candidateNextLink;
                 }
             }
@@ -498,9 +503,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
         HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
 
+        string trimmedManagementGroupId = managementGroupId.Trim();
+        string roleAssignmentsListingPath =
+            $"providers/Microsoft.Management/managementGroups/{trimmedManagementGroupId}/providers/Microsoft.Authorization/roleAssignments";
+
         return await ListRoleAssignmentsAtRestPathAsync(
             accessToken,
-            $"https://management.azure.com/providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/roleAssignments?api-version={RoleAssignmentsApiVersion}",
+            roleAssignmentsListingPath,
+            $"https://management.azure.com/{roleAssignmentsListingPath}?api-version={RoleAssignmentsApiVersion}",
             managementGroupId,
             "management group role assignment",
             cancellationToken).ConfigureAwait(false);
@@ -514,15 +524,21 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
         HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
 
+        string trimmedManagementGroupId = managementGroupId.Trim();
+        string roleEligibilityListingPath =
+            $"providers/Microsoft.Management/managementGroups/{trimmedManagementGroupId}/providers/Microsoft.Authorization/roleEligibilitySchedules";
+
         return await ListRoleEligibilitySchedulesAtRestPathAsync(
             accessToken,
-            $"https://management.azure.com/providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/roleEligibilitySchedules?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()",
+            roleEligibilityListingPath,
+            $"https://management.azure.com/{roleEligibilityListingPath}?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()",
             managementGroupId,
             cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListRoleAssignmentsAtRestPathAsync(
         string accessToken,
+        string listingRelativePath,
         string initialUrl,
         string managementGroupId,
         string listingKind,
@@ -597,9 +613,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsManagementGroup(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        managementGroupId);
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }
@@ -610,6 +626,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
     private async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListRoleEligibilitySchedulesAtRestPathAsync(
         string accessToken,
+        string listingRelativePath,
         string initialUrl,
         string managementGroupId,
         CancellationToken cancellationToken)
@@ -682,9 +699,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsManagementGroup(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        managementGroupId);
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }

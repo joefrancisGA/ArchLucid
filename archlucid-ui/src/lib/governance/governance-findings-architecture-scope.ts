@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
 
@@ -86,6 +87,8 @@ export function governanceFindingsArchitectureScopeHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   if (architectureId === null) {
     params.set("architectureId", GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ALL);

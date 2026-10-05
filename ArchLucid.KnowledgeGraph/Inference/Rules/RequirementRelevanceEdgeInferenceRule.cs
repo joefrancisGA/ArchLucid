@@ -17,7 +17,7 @@ internal sealed class RequirementRelevanceEdgeInferenceRule : IGraphEdgeInferenc
             {
                 foreach (GraphNode resource in context.TopologyNodes)
                 {
-                    if (!targeted.Contains(resource.NodeId))
+                    if (!GraphEdgeInferenceHelpers.TargetedNodeIdsInclude(targeted, resource.NodeId))
                         continue;
 
                     edges.Add(GraphEdgeInferenceHelpers.CreateEdge(

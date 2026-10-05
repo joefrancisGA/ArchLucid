@@ -7,6 +7,7 @@ import {
 import { GOVERNANCE_FINDINGS_GROUP_BY_PARAM } from "@/lib/governance/governance-findings-group-by-url";
 import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { GOVERNANCE_FINDINGS_BULK_PARAM } from "@/lib/governance/governance-findings-bulk-selection-url";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import { governanceFindingsHideGenericHrefFromSearch } from "@/lib/governance/governance-findings-hide-generic-url";
 import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
 
@@ -26,6 +27,7 @@ export function governanceFindingsClearAllFiltersHref(
   params.delete(GOVERNANCE_FINDINGS_GROUP_BY_PARAM);
   params.delete(GOVERNANCE_FINDINGS_BULK_PARAM);
   params.delete(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM);
+  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   const nextQuery = params.toString();
 

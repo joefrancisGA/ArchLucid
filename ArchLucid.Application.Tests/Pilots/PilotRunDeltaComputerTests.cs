@@ -1171,6 +1171,101 @@ public sealed class PilotRunDeltaComputerTests
     }
 
     [SkippableFact]
+    public async Task ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets()
+    {
+        Guid runGuid = Guid.Parse("56565656-2222-3333-4444-555555555555");
+        Guid findingsSnapshotId = Guid.Parse("67676767-2222-3333-4444-555555555555");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-empty-snapshot",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = created.AddMinutes(12),
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = new GoldenManifest
+            {
+                RunId = run.RunId,
+                SystemName = "ArchLucid",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created.AddMinutes(12) },
+                Governance = new ManifestGovernance(),
+            },
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-stale-agent",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            FindingId = "stale-warning",
+                            Severity = FindingSeverity.Warning,
+                            Message = "stale agent row",
+                        },
+                    ],
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings = [],
+            });
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces.Setup(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.CountFilteredAsync(
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            evidence.Object,
+            traces.Object,
+            audit.Object,
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            savingsResolver: null,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Should().BeEmpty();
+        deltas.TopFindingId.Should().BeNull();
+        deltas.TopFindingSeverity.Should().BeNull();
+        deltas.SponsorNarrativeFindings.Should().BeEmpty();
+        deltas.GovernedFindingCoverage.IsAvailable.Should().BeFalse();
+        evidence.Verify(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ComputeAsync_WhenAgentAndSnapshotHaveEqualCounts_PrefersSnapshotWhenSeverityIsHigher()
     {
         Guid runGuid = Guid.Parse("34343434-2222-3333-4444-555555555555");

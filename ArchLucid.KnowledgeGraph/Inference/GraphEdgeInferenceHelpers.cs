@@ -25,6 +25,21 @@ internal static class GraphEdgeInferenceHelpers
         };
     }
 
+    internal static bool TargetedNodeIdsInclude(HashSet<string> targeted, string nodeId)
+    {
+        if (targeted.Contains(nodeId))
+            return true;
+
+        string trimmedNodeId = nodeId.Trim();
+        foreach (string candidate in targeted)
+        {
+            if (string.Equals(candidate.Trim(), trimmedNodeId, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
     internal static List<GraphEdge> Deduplicate(List<GraphEdge> edges)
     {
         return edges

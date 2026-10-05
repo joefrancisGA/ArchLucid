@@ -39,6 +39,35 @@ public sealed class RecoverableOutboxFailureHandlerTests
         repository.DeadLetteredId.Should().Be(entry.OutboxId);
     }
 
+    [Fact]
+    public async Task HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff()
+    {
+        FakeEntry entry = new() { OutboxId = Guid.NewGuid(), AttemptCount = 0 };
+        FakeRepository repository = new();
+        bool hookCalled = false;
+
+        Func<Task> onRetryScheduled = () =>
+        {
+            hookCalled = true;
+            throw new InvalidOperationException("metrics sink unavailable");
+        };
+
+        Func<Task> action = () => RecoverableOutboxFailureHandler.HandleAsync(
+            repository,
+            entry,
+            new InvalidOperationException("processing failed"),
+            "processing failed",
+            new TestOptions { MaxAttemptsBeforeDeadLetter = 3 },
+            TimeProvider.System,
+            static () => Task.CompletedTask,
+            onRetryScheduled,
+            CancellationToken.None);
+
+        await action.Should().NotThrowAsync();
+        hookCalled.Should().BeTrue();
+        repository.BackoffRecordedId.Should().Be(entry.OutboxId);
+    }
+
     private sealed class FakeEntry : IRecoverableOutboxEntry
     {
         public Guid OutboxId { get; init; }
@@ -49,6 +78,8 @@ public sealed class RecoverableOutboxFailureHandlerTests
     private sealed class FakeRepository : IRecoverableOutboxRepository<FakeEntry>
     {
         public Guid? DeadLetteredId { get; private set; }
+
+        public Guid? BackoffRecordedId { get; private set; }
 
         public Task<IReadOnlyList<FakeEntry>> DequeuePendingAsync(
             int maxBatch,
@@ -63,8 +94,11 @@ public sealed class RecoverableOutboxFailureHandlerTests
             Guid outboxId,
             DateTime nextAttemptUtc,
             string failedAttemptErrorSummaryTruncatedTo400,
-            CancellationToken cancellationToken) =>
-            Task.CompletedTask;
+            CancellationToken cancellationToken)
+        {
+            BackoffRecordedId = outboxId;
+            return Task.CompletedTask;
+        }
 
         public Task RecordDeadLetterAsync(
             Guid outboxId,

@@ -43,7 +43,10 @@ public sealed class AuthorityPipelineWorkPayload
                && Enum.IsDefined(WorkKind);
     }
 
-    private static bool HasUsableEvidenceBundleId(string? value) => HasUsableIdentifierText(value);
+    private static bool HasUsableEvidenceBundleId(string? value) => HasUsableCompactIdentifierText(value);
+
+    private static bool HasUsableCompactIdentifierText(string? value) =>
+        HasUsableIdentifierText(value) && HasNoInternalWhitespace(value);
 
     private static bool HasUsableIdentifierText(string? value)
     {
@@ -61,6 +64,22 @@ public sealed class AuthorityPipelineWorkPayload
         }
 
         return true;
+    }
+
+    private static bool HasNoInternalWhitespace(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        string trimmed = value.Trim();
+
+        foreach (char character in trimmed)
+        {
+            if (char.IsWhiteSpace(character))
+                return false;
+        }
+
+        return trimmed.Length > 0;
     }
 
     /// <summary>
@@ -109,11 +128,11 @@ public sealed class AuthorityPipelineWorkPayload
 
         request.InlineRequirements = MaterializeReferenceStringList(request.InlineRequirements);
         request.Documents = MaterializeDocumentList(request.Documents);
-        request.PolicyReferences = MaterializeReferenceStringList(request.PolicyReferences);
-        request.TopologyHints = MaterializeReferenceStringList(request.TopologyHints);
-        request.SecurityBaselineHints = MaterializeReferenceStringList(request.SecurityBaselineHints);
+        request.PolicyReferences = MaterializePathReferenceStringList(request.PolicyReferences);
+        request.TopologyHints = MaterializePathReferenceStringList(request.TopologyHints);
+        request.SecurityBaselineHints = MaterializePathReferenceStringList(request.SecurityBaselineHints);
         request.InfrastructureDeclarations = MaterializeInfrastructureDeclarationList(request.InfrastructureDeclarations);
-        request.RequiredCapabilities = MaterializeReferenceStringList(request.RequiredCapabilities);
+        request.RequiredCapabilities = MaterializePathReferenceStringList(request.RequiredCapabilities);
         request.Constraints = MaterializeReferenceStringList(request.Constraints);
         request.Assumptions = MaterializeReferenceStringList(request.Assumptions);
     }
@@ -138,6 +157,16 @@ public sealed class AuthorityPipelineWorkPayload
             .ToList();
     }
 
+    private static List<string> MaterializePathReferenceStringList(List<string>? values)
+    {
+        if (values is null)
+            return [];
+
+        return values
+            .Where(static value => value is not null && HasUsableCompactIdentifierText(value))
+            .ToList();
+    }
+
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
     {
         if (values is null)
@@ -149,7 +178,9 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableIdentifierText(document.Name) && HasUsableIdentifierText(document.Content);
+        HasUsableCompactIdentifierText(document.Name)
+        && HasUsableCompactIdentifierText(document.ContentType)
+        && HasUsableIdentifierText(document.Content);
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)
@@ -164,6 +195,8 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableIdentifierText(declaration.Name) && HasUsableIdentifierText(declaration.Content);
+        return HasUsableCompactIdentifierText(declaration.Name)
+               && HasUsableCompactIdentifierText(declaration.Format)
+               && HasUsableIdentifierText(declaration.Content);
     }
 }

@@ -39,6 +39,10 @@ partial class AgentExecutionCompositionModule
         {
             agentMode = DevAgentExecutionModeHeaderNames.Real;
         }
+        else
+        {
+            agentMode = NormalizeAgentExecutionModeForRegistration(agentMode);
+        }
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();
         bool useEchoClient = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase)
                               && string.Equals(completionClientRaw, "Echo", StringComparison.OrdinalIgnoreCase);
@@ -125,6 +129,24 @@ partial class AgentExecutionCompositionModule
             }
 
         }
+    }
+
+    private static string NormalizeAgentExecutionModeForRegistration(string? raw)
+    {
+        string? trimmed = raw?.Trim();
+
+        if (string.Equals(trimmed, DevAgentExecutionModeHeaderNames.Real, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "Live", StringComparison.OrdinalIgnoreCase))
+        {
+            return DevAgentExecutionModeHeaderNames.Real;
+        }
+
+        if (string.Equals(trimmed, DevAgentExecutionModeHeaderNames.Simulator, StringComparison.OrdinalIgnoreCase))
+        {
+            return DevAgentExecutionModeHeaderNames.Simulator;
+        }
+
+        return DevAgentExecutionModeHeaderNames.Simulator;
     }
 
     private static void RegisterLlmCompletionProvider(IServiceCollection services)

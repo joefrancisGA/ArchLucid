@@ -25,7 +25,7 @@ public sealed partial class PilotRunDeltaComputer
             FindingsSnapshot? snapshot =
                 await _findingsSnapshotRepository.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, cancellationToken);
 
-            if (snapshot?.Findings is null || snapshot.Findings.Count == 0)
+            if (snapshot?.Findings is null)
                 return null;
 
             return snapshot;

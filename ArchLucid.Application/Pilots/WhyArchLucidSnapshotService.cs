@@ -42,10 +42,11 @@ public sealed class WhyArchLucidSnapshotService(
         bool truncated = false;
         try
         {
+            int auditRowCap = WhyArchLucidSnapshotResponse.AuditRowCountCap;
             IReadOnlyList<AuditEvent> events = await auditRepository.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject,
-                WhyArchLucidSnapshotResponse.AuditRowCountCap, cancellationToken);
-            auditCount = events.Count;
-            truncated = events.Count >= WhyArchLucidSnapshotResponse.AuditRowCountCap;
+                auditRowCap + 1, cancellationToken);
+            truncated = events.Count > auditRowCap;
+            auditCount = truncated ? auditRowCap : events.Count;
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {

@@ -37,7 +37,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
                 ScopeIds.DefaultTenant,
                 ScopeIds.DefaultWorkspace,
                 ScopeIds.DefaultProject,
-                WhyArchLucidSnapshotResponse.AuditRowCountCap,
+                WhyArchLucidSnapshotResponse.AuditRowCountCap + 1,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([new AuditEvent { EventType = "x" }, new AuditEvent { EventType = "y" }]);
 
@@ -64,21 +64,23 @@ public sealed class WhyArchLucidSnapshotServiceTests
     }
 
     [SkippableFact]
-    public async Task BuildAsync_marks_audit_row_count_as_truncated_when_cap_reached()
+    public async Task BuildAsync_when_audit_rows_equal_cap_does_not_mark_truncated()
     {
+        int cap = WhyArchLucidSnapshotResponse.AuditRowCountCap;
+        AuditEvent[] capped = new AuditEvent[cap];
+
+        for (int i = 0; i < capped.Length; i++)
+            capped[i] = new AuditEvent { EventType = "x" };
+
         Mock<IInstrumentationCounterSnapshotProvider> provider = new();
         provider.Setup(p => p.GetSnapshot()).Returns(new InstrumentationCounterSnapshot());
-
-        AuditEvent[] capped = new AuditEvent[WhyArchLucidSnapshotResponse.AuditRowCountCap];
-
-        for (int i = 0; i < capped.Length; i++) capped[i] = new AuditEvent { EventType = "x" };
 
         Mock<IAuditRepository> audit = new();
         audit.Setup(a => a.GetByScopeAsync(
                 ScopeIds.DefaultTenant,
                 ScopeIds.DefaultWorkspace,
                 ScopeIds.DefaultProject,
-                WhyArchLucidSnapshotResponse.AuditRowCountCap,
+                cap + 1,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(capped);
 
@@ -90,7 +92,40 @@ public sealed class WhyArchLucidSnapshotServiceTests
 
         WhyArchLucidSnapshotResponse result = await sut.BuildAsync(CancellationToken.None);
 
-        result.AuditRowCount.Should().Be(WhyArchLucidSnapshotResponse.AuditRowCountCap);
+        result.AuditRowCount.Should().Be(cap);
+        result.AuditRowCountTruncated.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_marks_audit_row_count_as_truncated_when_more_than_cap_exist()
+    {
+        int cap = WhyArchLucidSnapshotResponse.AuditRowCountCap;
+        AuditEvent[] overCap = new AuditEvent[cap + 1];
+
+        for (int i = 0; i < overCap.Length; i++)
+            overCap[i] = new AuditEvent { EventType = "x" };
+
+        Mock<IInstrumentationCounterSnapshotProvider> provider = new();
+        provider.Setup(p => p.GetSnapshot()).Returns(new InstrumentationCounterSnapshot());
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetByScopeAsync(
+                ScopeIds.DefaultTenant,
+                ScopeIds.DefaultWorkspace,
+                ScopeIds.DefaultProject,
+                cap + 1,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(overCap);
+
+        WhyArchLucidSnapshotService sut = new(
+            provider.Object,
+            audit.Object,
+            TimeProvider.System,
+            NullLogger<WhyArchLucidSnapshotService>.Instance);
+
+        WhyArchLucidSnapshotResponse result = await sut.BuildAsync(CancellationToken.None);
+
+        result.AuditRowCount.Should().Be(cap);
         result.AuditRowCountTruncated.Should().BeTrue();
         result.EstimatedManualWorkHoursSaved.Should().BeApproximately(10.0d, 0.001d);
     }

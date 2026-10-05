@@ -9,7 +9,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 function isGenericOutboundWebhookChannel(channelType: string): boolean {
-  return channelType === "OnCallWebhook";
+  return channelType.trim().toLowerCase() === "oncallwebhook";
 }
 
 export type UseWebhooksSettingsLoadOptions = {

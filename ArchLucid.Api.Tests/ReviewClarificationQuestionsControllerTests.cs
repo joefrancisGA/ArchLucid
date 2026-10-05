@@ -87,6 +87,26 @@ public sealed class ReviewClarificationQuestionsControllerTests
     }
 
     [Fact]
+    public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answers_collection_is_null()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        ReviewClarificationQuestionsController controller = CreateController(
+            Mock.Of<IReviewClarificationQuestionService>(),
+            Mock.Of<IKnowledgeModelClarificationAnswerApplicator>());
+
+        ApplyKnowledgeModelClarificationAnswersRequest request = new() { Answers = null! };
+
+        IActionResult action = await controller.ApplyKnowledgeModelClarificationAnswers(
+            runId,
+            request,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_exceeds_max_length()
     {
         Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

@@ -11,7 +11,10 @@ public static class HotPathCacheProviderResolver
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        string raw = options.Provider;
+        string? raw = options.Provider;
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return "Memory";
 
         if (!string.Equals(raw, "Auto", StringComparison.OrdinalIgnoreCase))
             return raw.Trim();
