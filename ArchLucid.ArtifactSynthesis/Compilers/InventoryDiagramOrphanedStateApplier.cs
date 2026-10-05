@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
@@ -68,6 +69,17 @@ internal static class InventoryDiagramOrphanedStateApplier
                 continue;
             }
 
+            if (TryResolvePublicIpUsedMessage(
+                    graphNode,
+                    classificationGraph,
+                    out string? publicIpUsedMessage))
+            {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Used;
+                diagramNode.ConnectionStateMessage = publicIpUsedMessage;
+                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                continue;
+            }
+
             if (TryResolveUsedMessage(graph, graphNode.NodeId, out string? usedMessage))
             {
                 diagramNode.ConnectionState = InventoryDiagramConnectionState.Used;
@@ -120,5 +132,119 @@ internal static class InventoryDiagramOrphanedStateApplier
 
         message = null;
         return false;
+    }
+
+    private static bool TryResolvePublicIpUsedMessage(
+        GraphNode graphNode,
+        GraphSnapshot classificationGraph,
+        out string? message)
+    {
+        message = null;
+
+        if (!string.Equals(
+                ReadArmType(graphNode),
+                "Microsoft.Network/publicIPAddresses",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        Dictionary<string, GraphNode> armIdToGraphNode = classificationGraph.Nodes
+            .Where(node => node.Properties.TryGetValue("arm.id", out string? armId)
+                && !string.IsNullOrWhiteSpace(armId))
+            .ToDictionary(
+                node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]),
+                node => node,
+                StringComparer.OrdinalIgnoreCase);
+        IReadOnlyList<string> parentArmIds =
+            ResolvePublicIpParentArmIds(graphNode, classificationGraph);
+
+        foreach (string parentArmId in parentArmIds)
+        {
+            string? resolvedArmId = ResolveArmIdIncludingAncestor(parentArmId, armIdToGraphNode);
+
+            if (!string.IsNullOrWhiteSpace(resolvedArmId))
+            {
+                message = $"attached to {ReadResourceName(resolvedArmId)}";
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IReadOnlyList<string> ResolvePublicIpParentArmIds(
+        GraphNode graphNode,
+        GraphSnapshot graph)
+    {
+        Dictionary<string, HashSet<string>> publicIpReferencingParents =
+            AzureInventoryParentAttachmentParentResolver.BuildPublicIpReferencingParentArmIdMap(graph.Nodes);
+        AzureInventoryParentAttachmentResolveResult resolved =
+            AzureInventoryParentAttachmentParentResolver.Resolve(
+                graphNode,
+                graph,
+                publicIpReferencingParents);
+
+        if (resolved.ParentArmIds.Count > 0)
+        {
+            return resolved.ParentArmIds;
+        }
+
+        if (graphNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId))
+        {
+            string? parentArmId =
+                AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
+
+            if (!string.IsNullOrWhiteSpace(parentArmId))
+            {
+                return [parentArmId];
+            }
+        }
+
+        if (graphNode.Properties.TryGetValue("natGateway.id", out string? natGatewayId)
+            && !string.IsNullOrWhiteSpace(natGatewayId))
+        {
+            return [ArmResourceIdNormalizer.Normalize(natGatewayId)];
+        }
+
+        return [];
+    }
+
+    private static string? ResolveArmIdIncludingAncestor(
+        string armId,
+        IReadOnlyDictionary<string, GraphNode> armIdToGraphNode)
+    {
+        string normalizedArmId = ArmResourceIdNormalizer.Normalize(armId);
+
+        if (armIdToGraphNode.ContainsKey(normalizedArmId))
+        {
+            return normalizedArmId;
+        }
+
+        foreach (string ancestor in ArmResourceIdNormalizer.EnumerateAncestorResourceIds(normalizedArmId))
+        {
+            if (armIdToGraphNode.ContainsKey(ancestor))
+            {
+                return ancestor;
+            }
+        }
+
+        return null;
+    }
+
+    private static string ReadArmType(GraphNode node)
+    {
+        return node.Properties.TryGetValue("arm.type", out string? armType)
+            ? armType
+            : string.Empty;
+    }
+
+    private static string ReadResourceName(string armResourceId)
+    {
+        int lastSlash = armResourceId.LastIndexOf('/');
+
+        return lastSlash >= 0 && lastSlash < armResourceId.Length - 1
+            ? armResourceId[(lastSlash + 1)..]
+            : "parent resource";
     }
 }

@@ -164,82 +164,77 @@ function Add-ArchLucidArgNetworkAssociationRowsFromPublicIpRecord
         [hashtable] $Seen,
         [string] $PublicIpResourceId,
         [object] $IpConfigurationJson,
+        [string] $NatGatewayId = "",
         [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
     )
-
-    if ($null -eq $IpConfigurationJson)
-    {
-        return
-    }
 
     [object]$ipConfiguration = $IpConfigurationJson
     [string]$ipConfigurationId = ''
 
-    if ($ipConfiguration -is [string])
+    if ($null -ne $ipConfiguration)
     {
-        [string]$ipConfigurationText = $ipConfiguration.Trim()
-
-        if ([string]::IsNullOrWhiteSpace($ipConfigurationText))
+        if ($ipConfiguration -is [string])
         {
-            return
-        }
+            [string]$ipConfigurationText = $ipConfiguration.Trim()
 
-        [bool]$ipConfigurationTextIsArmId = $ipConfigurationText.IndexOf(
-            '/ipConfigurations/',
-            [System.StringComparison]::OrdinalIgnoreCase) -ge 0
-
-        if ($ipConfigurationTextIsArmId -and -not $ipConfigurationText.StartsWith('{'))
-        {
-            $ipConfigurationId = $ipConfigurationText
-        }
-        else
-        {
-            try
+            if (-not [string]::IsNullOrWhiteSpace($ipConfigurationText))
             {
-                $ipConfiguration = ConvertFrom-Json -InputObject $ipConfigurationText -ErrorAction Stop
-            }
-            catch
-            {
-                return
+                if ($ipConfigurationText.StartsWith('/') -and
+                    $ipConfigurationText.Contains('ipConfigurations', [System.StringComparison]::OrdinalIgnoreCase))
+                {
+                    $ipConfigurationId = $ipConfigurationText
+                }
+                else
+                {
+                    try
+                    {
+                        $ipConfiguration = ConvertFrom-Json -InputObject $ipConfigurationText -ErrorAction Stop
+                    }
+                    catch
+                    {
+                        $ipConfiguration = $null
+                    }
+                }
             }
         }
-    }
 
-    if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
-    {
-        [object]$ipConfigurationIdRef = Get-ArchLucidArgNestedProperty $ipConfiguration 'id'
-        $ipConfigurationId = "$ipConfigurationIdRef".Trim()
-    }
+        if ($ipConfiguration -is [string] -and [string]::IsNullOrWhiteSpace($ipConfigurationId))
+        {
+            $ipConfigurationId = "$ipConfiguration".Trim()
+        }
 
-    if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
-    {
-        return
-    }
-
-    if ($ipConfigurationId.IndexOf('/ipConfigurations/', [System.StringComparison]::OrdinalIgnoreCase) -lt 0)
-    {
-        return
+        if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
+        {
+            [object]$ipConfigurationIdRef = Get-ArchLucidArgNestedProperty $ipConfiguration 'id'
+            $ipConfigurationId = "$ipConfigurationIdRef".Trim()
+        }
     }
 
     [string]$associatedResourceId = Resolve-ArchLucidAssociatedResourceFromIpConfiguration -IpConfigurationId $ipConfigurationId
 
-    if ([string]::IsNullOrWhiteSpace($associatedResourceId))
+    if ([string]::IsNullOrWhiteSpace($associatedResourceId) -and -not [string]::IsNullOrWhiteSpace($NatGatewayId))
     {
-        return
+        $associatedResourceId = $NatGatewayId.Trim()
     }
 
-    Add-ArchLucidNetworkAssociationRow `
-        -Rows $Rows `
-        -Seen $Seen `
-        -FromResourceId $PublicIpResourceId `
-        -ToResourceId $associatedResourceId `
-        -AssociationType 'publicIpToNic'
+    if (-not [string]::IsNullOrWhiteSpace($associatedResourceId))
+    {
+        Add-ArchLucidNetworkAssociationRow `
+            -Rows $Rows `
+            -Seen $Seen `
+            -FromResourceId $PublicIpResourceId `
+            -ToResourceId $associatedResourceId `
+            -AssociationType 'publicIpToNic'
+    }
 
-    if ($null -ne $PublicIpIpConfigurationFacts)
+    if ($null -ne $PublicIpIpConfigurationFacts -and
+        (-not [string]::IsNullOrWhiteSpace($ipConfigurationId) -or
+         -not [string]::IsNullOrWhiteSpace($NatGatewayId)))
     {
         [void]$PublicIpIpConfigurationFacts.Add([ordered]@{
                 resourceId = $PublicIpResourceId
                 ipConfigurationId = $ipConfigurationId
+                natGatewayId = $NatGatewayId
             })
     }
 }
@@ -446,7 +441,7 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
         }
         [pscustomobject]@{
             Kind = 'publicIpAddress'
-            Query = "Resources | where type =~ 'microsoft.network/publicipaddresses' $rgFilter | project id, type, ipConfiguration = properties.ipConfiguration"
+            Query = "Resources | where type =~ 'microsoft.network/publicipaddresses' $rgFilter | project id, type, ipConfiguration = properties.ipConfiguration, natGatewayId = properties.natGateway.id"
         }
         [pscustomobject]@{
             Kind = 'virtualNetwork'
@@ -588,6 +583,7 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -Seen $seen `
                             -PublicIpResourceId $resourceId `
                             -IpConfigurationJson $Row.ipConfiguration `
+                            -NatGatewayId "$( $Row.natGatewayId )".Trim() `
                             -PublicIpIpConfigurationFacts $PublicIpIpConfigurationFacts
                     }
                     'virtualNetwork' {
