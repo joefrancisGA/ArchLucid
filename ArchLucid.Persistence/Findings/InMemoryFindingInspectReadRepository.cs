@@ -74,9 +74,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             appliedRuleIdsJson = JsonSerializer.Serialize(appliedRuleIds);
         }
 
-        string? firstRuleText = match.Trace?.RulesApplied is { Count: > 0 } rules
-            ? rules[0]
-            : null;
+        string? firstRuleText = FindingInspectReadRepositoryCore.ResolveFirstTraceRuleText(match.Trace?.RulesApplied);
 
         (string? ruleId, string? ruleName) =
             FindingInspectReadRepositoryCore.ResolveRuleFields(appliedRuleIdsJson, firstRuleText);

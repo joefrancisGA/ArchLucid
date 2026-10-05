@@ -98,6 +98,45 @@ public sealed class InMemoryFindingInspectReadRepositoryNormalizationTests
     }
 
     [Fact]
+    public async Task GetInspectAsync_uses_first_substantive_trace_rule_when_applied_rule_ids_are_absent()
+    {
+        Guid runId = Guid.Parse("ffffffffffffffffffffffffffffffff");
+        string findingId = $"finding-demo-{runId:N}-primary";
+        ScopeContext scope = new();
+
+        Finding finding = new()
+        {
+            FindingId = findingId,
+            FindingType = "test",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Info,
+            Title = "Title",
+            Rationale = "Rationale",
+            Trace = new ExplainabilityTrace { RulesApplied = ["\u200B", "  trace-policy-7  "] },
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingInspectReadRepository repository = new(authority.Object);
+
+        FindingInspectResponse? response = await repository.GetInspectAsync(scope, findingId, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.DecisionRuleId.Should().Be("trace-policy-7");
+        response.DecisionRuleName.Should().Be("trace-policy-7");
+    }
+
+    [Fact]
     public async Task GetInspectAsync_resolves_decision_rule_fields_like_sql_inspect_mapper()
     {
         Guid runId = Guid.Parse("cccccccccccccccccccccccccccccccc");

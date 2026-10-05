@@ -2765,6 +2765,13 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveFirstTraceRuleText_skips_invisible_prefix_entries()
+    {
+        FindingInspectReadRepositoryCore.ResolveFirstTraceRuleText(["\u200B", "  policy-trace  "]).Should()
+            .Be("policy-trace");
+    }
+
+    [Fact]
     public void ResolveTraceRuleFields_returns_nulls_when_trace_text_is_invisible_unicode_only()
     {
         FindingInspectReadRepositoryCore.ResolveTraceRuleFields("\u200B").Should().Be((null, null));
