@@ -60,8 +60,10 @@ public sealed class IdentityProviderActivationService(
 
         string issuerUri = request.IssuerUri?.Trim() ?? string.Empty;
 
-        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
+        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out Uri? parsedIssuer))
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
+
+        string canonicalIssuerUri = parsedIssuer.AbsoluteUri;
 
         IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveMappingEntries(request.ClaimMapping);
@@ -82,7 +84,7 @@ public sealed class IdentityProviderActivationService(
         {
             TenantId = tenantId,
             Protocol = parsedProtocol,
-            IssuerUri = issuerUri,
+            IssuerUri = canonicalIssuerUri,
             MetadataXml = ResolveOptionalPersistedField(
                 request.MetadataXml,
                 sameProtocol ? existing?.MetadataXml : null),

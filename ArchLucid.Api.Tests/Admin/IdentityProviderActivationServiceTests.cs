@@ -577,6 +577,28 @@ public sealed class IdentityProviderActivationServiceTests
         record.Protocol.Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData("https://idp.example/./oidc", "https://idp.example/oidc")]
+    [InlineData("https://idp.example:443/oidc", "https://idp.example/oidc")]
+    public async Task ActivateAsync_canonicalizes_issuer_uri_to_absolute_uri(string issuerUri, string expectedIssuerUri)
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        record.IssuerUri.Should().Be(expectedIssuerUri);
+    }
+
     [Fact]
     public async Task ActivateAsync_trims_issuer_uri_and_actor_id()
     {
