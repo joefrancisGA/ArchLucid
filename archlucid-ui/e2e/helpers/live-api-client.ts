@@ -882,11 +882,10 @@ export function listFindingTitlesFromAuthorityRunDetailPayload(payload: unknown)
   return titles;
 }
 
-/** First matching committed finding id from authority run detail (`findingsSnapshot.findings`). */
-export function findFindingIdByTitlePatternInAuthorityRunDetailPayload(
+function findCommittedFindingRowByTitlePatternInAuthorityRunDetailPayload(
   payload: unknown,
   pattern: RegExp,
-): string | null {
+): { findingId: string; title: string } | null {
   if (payload === null || typeof payload !== "object") {
     return null;
   }
@@ -914,11 +913,27 @@ export function findFindingIdByTitlePatternInAuthorityRunDetailPayload(
     const findingId = typeof record.findingId === "string" ? record.findingId.trim() : "";
 
     if (title.length > 0 && findingId.length > 0 && pattern.test(title)) {
-      return findingId;
+      return { findingId, title };
     }
   }
 
   return null;
+}
+
+/** First matching committed finding id from authority run detail (`findingsSnapshot.findings`). */
+export function findFindingIdByTitlePatternInAuthorityRunDetailPayload(
+  payload: unknown,
+  pattern: RegExp,
+): string | null {
+  return findCommittedFindingRowByTitlePatternInAuthorityRunDetailPayload(payload, pattern)?.findingId ?? null;
+}
+
+/** First matching committed finding title from authority run detail (`findingsSnapshot.findings`). */
+export function findFindingTitleByTitlePatternInAuthorityRunDetailPayload(
+  payload: unknown,
+  pattern: RegExp,
+): string | null {
+  return findCommittedFindingRowByTitlePatternInAuthorityRunDetailPayload(payload, pattern)?.title ?? null;
 }
 
 /** GET `/v1/architecture/review/{runId}` — run aggregate including golden manifest id after commit. */

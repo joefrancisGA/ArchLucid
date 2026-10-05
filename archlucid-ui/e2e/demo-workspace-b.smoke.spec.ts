@@ -10,6 +10,7 @@ import { expect, test } from "@playwright/test";
 import {
   DEMO_WORKSPACE_B_LIVE_IDS,
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+  injectDemoWorkspaceOperatorScope,
   openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -17,6 +18,7 @@ import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture
 import {
   countFindingsInAuthorityRunDetailPayload,
   findFindingIdByTitlePatternInAuthorityRunDetailPayload,
+  findFindingTitleByTitlePatternInAuthorityRunDetailPayload,
   getAuthorityBuyerSummaryRaw,
   getAuthorityRunDetailRaw,
   getRunArchitectureExportHistoryRaw,
@@ -31,7 +33,6 @@ import {
   expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   expectReviewDetailFindingInspectCopyVisible,
-  expectReviewDetailSeedFindingCopyVisible,
   openReviewDetailWorkspaceTab,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
@@ -197,18 +198,30 @@ test.describe(
       authorityJson,
       /interim public listener/i,
     );
+    const packATitle = findFindingTitleByTitlePatternInAuthorityRunDetailPayload(
+      authorityJson,
+      /immutable lineage hash/i,
+    );
+    const packBTitle = findFindingTitleByTitlePatternInAuthorityRunDetailPayload(
+      authorityJson,
+      /interim public listener/i,
+    );
 
     expect(packAFindingId, "Pack A finding id from authority snapshot").not.toBeNull();
     expect(packBFindingId, "Pack B finding id from authority snapshot").not.toBeNull();
+    expect(packATitle, "Pack A finding title from authority snapshot").not.toBeNull();
+    expect(packBTitle, "Pack B finding title from authority snapshot").not.toBeNull();
 
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
+
+    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
 
     /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
     await expectReviewDetailFindingInspectCopyVisible(
       page,
       DEMO_WORKSPACE_B_REGULATED_RUN_ID,
       packAFindingId!,
-      /immutable lineage hash/i,
+      packATitle!,
       { timeoutMs: 90_000 },
     );
 
@@ -217,7 +230,7 @@ test.describe(
       page,
       DEMO_WORKSPACE_B_REGULATED_RUN_ID,
       packBFindingId!,
-      /interim public listener/i,
+      packBTitle!,
       { timeoutMs: 90_000 },
     );
 

@@ -678,13 +678,14 @@ export async function expectReviewDetailFindingInspectCopyVisible(
   page: Page,
   runId: string,
   findingId: string,
-  pattern: RegExp,
+  copy: string | RegExp,
   options?: { timeoutMs?: number },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 90_000;
   const trimmedRunId = runId.trim();
   const trimmedFindingId = findingId.trim();
   const href = `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedFindingId)}`;
+  const copyPattern = typeof copy === "string" ? new RegExp(copy.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") : copy;
 
   await expect(async () => {
     await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
@@ -692,18 +693,24 @@ export async function expectReviewDetailFindingInspectCopyVisible(
     const main = page.getByRole("main");
 
     await expect(main).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 5_000 });
 
+    const workspaceHeader = main.getByTestId("finding-detail-workspace-header");
     const primaryContent = main.getByTestId("finding-detail-primary-content");
 
-    if (await primaryContent.isVisible().catch(() => false)) {
-      await expect(primaryContent.getByRole("heading", { level: 1, name: pattern })).toBeVisible({
+    await expect(workspaceHeader.or(primaryContent)).toBeVisible({ timeout: 30_000 });
+
+    const region = (await workspaceHeader.isVisible().catch(() => false)) ? workspaceHeader : primaryContent.or(main);
+
+    if (typeof copy === "string") {
+      await expect(region.getByRole("heading", { level: 1, name: copy, exact: true })).toBeVisible({
         timeout: 15_000,
       });
 
       return;
     }
 
-    await expect(main.getByRole("heading", { level: 1, name: pattern })).toBeVisible({ timeout: 15_000 });
+    await expect(region.getByText(copyPattern).first()).toBeVisible({ timeout: 15_000 });
   }).toPass({ timeout });
 }
 
