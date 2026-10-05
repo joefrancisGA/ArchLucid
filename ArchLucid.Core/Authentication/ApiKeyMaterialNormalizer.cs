@@ -35,10 +35,15 @@ public static class ApiKeyMaterialNormalizer
 
     private static bool IsInvisibleKeyMaterialChar(char character)
     {
-        if (char.GetUnicodeCategory(character) == UnicodeCategory.Format)
+        UnicodeCategory category = char.GetUnicodeCategory(character);
+
+        if (category == UnicodeCategory.Format)
+            return true;
+
+        if (category == UnicodeCategory.Control)
             return true;
 
         // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
-        return character != ' ' && char.GetUnicodeCategory(character) == UnicodeCategory.SpaceSeparator;
+        return character != ' ' && category == UnicodeCategory.SpaceSeparator;
     }
 }
