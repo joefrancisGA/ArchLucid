@@ -74,6 +74,8 @@
 
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `RunDetailFindingsWorkspace` kept the prior run’s classification band (and list view) after a client-side `runId` transition when the URL omitted band/list params; re-sync toolbar band + list view from the location on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped review-detail vitest tests passed (findings workspace + workspace tabs).
 
+2026-10-05 seed hunt (seed→hit): `tenant-erasure` — `NormalizeLegalHoldReason` collapsed surrounding whitespace only, so operator safe-retry with extra internal spaces duplicated `TenantErasureLegalHoldSet` audits; collapse internal whitespace runs when normalizing legal-hold reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`; 43 scoped `TenantErasure` tests passed (16 Application, 23 Api, 4 Core).
+
 2026-10-05 seed hunt (seed→hit): `tenant-erasure` — platform legal-hold path stored untrimmed `Reason` while idempotent retry compared raw strings, so a padded reason retry duplicated platform audit events; normalize trim in `TenantErasureCommandService.TrySetLegalHoldAsync` and when comparing stored reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`; 36 scoped `TenantErasure` tests passed (9 Application, 23 Api, 4 Core).
 
 2026-10-05 seed hunt (seed→hit): `host-core-coordination` — early skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a throwing `ILogger` prevented skip-as-processed and scheduled backoff on purged-run orphan rows; moved skip warnings into post-mark best-effort observability on `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`; 21 Host.Core and 34 Host.Composition scoped coordination/outbox tests passed.
@@ -3367,6 +3369,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows emit duplicate `GraphEdge` objects that could create unstable duplicate committed edges — **cheap-disproof 2026-10-03 thorough hunt:** mapper intentionally emits one edge per relationship row, while `AgentTopologyProposalGraphMerge.AppendUniqueEdges` deduplicates by directed `(fromNodeId, toNodeId, edgeType)` before commit; 978 scoped edge-mapper/graph-merge tests passed.
 - [x] (proven) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — a relationship using the accepted synthetic form `svc-  api` / `ds-  sql` passed endpoint-index validation but was dropped by a preceding raw-key check; removed the inconsistent precheck and added `Merge_keeps_relationships_when_synthetic_endpoints_have_internal_whitespace`.
 - [x] (proven) `TopologyProposalConsensusMerger.IntersectRelationships` — equivalent relationships with surrounding endpoint whitespace failed the consensus intersection before endpoint validation; normalized trimmed and synthetic endpoint identities, with regression `Merge_intersects_relationships_when_endpoint_whitespace_differs_between_models`.
+- [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — consensus identity normalizes outer whitespace and synthetic prefixes but not other non-canonical ARM resource-ID separators; input is two reachable agent proposals whose relationship endpoints use equivalent ARM IDs with separator variation.
+- [ ] (candidate) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names are copied into generated `svc-`/`ds-` node IDs; input is a reachable topology proposal with an outer-whitespace service or datastore name, potentially persisting a malformed synthetic node identity.
 - [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` / `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — module-qualified versus root Terraform relationship endpoints did not normalize to the same identity when the inventoried side used the other form — **hit 2026-10-05 seed hunt (seed→hit):** `TryNormalizeTerraformEndpointIdentity`; regressions `MapRelationships_resolves_module_qualified_terraform_address_when_graph_node_source_id_is_root_address` and `Merge_intersects_relationships_when_models_use_module_qualified_versus_root_terraform_addresses`.
 - [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — ARM resource-ID path separator variants (e.g. duplicate slashes) may still fail consensus intersection when casing/whitespace/terraform module forms already match; needs a reachable ARM citation before hunt-ready.
 - [x] (proven) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names were copied into generated `svc-`/`ds-` node IDs while endpoint keys used trimmed synthetic ids, so relationships referencing normalized `svc-{name}` resolved to dangling endpoints — **hit 2026-10-05 thorough hunt:** materialize via `ResolveMaterializedServiceNodeId` / `ResolveMaterializedDatastoreNodeId` sharing `BuildSyntheticServiceNodeId` / `BuildSyntheticDatastoreNodeId`; regressions `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id` and `WithMergedTopologyProposals_materializes_canonical_synthetic_node_ids_when_manifest_names_have_surrounding_whitespace`.
@@ -3397,6 +3401,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
+- **hunts:** 77
+- **bugs-found:** 63
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-04
+- **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
 - **hunts:** 81
 - **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
@@ -3489,6 +3498,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-11 seed hunt #1777 (hit): reseeded arm-terraform-source-ids after #1776; proved padded endpoint alias key resolution gap; 1 scoped edge mapper regression passed.
 
 - [x] (proven) `TerraformAzurermResourceTypeParser.TryParseSlug` — a reachable Terraform module address such as `module.azurerm_wrapper.azurerm_app_service.main` matched the module token first, so the actual provider resource token was not recognized; synthetic service aliases were omitted and relationship edges were dropped — **hit 2026-10-02 seed hunt:** parse the final `azurerm_`/`azuread_` token; regression `MapRelationships_resolves_synthetic_service_id_when_terraform_module_name_contains_azurerm_token`.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — emits one `GraphEdge` per duplicate `ManifestRelationship` without deduplicating the derived edge id; reachable duplicate agent relationship proposals can create duplicate graph edges or unstable overwrite behavior, requiring graph-merge proof of the intended duplicate semantics.
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows (duplicate ledger row closed 2026-10-05) — see proven classification at 2026-10-03 thorough hunt above; `AppendUniqueEdges` dedupes before commit.
 
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex` / `TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress` — module-qualified Terraform `SourceId` on graph nodes and manifest endpoints did not register the root `azurerm_*.name` alias, so relationships referencing the short address missed resolution — **hit 2026-10-05 thorough hunt:** leaf address keys and resolution aliases on graph nodes and declared manifests; regression `MapRelationships_resolves_root_terraform_address_when_graph_node_source_id_is_module_qualified`.
@@ -4930,6 +4940,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 488
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — legal-hold reason internal whitespace broke operator safe-retry idempotency
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): proved `TenantErasureCommandService.NormalizeLegalHoldReason` trimmed surrounding whitespace only, so operator safe-retry with the same semantic reason but extra internal spaces duplicated `TenantErasureLegalHoldSet` audits; collapse internal whitespace runs when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`; 43 scoped `TenantErasure` tests passed (16 Application + 23 Api + 4 Core).
 - **last-bug:** 2026-10-05 — offboard safe-retry returned null (409) when tenant was already in erasure quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4951,6 +4966,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2076 (seed-only): reseeded tenant-erasure; 8 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `TenantErasureCommandService.NormalizeLegalHoldReason` / `IsIdenticalLegalHoldRetry` — legal-hold reasons differing only by internal whitespace duplicated `TenantErasureLegalHoldSet` audits on operator safe-retry — **hit 2026-10-05 seed hunt (seed→hit):** collapse internal whitespace when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`.
+- [x] (proven) `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — `LegalHoldUntilUtc` compared with `==` so the same instant with a different `DateTimeOffset` offset duplicated legal-hold audits on retry — **hit 2026-10-05 seed hunt:** compare `UtcDateTime`; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_until_utc_differs_only_by_offset`.
+- [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — platform admin legal-hold requests passed untrimmed `Reason` while tenant-admin HTTP trimmed before the command service, so `IsIdenticalLegalHoldRetry` missed semantic duplicates and appended duplicate `TenantErasureLegalHoldSet` audits on safe retry — **hit 2026-10-05 seed hunt:** normalize legal-hold reason on persist and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`
 
 - [x] (proven) `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — `LegalHoldUntilUtc` compared with `==` so the same instant with a different `DateTimeOffset` offset duplicated legal-hold audits on retry — **hit 2026-10-05 seed hunt:** compare `UtcDateTime`; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_until_utc_differs_only_by_offset`.
 - [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — platform admin legal-hold requests passed untrimmed `Reason` while tenant-admin HTTP trimmed before the command service, so `IsIdenticalLegalHoldRetry` missed semantic duplicates and appended duplicate `TenantErasureLegalHoldSet` audits on safe retry — **hit 2026-10-05 seed hunt:** normalize legal-hold reason on persist and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`
@@ -14276,6 +14295,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
+- **hunts:** 922
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-30
+- **last-bug:** 2026-09-13 — hunt #2475: InsertAsync silently overwrote duplicate identity id
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 - **hunts:** 923
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
@@ -29058,6 +29085,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
+- **hunts:** 20
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — post-materialize skipped SecureNow neighborhood carry-forward when empty diff was already persisted
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods unstale after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 - **hunts:** 22
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
@@ -29111,6 +29147,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — recomputing a persisted snapshot-pair diff returned `WasExisting` without notifying registered consumers, so a retry after partial consumer failure could skip `SecureNowArchitectDiffConsumer` and `AuditContinuousReadinessDiffConsumer` side effects — **hit 2026-10-05 thorough hunt:** notify consumers on existing diffs and isolate per-consumer failures; regressions `ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers` and `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService.PersistEmptyDiffAsync` — when consecutive Azure inventory snapshots share the same `ContentHashSha256`, the diff service short-circuits to an empty persisted diff without notifying registered consumers, so post-materialize “no changes” captures never reach `AuditContinuousReadinessDiffConsumer` or `SecureNowArchitectDiffConsumer` — **hit 2026-10-05 seed hunt (seed→hit):** notify consumers after empty diff insert; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize carry-forward required `WasExisting: false` on zero-change diffs, so a rematerialize retry after the diff row already existed skipped `ISecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` even when neighborhoods were never carried forward — **hit 2026-10-05 seed hunt (seed→hit):** carry forward on any succeeded empty diff; regression `OnSnapshotMaterializedAsync_when_empty_diff_already_persisted_still_carries_forward_neighborhoods`.
+
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize only called `SecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` when `AzureInventoryDiffComputeResult.WasExisting` was false, so a retry after a persisted empty snapshot-pair diff skipped neighborhood carry-forward and left SecureNow path state stale on the new snapshot — **hit 2026-10-05 seed hunt:** carry forward on any successful zero-change diff; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`.
+
+2026-10-05 seed hunt (hit): promoted hunt-ready row from post-materialize coordinator wiring registered by `InfraEvidenceCompositionModule`; empty persisted snapshot-pair diff with `WasExisting` skipped `CarryForwardAllAsync` on retry; fixed carry-forward guard and added regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — when a prior materialized snapshot exists but inventory diff computation fails, incremental mode still ran downstream-only SecureNow engines instead of the full post-materialize pipeline — **hit 2026-10-05 seed hunt (seed→hit):** full recompute when `diffResult.Succeeded` is false; regression `OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline`.
 
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — per-consumer isolation logged consumer failures but still returned `Succeeded: true`, so `AzureInventorySnapshotPostMaterializeCoordinator` incremental post-materialize ran downstream-only SecureNow engines after a partial diff-consumer failure — **hit 2026-10-05 seed hunt:** `ConsumerFanOutSucceeded` on `AzureInventoryDiffComputeResult` and full-recompute fallback when fan-out fails; regressions `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`, `OnSnapshotMaterializedAsync_when_diff_consumer_fan_out_fails_runs_full_securenow_pipeline`.

@@ -194,7 +194,12 @@ public sealed class TenantErasureCommandService(
 
         string trimmed = reason.Trim();
 
-        return trimmed.Length == 0 ? null : trimmed;
+        if (trimmed.Length == 0)
+            return null;
+
+        string[] tokens = trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+
+        return tokens.Length == 0 ? null : string.Join(' ', tokens);
     }
 
     /// <inheritdoc />
