@@ -1700,6 +1700,17 @@ export async function getRunArchitectureExportHistoryRaw(
   });
 }
 
+/** GET `/v1/artifacts/runs/{runId}/export/verify` — unblocks export history when lineage gate is enforced. */
+export async function verifyRunExportLineageRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
+  return request.get(`${resolveLiveApiBase()}/v1/artifacts/runs/${encodeURIComponent(runId)}/export/verify`, {
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+  });
+}
+
 /**
  * POST `/v1/architecture/review/{runId}/analysis-report/export/docx/consulting` — consulting-template DOCX
  * (`CanExportConsultingDocx` policy + ExecuteAuthority); returns raw HTTP for Playwright assertions.
