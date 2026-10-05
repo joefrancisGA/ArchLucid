@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `core-configuration-summary` — embedded connection-string detection required a semicolon, so single-pair ADO.NET secrets such as `Password=…` on non-sensitive paths leaked in operator config summary; treat leading `Password=` / `Pwd=` / `AccountKey=` / `SharedAccessKey=` pairs as credentials without requiring `;`; regressions `Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair` and `Resolve_redacts_plain_scalar_cosmos_account_key_connection_string`; 1056 scoped Configuration tests passed (no-build filter).
+
 2026-10-05 seed hunt (seed→hit): `core-configuration-summary` — `ConfigurationSensitiveConfigValueScanner` only parsed JSON `{`/`[` effective values, so plain ADO.NET connection-string scalars on non-sensitive config paths leaked in operator config summary; apply the same embedded connection-string heuristic to non-JSON and invalid-JSON effective values; regressions `Resolve_redacts_plain_scalar_connection_string_effective_values` and `Resolve_preserves_plain_scalar_non_credential_effective_values`; 1054 scoped Configuration tests passed (no-build filter).
 
 2026-10-05 seed hunt (seed→hit): `core-configuration-summary` — `ConfigurationSensitiveConfigValueScanner` scanned JSON property names only, so effective values that are JSON arrays of ADO.NET connection-string scalars leaked passwords in operator config summary; detect credential markers in JSON string elements; regressions `Resolve_redacts_json_effective_values_when_effective_value_is_json_array_of_connection_strings` and `Resolve_preserves_non_credential_json_array_scalar_effective_values`; 1051 scoped Configuration tests passed (no-build filter).
@@ -19400,11 +19402,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 37
-- **bugs-found:** 20
+- **hunts:** 38
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — plain scalar connection strings leaked in config summary
+- **last-bug:** 2026-10-05 — single-pair `Password=` effective values leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19417,6 +19419,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-05 seed hunt (seed→hit): promoted and proved JSON effective values shaped as arrays of connection-string scalars leaked because `ConfigurationSensitiveConfigValueScanner` only walked property names; fixed by scanning JSON string elements for ADO.NET-style credential markers; regressions `Resolve_redacts_json_effective_values_when_effective_value_is_json_array_of_connection_strings` and `Resolve_preserves_non_credential_json_array_scalar_effective_values`; 1051 scoped Configuration tests passed (no-build filter).
 
 2026-10-05 seed hunt (seed→hit): promoted and proved plain ADO.NET connection-string effective values on non-sensitive paths leaked because the scanner only ran for JSON documents; fixed by applying embedded connection-string detection to non-JSON and invalid-JSON values; regressions `Resolve_redacts_plain_scalar_connection_string_effective_values` and `Resolve_preserves_plain_scalar_non_credential_effective_values`; 1054 scoped Configuration tests passed (no-build filter).
+
+2026-10-05 seed hunt (seed→hit): promoted and proved single-pair `Password=` effective values leaked because embedded connection-string detection required semicolons; fixed by recognizing leading credential key prefixes without a second pair; regressions `Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair` and `Resolve_redacts_plain_scalar_cosmos_account_key_connection_string`; 1056 scoped Configuration tests passed (no-build filter).
 
 2026-10-03 seed hunt (seed-only): re-read the configuration summary redaction, effective-value resolver, deployment options, OTP normalization, and configuration tests; no new candidate met the wrong-outcome and product-contract bar for same-run proof.
 
@@ -19483,6 +19487,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` / `ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPropertyName` — snake_case JSON property `connection_string` bypassed credential property scan — **hit 2026-10-05 seed hunt:** underscore splits left non-sensitive tokens without assembling `ConnectionString`; fixed with PascalCase compound assembly from delimiter-separated parts; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_connection_string`
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — JSON arrays of ADO.NET connection-string scalars bypassed embedded-credential scan — **hit 2026-10-05 seed hunt:** scanner only inspected property names, not string elements; fixed with conservative `Password=` / `Pwd=` / `AccountKey=` / `SharedAccessKey=` detection in JSON string values; regressions `Resolve_redacts_json_effective_values_when_effective_value_is_json_array_of_connection_strings` and `Resolve_preserves_non_credential_json_array_scalar_effective_values`
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — plain ADO.NET connection-string effective values bypassed scan when not JSON — **hit 2026-10-05 seed hunt:** `ContainsEmbeddedCredentialProperties` returned false before `{`/`[`; fixed by reusing embedded connection-string detection for non-JSON and invalid-JSON effective values; regressions `Resolve_redacts_plain_scalar_connection_string_effective_values` and `Resolve_preserves_plain_scalar_non_credential_effective_values`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — single-pair `Password=` / `AccountKey=` effective values bypassed embedded connection-string detection — **hit 2026-10-05 seed hunt:** heuristic required `;` between pairs; fixed with `StartsWithCredentialConnectionPair` for one-key ADO.NET secrets; regressions `Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair` and `Resolve_redacts_plain_scalar_cosmos_account_key_connection_string`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
