@@ -10958,13 +10958,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — AllowAnonymous core-pilot / first-tenant funnel telemetry blocked by stale BFF cookie
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed-only): re-read BFF/proxy forwarding, anonymous allowlist parity, email-OTP and bootstrap clients, and keepalive paths after the diagnostics allowlist hit; cheap-disproved core-pilot step-index mismatch (only step 3 is emitted today) and idle keepalive without CSRF companion (intentional LK-07); no hunt-ready row met the failing-repro bar; seeded four bounded candidates below; scoped auth/proxy vitest 322 passed with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
 
 2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `recordCorePilotRailChecklistStep` POST to `[AllowAnonymous]` `v1/diagnostics/core-pilot-rail-step` omitted BFF CSRF and was missing from `isPublicAnonymousProxyPath`, so LK-07 returned 401/403 when a stale HttpOnly BFF cookie was present (same class as #1253 pre-auth routes); extended allowlist with exact `core-pilot-rail-step` and `first-tenant-funnel` paths; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`; scoped auth/proxy vitest 322 passed with 3 unrelated baseline seam failures.
 
@@ -10977,6 +10979,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `core-pilot-rail-telemetry.ts` `recordCorePilotRailChecklistStep` — client accepts `stepIndex` 0–5 but `POST /v1/diagnostics/core-pilot-rail-step` rejects `stepIndex > 3` (`ClientErrorTelemetryController.PostCorePilotRailChecklistStep`); a future checklist caller posting indices 4+ would get HTTP 400 and silently dropped telemetry.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — active HttpOnly BFF session on `isPublicAnonymousProxyPath` `v1/diagnostics/first-tenant-funnel` still forwards `Authorization` from the session cookie (`proxy-upstream-headers.test.ts` BFF precedence on operator paths); with owner flag `Telemetry:FirstTenantFunnel:PerTenantEmission`, signup funnel POST while a prior session cookie remains could attribute events to the wrong tenant.
+- [ ] (candidate) `email-otp-api.ts` `mapStatusToFailureCategory` — proxy-layer 403 responses (for example CSRF regression when a new pre-auth route ships without `isPublicAnonymousProxyPath`) surface as `unknown` rather than a distinct sign-in recovery category.
+- [ ] (candidate) `pulseBffSessionActivity` (`bff-session-sync.ts`) — returns without calling `/api/auth/bff-session/activity` when the readable CSRF companion cookie is missing even if the HttpOnly BFF session is still valid; presenter/print keepalive stops sliding idle activity until the operator re-authenticates.
 
 - [x] (proven) `core-pilot-rail-telemetry.ts` / `isPublicAnonymousProxyPath` — **hit 2026-10-05 seed hunt (seed→hit):** `POST /api/proxy/v1/diagnostics/core-pilot-rail-step` is `[AllowAnonymous]` on `ClientErrorTelemetryController` but was absent from the public anonymous proxy allowlist; fire-and-forget `fetch` omits BFF CSRF; `enforceProxyBffSessionGuard` blocked mutations when a stale or active HttpOnly BFF cookie was present; checklist telemetry silently dropped; fixed by adding exact-path allowlist entries for `core-pilot-rail-step` and sibling `first-tenant-funnel`; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`.
 
