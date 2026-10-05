@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` / `CachingTenantSettingsRepository` after recent cli-draft-new churn; no hunt-ready promotion; cheap-disproof attempted on hybrid negative-cache TTL, cancel-during-factory, and in-memory whitespace read parity — no failing repro; seeded five `(candidate)` rows in zone Hypotheses; 46 scoped TenantSettings tests passed.
+
 2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved `AdmitDraftAsync` HTTP 200 with `admitted: true` and `draft: null` threw `ArgumentNullException` instead of failing closed; guard null `Draft` before scope validation in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_admit_with_null_draft_body_returns_operation_failed`; 24 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved prompted system name that trims to empty still PATCHed draft metadata; validate non-blank `systemName`/`businessOutcome` after prompt trim (parity with `DraftNewCommandConnectStage` intent length gate); regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`; 23 scoped `DraftNewCommandCoreTests` passed.
@@ -3598,13 +3600,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
+
+2026-10-05 seed hunt (seed-only): re-read repositories; no hunt-ready row; seeded five new `(candidate)` rows below; 46 scoped TenantSettings tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows; no hunt-ready repro; 35 scoped tests passed (`--no-build`).
 
@@ -3617,6 +3621,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `HybridHotPathReadCache.GetOrCreateAsync` + `CachingTenantSettingsRepository.TryGetAsync` — cancellation during the inner `TryGetAsync` factory may leave a generation-stamped hybrid entry populated or omit invalidation before the wrapper observes the write; reachable when callers pass a canceled token mid-read on a cold cache slot (needs repro beyond HybridCache default coalesce semantics).
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — negative cache entries (`TenantSettingCacheEntry.IsPresent=false`) at generation `g` survive until hybrid TTL when `dbo.TenantSettings` is mutated out-of-band (direct SQL / restore) without a wrapper upsert/delete bump; reachable ops path only — wrong outcome would be absent reads until TTL/generation change.
+- [ ] (candidate) `InMemoryTenantSettingsRepository.TryGetAsync` — returns whitespace-only stored values while `SqlTenantSettingsRepository.TryGetCoreAsync` treats `IsNullOrWhiteSpace` payloads as absent; reachable only if in-memory backing store is seeded outside `UpsertAsync` (dev/test parity), not production SQL.
+- [ ] (candidate) `TenantSettingKeyNormalizer.Normalize` — `Trim().ToLowerInvariant()` collapses keys that differ only by Unicode compatibility/fullwidth homoglyphs into one slot; reachable only if a future caller supplies non-ASCII setting keys outside audited `TenantSettingKeys` constants (needs OpenAPI/caller citation before hunt-ready).
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — persists `settingValue.Trim()` after `TenantSettingsWriteGuard` measures trimmed length, so intentional leading/trailing whitespace in serialized JSON cannot round-trip; reachable only if a caller relied on preserved outer padding in `SettingValue` (needs consumer contract citation).
 
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SettingKey` longer than migration `173` `NVARCHAR(128)` without repository length guard — **cheap-disproof 2026-10-05 thorough hunt:** every `ITenantSettingsRepository.UpsertAsync` caller uses `TenantSettingKeys` constants, `{constant}.{workspaceId:D}` suffixes, or short provisioning literals; `Longest_known_production_setting_key_fits_migration_nvarchar_128_limit` bounds audited keys; no HTTP or attacker-controlled arbitrary setting-key surface in zone paths.
 - [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` throws on duplicate `(TenantId, SettingKey)` rows — **cheap-disproof 2026-10-05 thorough hunt:** migration `173` `PK_TenantSettings`; duplicate rows require out-of-contract manual catalog inserts (sibling row #1262 / #3602); not a product code path.
