@@ -79,6 +79,7 @@ test.describe(
     await expect(page.getByTestId("run-detail-first-review-spine-band")).toBeVisible({
       timeout: 120_000,
     });
+    const spineBand = page.getByTestId("run-detail-first-review-spine-band");
     await expect(spineBand.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
       timeout: 60_000,
     });
