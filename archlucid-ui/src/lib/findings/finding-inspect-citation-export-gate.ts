@@ -30,7 +30,11 @@ export function resolveFindingInspectCitationExportBlockedReason(
     return null;
   }
 
-  const evidenceCount = payload.evidence?.length ?? 0;
+  if (payload.evidence === undefined || payload.evidence === null) {
+    return null;
+  }
+
+  const evidenceCount = payload.evidence.length;
 
   if (evidenceCount > 0) {
     return null;

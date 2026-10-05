@@ -6,12 +6,38 @@ export type ArchitectureIntelligenceRunTechnicalDetail = {
   readonly value: string;
 };
 
+function optionalArrayLengthLabel(items: readonly unknown[] | undefined | null): string {
+  if (items === undefined || items === null) {
+    return "Not returned";
+  }
+
+  return String(items.length);
+}
+
+function resolveFindingCount(
+  result: ClosedLoopReasoningResult,
+): { readonly known: true; readonly count: number } | { readonly known: false } {
+  const ids = result.integrityPassedFindingIds;
+
+  if (ids === undefined || ids === null) {
+    return { known: false };
+  }
+
+  return { known: true, count: ids.length };
+}
+
 /** Buyer-visible one-line summary after an architecture intelligence run. */
 export function formatArchitectureIntelligenceRunHeadline(
   result: ClosedLoopReasoningResult,
   options?: { readonly assertedTrailEmpty?: boolean },
 ): string {
-  const findingCount = result.integrityPassedFindingIds?.length ?? 0;
+  const finding = resolveFindingCount(result);
+
+  if (!finding.known) {
+    return "Analysis complete · Finding count not returned";
+  }
+
+  const findingCount = finding.count;
 
   if (options?.assertedTrailEmpty === true) {
     if (findingCount === 0) {
@@ -47,11 +73,11 @@ export function listArchitectureIntelligenceRunTechnicalDetails(
   const details: ArchitectureIntelligenceRunTechnicalDetail[] = [
     {
       label: "Structured details parsed",
-      value: String(result.model?.elements?.length ?? 0),
+      value: optionalArrayLengthLabel(result.model?.elements),
     },
     {
       label: "Findings passed evidence checks",
-      value: String(result.integrityPassedFindingIds?.length ?? 0),
+      value: optionalArrayLengthLabel(result.integrityPassedFindingIds),
     },
     {
       label: "Result source",

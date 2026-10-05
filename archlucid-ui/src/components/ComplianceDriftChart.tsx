@@ -7,12 +7,16 @@ export interface ComplianceDriftChartProps {
   points: readonly ComplianceDriftTrendPoint[];
 }
 
-function safeNonNegativeCount(value: unknown): number {
+function safeNonNegativeCount(value: unknown): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return 0;
+    return null;
   }
 
   return Math.max(0, Math.floor(value));
+}
+
+function hasInvalidTypedChangeCounts(raw: Record<string, number>): boolean {
+  return Object.values(raw).some((value) => safeNonNegativeCount(value) === null);
 }
 
 function sanitizedChangesByType(raw: Record<string, number>): Record<string, number> {
@@ -21,7 +25,7 @@ function sanitizedChangesByType(raw: Record<string, number>): Record<string, num
   for (const [key, value] of Object.entries(raw)) {
     const n = safeNonNegativeCount(value);
 
-    if (n > 0) {
+    if (n !== null && n > 0) {
       next[key] = n;
     }
   }
@@ -66,6 +70,7 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
       changeCountLabel: change.display,
       changeCount: change.numeric,
       changesByType: sanitizedChangesByType(p.changesByType ?? {}),
+      typedCountsIncomplete: hasInvalidTypedChangeCounts(p.changesByType ?? {}),
     };
   });
 
@@ -85,9 +90,12 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
             ? 0
             : Math.max(2, (point.changeCount / maxCount) * barMaxPx);
 
+        const typedSuffix = point.typedCountsIncomplete
+          ? "typed change counts not returned"
+          : topChangeTypesSummary(point.changesByType);
         const title = point.changeCountKnown
-          ? `${point.changeCount} changes — ${topChangeTypesSummary(point.changesByType)}`
-          : `Change count not returned — ${topChangeTypesSummary(point.changesByType)}`;
+          ? `${point.changeCount} changes — ${typedSuffix}`
+          : `Change count not returned — ${typedSuffix}`;
 
         return (
           <div

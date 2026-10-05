@@ -125,7 +125,7 @@ type InfraEvidenceDiagramOutlineProps = {
 
 function formatOutlineCell(value: string | null): string {
   if (value == null || value.trim().length === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   return value;

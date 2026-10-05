@@ -95,23 +95,26 @@ export function useNotificationChannelDeliveryStatus(): {
       : alertsSnapshotQuery.isError
         ? "error"
         : "ready",
-    enabledRulesCount: alertsSnapshot?.enabledRulesCount ?? 0,
-    enabledRoutingCount: alertsSnapshot?.enabledRoutingCount ?? 0,
-    openAlertsCount: alertsSnapshot?.openAlertsCount ?? 0,
+    enabledRulesCount: alertsSnapshot === undefined ? null : alertsSnapshot.enabledRulesCount,
+    enabledRoutingCount: alertsSnapshot === undefined ? null : alertsSnapshot.enabledRoutingCount,
+    openAlertsCount: alertsSnapshot === undefined ? null : alertsSnapshot.openAlertsCount,
     teamsLoadState: teamsQuery.isLoading
       ? "loading"
       : teamsQuery.isError
         ? "error"
         : "ready",
     teamsIsConfigured: teamsConnection?.isConfigured === true,
-    teamsEnabledTriggerCount: teamsConnection?.enabledTriggers.length ?? 0,
+    teamsEnabledTriggerCount:
+      teamsConnection === null ? null : teamsConnection.enabledTriggers.length,
     slackLoadState: alertsSnapshotQuery.isLoading
       ? "loading"
       : alertsSnapshotQuery.isError
         ? "error"
         : "ready",
-    activeSlackDestinationCount: alertsSnapshot?.activeSlackDestinationCount ?? 0,
-    totalSlackDestinationCount: alertsSnapshot?.totalSlackDestinationCount ?? 0,
+    activeSlackDestinationCount:
+      alertsSnapshot === undefined ? null : alertsSnapshot.activeSlackDestinationCount,
+    totalSlackDestinationCount:
+      alertsSnapshot === undefined ? null : alertsSnapshot.totalSlackDestinationCount,
   };
 
   const statusByChannelId = resolveNotificationChannelDeliveryStatus(input);

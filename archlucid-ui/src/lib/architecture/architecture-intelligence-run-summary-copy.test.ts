@@ -22,6 +22,12 @@ describe("architecture-intelligence-run-summary-copy", () => {
     );
   });
 
+  it("reports when finding ids were not returned", () => {
+    expect(
+      formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: undefined })),
+    ).toBe("Analysis complete · Finding count not returned");
+  });
+
   it("uses singular and zero finding phrasing", () => {
     expect(
       formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: ["f1"] })),

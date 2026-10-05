@@ -132,6 +132,19 @@ describe("notification-preference-center (TB-2203)", () => {
     expect(NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY).toContain("Slack");
   });
 
+  it("returns not returned when alert counts are omitted while ready", () => {
+    const status = resolveNotificationChannelDeliveryStatus(
+      baseInput({
+        enabledRulesCount: null,
+        enabledRoutingCount: null,
+        openAlertsCount: null,
+      }),
+    );
+
+    expect(status["alert-rules"].label).toBe("Not returned");
+    expect(status["alerts-inbox"].label).toBe("Not returned");
+  });
+
   it("resolves digest delivery status from subscription data", () => {
     const empty = resolveNotificationChannelDeliveryStatus(baseInput());
     expect(empty.digests.label).toBe("Not configured");

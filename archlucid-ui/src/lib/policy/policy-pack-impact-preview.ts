@@ -85,7 +85,7 @@ export function resolvePolicyPackDisplayName(
   const trimmedPackId = packId.trim();
 
   if (trimmedPackId.length === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   const match = packs.find((pack) => pack.policyPackId.trim() === trimmedPackId);

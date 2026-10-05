@@ -51,7 +51,7 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
 
   const themes = Array.isArray(props.payload.runExplanation?.themeSummaries)
     ? props.payload.runExplanation.themeSummaries.join(" · ")
-    : " — ";
+    : "Not returned";
   const manifest = props.payload.manifest;
 
   return (
@@ -148,17 +148,17 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
             Applied policy pack
           </dt>
           <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
-            {manifest ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "") : " — "}
+            {manifest ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "") : "Not returned"}
           </dd>
           <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>Review scope</dt>
           <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
-            {manifest?.operatorSummary ?? props.payload.run?.description ?? " — "}
+            {manifest?.operatorSummary ?? props.payload.run?.description ?? "Not recorded"}
           </dd>
           <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
             Artifact types
           </dt>
           <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
-            {(props.payload.artifacts ?? []).map((artifact) => artifact.artifactType).join(" · ") || " — "}
+            {(props.payload.artifacts ?? []).map((artifact) => artifact.artifactType).join(" · ") || "Not returned"}
           </dd>
         </dl>
       </details>

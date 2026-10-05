@@ -170,15 +170,26 @@ export function buildDigestSubscriptionReadinessSummary(
   subscriptions: readonly DigestSubscription[],
 ): DigestSubscriptionReadinessSummary {
   const activeDestinations: number = subscriptions.filter((row) => row.isEnabled).length;
-  const scheduleEnabled: boolean = (healthSnap?.enabledAdvisoryScheduleCount ?? 0) > 0;
-  const scheduleStatus: string = scheduleEnabled ? "Active" : "Not configured";
+  const scheduleCountKnown =
+    healthSnap !== null
+    && typeof healthSnap.enabledAdvisoryScheduleCount === "number"
+    && Number.isFinite(healthSnap.enabledAdvisoryScheduleCount);
+  const scheduleEnabled: boolean =
+    scheduleCountKnown && healthSnap.enabledAdvisoryScheduleCount > 0;
+  const scheduleStatus: string = !scheduleCountKnown
+    ? "Not returned"
+    : scheduleEnabled
+      ? "Active"
+      : "Not configured";
   const scheduleDetail: string = scheduleEnabled
     ? `Next advisory run ${formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)}`
     : "Enable an advisory scan schedule to generate digests on a cadence.";
   const lastDelivery: string = formatDigestInstant(healthSnap?.latestDigestSubscriptionDeliveryUtc);
   const nextScheduled: string = scheduleEnabled
     ? formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)
-    : " — ";
+    : healthSnap === null
+      ? "Not returned"
+      : "Not scheduled";
 
   const rows: DigestSubscriptionReadinessRow[] = [
     {
@@ -218,7 +229,7 @@ export function buildDigestSubscriptionReadinessSummary(
   let nextActionLabel: string | null = null;
   let nextActionHref: string | null = null;
 
-  if (!scheduleEnabled) {
+  if (scheduleCountKnown && !scheduleEnabled) {
     blockingIssue = "No advisory scan schedule is enabled — digests will not be generated automatically.";
     nextActionLabel = "Configure schedule";
     nextActionHref = ADVISORY_SCANS_SCHEDULES_HREF;

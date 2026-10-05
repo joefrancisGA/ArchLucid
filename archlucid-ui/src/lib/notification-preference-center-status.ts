@@ -26,15 +26,15 @@ export type NotificationChannelDeliveryStatusInput = {
   readonly digestSubscriptions: readonly DigestSubscription[];
   readonly digestLoadState: NotificationChannelDeliveryLoadState;
   readonly alertsLoadState: NotificationChannelDeliveryLoadState;
-  readonly enabledRulesCount: number;
-  readonly enabledRoutingCount: number;
-  readonly openAlertsCount: number;
+  readonly enabledRulesCount: number | null;
+  readonly enabledRoutingCount: number | null;
+  readonly openAlertsCount: number | null;
   readonly teamsLoadState: NotificationChannelDeliveryLoadState;
   readonly teamsIsConfigured: boolean;
-  readonly teamsEnabledTriggerCount: number;
+  readonly teamsEnabledTriggerCount: number | null;
   readonly slackLoadState: NotificationChannelDeliveryLoadState;
-  readonly activeSlackDestinationCount: number;
-  readonly totalSlackDestinationCount: number;
+  readonly activeSlackDestinationCount: number | null;
+  readonly totalSlackDestinationCount: number | null;
 };
 
 export type NotificationChannelDeliveryStatusMap = Readonly<
@@ -56,6 +56,15 @@ function notReportedStatus(channelId: string): NotificationChannelDeliveryStatus
     kind: "blocked",
     label: "Not reported here",
     provenanceFact: null,
+    configureHint: configureHintForChannel(channelId),
+  };
+}
+
+function countNotReturnedStatus(channelId: string): NotificationChannelDeliveryStatus {
+  return {
+    kind: "neutral",
+    label: "Not returned",
+    provenanceFact: "Workspace counts for this channel were not returned.",
     configureHint: configureHintForChannel(channelId),
   };
 }
@@ -127,6 +136,10 @@ function resolveAlertsInboxDeliveryStatus(
     return notReportedStatus("alerts-inbox");
   }
 
+  if (input.enabledRulesCount === null || input.openAlertsCount === null) {
+    return countNotReturnedStatus("alerts-inbox");
+  }
+
   if (input.enabledRulesCount === 0) {
     return {
       kind: "needs-attention",
@@ -170,6 +183,10 @@ function resolveAlertRulesDeliveryStatus(
 
   if (input.alertsLoadState === "error") {
     return notReportedStatus("alert-rules");
+  }
+
+  if (input.enabledRulesCount === null || input.enabledRoutingCount === null) {
+    return countNotReturnedStatus("alert-rules");
   }
 
   if (input.enabledRulesCount === 0) {
@@ -220,6 +237,10 @@ function resolveTeamsDeliveryStatus(
     return notReportedStatus("teams");
   }
 
+  if (input.teamsEnabledTriggerCount === null) {
+    return countNotReturnedStatus("teams");
+  }
+
   const connectionStatus = resolveTeamsIntegrationConnectionStatus({
     isConfigured: input.teamsIsConfigured,
     enabledTriggerCount: input.teamsEnabledTriggerCount,
@@ -261,6 +282,10 @@ function resolveSlackDeliveryStatus(
 
   if (input.slackLoadState === "error") {
     return notReportedStatus("slack");
+  }
+
+  if (input.activeSlackDestinationCount === null || input.totalSlackDestinationCount === null) {
+    return countNotReturnedStatus("slack");
   }
 
   const label = slackIntegrationConfigurationStatusLabel(input.activeSlackDestinationCount);

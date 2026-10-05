@@ -167,11 +167,11 @@ export function summarizeDriftResourceGroupProperties(
   );
 
   if (uniqueProperties.size === 1) {
-    return [...uniqueProperties][0] ?? "—";
+    return [...uniqueProperties][0] ?? "Not recorded";
   }
 
   if (uniqueProperties.size === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   return `${uniqueProperties.size} properties`;
