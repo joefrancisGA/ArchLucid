@@ -55,9 +55,9 @@ async function openInviteForm(page: Page): Promise<Locator> {
   if (await invitePrimaryRegion.isVisible().catch(() => false)) {
     await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
   } else if (await invitePrimaryAction.isVisible().catch(() => false)) {
-    await invitePrimaryAction.click();
+    await clickThroughBlockingOverlays(page, invitePrimaryAction);
   } else if (await inviteStartHereAction.isVisible().catch(() => false)) {
-    await inviteStartHereAction.click();
+    await clickThroughBlockingOverlays(page, inviteStartHereAction);
   } else {
     await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
     await inviteSection.locator("summary").click();

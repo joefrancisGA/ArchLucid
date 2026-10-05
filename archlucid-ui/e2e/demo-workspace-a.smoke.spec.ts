@@ -92,10 +92,12 @@ test.describe(
       timeout: 60_000,
     });
 
-    await expectReviewDetailFindingsQuickSummaryVisible(page, {
+    const quickSummaryBeforeEvidence = await expectReviewDetailFindingsQuickSummaryVisible(page, {
       runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
       timeoutMs: 120_000,
     });
+
+    await expectQuickDecisionSeverityVisible(quickSummaryBeforeEvidence, { timeoutMs: 60_000 });
 
     await expectBuyerPipelineTimelineSectionVisible(page, {
       timeoutMs: 60_000,

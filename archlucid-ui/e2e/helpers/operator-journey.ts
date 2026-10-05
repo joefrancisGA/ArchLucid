@@ -692,7 +692,18 @@ export async function expectReviewDetailFindingInspectCopyVisible(
     const main = page.getByRole("main");
 
     await expect(main).toBeVisible({ timeout: 30_000 });
-    await expect(main.getByText(pattern).first()).toBeVisible({ timeout: 15_000 });
+
+    const primaryContent = main.getByTestId("finding-detail-primary-content");
+
+    if (await primaryContent.isVisible().catch(() => false)) {
+      await expect(primaryContent.getByRole("heading", { level: 1, name: pattern })).toBeVisible({
+        timeout: 15_000,
+      });
+
+      return;
+    }
+
+    await expect(main.getByRole("heading", { level: 1, name: pattern })).toBeVisible({ timeout: 15_000 });
   }).toPass({ timeout });
 }
 
