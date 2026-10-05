@@ -33,6 +33,7 @@ import {
   expectReviewDetailFindingsQuickSummaryVisible,
   expectReviewDetailSeedFindingCopyVisible,
   openReviewDetailWorkspaceTab,
+  reviewDetailFindingsQuickSummary,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 
@@ -229,7 +230,7 @@ test.describe(
     });
 
     try {
-      await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
+      await expectQuickDecisionSeverityVisible(reviewDetailFindingsQuickSummary(page), { timeoutMs: 30_000 });
     } catch {
       // Severity may appear only on card stack rows omitted from buyer quick summary.
     }
