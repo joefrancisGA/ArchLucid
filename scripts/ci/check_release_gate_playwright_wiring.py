@@ -15,6 +15,7 @@ _REQUIRED_SPECS = (
     "archlucid-ui/e2e/live-api-private-beta-access.spec.ts",
 )
 _RESTART_MARKER = "Restart API after Enterprise grant"
+_RC_DIGEST_MARKER = "report_release_gate_playwright_workspace_digest.py"
 
 
 def repo_root() -> Path:
@@ -51,6 +52,9 @@ def main(argv: list[str] | None = None) -> int:
                 for marker in ("cat \"${RUNNER_TEMP}/", "pkill -TERM -P", "kill \"${API_PID}\"", "nohup dotnet run --no-build"):
                     if marker not in restart_text:
                         errors.append(f"{rel_path}: Enterprise-grant restart is missing {marker}")
+
+            if _RC_DIGEST_MARKER not in text:
+                errors.append(f"{rel_path}: missing Workspace A/B release-gate digest ({_RC_DIGEST_MARKER})")
 
     for spec in _REQUIRED_SPECS:
         if not (root / spec).is_file():

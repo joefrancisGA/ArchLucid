@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices, type ReporterDescription } from "@playwright/test";
 
 const require = createRequire(import.meta.url);
 
@@ -10,6 +10,22 @@ const require = createRequire(import.meta.url);
  * Mock-backed specs: `npx playwright test -c playwright.mock.config.ts`.
  */
 const skipNextBuild = process.env.LIVE_E2E_SKIP_NEXT_BUILD === "1";
+
+/** Extra JSON report for the RC live UI job. Unset everywhere else so local and other CI lanes stay list/html only. */
+function ciReporters(): ReporterDescription[] {
+  const reporters: ReporterDescription[] = [
+    ["list"],
+    ["html", { open: "never", outputFolder: "playwright-report" }],
+  ];
+  const jsonOutputFile = process.env.RELEASE_GATE_PLAYWRIGHT_JSON?.trim() ?? "";
+
+  if (jsonOutputFile.length > 0) {
+    reporters.push(["json", { outputFile: jsonOutputFile }]);
+  }
+
+  return reporters;
+}
+
 const liveUiBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 const liveWebServerCommand = skipNextBuild
   ? "npx tsx --tsconfig e2e/tsconfig.json e2e/start-e2e-live-api.ts"
@@ -27,7 +43,7 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: process.env.CI ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]] : "list",
+  reporter: process.env.CI ? ciReporters() : "list",
   use: {
     baseURL: liveUiBaseUrl,
     trace: "on-first-retry",

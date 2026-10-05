@@ -42,6 +42,12 @@ class TestCheckReleaseGatePlaywrightWiring(unittest.TestCase):
         for marker in ('cat "${RUNNER_TEMP}/', "pkill -TERM -P", 'kill "${API_PID}"', "nohup dotnet run --no-build"):
             self.assertIn(marker, restart_text)
 
+    def test_release_workflow_writes_workspace_digest(self) -> None:
+        text = (REPO_ROOT / ".github/workflows/rc-release-gate.yml").read_text(encoding="utf-8")
+
+        self.assertIn("report_release_gate_playwright_workspace_digest.py", text)
+        self.assertIn("RELEASE_GATE_PLAYWRIGHT_JSON:", text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -184,7 +184,7 @@ test.describe(
 
     await expect(page.getByTestId("review-detail-workspace-panel-overview")).toBeVisible({ timeout: 60_000 });
 
-    const quickSummary = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
       runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID,
       timeoutMs: 120_000,
     });

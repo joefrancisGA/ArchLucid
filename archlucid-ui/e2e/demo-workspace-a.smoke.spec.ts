@@ -152,7 +152,7 @@ test.describe(
 
     const cardScope = reviewDetailFindingsQuickSummary(page).or(page.getByTestId("run-detail-findings-workspace"));
     const primaryCard = cardScope.locator('[data-finding-workspace-primary="true"]').first();
-    let findingCard = (await primaryCard.isVisible().catch(() => false))
+    const findingCard = (await primaryCard.isVisible().catch(() => false))
       ? primaryCard
       : cardScope.locator('[data-testid^="finding-workspace-card-"]').first();
 
