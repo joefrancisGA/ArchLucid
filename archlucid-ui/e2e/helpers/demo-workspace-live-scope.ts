@@ -9,6 +9,7 @@ import {
   serializeOperatorScopeCookiePayload,
 } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY } from "@/lib/operator/operator-sample-workspace-visit";
+import { WORKSPACE_MODE_STORAGE_KEY } from "@/lib/workspace-mode/workspace-mode-preference";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import { resolveLiveJwtMode } from "./live-api-auth";
@@ -94,6 +95,7 @@ async function writeOperatorScopeToBrowser(
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
       window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+      window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
@@ -133,6 +135,7 @@ async function writeOperatorScopeToBrowser(
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
       window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+      window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
