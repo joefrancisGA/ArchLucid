@@ -30,8 +30,8 @@ import {
 import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPolishedReviewDetailWorkspaceCore,
+  expectReviewDetailFindingFromFindingsWorkspace,
   expectReviewDetailFindingsQuickSummaryVisible,
-  expectReviewDetailFindingInspectCopyVisible,
   openReviewDetailWorkspaceTab,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
