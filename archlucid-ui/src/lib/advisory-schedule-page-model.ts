@@ -73,10 +73,10 @@ export function buildAdvisoryScheduleListItemView(
 ): AdvisoryScheduleListItemView {
   const next = schedule.nextRunUtc
     ? formatAdvisoryScheduleInstant(schedule.nextRunUtc, displayTimeZoneId)
-    : { primary: " — ", utcSecondary: "" };
+    : { primary: "Not scheduled", utcSecondary: "" };
   const last = schedule.lastRunUtc
     ? formatAdvisoryScheduleInstant(schedule.lastRunUtc, displayTimeZoneId)
-    : { primary: " — ", utcSecondary: "" };
+    : { primary: "Not recorded", utcSecondary: "" };
   const projectLabel =
     projectLabelOverride?.trim() ||
     (schedule.runProjectSlug === "default" ? "Current project" : schedule.runProjectSlug);

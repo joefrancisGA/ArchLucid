@@ -1,5 +1,9 @@
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
+  DIAGRAM_RECONCILE_COMPARE_MODE_PARAM,
+  type DiagramReconcileWorkbenchMode,
+} from "@/lib/infra-evidence/diagram-reconcile-workbench-mode";
+import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
@@ -13,6 +17,8 @@ export const DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM = "snapshotId";
 export const DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const DIAGRAM_RECONCILE_FILTER_PARAM = "reconcileFilter";
 export const DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM = "correspondenceId";
+
+export { DIAGRAM_RECONCILE_COMPARE_MODE_PARAM };
 
 const ALLOWED_FILTERS: ReadonlySet<DiagramReconcileMatchKindFilter> = new Set([
   "all",
@@ -61,6 +67,19 @@ export function parseDiagramReconcileFilterFromSearch(raw: string | null | undef
   return "all";
 }
 
+export function parseDiagramReconcileCompareModeFromSearch(
+  raw: string | null | undefined,
+  runIdFromUrl: string,
+): DiagramReconcileWorkbenchMode {
+  const trimmed = (raw ?? "").trim().toLowerCase();
+
+  if (trimmed === "advisory" || trimmed === "sealed") {
+    return trimmed;
+  }
+
+  return runIdFromUrl.trim().length > 0 ? "sealed" : "advisory";
+}
+
 export function parseDiagramReconcileCorrespondenceIdFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";
@@ -75,6 +94,7 @@ export function buildDiagramReconcileWorkbenchHref(context: {
   readonly cloudResourceId?: string | null;
   readonly reconcileFilter?: DiagramReconcileMatchKindFilter;
   readonly correspondenceId?: string | null;
+  readonly compareMode?: DiagramReconcileWorkbenchMode | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
@@ -99,6 +119,10 @@ export function buildDiagramReconcileWorkbenchHref(context: {
 
   if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
     params.set(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM, context.correspondenceId.trim());
+  }
+
+  if (context.compareMode != null) {
+    params.set(DIAGRAM_RECONCILE_COMPARE_MODE_PARAM, context.compareMode);
   }
 
   if (context.assessmentId != null && context.assessmentId.trim().length > 0) {
@@ -163,6 +187,7 @@ export function diagramReconcileFilterHrefFromSearch(
     readonly cloudResourceId?: string;
     readonly reconcileFilter?: DiagramReconcileMatchKindFilter;
     readonly correspondenceId?: string;
+    readonly compareMode?: DiagramReconcileWorkbenchMode;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
@@ -217,6 +242,10 @@ export function diagramReconcileFilterHrefFromSearch(
     } else {
       params.set(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM, trimmed);
     }
+  }
+
+  if (patch.compareMode !== undefined) {
+    params.set(DIAGRAM_RECONCILE_COMPARE_MODE_PARAM, patch.compareMode);
   }
 
   if (patch.assessmentId !== undefined) {

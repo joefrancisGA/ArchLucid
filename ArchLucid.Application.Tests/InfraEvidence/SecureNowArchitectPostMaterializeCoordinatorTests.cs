@@ -52,7 +52,6 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             fullRecompute: false,
             hasPrior: true,
             emptyDiff: true,
-            diffWasExisting: false,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -88,7 +87,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
     }
 
     [Fact]
-    public async Task OnSnapshotMaterializedAsync_when_empty_diff_already_persisted_still_carries_forward_neighborhoods()
+    public async Task OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood()
     {
         Mock<IPrivilegePathEngine> privilegePathEngine = new();
         Mock<IIntendedReachabilityEngine> reachabilityEngine = new();
@@ -112,7 +111,6 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             fullRecompute: false,
             hasPrior: true,
             emptyDiff: true,
-            diffWasExisting: true,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -121,7 +119,8 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             driftEngine,
             rankingEngine,
             cutPointEngine,
-            neighborhoodRunner);
+            neighborhoodRunner,
+            diffWasExisting: true);
 
         await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
 
@@ -156,7 +155,6 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             fullRecompute: true,
             hasPrior: true,
             emptyDiff: false,
-            diffWasExisting: false,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -191,7 +189,6 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         bool fullRecompute,
         bool hasPrior,
         bool emptyDiff,
-        bool diffWasExisting,
         Mock<IPrivilegePathEngine> privilegePathEngine,
         Mock<IIntendedReachabilityEngine> reachabilityEngine,
         Mock<IToxicCombinationEngine> toxicEngine,
@@ -200,7 +197,8 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         Mock<IFourRealityDriftEngine> driftEngine,
         Mock<IPathRankingEngine> rankingEngine,
         Mock<ICutPointAnalysisEngine> cutPointEngine,
-        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner)
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner,
+        bool diffWasExisting = false)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
 

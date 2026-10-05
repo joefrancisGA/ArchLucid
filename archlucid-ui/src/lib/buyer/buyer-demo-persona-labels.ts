@@ -32,7 +32,7 @@ export function buyerSafeTechnicalIdLabel(raw: string | null | undefined): strin
   const value = (raw ?? "").trim();
 
   if (value.length === 0) {
-    return " — ";
+    return "Not returned";
   }
 
   if (/^demo-/i.test(value) || /^corr-intake-demo/i.test(value) || /^sample-decision-/i.test(value)) {

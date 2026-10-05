@@ -4,6 +4,7 @@ import {
   computeRoiSummaryPeriodMetrics,
   deriveRoiSummaryConfidence,
   deriveRoiSummaryDataNeeds,
+  formatRoiSummarySponsorDate,
   formatRoiSummaryWindowTitle,
   interpretRoiSummaryMeaning,
 } from "@/lib/roi-summary-sponsor-presentation";
@@ -30,6 +31,12 @@ function periodInput(overrides: {
     blocks: { count: overrides.blocks ?? 0, exact: true },
   };
 }
+
+describe("formatRoiSummarySponsorDate", () => {
+  it("returns Date not readable for invalid ISO timestamps", () => {
+    expect(formatRoiSummarySponsorDate("not-a-date")).toBe("Date not readable");
+  });
+});
 
 describe("formatRoiSummaryWindowTitle", () => {
   it("formats rolling 30-day sponsor labels without UTC jargon", () => {

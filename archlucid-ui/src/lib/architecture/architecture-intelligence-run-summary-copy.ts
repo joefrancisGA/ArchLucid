@@ -6,12 +6,36 @@ export type ArchitectureIntelligenceRunTechnicalDetail = {
   readonly value: string;
 };
 
+const OMITTED_COUNT_LABEL = "Not returned";
+
+function resolveIntegrityPassedFindingCount(result: ClosedLoopReasoningResult): number | null {
+  if (result.integrityPassedFindingIds === undefined || result.integrityPassedFindingIds === null) {
+    return null;
+  }
+
+  return result.integrityPassedFindingIds.length;
+}
+
+function resolveStructuredElementCount(result: ClosedLoopReasoningResult): number | null {
+  const elements = result.model?.elements;
+
+  if (elements === undefined || elements === null) {
+    return null;
+  }
+
+  return elements.length;
+}
+
 /** Buyer-visible one-line summary after an architecture intelligence run. */
 export function formatArchitectureIntelligenceRunHeadline(
   result: ClosedLoopReasoningResult,
   options?: { readonly assertedTrailEmpty?: boolean },
 ): string {
-  const findingCount = result.integrityPassedFindingIds?.length ?? 0;
+  const findingCount = resolveIntegrityPassedFindingCount(result);
+
+  if (findingCount === null) {
+    return "Analysis complete · Finding count not returned";
+  }
 
   if (options?.assertedTrailEmpty === true) {
     if (findingCount === 0) {
@@ -44,14 +68,17 @@ function formatEvidenceBackedFindingsPhrase(count: number): string {
 export function listArchitectureIntelligenceRunTechnicalDetails(
   result: ClosedLoopReasoningResult,
 ): ArchitectureIntelligenceRunTechnicalDetail[] {
+  const elementCount = resolveStructuredElementCount(result);
+  const findingCount = resolveIntegrityPassedFindingCount(result);
+
   const details: ArchitectureIntelligenceRunTechnicalDetail[] = [
     {
       label: "Structured details parsed",
-      value: String(result.model?.elements?.length ?? 0),
+      value: elementCount === null ? OMITTED_COUNT_LABEL : String(elementCount),
     },
     {
       label: "Findings passed evidence checks",
-      value: String(result.integrityPassedFindingIds?.length ?? 0),
+      value: findingCount === null ? OMITTED_COUNT_LABEL : String(findingCount),
     },
     {
       label: "Result source",

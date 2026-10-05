@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 
+using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.ContextIngestion.Diagram;
@@ -34,7 +35,8 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, DiagramSourceFormats.Mermaid, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(format, DiagramSourceFormats.Mermaid, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, SupportedContextDocumentContentTypes.Mermaid, StringComparison.OrdinalIgnoreCase);
     }
 
     public DiagramParseResult Parse(DiagramSourceReference source)

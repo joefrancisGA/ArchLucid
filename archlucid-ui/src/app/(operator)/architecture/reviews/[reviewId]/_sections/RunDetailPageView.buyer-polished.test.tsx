@@ -163,6 +163,7 @@ function model(overrides: Partial<{ buyerPolishedArtifactTable: boolean; manifes
     warningCountDisplay: 0,
     showPilotScorecardPackageCta: false,
     governanceGateLabel: null,
+    governanceGateOperatorLabel: null,
     careerExportEligibleFindingCount: 0,
     adrGeneratorInput: { runId: "run-1" },
   } as unknown as RunDetailPageModel;

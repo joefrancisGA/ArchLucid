@@ -13,7 +13,8 @@ export function resolvePolicyPackSimulateToastOutcome(
   result: components["schemas"]["PolicyPackGovernanceDryRunResult"],
 ): PolicyPackSimulateToastOutcome {
   const blocked = result.gateResult?.blocked === true;
-  const failedCheckCount = result.failedChecks?.length ?? 0;
+  const failedCheckCount =
+    result.failedChecks === undefined || result.failedChecks === null ? null : result.failedChecks.length;
 
   if (blocked) {
     return {
@@ -22,10 +23,17 @@ export function resolvePolicyPackSimulateToastOutcome(
     };
   }
 
-  if (failedCheckCount > 0) {
+  if (failedCheckCount !== null && failedCheckCount > 0) {
     return {
       kind: "warning",
       message: `Policy validation completed with ${failedCheckCount} failed check${failedCheckCount === 1 ? "" : "s"}.`,
+    };
+  }
+
+  if (failedCheckCount === null) {
+    return {
+      kind: "warning",
+      message: "Policy validation completed — failed check details were not returned.",
     };
   }
 

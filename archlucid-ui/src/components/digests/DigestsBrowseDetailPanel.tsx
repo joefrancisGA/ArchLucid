@@ -212,7 +212,7 @@ export function DigestsBrowseDetailPanel({
               </div>
               <div>
                 <dt className="font-medium text-al-text-primary">Review</dt>
-                <dd className="m-0 font-mono">{selected.runId ?? " — "}</dd>
+                <dd className="m-0 font-mono">{selected.runId ?? "Not returned"}</dd>
               </div>
               {selected.comparedToRunId ? (
                 <div>

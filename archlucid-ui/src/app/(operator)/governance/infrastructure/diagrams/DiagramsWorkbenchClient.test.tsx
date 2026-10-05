@@ -78,6 +78,10 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 
 vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
   SecureNowQuestionQueue: () => null,
+  SecureNowQuestionQueueProvider: ({ children }: { children: React.ReactNode }) => children,
+  SecureNowQuestionQueueHero: () => null,
+  SecureNowQuestionQueueDrawer: () => null,
+  useSecureNowQuestionSubjectNodeId: () => null,
 }));
 
 vi.mock("@/lib/use-nav-surface", () => ({
@@ -227,16 +231,13 @@ describe("DiagramsWorkbenchClient", () => {
     });
   });
 
-  it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {
-    pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
+  it("renders snapshot and diagram type pickers when no snapshot is selected", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
-    const icon = await screen.findByTestId("page-heading-icon");
-    const title = screen.getByTestId("infra-diagrams-page-title");
-
-    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
-    expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-mode-picker")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-subscription-picker")).toBeInTheDocument();
   });
 
   it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {
@@ -377,7 +378,11 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelectorAll(".font-semibold")).toHaveLength(2);
     expect(caption.querySelector(".font-semibold")?.textContent).toBe("may");
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
-    expect(screen.getByText(/Reading a card:/)).toBeInTheDocument();
+    const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
+    expect(readingCardCaption).toHaveTextContent(
+      "Reading a card: the first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.",
+    );
+    expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });
 
   it("does not show the data flow reading helper for other diagram types", async () => {
