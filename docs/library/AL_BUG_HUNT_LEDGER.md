@@ -20120,6 +20120,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-10-05 seed hunt (seed→hit): promoted Azure-only illustrative summary-note asymmetry; proved `InfrastructureCostSummaryNotes.ComposeIllustrativeOnlyNote` returned the generic Retail-disabled headline for sole-Azure `AppService` lines while AWS/GCP got cloud-specific copy; fixed by returning Azure from `ResolveSoleCloudFamily` and adding an Azure illustrative branch; regression `ComposeIllustrativeOnlyNote_azure_only_mentions_azure_not_generic_only`; 420 scoped Costing tests passed.
+
 2026-10-05 seed hunt (seed→hit): promoted all-retail summary-note candidate; proved `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` returned the Azure Retail headline whenever every line used `RetailApi`, including AWS-only and GCP-only live pricing blends; fixed by resolving sole cloud family before the all-retail branch; regressions `ComposeRetailBlendNote_aws_only_all_retail_does_not_claim_azure_retail` and `ComposeRetailBlendNote_gcp_only_all_retail_does_not_claim_azure_retail`; 419 scoped Costing tests passed.
 
 2026-09-14 seed hunt #2915 (seed→hit): reseeded core-costing with `-Hint core-costing`; proved compact `10weekkkkkkkkk` week UOM parity gap; regression `AzureRetailPricesSkuMatchersCompactWeekkkkkkkkkTests`.

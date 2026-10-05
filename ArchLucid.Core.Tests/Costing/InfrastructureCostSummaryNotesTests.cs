@@ -32,6 +32,29 @@ public sealed class InfrastructureCostSummaryNotesTests
     }
 
     [Fact]
+    public void ComposeIllustrativeOnlyNote_azure_only_mentions_azure_not_generic_only()
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [
+                new InfrastructureCostLine(
+                    "topology",
+                    "api",
+                    RuntimePlatform.AppService,
+                    "Azure App Service",
+                    55m,
+                    InfrastructureCostPriceSource.Estimated),
+            ],
+            55m,
+            AnyRetailPricing: false,
+            AllRetailPricing: false);
+
+        string note = InfrastructureCostSummaryNotes.ComposeIllustrativeOnlyNote(totals);
+
+        note.Should().Contain("Azure");
+        note.Should().NotBe("Illustrative infrastructure USD/month (Retail API probing disabled).");
+    }
+
+    [Fact]
     public void ComposeIllustrativeOnlyNote_gcp_only_does_not_claim_azure_retail()
     {
         InfrastructureCostEstimateTotals totals = new(

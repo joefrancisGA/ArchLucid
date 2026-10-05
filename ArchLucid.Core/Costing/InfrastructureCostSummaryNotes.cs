@@ -18,6 +18,9 @@ internal static class InfrastructureCostSummaryNotes
         if (soleFamily == CloudProvider.Gcp)
             return "GCP Cloud Billing Catalog sizing where API key and SKU matched; otherwise illustrative GCP USD/month.";
 
+        if (soleFamily == CloudProvider.Azure)
+            return "Azure Retail Prices sizing where SKU/region matched; otherwise illustrative Azure USD/month (Retail API probing disabled).";
+
         return "Illustrative infrastructure USD/month (Retail API probing disabled).";
     }
 
@@ -62,6 +65,6 @@ internal static class InfrastructureCostSummaryNotes
                 return null;
         }
 
-        return first is CloudProvider.Azure ? null : first;
+        return first;
     }
 }
