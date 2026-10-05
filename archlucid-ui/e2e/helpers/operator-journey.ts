@@ -706,11 +706,11 @@ export async function expectReviewDetailFindingInspectCopyVisible(
       await expect(region.getByRole("heading", { level: 1, name: copy, exact: true })).toBeVisible({
         timeout: 15_000,
       });
-
-      return;
+    } else {
+      await expect(region.getByText(copyPattern).first()).toBeVisible({ timeout: 15_000 });
     }
 
-    await expect(region.getByText(copyPattern).first()).toBeVisible({ timeout: 15_000 });
+    await expect(region.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first()).toBeVisible({ timeout: 15_000 });
   }).toPass({ timeout });
 }
 

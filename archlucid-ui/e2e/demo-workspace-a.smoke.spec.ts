@@ -15,9 +15,9 @@ import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailWorkspaceCore,
-  expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
+  quickDecisionSeverityBadge,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -99,8 +99,6 @@ test.describe(
       timeoutMs: 120_000,
     });
 
-    await expectQuickDecisionSeverityVisible(quickSummaryBeforeEvidence, { timeoutMs: 60_000 });
-
     await expectBuyerPipelineTimelineSectionVisible(page, {
       timeoutMs: 60_000,
       runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
@@ -127,6 +125,7 @@ test.describe(
     const primaryCard = quickSummaryAfterEvidence.locator('[data-finding-workspace-primary="true"]');
     await expect(primaryCard).toBeVisible({ timeout: 60_000 });
     await primaryCard.scrollIntoViewIfNeeded();
+    await expect(quickDecisionSeverityBadge(primaryCard).first()).toBeVisible({ timeout: 60_000 });
     await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
       timeout: 30_000,
     });

@@ -10,7 +10,6 @@ import { expect, test } from "@playwright/test";
 import {
   DEMO_WORKSPACE_B_LIVE_IDS,
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
-  injectDemoWorkspaceOperatorScope,
   openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -30,7 +29,6 @@ import {
 import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPolishedReviewDetailWorkspaceCore,
-  expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   expectReviewDetailFindingInspectCopyVisible,
   openReviewDetailWorkspaceTab,
@@ -211,10 +209,6 @@ test.describe(
     expect(packBFindingId, "Pack B finding id from authority snapshot").not.toBeNull();
     expect(packATitle, "Pack A finding title from authority snapshot").not.toBeNull();
     expect(packBTitle, "Pack B finding title from authority snapshot").not.toBeNull();
-
-    await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
-
-    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
 
     /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
     await expectReviewDetailFindingInspectCopyVisible(

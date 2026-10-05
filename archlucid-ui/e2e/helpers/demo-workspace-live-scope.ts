@@ -11,6 +11,7 @@ import {
 import { OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY } from "@/lib/operator/operator-sample-workspace-visit";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
+import { resolveLiveJwtMode } from "./live-api-auth";
 import {
   expectBuyerPolishedReviewDetailShellReady,
   gotoLiveRunDetailPage,
@@ -166,7 +167,9 @@ export async function injectDemoWorkspaceOperatorScope(
   // Init script only runs on navigations after registration — reload once so localStorage and
   // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await waitForOperatorAuthMeProxyOk(page);
+  if (resolveLiveJwtMode()) {
+    await waitForOperatorAuthMeProxyOk(page);
+  }
 }
 
 /** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
@@ -187,7 +190,9 @@ export async function injectDefaultTenantOperatorScope(page: Page): Promise<void
   // Init script only runs on navigations after registration — reload once so scope is committed
   // before the first /administration/users RSC flight.
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await waitForOperatorAuthMeProxyOk(page);
+  if (resolveLiveJwtMode()) {
+    await waitForOperatorAuthMeProxyOk(page);
+  }
 }
 
 /**
