@@ -27031,10 +27031,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -27069,6 +27069,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `RestoreProjectAsync` accepts `Guid.Empty` workspaceId and reaches tenant lookup — **cheap-disproof 2026-09-11 seed hunt #1701:** empty `workspaceId` returns `400 ValidationFailed` before repository call; regression `RestoreProjectAsync_returns_bad_request_when_workspace_id_is_empty`
 
 2026-09-11 seed hunt #1701 (dry): reseeded sibling-path parity gaps between List/ListRecycleBin/RestoreProject; cheap-disproof closed three hunt-ready rows; 29 scoped TenantWorkspaces tests passed.
+
+- [x] (valid-no-repro) `ListRecycleBinAsync` returns HTTP 200 when `scope.WorkspaceId` is `Guid.Empty` — **cheap-disproof 2026-10-05 seed hunt:** empty workspace id cannot match tenant workspace list; parity with `ListAsync` guard at lines 34–38; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_id_is_empty`
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — `GetByIdAsync(scope.TenantId)` returns null while JWT scope still carries that tenant id — wrong outcome would be HTTP 200 with workspace payload; mechanism: both list endpoints return `404 ResourceNotFound` only when tenant row is missing (lines 25–26 / 28–29); reachable from stale scope after tenant purge
+- [ ] (candidate) `DeleteProjectAsync` / `RestoreProjectAsync` — `GetByIdAsync(scope.TenantId)` returns null — wrong outcome would reach `TrySoftDeleteAsync` / `TryRestoreAsync`; mechanism: tenant null returns `404` before workspace route binding (lines 33–34 / 113–114); reachable from same stale-scope input as list endpoints
+- [ ] (candidate) `ListAsync` — `DefaultProjectId` on workspace row does not appear in `Projects` when active project list omits that id (soft-deleted or cross-workspace drift) — wrong outcome: workspace picker advertises a default project id with no matching active row in `Projects`; mechanism: `DefaultProjectId` copied from `TenantWorkspaceListItem` without intersecting `ListActiveByTenantAsync` results; reachable when workspace metadata lags project lifecycle outside this controller
+- [ ] (candidate) `ListRecycleBinAsync` — soft-deleted workspace default project appears in recycle bin after historical delete path bypassed `DeleteProjectAsync` default guard — wrong outcome: operators can restore a project that workspace metadata still treats as default; mechanism: recycle bin filters `DeletedUtc` only, not `DefaultProjectId`; reachable only from legacy SQL/data rows, not from current delete endpoint
+
+2026-10-05 seed hunt (seed-only): reseeded `api-tenancy-workspaces`; cheap-disproof closed recycle-bin empty-workspace parity candidate; seeded four tenant-missing/default-metadata candidates; 31 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents
