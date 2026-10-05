@@ -114,6 +114,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly outline?: InfraEvidenceMermaidOutline | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
   readonly cameraMaxHeightClassName?: string;
+  /** Docked inside the diagram viewport frame (inline and fullscreen). */
+  readonly viewportHeader?: React.ReactNode;
 };
 
 export type ArchitectureDiagramStaticViewerProps = {
@@ -501,6 +503,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     questionSubjectNodeId = null,
     outline = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
+    viewportHeader = null,
   } = props;
   const pathname = usePathname() ?? '';
   const reactId = useId();
@@ -1314,6 +1317,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         tabIndex={0}
         onWheel={onWheel}
         controls={controlsInsideViewport ? viewportControls : null}
+        viewportHeader={viewportHeader}
         cameraMaxHeightClassName={cameraMaxHeightClassName}
         className={effectiveSurface === 'map' ? 'hidden' : undefined}
       >
@@ -1337,6 +1341,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             tabIndex={0}
             onWheel={onWheel}
             controls={controlsInsideViewport ? viewportControls : null}
+            viewportHeader={viewportHeader}
             cameraMaxHeightClassName="max-h-[80vh]"
           >
             {renderMermaidInk(fullscreenHostRef, 'architecture-diagram-fullscreen-svg-host')}
