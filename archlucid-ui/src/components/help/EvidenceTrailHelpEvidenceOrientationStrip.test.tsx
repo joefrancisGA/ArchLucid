@@ -2,16 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
-import { EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE } from "@/lib/evidence-trail-help-evidence-copy";
 
 describe("EvidenceTrailHelpEvidenceOrientationStrip", () => {
-  it("renders claim-discipline callout without diligence Sources list (TB-2092)", () => {
+  it("suppresses claim-discipline callout because help-evidence-trail is omitted (legacy strip id alias)", () => {
     render(<EvidenceTrailHelpEvidenceOrientationStrip />);
 
-    const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
-
-    expect(claimDiscipline).toHaveTextContent(EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE);
-    expect(claimDiscipline).toHaveTextContent("not a full audit export");
+    expect(screen.queryByTestId("evidence-trail-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("evidence-trail-help-sources")).toBeNull();
   });
 });

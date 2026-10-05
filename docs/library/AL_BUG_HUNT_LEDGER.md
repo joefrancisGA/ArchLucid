@@ -29100,15 +29100,19 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 17
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-12 — help-teams-integration TOC kept claim heading while header strip owns the band
+- **hunts:** 19
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — legacy orientation strip slugs missed omit-set alias resolution and duplicated claim bands
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read `claim-discipline-policy.ts` and its focused policy tests; no hunt-ready row was promoted; seeded canonical-slug alias, heading-id variant, and non-canonical slug-input candidates; no production fix or repro was attempted.
+
+2026-10-05 seed hunt (hit): proved multiple live orientation strips still pass legacy strip slugs (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`) while `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` keys the canonical `help-*` registry slugs, so `shouldOmitClaimDisciplineBand` left duplicate claim callouts; fixed via `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` in omit resolution; 13 scoped `claim-discipline-policy` tests plus evidence-trail, glossary, and pilot-guide strip regressions passed.
+
+2026-10-05 thorough hunt (hit): proved `ConnectGcpSecurelyHelpEvidenceOrientationStrip` used `stripSlug="connect-gcp-securely-help"` while omit policy keys `cloud-connections-gcp`, duplicating claim discipline with the header info strip; aligned strip slug with registry; cheap-disproved remaining heading-id and whitespace slug candidates; 12 scoped `claim-discipline-policy` tests plus GCP help regressions passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the help alias candidate because the live GCP help route uses the same canonical `cloud-connections-gcp` slug in the registry and policy; found no actual alternate heading ID in the omitted-guide callers; and found strip slugs are static registry values rather than URL-derived strings, so whitespace/trailing-slash input was not reachable. The focused policy suite passed 11 tests.
 
@@ -29132,9 +29136,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `help-workspace-settings` / `HelpWorkspaceSettingsGuideView` — TOC passed raw `WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS` while slug is omitted and claim renders in strip without matching h2 anchor — **hit 2026-09-08 thorough hunt #1307:** duplicate TOC links to missing claim anchor; fixed by `resolveGuideHeadingsForStrip("help-workspace-settings", …)`; regression in `HelpWorkspaceSettingsGuideView.test.tsx`
 - [x] (proven) `help-jira-integration` / `HelpJiraIntegrationGuideView` — TOC passed raw `JIRA_INTEGRATION_HELP_GUIDE_HEADINGS` while slug is omitted — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by filtered `guideHeadings`; regression in `HelpJiraIntegrationGuideView.test.tsx`
 
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — a live help route uses a canonical alias such as `help-cloud-connections-gcp` while the policy contains only the registry variant `cloud-connections-gcp` — exact-set lookup leaves the shared claim band visible and can duplicate header guidance; input is reachable from a help-route registry slug.
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — an omitted guide supplies a claim heading with an alternate id such as `what-<topic>-is-not` while the caller passes a different claim heading id — exact filtering leaves a stale TOC link to a missing anchor; input is reachable from a guide heading definition and omitted route slug.
-- [ ] (candidate) `shouldOmitClaimDisciplineBand` — a route caller supplies a non-canonical slug with surrounding whitespace or a trailing slash — exact `Set.has` lookup treats it as visible and can reintroduce the shared claim band on a folded-header surface; input is reachable from URL/registry-derived strip slugs.
+- [x] (proven) `shouldOmitClaimDisciplineBand` / `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — live orientation strips pass legacy ids (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`, `connect-gcp-securely-help`) while omit set keys canonical `help-*` / registry slugs, so `resolveClaimDisciplineForStrip` still surfaced duplicate claim bands — **hit 2026-10-05 seed hunt:** alias map in omit resolution; regressions in `claim-discipline-policy.test.ts` and evidence-trail, glossary, pilot-guide orientation strip tests
+- [x] (proven) `ConnectGcpSecurelyHelpEvidenceOrientationStrip` / `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — orientation strip passed `stripSlug="connect-gcp-securely-help"` while the help registry and omit set use `cloud-connections-gcp`, so `shouldOmitClaimDisciplineBand` left the shared claim callout visible alongside the header info strip — **hit 2026-10-05 thorough hunt:** pass registry slug `cloud-connections-gcp` to `EvidenceOrientationClaimCallout`; regressions in `ConnectGcpSecurelyHelpEvidenceOrientationStrip.test.tsx`, `HelpTopicConnectGcpSecurely.test.tsx`, and `claim-discipline-policy.test.ts`
+- [x] (invalid) `resolveGuideHeadingsForStrip` — alternate claim heading id vs caller `claimHeadingId` — **cheap-disproof 2026-10-05 thorough hunt:** omitted guides already pass matching ids (e.g. `help-advisory-scans` / `what-advisory-scans-are-not`); no live mismatch found in zone paths
+- [x] (invalid) `shouldOmitClaimDisciplineBand` — whitespace or trailing-slash strip slugs — **cheap-disproof 2026-10-05 thorough hunt:** strip slugs are static registry literals at component callsites, not URL-derived strings
 
 2026-09-08 thorough hunt #1307 (hit): proved notifications, workspace-settings, and jira-integration raw-TOC/omit mismatches; 14 scoped claim-discipline unit tests passed.
 

@@ -160,6 +160,23 @@ describe("claim-discipline-policy", () => {
     ).toEqual([]);
   });
 
+  it("omits cloud-connections-gcp when header info strip owns connect GCP claim discipline", () => {
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-gcp")).toBe(true);
+    expect(
+      resolveClaimDisciplineForStrip("cloud-connections-gcp", "Not a diligence package."),
+    ).toBeUndefined();
+  });
+
+  it("omits legacy orientation strip slug aliases that differ from registry help-topic slugs", () => {
+    expect(shouldOmitClaimDisciplineBand("connect-gcp-securely-help")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("evidence-trail-help")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("evidence-trail")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("glossary-help")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("pilot-guide-help")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-path-chooser-bottom")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("glossary-help", "Not a diligence package.")).toBeUndefined();
+  });
+
   it("omits help-recurrence-schedules claim heading from guide TOC when band is omitted", () => {
     expect(shouldOmitClaimDisciplineBand("help-recurrence-schedules")).toBe(true);
     expect(
