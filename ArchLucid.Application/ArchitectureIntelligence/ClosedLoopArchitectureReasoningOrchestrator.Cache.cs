@@ -23,7 +23,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                 ledgerEntries);
 
         ReviewCacheDependencyManifest contentManifest =
-            ReviewCacheManifestBuilder.Build(effectiveRequest, existing, ledgerEntries);
+            ReviewCacheManifestBuilder.BuildWithResolvedRunId(effectiveRequest, runId, existing, ledgerEntries);
 
         using IReviewResultCachePinScope pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
 

@@ -333,6 +333,46 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_baseline_model_changes_and_request_run_id_blank()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+        request.RunId = null;
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-1",
+            RunId = "run-continue",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel changed = new()
+        {
+            ModelId = "model-1",
+            RunId = "run-continue",
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "el-2", Name = "Worker" },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-cache",
+                "run-continue",
+                baseline)
+            .ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-cache",
+                "run-continue",
+                changed)
+                .ContentHash);
+    }
+
+    [Fact]
     public void BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

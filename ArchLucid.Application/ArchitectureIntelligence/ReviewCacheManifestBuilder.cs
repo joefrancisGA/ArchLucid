@@ -58,7 +58,7 @@ public static class ReviewCacheManifestBuilder
         string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
 
         ReviewCacheDependencyManifest contentManifest =
-            Build(request, baselineKnowledgeModel, technologyLedgerEntries);
+            BuildWithResolvedRunId(request, normalizedRunId, baselineKnowledgeModel, technologyLedgerEntries);
 
         return new ReviewCacheDependencyManifest
         {
