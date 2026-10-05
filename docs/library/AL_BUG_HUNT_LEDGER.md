@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `tenant-erasure` — platform legal-hold path stored untrimmed `Reason` while idempotent retry compared raw strings, so a padded reason retry duplicated platform audit events; normalize trim in `TenantErasureCommandService.TrySetLegalHoldAsync` and when comparing stored reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`; 36 scoped `TenantErasure` tests passed (9 Application, 23 Api, 4 Core).
+
 2026-10-05 seed hunt (seed→hit): `host-core-coordination` — early skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a throwing `ILogger` prevented skip-as-processed and scheduled backoff on purged-run orphan rows; moved skip warnings into post-mark best-effort observability on `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`; 21 Host.Core and 34 Host.Composition scoped coordination/outbox tests passed.
 
 2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `AgentExecution:Mode` caused `RegisterExecutorWiring` to register `RealAgentExecutor` even though `EffectiveAgentExecutionModeAccessor` treats missing/invalid mode as Simulator, so hosts with an explicit null mode key wired real executor infrastructure without Azure keys; normalize null/invalid mode to Simulator at registration time; regression `AgentCompositionModule_null_agent_execution_mode_registers_simulator_executor`; 413 scoped host-composition tests passed.
@@ -4799,13 +4801,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 261
-- **bugs-found:** 484
+- **hunts:** 262
+- **bugs-found:** 485
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-11
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — legal-hold reason whitespace broke idempotent retry audit dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `TenantErasureCommandService.TrySetLegalHoldAsync` stored platform legal-hold reasons without trimming while `IsIdenticalLegalHoldRetry` compared raw strings, so operator retries with the same semantic reason after surrounding whitespace duplicated `TenantErasureLegalHoldSet` audits; normalize reason on write and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`. Scoped `TenantErasure` tests passed 36.
 
 2026-09-26 seed hunt #6972 (seed-only): reseeded tenant-erasure after middleware fail-closed churn (#3469); cheap-disproof closed past-due `TenantErasureRequestedUtc`-only legal-hold gap (production offboard always sets both timestamps); regressions `Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`, `TryRestoreQuarantineAsync_clears_stale_erasure_approval_and_requested_timestamp`; 35 scoped TenantErasure tests passed.
 
@@ -4817,6 +4821,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — platform admin legal-hold requests passed untrimmed `Reason` while tenant-admin HTTP trimmed before the command service, so `IsIdenticalLegalHoldRetry` missed semantic duplicates and appended duplicate `TenantErasureLegalHoldSet` audits on safe retry — **hit 2026-10-05 seed hunt:** normalize legal-hold reason on persist and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`
 - [x] (proven) Restore quarantine leaves active erasure legal hold on operational tenant — **hit 2026-09-11 seed hunt #1709:** `TryRestoreTenantErasureQuarantineAsync` and `CopyTenant(clearErasureQuarantine: true)` cleared offboard/suspend/approval but preserved `LegalHoldUntilUtc` and related columns, so a restored tenant could remain blocked by `TrialLifecycleTransitionEngine` and stale hold metadata; fixed by clearing legal-hold columns in Dapper restore SQL and when `clearErasureQuarantine` is true; regression `TryRestoreQuarantineAsync_clears_active_legal_hold_from_erasure_quarantine`
 - [x] (invalid) Erasure proceeds while a legal hold is still active — `IsEligibleForScheduledHardPurge` and SQL list queries exclude rows with future `LegalHoldUntilUtc`; orphan cleanup skips active holds in `OrphanedTenantCatalogCleanupBackgroundWork`
 - [x] (proven) Quarantine middleware lets mutating requests through after erasure has started — **hit 2026-08-23:** `TrialSeatReservationMiddleware` ran before `TenantErasureQuarantineMiddleware`, so offboarded active-trial tenants still incremented `TrialSeatsUsed` before the 403; fixed by running erasure quarantine first in `PipelineExtensions`
