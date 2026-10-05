@@ -64,8 +64,8 @@ describe("buildAdvisoryScheduleExamplePreviewView", () => {
     expect(view.statusKind).toBe("ready");
 
     const { nextUtc, lastUtc } = resolveExampleWeeklyMondayInstants(new Date("2026-08-20T15:30:00.000Z"));
-    expect(view.nextRunPrimary).not.toBe(" — ");
-    expect(view.lastRunPrimary).not.toBe(" — ");
+    expect(view.nextRunPrimary).not.toBe("Not scheduled");
+    expect(view.lastRunPrimary).not.toBe("Not recorded");
     expect(new Date(nextUtc).getTime()).toBeGreaterThan(Date.now());
     expect(new Date(lastUtc).getTime()).toBeLessThan(Date.now());
   });

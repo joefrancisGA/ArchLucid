@@ -63,10 +63,9 @@ export function LlmBudgetUtilizationMeter() {
     tone === "critical"
       ? "Monthly budget reached — new AI-assisted workflows may be paused until the next billing month."
       : tone === "warn"
-        ? `Approaching the configured warn threshold (${warnPct ?? " — "}% of budget).`
+        ? `Approaching the configured warn threshold (${warnPct ?? "Not returned"}% of budget).`
         : "Monthly budget utilization is within normal limits.";
   const labelId = "llm-budget-utilization-label";
-  const displayPct = pct ?? 0;
   const utilizationNotComputed = pct === null;
 
   return (
@@ -96,10 +95,10 @@ export function LlmBudgetUtilizationMeter() {
         </p>
       ) : (
         <Progress
-          value={displayPct}
+          value={pct}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuenow={displayPct}
+          aria-valuenow={pct}
           aria-labelledby={labelId}
           indicatorClassName={indicatorClassName}
           className="mt-2"

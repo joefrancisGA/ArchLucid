@@ -6,9 +6,22 @@ import type { RunSummary } from "@/types/authority";
 import {
   lookupArchitectureDraftOwnerLabel,
   lookupArchitectureDraftParentArchitectureId,
+  reviewPackageFinalizedDateLabel,
   reviewPackageOwnerLabel,
   REVIEW_PACKAGE_OWNER_UNAVAILABLE,
 } from "./review-package-validation-picker";
+
+describe("reviewPackageFinalizedDateLabel", () => {
+  it("labels in-progress packages as Not finalized", () => {
+    expect(
+      reviewPackageFinalizedDateLabel({
+        runId: "draft-review",
+        projectId: "default",
+        createdUtc: "2026-01-14T12:00:00.000Z",
+      } satisfies RunSummary),
+    ).toBe("Not finalized");
+  });
+});
 
 describe("reviewPackageOwnerLabel", () => {
   it("returns demo package owner for showcase runs", () => {

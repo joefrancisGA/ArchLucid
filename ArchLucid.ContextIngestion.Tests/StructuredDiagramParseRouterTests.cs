@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion;
 using ArchLucid.ContextIngestion.Diagram;
 using ArchLucid.Contracts.Architecture;
 
@@ -16,6 +17,33 @@ public sealed class StructuredDiagramParseRouterTests
         new VsdxDiagramSourceParser(),
         new SvgDiagramSourceParser(),
     ]);
+
+    [Fact]
+    public void Parse_Week3DocumentationAccuracyMermaid_YieldsNamedNodesAndEdge()
+    {
+        const string mermaid = """
+            flowchart LR
+              portal["stprodmemberportal01 (rg-app)"]
+              missing["Member Portal — Prod"]
+              portal --> missing
+            """;
+
+        DiagramParseResult result = this.router.Parse(new DiagramSourceReference
+        {
+            Name = "week-3",
+            Format = SupportedContextDocumentContentTypes.Mermaid,
+            Content = mermaid,
+        });
+
+        result.Warnings.Should().BeEmpty();
+        result.Model.Nodes.Should().HaveCount(2);
+        result.Model.Nodes.Should().Contain(node =>
+            node.Id == "portal" && node.Label == "stprodmemberportal01 (rg-app)");
+        result.Model.Nodes.Should().Contain(node =>
+            node.Id == "missing" && node.Label == "Member Portal — Prod");
+        result.Model.Edges.Should().ContainSingle(edge =>
+            edge.SourceId == "portal" && edge.TargetId == "missing");
+    }
 
     [Fact]
     public void Parse_MermaidFixture_YieldsNodesAndEdges()

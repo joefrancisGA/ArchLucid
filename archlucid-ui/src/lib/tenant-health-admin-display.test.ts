@@ -12,5 +12,6 @@ describe("presentTenantHealthAdminCount", () => {
   it("formats finite integers", () => {
     expect(presentTenantHealthAdminCount(0)).toBe("0");
     expect(presentTenantHealthAdminCount(12)).toBe("12");
+    expect(presentTenantHealthAdminCount(42)).toBe("42");
   });
 });

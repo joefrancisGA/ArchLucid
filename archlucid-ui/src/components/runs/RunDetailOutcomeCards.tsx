@@ -12,6 +12,7 @@ import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyL
 import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { governanceGateOperatorFootnote } from "@/lib/governance/governance-gate-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
@@ -59,6 +60,8 @@ type RunDetailOutcomeCardsProps = {
   readonly unresolvedIssueCountDisplay: number | null;
   /** From manifest status when summary is loaded; omit to hide the governance line on the manifest card. */
   readonly governanceGateLabel?: string | null;
+  /** Operator gate label when buyer-polished copy differs (UU-507). */
+  readonly governanceGateOperatorLabel?: string | null;
   /** Aggregate posture from explanation summary (buyer strip severity signal). */
   readonly aggregateRiskPosture?: string | null;
   readonly authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"] | null;
@@ -90,6 +93,7 @@ export function RunDetailOutcomeCards({
   artifactCount,
   unresolvedIssueCountDisplay,
   governanceGateLabel,
+  governanceGateOperatorLabel,
   aggregateRiskPosture,
   authorityLifecyclePhase,
   showcasePolicyPackStrip,
@@ -197,6 +201,11 @@ export function RunDetailOutcomeCards({
   const dispositionPanel =
     findingCoverageSummary !== null ? <RunDetailFindingCoverageDispositionPanel summary={findingCoverageSummary} /> : null;
 
+  const governanceGateFootnote = governanceGateOperatorFootnote(
+    governanceGateOperatorLabel ?? null,
+    governanceGateLabel ?? null,
+  );
+
   if (buyerPolishedShell) {
   const statusHeadline = buildBuyerReviewPackagePlainStatusHeadline({
     hasGoldenManifest,
@@ -264,6 +273,14 @@ export function RunDetailOutcomeCards({
             </p>
           ) : null}
         </div>
+      ) : null}
+      {governanceGateFootnote !== null ? (
+        <p
+          className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}
+          data-testid="buyer-governance-gate-footnote"
+        >
+          {governanceGateFootnote}
+        </p>
       ) : null}
       {!hidePromotedStatus ? (
       <p

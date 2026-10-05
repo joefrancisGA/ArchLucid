@@ -26,9 +26,9 @@ import {
 } from "@/lib/sponsor/business-impact-system-count-display";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
-function formatUsd(value: number | undefined): string {
+function formatEstimatedSavingsUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Amount not returned";
+    return "Savings not returned";
   }
 
   return new Intl.NumberFormat(undefined, {
@@ -120,7 +120,7 @@ export function BusinessImpactSummaryWidget({
             ) : (
               <>
                 <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                  {formatUsd(data?.totalEstimatedUsdSavings)}
+                  {formatEstimatedSavingsUsd(data?.totalEstimatedUsdSavings)}
                 </p>
                 {data ? (
                   <CardDescription className={cn("mt-2", OPERATOR_KPI_CARD_DESCRIPTION)}>

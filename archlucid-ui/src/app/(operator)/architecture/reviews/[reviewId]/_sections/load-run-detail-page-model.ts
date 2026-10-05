@@ -324,6 +324,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     warningCountDisplay,
     showPilotScorecardPackageCta,
     governanceGateLabel,
+    governanceGateOperatorLabel: governanceGateLabelRaw,
     careerExportEligibleFindingCount,
     adrGeneratorInput,
   };

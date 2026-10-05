@@ -97,7 +97,7 @@ describe("SponsorRoiTrendSection", () => {
     expect(screen.getByTestId("exec-roi-trend-mixed-mode-footnote")).toHaveTextContent(
       EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE,
     );
-    expect(screen.getByTestId("exec-roi-trend-simulator-only")).toHaveTextContent("Simulator-only");
+    expect(screen.getByTestId("exec-roi-trend-simulator-only")).toHaveTextContent("Simulator runs only");
     expect(screen.getByTestId("exec-roi-trend-svg-chart")).toBeInTheDocument();
   });
 

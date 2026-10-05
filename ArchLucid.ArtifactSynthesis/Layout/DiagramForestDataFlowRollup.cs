@@ -179,7 +179,9 @@ internal static class DiagramForestDataFlowRollup
             IsDataFlowRollup = true,
             DataFlowRollupOrdinal = ordinal,
             DataFlowRollupMemberIds = members.Select(member => member.NodeId).ToList(),
-            DataFlowRollupMemberNames = members.Select(BuildMemberName).ToList(),
+            DataFlowRollupMemberNames = members
+                .Select(member => BuildMemberName(member, neighborIdsByNodeId))
+                .ToList(),
             DataFlowRollupStatusLine = statusLine,
             ParentAttachmentDetails = [],
             UnresolvedRelationshipDetails = [],
@@ -188,12 +190,20 @@ internal static class DiagramForestDataFlowRollup
         };
     }
 
-    private static string BuildMemberName(DiagramNode member)
+    private static string BuildMemberName(
+        DiagramNode member,
+        IReadOnlyDictionary<string, HashSet<string>> neighborIdsByNodeId)
     {
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(member);
-        string status = IsConsumerStatusResource(member.ArmResourceType)
-            ? "No consumer found"
-            : string.Empty;
+        string status = string.Empty;
+
+        if (IsConsumerStatusResource(member.ArmResourceType))
+        {
+            int neighborCount = neighborIdsByNodeId[member.NodeId].Count;
+            status = neighborCount == 0
+                ? "No consumer found"
+                : $"Used by {neighborCount}";
+        }
         string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
             ? string.Empty
             : member.ArmResourceGroup.Trim();

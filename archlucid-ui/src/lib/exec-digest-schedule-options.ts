@@ -24,7 +24,7 @@ export const EXEC_DIGEST_HOUR_OPTIONS: readonly { readonly value: number; readon
 
 /** Human-readable cadence label for sponsor digest sends. */
 export function formatExecDigestCadenceLabel(form: ExecDigestScheduleFormState): string {
-  const dayName: string = EXEC_DIGEST_DAY_NAMES[form.dayOfWeek] ?? " — ";
+  const dayName: string = EXEC_DIGEST_DAY_NAMES[form.dayOfWeek] ?? "Not returned";
   const timeLabel: string = formatExecDigestSendTimeLabel(form.hourOfDay);
 
   return `${dayName} at ${timeLabel}`;
@@ -32,7 +32,7 @@ export function formatExecDigestCadenceLabel(form: ExecDigestScheduleFormState):
 
 /** Customer sentence for the configured cadence (independent of active/paused). */
 export function formatExecDigestConfiguredCadenceSentence(form: ExecDigestScheduleFormState): string {
-  const dayName: string = EXEC_DIGEST_DAY_NAMES[form.dayOfWeek] ?? " — ";
+  const dayName: string = EXEC_DIGEST_DAY_NAMES[form.dayOfWeek] ?? "Not returned";
   const timeLabel: string = formatExecDigestSendTimeLabel(form.hourOfDay);
   const zoneLabel: string = formatIanaTimeZoneOptionLabel(form.ianaTimeZoneId);
 

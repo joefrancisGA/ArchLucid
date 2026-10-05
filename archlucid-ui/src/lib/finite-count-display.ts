@@ -1,5 +1,5 @@
 export type FiniteIntegerCountDisplayOptions = {
-  /** When the API omits or sends a non-finite count. Default keeps the legacy em dash. */
+  /** When the API omits or sends a non-finite count. Default is explicit omitted-field copy. */
   readonly missingLabel?: "dash" | "not-returned";
 };
 
@@ -11,7 +11,7 @@ export function finiteIntegerCountDisplay(
   options?: FiniteIntegerCountDisplayOptions,
 ): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return options?.missingLabel === "not-returned" ? "Not returned" : " — ";
+    return options?.missingLabel === "dash" ? " — " : "Not returned";
   }
 
   return String(Math.trunc(value));

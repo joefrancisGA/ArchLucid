@@ -50,12 +50,15 @@ export function RunDetailSponsorModeExplanationCard(
     return null;
   }
 
-  const citationCount = explanationSummary?.citations?.length ?? 0;
+  const citations = explanationSummary?.citations;
+  const citationCount = citations?.length ?? 0;
   const faithfulnessRatio = normalizeFiniteRatio(explanationSummary?.faithfulnessSupportRatio);
   const basisLabel =
-    citationCount > 0
-      ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
-      : "committed review and finding records";
+    citations === undefined || citations === null
+      ? "Citations not returned"
+      : citationCount > 0
+        ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
+        : "committed review and finding records";
 
   return (
     <section
