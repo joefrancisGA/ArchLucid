@@ -14246,13 +14246,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 462
-- **last-hunt:** 2026-10-04
-- **bugs-found:** 3502
+- **hunts:** 463
+- **last-hunt:** 2026-10-05
+- **bugs-found:** 3503
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-28 — `GraphSnapshotKnowledgeModelMerger` duplicate context nodes/edges when ids differed only by outer whitespace
+- **last-bug:** 2026-10-05 — `GraphSnapshotKnowledgeModelMerger` left padded context edge endpoints after model node deduplication
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `GraphSnapshotKnowledgeModelMerger` context edges could keep whitespace-padded `FromNodeId`/`ToNodeId` after model nodes deduplicated by trim; fixed by resolving endpoints to canonical merged node ids; regression `Merge_canonicalizes_context_edge_endpoints_when_model_node_id_is_trimmed`. Scoped `FullyQualifiedName~ArchLucid.Core` passed 7204/7204; KnowledgeGraph merger suite 7/7.
 
 2026-10-01 seed hunt (seed-only): inspected ArchLucid.Core source despite the picker path containing only this ledger; the exact `FullyQualifiedName~ArchLucid.Core` filter passed all 7,163 tests. No new reachable mechanism-backed candidate was found or promoted.
 
@@ -14275,6 +14277,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context graph edge endpoints differ from model node ids only by outer whitespace — deduplication skipped the context node but appended the edge with padded `FromNodeId`/`ToNodeId`, leaving dangling endpoints in the merged snapshot; **hit 2026-10-05 seed hunt:** resolve endpoints against canonical merged node ids before append; regression `Merge_canonicalizes_context_edge_endpoints_when_model_node_id_is_trimmed`.
 
 - [x] (proven) `PrivateNetworkAddressGuard.IsForbiddenIpAddress` — IPv4-mapped RFC1918 addresses bypass private-network guard — **hit 2026-09-03 (#597):** `::ffff:10.0.0.1` / `::ffff:192.168.1.1` stayed on the IPv6 branch after #223 ULA fix and returned allowed; SSRF policies missed mapped private literals; fixed by unmapping with `MapToIPv4()` before RFC1918 checks (`PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv4_mapped_private_addresses`).
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — string-encoded / whole-number-double `schemaVersion` rejected — **hit 2026-09-03 (#600):** `"schemaVersion":"1"` and `1.0` failed strict `int` deserialize and dropped dead-letter detection after #596 failureClass casing fix; fixed with case-insensitive schemaVersion coercion and direct `failureClass` read (`IsDeadLettered_returns_true_for_string_encoded_schema_version`, `IsDeadLettered_returns_true_for_whole_number_double_schema_version`).
