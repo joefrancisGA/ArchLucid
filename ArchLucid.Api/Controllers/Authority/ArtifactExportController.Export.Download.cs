@@ -141,15 +141,6 @@ public sealed partial class ArtifactExportController
         {
             RunDetailDto? runDetailForDiagram = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
-            if (runDetailForDiagram is not null)
-            {
-                IActionResult? lifecycleProblem =
-                    EnsureAuthorityLifecycleCompleteOrConflict(runDetailForDiagram, runId);
-
-                if (lifecycleProblem is not null)
-                    return lifecycleProblem;
-            }
-
             if (runDetailForDiagram?.GoldenManifest is not null)
             {
                 IReadOnlyList<SynthesizedArtifact> artifactsForDiagram =
