@@ -196,20 +196,14 @@ test.describe(
 
     expect(packAFindingId, "Pack A finding id from authority snapshot").not.toBeNull();
 
-    /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
-    await expectReviewDetailSeedFindingCopyVisible(
+    /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
+    await expectReviewDetailFindingInspectCopyVisible(
       page,
-      /immutable lineage hash|ai-gov-002|checksum parity across registry/i,
-      { timeoutMs: 90_000, runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID },
-    ).catch(async () => {
-      await expectReviewDetailFindingInspectCopyVisible(
-        page,
-        DEMO_WORKSPACE_B_REGULATED_RUN_ID,
-        packAFindingId!,
-        /immutable lineage hash/i,
-        { timeoutMs: 90_000 },
-      );
-    });
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      packAFindingId!,
+      /immutable lineage hash/i,
+      { timeoutMs: 90_000 },
+    );
 
     /** Pack B security baseline posture (public exposure from seed fixtures). */
     await expectReviewDetailSeedFindingCopyVisible(
