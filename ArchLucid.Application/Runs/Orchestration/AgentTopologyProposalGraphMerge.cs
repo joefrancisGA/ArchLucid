@@ -169,9 +169,11 @@ public static class AgentTopologyProposalGraphMerge
 
     private static GraphNode TopologyServiceNode(ManifestService svc, string? reasoningTrace)
     {
+        string nodeId = ResolveMaterializedServiceNodeId(svc);
+
         return new GraphNode
         {
-            NodeId = !string.IsNullOrWhiteSpace(svc.ServiceId) ? svc.ServiceId : $"svc-{svc.ServiceName}",
+            NodeId = nodeId,
             NodeType = GraphNodeTypes.TopologyResource,
             Label = svc.ServiceName,
             Category = GraphTopologyCategories.Compute,
@@ -184,9 +186,11 @@ public static class AgentTopologyProposalGraphMerge
 
     private static GraphNode TopologyDatastoreNode(ManifestDatastore ds, string? reasoningTrace)
     {
+        string nodeId = ResolveMaterializedDatastoreNodeId(ds);
+
         return new GraphNode
         {
-            NodeId = !string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreId : $"ds-{ds.DatastoreName}",
+            NodeId = nodeId,
             NodeType = GraphNodeTypes.TopologyResource,
             Label = ds.DatastoreName,
             Category = GraphTopologyCategories.Data,
@@ -195,6 +199,30 @@ public static class AgentTopologyProposalGraphMerge
             ReasoningTrace = reasoningTrace,
             Properties = EnumProperties("datastoreType", ds.DatastoreType, "runtimePlatform", ds.RuntimePlatform)
         };
+    }
+
+    private static string ResolveMaterializedServiceNodeId(ManifestService service)
+    {
+        string? serviceId = TopologyProposalRelationshipEndpointIndex.TrimManifestEndpointValue(service.ServiceId);
+
+        if (!string.IsNullOrWhiteSpace(serviceId))
+            return serviceId;
+
+        string? syntheticNodeId = TopologyProposalRelationshipEndpointIndex.BuildSyntheticServiceNodeId(service.ServiceName);
+
+        return syntheticNodeId ?? string.Empty;
+    }
+
+    private static string ResolveMaterializedDatastoreNodeId(ManifestDatastore datastore)
+    {
+        string? datastoreId = TopologyProposalRelationshipEndpointIndex.TrimManifestEndpointValue(datastore.DatastoreId);
+
+        if (!string.IsNullOrWhiteSpace(datastoreId))
+            return datastoreId;
+
+        string? syntheticNodeId = TopologyProposalRelationshipEndpointIndex.BuildSyntheticDatastoreNodeId(datastore.DatastoreName);
+
+        return syntheticNodeId ?? string.Empty;
     }
 
     private static Dictionary<string, string> EnumProperties(
