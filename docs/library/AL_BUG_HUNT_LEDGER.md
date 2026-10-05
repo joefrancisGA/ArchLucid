@@ -28293,13 +28293,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 40
-- **bugs-found:** 21
+- **hunts:** 41
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — rotated host process instance id caused release/renew to target wrong SQL lease holder
+- **last-bug:** 2026-10-05 — duplicate local AcquireAsync renewed SQL ownership and admitted overlapping execute on one replica
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-05 seed hunt (seed→hit): promoted duplicate local acquire candidate; proved a second `AcquireAsync` for the same run on one process treated repository renew as success and admitted overlapping execute batches; fixed with in-process hold tracking before repository claim and `TryAdd` after successful acquire; regression `AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim`; 61 scoped ownership/orchestrator tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted process-instance identity rotation candidate; proved `ReleaseAsync`/`RenewAsync` read `IHostProcessInstanceId.Value` at call time so a rotated identity skipped cleanup of the holder recorded at acquire; fixed by pinning holder instance id per run through acquire and using it for renew/release and shutdown drain aggregation; regression `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`; 60 scoped ownership/orchestrator tests passed.
 
@@ -28359,7 +28361,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the duplicated full-execute eligibility check can cause an extra scope/repository read and a second refusal for a state transition that occurred after the first check; reachable when a run changes status between the two identical calls.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — heartbeat interval is derived from one options snapshot while lease duration may be changed dynamically afterward, allowing the first heartbeat to arrive after the newly configured lease has expired; reachable when options reload lowers lease duration during an active execute.
 - (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — shutdown release can return zero without distinguishing “nothing held” from a repository failure, so drain telemetry may report a clean zero-release outcome while leases remain; reachable when bulk release fails or returns an incomplete count.
-- (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — repeated acquisition for the same run/instance is treated as renewal and can extend an existing lease after a duplicate execute request reaches the same host; reachable through concurrent duplicate execute admission on one process instance.
+- [x] (proven) `RunExecuteOwnershipLeaseService.AcquireAsync` — repeated acquisition for the same run/instance was treated as renewal and admitted overlapping execute on one replica — **hit 2026-10-05 seed hunt:** reject when `_activeHolderInstanceIds` already tracks the run and use `TryAdd` after repository success; regression `AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim`.
 - (candidate) `ArchitectureRunExecuteOrchestrator` — release uses a non-cancellable token but the repository failure is not translated into execute failure, so a cancelled request can complete with a retained lease; reachable when release storage is unavailable after agent cancellation.
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the full-execute path performs two identical eligibility checks while selective execution performs a longer sequence, creating inconsistent admission semantics for equivalent run state transitions; reachable when authority completion changes between those reads.
 - (candidate) `RunExecuteOwnershipLeaseService.IsEnabled` — separate option reads within one acquire/renew/release operation can make a single operation change behavior mid-flight; reachable when `IOptionsMonitor<RunExecuteOwnershipLeaseOptions>` reloads during an ownership call.
