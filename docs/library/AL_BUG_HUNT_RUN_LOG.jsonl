@@ -1,4 +1,3 @@
-{"at":"2026-09-05T15:10:01.6363437Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:17:11.5692306Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:24:02.0677135Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:33:02.5847448Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8794,4 +8793,8 @@
 {"at":"2026-10-05T14:49:34.6954709Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
 {"at":"2026-10-05T14:57:22.9651048Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs)"]}
 {"at":"2026-10-05T15:04:46.1308686Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Identity/EmailOtpChallengeRepositoryCore.cs)"]}
+<<<<<<< HEAD
 {"at":"2026-10-05T15:07:18.6240438Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
+=======
+{"at":"2026-10-05T15:13:29.8366912Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Costing/InfrastructureCostSummaryNotes.cs)"]}
+>>>>>>> 7046853e11 (Record core-costing hunt hit in rolling run log.)
