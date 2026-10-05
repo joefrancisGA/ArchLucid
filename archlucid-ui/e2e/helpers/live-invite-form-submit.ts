@@ -157,24 +157,35 @@ export async function submitAdminInviteFromUsersUi(
 
   await clickThroughBlockingOverlays(page, submitButton, { force: true });
 
+  const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
+  const pendingRow = invitationsTable.locator("tr", { hasText: email });
+  const conflictCopy = page
+    .getByText(/Cannot invite this email|directory user already exists/i)
+    .or(
+      page
+        .locator("[data-sonner-toast]")
+        .filter({ hasText: /Cannot invite this email|directory user already exists/i }),
+    );
+
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
   try {
     const inviteResponse = await inviteResponsePromise;
     inviteResponseStatus = inviteResponse.status();
     inviteResponseBody = await inviteResponse.text();
+
+    if (inviteResponseStatus === 409) {
+      await expect(conflictCopy.first()).toBeVisible({ timeout: 30_000 });
+      return;
+    }
   } catch {
     // Fall through to UI assertions when the build surfaces only toast + seeded rows.
   }
 
-  const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
-  const pendingRow = invitationsTable.locator("tr", { hasText: email });
-  const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
-
   try {
     await Promise.race([
       pendingRow.waitFor({ state: "visible", timeout: 90_000 }),
-      conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
+      conflictCopy.first().waitFor({ state: "visible", timeout: 90_000 }),
     ]);
   } catch {
     const inviteHint =

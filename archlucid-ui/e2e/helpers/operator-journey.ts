@@ -483,6 +483,32 @@ function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator
   return page.getByTestId(`review-detail-workspace-panel-${tab}`);
 }
 
+const REVIEW_WORKBENCH_SURFACE_TABS = ["architecture", "findings", "evidence"] as const;
+
+/** Tab panel or professional workbench column — workbench mode keeps panels `hidden` while content is mounted in-column. */
+async function expectReviewDetailWorkspaceTabSurfaceVisible(
+  page: Page,
+  tab: ReviewDetailTabId,
+): Promise<void> {
+  if ((REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)) {
+    const panel = reviewDetailWorkspacePanel(page, tab);
+    const workbenchColumn = page.getByTestId(`review-workbench-column-${tab}`);
+
+    await expect
+      .poll(async () => {
+        const panelVisible = await panel.isVisible().catch(() => false);
+        const columnVisible = await workbenchColumn.isVisible().catch(() => false);
+
+        return panelVisible || columnVisible;
+      }, { timeout: 60_000 })
+      .toBe(true);
+
+    return;
+  }
+
+  await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
+}
+
 /** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
 async function ensureReviewDetailWorkspaceTabTriggerVisible(
   page: Page,
@@ -528,7 +554,7 @@ export async function openReviewDetailWorkspaceTab(
     }
 
     try {
-      await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 15_000 });
+      await expectReviewDetailWorkspaceTabSurfaceVisible(page, tab);
     } catch {
       // Radix tab clicks can fail under overlay/hydration races — deep-link the tab instead.
       await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
@@ -537,7 +563,7 @@ export async function openReviewDetailWorkspaceTab(
     await page.goto(href);
   }
 
-  await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
+  await expectReviewDetailWorkspaceTabSurfaceVisible(page, tab);
   const activeTab = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
   await expect
