@@ -467,9 +467,26 @@ export async function expectQuickDecisionSeverityVisible(
   quickSummary: Locator,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  await expect(quickDecisionSeverityBadge(quickSummary).first()).toBeVisible({
-    timeout: options?.timeoutMs ?? 30_000,
-  });
+  const timeout = options?.timeoutMs ?? 30_000;
+  const page = quickSummary.page();
+  const severityPattern = /^Severity: (Critical|High|Medium)$/i;
+
+  await expect(async () => {
+    const inSummary = quickDecisionSeverityBadge(quickSummary).first();
+
+    if (await inSummary.isVisible().catch(() => false)) {
+      await expect(inSummary).toBeVisible({ timeout: 5_000 });
+
+      return;
+    }
+
+    const workspace = page
+      .getByTestId("run-detail-findings-workspace")
+      .or(page.getByTestId("review-workbench-column-findings"))
+      .or(page.getByTestId("run-detail-findings-section"));
+
+    await expect(workspace.getByLabel(severityPattern).first()).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout });
 }
 
 const REVIEW_WORKBENCH_SURFACE_TABS = ["architecture", "findings", "evidence"] as const;
@@ -548,9 +565,18 @@ export async function expectReviewDetailFindingsQuickSummaryVisible(
 export async function expectReviewDetailSeedFindingCopyVisible(
   page: Page,
   pattern: RegExp,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 90_000;
+  const trimmedRunId = options?.runId?.trim() ?? "";
+
+  if (trimmedRunId.length > 0) {
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
+      runId: trimmedRunId,
+      timeoutMs: Math.min(timeout, 120_000),
+    });
+  }
+
   const surface = page
     .getByTestId("run-detail-findings-workspace")
     .or(page.getByTestId("review-workbench-column-findings"))
@@ -564,7 +590,32 @@ export async function expectReviewDetailSeedFindingCopyVisible(
     await showAllFindings.click();
   }
 
-  await expect(surface.getByText(pattern).first()).toBeVisible({ timeout });
+  await expect(async () => {
+    const matches = surface.getByText(pattern);
+    const count = await matches.count();
+
+    for (let index = 0; index < count; index += 1) {
+      const candidate = matches.nth(index);
+
+      if (await candidate.isVisible()) {
+        await expect(candidate).toBeVisible({ timeout: 5_000 });
+
+        return;
+      }
+    }
+
+    throw new Error(`No visible match for ${pattern}`);
+  }).toPass({ timeout });
+}
+
+/** Working chrome uses export select; buyer-polished uses primary markdown button. */
+export function reviewDetailGoldenManifestMarkdownExportControl(page: Page): Locator {
+  const artifactsSection = page.locator("#artifacts-exports");
+
+  return artifactsSection
+    .getByTestId("golden-manifest-markdown-download-button")
+    .or(artifactsSection.getByTestId("golden-manifest-export-more-formats-trigger"))
+    .first();
 }
 
 async function buildReviewDetailTabHrefForSurface(

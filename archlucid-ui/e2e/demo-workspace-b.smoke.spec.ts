@@ -177,14 +177,14 @@ test.describe(
     await expectReviewDetailSeedFindingCopyVisible(
       page,
       /Promoted scoring ensemble lacks immutable lineage hash/i,
-      { timeoutMs: 90_000 },
+      { timeoutMs: 90_000, runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID },
     );
 
     /** Pack B security baseline posture (public exposure from seed fixtures). */
     await expectReviewDetailSeedFindingCopyVisible(
       page,
       /Inference gateway still advertises interim public listener/i,
-      { timeoutMs: 90_000 },
+      { timeoutMs: 90_000, runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID },
     );
 
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });

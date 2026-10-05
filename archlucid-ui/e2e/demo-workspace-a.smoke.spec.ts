@@ -18,6 +18,7 @@ import {
   expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
+  reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 
@@ -91,7 +92,7 @@ test.describe(
       timeout: 60_000,
     });
 
-    const quickSummary = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
       runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
       timeoutMs: 120_000,
     });
@@ -114,9 +115,14 @@ test.describe(
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
-    await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
+    const quickSummaryAfterEvidence = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+      runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      timeoutMs: 90_000,
+    });
 
-    const primaryCard = quickSummary.locator('[data-finding-workspace-primary="true"]');
+    await expectQuickDecisionSeverityVisible(quickSummaryAfterEvidence, { timeoutMs: 30_000 });
+
+    const primaryCard = quickSummaryAfterEvidence.locator('[data-finding-workspace-primary="true"]');
     await expect(primaryCard).toBeVisible({ timeout: 60_000 });
     await primaryCard.scrollIntoViewIfNeeded();
     await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
@@ -154,9 +160,7 @@ test.describe(
     });
 
     /** Affordance only — do not trigger Markdown download blob (release gate verifies control presence). */
-    await expect(
-      page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button").first(),
-    ).toBeVisible();
+    await expect(reviewDetailGoldenManifestMarkdownExportControl(page)).toBeVisible();
   });
 
   test("Working career gravity honesty on stamp band (CG-046 / CG-076)", async ({ page, request }) => {
@@ -210,8 +214,6 @@ test.describe(
     }
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
-    await expect(
-      page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button").first(),
-    ).toBeVisible({ timeout: 60_000 });
+    await expect(reviewDetailGoldenManifestMarkdownExportControl(page)).toBeVisible({ timeout: 60_000 });
   });
 });
