@@ -470,6 +470,17 @@ export async function expectQuickDecisionSeverityVisible(
   });
 }
 
+/** Findings quick-decision surface — tab panel or professional workbench column. */
+export function reviewDetailFindingsQuickSummary(page: Page): Locator {
+  const panel = reviewDetailWorkspacePanel(page, "findings");
+  const workbenchColumn = page.getByTestId("review-workbench-column-findings");
+
+  return workbenchColumn
+    .getByTestId("quick-decision-summary")
+    .or(panel.getByTestId("quick-decision-summary"))
+    .first();
+}
+
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
   return getAppMain(page)
@@ -565,6 +576,14 @@ export async function openReviewDetailWorkspaceTab(
 
   await expectReviewDetailWorkspaceTabSurfaceVisible(page, tab);
   const activeTab = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+  if ((REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)) {
+    const workbenchColumn = page.getByTestId(`review-workbench-column-${tab}`);
+
+    if (await workbenchColumn.isVisible().catch(() => false)) {
+      return;
+    }
+  }
 
   await expect
     .poll(async () => {

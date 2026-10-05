@@ -28,6 +28,7 @@ import {
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   openReviewDetailWorkspaceTab,
+  reviewDetailFindingsQuickSummary,
 } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
@@ -168,7 +169,7 @@ test.describe(
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
 
-    const quickSummary = page.getByTestId("quick-decision-summary");
+    const quickSummary = reviewDetailFindingsQuickSummary(page);
 
     await expect(quickSummary).toBeVisible({ timeout: 60_000 });
 

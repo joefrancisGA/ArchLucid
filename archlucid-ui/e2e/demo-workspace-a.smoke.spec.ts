@@ -17,6 +17,7 @@ import {
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   openReviewDetailWorkspaceTab,
+  reviewDetailFindingsQuickSummary,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 
@@ -75,7 +76,7 @@ test.describe(
     });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "overview");
-    await expect(page.getByTestId("run-detail-review-package-stamp-viewport")).toBeVisible({
+    await expect(page.getByTestId("run-detail-first-review-spine-band")).toBeVisible({
       timeout: 120_000,
     });
     await expect(page.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
@@ -91,7 +92,7 @@ test.describe(
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
-    await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });
+    await expect(reviewDetailFindingsQuickSummary(page)).toBeVisible({ timeout: 90_000 });
 
     await expectBuyerPipelineTimelineSectionVisible(page, {
       timeoutMs: 60_000,
@@ -109,7 +110,7 @@ test.describe(
 
     await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
 
-    const quickSummary = page.getByTestId("quick-decision-summary");
+    const quickSummary = reviewDetailFindingsQuickSummary(page);
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
@@ -180,9 +181,9 @@ test.describe(
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "overview");
 
-    const stampViewport = page.getByTestId("run-detail-review-package-stamp-viewport");
+    await expect(page.getByTestId("run-detail-first-review-spine-band")).toBeVisible({ timeout: 120_000 });
 
-    await expect(stampViewport).toBeVisible({ timeout: 120_000 });
+    const stampViewport = page.getByTestId("run-detail-review-package-stamp-viewport");
     await stampViewport.scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("run-detail-quality-gate-mode-strip")).toBeVisible({ timeout: 60_000 });

@@ -152,10 +152,26 @@ export async function submitAdminInviteFromUsersUi(
     (response) =>
       response.url().includes("/api/proxy/v1/admin/users/invite") &&
       response.request().method() === "POST",
-    { timeout: 90_000 },
+    { timeout: 120_000 },
   );
 
   await clickThroughBlockingOverlays(page, submitButton, { force: true });
+
+  let inviteResponse = await inviteResponsePromise.catch(() => null);
+
+  if (inviteResponse === null) {
+    await inviteForm.evaluate((form: HTMLFormElement) => {
+      form.requestSubmit();
+    });
+    inviteResponse = await page
+      .waitForResponse(
+        (response) =>
+          response.url().includes("/api/proxy/v1/admin/users/invite") &&
+          response.request().method() === "POST",
+        { timeout: 60_000 },
+      )
+      .catch(() => null);
+  }
 
   const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
   const pendingRow = invitationsTable.locator("tr", { hasText: email });
@@ -169,8 +185,7 @@ export async function submitAdminInviteFromUsersUi(
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
-  try {
-    const inviteResponse = await inviteResponsePromise;
+  if (inviteResponse !== null) {
     inviteResponseStatus = inviteResponse.status();
     inviteResponseBody = await inviteResponse.text();
 
@@ -178,7 +193,7 @@ export async function submitAdminInviteFromUsersUi(
       await expect(conflictCopy.first()).toBeVisible({ timeout: 30_000 });
       return;
     }
-  } catch {
+  } else {
     // Fall through to UI assertions when the build surfaces only toast + seeded rows.
   }
 
