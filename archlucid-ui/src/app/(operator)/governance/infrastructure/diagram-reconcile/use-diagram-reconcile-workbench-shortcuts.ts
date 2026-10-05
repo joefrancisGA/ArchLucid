@@ -28,7 +28,7 @@ export function useDiagramReconcileWorkbenchShortcuts(
         description: "Ingest diagram on sealed review record",
         allowInInput: true,
       },
-      "ctrl+shift+r": {
+      "alt+shift+r": {
         handler: handlers.reconcileDiagram,
         description: "Reconcile diagram against inventory snapshot",
       },
