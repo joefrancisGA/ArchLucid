@@ -154,17 +154,22 @@ public sealed class RunExportBlobPushOutboxProcessor(
 
         if (sasRejection is not null)
         {
-            await outbox.RecordDeadLetterAsync(entry.OutboxId, sasRejection, cancellationToken);
-            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
-            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
-
-            if (Logger.IsEnabled(LogLevel.Warning))
-            {
-                Logger.LogWarning(
-                    "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: destination rejected at processing time.",
-                    entry.OutboxId,
-                    entry.RunId);
-            }
+            await RecordDirectDeadLetterAsync(
+                outbox,
+                auditService,
+                entry,
+                sasRejection,
+                () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Warning))
+                    {
+                        Logger.LogWarning(
+                            "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: destination rejected at processing time.",
+                            entry.OutboxId,
+                            entry.RunId);
+                    }
+                },
+                cancellationToken);
 
             return;
         }
@@ -179,20 +184,22 @@ public sealed class RunExportBlobPushOutboxProcessor(
         {
             if (packageResult.IsConflict)
             {
-                await outbox.RecordDeadLetterAsync(
-                    entry.OutboxId,
+                await RecordDirectDeadLetterAsync(
+                    outbox,
+                    auditService,
+                    entry,
                     packageResult.NotFoundReason ?? "Run export blocked by sealed receipt verification.",
+                    () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: sealed receipt verification blocked export.",
+                                entry.OutboxId,
+                                entry.RunId);
+                        }
+                    },
                     cancellationToken);
-                ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
-                await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
-
-                if (Logger.IsEnabled(LogLevel.Warning))
-                {
-                    Logger.LogWarning(
-                        "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: sealed receipt verification blocked export.",
-                        entry.OutboxId,
-                        entry.RunId);
-                }
 
                 return;
             }
@@ -211,17 +218,22 @@ public sealed class RunExportBlobPushOutboxProcessor(
         {
             string deadLetterReason = FormattableString.Invariant(
                 $"Run export ZIP for run '{entry.RunId:D}' was empty.");
-            await outbox.RecordDeadLetterAsync(entry.OutboxId, deadLetterReason, cancellationToken);
-            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
-            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
-
-            if (Logger.IsEnabled(LogLevel.Error))
-            {
-                Logger.LogError(
-                    "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: empty export ZIP.",
-                    entry.OutboxId,
-                    entry.RunId);
-            }
+            await RecordDirectDeadLetterAsync(
+                outbox,
+                auditService,
+                entry,
+                deadLetterReason,
+                () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Error))
+                    {
+                        Logger.LogError(
+                            "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: empty export ZIP.",
+                            entry.OutboxId,
+                            entry.RunId);
+                    }
+                },
+                cancellationToken);
 
             return;
         }
@@ -236,21 +248,23 @@ public sealed class RunExportBlobPushOutboxProcessor(
         }
         catch (InvalidOperationException ex)
         {
-            await outbox.RecordDeadLetterAsync(
-                entry.OutboxId,
+            await RecordDirectDeadLetterAsync(
+                outbox,
+                auditService,
+                entry,
                 Persistence.Orchestration.AuthorityPipelineWorkErrorSummary.From(ex),
+                () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Error))
+                    {
+                        Logger.LogError(
+                            ex,
+                            "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: non-retryable push failure.",
+                            entry.OutboxId,
+                            entry.RunId);
+                    }
+                },
                 cancellationToken);
-            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
-            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
-
-            if (Logger.IsEnabled(LogLevel.Error))
-            {
-                Logger.LogError(
-                    ex,
-                    "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: non-retryable push failure.",
-                    entry.OutboxId,
-                    entry.RunId);
-            }
 
             return;
         }
@@ -281,6 +295,32 @@ public sealed class RunExportBlobPushOutboxProcessor(
             RetryBackoffMaxSeconds = maxSecs,
             MaxConcurrentBatchEntries = maxConcurrent,
         };
+    }
+
+    private async Task RecordDirectDeadLetterAsync(
+        IRunExportBlobPushOutboxRepository outbox,
+        IAuditService auditService,
+        RunExportBlobPushOutboxEntry entry,
+        string reason,
+        Action logTerminalState,
+        CancellationToken cancellationToken)
+    {
+        await outbox.RecordDeadLetterAsync(entry.OutboxId, reason, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
+            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);
+            logTerminalState();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The terminal outbox state is already persisted; observability must not schedule a retry.
+        }
     }
 
     [InformationalAudit]
