@@ -68,12 +68,13 @@ internal static class EmailOtpChallengeRepositoryCore
     public static bool MatchesFailedVerificationByEmail(
         EmailOtpChallengeRecord row,
         string normalizedEmail,
-        DateTimeOffset sinceUtc) =>
+        DateTimeOffset sinceUtc,
+        bool emailHasActiveChallenge) =>
         row.NormalizedEmail == normalizedEmail
         && row.FailedAttemptCount > 0
         && row.CreatedUtc >= sinceUtc
         && row.CompletedUtc is null
-        && row.InvalidatedUtc is null;
+        && (row.InvalidatedUtc is null || !emailHasActiveChallenge);
 
     public static EmailOtpRecentRequestCounts CountRecentRequests(
         IEnumerable<EmailOtpChallengeRecord> rows,

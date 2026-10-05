@@ -95,12 +95,19 @@ public sealed partial class DapperEmailOtpChallengeRepository
     {
         const string sql = """
                            SELECT COUNT(1)
-                           FROM dbo.EmailOtpChallenges
-                           WHERE NormalizedEmail = @NormalizedEmail
-                             AND CreatedUtc >= @SinceUtc
-                             AND FailedAttemptCount > 0
-                             AND CompletedUtc IS NULL
-                             AND InvalidatedUtc IS NULL;
+                           FROM dbo.EmailOtpChallenges c
+                           WHERE c.NormalizedEmail = @NormalizedEmail
+                             AND c.CreatedUtc >= @SinceUtc
+                             AND c.FailedAttemptCount > 0
+                             AND c.CompletedUtc IS NULL
+                             AND (
+                                 c.InvalidatedUtc IS NULL
+                                 OR NOT EXISTS (
+                                     SELECT 1
+                                     FROM dbo.EmailOtpChallenges active
+                                     WHERE active.NormalizedEmail = @NormalizedEmail
+                                       AND active.CompletedUtc IS NULL
+                                       AND active.InvalidatedUtc IS NULL));
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

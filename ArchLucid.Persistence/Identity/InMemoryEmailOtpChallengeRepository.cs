@@ -81,8 +81,15 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     {
         _ = cancellationToken;
 
+        bool emailHasActiveChallenge = _byId.Values.Any(row =>
+            row.NormalizedEmail == normalizedEmail && EmailOtpChallengeRepositoryCore.IsActive(row));
+
         int count = _byId.Values.Count(row =>
-            EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail(row, normalizedEmail, sinceUtc));
+            EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail(
+                row,
+                normalizedEmail,
+                sinceUtc,
+                emailHasActiveChallenge));
 
         return Task.FromResult(count);
     }
