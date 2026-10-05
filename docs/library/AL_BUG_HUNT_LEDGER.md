@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — vertical tab (U+000B) and next-line (U+0085) control characters between phrase words still blocked `managed identity` after ASCII whitespace normalization; map `UnicodeCategory.Control` (except NUL) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_vertical_tab_separates_words`, `HasManagedIdentityConstraint_returns_true_when_next_line_character_separates_words`; 879 scoped RequestConstraint tests passed.
+
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — ASCII tab and newline between phrase words still blocked `managed identity` while U+2028 line separators were already normalized; map `\t`/`\n`/`\r` to ASCII space in `NormalizeConstraintMatchingText`; regressions `HasManagedIdentityConstraint_returns_true_when_tab_separates_words`, `HasManagedIdentityConstraint_returns_true_when_newline_separates_words`, `HasEncryptionConstraint_returns_false_when_negation_uses_tab_before_is_not`; 877 scoped RequestConstraint tests passed.
 
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — Unicode minus sign (U+2212) and middle dot (U+00B7) between phrase words still blocked `managed identity` matching; map those separators (and bullet U+2022) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_unicode_minus_sign_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_middle_dot_splits_phrase`; 874 scoped RequestConstraint tests passed.
@@ -19555,11 +19557,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 21
-- **bugs-found:** 20
+- **hunts:** 22
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — ASCII tab/newline split multi-word constraint phrases
+- **last-bug:** 2026-10-05 — Unicode control characters split multi-word constraint phrases
+
+2026-10-05 seed hunt #22 (seed→hit): reseeded phrase normalization after ASCII whitespace fix; proved vertical tab (U+000B) and next-line (U+0085) still split phrases like `managed identity`; fixed by mapping `UnicodeCategory.Control` (except NUL) to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`; 879 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — Unicode control characters (e.g. U+000B, U+0085) between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-05 seed hunt #22:** normalize control characters except NUL to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_vertical_tab_separates_words`, `HasManagedIdentityConstraint_returns_true_when_next_line_character_separates_words`.
 
 2026-10-05 seed hunt #21 (seed→hit): reseeded phrase normalization after Unicode separator fixes; proved tab and newline characters between words still split phrases like `managed identity` despite U+2028/U+2029 normalization; fixed by mapping `\t`, `\n`, and `\r` to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`; 877 scoped RequestConstraint tests passed.
 

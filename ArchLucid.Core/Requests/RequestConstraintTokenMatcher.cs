@@ -475,8 +475,16 @@ internal static class RequestConstraintTokenMatcher
                 if (category is System.Globalization.UnicodeCategory.SpaceSeparator
                     or System.Globalization.UnicodeCategory.LineSeparator
                     or System.Globalization.UnicodeCategory.ParagraphSeparator
-                    or System.Globalization.UnicodeCategory.Format)
+                    or System.Globalization.UnicodeCategory.Format
+                    or System.Globalization.UnicodeCategory.Control)
                 {
+                    if (character == '\0')
+                    {
+                        replacement = default;
+
+                        return false;
+                    }
+
                     replacement = ' ';
 
                     return true;
