@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (hit): `api-tenancy-workspaces` — `ListAsync` echoed stale `DefaultProjectId` when the workspace metadata pointed at a soft-deleted/non-active project; return `Guid.Empty` unless the default id is in the active project list; regression `ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`; 36 scoped TenantWorkspaces tests passed.
+
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — scalar `evidenceRefs` JSON was ignored so malformed claims fell back to package-wide overlap; reject non-array `evidenceRefs` in `TryDescribeClaim`; regression `Evaluate_non_array_evidence_refs_count_as_unresolved`; 191 scoped AgentRuntime `Evaluation` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — blank `evidenceRefs` array entries were dropped in `TryDescribeClaim`, so `["pattern-a",""]` behaved like a single resolved ref; preserve blank/non-string slots and reject in `AllRefsResolve`; regression `Evaluate_blank_evidence_ref_entries_count_as_unresolved`; 190 scoped AgentRuntime `Evaluation` tests passed.
@@ -12188,6 +12190,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentResultJsonEvidenceGrounding.TryDescribeClaim` — blank `evidenceRefs` entries were skipped so `["pattern-a",""]` cited only the valid id — **hit 2026-10-05 seed hunt:** preserve blank/non-string ref slots and fail `AllRefsResolve`; regression `Evaluate_blank_evidence_ref_entries_count_as_unresolved`
 
 2026-10-05 seed hunt (seed→hit): promoted blank evidence-ref slot candidate; 190 scoped AgentRuntime `Evaluation` tests passed.
+
+- [x] (proven) `AgentResultJsonEvidenceGrounding.TryDescribeClaim` — scalar `evidenceRefs` property ignored so malformed claims used package-wide overlap — **hit 2026-10-05 seed hunt:** return false when `evidenceRefs` is present but not a JSON array; regression `Evaluate_non_array_evidence_refs_count_as_unresolved`
+
+2026-10-05 seed hunt (seed→hit): promoted malformed evidenceRefs shape candidate; 191 scoped AgentRuntime `Evaluation` tests passed.
 
 ---
 
@@ -27059,11 +27065,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 17
-- **bugs-found:** 1
+- **hunts:** 18
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
+- **last-bug:** 2026-10-05 — stale workspace DefaultProjectId advertised without active project row
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
