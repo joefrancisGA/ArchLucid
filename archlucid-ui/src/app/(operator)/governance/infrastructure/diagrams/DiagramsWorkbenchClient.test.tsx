@@ -79,8 +79,12 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
   SecureNowQuestionQueue: () => null,
   SecureNowQuestionQueueProvider: ({ children }: { children: React.ReactNode }) => children,
-  SecureNowQuestionQueueHero: () => null,
-  SecureNowQuestionQueueDrawer: () => null,
+  SecureNowQuestionQueueSnapshotPromo: () => null,
+  SecureNowQuestionQueueBar: () => null,
+  useSecureNowQuestionQueue: () => ({
+    drawerOpen: false,
+    currentQuestion: null,
+  }),
   useSecureNowQuestionSubjectNodeId: () => null,
 }));
 

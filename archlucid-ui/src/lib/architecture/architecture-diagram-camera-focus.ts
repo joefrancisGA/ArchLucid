@@ -1,5 +1,30 @@
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
+export function diagramOutlineIncludesFocusResource(
+  outline: InfraEvidenceMermaidOutline | null | undefined,
+  resourceId: string | null | undefined,
+): boolean {
+  const trimmed = resourceId?.trim() ?? "";
+
+  if (trimmed.length === 0 || outline == null) {
+    return false;
+  }
+
+  const normalizedResource = normalizeDiagramFocusToken(trimmed);
+
+  if (normalizedResource.length === 0) {
+    return false;
+  }
+
+  return outline.nodes.some((node) => {
+    const nodeTokens = [node.id, node.seedNodeId ?? ""].map((token) => normalizeDiagramFocusToken(token));
+
+    return nodeTokens.some(
+      (token) => token.length > 0 && (token === normalizedResource || token.includes(normalizedResource) || normalizedResource.includes(token)),
+    );
+  });
+}
+
 export function resolveDiagramCameraFocusNodeIds(
   seedId: string | null | undefined,
   outline: InfraEvidenceMermaidOutline | null | undefined,
