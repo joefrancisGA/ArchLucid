@@ -882,6 +882,45 @@ export function listFindingTitlesFromAuthorityRunDetailPayload(payload: unknown)
   return titles;
 }
 
+/** First matching committed finding id from authority run detail (`findingsSnapshot.findings`). */
+export function findFindingIdByTitlePatternInAuthorityRunDetailPayload(
+  payload: unknown,
+  pattern: RegExp,
+): string | null {
+  if (payload === null || typeof payload !== "object") {
+    return null;
+  }
+
+  const root = payload as Record<string, unknown>;
+  const snapshot = root.findingsSnapshot;
+
+  if (snapshot === null || typeof snapshot !== "object") {
+    return null;
+  }
+
+  const findings = (snapshot as Record<string, unknown>).findings;
+
+  if (!Array.isArray(findings)) {
+    return null;
+  }
+
+  for (const row of findings) {
+    if (row === null || typeof row !== "object") {
+      continue;
+    }
+
+    const record = row as Record<string, unknown>;
+    const title = typeof record.title === "string" ? record.title.trim() : "";
+    const findingId = typeof record.findingId === "string" ? record.findingId.trim() : "";
+
+    if (title.length > 0 && findingId.length > 0 && pattern.test(title)) {
+      return findingId;
+    }
+  }
+
+  return null;
+}
+
 /** GET `/v1/architecture/review/{runId}` — run aggregate including golden manifest id after commit. */
 export async function getRunDetails(
   request: APIRequestContext,

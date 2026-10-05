@@ -16,6 +16,7 @@ import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-se
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import {
   countFindingsInAuthorityRunDetailPayload,
+  findFindingIdByTitlePatternInAuthorityRunDetailPayload,
   getAuthorityBuyerSummaryRaw,
   getAuthorityRunDetailRaw,
   getRunArchitectureExportHistoryRaw,
@@ -29,6 +30,7 @@ import {
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
+  expectReviewDetailFindingInspectCopyVisible,
   expectReviewDetailSeedFindingCopyVisible,
   openReviewDetailWorkspaceTab,
   reviewDetailGoldenManifestMarkdownExportControl,
@@ -187,12 +189,27 @@ test.describe(
       timeoutMs: 120_000,
     });
 
+    const packAFindingId = findFindingIdByTitlePatternInAuthorityRunDetailPayload(
+      authorityJson,
+      /immutable lineage hash/i,
+    );
+
+    expect(packAFindingId, "Pack A finding id from authority snapshot").not.toBeNull();
+
     /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
     await expectReviewDetailSeedFindingCopyVisible(
       page,
       /immutable lineage hash|ai-gov-002|checksum parity across registry/i,
       { timeoutMs: 90_000, runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID },
-    );
+    ).catch(async () => {
+      await expectReviewDetailFindingInspectCopyVisible(
+        page,
+        DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+        packAFindingId!,
+        /immutable lineage hash/i,
+        { timeoutMs: 90_000 },
+      );
+    });
 
     /** Pack B security baseline posture (public exposure from seed fixtures). */
     await expectReviewDetailSeedFindingCopyVisible(

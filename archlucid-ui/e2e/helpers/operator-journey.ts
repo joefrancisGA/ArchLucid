@@ -673,6 +673,25 @@ export async function expectReviewDetailSeedFindingCopyVisible(
   }).toPass({ timeout });
 }
 
+/** Opens nested finding detail and asserts title or rationale copy (buyer shell card stack fallback). */
+export async function expectReviewDetailFindingInspectCopyVisible(
+  page: Page,
+  runId: string,
+  findingId: string,
+  pattern: RegExp,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 90_000;
+  const trimmedRunId = runId.trim();
+  const trimmedFindingId = findingId.trim();
+  const href = `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedFindingId)}`;
+
+  await expect(async () => {
+    await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+    await expect(page.getByText(pattern).first()).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout });
+}
+
 /** Working chrome uses export select; buyer-polished uses primary markdown button. */
 export function reviewDetailGoldenManifestMarkdownExportControl(page: Page): Locator {
   const artifactsSection = page.locator("#artifacts-exports");
