@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` after Pilot/Advanced/SaaS overlay fix; cheap-disproof closed legacy `ContextIngestion:MaxPayloadBytes` bridge parity (worker does not register `ArchitectureRunCreationPayloadLimitsOptions` or run Api-scoped bridge) and production-like CORS/auth advisor logging (worker has no browser auth/CORS surface); seeded follow-ups for hang-diagnostics hook and Real-mode startup log parity; 12 focused worker tests passed.
+
 2026-10-05 seed hunt (seed→hit): `worker-host` — Worker `Program.cs` ignored `appsettings.Advanced.json` / SaaS / Pilot overlays in the shared `/app` image; aligned configuration layering with the API host; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`; 12 focused worker tests passed.
 
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent erasure restore/clear/legal-hold commands returned `false` for atomic-transition losers while the desired tenant state was already applied; re-read tenant after repository compare-and-set miss and return idempotent success without duplicate audit (parity with erasure approval); regressions `TryRestoreQuarantineAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TryClearLegalHoldAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TrySetLegalHoldAsync_concurrent_identical_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 136 scoped tenancy tests passed.
@@ -7668,9 +7670,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
@@ -7683,6 +7685,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
+
+- [ ] (candidate) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs`; reachable input is a hung worker-only Container Apps revision where operators expect the same hang-diagnostics logger hook as the API host.
+- [ ] (candidate) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation; reachable input is production-like worker fleet with `AgentExecution:Mode=Real` and configured Azure OpenAI where operators rely on the API startup confirmation log line.
+- [x] (valid-no-repro) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge` while the API host applies it before validation — **cheap-disproof 2026-10-05 seed hunt:** bridge is intentionally scoped to `ArchLucid.Api` (legacy key literal); worker does not register `IOptions<ArchitectureRunCreationPayloadLimitsOptions>` and has no `ContextIngestionMaxPayloadMiddleware`; `ContextIngestionRules` still validates a legacy-only flat key at `ValidateOrThrow`.
+- [x] (valid-no-repro) `Program.Main` — Worker omits `ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent` — **cheap-disproof 2026-10-05 seed hunt:** advisor only emits CORS and browser-auth advisories; the worker pipeline exposes health/metrics only with no CORS or interactive auth stack.
 
 - [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — SQL bootstrap can delay route mapping, but `/health/live` is intentionally liveness-only and no wrong startup-probe outcome is established in the selected source; the focused startup/composition tests passed.
