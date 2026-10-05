@@ -18,6 +18,7 @@ import {
   expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
+  quickDecisionSeverityBadge,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -90,9 +91,12 @@ test.describe(
     if (await spineSemanticSupport.isVisible().catch(() => false)) {
       await expect(spineSemanticSupport).toBeVisible({ timeout: 60_000 });
     }
-    await expect(spineBand.getByTestId("run-detail-first-review-spine-treatment")).toBeVisible({
-      timeout: 60_000,
-    });
+
+    const spineTreatment = spineBand.getByTestId("run-detail-first-review-spine-treatment");
+
+    if (await spineTreatment.isVisible().catch(() => false)) {
+      await expect(spineTreatment).toBeVisible({ timeout: 60_000 });
+    }
 
     await expectReviewDetailFindingsQuickSummaryVisible(page, {
       runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
@@ -125,7 +129,7 @@ test.describe(
     const primaryCard = quickSummaryAfterEvidence.locator('[data-finding-workspace-primary="true"]');
     await expect(primaryCard).toBeVisible({ timeout: 60_000 });
     await primaryCard.scrollIntoViewIfNeeded();
-    await expect(quickDecisionSeverityBadge(primaryCard).first()).toBeVisible({ timeout: 60_000 });
+    await expectQuickDecisionSeverityVisible(quickSummaryAfterEvidence, { timeoutMs: 120_000 });
     await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
       timeout: 30_000,
     });

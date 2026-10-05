@@ -147,6 +147,14 @@ async function writeOperatorScopeToBrowser(
   );
 }
 
+/** Re-commit demo tenant scope cookie/init script before a direct finding-detail navigation. */
+export async function refreshDemoWorkspaceOperatorScopeForNavigation(
+  page: Page,
+  scope: DemoWorkspaceScopeIds,
+): Promise<void> {
+  await writeOperatorScopeToBrowser(page, scope, { persistViaInitScript: true });
+}
+
 /**
  * Mirrors `OperatorScopeRecord` minimal shape so `/api/proxy` forwards tenant/workspace/project on run detail hydration.
  * Also mirrors the scope cookie (`TB-075`) so RSC run-detail SSR (`getServerResolvedScopeHeaders`) matches

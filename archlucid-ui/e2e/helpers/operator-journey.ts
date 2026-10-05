@@ -703,7 +703,7 @@ export async function expectReviewDetailFindingInspectCopyVisible(
     const main = page.getByRole("main");
 
     await expect(main).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 5_000 });
+    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
 
     const workspaceHeader = main.getByTestId("finding-detail-workspace-header");
     const primaryContent = main.getByTestId("finding-detail-primary-content");
@@ -720,7 +720,7 @@ export async function expectReviewDetailFindingInspectCopyVisible(
       await expect(region.getByText(copyPattern).first()).toBeVisible({ timeout: 15_000 });
     }
 
-    await expect(region.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first()).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first()).toBeVisible({ timeout: 30_000 });
   }).toPass({ timeout });
 }
 

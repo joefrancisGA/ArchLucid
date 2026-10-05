@@ -11,6 +11,7 @@ import {
   DEMO_WORKSPACE_B_LIVE_IDS,
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
   openDemoWorkspaceReviewDetailShellReady,
+  refreshDemoWorkspaceOperatorScopeForNavigation,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
