@@ -63,9 +63,11 @@ test.describe(
         .getByTestId("run-detail-package-spine-export-co-location")
         .getByTestId("run-scoped-audit-export-button"),
     ).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("run-scoped-audit-export-dual-channel-honesty")).toBeVisible({
-      timeout: 60_000,
-    });
+    await expect(
+      page
+        .getByTestId("run-detail-package-spine-export-co-location")
+        .getByTestId("run-scoped-audit-export-dual-channel-honesty"),
+    ).toBeVisible({ timeout: 60_000 });
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
     await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({
@@ -171,7 +173,7 @@ test.describe(
       DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
     );
 
-    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "overview");
 
     const stampViewport = page.getByTestId("run-detail-review-package-stamp-viewport");
 

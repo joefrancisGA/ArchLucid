@@ -166,7 +166,10 @@ test.describe(
 
     await expect(page.getByTestId("review-detail-workspace-panel-overview")).toBeVisible({ timeout: 60_000 });
 
-    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
+    await expect(async () => {
+      await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
+      await expect(page.getByTestId("review-detail-workspace-panel-findings")).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 90_000 });
 
     const quickSummary = page.getByTestId("quick-decision-summary");
 

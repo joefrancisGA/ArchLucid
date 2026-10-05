@@ -54,6 +54,11 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(revokeDialog).toBeVisible({ timeout: 15_000 });
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
 
+    const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
+    if (await showResolvedToggle.isVisible().catch(() => false)) {
+      await showResolvedToggle.click();
+    }
+
     await expect(pendingRow).toContainText("Revoked", { timeout: 60_000 });
     await expect(pendingRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
   });

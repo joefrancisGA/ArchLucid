@@ -42,6 +42,7 @@ export async function clickThroughBlockingOverlays(
   await dismissBlockingModalOverlays(page);
 
   try {
+    await target.scrollIntoViewIfNeeded();
     await target.click({ timeout: 15_000, force: options?.force });
     return;
   } catch (error) {
