@@ -146,7 +146,7 @@ public static class TechnologyLedgerTopologyProposalMapper
     }
 
     /// <summary>
-    ///     Lossless sub-key for manifest <c>ServiceId</c>/<c>DatastoreId</c> values so distinct ids are not collapsed
+    ///     Lossless sub-key for manifest identity (ids or fallback display names) so distinct values are not collapsed
     ///     (e.g. <c>foo bar</c> vs <c>foo-bar</c>) before merge-policy <c>EvidenceRef</c> dedupe.
     /// </summary>
     private static string StableTopologyIdentitySubKey(string manifestId)

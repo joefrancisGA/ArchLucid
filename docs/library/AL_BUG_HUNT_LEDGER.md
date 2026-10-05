@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (dry): `technology-ledger-merge` — promoted missing-`ServiceId` slug-collision hypothesis; failing repro matched trunk `BuildMissingManifestIdSubKey` fix already on `bugsmash`; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
+
 2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved whitespace `ManifestService.ServiceId` fell back to `Slug(ServiceName)`, collapsing `foo bar` vs `foo-bar` into identical `agentTopologyProposal:*` refs; use `StableTopologyIdentitySubKey` plus ordinal `BuildMissingManifestIdSubKey` when ids are missing; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`; 74 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved `TechnologyLedgerTopologyProposalMapper.Slug` collapsed distinct `ManifestService.ServiceId` values (`foo bar` vs `foo-bar`) into identical `agentTopologyProposal:*` refs so merge policy dropped the second compute candidate; use lossless `StableTopologyIdentitySubKey` for manifest ids; regression `MapCandidates_distinct_service_ids_that_slug_collide_both_survive_merge_policy`; cheap-disproved five open `(candidate)` rows; 73 scoped TechnologyLedger tests passed.
@@ -4319,11 +4321,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-05 seed hunt (dry): convergent missing-`ServiceId` slug-collision repro; trunk already fixed; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
+
 2026-10-05 seed hunt (seed→hit): proved whitespace `ServiceId` name-slug fallback collision; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`; 74 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (seed→hit): proved manifest `ServiceId` slug collision; cheap-disproved five open `(candidate)` rows; 73 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (seed-only): closed multiple-`Chosen` `FirstOrDefault` candidates as invalid (`TechnologyLedgerRunCommandService` demotes prior chosen rows); seeded five replacement `(candidate)` rows; 72 scoped tests passed (`--no-build`).
+
+- [ ] (candidate) `TechnologyLedgerTopologyProposalMapper.ResolveRegion` / region row — `AzureArmRegion` values that `Slug` collapses (`East US` vs `east-us`) share one `agentTopologyProposal:*:east-us` ref when services carry conflicting regions — **reachability:** `MapCandidates` adds a single Region row keyed via `Slug(region)` (`TechnologyLedgerTopologyProposalMapper.cs` ~line 57).
+- [ ] (candidate) `TechnologyLedgerTopologyProposalMapper.StableTopologyIdentitySubKey` — manifest `ServiceId` values differing only by case (`Svc-A` vs `svc-a`) share the same lowered sub-key so merge policy drops the second compute candidate — **reachability:** topology agent `AddedServices` with distinct ids; seeder `TechnologyLedgerTopologyProposalSeeder.SeedFromTopologyResultAsync`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper.MapCandidates` — whitespace-only `ServiceId` slug-colliding `ServiceName` pair — **hit 2026-10-05 seed hunt (parallel):** `BuildMissingManifestIdSubKey`; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`.
+- [ ] (candidate) `TechnologyLedgerTopologyProposalMapper.CreateCandidate` — blank `proposal.ProposalId` forces `"unknown"` in every `agentTopologyProposal:unknown:*` ref so unrelated topology batches on the same run collide on sub-key — **reachability:** `proposalId = string.IsNullOrWhiteSpace(proposal.ProposalId) ? "unknown" : proposal.ProposalId`.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — case-insensitive ref equality may treat distinct topology refs that differ only by proposal-id casing as duplicates when operators import mixed-case refs — **reachability:** `EvidenceRefsMatch` `OrdinalIgnoreCase` vs mapper lowercased sub-keys only.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its callers; duplicate-chosen and provider/name merge scenarios were not reachable through a production caller in this repository, so no candidate or hunt-ready row was added. No test execution was claimed.
 
