@@ -4,6 +4,8 @@
 
 2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner.ResolveExcludeReplayVerdict` to honor verified-absent outcome copy before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
 
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay false-passed when `observedStatusCode` was 200 but `observedOutcome` recorded `HTTP 404; foreign runId absent`; `ResolveExcludeReplayVerdict` worst-of merge (inverse mismatch); regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithObservedHttp404Outcome`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 picker-scoped orchestrator/cache tests passed.
 
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator cache pin/coalesce, continue dual-manifest scopes, and manifest hashing after recent export-zone churn; no hunt-ready row promoted; seeded three bounded candidates (pre-pipeline baseline snapshot vs publish-stage storage fingerprint, composite pin cap mid-loop eviction, coalesced cache-hit publish policy run id); 62 scoped orchestrator/cache tests passed (`--no-build`).
@@ -6755,12 +6757,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent` (deny replay already merged status/outcome; exclude path did not); fixed with `ResolveExcludeReplayVerdict`; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
 
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 200 but `observedOutcome` recorded `HTTP 404; foreign runId absent`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithObservedHttp404Outcome` (covered by `ResolveExcludeReplayVerdict` worst-of merge); 52 scoped tests passed.
+
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id manifest replay — `observedStatusCode` 404 with verified `HTTP 200; foreign runId absent` outcome SKIPped — **hit 2026-10-05 seed hunt:** `ResolveExcludeReplayVerdict` honors verified-absent outcome before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`.
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id manifest replay — `observedStatusCode` 200 with `HTTP 404; foreign runId absent` outcome false-passed — **hit 2026-10-05 seed hunt:** `ResolveExcludeReplayVerdict` worst-of status field and parsed outcome; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithObservedHttp404Outcome`.
 
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline deny-status replay false-passed when `observedStatusCode` was 404 but `observedOutcome` still recorded `HTTP 200`; fixed `TenantIsolationNegativeTestOfflineRunner` to merge deny verdicts from status code and outcome text (fail-closed worst of Pass/Skip/Fail); regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`; 50 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — deny-status `observedStatusCode` 404 with `HTTP 200` outcome false-passed — **hit 2026-10-04 seed hunt:** `ResolveDenyReplayVerdict` worst-of status code and parsed outcome; regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`.
-
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay SKIPped exclude-run-id probes when manifest `verdict` was `skip` but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner` to derive exclude verdicts from observed status/outcome only (removed manifest skip short-circuit; scan-incomplete SKIP still comes from observed copy); regression `RunOffline_PassesExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeIsVerifiedAbsent`; 49 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — exclude-run-id manifest `verdict: skip` with verified absent list outcome SKIPped — **hit 2026-10-04 seed hunt:** derive exclude probes from observed status/outcome instead of manifest skip; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeIsVerifiedAbsent`.
@@ -6805,11 +6809,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 42
-- **bugs-found:** 23
+- **hunts:** 43
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — offline deny replay false-failed when status code omitted but outcome was HTTP 404
+- **last-bug:** 2026-10-05 — offline exclude replay false-passed when status field and HTTP 404 outcome disagreed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
