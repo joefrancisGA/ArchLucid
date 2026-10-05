@@ -42,6 +42,7 @@ public static class DemoSeedSeederServiceCollectionExtensions
             sp.GetRequiredService<ILogger<DemoSeedService>>()));
 
         services.AddScoped<DemoSeedPersistenceChain>();
+        services.AddScoped<IDemoSeedScenarioSeeder, DemoSeedExportLineageAuditRepairSeeder>();
         services.AddScoped<DemoSeedTrialWelcomeSeeder>();
         services.AddScoped<IDemoSeedScenarioSeeder, DemoSeedRetailBaselineSeeder>();
         services.AddScoped<IDemoSeedScenarioSeeder, DemoSeedGovernanceSeeder>();

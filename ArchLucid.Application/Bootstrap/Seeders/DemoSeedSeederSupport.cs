@@ -30,6 +30,7 @@ internal static class DemoSeedSeederSupport
 
     internal static async Task TryRepairSeededRunDescriptionAsync(
         DemoSeedSeederDependencies deps,
+        ScopeContext workspaceScope,
         RunRecord run,
         CancellationToken cancellationToken)
     {
@@ -44,7 +45,7 @@ internal static class DemoSeedSeederSupport
         {
             await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
                 deps,
-                deps.ScopeContextProvider.GetCurrentScope(),
+                workspaceScope,
                 run.RunId,
                 cancellationToken);
 
@@ -61,7 +62,7 @@ internal static class DemoSeedSeederSupport
 
         await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
             deps,
-            deps.ScopeContextProvider.GetCurrentScope(),
+            workspaceScope,
             run.RunId,
             cancellationToken);
     }
