@@ -135,6 +135,15 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   useFocusTrap(mobileInspectorShellRef, mobileInspectorTrapActive);
 
   useEffect(() => {
+    if (filterTextRef.current === urlFilterText) {
+      return;
+    }
+
+    filterTextRef.current = urlFilterText;
+    setFilterTextState(urlFilterText);
+  }, [urlFilterText]);
+
+  useEffect(() => {
     const syncFilterTextFromUrl = (): void => {
       const next = parseRunsListSearchQuery(new URLSearchParams(readWindowLocationSearch()).get("q"));
 

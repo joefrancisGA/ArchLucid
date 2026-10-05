@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `ui-runs-list` — client text filter stayed on stale `filterText` after App Router `q=` navigation without `popstate` (sort already URL-derived); sync `filterText` from `useSearchParams` `q=`; regression `re-applies text filter when q= URL changes without a popstate event`; 42 scoped `RunsListClient` tests passed.
+
 2026-10-05 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed retention max clamp, cross-workspace default-metadata delete parity, and tenant-wide active-project load candidates; regressions `ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max`, `ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max`, `DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace`; 40 scoped TenantWorkspaces tests passed.
 
 2026-10-05 seed hunt (seed→hit): `api-tenancy-workspaces` — `DeleteProjectAsync` returned HTTP 400 on operator-documented-safe-retry when workspace metadata still named an already soft-deleted default project; block delete only when the default project id is still active in the workspace; regression `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`; 37 scoped TenantWorkspaces tests passed.
@@ -6973,11 +6975,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 24
-- **last-hunt:** 2026-09-30
-- **bugs-found:** 11
+- **hunts:** 25
+- **last-hunt:** 2026-10-05
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-09-25 — client sort stayed newest-first after sort= URL navigation without popstate
+- **last-bug:** 2026-10-05 — client text filter stale after q= URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7037,6 +7039,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Client-side sort stays newest-first after App Router `sort=` navigation without `popstate` — **hit 2026-09-25 seed hunt #3908 (seed→hit):** `useRunsList` kept `sortOrder` in `useState` synced only on `popstate` while sort chips navigate via URL; `filteredSorted` stayed on stale order until back/forward; fixed by deriving `sortOrder` from `searchParams` and using `readWindowLocationSearch()` in filter/compare popstate sync; regression `re-sorts rows when sort= URL changes without a popstate event`.
 
 2026-09-25 seed hunt #3908 (seed→hit): reseeded ui-runs-list after #1752; proved stale client sort after sort= URL navigation; 42 scoped `RunsListClient` tests passed.
+
+- [x] (proven) `useRunsList` — client text filter (`filterText`) stayed on stale value after App Router `q=` navigation without `popstate` while `sortOrder` was already derived from `searchParams` — **hit 2026-10-05 seed hunt:** sync `filterText` when parsed `q=` from `useSearchParams` changes; regression `re-applies text filter when q= URL changes without a popstate event`
+- [ ] (candidate) `useRunsList` — `compareSelection` state syncs from URL on `popstate` only while `compareRuns` can change via soft `<Link>` navigation — wrong outcome: compare bar shows stale ids after hub link navigation; mechanism: `setCompareSelectionState` initializer + popstate listener without `searchParams` subscription; reachable from `GET /architecture/reviews?compareRuns=` deep links and scope/pagination chips
+- [ ] (candidate) `RunsListClient` — `runsListFilterOpen` disclosure open state follows `popstate` only — wrong outcome: filter panel stays open/closed after soft navigation on `runsListFilterOpen=`; mechanism: `useState` + `popstate` in `RunsListClient.tsx` lines 138–158 without `useSearchParams` reaction; reachable when `buyerCollapseFilters` is false (multi-review buyer hub)
+
+2026-10-05 seed hunt (seed→hit): promoted stale `q=` / `filterText` parity gap after sort= fix; proved and fixed; reseeded compareRuns and runsListFilterOpen soft-navigation candidates; 43 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 

@@ -657,6 +657,41 @@ describe("RunsListClient inspector", () => {
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
+  it("re-applies text filter when q= URL changes without a popstate event", () => {
+    const olderRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      description: "Older review",
+    };
+    const newerRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Newer review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[olderRun, newerRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "q=Older",
+    );
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+
+    expect(filterInput).toHaveValue("Older");
+    expect(screen.getByTestId(`runs-row-${olderRun.runId}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`runs-row-${newerRun.runId}`)).toBeNull();
+
+    runsListSearchParamsHarness.applyHref("/architecture/reviews");
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[olderRun, newerRun]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(filterInput).toHaveValue("");
+    expect(screen.getByTestId(`runs-row-${olderRun.runId}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`runs-row-${newerRun.runId}`)).toBeInTheDocument();
+  });
+
   it("exposes oldest-first sort as a link with created-asc in the href", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
