@@ -28254,13 +28254,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 39
-- **bugs-found:** 20
+- **hunts:** 40
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — shutdown drain could admit execute ownership when drain began during in-flight SQL acquire
+- **last-bug:** 2026-10-05 — rotated host process instance id caused release/renew to target wrong SQL lease holder
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-05 seed hunt (seed→hit): promoted process-instance identity rotation candidate; proved `ReleaseAsync`/`RenewAsync` read `IHostProcessInstanceId.Value` at call time so a rotated identity skipped cleanup of the holder recorded at acquire; fixed by pinning holder instance id per run through acquire and using it for renew/release and shutdown drain aggregation; regression `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`; 60 scoped ownership/orchestrator tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted drain-during-acquire candidate; proved `AcquireAsync` could succeed when `IWorkerHostDrainGate` entered draining during `TryAcquireOrRenewAsync`, pinning a new lease during shutdown; fixed with post-acquire drain re-check, `TryReleaseAsync` rollback, and `ConflictException`; regression `AcquireAsync_when_drain_begins_during_repository_call_rolls_back_and_throws_conflict`; 59 scoped ownership/orchestrator tests passed.
 
@@ -28325,7 +28327,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RunExecuteOwnershipLeaseService.ReleaseAsync` / `ReleaseAllHeldByThisInstanceAsync` — runtime disable before finalization caused release to return immediately, retaining a lease acquired while ownership was enabled — **hit 2026-10-05 seed hunt:** release and shutdown drain invoke the repository on SQL storage even when `Enabled` is false; regressions `ReleaseAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `ReleaseAllHeldByThisInstanceAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage`.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — the first immediate renewal can use a different enabled/lease-duration configuration than acquisition and silently skip or shorten the heartbeat; reachable during an options reload immediately after acquisition.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — interval clamping to `leaseDurationSeconds - 1` can produce a non-positive upper bound for invalid runtime lease options before duration clamping is applied; reachable through malformed options reload values.
-- (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — a changing process-instance identity between acquire and release can prevent conditional cleanup of the lease; reachable when the host identity provider rotates during a long-running execute.
+- [x] (proven) `RunExecuteOwnershipLeaseService.AcquireAsync` / `ReleaseAsync` — changing `IHostProcessInstanceId` between acquire and release prevented conditional cleanup — **hit 2026-10-05 seed hunt:** pin holder instance id at successful acquire for renew/release and multi-holder shutdown drain; regression `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
 - [x] (invalid) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path — no shipped background execute path; `ArchitectureRunCommandService.ExecuteRunAsync` delegates solely to `ArchitectureRunExecuteOrchestrator` (API-sync per `ASYNC_ORCHESTRATION_FIRST_FORCE.md`).
