@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after today's nested-wrapper hit; cheap-disproof closed aggregate-inner wrapper nested-deadlock retry (`SqlTransientDetector` walks wrapper `InnerException` chains); seeded empty nested-aggregate masking, `TryGetParallelPersistInners` fail-fast without outer `SqlTransientDetector` fallthrough, and unclamped `RetryDelay` above `MaxAttempts` misuse candidates; 51 scoped transient-retry tests passed (35 Persistence + 16 Application).
+
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` used `FindFirst("tenant_id")`, so a leading non-GUID `tenant_id` hid a later parseable tenant and conflicting GUIDs logged the first value; require exactly one distinct parseable `tenant_id` for audit scope; regressions `AppendCookieSignedInAudit_uses_parseable_tenant_id_when_an_earlier_tenant_id_claim_is_not_a_guid` and `AppendCookieSignedInAudit_omits_tenant_id_when_distinct_tenant_id_claims_disagree`; 19 SAML sign-in audit tests passed.
 
 2026-10-05 thorough hunt (hit): `saml-jwt-bearer` — SAML cookie `OnSignedIn` audit read `tenant_id` before `ArchLucidSamlInboundClaimsNormalizer` ran, so configured IdP tenant attributes were missing from sign-in audit telemetry; apply inbound mapping in `AppendCookieSignedInAudit` before scope extraction; regression `AppendCookieSignedInAudit_promotes_configured_idp_tenant_before_logging_tenant_id`; cheap-disproof closed duplicate-`sub` platform-user resolver candidate; 18 SAML audit/resolver tests passed.
@@ -4303,7 +4305,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
@@ -4396,6 +4398,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — `InvalidOperationException` wrapping `AggregateException(deadlock, permanent SqlException)` retried up to max attempts because `SqlTransientDetector` walked only the first aggregate inner — **hit 2026-10-05 seed hunt:** apply the same flattened all-inners-must-be-transient rule to nested parallel-persist aggregates; regression `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate_nested_in_wrapper_when_deadlock_is_listed_first`
 
 2026-10-05 seed hunt (seed→hit): promoted nested-wrapper mixed-aggregate candidate; proved order-dependent retry; 51 scoped transient-retry tests passed.
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` whose sole inner is `InvalidOperationException` wrapping a nested `AggregateException(deadlock)` might skip retry because `inners.All(SqlTransientDetector.IsTransient)` only inspects direct aggregate inners — **cheap-disproof 2026-10-05 seed hunt:** `SqlTransientDetector` walks each inner's `InnerException` chain and still sees the deadlock; regression `ExecuteAsync_retries_deadlock_when_aggregate_inner_wraps_nested_aggregate`
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — stops at the first nested `AggregateException` on the `InnerException` chain; an earlier empty parallel-persist aggregate could return `inners.Count == 0` and make `IsRetriableOrchestratorDbFailure` return false without falling through to `SqlTransientDetector` on the outer wrapper — reachable only if repository attaches an empty `AggregateException` shell before the real parallel failure payload
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — does not clamp `attempt` to `MaxAttempts`, so misuse from a future caller passing `attempt > 12` yields delays beyond the documented linear backoff ceiling even while `IsExhausted` is already true — wrong outcome: unbounded helper delay for exhausted commit loops; reachable only via incorrect orchestrator call sites, not current authority commit loop
+- [ ] (candidate) `OrchestratorTransientDbRetry` Polly `DelayGenerator` — `args.AttemptNumber + 1` exponential backoff can schedule the third retry delay near 8s base plus jitter while the outer `CommitRunTransientRetryPolicy.RetryBudget` is 20s — wrong outcome: inner DB retry wall clock can consume most of the outer commit budget on a single orchestration attempt; reachable under sustained SQL deadlock pressure on authority commit
+
+2026-10-05 seed hunt (seed-only): reseeded orchestrator-transient-retry after nested-wrapper hit; cheap-disproof closed wrapper-nested aggregate retry gap; added empty-nested-aggregate masking, helper delay misuse, and inner/outer budget interaction candidates.
 
 ---
 

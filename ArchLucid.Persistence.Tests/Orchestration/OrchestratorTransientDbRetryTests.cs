@@ -321,6 +321,32 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_aggregate_inner_wraps_nested_aggregate()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                {
+                    throw new AggregateException(
+                        new InvalidOperationException(
+                            "parallel persist failed",
+                            new AggregateException(deadlock)));
+                }
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_nested_aggregate_exception_when_inner_aggregate_contains_deadlock()
     {
         int attempts = 0;
