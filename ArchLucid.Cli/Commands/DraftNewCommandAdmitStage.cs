@@ -89,6 +89,20 @@ internal static class DraftNewCommandAdmitStage
             businessOutcome = promptedOutcome.Trim();
         }
 
+        if (systemName.Length == 0)
+        {
+            await error.WriteLineAsync("System name is required and cannot be blank after trim.");
+
+            return (null, CliExitCode.UsageError);
+        }
+
+        if (businessOutcome.Length == 0)
+        {
+            await error.WriteLineAsync("Business outcome is required and cannot be blank after trim.");
+
+            return (null, CliExitCode.UsageError);
+        }
+
         PatchDraftRequest patch = new()
         {
             FreeTextIntent = intent,

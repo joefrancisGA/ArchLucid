@@ -658,6 +658,34 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient();
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => client,
+            PromptRequiredAsync = (_, _, _) => Task.FromResult<string?>("   "),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.UsageError);
+        error.ToString().Should().Contain("System name");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_json_output_suppresses_human_progress_lines()
     {
         bool previousJson = CliExecutionContext.JsonOutput;
