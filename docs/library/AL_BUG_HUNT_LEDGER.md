@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `api-tenancy-workspaces` — `DeleteProjectAsync` returned HTTP 400 on operator-documented-safe-retry when workspace metadata still named an already soft-deleted default project; block delete only when the default project id is still active in the workspace; regression `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`; 37 scoped TenantWorkspaces tests passed.
+
 2026-10-05 thorough hunt (hit): `api-tenancy-workspaces` — `ListAsync` echoed stale `DefaultProjectId` when the workspace metadata pointed at a soft-deleted/non-active project; return `Guid.Empty` unless the default id is in the active project list; regression `ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`; 36 scoped TenantWorkspaces tests passed.
 
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — scalar `evidenceRefs` JSON was ignored so malformed claims fell back to package-wide overlap; reject non-array `evidenceRefs` in `TryDescribeClaim`; regression `Evaluate_non_array_evidence_refs_count_as_unresolved`; 191 scoped AgentRuntime `Evaluation` tests passed.
@@ -27065,11 +27067,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 18
-- **bugs-found:** 2
+- **hunts:** 19
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — stale workspace DefaultProjectId advertised without active project row
+- **last-bug:** 2026-10-05 — default-project delete guard blocked idempotent retry for soft-deleted default metadata
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -27105,12 +27107,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-11 seed hunt #1701 (dry): reseeded sibling-path parity gaps between List/ListRecycleBin/RestoreProject; cheap-disproof closed three hunt-ready rows; 29 scoped TenantWorkspaces tests passed.
 
 - [x] (valid-no-repro) `ListRecycleBinAsync` returns HTTP 200 when `scope.WorkspaceId` is `Guid.Empty` — **cheap-disproof 2026-10-05 seed hunt:** empty workspace id cannot match tenant workspace list; parity with `ListAsync` guard at lines 34–38; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_id_is_empty`
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — `GetByIdAsync(scope.TenantId)` returns null while JWT scope still carries that tenant id — wrong outcome would be HTTP 200 with workspace payload; mechanism: both list endpoints return `404 ResourceNotFound` only when tenant row is missing (lines 25–26 / 28–29); reachable from stale scope after tenant purge
-- [ ] (candidate) `DeleteProjectAsync` / `RestoreProjectAsync` — `GetByIdAsync(scope.TenantId)` returns null — wrong outcome would reach `TrySoftDeleteAsync` / `TryRestoreAsync`; mechanism: tenant null returns `404` before workspace route binding (lines 33–34 / 113–114); reachable from same stale-scope input as list endpoints
-- [ ] (candidate) `ListAsync` — `DefaultProjectId` on workspace row does not appear in `Projects` when active project list omits that id (soft-deleted or cross-workspace drift) — wrong outcome: workspace picker advertises a default project id with no matching active row in `Projects`; mechanism: `DefaultProjectId` copied from `TenantWorkspaceListItem` without intersecting `ListActiveByTenantAsync` results; reachable when workspace metadata lags project lifecycle outside this controller
-- [ ] (candidate) `ListRecycleBinAsync` — soft-deleted workspace default project appears in recycle bin after historical delete path bypassed `DeleteProjectAsync` default guard — wrong outcome: operators can restore a project that workspace metadata still treats as default; mechanism: recycle bin filters `DeletedUtc` only, not `DefaultProjectId`; reachable only from legacy SQL/data rows, not from current delete endpoint
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — `GetByIdAsync(scope.TenantId)` returns null while JWT scope still carries that tenant id — **cheap-disproof 2026-10-05 thorough hunt:** both return `404 ResourceNotFound` before workspace/project queries; regressions `ListAsync_returns_not_found_when_tenant_row_is_missing`, `ListRecycleBinAsync_returns_not_found_when_tenant_row_is_missing`
+- [x] (valid-no-repro) `DeleteProjectAsync` / `RestoreProjectAsync` — `GetByIdAsync(scope.TenantId)` returns null — **cheap-disproof 2026-10-05 thorough hunt:** tenant null returns `404` before repository mutation; regressions `DeleteProjectAsync_returns_not_found_when_tenant_row_is_missing`, `RestoreProjectAsync_returns_not_found_when_tenant_row_is_missing`
+- [x] (proven) `ListAsync` — `DefaultProjectId` on workspace row does not appear in `Projects` when active project list omits that id — **hit 2026-10-05 thorough hunt:** return `Guid.Empty` unless default id is in the active workspace project list; regression `ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`
+- [x] (invalid) `ListRecycleBinAsync` — soft-deleted workspace default project appears in recycle bin after historical delete path bypassed `DeleteProjectAsync` default guard — **cheap-disproof 2026-10-05 thorough hunt:** listing deleted rows (including a stale default) is intentional; `RestoreProjectAsync` remains scoped and does not bypass current default-project delete guard on active deletes; no reachable wrong outcome in controller paths without legacy SQL-only rows
+
+2026-10-05 thorough hunt (hit): cheap-disproof closed tenant-missing list/mutate candidates; proved stale `DefaultProjectId` advertisement; classified recycle-bin default-row candidate as legacy-data-only; 36 scoped TenantWorkspaces tests passed.
 
 2026-10-05 seed hunt (seed-only): reseeded `api-tenancy-workspaces`; cheap-disproof closed recycle-bin empty-workspace parity candidate; seeded four tenant-missing/default-metadata candidates; 31 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `DeleteProjectAsync` — workspace `DefaultProjectId == projectId` guard ran before `TrySoftDeleteAsync`, so idempotent retry on an already soft-deleted default (legacy metadata still points at default) returned HTTP 400 instead of HTTP 204 — **hit 2026-10-05 seed hunt:** apply default guard only when the default project id is still in `ListActiveByTenantAsync` for the workspace; regression `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`
+- [ ] (candidate) `ListAsync` / `ListRecycleBinAsync` — `ArchitectureProjectRetentionPurgeOptions.RetentionDays` above `ArchitectureProjectRetentionSchedule` maximum (365) — wrong outcome would advertise retention longer than purge worker applies; mechanism: both paths call `ClampRetentionDays` before populating `RetentionDays` and `PurgeAfterUtc`; reachable via host `ArchitectureProjectRetention` config on `GET /tenant/workspaces` and `GET /tenant/workspaces/recycle-bin`
+- [ ] (candidate) `DeleteProjectAsync` — workspace metadata `DefaultProjectId` references an active architecture project in a different workspace while `scope.ProjectId` is a sibling in the current workspace — wrong outcome would block or allow delete inconsistently with `ListAsync` default advertisement; mechanism: delete guard compares raw metadata default id without requiring the default row to be active in the current workspace (parity lens after list-path stale-default fix)
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync(scope.TenantId)` loads every active project in the tenant before filtering to `scope.WorkspaceId` in the response DTO — input is authenticated `GET /tenant/workspaces` in a multi-workspace tenant (wrong outcome: foreign workspace project names briefly considered server-side; needs proof of observable harm beyond in-process filtering)
+
+2026-10-05 seed hunt (seed→hit): promoted default-delete idempotent-retry hypothesis from controller read; proved stale-metadata default guard; reseeded retention clamp and cross-workspace default-metadata candidates; 37 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents
