@@ -18,6 +18,37 @@ namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 public sealed class RunExecuteOwnershipLeaseServiceDrainTests
 {
     [Fact]
+    public async Task AcquireAsync_when_drain_begins_during_repository_call_rolls_back_and_throws_conflict()
+    {
+        Guid runId = Guid.NewGuid();
+        TaskCompletionSource<bool> acquireCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .Returns(acquireCompleted.Task);
+        leases
+            .Setup(l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        WorkerHostDrainGate drainGate = new();
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, drainGate);
+
+        Task acquireTask = sut.AcquireAsync(runId, CancellationToken.None);
+
+        drainGate.BeginDrain();
+        acquireCompleted.SetResult(true);
+
+        Func<Task> act = async () => await acquireTask;
+
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*draining*");
+
+        leases.Verify(
+            l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease()
     {
         Guid runId = Guid.NewGuid();

@@ -62,7 +62,19 @@ public sealed class RunExecuteOwnershipLeaseService(
             cancellationToken).ConfigureAwait(false);
 
         if (acquired)
+        {
+            if (_drainGate.IsDraining)
+            {
+                await _leaseRepository
+                    .TryReleaseAsync(runId, _processInstanceId.Value, cancellationToken)
+                    .ConfigureAwait(false);
+
+                throw new ConflictException(
+                    "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
+            }
+
             return;
+        }
 
         throw new ConflictException(
             $"Run '{runId:D}' execute is already owned by another host instance. Retry after the ownership lease expires or reconcile stale ownership.");
