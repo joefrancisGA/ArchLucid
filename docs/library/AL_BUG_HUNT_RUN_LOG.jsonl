@@ -1,6 +1,3 @@
-{"at":"2026-09-05T22:05:06.3225786Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-05T22:09:04.7639923Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-05T22:13:22.8453915Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-05T22:17:29.9709232Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-05T22:21:30.0087483Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-05T22:25:32.3552689Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8806,3 +8803,4 @@
 {"at":"2026-10-05T21:53:39.3892675Z","zoneId":"commit-output-integrity","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs;ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs;ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs"]}
 {"at":"2026-10-05T21:58:57.3109634Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
 {"at":"2026-10-05T22:04:07.0051665Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
+{"at":"2026-10-05T22:15:41.9313414Z","zoneId":"ui-runs-list","outcome":"hit","productLine":"archlucid-shared"}

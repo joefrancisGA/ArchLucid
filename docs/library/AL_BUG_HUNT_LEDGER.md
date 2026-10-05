@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector closed when `runs` props refreshed after row activation because `inspectorRunId` selection effect trusted stale empty `useSearchParams` while `commitHrefIfChanged` had already committed `inspectorRunId`; resolve effective id from `readWindowLocationSearch()` when router param lags; clear compare replacement notice when URL-driven `compareRuns` clears; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`; 48 scoped `RunsListClient` tests passed.
+
 2026-10-05 thorough hunt (dry): `ui-runs-list` — cheap-disproof closed unknown `inspectorRunId` soft-nav, buyer `scope=` chip parity, and stale compare-notice candidates; regressions `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`, `follows scope= URL changes without a popstate event on buyer scope chips`, `clears compare replacement notice when compareRuns URL changes without a popstate event`; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector stayed open after soft navigation cleared `inspectorRunId` because selection effect preserved `selectedRun` when the run remained on the page; close when `inspectorRunId` is absent from `useSearchParams`; regression `closes the inspector when inspectorRunId URL changes without a popstate event`; 45 scoped `RunsListClient` tests passed.
@@ -7245,11 +7247,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 28
+- **hunts:** 29
 - **last-hunt:** 2026-10-05
-- **bugs-found:** 14
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-05 — inspector stayed open after inspectorRunId cleared on soft navigation
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-05 — inspector closed on runs refresh when useSearchParams lagged committed inspectorRunId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7320,6 +7322,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `useRunsList` — soft navigation to an unknown `inspectorRunId` leaves the prior inspector open while the URL names a missing run — **cheap-disproof 2026-10-05 thorough hunt:** invalid `inspectorRunId` clears `selectedRun`; regression `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`
 - [x] (valid-no-repro) `RunsListClient` / `BuyerPackageScopeFilterChips` — scope chip `aria-current` disagrees with filtered rows after soft `scope=` navigation — **cheap-disproof 2026-10-05 thorough hunt:** `buyerPackageScope` is URL-derived from `useSearchParams`; regression `follows scope= URL changes without a popstate event on buyer scope chips`
 - [x] (valid-no-repro) `useRunsList` — `compareSelectionNotice` persists after `compareRuns` removed from URL via soft navigation — **cheap-disproof 2026-10-05 thorough hunt:** clearing `compareRuns` removes compare bar and notice together; regression `clears compare replacement notice when compareRuns URL changes without a popstate event`
+
+- [x] (proven) `useRunsList` — docked inspector closed when `runs` props refreshed after row activation because the selection effect cleared `selectedRun` when `useSearchParams` still lacked `inspectorRunId` while `commitHrefIfChanged` had committed it on `window.location` — **hit 2026-10-05 seed hunt:** resolve effective `inspectorRunId` from `readWindowLocationSearch()` when router param is empty but committed query has a value; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`; also clear `compareSelectionNotice` when URL-driven `compareRuns` sync empties selection.
+
+2026-10-05 seed hunt (seed→hit): promoted committed-vs-router `inspectorRunId` lag after row activation; proved and fixed; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproof closed three open candidates; 48 scoped `RunsListClient` tests passed.
 
