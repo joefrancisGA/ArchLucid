@@ -13,9 +13,10 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
-  SecureNowQuestionQueueDrawer,
-  SecureNowQuestionQueueHero,
+  SecureNowQuestionQueueBar,
   SecureNowQuestionQueueProvider,
+  SecureNowQuestionQueueSnapshotPromo,
+  useSecureNowQuestionQueue,
   useSecureNowQuestionSubjectNodeId,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
@@ -88,7 +89,10 @@ import {
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
 import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
-import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
+import {
+  diagramOutlineIncludesFocusResource,
+  resolveDiagramCameraFocusNodeIds,
+} from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
   InfraEvidenceMermaidFallbackArtifactSummary,
   InfraEvidenceMermaidModePreview,
@@ -285,7 +289,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "the first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.";
+  "The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.";
 
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
@@ -1712,6 +1716,11 @@ export function DiagramsWorkbenchClient() {
         className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-diagrams-primary-content"
       >
+      <SecureNowQuestionQueueProvider
+        snapshotId={
+          selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? selectedSnapshotId : ""
+        }
+      >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
       {deepLinkedSnapshotMissing ? (
@@ -1928,14 +1937,14 @@ export function DiagramsWorkbenchClient() {
               {infraDiagramModeJobCaptionBlock(diagramTypePickerValue)}
             </div>
             {selectedSnapshot != null ? (
-              <div
-                className="col-start-1 flex items-start gap-2"
-                data-testid="infra-diagrams-snapshot-id-readout"
-              >
-                <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {selectedSnapshot.snapshotId}
-                </span>
-                <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+              <div className="col-start-1 flex min-w-0 flex-col gap-1" data-testid="infra-diagrams-snapshot-id-readout">
+                <div className="flex items-start gap-2">
+                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {selectedSnapshot.snapshotId}
+                  </span>
+                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+                </div>
+                <SecureNowQuestionQueueSnapshotPromo />
               </div>
             ) : null}
           </>
@@ -2046,14 +2055,14 @@ export function DiagramsWorkbenchClient() {
               {infraDiagramModeJobCaptionBlock(diagramTypePickerValue)}
             </div>
             {selectedSnapshot != null ? (
-              <div
-                className="col-start-1 flex items-start gap-2"
-                data-testid="infra-diagrams-snapshot-id-readout"
-              >
-                <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {selectedSnapshot.snapshotId}
-                </span>
-                <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+              <div className="col-start-1 flex min-w-0 flex-col gap-1" data-testid="infra-diagrams-snapshot-id-readout">
+                <div className="flex items-start gap-2">
+                  <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {selectedSnapshot.snapshotId}
+                  </span>
+                  <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
+                </div>
+                <SecureNowQuestionQueueSnapshotPromo />
               </div>
             ) : null}
           </>
@@ -2461,13 +2470,7 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <SecureNowQuestionQueueProvider
-          snapshotId={selectedSnapshotId}
-          onFocusResourceForQuestion={applySeedNode}
-        >
-          <SecureNowQuestionQueueHero />
-
-      {awaitingDiagramTypeSelection ? (
+      awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}
@@ -2599,7 +2602,6 @@ export function DiagramsWorkbenchClient() {
               ) : null}
             </div>
           ) : null}
-          <SecureNowQuestionQueueDrawer />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
@@ -2640,13 +2642,12 @@ export function DiagramsWorkbenchClient() {
             </Button>
           }
         />
-      ) : null}
-
-        </SecureNowQuestionQueueProvider>
+      ) : null
       ) : null}
 
       <DiagramsClaimOrientationStrip />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
+      </SecureNowQuestionQueueProvider>
       </main>
 
       <AlertDialog
@@ -2705,12 +2706,48 @@ export function DiagramsWorkbenchClient() {
 function DiagramsWorkbenchSecureNowAwareDiagramViewer(
   props: ArchitectureDiagramMermaidViewerProps,
 ): React.JSX.Element {
+  const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const questionSubjectNodeId = useSecureNowQuestionSubjectNodeId();
+  const [questionFocusNonce, setQuestionFocusNonce] = useState(0);
+
+  useEffect(() => {
+    if (!drawerOpen || currentQuestion == null) {
+      return;
+    }
+
+    setQuestionFocusNonce((current) => current + 1);
+  }, [currentQuestion?.questionKey, currentQuestion?.resourceId, drawerOpen]);
+
+  const questionCameraFocusNodeIds = useMemo(() => {
+    if (!drawerOpen || questionSubjectNodeId == null) {
+      return [];
+    }
+
+    if (!diagramOutlineIncludesFocusResource(props.outline, questionSubjectNodeId)) {
+      return [];
+    }
+
+    return resolveDiagramCameraFocusNodeIds(questionSubjectNodeId, props.outline);
+  }, [drawerOpen, props.outline, questionSubjectNodeId]);
+
+  const effectiveFocusNodeIds = questionCameraFocusNodeIds.length > 0
+    ? questionCameraFocusNodeIds
+    : props.focusNodeIds;
+  const effectiveFocusNonce = questionCameraFocusNodeIds.length > 0
+    ? questionFocusNonce
+    : props.focusNonce;
+
+  const viewportHeader = drawerOpen
+    ? <SecureNowQuestionQueueBar outline={props.outline ?? null} />
+    : null;
 
   return (
     <ArchitectureDiagramViewer
       {...props}
-      questionSubjectNodeId={questionSubjectNodeId}
+      focusNodeIds={effectiveFocusNodeIds}
+      focusNonce={effectiveFocusNonce}
+      questionSubjectNodeId={drawerOpen ? questionSubjectNodeId : null}
+      viewportHeader={viewportHeader}
     />
   );
 }

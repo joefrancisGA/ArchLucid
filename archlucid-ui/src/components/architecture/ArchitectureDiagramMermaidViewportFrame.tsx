@@ -13,6 +13,8 @@ export type ArchitectureDiagramMermaidViewportFrameProps = {
   readonly onWheel: (event: WheelEvent<HTMLDivElement>) => void;
   readonly onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
   readonly controls: ReactNode;
+  /** Renders above the scrolling camera, inside the diagram frame border. */
+  readonly viewportHeader?: ReactNode;
   readonly children: ReactNode;
   readonly cameraMaxHeightClassName: string;
   readonly className?: string;
@@ -48,6 +50,7 @@ export function ArchitectureDiagramMermaidViewportFrame(
       onKeyDown={props.onKeyDown}
     >
       {props.controls}
+      {props.viewportHeader}
       <div
         ref={props.cameraRef}
         className={cn(CAMERA_CLASSNAME, props.cameraMaxHeightClassName)}

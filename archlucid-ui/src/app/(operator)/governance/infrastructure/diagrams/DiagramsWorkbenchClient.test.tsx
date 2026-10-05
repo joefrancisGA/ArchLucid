@@ -79,8 +79,12 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
   SecureNowQuestionQueue: () => null,
   SecureNowQuestionQueueProvider: ({ children }: { children: React.ReactNode }) => children,
-  SecureNowQuestionQueueHero: () => null,
-  SecureNowQuestionQueueDrawer: () => null,
+  SecureNowQuestionQueueSnapshotPromo: () => null,
+  SecureNowQuestionQueueBar: () => null,
+  useSecureNowQuestionQueue: () => ({
+    drawerOpen: false,
+    currentQuestion: null,
+  }),
   useSecureNowQuestionSubjectNodeId: () => null,
 }));
 
@@ -380,7 +384,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
     const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
     expect(readingCardCaption).toHaveTextContent(
-      "Reading a card: the first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.",
+      "Reading a card: The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.",
     );
     expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });

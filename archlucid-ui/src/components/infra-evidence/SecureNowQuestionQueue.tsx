@@ -1,9 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
+import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
+import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +31,15 @@ function questionStatusLabel(status: string): string {
   return "Open";
 }
 
-export function SecureNowQuestionQueueHero(): React.JSX.Element | null {
+function openQuestionsCountLabel(count: number): string {
+  if (count === 1) {
+    return "1 open question";
+  }
+
+  return `${count} open questions`;
+}
+
+export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null {
   const { openQuestions, setFilter, setCurrentIndex, setDrawerOpen } = useSecureNowQuestionQueue();
 
   if (openQuestions.length === 0) {
@@ -36,31 +47,34 @@ export function SecureNowQuestionQueueHero(): React.JSX.Element | null {
   }
 
   return (
-    <section
-      className="flex flex-col gap-3 rounded-md border border-[var(--al-accent-border-focus)] bg-white p-4 dark:bg-neutral-950 sm:flex-row sm:items-center sm:justify-between"
-      data-testid="infra-diagrams-question-hero"
-      aria-label="SecureNow subscription questions"
+    <p
+      className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        SecureNow has {openQuestions.length === 1 ? "1 question" : `${openQuestions.length} questions`} about this subscription.
-      </p>
+      <span className="text-al-text-secondary">{openQuestionsCountLabel(openQuestions.length)}</span>
       <Button
         type="button"
         size="sm"
-        variant="primary"
+        variant="outline"
+        data-testid="infra-diagrams-question-review"
         onClick={() => {
           setFilter("Open");
           setCurrentIndex(0);
           setDrawerOpen(true);
         }}
       >
-        Start answering
+        Review
       </Button>
-    </section>
+    </p>
   );
 }
 
-export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
+type SecureNowQuestionQueueBarProps = {
+  readonly outline: InfraEvidenceMermaidOutline | null;
+};
+
+export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps): React.JSX.Element | null {
+  const { outline } = props;
   const {
     drawerOpen,
     setDrawerOpen,
@@ -92,82 +106,55 @@ export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
   const displayName = currentQuestion?.resourceName != null && currentQuestion.resourceName.trim().length > 0
     ? normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName)
     : null;
+  const resourceOnDiagram = currentQuestion == null
+    ? true
+    : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
 
   return (
-    <aside
-      className="border border-neutral-300 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
-      data-testid="infra-diagrams-question-drawer"
-      aria-label="SecureNow question drawer"
+    <div
+      className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/60"
+      data-testid="infra-diagrams-question-bar"
+      aria-label="SecureNow subscription questions"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Subscription questions</h2>
-          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Visit limit: {Math.min(visitedQuestionKeys.size, VISIT_CAP)} of {VISIT_CAP}
-          </p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0 flex-1 space-y-1">
+          {displayName != null ? (
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0" data-testid="infra-diagrams-question-resource-identity">
+              {friendlyType != null ? (
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{friendlyType}</span>
+              ) : null}
+              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-resource-name">
+                {displayName}
+              </span>
+            </div>
+          ) : null}
+          {currentQuestion != null ? (
+            <p
+              className={cn("m-0 line-clamp-2", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="infra-diagrams-question-text"
+              title={currentQuestion.questionText}
+            >
+              {currentQuestion.questionText}
+            </p>
+          ) : null}
         </div>
         <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>
           Close
         </Button>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Question filters">
-        {(["Open", "Answered", "Dismissed"] as const).map((option) => (
-          <Button
-            key={option}
-            type="button"
-            size="sm"
-            variant={filter === option ? "primary" : "outline"}
-            onClick={() => {
-              setFilter(option);
-              setCurrentIndex(0);
-              setSelectedAnswer(null);
-              setDrawerAction("answer");
-            }}
-          >
-            {option}
-          </Button>
-        ))}
-      </div>
+      {currentQuestion != null && !resourceOnDiagram ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagrams-question-off-diagram"
+          role="status"
+        >
+          This resource is not on this diagram.
+        </p>
+      ) : null}
 
       {currentQuestion != null ? (
-        <div className="mt-4 space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("rounded border border-neutral-300 px-2 py-1", OPERATOR_TYPOGRAPHY.helper)}>
-              {questionStatusLabel(currentQuestion.status)}
-            </span>
-          </div>
-
-          {displayName != null ? (
-            <div className="space-y-1" data-testid="infra-diagrams-question-resource-identity">
-              {friendlyType != null ? (
-                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  {friendlyType}
-                </p>
-              ) : null}
-              <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-resource-name">
-                {displayName}
-              </p>
-            </div>
-          ) : null}
-
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-text">
-            {currentQuestion.questionText}
-          </p>
-
-          {currentQuestion.reasonText.trim().length > 0 ? (
-            <div className="space-y-1">
-              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Why SecureNow is asking</h3>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-reason">
-                {currentQuestion.reasonText}
-              </p>
-            </div>
-          ) : null}
-
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {currentQuestion.sourceLine}
-          </p>
-
+        <div className="mt-2 space-y-2">
           {currentQuestion.status === "Open" ? (
             <>
               <div className="flex flex-wrap gap-2">
@@ -182,6 +169,7 @@ export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
                         advanceWithoutPersistence();
                         return;
                       }
+
                       setSelectedAnswer(answerCode);
                       setDrawerAction("answer");
                     }}
@@ -254,7 +242,7 @@ export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
             </div>
           )}
 
-          <div className="flex justify-between gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+          <div className="flex justify-between gap-2 border-t border-neutral-200 pt-2 dark:border-neutral-800">
             <Button
               type="button"
               size="sm"
@@ -264,7 +252,7 @@ export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
             >
               Previous
             </Button>
-            <span className={cn("self-center text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className={cn("self-center text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {currentIndex + 1} of {filteredQuestions.length}
             </span>
             <Button
@@ -277,22 +265,79 @@ export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
               Next
             </Button>
           </div>
+
+          <CollapsibleSection
+            title="Question details"
+            sectionTestId="infra-diagrams-question-details"
+            summaryLine="Why SecureNow is asking, filters, and visit limit"
+            className="mb-0"
+          >
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Question filters">
+                {(["Open", "Answered", "Dismissed"] as const).map((option) => (
+                  <Button
+                    key={option}
+                    type="button"
+                    size="sm"
+                    variant={filter === option ? "primary" : "outline"}
+                    onClick={() => {
+                      setFilter(option);
+                      setCurrentIndex(0);
+                      setSelectedAnswer(null);
+                      setDrawerAction("answer");
+                    }}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={cn("rounded border border-neutral-300 px-2 py-1", OPERATOR_TYPOGRAPHY.helper)}>
+                  {questionStatusLabel(currentQuestion.status)}
+                </span>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Visit limit: {Math.min(visitedQuestionKeys.size, VISIT_CAP)} of {VISIT_CAP}
+                </span>
+              </div>
+              {currentQuestion.reasonText.trim().length > 0 ? (
+                <div className="space-y-1">
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Why SecureNow is asking</h3>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-reason">
+                    {currentQuestion.reasonText}
+                  </p>
+                </div>
+              ) : null}
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {currentQuestion.sourceLine}
+              </p>
+            </div>
+          </CollapsibleSection>
         </div>
       ) : (
-        <p className={cn("m-0 mt-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           No questions match this filter.
         </p>
       )}
-    </aside>
+    </div>
   );
 }
 
-/** Legacy mount: hero and drawer together (tests and shallow embeds). */
+/** @deprecated Use SecureNowQuestionQueueSnapshotPromo */
+export function SecureNowQuestionQueueHero(): React.JSX.Element | null {
+  return <SecureNowQuestionQueueSnapshotPromo />;
+}
+
+/** @deprecated Use SecureNowQuestionQueueBar */
+export function SecureNowQuestionQueueDrawer(): React.JSX.Element | null {
+  return <SecureNowQuestionQueueBar outline={null} />;
+}
+
+/** Legacy mount: snapshot promo and bar together (tests and shallow embeds). */
 export function SecureNowQuestionQueue(props: SecureNowQuestionQueueProps): React.JSX.Element | null {
   return (
     <SecureNowQuestionQueueProvider {...props}>
-      <SecureNowQuestionQueueHero />
-      <SecureNowQuestionQueueDrawer />
+      <SecureNowQuestionQueueSnapshotPromo />
+      <SecureNowQuestionQueueBar outline={null} />
     </SecureNowQuestionQueueProvider>
   );
 }

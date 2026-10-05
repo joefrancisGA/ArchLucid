@@ -37,7 +37,6 @@ const VISIT_CAP = 10;
 
 export type SecureNowQuestionQueueProviderProps = {
   readonly snapshotId: string;
-  readonly onFocusResourceForQuestion?: (armResourceId: string) => void;
   readonly children: ReactNode;
 };
 
@@ -102,7 +101,7 @@ function findInferredConnection(
 export function SecureNowQuestionQueueProvider(
   props: SecureNowQuestionQueueProviderProps,
 ): React.JSX.Element | null {
-  const { snapshotId, onFocusResourceForQuestion, children } = props;
+  const { snapshotId, children } = props;
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
   const [filter, setFilter] = useState<QueueFilter>("Open");
@@ -192,13 +191,6 @@ export function SecureNowQuestionQueueProvider(
       return next;
     });
   }, [currentQuestion, drawerOpen]);
-
-  useEffect(() => {
-    if (!drawerOpen || currentQuestion == null) return;
-    const resourceId = currentQuestion.resourceId.trim();
-    if (resourceId.length === 0) return;
-    onFocusResourceForQuestion?.(resourceId);
-  }, [currentQuestion, drawerOpen, onFocusResourceForQuestion]);
 
   const advanceWithoutPersistence = useCallback(() => {
     if (currentQuestion == null) return;
@@ -324,8 +316,8 @@ export function SecureNowQuestionQueueProvider(
     ],
   );
 
-  if (snapshotId.trim().length === 0 || (questions.length === 0 && loading)) {
-    return null;
+  if (snapshotId.trim().length === 0) {
+    return <>{children}</>;
   }
 
   return (
