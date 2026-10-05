@@ -44,6 +44,9 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         bool cleared = await sut.TryUnsuspendTenantAsync(id, CancellationToken.None);
         cleared.Should().BeTrue();
         (await sut.GetByIdAsync(id, CancellationToken.None))!.SuspendedUtc.Should().BeNull();
+
+        bool secondClear = await sut.TryUnsuspendTenantAsync(id, CancellationToken.None);
+        secondClear.Should().BeFalse();
     }
 
     [SkippableFact]

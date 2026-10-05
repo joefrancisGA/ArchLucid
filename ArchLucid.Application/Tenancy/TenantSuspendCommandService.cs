@@ -76,7 +76,7 @@ public sealed class TenantSuspendCommandService(
         bool cleared = await _tenantRepository.TryUnsuspendTenantAsync(tenantId, cancellationToken);
 
         if (!cleared)
-            return TenantSuspendOutcome.InErasureQuarantine;
+            return TenantSuspendOutcome.AlreadyInDesiredState;
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantUnsuspended,

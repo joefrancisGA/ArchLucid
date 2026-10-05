@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent admin unsuspend duplicated `TenantUnsuspended` audit events because `TryUnsuspendTenantAsync` cleared rows without requiring `SuspendedUtc IS NOT NULL`; aligned SQL/in-memory compare-and-set with suspend parity and map transition miss to `AlreadyInDesiredState`; regression `TryUnsuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner`; 132 scoped tenancy tests passed.
+
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — `TrialTenantBootstrapService` committed self-service trial start/expiry with `TimeProvider.System` instead of DI clock; inject `TimeProvider`; regression `TryBootstrapAfterSelfRegistrationAsync_commits_trial_window_using_injected_clock`; 131 scoped tenancy tests passed.
 
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — `TenantTrialFacade.GetTrialStatusAsync` computed `DaysRemaining` with `TimeProvider.System` instead of the host-injected clock, so trial-status disagreed with `TrialLimitGate` under frozen or shifted time; inject `TimeProvider`; regression `GetTrialStatusAsync_reports_days_remaining_using_injected_clock`; 130 scoped tenancy tests passed.
@@ -27262,13 +27264,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 38
-- **bugs-found:** 24
+- **hunts:** 39
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — trial bootstrap ignored injected `TimeProvider` for trial window
+- **last-bug:** 2026-10-05 — concurrent tenant unsuspend duplicated `TenantUnsuspended` audit events
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle after bootstrap clock fix; proved concurrent unsuspend requests duplicated platform audit events; fixed atomic `TryUnsuspendTenantAsync` semantics and unsuspend transition-miss mapping; regression `TryUnsuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner`; 132 scoped tenancy tests passed.
+
+- [x] (proven) `TenantSuspendCommandService.TryUnsuspendAsync` / `TryUnsuspendTenantAsync` — concurrent admin unsuspend duplicated `TenantUnsuspended` audit events — **hit 2026-10-05 seed hunt:** require `SuspendedUtc IS NOT NULL` for unsuspend compare-and-set; regression `TryUnsuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner`.
 
 2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle after facade clock fix; proved `TrialTenantBootstrapService` used `TimeProvider.System` when persisting trial start/expiry; fixed by injecting `TimeProvider`; regression `TryBootstrapAfterSelfRegistrationAsync_commits_trial_window_using_injected_clock`; 131 scoped tenancy tests passed.
 
