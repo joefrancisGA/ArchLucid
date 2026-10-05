@@ -104,6 +104,25 @@ public sealed class HttpScopeContextProviderTests
     }
 
     [Fact]
+    public void GetCurrentScope_ignores_later_parseable_tenant_id_when_first_claim_is_non_guid()
+    {
+        Guid tenantFromLaterClaim = Guid.Parse("a1c2e3f4-a5b6-7890-abcd-ef1234567890");
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("tenant_id", "division-east"));
+        identity.AddClaim(new Claim("tenant_id", tenantFromLaterClaim.ToString("D")));
+
+        DefaultHttpContext http = new() { User = new ClaimsPrincipal(identity) };
+
+        HttpContextAccessor accessor = new() { HttpContext = http };
+        HttpScopeContextProvider sut = new(accessor);
+
+        ScopeContext scope = sut.GetCurrentScope();
+
+        scope.TenantId.Should().Be(ScopeIds.DefaultTenant);
+    }
+
+    [Fact]
     public void ResolveCurrentScope_reports_claim_source_when_present()
     {
         Guid tenant = Guid.NewGuid();
