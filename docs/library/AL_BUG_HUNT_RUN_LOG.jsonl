@@ -1,4 +1,3 @@
-{"at":"2026-09-05T00:32:16.894635Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-09-05T00:43:19.2137806Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-05T00:49:41.1678598Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-09-05T00:53:49.0220051Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8735,3 +8734,4 @@
 {"at":"2026-10-05T00:13:53.9849358Z","zoneId":"ui-review-intake-wizards","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-05T00:22:38.4172881Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-05T00:29:45.9616557Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T00:34:37.2386253Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared"}

@@ -58,7 +58,25 @@ public static class RecoverableOutboxFailureHandler
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await onRetryScheduledAsync().ConfigureAwait(false);
+        await InvokeRetryHookBestEffortAsync(onRetryScheduledAsync, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task InvokeRetryHookBestEffortAsync(
+        Func<Task> onRetryScheduledAsync,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await onRetryScheduledAsync().ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // Backoff is already persisted; retry instrumentation hooks must not abort batch isolation.
+        }
     }
 
     private static async Task InvokeDeadLetterHookBestEffortAsync(
