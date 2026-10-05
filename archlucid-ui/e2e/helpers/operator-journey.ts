@@ -526,6 +526,13 @@ export async function openReviewDetailWorkspaceTab(
     if (!alreadyActive) {
       await visibleTrigger.click();
     }
+
+    try {
+      await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 15_000 });
+    } catch {
+      // Radix tab clicks can fail under overlay/hydration races — deep-link the tab instead.
+      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
   } else {
     await page.goto(href);
   }

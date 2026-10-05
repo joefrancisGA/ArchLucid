@@ -167,7 +167,8 @@ export async function submitAdminInviteFromUsersUi(
     // Fall through to UI assertions when the build surfaces only toast + seeded rows.
   }
 
-  const pendingRow = page.locator("tr", { hasText: email });
+  const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
+  const pendingRow = invitationsTable.locator("tr", { hasText: email });
   const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
 
   try {

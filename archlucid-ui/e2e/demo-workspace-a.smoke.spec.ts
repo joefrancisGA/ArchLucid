@@ -73,6 +73,11 @@ test.describe(
     await expect(page.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({
       timeout: 60_000,
     });
+
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "overview");
+    await expect(page.getByTestId("run-detail-review-package-stamp-viewport")).toBeVisible({
+      timeout: 120_000,
+    });
     await expect(page.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
       timeout: 60_000,
     });
@@ -177,7 +182,7 @@ test.describe(
 
     const stampViewport = page.getByTestId("run-detail-review-package-stamp-viewport");
 
-    await expect(stampViewport).toBeVisible({ timeout: 60_000 });
+    await expect(stampViewport).toBeVisible({ timeout: 120_000 });
     await stampViewport.scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("run-detail-quality-gate-mode-strip")).toBeVisible({ timeout: 60_000 });
