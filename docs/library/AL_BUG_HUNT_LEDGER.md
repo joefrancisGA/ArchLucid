@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent erasure restore/clear/legal-hold commands returned `false` for atomic-transition losers while the desired tenant state was already applied; re-read tenant after repository compare-and-set miss and return idempotent success without duplicate audit (parity with erasure approval); regressions `TryRestoreQuarantineAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TryClearLegalHoldAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TrySetLegalHoldAsync_concurrent_identical_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 136 scoped tenancy tests passed.
+
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent admin erasure-approval requests returned `false` for the atomic-transition loser even though `TenantErasureApprovedUtc` was already set; re-read tenant after `TryApproveTenantErasureAsync` miss and return idempotent success without duplicate audit; regression `TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 133 scoped tenancy tests passed.
 
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent admin unsuspend duplicated `TenantUnsuspended` audit events because `TryUnsuspendTenantAsync` cleared rows without requiring `SuspendedUtc IS NOT NULL`; aligned SQL/in-memory compare-and-set with suspend parity and map transition miss to `AlreadyInDesiredState`; regression `TryUnsuspendAsync_concurrent_requests_audit_only_the_atomic_transition_winner`; 132 scoped tenancy tests passed.
@@ -27266,13 +27268,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 40
-- **bugs-found:** 26
+- **hunts:** 41
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — concurrent erasure approval returned false for atomic-transition loser
+- **last-bug:** 2026-10-05 — concurrent erasure restore/clear/legal-hold returned false for atomic-transition losers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle after erasure-approval idempotency fix; proved restore/clear/identical legal-hold losers returned `false` after atomic miss; fixed idempotent re-read paths; three regressions; 136 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TryRestoreQuarantineAsync` / `TryClearLegalHoldAsync` / `TrySetLegalHoldAsync` — concurrent admin erasure commands returned `false` for atomic-transition losers while desired state was already persisted — **hit 2026-10-05 seed hunt:** re-read tenant after repository miss and return success without duplicate audit; regressions `TryRestoreQuarantineAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TryClearLegalHoldAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TrySetLegalHoldAsync_concurrent_identical_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`.
 
 2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle after unsuspend audit fix; proved concurrent erasure-approval losers returned `false` despite approved state; fixed idempotent re-read after atomic miss; regression `TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 133 scoped tenancy tests passed.
 

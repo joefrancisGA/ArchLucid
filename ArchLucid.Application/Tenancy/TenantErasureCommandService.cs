@@ -88,7 +88,14 @@ public sealed class TenantErasureCommandService(
         bool restored = await _tenantRepository.TryRestoreTenantErasureQuarantineAsync(tenantId, cancellationToken);
 
         if (!restored)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null && afterMiss.OffboardedUtc is null)
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureQuarantineRestored,
@@ -146,7 +153,14 @@ public sealed class TenantErasureCommandService(
             cancellationToken);
 
         if (!ok)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null && IsIdenticalLegalHoldRetry(afterMiss, untilUtc, normalizedReason))
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldSet,
@@ -236,7 +250,14 @@ public sealed class TenantErasureCommandService(
         bool cleared = await _tenantRepository.TryClearTenantErasureLegalHoldAsync(tenantId, cancellationToken);
 
         if (!cleared)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null && afterMiss.LegalHoldUntilUtc is null)
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldCleared,
