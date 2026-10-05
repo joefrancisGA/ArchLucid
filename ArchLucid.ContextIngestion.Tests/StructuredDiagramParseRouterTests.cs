@@ -46,6 +46,49 @@ public sealed class StructuredDiagramParseRouterTests
     }
 
     [Fact]
+    public void Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges()
+    {
+        const string mermaid = """
+            flowchart LR
+                api["API Gateway"]
+                db["SQL Database"]
+                api --> db
+            """;
+
+        DiagramParseResult result = this.router.Parse(new DiagramSourceReference
+        {
+            Name = "fixture",
+            Format = $"{SupportedContextDocumentContentTypes.Mermaid}; charset=utf-8",
+            Content = mermaid,
+        });
+
+        result.Warnings.Should().BeEmpty();
+        result.Model.Nodes.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes()
+    {
+        const string svg = """
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <g id="api">
+                <rect x="0" y="0" width="100" height="40"/>
+                <text x="50" y="25">API Gateway</text>
+              </g>
+            </svg>
+            """;
+
+        DiagramParseResult result = this.router.Parse(new DiagramSourceReference
+        {
+            Name = "fixture.svg",
+            Format = $"{SupportedContextDocumentContentTypes.StructuredDiagramSvg}; charset=utf-8",
+            Content = svg,
+        });
+
+        result.Model.Nodes.Should().ContainSingle(node => node.Id == "api" && node.Label == "API Gateway");
+    }
+
+    [Fact]
     public void Parse_MermaidFixture_YieldsNodesAndEdges()
     {
         const string mermaid = """

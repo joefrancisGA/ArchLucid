@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `StructuredDiagramParseRouter` diagram source parsers rejected MIME format strings with `; charset=utf-8` (only short `DiagramSourceFormats` tokens and bare MIME matched); route via `Is*ContentType` helpers in `ArchLucidDiagramJsonParser`, `SvgDiagramSourceParser`, `DrawIoXmlDiagramSourceParser`, and `VsdxDiagramSourceParser`; regressions `Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges`, `Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes`; 802 scoped tests passed.
+
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `PixelDiagramIntakeStubDetector` used exact structured-diagram JSON MIME match so `; charset=utf-8` skipped pixel stub detection and the diagram JSON parser returned empty canonical objects instead of the not-verifiable warning; use `IsStructuredDiagramJsonContentType`; align `MermaidDiagramSourceParser.CanParse` and `IsForbiddenImageContentType` with `NormalizeContentTypeForLookup`; regressions `TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter`, `DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType`; 800 scoped tests passed.
 
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `SupportedContextDocumentContentTypes.IsSupported` and document parser `CanParse` rejected MIME types with `; charset=utf-8` parameters; strip parameters via `NormalizeContentTypeForLookup` for allowlist, parser routing, and stable document ids; regressions `IsSupported_MatchesCanonicalList`, `ForDocument_ignores_content_type_charset_parameters`, `NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument`; 798 scoped ContextIngestion/Canonicalization tests passed.
@@ -22533,7 +22535,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-05 seed hunt (seed→hit): diagram router MIME charset on SVG/diagram-json/draw.io/vsdx `CanParse`; 802 scoped tests passed.
+
 2026-10-05 seed hunt (seed→hit): pixel stub detector + diagram router MIME charset parity; `IsStructuredDiagramJsonContentType` in stub detector; 800 scoped tests passed.
+
+- [x] (proven) `StructuredDiagramParseRouter` / `IDiagramSourceParser.CanParse` — MIME diagram formats with `; charset=utf-8` returned unsupported format while bare MIME worked — **hit 2026-10-05 seed hunt:** align `ArchLucidDiagramJsonParser`, `SvgDiagramSourceParser`, `DrawIoXmlDiagramSourceParser`, and `VsdxDiagramSourceParser` with `SupportedContextDocumentContentTypes` lookup; regressions `Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges`, `Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes`.
 
 2026-10-05 seed hunt (seed→hit): parameterized MIME types (`; charset=utf-8`) rejected by `IsSupported` and skipped document parsers; `NormalizeContentTypeForLookup`; 798 scoped tests passed.
 
