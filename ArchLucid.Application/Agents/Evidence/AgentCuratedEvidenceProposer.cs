@@ -53,7 +53,7 @@ public sealed class AgentCuratedEvidenceProposer(
         if (!_options.Enabled)
             return null;
 
-        if (!result.Findings.Any(AgentArchitectureFindingEmissionGate.HasTypedEmission))
+        if (!(result.Findings ?? []).Any(AgentArchitectureFindingEmissionGate.HasTypedEmission))
             return null;
 
         string userPrompt = BuildUserPrompt(runId, request, evidence, result);
@@ -84,14 +84,14 @@ public sealed class AgentCuratedEvidenceProposer(
         string catalogSummary = JsonSerializer.Serialize(
             new
             {
-                policies = evidence.Policies.Select(p => new { p.PolicyId, p.Title }).Take(20),
-                patterns = evidence.Patterns.Select(p => new { p.PatternId, p.Name }).Take(20),
-                services = evidence.ServiceCatalog.Select(s => new { s.ServiceId, s.ServiceName }).Take(20),
+                policies = (evidence.Policies ?? []).Select(p => new { p.PolicyId, p.Title }).Take(20),
+                patterns = (evidence.Patterns ?? []).Select(p => new { p.PatternId, p.Name }).Take(20),
+                services = (evidence.ServiceCatalog ?? []).Select(s => new { s.ServiceId, s.ServiceName }).Take(20),
             },
             JsonOptions);
 
         string findingsSummary = JsonSerializer.Serialize(
-            result.Findings
+            (result.Findings ?? [])
                 .Where(AgentArchitectureFindingEmissionGate.HasTypedEmission)
                 .Select(f => new { Title = f.Message, f.Severity, f.Category })
                 .Take(12),
@@ -101,8 +101,8 @@ public sealed class AgentCuratedEvidenceProposer(
                 RunId: {runId}
                 System: {request.SystemName}
                 AgentType: {result.AgentType}
-                Claims: {string.Join("; ", result.Claims.Take(6))}
-                EvidenceRefs: {string.Join(", ", result.EvidenceRefs.Take(12))}
+                Claims: {string.Join("; ", (result.Claims ?? []).Take(6))}
+                EvidenceRefs: {string.Join(", ", (result.EvidenceRefs ?? []).Take(12))}
                 Findings: {findingsSummary}
                 ExistingCatalog: {catalogSummary}
                 """;
