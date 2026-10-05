@@ -48,23 +48,41 @@ public sealed class InMemoryBackgroundJobQueue(
             MaxRetries: safeMaxRetries);
         _workUnits[id] = workUnit;
 
-        if (!await _pendingJobs.WaitAsync(0, cancellationToken))
+        bool acquiredPendingSlot = false;
+
+        try
         {
+            if (!await _pendingJobs.WaitAsync(0, cancellationToken))
+            {
+                _info.TryRemove(id, out _);
+                _workUnits.TryRemove(id, out _);
+
+                throw new InvalidOperationException(
+                    $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
+            }
+
+            acquiredPendingSlot = true;
+
+            if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
+                return id;
+
+            _pendingJobs.Release();
+            acquiredPendingSlot = false;
             _info.TryRemove(id, out _);
             _workUnits.TryRemove(id, out _);
 
-            throw new InvalidOperationException(
-                $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
+            throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
         }
+        catch (OperationCanceledException)
+        {
+            if (acquiredPendingSlot)
+                _pendingJobs.Release();
 
-        if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
-            return id;
+            _info.TryRemove(id, out _);
+            _workUnits.TryRemove(id, out _);
 
-        _pendingJobs.Release();
-        _info.TryRemove(id, out _);
-        _workUnits.TryRemove(id, out _);
-
-        throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
+            throw;
+        }
     }
 
     public Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default)

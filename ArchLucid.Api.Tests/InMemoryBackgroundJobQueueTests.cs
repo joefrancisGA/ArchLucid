@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using System.Reflection;
+
 using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Jobs;
 
@@ -581,5 +584,33 @@ public sealed class InMemoryBackgroundJobQueueTests
         }
 
         throw new TimeoutException($"Job {jobId} did not reach a terminal state within {timeout}.");
+    }
+
+    [SkippableFact]
+    public async Task EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job()
+    {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue queue = CreateSystem(logger);
+
+        Func<Task> act = async () => _ = await queue.EnqueueAsync(Work("canceled-enqueue"), cancellationToken: cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        ConcurrentDictionary<string, BackgroundJobInfo> info = ReadInMemoryJobInfoDictionary(queue);
+        info.Should().BeEmpty("canceled enqueue must not leave a Pending row without a channel item");
+    }
+
+    private static ConcurrentDictionary<string, BackgroundJobInfo> ReadInMemoryJobInfoDictionary(
+        InMemoryBackgroundJobQueue queue)
+    {
+        FieldInfo? field = typeof(InMemoryBackgroundJobQueue).GetField(
+            "_info",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        field.Should().NotBeNull();
+
+        return (ConcurrentDictionary<string, BackgroundJobInfo>)field!.GetValue(queue)!;
     }
 }
