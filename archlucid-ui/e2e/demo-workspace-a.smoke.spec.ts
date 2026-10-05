@@ -154,9 +154,11 @@ test.describe(
     await expect(manifestSection).toBeVisible({ timeout: 90_000 });
     await manifestSection.scrollIntoViewIfNeeded();
 
-    await expect(
-      manifestSection.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 60_000 });
+    await expect(async () => {
+      await expect(
+        manifestSection.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }),
+      ).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 60_000 });
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
 
     const manifestDecisionCount = manifestSection.getByTestId("run-detail-manifest-decision-count");
