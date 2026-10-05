@@ -217,4 +217,46 @@ public sealed class InMemoryFindingInspectReadRepositoryNormalizationTests
         response.TypedPayload!.Value.GetProperty("title").GetString().Should().Be("Inspect title");
         response.TypedPayload.Value.GetProperty("rationale").GetString().Should().Be("Inspect rationale");
     }
+
+    [Fact]
+    public async Task GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_has_circular_reference()
+    {
+        Guid runId = Guid.Parse("ffffffffffffffffffffffffffffffff");
+        string findingId = $"finding-demo-{runId:N}-primary";
+        ScopeContext scope = new();
+
+        Dictionary<string, object?> cyclic = new();
+        cyclic["self"] = cyclic;
+
+        Finding finding = new()
+        {
+            FindingId = findingId,
+            FindingType = "test",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Info,
+            Title = "Cycle title",
+            Rationale = "Cycle rationale",
+            Payload = cyclic,
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingInspectReadRepository repository = new(authority.Object);
+
+        FindingInspectResponse? response = await repository.GetInspectAsync(scope, findingId, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.TypedPayload.Should().NotBeNull();
+        response.TypedPayload!.Value.GetProperty("title").GetString().Should().Be("Cycle title");
+    }
 }

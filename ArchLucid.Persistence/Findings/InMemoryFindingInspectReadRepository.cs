@@ -145,7 +145,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         {
             return JsonSerializer.SerializeToElement(finding.Payload);
         }
-        catch (NotSupportedException)
+        catch (Exception ex) when (ex is NotSupportedException or JsonException)
         {
             // Parity with Dapper inspect corrupt non-empty PayloadJson metadata fallback (#1238).
             return FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(
