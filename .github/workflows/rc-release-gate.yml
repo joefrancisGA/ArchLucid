@@ -504,11 +504,37 @@ jobs:
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
           ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          # Relative to archlucid-ui. The digest step reads this file after the job exits.
+          RELEASE_GATE_PLAYWRIGHT_JSON: test-results/release-gate-playwright.json
         run: |
           npx playwright install --with-deps chromium
           bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
           bash ../scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+          mkdir -p test-results
           npx playwright test --grep @release-gate
+
+      - name: Summarize release-gate Workspace A and Workspace B
+        if: always()
+        run: |
+          python3 scripts/ci/report_release_gate_playwright_workspace_digest.py \
+            --json-in archlucid-ui/test-results/release-gate-playwright.json \
+            --markdown-out dist/release-gate-workspace-digest.md \
+            --json-out dist/release-gate-workspace-digest.json
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## Release-gate workspace digest" >> "$GITHUB_STEP_SUMMARY"
+            cat dist/release-gate-workspace-digest.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload release-gate workspace digest
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-rc-workspace-digest
+          path: |
+            dist/release-gate-workspace-digest.md
+            dist/release-gate-workspace-digest.json
+            archlucid-ui/test-results/release-gate-playwright.json
+          if-no-files-found: warn
 
       - name: Upload Playwright test-results (traces)
         if: failure()
