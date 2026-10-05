@@ -20120,6 +20120,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-10-05 seed hunt (seed→hit): promoted multi-cloud all-retail summary-note mislabel; proved `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` returned the sole-Azure Retail headline when every line was live `RetailApi` pricing across AWS and GCP (`soleFamily` null); fixed by requiring explicit `CloudProvider.Azure` before the Azure all-retail copy and using a multi-cloud headline otherwise; regression `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`; 422 scoped Costing tests passed.
+
 2026-10-05 seed hunt (seed→hit): promoted Azure-only partial-retail blend summary-note asymmetry; proved `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` returned the generic multi-cloud blend headline for sole-Azure mixes of `RetailApi` and `Estimated` lines while AWS/GCP got cloud-specific blend copy; fixed with an Azure blend branch; regression `ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`; 421 scoped Costing tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted Azure-only illustrative summary-note asymmetry; proved `InfrastructureCostSummaryNotes.ComposeIllustrativeOnlyNote` returned the generic Retail-disabled headline for sole-Azure `AppService` lines while AWS/GCP got cloud-specific copy; fixed by returning Azure from `ResolveSoleCloudFamily` and adding an Azure illustrative branch; regression `ComposeIllustrativeOnlyNote_azure_only_mentions_azure_not_generic_only`; 420 scoped Costing tests passed.
@@ -22019,6 +22021,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 ### Hypotheses
 
+- [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — `AllRetailPricing` with mixed AWS+GCP `RetailApi` lines still defaulted to the Azure Retail all-retail headline — **hit 2026-10-05 seed hunt:** explicit Azure sole-family branch plus multi-cloud all-retail headline; regression `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — sole-Azure partial retail blends fell through to the generic multi-cloud blend headline — **hit 2026-10-05 seed hunt:** Azure-specific blend branch; regression `ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — `AllRetailPricing` short-circuited to the Azure Retail headline even when every line was AWS or GCP `RetailApi` pricing — **hit 2026-10-05 seed hunt:** resolve sole cloud family before the all-retail branch; regressions `ComposeRetailBlendNote_aws_only_all_retail_does_not_claim_azure_retail` and `ComposeRetailBlendNote_gcp_only_all_retail_does_not_claim_azure_retail`.
 - [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — `nextPageToken` pagination ignored — **hit 2026-09-07 hunt #1186 (seed→hit):** single-page SKU list fetch returned null when the matching machine type lived on a later catalog page; live GCP probe fell back to illustrative pricing; fixed with `pageToken` loop until match or exhaustion; regression in `TryGetComputeEngineMonthlyUsdAsync_follows_next_page_token`

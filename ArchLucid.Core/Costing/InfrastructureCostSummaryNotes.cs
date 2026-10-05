@@ -39,7 +39,10 @@ internal static class InfrastructureCostSummaryNotes
             if (soleFamily == CloudProvider.Gcp)
                 return "GCP Cloud Billing Catalog sizing (see line-level price sources).";
 
-            return "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources).";
+            if (soleFamily == CloudProvider.Azure)
+                return "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources).";
+
+            return "Multi-cloud public pricing API sizing (see line-level price sources).";
         }
 
 

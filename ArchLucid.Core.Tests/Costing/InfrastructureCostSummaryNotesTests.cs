@@ -155,6 +155,36 @@ public sealed class InfrastructureCostSummaryNotesTests
     }
 
     [Fact]
+    public void ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail()
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [
+                new InfrastructureCostLine(
+                    "topology",
+                    "web",
+                    RuntimePlatform.Ec2,
+                    "Amazon EC2",
+                    85m,
+                    InfrastructureCostPriceSource.RetailApi),
+                new InfrastructureCostLine(
+                    "topology",
+                    "app",
+                    RuntimePlatform.Gke,
+                    "Google Kubernetes Engine",
+                    120m,
+                    InfrastructureCostPriceSource.RetailApi),
+            ],
+            205m,
+            AnyRetailPricing: true,
+            AllRetailPricing: true);
+
+        string note = InfrastructureCostSummaryNotes.ComposeRetailBlendNote(totals);
+
+        note.Should().NotContain("Azure Retail Prices API sizing");
+        note.Should().Contain("Multi-cloud");
+    }
+
+    [Fact]
     public void ComposeRetailBlendNote_azure_only_claims_azure_retail_when_all_retail()
     {
         InfrastructureCostEstimateTotals totals = new(
