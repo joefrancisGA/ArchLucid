@@ -65,6 +65,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
 
     return () => {
       window.removeEventListener("popstate", restoreFromLastVisitIfNeeded);
+      reviewFindingsLastVisitRestoredRunIds.delete(runId);
     };
   }, [enabled, pathname, runId]);
 }

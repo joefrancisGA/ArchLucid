@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — module-level `reviewFindingsLastVisitRestoredRunIds` never cleared on unmount, so returning to the same review with a bare findings URL skipped DR-13 last-visit toolbar restore; delete run id from the guard on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`; 18 scoped review-detail vitest tests passed.
+
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `RunDetailFindingsWorkspace` kept the prior run’s classification band (and list view) after a client-side `runId` transition when the URL omitted band/list params; re-sync toolbar band + list view from the location on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped review-detail vitest tests passed (findings workspace + workspace tabs).
 
 2026-10-05 seed hunt (seed→hit): `tenant-erasure` — platform legal-hold path stored untrimmed `Reason` while idempotent retry compared raw strings, so a padded reason retry duplicated platform audit events; normalize trim in `TenantErasureCommandService.TrySetLegalHoldAsync` and when comparing stored reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`; 36 scoped `TenantErasure` tests passed (9 Application, 23 Api, 4 Core).
@@ -28208,11 +28210,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 27
-- **bugs-found:** 18
+- **hunts:** 28
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — findings classification band stuck after client-side run transition
+- **last-bug:** 2026-10-05 — findings last-visit restore skipped on same-run remount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28242,7 +28244,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
 
-- (candidate) `RunDetailFindingsWorkspace` — the module-level `reviewFindingsLastVisitRestoredRunIds` set can suppress a later restore after the same run is remounted with findings query parameters removed; reachable by opening a run, navigating away and back, then returning without persisted findings filters in the URL.
+- [x] (proven) `useReviewFindingsLastVisitRestore` / `reviewFindingsLastVisitRestoredRunIds` — module-level restore guard kept `runId` after unmount, suppressing DR-13 toolbar restore when the same review remounted with a bare findings URL — **hit 2026-10-05 seed hunt:** clear guard entry on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`
 - [x] (proven) `RunDetailFindingsWorkspace` — classification-band state remained on the prior run’s band during a client-side `runId` transition when the URL omitted `findingsBand` — **hit 2026-10-05 seed hunt:** re-sync classification band (and list view) from location on `runId` change; regression `resets classification band when runId changes without a band query param`
 - [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
 - (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
