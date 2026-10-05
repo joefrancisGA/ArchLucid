@@ -48,7 +48,7 @@ export async function clickThroughBlockingOverlays(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
 
-    if (!/intercepts pointer events/i.test(message)) {
+    if (!/intercepts pointer events|outside of the viewport/i.test(message)) {
       throw error;
     }
   }

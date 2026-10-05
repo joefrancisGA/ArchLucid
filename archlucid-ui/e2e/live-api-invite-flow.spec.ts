@@ -80,12 +80,13 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
-    const pendingRow = page.locator("tr", { hasText: inviteEmail });
+    const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
+    const pendingRow = invitationsTable.locator("tr", { hasText: inviteEmail });
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
 
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
-    await expect(page.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
+    await expect(invitationsTable.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
   });
 
   test("invite to existing directory user surfaces conflict copy in UI", async ({ page, request }) => {

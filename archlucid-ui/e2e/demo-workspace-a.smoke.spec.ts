@@ -82,7 +82,8 @@ test.describe(
     await expect(page.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
       timeout: 60_000,
     });
-    await expect(page.getByTestId("policy-pack-influence-honesty-chip")).toBeVisible({ timeout: 60_000 });
+    const spineBand = page.getByTestId("run-detail-first-review-spine-band");
+    await expect(spineBand.getByTestId("policy-pack-influence-honesty-chip")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("run-detail-first-review-spine-semantic-support")).toBeVisible({
       timeout: 60_000,
     });
@@ -209,7 +210,8 @@ test.describe(
       await expect(rehearsalDoorStrip).toContainText(/practice/i);
     }
 
-    await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "evidence");
+    await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
     await expect(
       page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button").first(),
     ).toBeVisible({ timeout: 60_000 });

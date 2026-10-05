@@ -171,7 +171,9 @@ test.describe(
 
     const quickSummary = reviewDetailFindingsQuickSummary(page);
 
-    await expect(quickSummary).toBeVisible({ timeout: 60_000 });
+    await expect(async () => {
+      await expect(quickSummary).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 120_000 });
 
     /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
     await expect(

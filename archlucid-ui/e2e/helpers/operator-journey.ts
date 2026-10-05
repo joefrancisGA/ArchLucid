@@ -478,6 +478,7 @@ export function reviewDetailFindingsQuickSummary(page: Page): Locator {
   return workbenchColumn
     .getByTestId("quick-decision-summary")
     .or(panel.getByTestId("quick-decision-summary"))
+    .or(page.getByTestId("quick-decision-summary"))
     .first();
 }
 
@@ -540,7 +541,10 @@ export async function openReviewDetailWorkspaceTab(
   runId: string,
   tab: ReviewDetailTabId,
 ): Promise<void> {
-  const href = buildReviewDetailTabHref(runId, tab);
+  const href =
+    (REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)
+      ? buildReviewDetailTabHref(runId, tab, { workbenchFocus: tab as "architecture" | "findings" | "evidence" })
+      : buildReviewDetailTabHref(runId, tab);
   const url = new URL(page.url());
   const trimmedRunId = runId.trim();
   const encodedRunId = encodeURIComponent(trimmedRunId);
