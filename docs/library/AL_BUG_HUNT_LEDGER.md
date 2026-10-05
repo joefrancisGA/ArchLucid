@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (dry): `api-governance-tenancy-controllers` — cheap-disproved five open `(candidate)` rows (null `ListWorkspacesAsync` contract violation, metadata-only disposition `Guid.Empty` guard skip, reviews-awaiting-action per-row sealed guard omission, pre-commit `TryParseRunId` without normalizer, tenant workspace list tenant-wide project load); 137 scoped Governance/Tenancy controller unit tests passed (17 SQL integration fixtures unavailable on Linux VM).
+
 2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but `observedOutcome` claimed verified `HTTP 200; foreign runId absent` because verified-absent shortcut ignored non-2xx field codes; gate with `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline deny-status replay false-failed when `observedStatusCode` was omitted but `observedOutcome` was `HTTP 404` because `ResolveDenyReplayVerdict` evaluated `observedStatusCode ?? 0` instead of `ResolveObservedStatusCode`; regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -6819,11 +6821,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-<<<<<<< HEAD
-- **last-bug:** 2026-10-05 — offline exclude replay false-passed when status field and HTTP 404 outcome disagreed
-=======
 - **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
->>>>>>> 83e2641c19 (al-bug: ledger for cli-tenant-isolation exclude replay hit)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -25775,13 +25773,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 302
+- **hunts:** 303
 - **last-hunt:** 2026-10-05
 - **bugs-found:** 509
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows after re-reading Governance/Tenancy controller and facade paths; 137 scoped Api unit tests passed (17 SQL integration constructor failures on Linux VM).
 
 2026-10-05 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/*` and `ArchLucid.Api/Controllers/Tenancy/*` despite the retired mega-zone ledger path; no row met the hunt-ready bar for promotion. Scoped filter `GovernanceController|TenancyController` reported 137 passed and 17 failures from default Moq `ListWorkspacesAsync` returning null (production `DapperTenantRepository` / `InMemoryTenantRepository` return non-null lists). Seeded five mechanism-backed `(candidate)` rows below.
 
@@ -25825,11 +25825,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — `.Any()` throws `ArgumentNullException` and governance/tenancy reads return HTTP 500 instead of workspace-not-found; reachable only when a custom repository implementation violates the contract (production Dapper/in-memory paths return empty lists).
-- [ ] (candidate) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — sealed-manifest guard is skipped before `ListHistoryAsync` while sibling register GETs run per-row guards; input is OpenAPI `GET /governance/stickiness/findings/{findingId}/dispositions` for a finding whose metadata projection omits run id.
-- [ ] (candidate) `GovernanceStickinessController.GetReviewsAwaitingAction` — response recurrence rows carry `SourceRunId` / `RunId` distinct from the latest committed run sealed by `EnsureRegistersSealedManifestAllowedAsync(null)` — endpoint does not call `EnsureRegisterRunsSealedManifestAllowedAsync` on returned run ids (sibling risk/decision register GETs do).
-- [ ] (candidate) `GovernancePreCommitSimulationController.TryParseRunId` — accepts trimmed body `runId` via `Guid.TryParse` without `GovernanceRunIdNormalizer.Normalize`, while sibling promotion/approval routes normalize before sealed-manifest guards; input is OpenAPI `POST` synthetic simulation with the same invisible-prefix run id shapes blocked elsewhere.
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync(scope.TenantId)` loads every active project in the tenant before filtering to `scope.WorkspaceId` in the response DTO — input is authenticated `GET /tenant/workspaces` in a multi-workspace tenant (wrong outcome: foreign workspace project names briefly considered server-side; needs proof of observable harm).
+- [x] (invalid) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — **cheap-disproof 2026-10-05 thorough hunt:** production `DapperTenantRepository`, `InMemoryTenantRepository`, and `CachingTenantRepository` implement `IWorkspaceQueryTenantRepository.WorkspaceExistsAsync` or return non-null workspace lists; null is a test-double contract violation only.
+- [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — **cheap-disproof 2026-10-05 thorough hunt:** `FindingInspectReadOptions.MetadataOnly` omits typed payload only; disposition history still scope-gated via `ListHistoryAsync`; `Guid.Empty` skip is intentional when inspect has no run binding.
+- [x] (valid-no-repro) `GovernanceStickinessController.GetReviewsAwaitingAction` — response recurrence rows carry uncommitted `RunId` / `SourceRunId` — **cheap-disproof 2026-10-05 thorough hunt:** TB-263 endpoint intentionally lists executed-but-uncommitted recurrence runs; `EnsureRegistersSealedManifestAllowedAsync` guards latest committed posture; per-row run guard would block the product surface (sibling registers list committed rows only).
+- [x] (invalid) `GovernancePreCommitSimulationController.TryParseRunId` — invisible-prefix `runId` bypasses sealed-manifest guard — **cheap-disproof 2026-10-05 thorough hunt:** `SimulateAsync`/`GetChecklistAsync` call `ValidateGovernanceRunId` then `Guid.TryParse` on trim; `\u200B`-prefixed ids fail parse with HTTP 400 before sealed guard (parity with fail-closed route validation, not a leak).
+- [x] (invalid) `TenantWorkspacesController.ListAsync` — tenant-wide project load before workspace filter — **cheap-disproof 2026-10-05 thorough hunt:** HTTP response includes only `scope.WorkspaceId` projects (`TenantWorkspacesListResponse` single workspace); no cross-workspace names or ids are returned to the caller.
 
 - [x] (proven) `PolicyPacksController.Publish` / `PolicyPacksAppService.TryPublishVersionAsync` — cross-tenant publish: caller scope tenant B + pack id owned by tenant A → HTTP 200 and version row upserted (reads already 404 on scope mismatch; publish omitted tenant/workspace/project check)
 - [x] (invalid) Tenancy suspend endpoint affects a tenant id from the body not the principal — no suspend action under `ArchLucid.Api/Controllers/Tenancy/`
