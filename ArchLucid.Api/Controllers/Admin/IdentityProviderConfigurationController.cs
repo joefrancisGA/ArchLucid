@@ -123,24 +123,31 @@ public sealed class IdentityProviderConfigurationController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
-                ActorUserId = actorId,
-                ActorUserName = User.Identity?.Name ?? actorId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        protocol = request.Protocol,
-                        issuerUri = record.IssuerUri,
-                        keyVaultSecretName = record.KeyVaultSecretName
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
+                    ActorUserId = actorId,
+                    ActorUserName = User.Identity?.Name ?? actorId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            protocol = request.Protocol,
+                            issuerUri = record.IssuerUri,
+                            keyVaultSecretName = record.KeyVaultSecretName
+                        })
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Configuration is already persisted; audit is best-effort for operator forensics.
+        }
 
         return Ok(
             new IdentityProviderActivateResponse

@@ -73,6 +73,52 @@ public sealed class IdentityProviderConfigurationControllerTests
         body.DiagnosticSummary.Should().Contain("RoleClaimName");
     }
 
+    [Fact]
+    public async Task ActivateAsync_returns_success_when_audit_logging_fails()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        TenantIdentityProviderConfigurationRecord activated = new()
+        {
+            TenantId = tenantId,
+            Protocol = TenantIdentityProtocol.Oidc,
+            IssuerUri = "https://idp.example/",
+            IsActive = true,
+            UpdatedUtc = DateTimeOffset.UtcNow,
+        };
+
+        Mock<IIdentityProviderActivationService> activation = new();
+        activation
+            .Setup(s => s.ActivateAsync(tenantId, "actor@test", It.IsAny<IdentityProviderActivateRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activated);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit store unavailable"));
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("actor@test");
+
+        IdentityProviderConfigurationController controller = CreateController(
+            activationService: activation.Object,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+
+        IActionResult result = await controller.ActivateAsync(
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        IdentityProviderActivateResponse body =
+            ok.Value.Should().BeOfType<IdentityProviderActivateResponse>().Subject;
+        body.IsActive.Should().BeTrue();
+    }
+
     [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]
@@ -101,7 +147,10 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     private static IdentityProviderConfigurationController CreateController(
-        ISsoWizardTestLoginService? testLoginService = null)
+        ISsoWizardTestLoginService? testLoginService = null,
+        IIdentityProviderActivationService? activationService = null,
+        IActorContext? actorContext = null,
+        IAuditService? auditService = null)
     {
         Mock<IScopeContextProvider> scopeContextProvider = new();
         scopeContextProvider
@@ -116,11 +165,11 @@ public sealed class IdentityProviderConfigurationControllerTests
         IdentityProviderConfigurationController controller = new(
             Mock.Of<IIdentityProviderDiscoveryService>(),
             testLoginService ?? new SsoWizardTestLoginService(),
-            Mock.Of<IIdentityProviderActivationService>(),
+            activationService ?? Mock.Of<IIdentityProviderActivationService>(),
             Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
             scopeContextProvider.Object,
-            Mock.Of<IActorContext>(),
-            Mock.Of<IAuditService>())
+            actorContext ?? Mock.Of<IActorContext>(),
+            auditService ?? Mock.Of<IAuditService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

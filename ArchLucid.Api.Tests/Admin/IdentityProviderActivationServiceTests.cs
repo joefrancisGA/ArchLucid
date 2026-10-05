@@ -287,6 +287,52 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Theory]
+    [InlineData("https://idp.example/#fragment")]
+    [InlineData("https://idp.example/oidc#fragment")]
+    public async Task ActivateAsync_rejects_issuer_uri_with_fragment(string issuerUri)
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*HTTP(S)*");
+    }
+
+    [Theory]
+    [InlineData("https://user:pass@idp.example/")]
+    [InlineData("https://user@idp.example/oidc")]
+    public async Task ActivateAsync_rejects_issuer_uri_with_userinfo(string issuerUri)
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*HTTP(S)*");
+    }
+
+    [Theory]
     [InlineData("https://")]
     [InlineData("http://")]
     public async Task ActivateAsync_rejects_issuer_without_host(string issuerUri)
