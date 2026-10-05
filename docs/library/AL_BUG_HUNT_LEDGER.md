@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `llm-wallet` — concurrent `TryAutoRefillAsync` calls could both pass `CanAutoRefill` before either credited the wallet and double-charge Stripe (e.g. duplicate settlement-queue auto-refill work items); serialize auto-refill per tenant with an async gate; regression `TryAutoRefillAsync_parallel_requests_charge_stripe_only_once_when_balance_below_trigger`; 19 scoped `LlmTenantWalletServiceTests` passed.
+
 2026-10-05 seed hunt (seed→hit): `llm-wallet` — `TryAuthorizeOverageSpendAsync` debited prepaid balance for monthly-budget overage but did not enqueue auto-refill when the post-debit balance fell below `RefillTriggerThresholdUsd` (settlement consume already did); enqueue auto-refill on successful overage authorize; regression `TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold`; 18 scoped `LlmTenantWalletServiceTests` passed.
 
 2026-10-05 seed hunt (seed→hit): `core-configuration-summary` — embedded connection-string detection required a semicolon, so single-pair ADO.NET secrets such as `Password=…` on non-sensitive paths leaked in operator config summary; treat leading `Password=` / `Pwd=` / `AccountKey=` / `SharedAccessKey=` pairs as credentials without requiring `;`; regressions `Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair` and `Resolve_redacts_plain_scalar_cosmos_account_key_connection_string`; 1056 scoped Configuration tests passed (no-build filter).
@@ -5726,11 +5728,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 26
-- **bugs-found:** 11
+- **hunts:** 27
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — overage wallet authorize skipped auto-refill enqueue below trigger threshold
+- **last-bug:** 2026-10-05 — concurrent auto-refill double-charged Stripe before wallet credit
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5765,12 +5767,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — duplicate Stripe payment-intent deliveries could both pass the pre-transaction idempotency check because `LlmTenantWalletLedger` had no unique constraint; the concurrent fix added a filtered unique index, duplicate-key handling, migration 406, and schema-script parity.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — `COALESCE` preserves nullable Stripe identifiers on partial PUTs; cheap-disproof 2026-10-03 thorough hunt: no in-repo caller sends null to clear a payment method, payment methods are managed through Stripe billing, and the API contract does not state null-clearing semantics; the behavior is intentional partial-update preservation.
 - [x] (proven) `LlmTenantWalletConsumeStage.TryAuthorizeOverageSpendAsync` — successful overage debit did not enqueue auto-refill when balance dropped below `RefillTriggerThresholdUsd` — **hit 2026-10-05 seed hunt:** monthly-budget overage path (`LlmMonthlyTenantDollarBudgetTracker`) could leave auto-replenish enabled wallets under the refill trigger until a later settlement consume; aligned with `TryConsumeWithRetryAsync`; regression `TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold`
+- [x] (proven) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — concurrent auto-refill requests double-charged Stripe — **hit 2026-10-05 seed hunt:** parallel settlement-queue auto-refill work items (or direct concurrent calls) both passed `CanAutoRefill` before either credited the wallet; per-tenant async gate serializes charge+credit; regression `TryAutoRefillAsync_parallel_requests_charge_stripe_only_once_when_balance_below_trigger`
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
 
 - [x] (proven) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish without resubmitting `MonthlyCapUsd` only checked persisted cap `> 0`, not step alignment — **hit 2026-09-11 seed hunt #1774:** legacy/seeded cap `75m` could enable auto-replenish despite `$50` step rule; fixed by validating persisted cap with `IsValidMonthlyCap` when cap omitted; regression `UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_invalid_step`
 
 2026-09-11 seed hunt #1774 (hit): reseeded llm-wallet; proved auto-replenish enable bypassed persisted invalid monthly-cap step validation; 1 scoped wallet test passed.
+
+2026-10-05 seed hunt (seed→hit): proved concurrent auto-refill could double-charge Stripe; 19 scoped wallet tests passed.
 
 2026-10-05 seed hunt (seed→hit): re-read wallet consume/refill stages and settlement queue parity; proved overage authorize skipped auto-refill enqueue; 18 scoped wallet tests passed.
 

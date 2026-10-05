@@ -339,6 +339,72 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAutoRefillAsync_parallel_requests_charge_stripe_only_once_when_balance_below_trigger()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            5m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        int chargeCalls = 0;
+        int paymentIntentCounter = 0;
+        using SemaphoreSlim chargeStarted = new(0, 2);
+        using SemaphoreSlim allowChargeComplete = new(0, 2);
+
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                Interlocked.Increment(ref chargeCalls);
+                chargeStarted.Release();
+                await allowChargeComplete.WaitAsync();
+
+                return StripeWalletChargeResult.Ok($"pi_{Interlocked.Increment(ref paymentIntentCounter)}");
+            });
+
+        LlmTenantWalletService service = CreateService(repository, stripe.Object);
+
+        Task<bool> first = service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        Task<bool> second = service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+
+        (await chargeStarted.WaitAsync(TimeSpan.FromSeconds(5))).Should().BeTrue();
+        chargeCalls.Should().Be(1, "concurrent auto-refill must not double-charge Stripe while the first refill is in flight");
+
+        allowChargeComplete.Release();
+
+        bool[] results = await Task.WhenAll(first, second);
+
+        results.Count(static succeeded => succeeded).Should().Be(1);
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+    }
+
+    [SkippableFact]
     public async Task TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold()
     {
         InMemoryLlmTenantWalletRepository repository = new();
