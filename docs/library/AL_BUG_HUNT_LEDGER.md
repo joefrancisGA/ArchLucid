@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `scope-binding-middleware` — re-read `ScopeIdentityBindingMiddleware`, `ScopeResolutionGuardMiddleware`, and `RouteTenantScopeBindingFilter` after recent Api churn; cheap-disproof closed segment-boundary health probe impostors (`/health/livefoo`, `/health/readyx`, `/health/versionextra`), trailing-slash public probes (`/health/live/`, `/health/ready/`, `/health/version/`), and EnableApiExplorer `GET /scalar/v1` TB-304 fail-closed on staging-like hosts; seeded five mechanism-backed `(candidate)` rows; 80 scoped unit tests passed (6 `ScopeIdentityBindingIntegrationTests` failed — no SQL Server in cloud VM).
+
 2026-10-05 thorough hunt (hit): `cli-draft-new` — closed five seeded `(candidate)` rows (three proven, two cheap-disproof/invalid); JSON pending MUST questions fail fast with `must_questions_pending` before `ReadLineAsync`, submit guards hollow `requestId`, admit stage trims prompted metadata; regressions `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`, `RunCoreAsync_submit_without_request_id_returns_operation_failed`, `RunCoreAsync_prompted_system_name_is_trimmed_before_patch`; 21 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — promoted case-only `ServiceId` candidate; proved `StableTopologyIdentitySubKey` lowercasing plus case-insensitive `EvidenceRefsMatch` collapsed `Svc-A` vs `svc-a` into one topology ref; preserve manifest sub-key casing and compare `agentTopologyProposal` sub-keys ordinally while keeping proposal-id segment case-insensitive; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`; cheap-disproved ResolveRegion slug and blank-`ProposalId` collision candidates; 76 scoped TechnologyLedger tests passed.
@@ -8489,13 +8491,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — trailing-slash `/robots.txt` and `/sitemap.xml` skip in scope guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed-only): re-read scope-binding middleware and route tenant filter; cheap-disproof closed health probe impostor prefixes, trailing-slash live/ready/version probes, and `/scalar` explorer TB-304 fail-closed; seeded five `(candidate)` rows below; 80 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
 2026-10-04 seed hunt (hit): promoted trailing-slash crawler-hint skip candidate; `IsRootOrCrawlerHintPath` required exact path match so `/robots.txt/` hit TB-304 on staging-like hosts; fixed by trimming trailing slashes before case-insensitive compare; regression `InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths`; 80 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
@@ -8611,6 +8615,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RouteTenantScopeBindingFilter.HasPolicy` misses `PlatformTenantDeletionAuthority` when policy is filter-only — **cheap-disproof 2026-10-04 seed hunt:** tenant deletion uses class-level `[Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]` on `AdminTenantsController`; regression `OnActionExecutionAsync_platform_lifecycle_policy_skips_binding`.
 - [x] (proven) `ScopeResolutionGuardMiddleware` case-sensitive `/robots.txt` and `/sitemap.xml` skip — **hit 2026-10-04:** `path is "/robots.txt" or "/sitemap.xml"` rejected mixed-case crawler requests with 403 on staging-like hosts; fixed with `OrdinalIgnoreCase` equality; regression `InvokeAsync_staging_host_skips_public_crawler_hint_paths_case_insensitive`.
 - [x] (proven) `ScopeResolutionGuardMiddleware` trailing-slash `/robots.txt` and `/sitemap.xml` skip — **hit 2026-10-04:** exact path equality rejected `/robots.txt/` with 403 on staging-like hosts; `IsRootOrCrawlerHintPath` trims trailing slash before compare; regression `InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths`.
+- [x] (valid-no-repro) `IsPublicHealthProbePath` segment-boundary impostors (`/health/livefoo`, `/health/readyx`, `/health/versionextra`) skip TB-304 — **cheap-disproof 2026-10-05 seed hunt:** `PathString.StartsWithSegments` requires segment boundaries (parity with `/openapifoo` fix); falsify attempts expected 403 on staging-like default scope.
+- [x] (valid-no-repro) Trailing-slash public probes (`/health/live/`, `/health/ready/`, `/health/version/`) rejected by TB-304 — **cheap-disproof 2026-10-05 seed hunt:** `StartsWithSegments` accepts trailing slash on mapped probe paths; falsify attempts expected skip on staging-like hosts.
+- [x] (valid-no-repro) `DeveloperExperience:EnableApiExplorer` anonymous `GET /scalar/v1` blocked by TB-304 on staging-like hosts — **cheap-disproof 2026-10-05 seed hunt:** unlike `/openapi`, Scalar/Swagger are operator DX surfaces; fail-closed default scope before `IAllowAnonymous` is intentional (peer middleware skips erasure/trial gates only).
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — `path.Contains("/internal/", OrdinalIgnoreCase)` skips TB-304 for any URL containing that substring, not only `ApiV1Routes` internal bases (`v1/internal/architecture`, `v1/internal/authority/replay`, `v1/internal/analytics`); reachable if a tenant-facing route template later embeds `internal` as a path segment (e.g. artifact slug).
+- [ ] (candidate) `ScopeIdentityBindingValidator.TryParseClaimGuid` / `HttpScopeContextProvider.ResolveScopeIdWithSource` — duplicate `tenant_id` (or workspace/project) claims where `ClaimsPrincipal.FindFirst` returns a non-GUID first value while a later duplicate claim is parseable; both call sites ignore subsequent claims so `Validate` may treat the dimension as unbound while a token issuer intended the later value.
+- [ ] (candidate) `ScopeResolutionGuardMiddleware` — unauthenticated `GET /health/diagnostics` or `GET /health/detailed` on production-like hosts returns TB-304 403 ("scope must be resolved from identity claims") before authorization runs because only anonymous public probes are skipped (`IsPublicHealthProbePath`); wrong operator signal vs 401 Unauthorized even though access remains fail-closed (`PipelineExtensions.HealthDocs.cs` maps those routes with `RequireAuthorization`).
+- [ ] (candidate) `RouteTenantScopeBindingFilter` — `POST v1/integrations/webhooks/jira/tenants/{tenantId:guid}` binds tenant in the path but the controller carries `[AllowUnscopedRoute]` so the filter skips; cross-tenant steering depends entirely on `IItsmInboundWebhookFacade` honoring `tenantId` (out of filter contract but reachable through the same `{tenantId}` route value).
+- [ ] (candidate) `ScopeIdentityBindingMiddleware` — runs before endpoint metadata is consulted; authenticated requests to paths later skipped by `ScopeResolutionGuardMiddleware` via `IAllowAnonymous` still execute full header/claim binding (no defect unless a future anonymous probe accepts Bearer tokens with hostile `x-*-id` headers).
 
 ---
 
