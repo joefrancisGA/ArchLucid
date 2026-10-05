@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (hit): `tenant-data-export` — `DownloadRunExport` optional Mermaid branch loaded artifacts before `AuthorityLifecycleCompareExportGuard`; enforce lifecycle before diagram artifact/render work when `ArchLucid:MermaidCli:Enabled`; regression `DownloadRunExport_skips_mermaid_work_when_authority_lifecycle_not_complete`; cheap-disproof closed verify-lineage lifecycle parity (read-only hash attestation) and export-history controller sealed-only candidate (facade lifecycle guard).
+
 2026-10-05 seed hunt (seed→hit): `tenant-data-export` — `ArtifactExportController.DownloadRunExport` let `RunExportPackageBuilder` / `RunExportAuthorityMaterialLoader` lifecycle `ConflictException` bubble as an unhandled 500 while sibling paths map export conflicts to HTTP 409; catch `ConflictException` around `BuildAsync`; regression `DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409`; seeded `VerifyRunExportLineage` lifecycle parity and export-history sealed-guard-only candidates.
 
 2026-10-05 thorough hunt (hit): `tenant-data-export` — Terraform advisory download/PR omitted `AuthorityLifecycleCompareExportGuard` while blob push enforced it; `GetRunExportHistoryAsync` omitted lifecycle parity with export-record get; aligned terraform paths and history facade with `EnsureAuthorityLifecycleCompleteOrConflict` / `TryEnsureExportRunLifecycleCompleteAsync`; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`, `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`, and `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`; cheap-disproof closed unbounded history pagination (`RunExportRecordRepository.GetByRunIdAsync` uses `SqlPagingSyntax.FirstRowsOnly(500)`).
@@ -10413,11 +10415,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 937
-- **bugs-found:** 48
+- **hunts:** 938
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — run ZIP download unhandled lifecycle ConflictException from export package builder
+- **last-bug:** 2026-10-05 — run ZIP Mermaid branch ran before authority lifecycle Complete guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10525,11 +10527,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArtifactExportController.DownloadRunExport` / `RunExportAuthorityMaterialLoader` — lifecycle `ConflictException` from `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` not mapped to HTTP 409 — **hit 2026-10-05 seed hunt (seed→hit):** `BuildAsync` threw through `DownloadRunExport` while `MapArtifactExportSealedManifestConflict` handled returned `RunExportPackageResult.Conflict`; wrap `BuildAsync` in `catch (ConflictException)`; regression `DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409`.
 
+<<<<<<< HEAD
 - [ ] (candidate) `ArtifactExportController.VerifyRunExportLineage` — omits `AuthorityLifecycleCompareExportGuard` while `PushRunExportToBlob` and `DownloadRunExport` material load enforce Complete (`ArtifactExportController.Export.Verify.cs` vs `Export.Push.cs` / `RunExportAuthorityMaterialLoader.cs`).
 - [ ] (candidate) `ExportsController.EnsureSealedManifestReadAllowedAsync` — sealed-hash only on `GetRunExportHistory` while `GetExportRecordAsync` also enforces lifecycle via `RunExportQueryFacade.TryEnsureExportRunLifecycleCompleteAsync` (`ExportsController.SealedManifestGuard.cs` vs `RunExportQueryFacade.cs`).
 - [ ] (candidate) `ArtifactExportController.DownloadRunExport` — optional Mermaid PNG branch calls `GetRunDetailAsync` + `GetArtifactsByManifestIdAsync` before `RunExportPackageBuilder` lifecycle gate (`ArtifactExportController.Export.Download.cs` when `ArchLucid:MermaidCli:Enabled`).
 - [ ] (candidate) `ArtifactExportController.RunArtifacts` download/list paths — sealed-hash guard only; may omit controller-level lifecycle preflight enforced on run ZIP export and blob push (`GET` bundle/artifact routes in `ArtifactExportController.RunArtifacts.cs`).
 - [ ] (candidate) `ArchitectureExportController` board/package export — sealed-manifest read guard only; compare sibling `ArchitectureReviewExportService` enforces `AuthorityLifecycleCompareExportGuard` before materializing bytes.
+=======
+- [x] (valid-no-repro) `ArtifactExportController.VerifyRunExportLineage` — omits `AuthorityLifecycleCompareExportGuard` while `PushRunExportToBlob` and `DownloadRunExport` material load enforce Complete — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportLineageVerifier` is an intentional read-only sealed-hash attestation endpoint (`Match`/`Mismatch`/`NotAttested`); blocking lifecycle Complete would prevent pre-commit lineage checks while review is still in flight.
+- [x] (valid-no-repro) `ExportsController.EnsureSealedManifestReadAllowedAsync` — sealed-hash only on `GetRunExportHistory` while `GetExportRecordAsync` also enforces lifecycle — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportQueryFacade.GetRunExportHistoryAsync` invokes `TryEnsureExportRunLifecycleCompleteAsync` before loading records (thorough hunt 2026-10-05); controller sealed guard is complementary, not the sole lifecycle gate.
+- [x] (proven) `ArtifactExportController.DownloadRunExport` — optional Mermaid PNG branch calls `GetRunDetailAsync` + `GetArtifactsByManifestIdAsync` before `RunExportPackageBuilder` lifecycle gate — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs still triggered artifact load (and potential Mermaid render) before `RunExportAuthorityMaterialLoader` returned 409; call `EnsureAuthorityLifecycleCompleteOrConflict` before diagram artifact work when Mermaid CLI export is enabled; regression `DownloadRunExport_skips_mermaid_work_when_authority_lifecycle_not_complete`.
+>>>>>>> 0902bf64ae (Gate Mermaid export work on authority lifecycle Complete.)
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
