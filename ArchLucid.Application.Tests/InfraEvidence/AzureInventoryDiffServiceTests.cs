@@ -176,8 +176,48 @@ public sealed class AzureInventoryDiffServiceTests
             CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
+        result.ConsumerFanOutSucceeded.Should().BeFalse();
         recordingConsumer.InvocationCount.Should().Be(1);
         throwingConsumer.InvocationCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ComputeAndPersistDiffAsync_when_all_consumers_succeed_marks_consumer_fan_out_succeeded()
+    {
+        ScopeContext scope = CreateScope();
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        AzureInventoryDiffSummaryRecord existingSummary = new()
+        {
+            DiffId = Guid.NewGuid(),
+            SnapshotAId = snapshotAId,
+            SnapshotBId = snapshotBId,
+            SubscriptionId = "sub",
+            TotalChanges = 0,
+        };
+
+        Mock<IAzureInventoryDiffRepository> diffRepository = new();
+        diffRepository
+            .Setup(repository => repository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingSummary);
+        diffRepository
+            .Setup(repository => repository.ListChangesByDiffIdAsync(scope, existingSummary.DiffId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RecordingDiffConsumer consumer = new();
+        AzureInventoryDiffService service = CreateService(
+            diffRepository.Object,
+            snapshotRepository: null,
+            consumers: [consumer]);
+
+        AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(
+            scope,
+            snapshotAId,
+            snapshotBId,
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.ConsumerFanOutSucceeded.Should().BeTrue();
     }
 
     private static AzureInventoryDiffService CreateService(

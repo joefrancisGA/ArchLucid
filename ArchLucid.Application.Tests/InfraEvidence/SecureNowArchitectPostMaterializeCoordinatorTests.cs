@@ -254,6 +254,57 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
     }
 
     [Fact]
+    public async Task OnSnapshotMaterializedAsync_when_diff_consumer_fan_out_fails_runs_full_securenow_pipeline()
+    {
+        Mock<IPrivilegePathEngine> privilegePathEngine = new();
+        Mock<IIntendedReachabilityEngine> reachabilityEngine = new();
+        Mock<IToxicCombinationEngine> toxicEngine = new();
+        Mock<ICapabilityToFlowEngine> capabilityEngine = new();
+        Mock<ISharedControlBlastRadiusEngine> sharedEngine = new();
+        Mock<IFourRealityDriftEngine> driftEngine = new();
+        Mock<IPathRankingEngine> rankingEngine = new();
+        Mock<ICutPointAnalysisEngine> cutPointEngine = new();
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        SetupSuccessfulEngine(privilegePathEngine);
+        SetupSuccessfulEngine(reachabilityEngine);
+        SetupSuccessfulEngine(toxicEngine);
+        SetupSuccessfulEngine(capabilityEngine);
+        SetupSuccessfulEngine(sharedEngine);
+        SetupSuccessfulEngine(driftEngine);
+        SetupSuccessfulRankingEngine(rankingEngine);
+        SetupSuccessfulCutPointEngine(cutPointEngine);
+
+        AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
+            fullRecompute: false,
+            hasPrior: true,
+            emptyDiff: false,
+            diffWasExisting: false,
+            diffSucceeded: true,
+            privilegePathEngine,
+            reachabilityEngine,
+            toxicEngine,
+            capabilityEngine,
+            sharedEngine,
+            driftEngine,
+            rankingEngine,
+            cutPointEngine,
+            neighborhoodRunner,
+            consumerFanOutSucceeded: false);
+
+        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
+
+        privilegePathEngine.Verify(
+            engine => engine.RunAsync(
+                Scope,
+                SnapshotId,
+                SecureNowArchitectConstants.SystemActorId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<SecureNowArchitectEngineRunScope?>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task OnSnapshotMaterializedAsync_full_recompute_runs_all_engines()
     {
         Mock<IPrivilegePathEngine> privilegePathEngine = new();
@@ -325,7 +376,8 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         Mock<IFourRealityDriftEngine> driftEngine,
         Mock<IPathRankingEngine> rankingEngine,
         Mock<ICutPointAnalysisEngine> cutPointEngine,
-        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner)
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner,
+        bool consumerFanOutSucceeded = true)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
 
@@ -357,6 +409,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
                     Changes = emptyDiff ? [] : [new AzureInventoryChangeRecord()],
                     WasExisting = diffWasExisting,
                     ErrorMessage = diffSucceeded ? null : "diff failed",
+                    ConsumerFanOutSucceeded = consumerFanOutSucceeded,
                 });
         }
 
