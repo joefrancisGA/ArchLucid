@@ -7444,21 +7444,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 39
-- **bugs-found:** 23
+- **hunts:** 40
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — discover API returned non-canonical issuer/JWKS URIs to the SSO wizard
+- **last-bug:** 2026-10-05 — activate audit logged raw request protocol instead of persisted protocol
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.ActivateAsync` wrote `request.Protocol` verbatim into audit `DataJson` while `IdentityProviderActivationService` normalized protocol before upsert, so forensics could disagree with `TenantIdentityProviderConfigurationRecord.Protocol`; audit now logs persisted `oidc`/`saml` strings from `record.Protocol`; regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`; cheap-disproof closed activate-response missing issuer echo (wizard uses GET configuration) and HTTP issuer policy (absolute HTTP(S) is intentional for dev IdP endpoints); 54 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` logged raw `request.Protocol` — **hit 2026-10-05 seed hunt (seed→hit):** audit uses persisted protocol; regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — activate response omits canonical `IssuerUri` — **cheap-disproof 2026-10-05 seed hunt:** `GET configuration` returns the persisted row including canonical issuer.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — `http://` issuers accepted — **cheap-disproof 2026-10-05 seed hunt:** validator intentionally allows HTTP(S) for non-TLS dev IdPs; production TLS is an deployment/policy concern outside the wizard guard.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` and optional secret metadata to any admin in tenant scope without field-level redaction beyond what the API contract documents.
+- [ ] (candidate) `IdentityProviderActivationService.ResolveOptionalPersistedField` — whitespace-only `MetadataXml` on re-activate clears SAML metadata even when the operator intended to preserve the prior XML by sending an empty string from a stale wizard form.
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.DiscoverAsync` returned raw `IssuerUri`/`JwksUri` strings from discovery while activate/test-login canonicalize HTTP(S) endpoints, so the wizard pre-filled values that disagreed with persisted activation; `WithCanonicalWizardUris` on successful discovery responses; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; seeded activate audit protocol and activate-response issuer echo follow-ups; 53 scoped activation/controller tests passed.
 
 - [x] (proven) `IdentityProviderConfigurationController.DiscoverAsync` — discovery success returned non-canonical issuer/JWKS URIs that activate would rewrite — **hit 2026-10-05 seed hunt (seed→hit):** `WithCanonicalWizardUris`; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`.
-
-- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` logs raw `request.Protocol` while `IdentityProviderActivationService` normalizes protocol before persist, so audit forensics can disagree with stored `TenantIdentityProtocol`.
-- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `IdentityProviderActivateResponse` omits the canonical `IssuerUri`, so the wizard cannot confirm post-activate normalization without a separate configuration GET.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `http://` issuers pass validation and persist for tenant SSO rows reachable from admin activate (policy gap vs HTTPS-only production expectations).
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.TestLogin` validated issuer HTTP(S) but forwarded the operator's non-canonical string to `SsoWizardTestLoginService` while `ActivateAsync` persisted `Uri.AbsoluteUri`; shared `TryGetCanonicalAbsoluteHttpOrHttps` and controller rebuilds the sandbox request with the canonical issuer; regression `TestLogin_passes_canonical_issuer_uri_to_sandbox_service`; cheap-disproof closed discover pre-fill mismatch (activate canonicalizes on commit regardless of wizard pre-fill) and protocol-switch issuer retention (issuer is protocol-agnostic URL; cross-protocol optional fields clear by design); 64 scoped activation/controller/test-login tests passed.
 
