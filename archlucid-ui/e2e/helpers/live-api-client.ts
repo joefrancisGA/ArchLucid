@@ -639,6 +639,14 @@ export function liveE2eApiContractPlaywrightTimeoutMs(): number {
 }
 
 /**
+ * Admin Users invite UI smokes (`live-api-invite-flow.spec.ts`) — submit helper can wait up to ~150s on proxy POST
+ * plus navigation and forbidden-tab polling; keep headroom above {@link liveE2eApiContractPlaywrightTimeoutMs}.
+ */
+export function liveE2eAdminInviteUiPlaywrightTimeoutMs(): number {
+  return process.env.CI ? 420_000 : 240_000;
+}
+
+/**
  * Polls GET /health/ready until success — tolerates brief API process startup, HTTP 503 under load, and transport blips in CI.
  */
 export async function waitForLiveApiReady(

@@ -265,3 +265,43 @@ export async function expectLiveReviewsHubListReady(
   });
   await expectNoGenericErrorBoundary(page);
 }
+
+/** `/architecture/reviews/new` — stable test id survives Working vs Guided chrome copy differences. */
+export async function expectLiveReviewsNewPageReady(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 120_000;
+
+  await expect(async () => {
+    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded", timeout: 90_000 });
+
+    if ((await page.getByText(/Something went wrong/i).count()) > 0) {
+      await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
+
+    await waitForLiveOperatorPageHydration(page, { timeoutMs: 30_000 });
+    await expectNoGenericErrorBoundary(page);
+    await expect(page.getByTestId("reviews-new-page-title")).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout: timeoutMs });
+}
+
+/** `/architecture/reviews/new` — stable test id survives Working vs Guided chrome copy differences. */
+export async function expectLiveReviewsNewPageReady(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 120_000;
+
+  await expect(async () => {
+    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded", timeout: 90_000 });
+
+    if ((await page.getByText(/Something went wrong/i).count()) > 0) {
+      await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
+
+    await waitForLiveOperatorPageHydration(page, { timeoutMs: 30_000 });
+    await expectNoGenericErrorBoundary(page);
+    await expect(page.getByTestId("reviews-new-page-title")).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout: timeoutMs });
+}

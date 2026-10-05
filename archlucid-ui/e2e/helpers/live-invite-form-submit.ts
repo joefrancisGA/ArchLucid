@@ -154,7 +154,7 @@ export async function submitAdminInviteFromUsersUi(
     (response) =>
       response.url().includes("/api/proxy/v1/admin/users/invite") &&
       response.request().method() === "POST",
-    { timeout: 120_000 },
+    { timeout: 90_000 },
   );
 
   await clickThroughBlockingOverlays(page, submitButton, { force: true });
@@ -170,7 +170,7 @@ export async function submitAdminInviteFromUsersUi(
         (response) =>
           response.url().includes("/api/proxy/v1/admin/users/invite") &&
           response.request().method() === "POST",
-        { timeout: 60_000 },
+        { timeout: 45_000 },
       )
       .catch(() => null);
   }
@@ -200,10 +200,12 @@ export async function submitAdminInviteFromUsersUi(
   }
 
   try {
-    await Promise.race([
-      pendingRow.waitFor({ state: "visible", timeout: 90_000 }),
-      conflictCopy.first().waitFor({ state: "visible", timeout: 90_000 }),
-    ]);
+    await expect(async () => {
+      await Promise.race([
+        pendingRow.waitFor({ state: "visible", timeout: 5_000 }),
+        conflictCopy.first().waitFor({ state: "visible", timeout: 5_000 }),
+      ]);
+    }).toPass({ timeout: 90_000 });
   } catch {
     const inviteHint =
       inviteResponseStatus !== undefined

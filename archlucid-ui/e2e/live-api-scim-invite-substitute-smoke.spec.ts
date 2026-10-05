@@ -67,12 +67,15 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     }
 
     try {
-      await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
+      await expect(async () => {
+        await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
+        await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
+      }).toPass({ timeout: 60_000 });
     } catch (error) {
       const scimResponse = await request.get(`${liveApiBase}/v1/admin/scim/tokens`).catch(() => null);
       const scimStatus = scimResponse === null ? "unreachable" : String(scimResponse.status());
       throw new Error(
-        `SCIM create-token control was not clickable at ${page.url()} (API GET /v1/admin/scim/tokens status=${scimStatus}). ${String(error)}`,
+        `SCIM create-token control did not open a dialog at ${page.url()} (API GET /v1/admin/scim/tokens status=${scimStatus}). ${String(error)}`,
       );
     }
 
