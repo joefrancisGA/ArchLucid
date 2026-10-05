@@ -177,4 +177,44 @@ public sealed class InMemoryFindingInspectReadRepositoryNormalizationTests
         response.Should().NotBeNull();
         response!.ManifestVersion.Should().BeNull();
     }
+
+    [Fact]
+    public async Task GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_is_not_json_serializable()
+    {
+        Guid runId = Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        string findingId = $"finding-demo-{runId:N}-primary";
+        ScopeContext scope = new();
+
+        Finding finding = new()
+        {
+            FindingId = findingId,
+            FindingType = "test",
+            Category = "Security",
+            EngineType = "test-engine",
+            Severity = FindingSeverity.Info,
+            Title = "Inspect title",
+            Rationale = "Inspect rationale",
+            Payload = new IntPtr(42),
+        };
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingInspectReadRepository repository = new(authority.Object);
+
+        FindingInspectResponse? response = await repository.GetInspectAsync(scope, findingId, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response!.TypedPayload.Should().NotBeNull();
+        response.TypedPayload!.Value.GetProperty("title").GetString().Should().Be("Inspect title");
+        response.TypedPayload.Value.GetProperty("rationale").GetString().Should().Be("Inspect rationale");
+    }
 }

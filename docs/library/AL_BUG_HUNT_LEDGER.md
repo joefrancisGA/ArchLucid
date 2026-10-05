@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-05 thorough hunt (hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository` returned null `TypedPayload` when `Finding.Payload` was not JSON-serializable instead of title/rationale metadata fallback used by Dapper corrupt-`PayloadJson` inspect; regression `GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_is_not_json_serializable`; cheap-disproof closed invalid-severity throw (fail-closed contract) and overlay band format-character fallback (DB `CK_FindingSemanticSupportBandOverlays_Band`); 433 scoped Persistence inspect tests passed.
+
 2026-10-05 seed hunt (seed-only): `finding-inspect-sql` — re-read inspect SQL, mapper, and repository core after recent in-memory parity hits; cheap-disproof closed SortOrder tie-order candidates (child-table PK `(FindingRecordId, SortOrder)`), duplicate overlay/decisioning/agent-trace join fan-out (table PKs), format-character inspect normalization contract, and metadata `whyThisMatters` raw-title guard; seeded three bounded candidates; 423 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 2026-10-05 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: in-memory `MarkCanceledAsync` vs `TryAssignUnlessCanceled` last-writer (`MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled` plus existing dequeue/terminal regressions); processor `ShouldRunExecutor=false` visibility redelivery when `UPDLOCK` claim loses (`ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`); hung execute watchdog `StaleHours` default 2h vs `RunExecuteOwnershipLeaseOptions.LeaseDurationSeconds` default 900s with renewal (watchdog fails `WaitingForResults`, not lease reclaim); integration outbox `DequeuePending` excludes `DeadLetteredUtc` rows (not the 2026-08-23 DLQ list-cap class); 74 Host.Core + 15 in-memory/processor focused tests passed.
@@ -5480,11 +5482,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 79
-- **bugs-found:** 21
+- **hunts:** 80
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-04 — manifest version and disposition reviewer skipped inspect display normalization
+- **last-bug:** 2026-10-05 — in-memory inspect skipped metadata typed-payload fallback for non-serializable payload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5984,9 +5986,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ToUtcDateTimeOffset` relabels non-UTC `DateTimeKind` — **cheap-disproof 2026-10-05 seed hunt:** documented SQL datetime labeling contract for inspect pointers; regressions `ToUtcDateTimeOffset_specifies_utc_kind_for_unspecified_database_timestamps` and `MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset`.
 - [x] (invalid) `FindingInspectReadSql` duplicate `DecisioningTraces` join fan-out — **cheap-disproof 2026-10-05 seed hunt:** `DecisionTraceId` is the table primary key; join cannot multiply main inspect rows.
 - [x] (invalid) `FindingInspectReadSql` duplicate `AgentExecutionTraces` join fan-out — **cheap-disproof 2026-10-05 seed hunt:** `TraceId` is the table primary key; join binds the finding's trace id and run id.
-- [ ] (candidate) `InMemoryFindingInspectReadRepository.TryPayloadElement` — when `includeTypedPayload` is true, `NotSupportedException` from `JsonSerializer.SerializeToElement` returns null without `ResolveTypedPayloadForInspect` title/rationale fallback used by the Dapper corrupt-`PayloadJson` path; reachable when hydrated demo `Finding.Payload` uses a non-serializable shape in storage mode.
-- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — invalid stored `FindingRecords.Severity` strings throw `InvalidDataException` and fail the entire inspect read instead of returning a degraded default severity; reachable when relational severity drifts outside defined enum names/ordinals.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — overlay column values with embedded Unicode format characters fail `Enum.TryParse`/`Enum.IsDefined` and fall back to typed-payload `semanticSupportBand` even when relational overlay storage was intentionally persisted; reachable via `FindingSemanticSupportBandOverlays.SemanticSupportBand` selected in main inspect SQL.
+- [x] (proven) `InMemoryFindingInspectReadRepository` non-serializable `Finding.Payload` — **hit 2026-10-05 thorough hunt:** `NotSupportedException` from `JsonSerializer.SerializeToElement` returned null `TypedPayload` without title/rationale metadata fallback; use `BuildMetadataTypedPayload(..., includeWhyThisMattersWhenTitleMissing: true)` for parity with Dapper corrupt `PayloadJson` inspect (#1238); regression `GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_is_not_json_serializable`.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` invalid stored severity — **cheap-disproof 2026-10-05 thorough hunt:** fail-closed `InvalidDataException` is the documented contract (replacing silent `Info` default after #1309); regressions `ParseFindingSeverity_rejects_unrecognized_or_undefined_values` and related mapper tests.
+- [x] (invalid) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` overlay format characters — **cheap-disproof 2026-10-05 thorough hunt:** migration `379_FindingSemanticSupportBandOverlays` `CK_FindingSemanticSupportBandOverlays_Band` allows only `Supported`/`Unchecked`/`Unsupported`/`NotScored`; embedded format characters cannot be persisted in the overlay column.
 
 2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
@@ -6001,6 +6003,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read inspect SQL scope predicates, multi-result mapping, enum/payload normalization, and existing candidate rows; no additional hunt-ready input or wrong outcome emerged. The scoped Persistence build was blocked by unrelated ARCH006/ARCH006a analyzer errors before tests ran. No code changes.
 
 2026-10-05 seed hunt (seed-only): re-read inspect SQL joins, mapper enum fail-closed paths, and repository normalization; cheap-disproof closed SortOrder tie and duplicate-join fan-out candidates via schema PKs; seeded in-memory payload serialization, invalid severity throw, and overlay band parse fallback candidates; 423 scoped Persistence inspect tests passed.
+
+2026-10-05 thorough hunt (hit): proved in-memory non-serializable payload metadata fallback gap; cheap-disproof closed invalid-severity throw contract and overlay band CHECK constraint; 433 scoped Persistence inspect tests passed.
 
 ---
 
