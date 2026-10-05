@@ -1354,6 +1354,7 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 
     const artifactsSection = page.locator("#artifacts-exports");
     await expect(artifactsSection).toBeVisible({ timeout: 30_000 });
+    await expect(artifactsSection.getByText("Loading artifacts and exports")).toBeHidden({ timeout: 120_000 });
     await artifactsSection.scrollIntoViewIfNeeded();
 
     const markdownDownload = reviewDetailGoldenManifestMarkdownExportControl(page);
