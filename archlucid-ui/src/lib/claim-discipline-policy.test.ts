@@ -167,6 +167,30 @@ describe("claim-discipline-policy", () => {
     ).toBeUndefined();
   });
 
+  it("keeps authentication-sign-in-help visible on operator shell where no separate claim strip owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("authentication-sign-in-help")).toBe(false);
+    expect(shouldOmitClaimDisciplineBand("authentication-sign-in")).toBe(false);
+  });
+
+  it("omits help-system-health orientation claim while administration hub uses sources-only system-health slug", () => {
+    expect(shouldOmitClaimDisciplineBand("help-system-health")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("system-health")).toBe(false);
+  });
+
+  it("omits procurement help when header or info claim strip owns claim discipline", () => {
+    expect(shouldOmitClaimDisciplineBand("procurement")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("procurement-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("procurement-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits cloud provider connection help slugs when header claim strip owns claim discipline", () => {
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-aws")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-azure")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("connect-aws-securely-help")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("connect-azure-securely-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("connect-aws-securely-help", "Not a diligence package.")).toBeUndefined();
+  });
+
   it("omits legacy orientation strip slug aliases that differ from registry help-topic slugs", () => {
     expect(shouldOmitClaimDisciplineBand("connect-gcp-securely-help")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("evidence-trail-help")).toBe(true);

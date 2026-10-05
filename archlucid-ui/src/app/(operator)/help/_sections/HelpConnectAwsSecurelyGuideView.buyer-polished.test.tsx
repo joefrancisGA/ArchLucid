@@ -46,9 +46,10 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}`);
 
-    expect(screen.getByTestId("connect-aws-securely-help-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-connect-aws-securely-claim-discipline-strip").textContent).toContain(
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.queryByTestId("connect-aws-securely-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

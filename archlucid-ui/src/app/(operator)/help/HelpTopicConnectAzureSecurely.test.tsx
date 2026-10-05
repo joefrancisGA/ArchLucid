@@ -5,6 +5,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/cloud-connections/azure",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpConnectAzureSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectAzureSecurelyGuideView";
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
@@ -31,7 +41,7 @@ import {
   CONNECT_AZURE_SECURELY_VERIFICATION_HEADING,
   buildConnectAzureSecurelyVerifyHref,
 } from "@/lib/connect-azure-securely-help-content";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_COPY = [
@@ -65,9 +75,10 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(screen.getAllByRole("heading", { level: 1, name: CONNECT_AZURE_SECURELY_PAGE_TITLE })).toHaveLength(1);
     expect(screen.queryByRole("heading", { level: 2, name: CONNECT_AZURE_SECURELY_PAGE_TITLE })).toBeNull();
     expect(screen.getByText(CONNECT_AZURE_SECURELY_PAGE_LEAD)).toBeInTheDocument();
-    expect(screen.getByTestId("connect-azure-securely-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-connect-azure-securely-claim-discipline-strip")).toHaveTextContent(
       CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("connect-azure-securely-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
 
     const toc = screen.getByTestId("help-topic-toc");
@@ -207,9 +218,7 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
 
     const sources = within(screen.getByTestId("connect-azure-securely-help-sources"));
 
-    for (const source of CONNECT_AZURE_SECURELY_SOURCES) {
-      expectFollowUpLink(sources, source);
-    }
+    expectWhereToGoNextFollowUpLinks(sources, CONNECT_AZURE_SECURELY_SOURCES, "/help/cloud-connections/azure");
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: AZURE_PERMISSIONS_TROUBLESHOOT_HEADING })).toHaveAttribute(
