@@ -32,6 +32,7 @@ public static class DiagramForestNodeSvgEmitter
             new XAttribute("id", $"node-{nodeId}"));
         if (node?.IsDataFlowRollup == true)
         {
+            group.Add(new XAttribute("cursor", "pointer"));
             group.Add(
                 new XAttribute(
                     "data-member-ids",
@@ -143,20 +144,6 @@ public static class DiagramForestNodeSvgEmitter
 
         group.Add(text);
 
-        if (node?.IsDataFlowRollup == true)
-        {
-            group.Add(new XElement(
-                svgNamespace + "text",
-                new XAttribute("x", Format(width - options.NodePaddingX)),
-                new XAttribute("y", Format(firstLineBaseline)),
-                new XAttribute("text-anchor", "end"),
-                new XAttribute("font-size", "10"),
-                new XAttribute("font-weight", "700"),
-                new XAttribute("font-family", "system-ui,sans-serif"),
-                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
-                Escape($"[{node.DataFlowRollupOrdinal}]")));
-        }
-
         int linesAfterName = metrics.NameLines.Count;
         if (metrics.DataFlowTypeLine is not null)
         {
@@ -240,6 +227,23 @@ public static class DiagramForestNodeSvgEmitter
             }
 
             group.Add(resourceGroupText);
+        }
+
+        if (metrics.DataFlowRollupInvitationLine is not null)
+        {
+            group.Add(new XElement(
+                svgNamespace + "text",
+                new XAttribute("x", Format(textX)),
+                new XAttribute(
+                    "y",
+                    Format(firstLineBaseline
+                        + (linesAfterName * options.LineHeight)
+                        + (metrics.ResourceGroupLines.Count * options.LineHeight))),
+                new XAttribute("text-anchor", "start"),
+                new XAttribute("font-size", "11"),
+                new XAttribute("font-family", "system-ui,sans-serif"),
+                new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightNodeCaption),
+                Escape(metrics.DataFlowRollupInvitationLine)));
         }
 
         if (metrics.IsQuestionable)
