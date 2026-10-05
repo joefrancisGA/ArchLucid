@@ -378,6 +378,49 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed()
+    {
+        TaskCompletionSource<bool> releaseLog = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+        string? jobIdRef = null;
+
+        logger
+            .Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("moving to DLQ", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(() =>
+            {
+                releaseLog.Task.Wait(TimeSpan.FromSeconds(5));
+            });
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("terminal failure")));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        jobIdRef = await queueRef.EnqueueAsync(Work("terminal-cancel-blocked-log"), maxRetries: 0);
+
+        await Task.Delay(200, CancellationToken.None);
+
+        await queueRef.MarkCanceledAsync(jobIdRef!);
+        releaseLog.TrySetResult(true);
+
+        await WaitForAnyTerminalStateAsync(queueRef, jobIdRef!, TimeSpan.FromSeconds(5));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobIdRef!);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel before DLQ log returns must block terminal Failed assignment");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();

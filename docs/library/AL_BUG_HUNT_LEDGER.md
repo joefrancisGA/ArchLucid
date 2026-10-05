@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-05 thorough hunt (hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` assigned `Failed`/`Pending`/`Succeeded` after cancel re-reads when `MarkCanceledAsync` landed on a `Running` row after the last read; refuse to overwrite `Canceled` via `TryAssignUnlessCanceled` (`ConcurrentDictionary.AddOrUpdate`); regression `MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed`; cheap-disproof closed processor registry-cancel queue delete, DLQ pass frozen clock, and parallel duplicate-JobId candidates; 74 Host.Core + 12 in-memory queue tests passed.
+
 2026-10-05 thorough hunt (dry): `worker-host` — cheap-disproof closed `ConsoleHangDiagnostics.UseLogger` parity (hang breadcrumbs still emit via `ConsoleHangDiagnostics` stderr fallback when no logger is wired) and `LogAgentExecutionRealModeInformation` parity (informational startup line only; Real-mode worker startup already covered by `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`); 12 scoped worker host/composition tests passed.
 
 2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector closed when `runs` props refreshed after row activation because `inspectorRunId` selection effect trusted stale empty `useSearchParams` while `commitHrefIfChanged` had already committed `inspectorRunId`; resolve effective id from `readWindowLocationSearch()` when router param lags; clear compare replacement notice when URL-driven `compareRuns` clears; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`; 48 scoped `RunsListClient` tests passed.
@@ -10760,13 +10762,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 32
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 2
+- **hunts:** 33
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
+- **last-bug:** 2026-10-05 — in-memory queue terminal/retry assignments could overwrite `Canceled` after final re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (hit): proved `InMemoryBackgroundJobQueue` `TryAssignUnlessCanceled` gap; cheap-disproof closed processor registry-cancel, DLQ pass clock, and parallel duplicate-JobId candidates; 74 Host.Core + 12 in-memory queue tests passed.
 
 2026-10-05 seed hunt (seed-only): re-read durable/in-memory cancel re-read parity, processor registry-cancel path, DLQ auto-retry frozen pass clock, and parallel queue receive; seeded five candidates; 74 Host.Core + 36 focused Api job/processor tests passed.
 
@@ -10787,11 +10791,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — after the post-log `_info` cancel re-read, durable `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` performs a second post-log `GetAsync` before `MarkFailedTerminalAsync`; reachable concurrent `MarkCanceledAsync` during the single-threaded assignment window between the lone post-log read and `Failed` write may still overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / exhausted-retry terminal paths).
-- [ ] (candidate) `InMemoryBackgroundJobQueue` retry-scheduling branch — `LogWarning` before `Pending` assignment uses one post-log `_info` re-read vs durable dual post-log `GetAsync` before `MarkPendingRetryAsync`; same cancel-between-read-and-assign race class as the closed durable #1352 fix, with only cancel-during-log regression coverage today.
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — when `IOperationCancellationRegistry.IsCancelRequestedAnyScope` is true, the processor always deletes the Azure queue message after `MarkCanceledAsync` even though SQL `MarkCanceledAsync` only updates `Pending`/`Running` rows (`BackgroundJobRepository.MarkCanceledAsync` WHERE clause); reachable duplicate notification for a row already in a terminal state relies on `TryPrepareQueuedJobAsync` to delete stale messages on the next poll.
-- [ ] (candidate) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` — captures `utcNow` once per leader pass; rows whose `DeadLetteredUtc` backoff elapses while the paginated `ListDeadLettersAsync` loop is still running remain skipped until the next 15-minute pass (latency tradeoff, not a missing `TimeProvider` injection bug — needs product contract proof before hunt-ready).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — `BoundedBatchParallelism.ForEachAsync` over Azure queue messages can dequeue multiple notifications for the same `JobId` concurrently; correctness depends on `TryPrepareQueuedJobAsync` `UPDLOCK` claim semantics and deleting notifications when the row is already `Running`/`terminal` (duplicate side effects if claim rules regress).
+- [x] (proven) `InMemoryBackgroundJobQueue` exhausted-retry / retry-scheduling / capacity / writer terminal assignments — **hit 2026-10-05 thorough hunt:** post-log cancel re-reads could still lose to `MarkCanceledAsync` on a `Running` row when cancel landed after the last read; assignments now use `TryAssignUnlessCanceled` so `Canceled` is never overwritten; regression `MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed` plus existing cancel-during-log regressions.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` registry-cancel path — **cheap-disproof 2026-10-05 thorough hunt:** deleting the Azure notification after a no-op `MarkCanceledAsync` on an already-terminal row is intentional stale-message cleanup; `TryPrepareQueuedJobAsync` returns `ShouldDeleteQueueMessageImmediately` for terminal/`Running` duplicates.
+- [x] (valid-no-repro) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` frozen pass clock — **cheap-disproof 2026-10-05 thorough hunt:** single `TimeProvider` snapshot per pass is intentional after #423 TimeProvider fix; deferring rows until the next 15-minute leader pass is latency-only, not a wrong retry outcome.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` parallel receive for duplicate `JobId` — **cheap-disproof 2026-10-05 thorough hunt:** `TryPrepareQueuedJobAsync` `UPDLOCK` claim and immediate delete for non-claimable rows prevent duplicate execution under current SQL semantics; no failing repro without regressing claim rules.
 
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — **valid-no-repro 2026-10-04 dry:** pre-log `_info` re-read before `LogError` plus post-log re-read before `Failed` assignment; `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read` covers cancel during log; cancel-between-reads on the single consumer thread matches prior retry-scheduling race classification.
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue` retry capacity-exhausted branch — **valid-no-repro 2026-10-04 dry:** pre-log re-read before capacity `LogError` plus post-log re-read before terminal `Failed`; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
