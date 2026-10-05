@@ -228,6 +228,18 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   );
 
   useEffect(() => {
+    const next = [...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)];
+    const current = compareSelectionRef.current;
+
+    if (current.length === next.length && current.every((id, index) => id === next[index])) {
+      return;
+    }
+
+    compareSelectionRef.current = next;
+    setCompareSelectionState(next);
+  }, [urlCompareRunsRaw]);
+
+  useEffect(() => {
     const syncCompareSelectionFromUrl = (): void => {
       const next = [
         ...parseRunsListCompareRunIdsFromSearch(

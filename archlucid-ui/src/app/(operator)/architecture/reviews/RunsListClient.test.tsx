@@ -657,6 +657,31 @@ describe("RunsListClient inspector", () => {
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
+  it("re-applies compare selection when compareRuns URL changes without a popstate event", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `compareRuns=${sampleRun.runId},${secondRun.runId}`,
+    );
+
+    expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
+    expect(screen.getByText(/2 reviews selected/i)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.applyHref("/architecture/reviews");
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
+  });
+
   it("re-applies text filter when q= URL changes without a popstate event", () => {
     const olderRun: RunSummary = {
       ...sampleRun,

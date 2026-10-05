@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (hit): `ui-runs-list` — `compareSelection` stayed stale after soft navigation cleared `compareRuns` (popstate-only sync); subscribe to `useSearchParams` `compareRuns`; regression `re-applies compare selection when compareRuns URL changes without a popstate event`; cheap-disproof classified `runsListFilterOpen` disclosure as unreachable under buyer-polished layout gates; 44 scoped `RunsListClient` tests passed.
+
 2026-10-05 seed hunt (seed→hit): `ui-runs-list` — client text filter stayed on stale `filterText` after App Router `q=` navigation without `popstate` (sort already URL-derived); sync `filterText` from `useSearchParams` `q=`; regression `re-applies text filter when q= URL changes without a popstate event`; 42 scoped `RunsListClient` tests passed.
 
 2026-10-05 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed retention max clamp, cross-workspace default-metadata delete parity, and tenant-wide active-project load candidates; regressions `ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max`, `ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max`, `DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace`; 40 scoped TenantWorkspaces tests passed.
@@ -6975,11 +6977,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 25
+- **hunts:** 26
 - **last-hunt:** 2026-10-05
-- **bugs-found:** 12
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — client text filter stale after q= URL navigation without popstate
+- **last-bug:** 2026-10-05 — compare bar stale after compareRuns URL navigation without popstate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7041,8 +7043,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-25 seed hunt #3908 (seed→hit): reseeded ui-runs-list after #1752; proved stale client sort after sort= URL navigation; 42 scoped `RunsListClient` tests passed.
 
 - [x] (proven) `useRunsList` — client text filter (`filterText`) stayed on stale value after App Router `q=` navigation without `popstate` while `sortOrder` was already derived from `searchParams` — **hit 2026-10-05 seed hunt:** sync `filterText` when parsed `q=` from `useSearchParams` changes; regression `re-applies text filter when q= URL changes without a popstate event`
-- [ ] (candidate) `useRunsList` — `compareSelection` state syncs from URL on `popstate` only while `compareRuns` can change via soft `<Link>` navigation — wrong outcome: compare bar shows stale ids after hub link navigation; mechanism: `setCompareSelectionState` initializer + popstate listener without `searchParams` subscription; reachable from `GET /architecture/reviews?compareRuns=` deep links and scope/pagination chips
-- [ ] (candidate) `RunsListClient` — `runsListFilterOpen` disclosure open state follows `popstate` only — wrong outcome: filter panel stays open/closed after soft navigation on `runsListFilterOpen=`; mechanism: `useState` + `popstate` in `RunsListClient.tsx` lines 138–158 without `useSearchParams` reaction; reachable when `buyerCollapseFilters` is false (multi-review buyer hub)
+- [x] (proven) `useRunsList` — `compareSelection` state syncs from URL on `popstate` only while `compareRuns` can change via soft `<Link>` navigation — **hit 2026-10-05 thorough hunt:** sync `compareSelection` when `compareRuns` from `useSearchParams` changes; regression `re-applies compare selection when compareRuns URL changes without a popstate event`
+- [x] (invalid) `RunsListClient` — `runsListFilterOpen` disclosure open state follows `popstate` only — **cheap-disproof 2026-10-05 thorough hunt:** `<details open={runsListFilterOpen}>` mounts only when `buyerCollapseFilters` (`buyerPolished && totalCount <= 1`) while buyer-polished layout hides the whole filter block when `totalCount <= 1`; disclosure branch unreachable in current UX (ledger #1355 sibling)
+
+2026-10-05 thorough hunt (hit): proved stale `compareRuns` / compare bar after soft navigation; classified `runsListFilterOpen` disclosure candidate unreachable; 44 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted stale `q=` / `filterText` parity gap after sort= fix; proved and fixed; reseeded compareRuns and runsListFilterOpen soft-navigation candidates; 43 scoped `RunsListClient` tests passed.
 
