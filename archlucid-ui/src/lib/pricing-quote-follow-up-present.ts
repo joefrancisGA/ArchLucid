@@ -210,7 +210,7 @@ export function buildPricingQuoteFollowUpSummaryTiles(
     {
       id: "oldest",
       label: "Oldest request age",
-      value: oldestAgeHours === null ? " — " : formatPricingQuoteAgeHours(oldestAgeHours),
+      value: oldestAgeHours === null ? "Not returned" : formatPricingQuoteAgeHours(oldestAgeHours),
       tone: oldestAgeHours !== null && oldestAgeHours >= PRICING_QUOTE_SLA_WARN_HOURS ? "attention" : "neutral",
     },
     {

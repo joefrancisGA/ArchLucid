@@ -23,6 +23,7 @@ import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_P
 import {
   agentQualityRatioFloorHint,
   formatAgentQualityRatioCell,
+  agentQualityRatioOutOfRangeHint,
 } from "@/lib/agent-quality-ratio-display";
 
 export type RunAgentQualityWarningsPanelProps = {
@@ -117,7 +118,11 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                     <div>{formatAgentQualityRatioCell(row.structuralCompletenessRatio, "structural", row.status)}</div>
-                    {agentQualityRatioFloorHint(row.structuralCompletenessRatio, "structural", row.status) != null ? (
+                    {agentQualityRatioOutOfRangeHint(row.structuralCompletenessRatio) != null ? (
+                      <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
+                        {agentQualityRatioOutOfRangeHint(row.structuralCompletenessRatio)}
+                      </p>
+                    ) : agentQualityRatioFloorHint(row.structuralCompletenessRatio, "structural", row.status) != null ? (
                       <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
                         {agentQualityRatioFloorHint(row.structuralCompletenessRatio, "structural", row.status)}
                       </p>
@@ -125,14 +130,23 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                     <div>{formatAgentQualityRatioCell(row.semanticScore, "semantic", row.status)}</div>
-                    {agentQualityRatioFloorHint(row.semanticScore, "semantic", row.status) != null ? (
+                    {agentQualityRatioOutOfRangeHint(row.semanticScore) != null ? (
+                      <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
+                        {agentQualityRatioOutOfRangeHint(row.semanticScore)}
+                      </p>
+                    ) : agentQualityRatioFloorHint(row.semanticScore, "semantic", row.status) != null ? (
                       <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
                         {agentQualityRatioFloorHint(row.semanticScore, "semantic", row.status)}
                       </p>
                     ) : null}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                    {formatAgentQualityRatioCell(row.faithfulnessScore, "faithfulness", row.status)}
+                    <div>{formatAgentQualityRatioCell(row.faithfulnessScore, "faithfulness", row.status)}</div>
+                    {agentQualityRatioOutOfRangeHint(row.faithfulnessScore) != null ? (
+                      <p className={cn("m-0 mt-0.5 font-sans", OPERATOR_TYPOGRAPHY.micro)}>
+                        {agentQualityRatioOutOfRangeHint(row.faithfulnessScore)}
+                      </p>
+                    ) : null}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.rejectReasonLabel ?? " — "}

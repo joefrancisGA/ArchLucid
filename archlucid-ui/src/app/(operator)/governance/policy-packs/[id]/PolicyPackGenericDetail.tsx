@@ -161,7 +161,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           <InlineMetadataLine label="Activated" value={activatedLabel} />
           <InlineMetadataLine label="Created" value={createdLabel} />
           <InlineMetadataLine label="Pack type" value={packRecord.packType || "Custom"} />
-          <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || " — "} />
+          <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || "Not recorded"} />
         </CardContent>
       </Card>
 

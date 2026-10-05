@@ -55,7 +55,7 @@ export type ArchitectureCreatedOverviewPanelProps = {
   readonly sourceText: string;
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
   readonly correctionHref: string | null;
-  readonly openClarificationGapCount: number;
+  readonly openClarificationGapCount: number | null;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   readonly submittedArchitectureSection: React.ReactNode;
   /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
@@ -220,7 +220,16 @@ export function ArchitectureCreatedOverviewPanel(
         </div>
       ) : null}
 
-      {clarificationGapCount > 0 ? (
+      {clarificationGapCount === null ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-overview-clarification-gaps-not-loaded"
+        >
+          Clarification gaps not loaded.
+        </p>
+      ) : null}
+
+      {clarificationGapCount !== null && clarificationGapCount > 0 ? (
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {clarificationGapCount === 1
             ? "1 item still needs your answer before assessment confidence improves."

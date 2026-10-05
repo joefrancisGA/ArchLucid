@@ -95,23 +95,23 @@ export function useNotificationChannelDeliveryStatus(): {
       : alertsSnapshotQuery.isError
         ? "error"
         : "ready",
-    enabledRulesCount: alertsSnapshot?.enabledRulesCount ?? 0,
-    enabledRoutingCount: alertsSnapshot?.enabledRoutingCount ?? 0,
-    openAlertsCount: alertsSnapshot?.openAlertsCount ?? 0,
+    enabledRulesCount: alertsSnapshot?.enabledRulesCount ?? null,
+    enabledRoutingCount: alertsSnapshot?.enabledRoutingCount ?? null,
+    openAlertsCount: alertsSnapshot?.openAlertsCount ?? null,
     teamsLoadState: teamsQuery.isLoading
       ? "loading"
       : teamsQuery.isError
         ? "error"
         : "ready",
     teamsIsConfigured: teamsConnection?.isConfigured === true,
-    teamsEnabledTriggerCount: teamsConnection?.enabledTriggers.length ?? 0,
+    teamsEnabledTriggerCount: teamsConnection?.enabledTriggers?.length ?? null,
     slackLoadState: alertsSnapshotQuery.isLoading
       ? "loading"
       : alertsSnapshotQuery.isError
         ? "error"
         : "ready",
-    activeSlackDestinationCount: alertsSnapshot?.activeSlackDestinationCount ?? 0,
-    totalSlackDestinationCount: alertsSnapshot?.totalSlackDestinationCount ?? 0,
+    activeSlackDestinationCount: alertsSnapshot?.activeSlackDestinationCount ?? null,
+    totalSlackDestinationCount: alertsSnapshot?.totalSlackDestinationCount ?? null,
   };
 
   const statusByChannelId = resolveNotificationChannelDeliveryStatus(input);

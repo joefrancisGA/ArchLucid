@@ -151,7 +151,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
                   <code className={monoCodeClass}>
-                    {run.contextSnapshotId ?? " — "}
+                    {run.contextSnapshotId ?? "Not returned"}
                   </code>
                   {run.contextSnapshotId ? (
                     <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
@@ -162,7 +162,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 <span className={rowLabelClass}>Graph snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.graphSnapshotId ?? " — "}
+                    {run.graphSnapshotId ?? "Not returned"}
                   </code>
                   {run.graphSnapshotId ? (
                     <CopyIdButton value={run.graphSnapshotId} aria-label="Copy graph snapshot ID" />
@@ -173,7 +173,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 <span className={rowLabelClass}>Findings snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.findingsSnapshotId ?? " — "}
+                    {run.findingsSnapshotId ?? "Not returned"}
                   </code>
                   {run.findingsSnapshotId ? (
                     <CopyIdButton value={run.findingsSnapshotId} aria-label="Copy findings snapshot ID" />
@@ -186,7 +186,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.decisionTraceId ?? " — "}
+                    {run.decisionTraceId ?? "Not returned"}
                   </code>
                   {run.decisionTraceId ? (
                     <CopyIdButton value={run.decisionTraceId} aria-label="Copy decision trace ID" />
@@ -199,7 +199,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.artifactBundleId ?? " — "}
+                    {run.artifactBundleId ?? "Not returned"}
                   </code>
                   {run.artifactBundleId ? (
                     <CopyIdButton value={run.artifactBundleId} aria-label="Copy artifact bundle ID" />

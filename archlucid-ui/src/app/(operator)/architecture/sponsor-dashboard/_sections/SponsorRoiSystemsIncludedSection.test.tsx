@@ -50,6 +50,28 @@ describe("SponsorRoiSystemsIncludedSection", () => {
     ).toHaveLength(2);
   });
 
+  it("shows amount not returned when per-system savings are omitted", () => {
+    render(
+      <TooltipProvider>
+        <SponsorRoiSystemsIncludedSection
+          summary={{
+            ...summary,
+            systems: [
+              {
+                systemName: "Legacy",
+                runId: "run-legacy-003",
+                committedUtc: "2026-06-03T00:00:00Z",
+                estimatedUsdSavings: null,
+              },
+            ],
+          }}
+        />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("exec-roi-system-savings-run-legacy-003")).toHaveTextContent("Amount not returned");
+  });
+
   it("returns null when no systems are included", () => {
     const { container } = render(
       <SponsorRoiSystemsIncludedSection

@@ -100,7 +100,7 @@ function resolveVersionMetric(packRecord: PolicyPack | null): SummaryMetricValue
     return { value: version };
   }
 
-  return { value: " — ", qualifier: RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER };
+  return { value: "Not published", qualifier: RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER };
 }
 
 function resolveLastUpdatedMetric(packRecord: PolicyPack | null): SummaryMetricValue {

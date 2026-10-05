@@ -132,10 +132,10 @@ export function SponsorRoiTrendSection({
     [allPoints, timeRange],
   );
 
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const maxCritical = sponsorRoiTrendCriticalFindingsForScale(points);
   const savingsChartPoints = mapSponsorRoiTrendSavingsChartPoints(points, buyerPolished);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   return (
     <Card>

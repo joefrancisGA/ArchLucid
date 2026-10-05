@@ -8785,6 +8785,7 @@
 {"at":"2026-10-05T13:14:51.5428034Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-05T13:24:53.4518994Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T13:38:15.4187712Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-05T13:43:35.6454937Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-05T13:47:19.6466486Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-05T13:54:59.1509968Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-05T14:03:37.2347459Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}

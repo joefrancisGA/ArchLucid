@@ -10,6 +10,12 @@ export type AdminTenantHealthSummaryItem = {
   lastActivityUtc: string | null;
 };
 
+function finiteAdminMetric(value: number | string | undefined): number | null {
+  const parsed = typeof value === "number" ? value : typeof value === "string" && value.trim().length > 0 ? Number(value) : Number.NaN;
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 export type AdminTenantHealthListResponse = {
   items: AdminTenantHealthSummaryItem[];
 };
@@ -43,21 +49,11 @@ export async function fetchAdminTenantHealthList(): Promise<AdminTenantHealthLis
     tenantId: row.tenantId ?? "",
     workspaceId: row.workspaceId ?? "",
     projectId: row.projectId ?? "",
-    engagementScore:
-      typeof row.engagementScore === "number" && Number.isFinite(row.engagementScore)
-        ? row.engagementScore
-        : null,
-    governanceScore:
-      typeof row.governanceScore === "number" && Number.isFinite(row.governanceScore)
-        ? row.governanceScore
-        : null,
+    engagementScore: finiteAdminMetric(row.engagementScore),
+    governanceScore: finiteAdminMetric(row.governanceScore),
     pilotFunnelStage: row.pilotFunnelStage ?? "",
-    runsLast7d:
-      typeof row.runsLast7d === "number" && Number.isFinite(row.runsLast7d) ? row.runsLast7d : null,
-    commitsLast7d:
-      typeof row.commitsLast7d === "number" && Number.isFinite(row.commitsLast7d)
-        ? row.commitsLast7d
-        : null,
+    runsLast7d: finiteAdminMetric(row.runsLast7d),
+    commitsLast7d: finiteAdminMetric(row.commitsLast7d),
     lastActivityUtc: row.lastActivityUtc ?? null,
   }));
 

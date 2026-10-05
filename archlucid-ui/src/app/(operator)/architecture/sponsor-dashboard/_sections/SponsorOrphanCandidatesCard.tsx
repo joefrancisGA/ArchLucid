@@ -11,10 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { presentSponsorKpiCount } from "@/lib/sponsor/sponsor-roi-kpi-display";
 
-function formatUsd(value: number | null | undefined): string {
+function formatOrphanSavingsUsd(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "Cost not returned";
+    return "Amount not returned";
   }
 
   return new Intl.NumberFormat(undefined, {
@@ -34,7 +35,7 @@ export function SponsorOrphanCandidatesCard({ surface = "operator" }: SponsorOrp
   const orphanTitle = executiveSurface ? "Unattached resources" : "Orphan Candidates";
   const orphanDescription = executiveSurface
     ? "Resources flagged for cleanup from the latest committed review"
-    : "Server-classified from latest committed review";
+    : "Candidates from the latest committed review";
   const summaryQuery = useSponsorRoiSummaryQuery();
   const data = useMemo(() => {
     if (summaryQuery.data === undefined) {
@@ -42,14 +43,10 @@ export function SponsorOrphanCandidatesCard({ surface = "operator" }: SponsorOrp
     }
 
     const orphans = summaryQuery.data.orphanCandidates;
-    const countKnown =
-      orphans !== undefined
-      && orphans !== null
-      && typeof orphans.candidateCount === "number"
-      && Number.isFinite(orphans.candidateCount);
+    const countPresentation = presentSponsorKpiCount(orphans?.candidateCount, { loading: false });
 
     return {
-      count: countKnown ? orphans.candidateCount : null,
+      countPresentation,
       savings: orphans?.annualSavingsUsd ?? null,
     };
   }, [summaryQuery.data]);
@@ -107,12 +104,12 @@ export function SponsorOrphanCandidatesCard({ surface = "operator" }: SponsorOrp
           testId="kpi-tile-orphan-candidates-link"
         >
           <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-            {data.count === null ? "Not returned" : data.count}
+            {data.countPresentation.display}
           </p>
         </KpiTileDrillThroughLink>
-        {data.count !== null && data.count > 0 ? (
+        {data.countPresentation.state === "value" && data.countPresentation.display !== "0" ? (
           <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Estimated savings: {formatUsd(data.savings)}/yr
+            Estimated savings: {formatOrphanSavingsUsd(data.savings)}/yr
           </p>
         ) : null}
       </CardContent>

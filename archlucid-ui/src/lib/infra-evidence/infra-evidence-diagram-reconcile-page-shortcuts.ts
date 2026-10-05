@@ -7,7 +7,7 @@ export const DIAGRAM_RECONCILE_WORKBENCH_PAGE_SHORTCUTS: readonly PageShortcutEn
     description: "Ingest the Mermaid diagram on the sealed review record",
   },
   {
-    key: "ctrl+shift+r",
+    key: "alt+shift+r",
     label: "Reconcile diagram",
     description: "Reconcile the ingested diagram against the selected inventory snapshot",
   },

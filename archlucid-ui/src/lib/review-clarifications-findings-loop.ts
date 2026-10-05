@@ -1,7 +1,7 @@
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 export type ClarificationsFindingsLoopInput = {
-  readonly openClarificationGapCount: number;
+  readonly openClarificationGapCount: number | null;
   readonly findingsCount: number;
 };
 
@@ -14,6 +14,10 @@ export type ClarificationsFindingsLoopRecommendation = {
 export function resolveClarificationsFindingsLoopNext(
   input: ClarificationsFindingsLoopInput,
 ): ClarificationsFindingsLoopRecommendation | null {
+  if (input.openClarificationGapCount === null) {
+    return null;
+  }
+
   if (input.openClarificationGapCount > 0) {
     const gapLabel =
       input.openClarificationGapCount === 1

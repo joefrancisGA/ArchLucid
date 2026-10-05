@@ -59,7 +59,7 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
                   </Link>
                 )
               ) : (
-                " — "
+                "Not returned"
               )}
             </dd>
           </div>

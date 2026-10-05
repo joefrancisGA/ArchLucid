@@ -34,6 +34,17 @@ describe("resolvePolicyPackSimulateToastOutcome", () => {
     ).toBe("warning");
   });
 
+  it("returns warning when failed check details were not returned", () => {
+    expect(
+      resolvePolicyPackSimulateToastOutcome({
+        gateResult: { blocked: false, warnOnly: false },
+      }),
+    ).toEqual({
+      kind: "warning",
+      message: "Policy validation completed — failed check details were not returned.",
+    });
+  });
+
   it("returns warning when failed checks exist without an explicit block flag", () => {
     expect(
       resolvePolicyPackSimulateToastOutcome({

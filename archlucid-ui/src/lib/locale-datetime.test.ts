@@ -15,11 +15,11 @@ describe("formatInstantForLocale", () => {
     expect(formatInstantForLocale("2026-09-10T13:45:35.000Z")).toBe("9/10/2026, 9:45 AM EDT");
   });
 
-  it("returns em dash for empty or invalid input", () => {
-    expect(formatInstantForLocale("")).toBe(" — ");
-    expect(formatInstantForLocale("not-a-date")).toBe(" — ");
-    expect(formatInstantForLocale(null)).toBe(" — ");
-    expect(formatInstantForLocale(undefined)).toBe(" — ");
+  it("returns explicit copy for empty or invalid input", () => {
+    expect(formatInstantForLocale("")).toBe("Not recorded");
+    expect(formatInstantForLocale("not-a-date")).toBe("Date not readable");
+    expect(formatInstantForLocale(null)).toBe("Not recorded");
+    expect(formatInstantForLocale(undefined)).toBe("Not recorded");
   });
 });
 
@@ -44,10 +44,10 @@ describe("formatInstantInPreferredTimeZone", () => {
     );
   });
 
-  it("returns em dash for empty input", () => {
-    expect(formatInstantInPreferredTimeZone("")).toBe(" — ");
-    expect(formatInstantInPreferredTimeZone(null)).toBe(" — ");
-    expect(formatInstantInPreferredTimeZone(undefined)).toBe(" — ");
+  it("returns not recorded for empty input", () => {
+    expect(formatInstantInPreferredTimeZone("")).toBe("Not recorded");
+    expect(formatInstantInPreferredTimeZone(null)).toBe("Not recorded");
+    expect(formatInstantInPreferredTimeZone(undefined)).toBe("Not recorded");
   });
 });
 
@@ -65,10 +65,10 @@ describe("formatInstantCompactMilitary", () => {
     expect(label).not.toContain("2026");
   });
 
-  it("returns em dash for empty input", () => {
-    expect(formatInstantCompactMilitary("")).toBe(" — ");
-    expect(formatInstantCompactMilitary(null)).toBe(" — ");
-    expect(formatInstantCompactMilitary(undefined)).toBe(" — ");
+  it("returns not recorded for empty input", () => {
+    expect(formatInstantCompactMilitary("")).toBe("Not recorded");
+    expect(formatInstantCompactMilitary(null)).toBe("Not recorded");
+    expect(formatInstantCompactMilitary(undefined)).toBe("Not recorded");
   });
 });
 

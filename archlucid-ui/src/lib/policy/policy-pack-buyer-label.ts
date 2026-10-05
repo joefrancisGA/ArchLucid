@@ -23,7 +23,7 @@ export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string):
     return ver.length === 0 ? `${id} · version not recorded` : id;
   }
 
-  return "Pack id not recorded";
+  return "Policy pack not recorded";
 }
 
 /**

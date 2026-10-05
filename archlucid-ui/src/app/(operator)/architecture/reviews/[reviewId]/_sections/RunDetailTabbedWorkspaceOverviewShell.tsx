@@ -68,6 +68,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
       aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
       governanceGateLabel={m.governanceGateLabel}
+      governanceGateOperatorLabel={m.governanceGateOperatorLabel}
       authorityLifecyclePhase={m.resolvedDetail.authorityLifecyclePhase ?? null}
       showcasePolicyPackStrip={p.showcasePolicyPackStrip}
       degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}

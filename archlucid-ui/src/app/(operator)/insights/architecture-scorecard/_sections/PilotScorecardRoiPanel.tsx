@@ -201,7 +201,7 @@ export function PilotScorecardRoiPanel({
                     Quarterly estimate
                   </p>
                   <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    {quarterlySavingsLabel ?? " — "}
+                    {quarterlySavingsLabel ?? "Not returned"}
                   </p>
                 </div>
                 <div>
@@ -209,7 +209,7 @@ export function PilotScorecardRoiPanel({
                     Status quo annual labor
                   </p>
                   <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    {statusQuoCostLabel ?? " — "}
+                    {statusQuoCostLabel ?? "Not returned"}
                   </p>
                 </div>
               </div>

@@ -284,8 +284,8 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
   return option?.label ?? mode;
 }
 
-const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION =
-  "Reading a card: the first line is the name. The next line is the type. Used by N or No consumer found says whether a store has a consumer. Factory, host, and runtime lines describe a Data Factory link.";
+const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
+  "the first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.";
 
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
@@ -315,7 +315,7 @@ function infraDiagramModeJobCaptionBlock(mode: string): React.ReactNode | null {
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{caption}</p>
       {mode === "dataFlow" ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION}
+          <span className="font-semibold">Reading a card:</span> {INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST}
         </p>
       ) : null}
     </>
@@ -1733,13 +1733,6 @@ export function DiagramsWorkbenchClient() {
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
       ) : null}
 
-      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <SecureNowQuestionQueueProvider
-          snapshotId={selectedSnapshotId}
-          onFocusResourceForQuestion={applySeedNode}
-        >
-          <SecureNowQuestionQueueHero />
-
       {loadError != null
       && !(
         selectedMode === "dependencyNeighborhood"
@@ -2467,6 +2460,13 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <SecureNowQuestionQueueProvider
+          snapshotId={selectedSnapshotId}
+          onFocusResourceForQuestion={applySeedNode}
+        >
+          <SecureNowQuestionQueueHero />
+
       {awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
@@ -2645,7 +2645,7 @@ export function DiagramsWorkbenchClient() {
         </SecureNowQuestionQueueProvider>
       ) : null}
 
-        <DiagramsClaimOrientationStrip />
+      <DiagramsClaimOrientationStrip />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
       </main>
 

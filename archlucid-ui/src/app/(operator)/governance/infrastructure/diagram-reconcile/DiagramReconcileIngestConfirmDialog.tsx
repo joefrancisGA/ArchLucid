@@ -23,15 +23,28 @@ export type DiagramReconcileIngestConfirmDialogProps = {
 export function DiagramReconcileIngestConfirmDialog(
   props: DiagramReconcileIngestConfirmDialogProps,
 ): React.JSX.Element {
+  const replacingExisting = props.existingNodeCount > 0;
+
   return (
     <AlertDialog open={props.open} onOpenChange={props.onOpenChange}>
       <AlertDialogContent data-testid="infra-diagram-reconcile-ingest-confirm-dialog">
         <AlertDialogHeader>
-          <AlertDialogTitle>Replace existing diagram model?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {replacingExisting ? "Replace existing diagram model?" : "Ingest diagram model?"}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Ingest replaces the structured diagram model on review record{" "}
-            <strong>{props.reviewTitle}</strong> ({props.runId}). The current model has{" "}
-            {props.existingNodeCount} active node(s). This mutation is recorded on the audit trail.
+            {replacingExisting ? (
+              <>
+                Ingest replaces the structured diagram model on review record{" "}
+                <strong>{props.reviewTitle}</strong> ({props.runId}). The current model has{" "}
+                {props.existingNodeCount} active node(s). This mutation is recorded on the audit trail.
+              </>
+            ) : (
+              <>
+                Ingest saves a structured diagram model on review record <strong>{props.reviewTitle}</strong> (
+                {props.runId}). This mutation is recorded on the audit trail.
+              </>
+            )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -40,7 +53,7 @@ export function DiagramReconcileIngestConfirmDialog(
             data-testid="infra-diagram-reconcile-ingest-confirm-action"
             onClick={props.onConfirm}
           >
-            Replace model and ingest
+            {replacingExisting ? "Replace model and ingest" : "Ingest diagram"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

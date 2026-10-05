@@ -18,6 +18,20 @@ vi.mock("@/hooks/use-infra-evidence-resource-hub-audit-lineage", () => ({
   useInfraEvidenceResourceHubAuditLineage: () => ({ hub: null, loading: false, loadError: null }),
 }));
 
+vi.mock("@/hooks/use-effective-operator-scope", () => ({
+  useEffectiveOperatorScopeRecord: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "default",
+    workspaceLabel: "",
+    projectLabel: "",
+  }),
+}));
+
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
+  loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
+}));
+
 vi.mock("@/hooks/use-run-summary-query", () => ({
   useRunSummaryQuery: () => ({
     data: undefined,

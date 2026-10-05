@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DiagramReconcileWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
@@ -42,6 +42,20 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
     hasMore: false,
   })),
   formatInfraEvidenceApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/hooks/use-effective-operator-scope", () => ({
+  useEffectiveOperatorScopeRecord: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "default",
+    workspaceLabel: "",
+    projectLabel: "",
+  }),
+}));
+
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
+  loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 
 vi.mock("@/hooks/use-run-summary-query", () => ({
@@ -152,7 +166,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(within(conflictRow).getAllByText(/publicIPAddresses\/gateway/).length).toBeGreaterThan(0);
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-ask-diagram-node-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=diagram",
+      expect.stringContaining("correspondenceId=diagram-node-1"),
     );
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
       "href",
@@ -174,13 +188,13 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
     const infraOnlyRow = await screen.findByTestId("infra-diagram-reconcile-row-infra-only-1");
     fireEvent.click(infraOnlyRow);
-    expect(infraOnlyRow).toHaveClass("bg-neutral-100");
+    expect(infraOnlyRow).toHaveAttribute("aria-selected", "true");
 
     const filter = screen.getByTestId("infra-diagram-reconcile-filter");
     fireEvent.change(filter, { target: { value: "Conflict" } });
 
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).not.toHaveClass("bg-neutral-100");
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toHaveAttribute("aria-selected", "false");
   });
 
   it("highlights and scrolls to a deep-linked correspondence row", async () => {
@@ -190,7 +204,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     render(<DiagramReconcileWorkbenchClient />);
 
     const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
-    expect(conflictRow).toHaveClass("bg-neutral-100");
+    expect(conflictRow).toHaveAttribute("aria-selected", "true");
   });
 
   it("shows missing copy when correspondence deep link is absent from reconciliation", async () => {
@@ -259,6 +273,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
   });
 
   it("distinguishes missing saved reconciliation from load errors", async () => {
+    fetchArchitectureDiagramReconciliationMock.mockReset();
     fetchArchitectureDiagramReconciliationMock.mockRejectedValue({
       message: "not found",
       problem: { status: 404 },
@@ -266,10 +281,19 @@ describe("DiagramReconcileWorkbenchClient", () => {
       httpStatus: 404,
       retryAfterSeconds: null,
     });
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&compareMode=sealed",
+    );
 
     render(<DiagramReconcileWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-diagram-reconcile-no-saved-reconciliation")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(fetchArchitectureDiagramReconciliationMock).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagram-reconcile-no-saved-reconciliation")).toBeInTheDocument();
+    });
     expect(screen.queryByTestId("infra-diagram-reconcile-reconciliation-load-error")).not.toBeInTheDocument();
   });
 

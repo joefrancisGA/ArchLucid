@@ -186,15 +186,21 @@ export function RunDetailManifestSummarySection(
                       ? " · Focused review scope"
                       : null}
                   </p>
-                  {(manifestSummary.reviewStandardsAtCommit.policyReferences?.length ?? 0) > 0 ? (
+                  {manifestSummary.reviewStandardsAtCommit.policyReferences === undefined
+                  || manifestSummary.reviewStandardsAtCommit.policyReferences === null ? (
+                    <p className="m-0">Policy references: Not returned</p>
+                  ) : manifestSummary.reviewStandardsAtCommit.policyReferences.length > 0 ? (
                     <p className="m-0">
-                      Policy references: {(manifestSummary.reviewStandardsAtCommit.policyReferences ?? []).join(", ")}
+                      Policy references: {manifestSummary.reviewStandardsAtCommit.policyReferences.join(", ")}
                     </p>
                   ) : null}
-                  {(manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions?.length ?? 0) > 0 ? (
+                  {manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === undefined
+                  || manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === null ? (
+                    <p className="m-0">Reviewed dimensions: Not returned</p>
+                  ) : manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions.length > 0 ? (
                     <p className="m-0">
                       Reviewed dimensions:{" "}
-                      {(manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions ?? []).join(", ")}
+                      {manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions.join(", ")}
                     </p>
                   ) : null}
                 </dd>

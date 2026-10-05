@@ -68,13 +68,13 @@ export function buildDemoPreviewAtAGlanceMetrics(payload: DemoCommitPagePreviewR
   const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
 
   return {
-    status: manifest ? manifestStatusForDisplay(manifest.status) : " — ",
-    overallAssessment: runExplanation?.overallAssessment?.trim() ?? " — ",
+    status: manifest ? manifestStatusForDisplay(manifest.status) : "Not returned",
+    overallAssessment: runExplanation?.overallAssessment?.trim() || "Not returned",
     policyPack: manifest
       ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "")
-      : " — ",
+      : "Not returned",
     decisions: manifest ? formatCount(manifest.decisionCount) : formatCount(runExplanation?.decisionCount),
-    monitoredRisks: manifest ? formatCount(manifest.warningCount) : " — ",
+    monitoredRisks: manifest ? formatCount(manifest.warningCount) : "Not returned",
     unresolvedIssues: manifest
       ? formatCount(manifest.unresolvedIssueCount)
       : formatCount(runExplanation?.unresolvedIssueCount),

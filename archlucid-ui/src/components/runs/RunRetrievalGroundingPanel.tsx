@@ -81,7 +81,8 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
   openRef.current = open;
   const sectionId = props.sectionId ?? "retrieval-grounding";
   const sectionTitle = props.title ?? "Retrieval grounding (diagnostics)";
-  const rows = payload?.rows ?? [];
+  const rowsNotReturned = payload !== null && payload !== undefined && !Array.isArray(payload.rows);
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
   const degraded = payload?.hasDegradedMetadata === true || rows.some((r) => r.scoreMetadataMalformed || r.documentMetadataMalformed);
 
   const syncOpenToUrl = useCallback(
@@ -158,7 +159,16 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
           </>
         ) : null}
 
-        {!failure && rows.length === 0 ? (
+        {!failure && rowsNotReturned ? (
+          <p
+            className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="run-retrieval-grounding-rows-not-returned"
+          >
+            Retrieval rows not returned for this review.
+          </p>
+        ) : null}
+
+        {!failure && !rowsNotReturned && rows.length === 0 ? (
           <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             No retrieval grounding recorded for this review. This is expected for simulator-only reviews or agents that did not
             use retrieval.
@@ -214,7 +224,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                 <EnterpriseTableHeaderCell>
                   <span>Coverage</span>
                   <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                    The recorded share of cited material covered by this trace. It is not overall review completeness.
+                    This trace only — the recorded share of cited material covered here, not overall review completeness.
                   </span>
                 </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>

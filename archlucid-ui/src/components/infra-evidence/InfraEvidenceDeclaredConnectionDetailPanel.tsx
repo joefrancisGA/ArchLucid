@@ -33,7 +33,7 @@ export type InfraEvidenceDeclaredConnectionDetailPanelProps = {
 
 function formatPanelCell(value: string | null | undefined): string {
   if (value == null || value.trim().length === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   return value;
@@ -41,7 +41,7 @@ function formatPanelCell(value: string | null | undefined): string {
 
 function formatExpiration(value: string | null | undefined): string {
   if (value == null || value.trim().length === 0) {
-    return "—";
+    return "Not recorded";
   }
 
   const parsed = new Date(value);
