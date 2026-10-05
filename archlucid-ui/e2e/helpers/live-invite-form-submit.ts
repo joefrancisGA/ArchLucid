@@ -33,6 +33,7 @@ export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
   }
 
   await waitForOperatorAuthMeProxyOk(page);
+  await expect(page).toHaveURL(/\/administration\/users(?:[/?#]|$)/, { timeout: 90_000 });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
   await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
   await expect(async () => {
