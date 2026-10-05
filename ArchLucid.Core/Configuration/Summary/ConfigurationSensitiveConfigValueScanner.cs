@@ -68,7 +68,13 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
         ReadOnlySpan<char> trimmed = value.AsSpan().Trim();
 
-        if (trimmed.Length < 12 || !trimmed.Contains('=') || !trimmed.Contains(';'))
+        if (trimmed.Length < 8 || !trimmed.Contains('='))
+            return false;
+
+        if (StartsWithCredentialConnectionPair(trimmed))
+            return true;
+
+        if (!trimmed.Contains(';'))
             return false;
 
         return trimmed.Contains("Password=", StringComparison.OrdinalIgnoreCase)
@@ -76,4 +82,10 @@ internal static class ConfigurationSensitiveConfigValueScanner
             || trimmed.Contains("AccountKey=", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
     }
+
+    private static bool StartsWithCredentialConnectionPair(ReadOnlySpan<char> trimmed) =>
+        trimmed.StartsWith("Password=", StringComparison.OrdinalIgnoreCase)
+        || trimmed.StartsWith("Pwd=", StringComparison.OrdinalIgnoreCase)
+        || trimmed.StartsWith("AccountKey=", StringComparison.OrdinalIgnoreCase)
+        || trimmed.StartsWith("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
 }

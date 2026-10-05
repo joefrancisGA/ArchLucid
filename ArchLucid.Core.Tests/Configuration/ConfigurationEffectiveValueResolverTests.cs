@@ -374,6 +374,39 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_plain_scalar_cosmos_account_key_connection_string()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] =
+                "AccountEndpoint=https://acct.documents.azure.com:443/;AccountKey=c2VjcmV0LWtleS1tYXRlcmlhbA==",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Password=super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_json_object_effective_values_when_string_property_contains_connection_string()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";
