@@ -293,6 +293,9 @@ public sealed class MarketplaceWebhookPayloadParserTests
     [InlineData("negate-enterprise-plan")]
     [InlineData("devoid-enterprise-plan")]
     [InlineData("free-enterprise-plan")]
+    [InlineData("void-enterprise-plan")]
+    [InlineData("empty-enterprise-plan")]
+    [InlineData("zero-enterprise-plan")]
     public void TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs(string planId)
     {
         MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
