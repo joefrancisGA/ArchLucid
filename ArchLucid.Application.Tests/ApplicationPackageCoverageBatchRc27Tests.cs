@@ -214,7 +214,7 @@ public sealed class ApplicationPackageCoverageBatchRc27Tests
     {
         ArchitectureRunDetail detail = new();
 
-        string markdown = BuyerProofPackLimitationsMarkdown.Build(detail, demoDataWarning: false, isSampleRun: true);
+        string markdown = BuyerProofPackLimitationsMarkdown.Build(detail, demoDataWarning: true);
 
         markdown.Should().Contain("Demo data warning");
     }

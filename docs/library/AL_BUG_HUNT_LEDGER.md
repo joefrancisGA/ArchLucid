@@ -2,6 +2,8 @@
 
 2026-10-05 seed hunt (seed→hit): `application-pilots` — `BuyerProofPackBuilder` emitted `isSampleRun` in `pilot-run-deltas.json` but `limitations-and-next-actions.md` only showed the demo/sample banner for `isDemoTenant`; wire `IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; 28 scoped BuyerProofPack/BoardPack/limitations tests passed.
 
+2026-10-05 seed hunt (seed→hit): `application-pilots` — same sample-run gap on `pack-manifest.json` `demoDataWarning` and `BuyerProofPackBuildResult.DemoDataWarning` (audit `SponsorProofPackGenerated`); unify `cautionWarning = demoWarning || isSampleRun`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`; 26 scoped BuyerProofPack/BoardPack tests passed.
+
 2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `BuildContinueFromExistingRunCoalesceManifest` called `Build` without resolved run id so `modelfp`/`ledgerfp` were omitted when `request.RunId` was blank on continue; stale continue cache keys; use `BuildWithResolvedRunId` for coalesce content and dual-pin manifest; regression `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_baseline_model_changes_and_request_run_id_blank`; cheap-disproof closed four other open `(candidate)` rows; 70 scoped orchestrator/cache tests passed.
 
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `TerraformShowJsonInfrastructureDeclarationParser` ignored `terraform plan -json` roots (`planned_values` / `plannedValues`) and only read `values`; proved `ComposeEnvInfrastructureDeclarationParser` parsed list env `- KEY=https://…` with map regex and treated the `https:` colon as `KEY: value`; list `KEY=value` lines now run before map regex; regressions `ParseAsync_planned_values_root_module_emits_canonical_resource`, `ComposeEnv_environment_list_emits_proposed_host`; cheap-disproof `export`-prefixed dotenv (URL value still emits); 807 scoped tests passed.
@@ -12366,15 +12368,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 39
-- **bugs-found:** 27
+- **hunts:** 40
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — buyer proof limitations omitted sample-run warning when isDemoTenant false
+- **last-bug:** 2026-10-05 — buyer proof pack-manifest and DemoDataWarning omitted sample-run caution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-05 seed hunt (seed→hit): promoted `isSampleRun` honesty gap — `BuyerProofPackBuilder` wrote `isSampleRun` into `pilot-run-deltas.json` from `GetRunSummaryAsync` but `limitations-and-next-actions.md` only honored `isDemoTenant` for the demo/sample banner; wire `deltasResponse.IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; cheap-disproved unsafe ZIP filename, partial board-pack quarter override, and non-GUID receipt-skip candidates; 25 scoped BuyerProofPack/BoardPack tests plus 3 limitations markdown tests passed.
+
+2026-10-05 seed hunt (seed→hit): extended sample-run caution to `pack-manifest.json` and `BuyerProofPackBuildResult.DemoDataWarning`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`; 26 scoped BuyerProofPack/BoardPack tests passed.
+
+- [x] (proven) `BuyerProofPackBuilder` — `pack-manifest.json` / `DemoDataWarning` ignored `isSampleRun` while deltas JSON included it — **hit 2026-10-05 seed hunt:** `cautionWarning = demoWarning || deltasResponse.IsSampleRun`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`.
 
 2026-09-27 seed hunt (seed→hit): reseeded application-pilots after advisory-inflation fix; proved `preferSnapshotMaterialFindings` from stronger snapshot governed coverage still replaced agent `FindingsBySeverity` and `TopFindingId` when agent held a higher-severity governed Critical not yet in snapshot; fixed by requiring equal governed counts for under-count snapshot preference and skipping snapshot severity/top override when agent max severity outranks snapshot; regressions `ComputeAsync_WhenAgentHasHigherSeverityGovernedFinding_KeepsAgentBucketsDespiteSnapshotGovernedCount` plus prior advisory-inflation test; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
 

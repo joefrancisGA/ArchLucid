@@ -150,6 +150,8 @@ public sealed class BuyerProofPackBuilder(
         if (!BuyerProofPackCommitGuard.TryValidateDeltasJson(deltasJson, out bool demoWarning, out _))
             return null;
 
+        bool cautionWarning = demoWarning || deltasResponse.IsSampleRun;
+
         string? markdown = await _firstValueReportBuilder.BuildMarkdownAsync(runId, baseUrlForLinks, cancellationToken);
 
         if (markdown is null)
@@ -171,8 +173,7 @@ public sealed class BuyerProofPackBuilder(
         byte[] deltasBytes = Utf8NoBom.GetBytes(PrettyPrintJson(deltasJson));
         byte[] artifactSummaryBytes = Utf8NoBom.GetBytes(BuyerProofPackArtifactSummaryBuilder.Build(deltasJson));
         byte[] trustPointerBytes = Utf8NoBom.GetBytes(BuyerProofPackTrustPointerMarkdown.Value);
-        byte[] limitationsBytes = Utf8NoBom.GetBytes(
-            BuyerProofPackLimitationsMarkdown.Build(detail, demoWarning, deltasResponse.IsSampleRun));
+        byte[] limitationsBytes = Utf8NoBom.GetBytes(BuyerProofPackLimitationsMarkdown.Build(detail, cautionWarning));
 
         BuyerProofPackFileEntry[] entries =
         [
@@ -187,7 +188,7 @@ public sealed class BuyerProofPackBuilder(
 
         Array.Sort(entries, static (left, right) => string.CompareOrdinal(left.RelativePath, right.RelativePath));
 
-        string manifestJson = BuildPackManifestJson(runId.Trim(), demoWarning, entries);
+        string manifestJson = BuildPackManifestJson(runId.Trim(), cautionWarning, entries);
         byte[] manifestBytes = Utf8NoBom.GetBytes(manifestJson);
 
         using MemoryStream zipStream = new();
@@ -209,7 +210,7 @@ public sealed class BuyerProofPackBuilder(
 
         string fileName = $"sponsor-proof-pack-{runId.Trim()}.zip";
 
-        return new BuyerProofPackBuildResult(zipStream.ToArray(), fileName, demoWarning);
+        return new BuyerProofPackBuildResult(zipStream.ToArray(), fileName, cautionWarning);
     }
 
     private static string PrettyPrintJson(string raw)
