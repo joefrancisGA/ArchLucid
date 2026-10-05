@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `api-key-auth` — proved Unicode line separator (U+2028) embedded in configured key material still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip `LineSeparator` and `ParagraphSeparator`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
 2026-10-05 seed hunt (seed→hit): `api-key-auth` — proved embedded ASCII tab (U+0009) in configured `AdminKey` still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip `UnicodeCategory.Control` characters; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`; 67 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
 2026-10-05 seed hunt (seed→hit): `api-key-auth` — promoted duplicate `X-Api-Key` header candidate; first header value that normalizes to empty (e.g. lone U+200B) stopped `ExtractProvidedApiKey` before later valid values; skip normalized-empty segments like whitespace-only; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; 65 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
@@ -8163,6 +8165,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: api-key-auth
+
+2026-10-05 seed hunt (seed→hit): embedded Unicode line separator (U+2028) in configured key material broke auth while admin snapshot still showed configured; strip `LineSeparator`/`ParagraphSeparator` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
 2026-10-05 seed hunt (seed→hit): embedded tab in configured key material broke auth while admin snapshot still showed configured; strip `UnicodeCategory.Control` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`; 67 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 

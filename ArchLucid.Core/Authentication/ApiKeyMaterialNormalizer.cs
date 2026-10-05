@@ -43,6 +43,9 @@ public static class ApiKeyMaterialNormalizer
         if (category == UnicodeCategory.Control)
             return true;
 
+        if (category is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+            return true;
+
         // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
         return character != ' ' && category == UnicodeCategory.SpaceSeparator;
     }

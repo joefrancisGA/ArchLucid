@@ -453,6 +453,21 @@ public sealed class AdminApiKeySettingsServiceTests
         sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
     }
 
+    [Fact]
+    public void GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u2028"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "line-separator-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().ReadOnly.MaskedSegments.Should().BeEmpty();
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
