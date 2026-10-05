@@ -428,13 +428,18 @@ public static class AzureInventorySecurityEdgeMaterializer
             return;
         }
 
-        if (!resource.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
-            && !resource.Properties.TryGetValue("ipConfigurationId", out ipConfigurationId))
-        {
-            return;
-        }
+        resource.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId);
+        resource.Properties.TryGetValue("ipConfigurationId", out string? legacyIpConfigurationId);
+        string? associatedResourceId =
+            AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(
+                ipConfigurationId ?? legacyIpConfigurationId);
 
-        string? associatedResourceId = TryResolveAssociatedResourceFromIpConfiguration(ipConfigurationId);
+        if (string.IsNullOrWhiteSpace(associatedResourceId)
+            && resource.Properties.TryGetValue("natGateway.id", out string? natGatewayId)
+            && !string.IsNullOrWhiteSpace(natGatewayId))
+        {
+            associatedResourceId = ArmResourceIdNormalizer.Normalize(natGatewayId);
+        }
 
         if (string.IsNullOrWhiteSpace(associatedResourceId))
         {
@@ -933,24 +938,6 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         return ArmResourceIdNormalizer.Normalize(value);
-    }
-
-    private static string? TryResolveAssociatedResourceFromIpConfiguration(string? ipConfigurationId)
-    {
-        if (string.IsNullOrWhiteSpace(ipConfigurationId))
-        {
-            return null;
-        }
-
-        string normalized = ArmResourceIdNormalizer.Normalize(ipConfigurationId);
-        int ipConfigurationsIndex = normalized.IndexOf("/ipConfigurations/", StringComparison.OrdinalIgnoreCase);
-
-        if (ipConfigurationsIndex <= 0)
-        {
-            return null;
-        }
-
-        return normalized[..ipConfigurationsIndex];
     }
 
     private static void AddRelationship(

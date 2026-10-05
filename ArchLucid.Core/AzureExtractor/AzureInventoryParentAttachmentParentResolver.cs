@@ -111,12 +111,19 @@ public static class AzureInventoryParentAttachmentParentResolver
         if (childNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
             && !string.IsNullOrWhiteSpace(ipConfigurationId))
         {
-            string? associatedResourceId = TryResolveAssociatedResourceFromIpConfiguration(ipConfigurationId);
+            string? associatedResourceId =
+                AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
 
             if (!string.IsNullOrWhiteSpace(associatedResourceId))
             {
                 parentArmIds.Add(ArmResourceIdNormalizer.Normalize(associatedResourceId));
             }
+        }
+
+        if (childNode.Properties.TryGetValue("natGateway.id", out string? natGatewayId)
+            && !string.IsNullOrWhiteSpace(natGatewayId))
+        {
+            parentArmIds.Add(ArmResourceIdNormalizer.Normalize(natGatewayId));
         }
 
         Dictionary<string, GraphNode> nodesById = graph.Nodes
@@ -285,19 +292,6 @@ public static class AzureInventoryParentAttachmentParentResolver
             || string.Equals(edge.InferenceSource, "inventory-public-ip", StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PublicIpToNic, StringComparison.OrdinalIgnoreCase)
             || toArmType?.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase) == true;
-    }
-
-    private static string? TryResolveAssociatedResourceFromIpConfiguration(string ipConfigurationId)
-    {
-        string normalized = ipConfigurationId.Trim();
-        int ipConfigurationsIndex = normalized.IndexOf("/ipConfigurations/", StringComparison.OrdinalIgnoreCase);
-
-        if (ipConfigurationsIndex <= 0)
-        {
-            return null;
-        }
-
-        return normalized[..ipConfigurationsIndex];
     }
 
     private static string? TryReadArmTypeFromArmId(string armId)
