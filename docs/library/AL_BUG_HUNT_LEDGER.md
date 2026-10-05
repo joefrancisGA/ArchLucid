@@ -19980,7 +19980,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
+<<<<<<< HEAD
 - **last-bug:** 2026-10-05 — absent/removed/cleared marketplace enterprise negation gaps
+=======
+- **last-bug:** 2026-10-05 — void/empty/zero marketplace enterprise negation gaps; Team-scoped Architect LLM shortcut; devoid/free negation tokens
+>>>>>>> 526363273c (Update core-tenancy-commercial hunt ledger for thorough hunt hit.)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
@@ -20011,7 +20015,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — `above-enterprise-*` delimited plan id treated as Enterprise tier — **cheap-disproof 2026-09-09 seed hunt #1384:** `above-enterprise` reads as an enterprise-tier variant label, not a negation adverb; no change
 - [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Enterprise commercial tier with 1-seat subscription false-maps to Architect LLM spend plan — **hit 2026-09-09 seed hunts #1379/#1381/#1383/#1385/#1390:** architect shortcut ran before Enterprise label guard; Enterprise tenants with minimal seat rows inherited Team SKU budget caps; fixed by returning null for Enterprise before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_one_seat_subscription`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `free-enterprise-*` plan id false-positive Enterprise tier (`bare` already guarded) — **hit 2026-10-05 thorough hunt:** extend `IsEnterpriseNegationToken` with `devoid` and `free`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
-- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription inherited Architect shortcut before Professional branch — **hit 2026-10-05 thorough hunt:** apply Architect shortcut only when commercial tier label is Team; regression `FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat`
+- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription inherited Architect shortcut before Professional branch — **hit 2026-10-05 thorough hunt:** apply Architect shortcut only when commercial tier label is Team; regressions `FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat` and `FromCommercialPackaging_maps_professional_label_before_one_seat_architect_shortcut`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `void-enterprise-*` / `empty-enterprise-*` / `zero-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** extend `IsEnterpriseNegationToken` with `void`, `empty`, and `zero`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `absent-enterprise-*` / `removed-enterprise-*` / `cleared-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** extend `IsEnterpriseNegationToken` with `absent`, `removed`, and `cleared`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
 
