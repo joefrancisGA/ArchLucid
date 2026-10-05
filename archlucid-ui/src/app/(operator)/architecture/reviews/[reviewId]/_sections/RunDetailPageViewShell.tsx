@@ -141,6 +141,7 @@ export function resolveRunDetailPageViewChrome(
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
       aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
       governanceGateLabel={m.governanceGateLabel}
+      governanceGateOperatorLabel={m.governanceGateOperatorLabel}
       authorityLifecyclePhase={m.resolvedDetail.authorityLifecyclePhase ?? null}
       showcasePolicyPackStrip={showcasePolicyPackStrip}
       degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}

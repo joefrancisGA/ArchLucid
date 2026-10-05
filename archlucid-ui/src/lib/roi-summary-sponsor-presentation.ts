@@ -263,7 +263,7 @@ export function formatRoiSummaryUsdWithRateBasis(
 ): RoiSummaryUsdWithRateBasis {
   if (!showUsdEstimate) {
     return {
-      display: " — ",
+      display: "Not returned",
       rateBasis: options.demoDerived === true ? "demo-derived" : "default-assumption",
       rateBasisLabel: "No dollar estimate in this period",
     };

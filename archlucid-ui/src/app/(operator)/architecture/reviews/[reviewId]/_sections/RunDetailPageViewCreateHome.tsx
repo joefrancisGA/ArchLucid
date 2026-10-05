@@ -96,7 +96,11 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         showProgressTracker={m.showProgressTracker}
         legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
         isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
-        openClarificationGapCount={architectureCreatedHomeModel?.clarificationGaps?.length}
+        openClarificationGapCount={
+          architectureCreatedHomeModel === undefined
+            ? null
+            : architectureCreatedHomeModel.clarificationGaps.length
+        }
         correctionHref={architectureEditHref}
         useCreateHomeWorkspaceTabs
         hasGoldenManifest={Boolean(m.manifestId)}
@@ -206,6 +210,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   operatorGovernanceDecisionByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
                   manifestStatus={m.manifestSummary?.status ?? null}
                   governanceGateLabel={m.governanceGateLabel}
+                  governanceGateOperatorLabel={m.governanceGateOperatorLabel}
                   blockingFindingCount={blockingApprovalCount}
                   hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
                   pagePrimaryOwnedElsewhere

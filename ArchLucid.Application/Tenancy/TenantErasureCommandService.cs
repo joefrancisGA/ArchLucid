@@ -127,7 +127,9 @@ public sealed class TenantErasureCommandService(
         if (requireErasureQuarantine && tenant.OffboardedUtc is null)
             return false;
 
-        if (IsIdenticalLegalHoldRetry(tenant, untilUtc, reason))
+        string? normalizedReason = NormalizeLegalHoldReason(reason);
+
+        if (IsIdenticalLegalHoldRetry(tenant, untilUtc, normalizedReason))
             return true;
 
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
@@ -139,7 +141,7 @@ public sealed class TenantErasureCommandService(
             tenantId,
             untilUtc,
             utcNow,
-            reason,
+            normalizedReason,
             actorUserId,
             cancellationToken);
 
@@ -157,11 +159,21 @@ public sealed class TenantErasureCommandService(
                 priorLegalHoldUntilUtc = priorUntil,
                 priorLegalHoldReason = priorReason,
                 legalHoldUntilUtc = untilUtc,
-                legalHoldReason = reason
+                legalHoldReason = normalizedReason
             },
             cancellationToken);
 
         return true;
+    }
+
+    private static string? NormalizeLegalHoldReason(string? reason)
+    {
+        if (reason is null)
+            return null;
+
+        string trimmed = reason.Trim();
+
+        return trimmed.Length == 0 ? null : trimmed;
     }
 
     /// <inheritdoc />
@@ -231,13 +243,15 @@ public sealed class TenantErasureCommandService(
         return true;
     }
 
-    private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? reason)
+    private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? normalizedReason)
     {
         if (tenant.LegalHoldUntilUtc is null)
             return false;
 
+        string? storedReason = NormalizeLegalHoldReason(tenant.LegalHoldReason);
+
         return tenant.LegalHoldUntilUtc == untilUtc
-            && string.Equals(tenant.LegalHoldReason, reason, StringComparison.OrdinalIgnoreCase);
+            && string.Equals(storedReason, normalizedReason, StringComparison.OrdinalIgnoreCase);
     }
 
     private Task AppendPlatformAuditAsync(

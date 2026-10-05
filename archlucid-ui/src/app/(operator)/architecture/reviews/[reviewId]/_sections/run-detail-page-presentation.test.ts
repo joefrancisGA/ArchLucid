@@ -64,6 +64,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     warningCountDisplay: 0,
     showPilotScorecardPackageCta: false,
     governanceGateLabel: null,
+    governanceGateOperatorLabel: null,
     adrGeneratorInput: { runId: "run-1" },
   } as unknown as RunDetailPageModel;
 }

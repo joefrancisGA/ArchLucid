@@ -78,6 +78,10 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 
 vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
   SecureNowQuestionQueue: () => null,
+  SecureNowQuestionQueueProvider: ({ children }: { children: React.ReactNode }) => children,
+  SecureNowQuestionQueueHero: () => null,
+  SecureNowQuestionQueueDrawer: () => null,
+  useSecureNowQuestionSubjectNodeId: () => null,
 }));
 
 vi.mock("@/lib/use-nav-surface", () => ({
@@ -227,16 +231,13 @@ describe("DiagramsWorkbenchClient", () => {
     });
   });
 
-  it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {
-    pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
+  it("renders snapshot and diagram type pickers when no snapshot is selected", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
-    const icon = await screen.findByTestId("page-heading-icon");
-    const title = screen.getByTestId("infra-diagrams-page-title");
-
-    expect(title).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
-    expect(icon.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-mode-picker")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-subscription-picker")).toBeInTheDocument();
   });
 
   it("renders the inventory diagrams nav icon before the page title on SecureNow routes", async () => {

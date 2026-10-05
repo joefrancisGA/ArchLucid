@@ -37,6 +37,15 @@ export type NotificationChannelDeliveryStatusInput = {
   readonly totalSlackDestinationCount: number | null;
 };
 
+function alertsCountsNotReturnedStatus(channelId: string): NotificationChannelDeliveryStatus {
+  return {
+    kind: "blocked",
+    label: "Not returned",
+    provenanceFact: "Alert and routing counts were not returned for this workspace.",
+    configureHint: configureHintForChannel(channelId),
+  };
+}
+
 export type NotificationChannelDeliveryStatusMap = Readonly<
   Record<string, NotificationChannelDeliveryStatus>
 >;
@@ -56,15 +65,6 @@ function notReportedStatus(channelId: string): NotificationChannelDeliveryStatus
     kind: "blocked",
     label: "Not reported here",
     provenanceFact: null,
-    configureHint: configureHintForChannel(channelId),
-  };
-}
-
-function countNotReturnedStatus(channelId: string): NotificationChannelDeliveryStatus {
-  return {
-    kind: "neutral",
-    label: "Not returned",
-    provenanceFact: "Workspace counts for this channel were not returned.",
     configureHint: configureHintForChannel(channelId),
   };
 }
@@ -136,8 +136,11 @@ function resolveAlertsInboxDeliveryStatus(
     return notReportedStatus("alerts-inbox");
   }
 
-  if (input.enabledRulesCount === null || input.openAlertsCount === null) {
-    return countNotReturnedStatus("alerts-inbox");
+  if (
+    input.enabledRulesCount === null ||
+    input.openAlertsCount === null
+  ) {
+    return alertsCountsNotReturnedStatus("alerts-inbox");
   }
 
   if (input.enabledRulesCount === 0) {
@@ -185,8 +188,11 @@ function resolveAlertRulesDeliveryStatus(
     return notReportedStatus("alert-rules");
   }
 
-  if (input.enabledRulesCount === null || input.enabledRoutingCount === null) {
-    return countNotReturnedStatus("alert-rules");
+  if (
+    input.enabledRulesCount === null ||
+    input.enabledRoutingCount === null
+  ) {
+    return alertsCountsNotReturnedStatus("alert-rules");
   }
 
   if (input.enabledRulesCount === 0) {
@@ -238,7 +244,12 @@ function resolveTeamsDeliveryStatus(
   }
 
   if (input.teamsEnabledTriggerCount === null) {
-    return countNotReturnedStatus("teams");
+    return {
+      kind: "blocked",
+      label: "Not returned",
+      provenanceFact: "Teams notification trigger count was not returned.",
+      configureHint: configureHintForChannel("teams"),
+    };
   }
 
   const connectionStatus = resolveTeamsIntegrationConnectionStatus({
@@ -285,7 +296,7 @@ function resolveSlackDeliveryStatus(
   }
 
   if (input.activeSlackDestinationCount === null || input.totalSlackDestinationCount === null) {
-    return countNotReturnedStatus("slack");
+    return alertsCountsNotReturnedStatus("slack");
   }
 
   const label = slackIntegrationConfigurationStatusLabel(input.activeSlackDestinationCount);

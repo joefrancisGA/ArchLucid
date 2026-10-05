@@ -1,5 +1,19 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewWorkbenchSelectionProvider` reconciled `findingId` from `window.location` only on `popstate`, so Next.js soft `<Link>` navigation left workbench finding selection stale; sync from the live address bar when `useSearchParams` `findingId` changes; regression `follows findingId query changes without a popstate event`; 29 scoped review-detail vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `useReviewDetailWorkspaceTabs` ignored reactive `workbenchFocus` query changes (same class as the 2026-10-03 `reviewTab` soft-navigation fix), leaving the workbench on the wrong column after `<Link>` navigation; sync `workbenchFocusColumn` from `useSearchParams`; regression `follows workbenchFocus query changes without a popstate event`; 41 scoped review-detail vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewDetailWorkspaceTabShell.renderTabPanel` mounted `inPipelineBanner` in every hidden tab panel, duplicating pipeline-in-flight banner markup (7 copies for Overview-active); render banner only on the visible panel; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`; 38 scoped review-detail vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — module-level `reviewFindingsLastVisitRestoredRunIds` never cleared on unmount, so returning to the same review with a bare findings URL skipped DR-13 last-visit toolbar restore; delete run id from the guard on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`; 18 scoped review-detail vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `RunDetailFindingsWorkspace` kept the prior run’s classification band (and list view) after a client-side `runId` transition when the URL omitted band/list params; re-sync toolbar band + list view from the location on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped review-detail vitest tests passed (findings workspace + workspace tabs).
+
+2026-10-05 seed hunt (seed→hit): `tenant-erasure` — platform legal-hold path stored untrimmed `Reason` while idempotent retry compared raw strings, so a padded reason retry duplicated platform audit events; normalize trim in `TenantErasureCommandService.TrySetLegalHoldAsync` and when comparing stored reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`; 36 scoped `TenantErasure` tests passed (9 Application, 23 Api, 4 Core).
+
+2026-10-05 seed hunt (seed→hit): `host-core-coordination` — early skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a throwing `ILogger` prevented skip-as-processed and scheduled backoff on purged-run orphan rows; moved skip warnings into post-mark best-effort observability on `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`; 21 Host.Core and 34 Host.Composition scoped coordination/outbox tests passed.
+
 2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `AgentExecution:Mode` caused `RegisterExecutorWiring` to register `RealAgentExecutor` even though `EffectiveAgentExecutionModeAccessor` treats missing/invalid mode as Simulator, so hosts with an explicit null mode key wired real executor infrastructure without Azure keys; normalize null/invalid mode to Simulator at registration time; regression `AgentCompositionModule_null_agent_execution_mode_registers_simulator_executor`; 413 scoped host-composition tests passed.
 
 2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `SchemaValidation:AgentResultSchemaPath` with `AzureOpenAI:UseJsonSchemaResponseFormat` enabled caused `AgentCompletionResolutionHelper` and `TenantAzureOpenAiStructuredOutputSchema` to call `.Trim()` on null when resolving structured-output schema bytes, aborting BYO/managed completion client wiring with `NullReferenceException` instead of the default schema path; null-safe trim now falls back to `schemas/agentresult.schema.json`; regressions `ResolveStructuredOutputAgentResultSchema_null_bound_schema_path_falls_back_without_null_reference` and `TenantAzureOpenAiStructuredOutputSchema_null_bound_schema_path_falls_back_without_null_reference`; 412 scoped host-composition tests passed.
@@ -4797,13 +4811,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 261
-- **bugs-found:** 484
+- **hunts:** 262
+- **bugs-found:** 485
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-11
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — legal-hold reason whitespace broke idempotent retry audit dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `TenantErasureCommandService.TrySetLegalHoldAsync` stored platform legal-hold reasons without trimming while `IsIdenticalLegalHoldRetry` compared raw strings, so operator retries with the same semantic reason after surrounding whitespace duplicated `TenantErasureLegalHoldSet` audits; normalize reason on write and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`. Scoped `TenantErasure` tests passed 36.
 
 2026-09-26 seed hunt #6972 (seed-only): reseeded tenant-erasure after middleware fail-closed churn (#3469); cheap-disproof closed past-due `TenantErasureRequestedUtc`-only legal-hold gap (production offboard always sets both timestamps); regressions `Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`, `TryRestoreQuarantineAsync_clears_stale_erasure_approval_and_requested_timestamp`; 35 scoped TenantErasure tests passed.
 
@@ -4815,6 +4831,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — platform admin legal-hold requests passed untrimmed `Reason` while tenant-admin HTTP trimmed before the command service, so `IsIdenticalLegalHoldRetry` missed semantic duplicates and appended duplicate `TenantErasureLegalHoldSet` audits on safe retry — **hit 2026-10-05 seed hunt:** normalize legal-hold reason on persist and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`
 - [x] (proven) Restore quarantine leaves active erasure legal hold on operational tenant — **hit 2026-09-11 seed hunt #1709:** `TryRestoreTenantErasureQuarantineAsync` and `CopyTenant(clearErasureQuarantine: true)` cleared offboard/suspend/approval but preserved `LegalHoldUntilUtc` and related columns, so a restored tenant could remain blocked by `TrialLifecycleTransitionEngine` and stale hold metadata; fixed by clearing legal-hold columns in Dapper restore SQL and when `clearErasureQuarantine` is true; regression `TryRestoreQuarantineAsync_clears_active_legal_hold_from_erasure_quarantine`
 - [x] (invalid) Erasure proceeds while a legal hold is still active — `IsEligibleForScheduledHardPurge` and SQL list queries exclude rows with future `LegalHoldUntilUtc`; orphan cleanup skips active holds in `OrphanedTenantCatalogCleanupBackgroundWork`
 - [x] (proven) Quarantine middleware lets mutating requests through after erasure has started — **hit 2026-08-23:** `TrialSeatReservationMiddleware` ran before `TenantErasureQuarantineMiddleware`, so offboarded active-trial tenants still incremented `TrialSeatsUsed` before the 403; fixed by running erasure quarantine first in `PipelineExtensions`
@@ -24628,11 +24645,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 30
-- **last-hunt:** 2026-10-04
-- **bugs-found:** 38
+- **hunts:** 31
+- **last-hunt:** 2026-10-05
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — right-to-left data-flow routes were emitted in the opposite direction
+- **last-bug:** 2026-10-05 — data-flow rollup cards showed only the first ADF factory name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24685,6 +24702,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (hit): proved `DiagramForestDataFlowEdgeRouter.TryRoute` reversed column order recursively without reversing the returned segments, so a reachable right-to-left graph edge was rendered left-to-right; fixed route direction and added `TryRoute_preserves_direction_for_a_right_to_left_data_flow_edge`. The focused router suite passed 7/7.
 
 - [x] (proven) `DiagramForestDataFlowEdgeRouter.TryRoute` — a DataFlow graph edge whose source is in a later column was returned in left-to-right path order after recursive endpoint swapping, so the rendered arrow pointed opposite the graph direction; fixed by reversing segments and path data for right-to-left routes; regression `TryRoute_preserves_direction_for_a_right_to_left_data_flow_edge`
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up ADF external link cards copied only `ExternalFactoryName` from the first member while `DiagramForestCanvasLabelContext` prefers `ExternalFactoryNames`, so four or more same-neighbor linked services hid every factory after the first on the canvas — **hit 2026-10-05 seed hunt (seed→hit):** merge distinct factory names from all members onto the rollup node; regression `Render_data_flow_rollup_card_lists_all_adf_factory_names`
+
+2026-10-05 seed hunt (seed→hit): promoted and proved data-flow rollup ADF factory identity loss; focused filter reported 637 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
@@ -27314,17 +27335,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 28
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
+- **hunts:** 31
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — retry-scheduled hook failure escaped after backoff persistence
+- **last-bug:** 2026-10-05 — early skip warning log scheduled backoff after mark processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded at-least-once / cross-read candidates; no failing repro; scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
 
+2026-10-05 seed hunt (seed→hit): promoted and proved post-commit and run-export early skip-as-processed paths logged `LogWarning` before mark-processed, so observability failures blocked skip-as-processed on purged-run orphan rows; post-mark best-effort `postMarkObservability` on `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`. Scoped coordination/outbox tests passed 21 Host.Core and 34 Host.Composition.
+
 2026-10-05 seed hunt (seed→hit): promoted and proved `RecoverableOutboxFailureHandler` propagated `OnRetryScheduledAsync` instrumentation failures after `RecordBackoffAfterProcessingFailureAsync`, aborting batch isolation while the row was already in backoff; wrapped retry hooks best-effort like dead-letter hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`. Scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `RunExportBlobPushOutboxProcessor` direct dead-letter branches let `ILogger` failures escape after `RecordDeadLetterAsync`, scheduling backoff on a terminal row; centralized `RecordDirectDeadLetterAsync` best-effort observability; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_log_failure`. Scoped coordination/outbox tests passed 21 Host.Core and 32 Host.Composition.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `PostCommitProjectionOutboxProcessor.CompleteProcessedEntryAsync` let benign-skip `LogDebug` and success metrics escape after `MarkProcessedAsync`; mirrored best-effort observability on export skip/success `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_benign_skip_debug_log_failure`. Scoped coordination/outbox tests passed 21 Host.Core and 33 Host.Composition.
 
 2026-10-04 thorough hunt (dry): cheap-disproved both remaining coordination candidates; package-builder failures are explicit or transient by contract, and provenance materialization rejects incomplete build input; no failing repro.
 
@@ -27358,6 +27385,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `RecoverableOutboxFailureHandler.HandleAsync` — persistence throws after `ProcessEntryAsync` fault — **cheap-disproof 2026-10-05 thorough hunt:** lease re-drive until backoff/dead-letter metadata persists matches shared at-least-once outbox design (sibling to lease-expiry replay `valid-no-repro` on `RecoverableOutboxProcessorBase`); no reachable wrong terminal classification without a failing repro.
 
 - [x] (proven) `RecoverableOutboxFailureHandler.HandleAsync` — after `RecordBackoffAfterProcessingFailureAsync`, `onRetryScheduledAsync` instrumentation can throw and escape batch isolation while the row is already in backoff — **hit 2026-10-05 seed hunt:** symmetric best-effort wrapper for retry hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`.
+
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, packaging-conflict, empty-ZIP, and non-retryable push dead-letter branches performed `ILogger` calls after `RecordDeadLetterAsync`; a failing log sink escaped into `RecoverableOutboxProcessorBase` and scheduled backoff for an already dead-lettered row — **hit 2026-10-05 seed hunt:** `RecordDirectDeadLetterAsync` best-effort observability after terminal persist; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_log_failure`.
+
+- [x] (proven) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` / `RunExportBlobPushOutboxProcessor` skip-and-success paths — `MarkProcessedAsync` preceded success metrics and benign-skip `LogDebug`, so observability failures scheduled backoff on already-processed rows — **hit 2026-10-05 seed hunt:** `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync` best-effort observability after mark-processed; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_benign_skip_debug_log_failure`.
+
+- [x] (proven) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` / `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — early skip-as-processed paths (missing manifest-compare run, export package not found) logged `LogWarning` before `MarkProcessedAsync`, so a failing log sink escaped before skip-as-processed and scheduled backoff on orphan rows — **hit 2026-10-05 seed hunt:** defer skip warnings to post-mark best-effort observability; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`.
 
 - [x] (proven) `RecoverableOutboxProcessorBase.OnProcessingFailedAsync` — after recording a dead letter, an `OnDeadLetterAsync` audit/metric hook can throw and abort the batch instead of isolating the already-classified failure; **hit 2026-10-04 seed hunt:** `RecoverableOutboxFailureHandler` propagated `InvalidOperationException` from a failing dead-letter hook after `RecordDeadLetterAsync` succeeded; `RecoverableOutboxFailureHandlerTests.HandleAsync_does_not_escape_dead_letter_hook_failure_after_recording_terminal_state` now proves hooks are best-effort while cancellation still propagates.
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, empty-export, and sealed-receipt dead-letter branches performed audit after `RecordDeadLetterAsync`; **hit 2026-10-04:** `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure` reproduced an audit failure being converted into backoff for the already-terminal row; `LogDeadLetterAuditAsync` now contains non-cancellation audit failures.
@@ -28183,11 +28216,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 26
-- **bugs-found:** 17
+- **hunts:** 31
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-03 — review-detail tab state ignored reactive reviewTab URL changes
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — findingId URL soft navigation desync (workbench selection)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28198,6 +28231,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 2026-10-03 seed hunt (seed-only): re-read the review-detail route, findings workspace, workspace header, presentation model, and focused tests; existing candidates remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
 
 2026-10-03 seed hunt (seed-only): re-read the review-detail route, findings workspace, workspace header, presentation model, and focused tests; existing candidates remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `RunDetailFindingsWorkspace` classification-band state was not keyed to `runId`, so switching reviews without a `findingsBand` query left the prior run’s band active; re-read band + list view from `window.location` on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `ReviewWorkbenchSelectionProvider` ignored reactive `findingId` query changes on soft navigation (same class as `reviewTab` / `workbenchFocus` fixes); reconcile selection from the live address bar when `searchParamFindingId` changes; regression `follows findingId query changes without a popstate event`; 29 scoped vitest tests passed.
 
 2026-10-03 seed hunt (hit): promoted the review-detail URL synchronization candidate; `useReviewDetailWorkspaceTabs` passed an empty search-param set to initial tab resolution and had no reactive `useSearchParams` dependency, so soft navigation from Overview to Findings left the active panel stale. Fixed by consuming reactive search params and synchronizing `activeTab`; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts` (2 passed).
 
@@ -28215,18 +28252,18 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
 
-- (candidate) `RunDetailFindingsWorkspace` — the module-level `reviewFindingsLastVisitRestoredRunIds` set can suppress a later restore after the same run is remounted with findings query parameters removed; reachable by opening a run, navigating away and back, then returning without persisted findings filters in the URL.
-- (candidate) `RunDetailFindingsWorkspace` — classification-band state can remain on the prior run’s band during a client-side run transition until a URL event occurs because the initial state is not keyed by `runId`; reachable by switching between two review IDs with no classification-band query parameter.
-- (candidate) `RunDetailFindingsWorkspace` — list-view state can retain the prior run’s table/card preference during a client-side run transition before URL synchronization runs; reachable by switching review IDs with no `reviewFindingsListView` parameter.
+- [x] (proven) `useReviewFindingsLastVisitRestore` / `reviewFindingsLastVisitRestoredRunIds` — module-level restore guard kept `runId` after unmount, suppressing DR-13 toolbar restore when the same review remounted with a bare findings URL — **hit 2026-10-05 seed hunt:** clear guard entry on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`
+- [x] (proven) `RunDetailFindingsWorkspace` — classification-band state remained on the prior run’s band during a client-side `runId` transition when the URL omitted `findingsBand` — **hit 2026-10-05 seed hunt:** re-sync classification band (and list view) from location on `runId` change; regression `resets classification band when runId changes without a band query param`
+- [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
 - (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
 - (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
-- (candidate) `ReviewDetailWorkspaceTabShell.renderTabPanel` — a non-null `inPipelineBanner` is rendered into every hidden non-activity tab panel as well as the active panel; reachable pipeline-in-flight input could duplicate interactive banner markup or IDs across the workspace, pending a banner contract/test-id check.
+- [x] (proven) `ReviewDetailWorkspaceTabShell.renderTabPanel` — `inPipelineBanner` rendered in hidden tab panels as well as the active panel — **hit 2026-10-05 seed hunt:** omit banner content when `hidden`; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`
 - (candidate) `ReviewDetailWorkspaceTabShell` workbench composition — the evidence vocabulary rail is rendered once inside `WorkbenchLayoutBridge` and again in the hidden evidence tab panel; reachable Working-mode workbench input could duplicate vocabulary navigation or its identifiers, pending focused DOM/accessibility proof.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused failure mocked `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; the hook intentionally reads presenter state from `window.location`, so the failure does not establish a product defect.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused test failure came from mocking `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; `useReviewDetailWorkspaceTabs` intentionally reads presenter state from `window.location`, so this does not establish a reachable product failure.
 
-- (candidate) `ReviewWorkbenchSelectionProvider` — finding selection only reconciles from `window.location` on `popstate`; a same-document control that replaces `findingId` without dispatching `popstate` can leave the visible finding selection stale, reachable through another review-detail control using `replaceState`.
-- (candidate) `ReviewWorkbenchSelectionProvider` — workbench focus is initialized from the parent prop only and is not read from the URL before the first render; a Working-mode deep link with `workbenchFocus=evidence` can briefly focus the default column, pending first-paint focus contract proof.
+- [x] (proven) `ReviewWorkbenchSelectionProvider` — finding selection only reconciled from `window.location` on `popstate`, so Next.js soft navigation left selection stale — **hit 2026-10-05 seed hunt:** reconcile from the live address bar when reactive `findingId` query changes; regression `follows findingId query changes without a popstate event`
+- [x] (proven) `useReviewDetailWorkspaceTabs` — `workbenchFocusColumn` did not follow `workbenchFocus` query changes on Next.js soft navigation (popstate-only sync) — **hit 2026-10-05 seed hunt:** reactive `searchParamWorkbenchFocus` from `useSearchParams`; regression `follows workbenchFocus query changes without a popstate event`
 - [x] (proven) `ReviewWorkspaceStaleBanner` — the activity fingerprint baseline was retained across a client-side `runId` transition; switching from a committed review to an in-review review surfaced a false stale banner. Reset the baseline and visibility when `runId` changes; regression `does not carry the previous run baseline into a client-side run transition`.
 
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
@@ -28679,11 +28716,11 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 17
-- **bugs-found:** 1
+- **hunts:** 18
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — persisted inventory diff retries skipped diff-consumer fan-out
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28707,8 +28744,8 @@ ABQ-09 churn hotspot.
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `ISecureNowQuestionDispositionService` — the newly registered SecureNow question API can resolve in one storage mode but fail with HTTP 500 when a hosting composition omits `ISecureNowQuestionDispositionRepository`; **disproved 2026-10-04 thorough hunt:** InMemory registers `NoOpSecureNowQuestionDispositionRepository`, SQL registers `SqlSecureNowQuestionDispositionRepository`, and both full storage graphs validate on build; `InMemory_storage_full_composition_validates_on_build` and `Sql_storage_full_composition_validates_on_build` cover the reachable host modes.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / cloud-resource hub services — the module registers hub consumers while identity-directory wiring is supplied by separate storage registrars; a host that composes the capability without a storage provider could expose a reachable hub request as a DI failure instead of a controlled unavailable response. **Disproved 2026-10-04 thorough hunt:** the InMemory composition supplies `InMemoryCloudResourceIdentityDirectory`, the full graph validates, and `InMemory_composition_cloud_resource_hub_resolves_upserted_identity` resolves the hub and returns the upserted resource.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` registrations — the module adds both `AuditContinuousReadinessDiffConsumer` and `SecureNowArchitectDiffConsumer` to the same consumer collection; if a reachable materialized Azure snapshot diff makes the first consumer throw, the coordinator may stop before the second consumer records its derived state instead of isolating consumer failures.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `TenantBrandingResolvedProfileCache` singleton — a concurrent branding read can load an older tenant profile while an update invalidates the shared cache, then repopulate the cache after invalidation; a reachable tenant branding update/read race could therefore serve stale branding across subsequent report or diagram requests.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` registrations — the module adds both `AuditContinuousReadinessDiffConsumer` and `SecureNowArchitectDiffConsumer` to the same consumer collection; if a reachable materialized Azure snapshot diff makes the first consumer throw, the coordinator may stop before the second consumer records its derived state instead of isolating consumer failures — **cheap-disproof 2026-10-05 thorough hunt:** `AuditContinuousReadinessService.ProcessInventoryDiffAsync` swallows failures; remaining gap fixed in `AzureInventoryDiffService` per-consumer isolation (`ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`).
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `TenantBrandingResolvedProfileCache` singleton — a concurrent branding read can load an older tenant profile while an update invalidates the shared cache, then repopulate the cache after invalidation; a reachable tenant branding update/read race could therefore serve stale branding across subsequent report or diagram requests — **cheap-disproof 2026-10-05 thorough hunt:** storage registrars wrap `ITenantBrandingProfileRepository` with `TenantBrandingProfileRepositoryWithCacheInvalidation`; `InvalidateTenantCache_refreshes_profile_after_repository_insert` covers the reachable mutation path without a reproducing race in focused tests.
 
 - [x] (proven) `InMemoryStorageProviderRegistrar` / `InfraEvidenceCompositionModule` — `ICloudResourceEvidenceHubService` and `ICloudResourceExplorerQueryService` registered but InMemory `ICloudResourceIdentityDirectory` never persisted upserted identities — **hit 2026-09-07 hunt #1190 (seed→hit):** `NoOpCloudResourceIdentityDirectory` returned synthetic upsert rows with new Guids while `TryGetByCloudResourceIdAsync` always returned null, so OpenAPI/InMemory hosts could not resolve resource hub after inventory materialization; fixed with `InMemoryCloudResourceIdentityDirectory` and composition regression in `InfraEvidenceCompositionModuleTests`
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `MermaidDiagramReadabilityThresholds` singleton may not flow into `InfraEvidenceSnapshotMermaidService` when optional ctor default bypasses DI — **disproved 2026-09-07 (#1273):** MS DI injects registered singleton into optional primary-constructor parameter; same instance used at render time (`InfraEvidenceCompositionModule_wires_mermaid_readability_thresholds_singleton_into_snapshot_mermaid_service`)
@@ -28718,8 +28755,12 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes — **cheap-disproof 2026-09-10 thorough hunt #1624:** `AuditEvidenceSelectorRegistry` injects one typed selector per ctor parameter; repeated Register duplicates descriptors but `ListDescriptors` stays at nine (`InfraEvidenceCompositionModule_repeated_register_keeps_single_selector_descriptor_per_evidence_type`)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — standalone `Register` without persistence repositories may fail `ValidateOnBuild` when resolving audit evidence snapshot services — **cheap-disproof 2026-09-12 thorough hunt #1948:** production hosts always call `AddArchLucidApplicationServices`, which registers persistence before `InfraEvidenceCompositionModule`; standalone import is test-only and intentionally unwired (`InfraEvidenceCompositionModule_registers_cloud_resource_and_audit_evidence_services` asserts descriptors only)
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule` — repeated `Register` duplicates `MermaidDiagramReadabilityThresholds` singleton descriptors; last-wins resolution may ignore a host-preconfigured thresholds instance — **cheap-disproof 2026-09-11 seed hunt #1796:** MS DI last-wins keeps final `Register()` default thresholds, not an earlier host override; regression `InfraEvidenceCompositionModule_repeated_register_last_mermaid_thresholds_singleton_wins`.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` — both audit-readiness and SecureNow architect consumers are registered for every hosting role; a reachable inventory-diff materialization in a worker or simulator host could invoke a consumer whose role-specific repository graph is absent and fail the post-materialization operation instead of isolating the unsupported consumer.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `TenantBrandingAdminService` — tenant-branding admin services are registered unconditionally; a reachable branding-profile mutation request under a host with only the read-side branding cache or a no-op persistence provider could report success without durable invalidation, leaving subsequent branded exports stale.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` — both audit-readiness and SecureNow architect consumers are registered for every hosting role; a reachable inventory-diff materialization in a worker or simulator host could invoke a consumer whose role-specific repository graph is absent and fail the post-materialization operation instead of isolating the unsupported consumer — **cheap-disproof 2026-10-05 thorough hunt:** InMemory and SQL full composition graphs validate on build for Api/Worker roles; audit readiness uses the same persistence ports in both modes with no missing-repository throw on diff fan-out.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `TenantBrandingAdminService` — tenant-branding admin services are registered unconditionally; a reachable branding-profile mutation request under a host with only the read-side branding cache or a no-op persistence provider could report success without durable invalidation, leaving subsequent branded exports stale — **cheap-disproof 2026-10-05 thorough hunt:** InMemory/SQL registrars decorate branding repositories with cache invalidation on every mutation; admin activate paths persist through that wrapper.
+
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — recomputing a persisted snapshot-pair diff returned `WasExisting` without notifying registered consumers, so a retry after partial consumer failure could skip `SecureNowArchitectDiffConsumer` and `AuditContinuousReadinessDiffConsumer` side effects — **hit 2026-10-05 thorough hunt:** notify consumers on existing diffs and isolate per-consumer failures; regressions `ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers` and `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`.
+
+2026-10-05 thorough hunt (hit): proved inventory diff consumer fan-out gap on persisted snapshot pairs; cheap-disproved branding-cache race, worker-only missing-repo, and admin invalidation candidates; 2 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false` due to pre-existing ARCH006 persistence analyzer noise).
 
 2026-10-04 seed hunt (seed-only): reread the composition registrations and full-host test boundary; no new candidate met the same-run hunt-ready reachability and wrong-outcome bar. Seeded two bounded candidates around diff-consumer role wiring and tenant-branding mutation durability; no product code changed.
 

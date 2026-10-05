@@ -1733,13 +1733,6 @@ export function DiagramsWorkbenchClient() {
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
       ) : null}
 
-      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-        <SecureNowQuestionQueueProvider
-          snapshotId={selectedSnapshotId}
-          onFocusResourceForQuestion={applySeedNode}
-        >
-          <SecureNowQuestionQueueHero />
-
       {loadError != null
       && !(
         selectedMode === "dependencyNeighborhood"
@@ -2467,6 +2460,13 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
+      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+        <SecureNowQuestionQueueProvider
+          snapshotId={selectedSnapshotId}
+          onFocusResourceForQuestion={applySeedNode}
+        >
+          <SecureNowQuestionQueueHero />
+
       {awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
@@ -2645,7 +2645,7 @@ export function DiagramsWorkbenchClient() {
         </SecureNowQuestionQueueProvider>
       ) : null}
 
-        <DiagramsClaimOrientationStrip />
+      <DiagramsClaimOrientationStrip />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
       </main>
 

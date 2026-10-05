@@ -10,8 +10,12 @@ export type PolicyImpactPreviewGateSummary = {
   readonly label: string;
   readonly blocked: boolean;
   readonly warnOnly: boolean;
-  readonly failedCheckCount: number;
+  readonly failedCheckCount: number | null;
 };
+
+export function formatPolicyImpactFailedCheckCount(count: number | null): string {
+  return count === null ? "Not returned" : String(count);
+}
 
 export function resolveLatestPublishedVersion(versions: readonly PolicyPackVersion[]): PolicyPackVersion | null {
   const published = versions.filter((version) => version.isPublished === true);
@@ -146,7 +150,8 @@ export function summarizePolicyImpactGateResult(
 ): PolicyImpactPreviewGateSummary {
   const blocked = result.gateResult?.blocked === true;
   const warnOnly = result.gateResult?.warnOnly === true;
-  const failedCheckCount = result.failedChecks?.length ?? 0;
+  const failedCheckCount =
+    result.failedChecks === undefined || result.failedChecks === null ? null : result.failedChecks.length;
 
   if (posture === "allow") {
     return {

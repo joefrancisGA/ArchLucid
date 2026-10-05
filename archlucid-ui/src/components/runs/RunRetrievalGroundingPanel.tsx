@@ -224,7 +224,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                 <EnterpriseTableHeaderCell>
                   <span>Coverage</span>
                   <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                    The recorded share of cited material covered by this trace. It is not overall review completeness.
+                    This trace only — the recorded share of cited material covered here, not overall review completeness.
                   </span>
                 </EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>

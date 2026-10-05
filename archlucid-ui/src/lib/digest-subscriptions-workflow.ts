@@ -170,25 +170,24 @@ export function buildDigestSubscriptionReadinessSummary(
   subscriptions: readonly DigestSubscription[],
 ): DigestSubscriptionReadinessSummary {
   const activeDestinations: number = subscriptions.filter((row) => row.isEnabled).length;
-  const scheduleCountKnown =
-    healthSnap !== null
-    && typeof healthSnap.enabledAdvisoryScheduleCount === "number"
-    && Number.isFinite(healthSnap.enabledAdvisoryScheduleCount);
-  const scheduleEnabled: boolean =
-    scheduleCountKnown && healthSnap.enabledAdvisoryScheduleCount > 0;
-  const scheduleStatus: string = !scheduleCountKnown
+  const scheduleCount = healthSnap?.enabledAdvisoryScheduleCount;
+  const scheduleCountMissing = scheduleCount === undefined || scheduleCount === null;
+  const scheduleEnabled: boolean = !scheduleCountMissing && scheduleCount > 0;
+  const scheduleStatus: string = scheduleCountMissing
     ? "Not returned"
     : scheduleEnabled
       ? "Active"
       : "Not configured";
-  const scheduleDetail: string = scheduleEnabled
-    ? `Next advisory run ${formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)}`
-    : "Enable an advisory scan schedule to generate digests on a cadence.";
+  const scheduleDetail: string = scheduleCountMissing
+    ? "Advisory schedule health did not return an enabled schedule count."
+    : scheduleEnabled
+      ? `Next advisory run ${formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)}`
+      : "Enable an advisory scan schedule to generate digests on a cadence.";
   const lastDelivery: string = formatDigestInstant(healthSnap?.latestDigestSubscriptionDeliveryUtc);
-  const nextScheduled: string = scheduleEnabled
-    ? formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)
-    : healthSnap === null
-      ? "Not returned"
+  const nextScheduled: string = scheduleCountMissing
+    ? "Not returned"
+    : scheduleEnabled
+      ? formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)
       : "Not scheduled";
 
   const rows: DigestSubscriptionReadinessRow[] = [

@@ -48,14 +48,14 @@ function ratioText(value: number | null | undefined): string {
 
 function wallClockDeltaFromPriorAgent(prevIso: string | null, curIso: string): string {
   if (!prevIso) {
-    return "No prior stage time";
+    return "First agent in this list";
   }
 
   const prevMs = Date.parse(prevIso);
   const curMs = Date.parse(curIso);
 
   if (!Number.isFinite(prevMs) || !Number.isFinite(curMs) || curMs < prevMs) {
-    return "Stage gap not readable";
+    return "Delta not usable";
   }
 
   const sec = Math.round((curMs - prevMs) / 1000);
@@ -97,7 +97,7 @@ function notesPreview(full: string | null | undefined): { text: string } {
   const s = full?.trim() ?? "";
 
   if (s.length === 0)
-    return { text: "Not recorded" };
+    return { text: "Not returned" };
 
   if (s.length <= notesPreviewMax)
     return { text: s };
@@ -344,7 +344,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <EnterpriseTableRow key={t.traceId}>
                   <EnterpriseTableCell className="whitespace-nowrap">{buyerLabelForAgentType(t.agentType)}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap font-mono text-neutral-600 dark:text-neutral-400">
-                    {t.modelAlias?.trim() ? t.modelAlias : "Not recorded"}
+                    {t.modelAlias?.trim() ? t.modelAlias : "Not returned"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap text-neutral-600 dark:text-neutral-400">
                     {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}

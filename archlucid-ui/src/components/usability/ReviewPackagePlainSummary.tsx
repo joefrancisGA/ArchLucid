@@ -35,7 +35,7 @@ export function ReviewPackagePlainSummary(props: ReviewPackagePlainSummaryProps)
         ) : null}
         {props.advisoryFindingCount > 0 ? (
           <>
-            {props.blockingFindingCount > 0 ? ", " : " — "}
+            {", "}
             <span>{props.advisoryFindingCount} advisory</span>
           </>
         ) : null}

@@ -334,6 +334,11 @@ describe("ReviewDetailWorkspace", () => {
     workspaceModeMock.mode = "working";
     workspaceModeMock.isWorkingMode = true;
     searchParamsMock.value = new URLSearchParams("reviewTab=findings&presenter=1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&presenter=1",
+    );
 
     render(
       <ReviewDetailWorkspace
@@ -422,6 +427,27 @@ describe("ReviewDetailWorkspace", () => {
       const card = screen.getByTestId("panel-findings").querySelector('[data-finding-id="finding-claims"]');
       expect(card).toHaveAttribute("data-workbench-selected", "false");
     });
+  });
+
+  it("renders in-pipeline banner only once on the active tab when the workbench is hidden", () => {
+    workspaceModeMock.isWorkingMode = false;
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview");
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        tabLifecycle={{
+          manifestId: null,
+          showProgressTracker: true,
+          runCompleted: false,
+        }}
+        inPipelineBanner={<div data-testid="in-pipeline-banner">Analysis running</div>}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.getAllByTestId("in-pipeline-banner")).toHaveLength(1);
   });
 
   it("keeps workbench visible while pipeline is in flight (LS-09)", () => {

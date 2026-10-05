@@ -144,12 +144,22 @@ public sealed class PostCommitProjectionOutboxProcessor(
 
             if (manifestCompareDetail?.GoldenManifest is null)
             {
-                Logger.LogWarning(
-                    "Skipping post-commit projection outbox {OutboxId} for run {RunId}: run detail no longer found.",
-                    entry.OutboxId,
-                    runId);
-                await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
-                ArchLucidInstrumentation.RecordPostCommitProjectionOutboxProcessedSuccess();
+                await CompleteProcessedEntryAsync(
+                        outbox,
+                        entry,
+                        benignSkip: false,
+                        cancellationToken,
+                        postMarkObservability: () =>
+                        {
+                            if (Logger.IsEnabled(LogLevel.Warning))
+                            {
+                                Logger.LogWarning(
+                                    "Skipping post-commit projection outbox {OutboxId} for run {RunId}: run detail no longer found.",
+                                    entry.OutboxId,
+                                    runId);
+                            }
+                        })
+                    .ConfigureAwait(false);
 
                 return;
             }
@@ -164,15 +174,39 @@ public sealed class PostCommitProjectionOutboxProcessor(
 
         bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, validatedGoldenManifest, cancellationToken);
 
-        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-        ArchLucidInstrumentation.RecordPostCommitProjectionOutboxProcessedSuccess();
+        await CompleteProcessedEntryAsync(outbox, entry, benignSkip, cancellationToken).ConfigureAwait(false);
+    }
 
-        if (benignSkip && Logger.IsEnabled(LogLevel.Debug))
+    private async Task CompleteProcessedEntryAsync(
+        IPostCommitProjectionOutboxRepository outbox,
+        PostCommitProjectionOutboxEntry entry,
+        bool benignSkip,
+        CancellationToken cancellationToken,
+        Action? postMarkObservability = null)
+    {
+        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+        try
         {
-            Logger.LogDebug(
-                "Post-commit projection outbox processed with benign skip outbox {OutboxId}, workType {WorkType}.",
-                entry.OutboxId,
-                entry.WorkType);
+            ArchLucidInstrumentation.RecordPostCommitProjectionOutboxProcessedSuccess();
+
+            if (benignSkip && Logger.IsEnabled(LogLevel.Debug))
+            {
+                Logger.LogDebug(
+                    "Post-commit projection outbox processed with benign skip outbox {OutboxId}, workType {WorkType}.",
+                    entry.OutboxId,
+                    entry.WorkType);
+            }
+
+            postMarkObservability?.Invoke();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The outbox row is already marked processed; observability must not schedule a retry.
         }
     }
 

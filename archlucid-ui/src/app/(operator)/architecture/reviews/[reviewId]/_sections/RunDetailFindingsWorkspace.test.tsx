@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { resetReviewFindingsLastVisitRestoreStateForTests } from "@/hooks/use-review-findings-last-visit";
 
 import { RunDetailFindingsWorkspace } from "./RunDetailFindingsWorkspace";
 
@@ -71,6 +72,7 @@ describe("RunDetailFindingsWorkspace", () => {
     navigationMocks.searchParams = new URLSearchParams();
     simulatorNoticeMocks.isSimulator = false;
     architectWorkspaceChromeMocks.enabled = false;
+    resetReviewFindingsLastVisitRestoreStateForTests();
   });
 
   it("writes findingJobView to the url when the operator changes job view", () => {
@@ -254,6 +256,33 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toHaveTextContent(
       "did not run",
     );
+  });
+
+  it("resets classification band when runId changes without a band query param", () => {
+    architectWorkspaceChromeMocks.enabled = true;
+    vi.stubGlobal("history", { replaceState: vi.fn() });
+    vi.stubGlobal("location", new URL("http://localhost/architecture/reviews/run-1"));
+
+    const findings: QuickDecisionFinding[] = [
+      finding({
+        findingId: "f-1",
+        insightDensityScore: 20,
+        classification: "ChecklistCoverage",
+      }),
+    ];
+
+    const { rerender } = render(
+      <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />,
+    );
+
+    fireEvent.click(screen.getByTestId("run-detail-findings-band-checklist"));
+    expect(screen.getByTestId("run-detail-findings-band-checklist")).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("run-detail-findings-checklist-remains-hint")).not.toBeInTheDocument();
+
+    rerender(<RunDetailFindingsWorkspace runId="run-2" findings={findings} packageCommitted={true} />);
+
+    expect(screen.getByTestId("run-detail-findings-band-decision-grade")).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("run-detail-findings-checklist-remains-hint")).toBeInTheDocument();
   });
 
   it("shows density desk honesty line and classification bands in Working mode", () => {

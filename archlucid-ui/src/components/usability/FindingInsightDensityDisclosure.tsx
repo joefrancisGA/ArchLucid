@@ -31,6 +31,7 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
   const openRef = useRef(open);
   openRef.current = open;
   const hasScore = props.insightDensityScore !== null && Number.isFinite(props.insightDensityScore);
+  const scoreDisplay = hasScore ? String(Math.trunc(props.insightDensityScore ?? 0)) : "Score not returned";
   const bandLabel = formatInsightDensityBandLabel(props.insightDensityScore);
   const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
 
@@ -103,12 +104,10 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
             <dd className="m-0 text-al-text-secondary">{bandLabel}</dd>
           </div>
         ) : null}
-        {hasScore ? (
-          <div>
-            <dt className="font-semibold text-al-text-primary">Insight density score</dt>
-            <dd className="m-0 tabular-nums text-al-text-secondary">{Math.trunc(props.insightDensityScore as number)}</dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="font-semibold text-al-text-primary">Insight density score</dt>
+          <dd className="m-0 tabular-nums text-al-text-secondary">{scoreDisplay}</dd>
+        </div>
         {whyText.length > 0 ? (
           <div>
             <dt className="font-semibold text-al-text-primary">Why this is not generic</dt>

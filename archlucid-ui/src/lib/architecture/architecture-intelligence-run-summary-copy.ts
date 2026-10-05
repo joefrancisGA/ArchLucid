@@ -6,24 +6,24 @@ export type ArchitectureIntelligenceRunTechnicalDetail = {
   readonly value: string;
 };
 
-function optionalArrayLengthLabel(items: readonly unknown[] | undefined | null): string {
-  if (items === undefined || items === null) {
-    return "Not returned";
+const OMITTED_COUNT_LABEL = "Not returned";
+
+function resolveIntegrityPassedFindingCount(result: ClosedLoopReasoningResult): number | null {
+  if (result.integrityPassedFindingIds === undefined || result.integrityPassedFindingIds === null) {
+    return null;
   }
 
-  return String(items.length);
+  return result.integrityPassedFindingIds.length;
 }
 
-function resolveFindingCount(
-  result: ClosedLoopReasoningResult,
-): { readonly known: true; readonly count: number } | { readonly known: false } {
-  const ids = result.integrityPassedFindingIds;
+function resolveStructuredElementCount(result: ClosedLoopReasoningResult): number | null {
+  const elements = result.model?.elements;
 
-  if (ids === undefined || ids === null) {
-    return { known: false };
+  if (elements === undefined || elements === null) {
+    return null;
   }
 
-  return { known: true, count: ids.length };
+  return elements.length;
 }
 
 /** Buyer-visible one-line summary after an architecture intelligence run. */
@@ -31,13 +31,11 @@ export function formatArchitectureIntelligenceRunHeadline(
   result: ClosedLoopReasoningResult,
   options?: { readonly assertedTrailEmpty?: boolean },
 ): string {
-  const finding = resolveFindingCount(result);
+  const findingCount = resolveIntegrityPassedFindingCount(result);
 
-  if (!finding.known) {
+  if (findingCount === null) {
     return "Analysis complete · Finding count not returned";
   }
-
-  const findingCount = finding.count;
 
   if (options?.assertedTrailEmpty === true) {
     if (findingCount === 0) {
@@ -70,14 +68,17 @@ function formatEvidenceBackedFindingsPhrase(count: number): string {
 export function listArchitectureIntelligenceRunTechnicalDetails(
   result: ClosedLoopReasoningResult,
 ): ArchitectureIntelligenceRunTechnicalDetail[] {
+  const elementCount = resolveStructuredElementCount(result);
+  const findingCount = resolveIntegrityPassedFindingCount(result);
+
   const details: ArchitectureIntelligenceRunTechnicalDetail[] = [
     {
       label: "Structured details parsed",
-      value: optionalArrayLengthLabel(result.model?.elements),
+      value: elementCount === null ? OMITTED_COUNT_LABEL : String(elementCount),
     },
     {
       label: "Findings passed evidence checks",
-      value: optionalArrayLengthLabel(result.integrityPassedFindingIds),
+      value: findingCount === null ? OMITTED_COUNT_LABEL : String(findingCount),
     },
     {
       label: "Result source",

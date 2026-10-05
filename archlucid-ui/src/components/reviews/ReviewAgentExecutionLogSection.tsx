@@ -29,6 +29,14 @@ import { formatAgentExecutionConfidenceLabel } from "@/lib/reviews/agent-confide
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 
+function formatAgentExecutionArrayCount(values: readonly unknown[] | null | undefined): string {
+  if (values === null || values === undefined) {
+    return "Not returned";
+  }
+
+  return String(values.length);
+}
+
 export type ReviewAgentExecutionLogSectionProps = {
   readonly results: readonly RunDetailAgentResult[] | null | undefined;
 };
@@ -134,13 +142,13 @@ export function ReviewAgentExecutionLogSection({
                   <EnterpriseTableHeaderCell>
                     <span>Findings</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                      How many findings this agent produced.
+                      Count when returned; Not returned means the API omitted the findings list (not zero findings).
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>
                     <span>Evidence refs</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                      How many evidence references this agent cited.
+                      Count when returned; Not returned means the API omitted evidence references (not zero refs).
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>
@@ -164,14 +172,10 @@ export function ReviewAgentExecutionLogSection({
                         {formatAgentExecutionConfidenceLabel(result)}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="tabular-nums">
-                        {result.findings === undefined
-                          ? "Not returned"
-                          : String(result.findings.length)}
+                        {formatAgentExecutionArrayCount(result.findings)}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="tabular-nums">
-                        {result.evidenceRefs === undefined
-                          ? "Not returned"
-                          : String(result.evidenceRefs.length)}
+                        {formatAgentExecutionArrayCount(result.evidenceRefs)}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         {hasDegradation ? (

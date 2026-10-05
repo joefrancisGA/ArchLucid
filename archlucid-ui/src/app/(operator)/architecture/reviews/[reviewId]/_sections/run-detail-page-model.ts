@@ -43,6 +43,7 @@ export type RunDetailPageModel = {
   readonly warningCountDisplay: number | null;
   readonly showPilotScorecardPackageCta: boolean;
   readonly governanceGateLabel: string | null;
+  readonly governanceGateOperatorLabel: string | null;
   readonly careerExportEligibleFindingCount: number;
   readonly adrGeneratorInput: AdrGeneratorRunInput;
 };

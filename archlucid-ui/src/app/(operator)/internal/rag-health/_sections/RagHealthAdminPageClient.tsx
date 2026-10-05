@@ -27,9 +27,9 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-health-admin";
 
-function formatUtc(iso: string | null): string {
+function formatLastIndexedUtc(iso: string | null): string {
   if (!iso) {
-    return "Not recorded";
+    return "Last index not returned";
   }
 
   const parsed = new Date(iso);
@@ -93,7 +93,16 @@ export function RagHealthAdminPageClient() {
         subtitle={
           <>
             Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
-            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || " — "}</span>.
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+              {loading
+                ? "Loading embedding model…"
+                : error
+                  ? "Embedding model unavailable"
+                  : embeddingModelId.trim().length > 0
+                    ? embeddingModelId
+                    : "Embedding model not returned"}
+            </span>
+            .
           </>
         }
         actions={
@@ -137,7 +146,7 @@ export function RagHealthAdminPageClient() {
             <EnterpriseTableRow key={row.corpusKind}>
               <EnterpriseTableCell>{row.corpusKind}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.chunkCount}</EnterpriseTableCell>
-              <EnterpriseTableCell>{formatUtc(row.lastIndexedUtc)}</EnterpriseTableCell>
+              <EnterpriseTableCell>{formatLastIndexedUtc(row.lastIndexedUtc)}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.embeddingDimension}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag kind={row.isStale ? "needs-attention" : "ready"} label={row.isStale ? "Stale index" : "Fresh index"} />
