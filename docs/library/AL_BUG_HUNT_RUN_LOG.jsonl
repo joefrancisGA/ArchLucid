@@ -8807,3 +8807,4 @@
 {"at":"2026-10-05T20:39:51.3354296Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T20:44:10.646599Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T20:49:00.7802054Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T20:52:52.2997476Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared"}

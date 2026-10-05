@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `context-ingestion` — re-read MIME normalization follow-ons after diagram router charset fixes; cheap-disproved document connector delta churn on `text/plain` vs `text/plain; charset=utf-8` (`DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`); no new hunt-ready row; seeded five `(candidate)` rows; 803 scoped ContextIngestion/Canonicalization tests passed.
+
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `StructuredDiagramParseRouter` diagram source parsers rejected MIME format strings with `; charset=utf-8` (only short `DiagramSourceFormats` tokens and bare MIME matched); route via `Is*ContentType` helpers in `ArchLucidDiagramJsonParser`, `SvgDiagramSourceParser`, `DrawIoXmlDiagramSourceParser`, and `VsdxDiagramSourceParser`; regressions `Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges`, `Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes`; 802 scoped tests passed.
 
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `PixelDiagramIntakeStubDetector` used exact structured-diagram JSON MIME match so `; charset=utf-8` skipped pixel stub detection and the diagram JSON parser returned empty canonical objects instead of the not-verifiable warning; use `IsStructuredDiagramJsonContentType`; align `MermaidDiagramSourceParser.CanParse` and `IsForbiddenImageContentType` with `NormalizeContentTypeForLookup`; regressions `TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter`, `DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType`; 800 scoped tests passed.
@@ -22535,7 +22537,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-05 seed hunt (seed-only): MIME charset delta + five candidates; 803 scoped tests passed.
+
 2026-10-05 seed hunt (seed→hit): diagram router MIME charset on SVG/diagram-json/draw.io/vsdx `CanParse`; 802 scoped tests passed.
+
+- [ ] (candidate) `ContextIngestionRequestMapper.FromArchitectureRequest` — stores raw `ContentType` on `ContextDocumentReference` while `DocumentId` uses `NormalizeContentTypeForLookup` — **seed 2026-10-05:** remaps that differ only by MIME parameters share stable ids; wrong outcome would be connector add/remove churn (cheap-disproof: `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`).
+- [ ] (candidate) `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` — does not trim RFC 2045 quoted media types (`text/plain; charset="utf-8"`) — **seed 2026-10-05:** parameter segment may include quotes; reachability HTTP `Content-Type` headers on `ContextDocumentRequestValidator` / `IsSupported`.
+- [ ] (candidate) `InfrastructureDeclarationsPayloadNormalizer` / `IInfrastructureDeclarationParser.CanParse` — declaration `format` strings use trim-only equality — **seed 2026-10-05:** if upload metadata ever carries parameterized format tokens, parsers would miss (`terraform-show-json; charset=utf-8`).
+- [ ] (candidate) `PlainTextContextDocumentParser` — `text/markdown; charset=utf-8` vs `text/plain; charset=utf-8` routing — **seed 2026-10-05:** both use `NormalizeContentTypeForLookup`; reachable inline document posts per `SupportedContextDocumentContentTypes.All`.
+- [ ] (candidate) `KubernetesManifestCanonicalObjectMapper` — pod `host_ip` / snake_case host alias fields beyond `hostAliases` — **seed 2026-10-05:** kubernetes-json fixtures may emit snake_case port/host fields similar to prior container port hits; reachability `KubernetesJsonInfrastructureDeclarationParser`.
+- [x] (valid-no-repro) `ContextIngestionStableReferenceIds.ForDocument` / `DocumentConnector.DeltaAsync` — charset suffix on `ContentType` might split stable document identity — **cheap-disproof 2026-10-05 seed hunt:** `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`.
 
 2026-10-05 seed hunt (seed→hit): pixel stub detector + diagram router MIME charset parity; `IsStructuredDiagramJsonContentType` in stub detector; 800 scoped tests passed.
 
