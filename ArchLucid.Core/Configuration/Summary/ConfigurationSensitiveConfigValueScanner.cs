@@ -51,8 +51,26 @@ internal static class ConfigurationSensitiveConfigValueScanner
                 }
 
                 return false;
+            case JsonValueKind.String:
+                return LooksLikeEmbeddedConnectionString(element.GetString());
             default:
                 return false;
         }
+    }
+
+    private static bool LooksLikeEmbeddedConnectionString(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        ReadOnlySpan<char> trimmed = value.AsSpan().Trim();
+
+        if (trimmed.Length < 12 || !trimmed.Contains('=') || !trimmed.Contains(';'))
+            return false;
+
+        return trimmed.Contains("Password=", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("Pwd=", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("AccountKey=", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
     }
 }
