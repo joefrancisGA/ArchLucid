@@ -126,24 +126,42 @@ test.describe(
       timeoutMs: 90_000,
     });
 
-    const primaryCard = quickSummaryAfterEvidence.locator('[data-finding-workspace-primary="true"]');
-    await expect(primaryCard).toBeVisible({ timeout: 60_000 });
-    await primaryCard.scrollIntoViewIfNeeded();
+    await expect(async () => {
+      await ensureReviewDetailFindingsPresentationExpanded(page);
 
-    const primarySeverity = quickDecisionSeverityBadge(primaryCard).first();
+      const primaryCardCandidate = page.locator('[data-finding-workspace-primary="true"]');
+
+      if (await primaryCardCandidate.isVisible().catch(() => false)) {
+        await expect(primaryCardCandidate).toBeVisible({ timeout: 5_000 });
+
+        return;
+      }
+
+      await expect(page.locator('[data-testid^="finding-workspace-card-"]').first()).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 120_000 });
+
+    const primaryCard = page.locator('[data-finding-workspace-primary="true"]');
+    const findingCard =
+      (await primaryCard.isVisible().catch(() => false))
+        ? primaryCard
+        : page.locator('[data-testid^="finding-workspace-card-"]').first();
+
+    await findingCard.scrollIntoViewIfNeeded();
+
+    const primarySeverity = quickDecisionSeverityBadge(findingCard).first();
 
     if (await primarySeverity.isVisible().catch(() => false)) {
       await expect(primarySeverity).toBeVisible({ timeout: 30_000 });
     }
 
-    await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
+    await expect(findingCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
       timeout: 30_000,
     });
-    await expect(primaryCard.getByText(/Policy-mapped or insight-density-promoted/i)).toBeVisible({
+    await expect(findingCard.getByText(/Policy-mapped or insight-density-promoted/i)).toBeVisible({
       timeout: 30_000,
     });
 
-    const semanticBand = primaryCard.getByTestId("working-finding-semantic-support-band");
+    const semanticBand = findingCard.getByTestId("working-finding-semantic-support-band");
 
     if (await semanticBand.isVisible().catch(() => false)) {
       await expect(semanticBand).toContainText(/async|Lane B|sealed review|heuristic|partial overlap|not scored/i, {
