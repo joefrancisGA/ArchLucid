@@ -44,7 +44,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             }
             else
             {
-                verdict = EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
+                verdict = ResolveExcludeReplayVerdict(probe);
             }
         }
         else
@@ -81,6 +81,34 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             return false;
 
         return observedOutcome.Contains("foreign runId present", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static TenantIsolationNegativeTestVerdict ResolveExcludeReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
+            return EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
+
+        TenantIsolationNegativeTestVerdict fromField = EvaluateExcludeRunIdProbeVerdict(
+            ResolveObservedStatusCode(probe),
+            probe.ForeignRunIdVisible);
+
+        TenantIsolationNegativeTestVerdict fromOutcome = EvaluateExcludeRunIdProbeVerdict(
+            outcomeStatusCode,
+            probe.ForeignRunIdVisible);
+
+        if (ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(probe.ObservedOutcome)
+            && outcomeStatusCode is >= 200 and < 300)
+            return fromOutcome;
+
+        return WorstIsolationVerdict(fromField, fromOutcome);
+    }
+
+    private static bool ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("foreign runId absent", StringComparison.OrdinalIgnoreCase);
     }
 
     private static TenantIsolationNegativeTestVerdict ResolveDenyReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)

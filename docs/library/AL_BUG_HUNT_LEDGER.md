@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner.ResolveExcludeReplayVerdict` to honor verified-absent outcome copy before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 picker-scoped orchestrator/cache tests passed.
 
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator cache pin/coalesce, continue dual-manifest scopes, and manifest hashing after recent export-zone churn; no hunt-ready row promoted; seeded three bounded candidates (pre-pipeline baseline snapshot vs publish-stage storage fingerprint, composite pin cap mid-loop eviction, coalesced cache-hit publish policy run id); 62 scoped orchestrator/cache tests passed (`--no-build`).
@@ -6745,6 +6747,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent` (deny replay already merged status/outcome; exclude path did not); fixed with `ResolveExcludeReplayVerdict`; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id manifest replay — `observedStatusCode` 404 with verified `HTTP 200; foreign runId absent` outcome SKIPped — **hit 2026-10-05 seed hunt:** `ResolveExcludeReplayVerdict` honors verified-absent outcome before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`.
+
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline deny-status replay false-passed when `observedStatusCode` was 404 but `observedOutcome` still recorded `HTTP 200`; fixed `TenantIsolationNegativeTestOfflineRunner` to merge deny verdicts from status code and outcome text (fail-closed worst of Pass/Skip/Fail); regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`; 50 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — deny-status `observedStatusCode` 404 with `HTTP 200` outcome false-passed — **hit 2026-10-04 seed hunt:** `ResolveDenyReplayVerdict` worst-of status code and parsed outcome; regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`.
@@ -6793,11 +6799,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 40
-- **bugs-found:** 21
+- **hunts:** 41
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — offline deny replay ignored HTTP 200 outcome when status code was 404
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — offline exclude replay SKIPped verified-absent list when status field disagreed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -28568,7 +28574,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
