@@ -79,15 +79,14 @@ test.describe(
     await expect(page.getByTestId("run-detail-first-review-spine-band")).toBeVisible({
       timeout: 120_000,
     });
-    await expect(page.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
+    await expect(spineBand.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
       timeout: 60_000,
     });
-    const spineBand = page.getByTestId("run-detail-first-review-spine-band");
     await expect(spineBand.getByTestId("policy-pack-influence-honesty-chip")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("run-detail-first-review-spine-semantic-support")).toBeVisible({
+    await expect(spineBand.getByTestId("run-detail-first-review-spine-semantic-support")).toBeVisible({
       timeout: 60_000,
     });
-    await expect(page.getByTestId("run-detail-first-review-spine-treatment")).toBeVisible({
+    await expect(spineBand.getByTestId("run-detail-first-review-spine-treatment")).toBeVisible({
       timeout: 60_000,
     });
 
