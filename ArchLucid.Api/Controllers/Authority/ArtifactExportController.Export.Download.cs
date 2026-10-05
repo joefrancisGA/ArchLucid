@@ -222,6 +222,11 @@ public sealed partial class ArtifactExportController
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ProblemTypes.ManifestNotFound);
 
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(runDetail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
+
         IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(runDetail.GoldenManifest, runId.ToString("D"));
 
         if (sealedHashProblem is not null)

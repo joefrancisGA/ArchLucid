@@ -8600,6 +8600,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-data-export
 
+2026-10-05 thorough hunt (hit): promoted terraform advisory export lifecycle parity candidate; proved `DownloadTerraformAdvisoryExport` and `CreateTerraformPr` returned ZIP/PR after sealed-hash checks while `PushRunExportToBlob` rejected lifecycle-incomplete runs via `EnsureAuthorityLifecycleCompleteOrConflict`; aligned terraform paths with blob-push guard order; regression `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`; cheap-disproof closed export-history lifecycle parity (`GetRunExportHistory` is metadata listing behind `EnsureSealedManifestReadAllowedAsync`, not byte export) and unbounded history pagination (`RunExportRecordRepository.GetByRunIdAsync` uses `SqlPagingSyntax.FirstRowsOnly(500)`); 20 scoped Api export tests + 2 `RunExportQueryFacade` tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded tenant-data-export; proved whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI proof-packet career gate while int `1` already blocked; seeded terraform PR/download lifecycle parity, export-history lifecycle parity, and unbounded history pagination candidates; 30 scoped ExportBundleCareerPostureResolver tests passed.
 
 2026-09-14 seed hunt #2911 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -10507,9 +10509,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` not treated as true — **hit 2026-09-26 seed hunt (seed→hit):** CLI pilot-run-deltas JSON with `1.0` bypassed sample-workspace career gate while int `1` already blocked after #2351/#2355; fixed with `TryGetDouble` whole-number coercion in `TryParseJsonBoolean`; regressions `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_whole_number_double_one` and `ResolveFromDeltasJson_blocks_sample_run_when_is_demo_tenant_whole_number_double_one`.
 
-- [ ] (candidate) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `AuthorityLifecycleCompareExportGuard` present on blob push and compare paths
-- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce
-- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination
+- [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omitted `AuthorityLifecycleCompareExportGuard` present on blob push — **hit 2026-10-05 thorough hunt:** lifecycle preflight before sealed-hash guard; regression `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce — **cheap-disproof 2026-10-05 thorough hunt:** history endpoint lists persisted export metadata after `ExportsController.EnsureSealedManifestReadAllowedAsync`; lifecycle Complete is enforced on record get/compare/replay that materialize or diff export bytes, not on audit-style history enumeration.
+- [x] (invalid) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportRecordRepository.GetByRunIdAsync` caps SQL reads at 500 rows via `SqlPagingSyntax.FirstRowsOnly(500)`; in-memory repo returns full per-run set which is bounded by export volume per run in practice.
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 

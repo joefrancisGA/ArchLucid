@@ -158,6 +158,61 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+
+        Mock<IArtifactPackagingService> packaging = new();
+        packaging
+            .Setup(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()))
+            .Returns(new ArtifactPackage
+            {
+                Content = [0x50, 0x4b],
+                ContentType = "application/zip",
+                PackageFileName = "terraform.zip"
+            });
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            manifestHashService: manifestHashService);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = manifest.ManifestId,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                },
+                GoldenManifest = manifest,
+            });
+
+        IActionResult result = await sut.DownloadTerraformAdvisoryExport(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PushRunExportToBlob_returns_409_when_authority_lifecycle_not_complete()
     {
         Guid runId = Guid.NewGuid();
