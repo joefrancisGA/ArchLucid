@@ -1,4 +1,8 @@
 using ArchLucid.Application.Agents.Evidence;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
@@ -8,6 +12,39 @@ namespace ArchLucid.Application.Tests.Agents.Evidence;
 [Trait("Category", "Unit")]
 public sealed class AgentCuratedEvidenceProposerTests
 {
+    [Fact]
+    public void BuildUserPrompt_tolerates_null_collections_on_result_and_evidence()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            Policies = null!,
+            Patterns = null!,
+            ServiceCatalog = null!,
+        };
+
+        AgentResult result = new()
+        {
+            RunId = "run",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            Findings = null!,
+            Claims = null!,
+            EvidenceRefs = null!,
+        };
+
+        string prompt = AgentCuratedEvidenceProposer.BuildUserPrompt("run", request, evidence, result);
+
+        prompt.Should().Contain("RunId: run");
+        prompt.Should().Contain("System: Payments");
+    }
+
     [Fact]
     public void NormalizeResponse_returns_null_for_literal_null()
     {

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -34,12 +35,13 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
 
     public static RunExecuteOwnershipLeaseRenewalScope? TryBegin(
         IRunExecuteOwnershipLeaseService leaseService,
+        IArchLucidStorageMode storageMode,
         IOptionsMonitor<RunExecuteOwnershipLeaseOptions> optionsMonitor,
         Guid runId,
         CancellationTokenSource executeCancellationSource,
         ILogger logger)
     {
-        if (!leaseService.IsEnabled)
+        if (storageMode.IsInMemory)
             return null;
 
         ArgumentNullException.ThrowIfNull(executeCancellationSource);

@@ -87,6 +87,49 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
     }
 
     [Fact]
+    public async Task OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood()
+    {
+        Mock<IPrivilegePathEngine> privilegePathEngine = new();
+        Mock<IIntendedReachabilityEngine> reachabilityEngine = new();
+        Mock<IToxicCombinationEngine> toxicEngine = new();
+        Mock<ICapabilityToFlowEngine> capabilityEngine = new();
+        Mock<ISharedControlBlastRadiusEngine> sharedEngine = new();
+        Mock<IFourRealityDriftEngine> driftEngine = new();
+        Mock<IPathRankingEngine> rankingEngine = new();
+        Mock<ICutPointAnalysisEngine> cutPointEngine = new();
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        neighborhoodRunner
+            .Setup(runner => runner.CarryForwardAllAsync(
+                Scope,
+                PriorSnapshotId,
+                SnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
+
+        AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
+            fullRecompute: false,
+            hasPrior: true,
+            emptyDiff: true,
+            privilegePathEngine,
+            reachabilityEngine,
+            toxicEngine,
+            capabilityEngine,
+            sharedEngine,
+            driftEngine,
+            rankingEngine,
+            cutPointEngine,
+            neighborhoodRunner,
+            diffWasExisting: true);
+
+        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
+
+        neighborhoodRunner.Verify(
+            runner => runner.CarryForwardAllAsync(Scope, PriorSnapshotId, SnapshotId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task OnSnapshotMaterializedAsync_full_recompute_runs_all_engines()
     {
         Mock<IPrivilegePathEngine> privilegePathEngine = new();
@@ -154,7 +197,8 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         Mock<IFourRealityDriftEngine> driftEngine,
         Mock<IPathRankingEngine> rankingEngine,
         Mock<ICutPointAnalysisEngine> cutPointEngine,
-        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner)
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner,
+        bool diffWasExisting = false)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
 
@@ -184,7 +228,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
                     Succeeded = true,
                     DiffId = Guid.NewGuid(),
                     Changes = emptyDiff ? [] : [new AzureInventoryChangeRecord()],
-                    WasExisting = false,
+                    WasExisting = diffWasExisting,
                 });
         }
 

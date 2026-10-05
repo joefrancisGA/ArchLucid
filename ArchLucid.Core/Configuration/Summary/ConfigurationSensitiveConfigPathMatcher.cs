@@ -34,18 +34,119 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         if (IsSensitiveConfigSegment(propertyName))
             return true;
 
+        if (IsSensitiveConfigSegment(ToPascalCaseCompoundFromCamelCase(propertyName)))
+            return true;
+
         if (!propertyName.Contains('_', StringComparison.Ordinal)
             && !propertyName.Contains('-', StringComparison.Ordinal)
             && !propertyName.Contains('.', StringComparison.Ordinal))
-            return false;
+        {
+            foreach (string part in SplitCamelCase(propertyName))
+            {
+                if (part.Length >= propertyName.Length)
+                    continue;
 
-        foreach (string part in propertyName.Split(['_', '-', '.'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                if (IsSensitiveConfigPropertyName(part))
+                    return true;
+            }
+
+            return false;
+        }
+
+        string[] delimiterParts = propertyName.Split(
+            ['_', '-', '.'],
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (string part in delimiterParts)
         {
             if (IsSensitiveConfigPropertyName(part))
                 return true;
         }
 
+        if (delimiterParts.Length > 1
+            && IsSensitiveConfigSegment(ToPascalCaseCompoundFromDelimitedParts(delimiterParts)))
+            return true;
+
         return false;
+    }
+
+    private static string ToPascalCaseCompoundFromDelimitedParts(string[] parts) =>
+        string.Concat(
+            parts.Select(static part =>
+            {
+                if (part.Length == 0)
+                    return part;
+
+                return char.ToUpperInvariant(part[0]) + part[1..];
+            }));
+
+    private static string ToPascalCaseCompoundFromCamelCase(string propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return propertyName;
+
+        ReadOnlySpan<char> trimmed = propertyName.AsSpan().Trim();
+
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        if (!ContainsCamelCaseBoundary(trimmed))
+            return propertyName;
+
+        return string.Concat(
+            SplitCamelCase(propertyName).Select(static part =>
+            {
+                if (part.Length == 0)
+                    return part;
+
+                return char.ToUpperInvariant(part[0]) + part[1..];
+            }));
+    }
+
+    private static bool ContainsCamelCaseBoundary(ReadOnlySpan<char> value)
+    {
+        for (int i = 1; i < value.Length; i++)
+        {
+            if (char.IsLower(value[i - 1]) && char.IsUpper(value[i]))
+                return true;
+
+            if (i + 1 < value.Length
+                && char.IsUpper(value[i - 1])
+                && char.IsUpper(value[i])
+                && char.IsLower(value[i + 1]))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<string> SplitCamelCase(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            yield break;
+
+        int start = 0;
+
+        for (int i = 1; i < value.Length; i++)
+        {
+            if (char.IsLower(value[i - 1]) && char.IsUpper(value[i]))
+            {
+                yield return value.Substring(start, i - start);
+                start = i;
+                continue;
+            }
+
+            if (i + 1 < value.Length
+                && char.IsUpper(value[i - 1])
+                && char.IsUpper(value[i])
+                && char.IsLower(value[i + 1]))
+            {
+                yield return value.Substring(start, i - start);
+                start = i;
+            }
+        }
+
+        yield return value.Substring(start);
     }
 
     private static bool IsSensitiveConfigSegment(string segment)

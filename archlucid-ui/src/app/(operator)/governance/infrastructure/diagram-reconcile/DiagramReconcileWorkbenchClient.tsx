@@ -21,6 +21,7 @@ import {
   EnterpriseTableCell,
   EnterpriseTableHead,
   EnterpriseTableHeaderCell,
+  EnterpriseTableInteractiveRow,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -44,16 +45,26 @@ import {
   resolveDiagramReconcileSealedReviewRecordFromSummary,
 } from "@/lib/infra-evidence/diagram-reconcile-sealed-review-record";
 import {
+  readDiagramReconcileAdvisorySessionDraft,
   readDiagramReconcileSessionDraft,
+  writeDiagramReconcileAdvisorySessionDraft,
   writeDiagramReconcileSessionDraft,
 } from "@/lib/infra-evidence/diagram-reconcile-session-draft";
 import {
+  formatDiagramReconcileEdgeGapKindLabel,
+  formatDiagramReconcileMatchKindLabel,
+  resolveDiagramReconcileConfidenceStatusKind,
+  resolveDiagramReconcileMatchKindStatusKind,
+} from "@/lib/infra-evidence/diagram-reconcile-match-kind-display";
+import {
   isDiagramReconcileAdvisoryComparisonPath,
-  resolveDiagramReconcileBlockedReason,
+  resolveDiagramReconcileBlockedReasonDetail,
+  resolveDiagramReconcileDiagramSourceActionReadiness,
   resolveDiagramReconcileDiagramSourceStepReadiness,
   resolveDiagramReconcileReconcileStepReadiness,
   resolveDiagramReconcileSnapshotStepReadiness,
 } from "@/lib/infra-evidence/diagram-reconcile-readiness";
+import type { DiagramReconcileWorkbenchMode } from "@/lib/infra-evidence/diagram-reconcile-workbench-mode";
 import { resolveDiagramReconcileSnapshotSelectionSummary } from "@/lib/infra-evidence/diagram-reconcile-snapshot-selection";
 import { DIAGRAM_RECONCILE_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-page-shortcuts";
 import {
@@ -65,11 +76,13 @@ import {
   buildDiagramReconcileRemediationHref,
   DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM,
   DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM,
+  DIAGRAM_RECONCILE_COMPARE_MODE_PARAM,
   DIAGRAM_RECONCILE_FILTER_PARAM,
   DIAGRAM_RECONCILE_RUN_ID_PARAM,
   DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM,
   diagramReconcileFilterHrefFromSearch,
   parseDiagramReconcileCloudResourceIdFromSearch,
+  parseDiagramReconcileCompareModeFromSearch,
   parseDiagramReconcileCorrespondenceIdFromSearch,
   parseDiagramReconcileFilterFromSearch,
   parseDiagramReconcileRunIdFromSearch,
@@ -107,6 +120,8 @@ import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infr
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
+import { useEffectiveOperatorScopeRecord } from "@/hooks/use-effective-operator-scope";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
@@ -146,8 +161,10 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { showSuccess } from "@/lib/toast";
 
+import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { DiagramReconcileClaimOrientationStrip } from "./DiagramReconcileClaimOrientationStrip";
 import { DiagramReconcileIngestConfirmDialog } from "./DiagramReconcileIngestConfirmDialog";
+import { DiagramReconcileRecentSealedRecordsCombobox } from "./DiagramReconcileRecentSealedRecordsCombobox";
 import { useDiagramReconcileWorkbenchShortcuts } from "./use-diagram-reconcile-workbench-shortcuts";
 
 type ReconciliationLoadState =
@@ -219,10 +236,15 @@ const cnField =
 
 export function DiagramReconcileWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
+  const operatorScope = useEffectiveOperatorScopeRecord();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const urlRunId = parseDiagramReconcileRunIdFromSearch(searchParams.get(DIAGRAM_RECONCILE_RUN_ID_PARAM));
+  const workbenchMode = parseDiagramReconcileCompareModeFromSearch(
+    searchParams.get(DIAGRAM_RECONCILE_COMPARE_MODE_PARAM),
+    urlRunId,
+  );
   const urlSnapshotId = parseDiagramReconcileSnapshotIdFromSearch(
     searchParams.get(DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM),
   );
@@ -289,6 +311,8 @@ export function DiagramReconcileWorkbenchClient() {
   const [mappingBusyId, setMappingBusyId] = useState<string | null>(null);
   const mermaidInputRef = useRef<HTMLTextAreaElement | null>(null);
   const hydratedDraftRunIdRef = useRef<string | null>(null);
+  const hydratedAdvisoryDraftKeyRef = useRef<string | null>(null);
+  const initialSnapshotUrlSyncedRef = useRef(false);
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
   const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -325,7 +349,8 @@ export function DiagramReconcileWorkbenchClient() {
     ],
   );
   const mutationsAllowed = diagramReconcileMutationsAllowed(sealedReviewRecord);
-  const advisoryComparisonPath = isDiagramReconcileAdvisoryComparisonPath(sealedReviewRecord);
+  const advisoryComparisonPath = isDiagramReconcileAdvisoryComparisonPath(workbenchMode);
+  const workbenchModeStatusLabel = advisoryComparisonPath ? "Advisory compare" : "Sealed reconcile";
   const validRunId = isDiagramReconcileRunIdInputValid(runId);
   const validMermaidInput = diagramMermaid.trim().length > 0;
 
@@ -352,12 +377,13 @@ export function DiagramReconcileWorkbenchClient() {
   const diagramSourceStepReadiness = useMemo(
     () =>
       resolveDiagramReconcileDiagramSourceStepReadiness({
+        workbenchMode,
         sealedRecord: sealedReviewRecord,
         modelNodeCount,
         loadingModel,
         mermaidDraft: diagramMermaid,
       }),
-    [diagramMermaid, loadingModel, modelNodeCount, sealedReviewRecord],
+    [diagramMermaid, loadingModel, modelNodeCount, sealedReviewRecord, workbenchMode],
   );
   const snapshotStepReadiness = useMemo(
     () =>
@@ -365,12 +391,14 @@ export function DiagramReconcileWorkbenchClient() {
         selectedSnapshotId,
         loadingSnapshots,
         snapshotCount: snapshots.length,
+        knownSnapshotIds: snapshots.map((snapshot) => snapshot.snapshotId),
       }),
-    [loadingSnapshots, selectedSnapshotId, snapshots.length],
+    [loadingSnapshots, selectedSnapshotId, snapshots],
   );
   const reconcileStepReadiness = useMemo(
     () =>
       resolveDiagramReconcileReconcileStepReadiness({
+        workbenchMode,
         sealedRecord: sealedReviewRecord,
         selectedSnapshotId,
         modelNodeCount,
@@ -385,17 +413,32 @@ export function DiagramReconcileWorkbenchClient() {
       reconciliation,
       sealedReviewRecord,
       selectedSnapshotId,
+      workbenchMode,
     ],
   );
-  const reconcileBlockedReason = useMemo(
+  const reconcileBlockedReasonDetail = useMemo(
     () =>
-      resolveDiagramReconcileBlockedReason({
+      resolveDiagramReconcileBlockedReasonDetail({
+        workbenchMode,
         sealedRecord: sealedReviewRecord,
         selectedSnapshotId,
         modelNodeCount,
         mermaidDraft: diagramMermaid,
       }),
-    [diagramMermaid, modelNodeCount, sealedReviewRecord, selectedSnapshotId],
+    [diagramMermaid, modelNodeCount, sealedReviewRecord, selectedSnapshotId, workbenchMode],
+  );
+  const reconcileBlockedReason = reconcileBlockedReasonDetail?.message ?? null;
+  const diagramSourceActionReadiness = useMemo(
+    () =>
+      resolveDiagramReconcileDiagramSourceActionReadiness({
+        workbenchMode,
+        validRunId,
+        mutationsAllowed,
+        validMermaidInput,
+        ingestBusy,
+        loadingModel,
+      }),
+    [ingestBusy, loadingModel, mutationsAllowed, validMermaidInput, validRunId, workbenchMode],
   );
   const snapshotSelectionSummary = useMemo(
     () =>
@@ -413,6 +456,7 @@ export function DiagramReconcileWorkbenchClient() {
       snapshotId?: string;
       reconcileFilter?: DiagramReconcileMatchKindFilter;
       correspondenceId?: string;
+      compareMode?: DiagramReconcileWorkbenchMode;
     }) => {
       router.replace(diagramReconcileFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -543,8 +587,20 @@ export function DiagramReconcileWorkbenchClient() {
           const resolvedSnapshotId = urlSnapshotId.length > 0 ? urlSnapshotId : items[0]?.snapshotId ?? "";
           setSelectedSnapshotId(resolvedSnapshotId);
 
-          if (urlSnapshotId.length === 0 && resolvedSnapshotId.length > 0) {
-            syncUrl({ snapshotId: resolvedSnapshotId });
+          if (
+            urlSnapshotId.length === 0
+            && resolvedSnapshotId.length > 0
+            && !initialSnapshotUrlSyncedRef.current
+          ) {
+            initialSnapshotUrlSyncedRef.current = true;
+            router.replace(
+              diagramReconcileFilterHrefFromSearch(
+                searchParams.toString(),
+                { snapshotId: resolvedSnapshotId },
+                pathname,
+              ),
+              { scroll: false },
+            );
           }
         }
       } catch (error: unknown) {
@@ -563,7 +619,7 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [syncUrl, urlSnapshotId, workbenchRetryNonce]);
+  }, [pathname, router, searchParams, urlSnapshotId, workbenchRetryNonce]);
 
   useEffect(() => {
     const trimmedRunId = runId.trim();
@@ -592,7 +648,7 @@ export function DiagramReconcileWorkbenchClient() {
   }, [runId, validRunId]);
 
   useEffect(() => {
-    if (!validRunId) {
+    if (!validRunId || advisoryComparisonPath) {
       return;
     }
 
@@ -600,10 +656,65 @@ export function DiagramReconcileWorkbenchClient() {
       sourceName: diagramSourceName,
       mermaid: diagramMermaid,
     });
-  }, [diagramMermaid, diagramSourceName, runId, validRunId]);
+  }, [advisoryComparisonPath, diagramMermaid, diagramSourceName, runId, validRunId]);
 
   useEffect(() => {
-    if (!mutationsAllowed || runId.trim().length === 0) {
+    if (!advisoryComparisonPath) {
+      hydratedAdvisoryDraftKeyRef.current = null;
+      return;
+    }
+
+    const snapshotKey = selectedSnapshotId.trim();
+    const tenantKey = operatorScope.tenantId.trim();
+    const draftKey = `${tenantKey}:${snapshotKey}`;
+
+    if (snapshotKey.length === 0 || tenantKey.length === 0) {
+      return;
+    }
+
+    if (hydratedAdvisoryDraftKeyRef.current === draftKey) {
+      return;
+    }
+
+    hydratedAdvisoryDraftKeyRef.current = draftKey;
+    const draft = readDiagramReconcileAdvisorySessionDraft(tenantKey, snapshotKey);
+
+    if (draft == null) {
+      setDraftRestored(false);
+      return;
+    }
+
+    setDiagramMermaid(draft.mermaid);
+    setDiagramSourceName(draft.sourceName);
+    setDraftRestored(draft.mermaid.trim().length > 0 || draft.sourceName.trim().length > 0);
+  }, [advisoryComparisonPath, operatorScope.tenantId, selectedSnapshotId]);
+
+  useEffect(() => {
+    if (!advisoryComparisonPath) {
+      return;
+    }
+
+    const snapshotKey = selectedSnapshotId.trim();
+    const tenantKey = operatorScope.tenantId.trim();
+
+    if (snapshotKey.length === 0 || tenantKey.length === 0) {
+      return;
+    }
+
+    writeDiagramReconcileAdvisorySessionDraft(tenantKey, snapshotKey, {
+      sourceName: diagramSourceName,
+      mermaid: diagramMermaid,
+    });
+  }, [
+    advisoryComparisonPath,
+    diagramMermaid,
+    diagramSourceName,
+    operatorScope.tenantId,
+    selectedSnapshotId,
+  ]);
+
+  useEffect(() => {
+    if (advisoryComparisonPath || !mutationsAllowed || runId.trim().length === 0) {
       return;
     }
 
@@ -635,10 +746,14 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [mutationsAllowed, runId, workbenchRetryNonce]);
+  }, [advisoryComparisonPath, mutationsAllowed, runId, workbenchRetryNonce]);
 
   useEffect(() => {
     if (advisoryComparisonPath) {
+      setReconciliation(null);
+      setComparisonId(null);
+      setSelectedCorrespondenceId(null);
+      setModelNodeCount(null);
       setReconciliationLoadState("idle");
       setReconciliationLoadError(null);
       return;
@@ -698,9 +813,8 @@ export function DiagramReconcileWorkbenchClient() {
           }
         }
       } finally {
-        if (!cancelled) {
-          setLoadingReconciliation(false);
-        }
+        // Always clear the loading flag so Strict Mode cleanup cannot strand the UI in "loading".
+        setLoadingReconciliation(false);
       }
     }
 
@@ -711,13 +825,30 @@ export function DiagramReconcileWorkbenchClient() {
     };
   }, [advisoryComparisonPath, matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId, workbenchRetryNonce]);
 
+  const handleWorkbenchModeChange = useCallback(
+    (nextMode: string) => {
+      const mode = nextMode === "sealed" ? "sealed" : "advisory";
+      setReconciliation(null);
+      setComparisonId(null);
+      setSelectedCorrespondenceId(null);
+      setModelNodeCount(null);
+      setReconciliationLoadState("idle");
+      setReconciliationLoadError(null);
+      syncUrl({ compareMode: mode });
+    },
+    [syncUrl],
+  );
+
   const handleRunIdChange = useCallback(
     (nextRunId: string) => {
       setRunId(nextRunId);
       setModelNodeCount(null);
-      syncUrl({ runId: nextRunId });
+      syncUrl({
+        runId: nextRunId,
+        compareMode: nextRunId.trim().length > 0 ? "sealed" : workbenchMode,
+      });
     },
-    [syncUrl],
+    [syncUrl, workbenchMode],
   );
 
   const handleSnapshotChange = useCallback(
@@ -811,6 +942,13 @@ export function DiagramReconcileWorkbenchClient() {
   }, [diagramMermaid, diagramSourceName, runId]);
 
   const runIngest = useCallback(() => {
+    if (advisoryComparisonPath) {
+      setDiagramSourceActionError(
+        "Diagram ingest applies only to sealed review records. Switch to sealed reconcile mode.",
+      );
+      return;
+    }
+
     if (!validRunId) {
       setDiagramSourceActionError(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_REVIEW_ID_REQUIRED_ERROR);
       return;
@@ -826,17 +964,18 @@ export function DiagramReconcileWorkbenchClient() {
       return;
     }
 
-    if (modelNodeCount != null && modelNodeCount > 0) {
-      setIngestConfirmOpen(true);
-      return;
-    }
+    setIngestConfirmOpen(true);
+  }, [advisoryComparisonPath, mutationsAllowed, validMermaidInput, validRunId]);
 
-    void executeIngest();
-  }, [executeIngest, modelNodeCount, mutationsAllowed, validMermaidInput, validRunId]);
+  const scrollToReconcileFieldAnchor = useCallback((fieldAnchorId: string) => {
+    document.getElementById(fieldAnchorId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById(fieldAnchorId)?.focus();
+  }, []);
 
   const runReconcile = useCallback(async () => {
-    if (reconcileBlockedReason != null) {
-      setReconcileActionError(reconcileBlockedReason);
+    if (reconcileBlockedReasonDetail != null) {
+      setReconcileActionError(reconcileBlockedReasonDetail.message);
+      scrollToReconcileFieldAnchor(reconcileBlockedReasonDetail.fieldAnchorId);
       return;
     }
 
@@ -868,10 +1007,6 @@ export function DiagramReconcileWorkbenchClient() {
 
       setReconciliation(result);
       setComparisonId(result.comparisonId ?? null);
-      if (advisoryComparisonPath) {
-        const activeNodes = result.diagramNodeCount;
-        setModelNodeCount(activeNodes);
-      }
 
       setReconciliationLoadState("loaded");
       setReconciliationLoadError(null);
@@ -893,8 +1028,9 @@ export function DiagramReconcileWorkbenchClient() {
     advisoryComparisonPath,
     diagramMermaid,
     diagramSourceName,
-    reconcileBlockedReason,
+    reconcileBlockedReasonDetail,
     runId,
+    scrollToReconcileFieldAnchor,
     selectedSnapshotId,
   ]);
 
@@ -1107,8 +1243,8 @@ export function DiagramReconcileWorkbenchClient() {
       />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-honesty-line">
         {advisoryComparisonPath
-          ? "Advisory documentation accuracy. This is not a sealed review record."
-          : "This compares the saved diagram with inventory evidence. It does not change either one."}
+          ? "Advisory compare mode checks documentation accuracy against inventory. Nothing is written to a sealed review record."
+          : "Sealed reconcile mode compares the ingested diagram on a sealed review record with inventory evidence. It does not change either one."}
       </p>
 
       {loadError != null ? (
@@ -1200,7 +1336,8 @@ export function DiagramReconcileWorkbenchClient() {
         </p>
       ) : null}
 
-      <section className={cn("grid gap-4", cnCard)} aria-label="Reconciliation wizard">
+      <div className="grid gap-4 xl:grid-cols-2">
+      <section className={cn("grid gap-4", cnCard)} aria-label="Reconciliation wizard step 1">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>1. Diagram source</h2>
           <StatusTag
@@ -1208,9 +1345,33 @@ export function DiagramReconcileWorkbenchClient() {
             label={diagramSourceStepReadiness.label}
             data-testid="infra-diagram-reconcile-step-1-status"
           />
+          <StatusTag kind="neutral" label={workbenchModeStatusLabel} data-testid="infra-diagram-reconcile-mode-tag-step-1" />
         </div>
+        <OperatorSegmentedModeToolbar
+          ariaLabel="Diagram reconcile workbench mode"
+          activeTabId={workbenchMode}
+          onTabChange={handleWorkbenchModeChange}
+          tabs={[
+            {
+              id: "advisory",
+              label: "Advisory compare",
+              testId: "infra-diagram-reconcile-mode-advisory",
+            },
+            {
+              id: "sealed",
+              label: "Sealed reconcile",
+              testId: "infra-diagram-reconcile-mode-sealed",
+            },
+          ]}
+        />
+        {!advisoryComparisonPath ? (
+          <DiagramReconcileRecentSealedRecordsCombobox
+            selectedRunId={runId}
+            onSelectRunId={handleRunIdChange}
+          />
+        ) : null}
         {buyerPolishedShell ? (
-          <div className="grid gap-2">
+          <div className="grid max-w-xl gap-2">
             <Label htmlFor="infra-diagram-reconcile-run-id">
               Sealed Review Record ID
             </Label>
@@ -1220,10 +1381,11 @@ export function DiagramReconcileWorkbenchClient() {
               value={runId}
               onChange={(event) => handleRunIdChange(event.target.value)}
               placeholder="00000000-0000-0000-0000-000000000000"
+              disabled={advisoryComparisonPath}
             />
           </div>
         ) : (
-          <div className="grid gap-2">
+          <div className="grid max-w-xl gap-2">
             <Label htmlFor="infra-diagram-reconcile-run-id">
               Sealed Review Record ID
             </Label>
@@ -1234,16 +1396,27 @@ export function DiagramReconcileWorkbenchClient() {
               value={runId}
               onChange={(event) => handleRunIdChange(event.target.value)}
               placeholder="00000000-0000-0000-0000-000000000000"
+              disabled={advisoryComparisonPath}
             />
           </div>
         )}
-        {sealedReviewRecord.kind !== "idle" && sealedReviewRecord.kind !== "invalid-id" ? (
+        {(advisoryComparisonPath
+          ? sealedReviewRecord.kind !== "idle" && sealedReviewRecord.kind !== "invalid-id"
+          : sealedReviewRecord.kind !== "idle") ? (
           <div
             className="grid gap-2 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
             data-testid="infra-diagram-reconcile-sealed-record-strip"
           >
             {sealedReviewRecord.kind === "loading" ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Verifying sealed review record…</p>
+            ) : null}
+            {sealedReviewRecord.kind === "invalid-id" ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusTag kind="blocked" label="Blocked" />
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Enter a valid sealed review record ID before reconciling.
+                </p>
+              </div>
             ) : null}
             {sealedReviewRecord.kind === "not-found" || sealedReviewRecord.kind === "blocked" ? (
               <div className="flex flex-wrap items-center gap-2">
@@ -1279,23 +1452,29 @@ export function DiagramReconcileWorkbenchClient() {
             ) : null}
           </div>
         ) : null}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            data-testid="infra-diagram-reconcile-load-model"
-            disabled={!validRunId || !mutationsAllowed || loadingModel}
-            onClick={() => void loadExistingModel()}
-          >
-            Use existing ingested model
-          </Button>
-          {modelNodeCount != null ? (
-            <span className={cn("self-center text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {modelNodeCount} active node(s) loaded
-            </span>
-          ) : null}
-        </div>
-        <div className="grid gap-2">
+        {!advisoryComparisonPath ? (
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="infra-diagram-reconcile-load-model"
+              disabled={!validRunId || !mutationsAllowed || loadingModel}
+              aria-describedby={
+                diagramSourceActionReadiness != null ? "infra-diagram-reconcile-diagram-source-readiness" : undefined
+              }
+              onClick={() => void loadExistingModel()}
+            >
+              Use existing ingested model
+            </Button>
+            {modelNodeCount != null ? (
+              <span className={cn("self-center text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {modelNodeCount} active node(s) loaded
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+        <div className="grid max-w-xl gap-2">
           <Label htmlFor="infra-diagram-reconcile-source-name">Source Name</Label>
           <input
             id="infra-diagram-reconcile-source-name"
@@ -1305,12 +1484,12 @@ export function DiagramReconcileWorkbenchClient() {
             placeholder={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCE_NAME_PLACEHOLDER}
           />
         </div>
-        <div className="grid gap-2">
+        <div className="grid max-w-xl gap-2">
           <Label htmlFor="infra-diagram-reconcile-mermaid-input">Mermaid Diagram</Label>
           <textarea
             ref={mermaidInputRef}
             id="infra-diagram-reconcile-mermaid-input"
-            className={cn("min-h-[8rem] font-mono text-sm", cnField)}
+            className={cn("min-h-[8rem] max-w-xl font-mono text-sm", cnField)}
             data-testid="infra-diagram-reconcile-mermaid-input"
             value={diagramMermaid}
             onChange={(event) => setDiagramMermaid(event.target.value)}
@@ -1325,18 +1504,37 @@ export function DiagramReconcileWorkbenchClient() {
             {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DRAFT_RESTORED_LABEL}
           </p>
         ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          className={CTA_WIDTH.content}
-          data-testid="infra-diagram-reconcile-ingest"
-          disabled={ingestBusy || !validRunId || !mutationsAllowed || !validMermaidInput}
-          aria-describedby={diagramSourceActionError != null ? "infra-diagram-reconcile-diagram-source-error" : undefined}
-          onClick={runIngest}
-        >
-          {ingestBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-          {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_BUTTON_LABEL}
-        </Button>
+        {!advisoryComparisonPath ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className={CTA_WIDTH.content}
+            data-testid="infra-diagram-reconcile-ingest"
+            disabled={ingestBusy || diagramSourceActionReadiness != null}
+            aria-describedby={
+              diagramSourceActionError != null
+                ? "infra-diagram-reconcile-diagram-source-error"
+                : diagramSourceActionReadiness != null
+                  ? "infra-diagram-reconcile-diagram-source-readiness"
+                  : undefined
+            }
+            onClick={runIngest}
+          >
+            {ingestBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_BUTTON_LABEL}
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>(Ctrl+Enter)</span>
+          </Button>
+        ) : null}
+        {diagramSourceActionReadiness != null && !advisoryComparisonPath ? (
+          <p
+            id="infra-diagram-reconcile-diagram-source-readiness"
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagram-reconcile-diagram-source-readiness"
+          >
+            {diagramSourceActionReadiness}
+          </p>
+        ) : null}
         {diagramSourceActionError != null ? (
           <OperatorMutationInlineError
             message={diagramSourceActionError}
@@ -1345,7 +1543,7 @@ export function DiagramReconcileWorkbenchClient() {
         ) : null}
       </section>
 
-      <section className={cn("grid gap-4", cnCard)} aria-label="Snapshot selection">
+      <section className={cn("grid gap-4", cnCard)} aria-label="Reconciliation wizard step 2">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>2. Inventory snapshot</h2>
           <StatusTag
@@ -1354,7 +1552,7 @@ export function DiagramReconcileWorkbenchClient() {
             data-testid="infra-diagram-reconcile-step-2-status"
           />
         </div>
-        <div className="grid gap-2">
+        <div className="grid max-w-xl gap-2">
           <Label htmlFor="infra-diagram-reconcile-snapshot-picker">Inventory Snapshot</Label>
           <select
             id="infra-diagram-reconcile-snapshot-picker"
@@ -1392,8 +1590,9 @@ export function DiagramReconcileWorkbenchClient() {
           </div>
         ) : null}
       </section>
+      </div>
 
-      <section className="flex flex-col gap-3" aria-label="Run reconciliation">
+      <section className={cn("grid gap-4", cnCard)} aria-label="Reconciliation wizard step 3">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>3. Reconcile</h2>
           <StatusTag
@@ -1401,8 +1600,11 @@ export function DiagramReconcileWorkbenchClient() {
             label={reconcileStepReadiness.label}
             data-testid="infra-diagram-reconcile-step-3-status"
           />
+          <StatusTag kind="neutral" label={workbenchModeStatusLabel} data-testid="infra-diagram-reconcile-mode-tag-step-3" />
           <Button
             type="button"
+            size="sm"
+            className={CTA_WIDTH.content}
             data-testid="infra-diagram-reconcile-run"
             disabled={reconcileBusy || reconcileBlockedReason != null}
             aria-describedby={
@@ -1414,6 +1616,7 @@ export function DiagramReconcileWorkbenchClient() {
           >
             {reconcileBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
             {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_BUTTON_LABEL}
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>(Alt+Shift+R)</span>
           </Button>
           {loadingReconciliation ? (
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -1421,13 +1624,20 @@ export function DiagramReconcileWorkbenchClient() {
             </span>
           ) : null}
         </div>
-        {reconcileBlockedReason != null && reconcileActionError == null ? (
+        {reconcileBlockedReasonDetail != null && reconcileActionError == null ? (
           <p
             id="infra-diagram-reconcile-run-readiness"
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="infra-diagram-reconcile-run-readiness"
           >
-            {reconcileBlockedReason}
+            {reconcileBlockedReasonDetail.message}{" "}
+            <button
+              type="button"
+              className="text-al-link underline-offset-2 hover:underline"
+              onClick={() => scrollToReconcileFieldAnchor(reconcileBlockedReasonDetail.fieldAnchorId)}
+            >
+              Go to blocking field
+            </button>
           </p>
         ) : null}
         {reconcileActionError != null ? (
@@ -1464,10 +1674,18 @@ export function DiagramReconcileWorkbenchClient() {
         <section className="flex flex-col gap-4" aria-label="Reconciliation results">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Correspondence rows</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Correspondence rows</h2>
+                <StatusTag
+                  kind="neutral"
+                  label={workbenchModeStatusLabel}
+                  data-testid="infra-diagram-reconcile-mode-tag-results"
+                />
+              </div>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {reconciliation.diagramNodeCount} diagram nodes · {reconciliation.inventoryResourceCount} inventory
-                resources · {filteredRows.length} visible row(s)
+                resources · {filteredRows.length} visible row(s). Use <kbd className="font-mono text-xs">J</kbd> /{" "}
+                <kbd className="font-mono text-xs">K</kbd> to move between rows.
               </p>
             </div>
             <label className="flex flex-col gap-1">
@@ -1563,31 +1781,26 @@ export function DiagramReconcileWorkbenchClient() {
                 });
 
                 return (
-                  <EnterpriseTableRow
+                  <EnterpriseTableInteractiveRow
                     key={row.correspondenceId}
                     data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}
-                    className={cn(
-                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400",
-                      selectedCorrespondenceId === row.correspondenceId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
-                    )}
-                    role="button"
-                    tabIndex={0}
-                    aria-selected={selectedCorrespondenceId === row.correspondenceId}
-                    onClick={() => {
+                    selected={selectedCorrespondenceId === row.correspondenceId}
+                    onActivate={() => {
                       setSelectedCorrespondenceId(row.correspondenceId);
                       syncUrl({ correspondenceId: row.correspondenceId });
                     }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setSelectedCorrespondenceId(row.correspondenceId);
-                        syncUrl({ correspondenceId: row.correspondenceId });
-                      }
-                    }}
                   >
-                    <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      {formatDiagramCorrespondenceConfidenceBandLabel(row.confidenceBand)}
+                      <StatusTag
+                        kind={resolveDiagramReconcileMatchKindStatusKind(row.matchKind)}
+                        label={formatDiagramReconcileMatchKindLabel(row.matchKind)}
+                      />
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>
+                      <StatusTag
+                        kind={resolveDiagramReconcileConfidenceStatusKind(row.confidenceBand)}
+                        label={formatDiagramCorrespondenceConfidenceBandLabel(row.confidenceBand)}
+                      />
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       <div>{formatDiagramReconcileResourceLabelForDisplay(row)}</div>
@@ -1636,21 +1849,35 @@ export function DiagramReconcileWorkbenchClient() {
                         >
                           Copy ARM id
                         </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={findingBusyId === row.correspondenceId}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            void runCreateFinding(row);
-                          }}
-                        >
-                          {findingBusyId === row.correspondenceId ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                          ) : null}
-                          Create operational finding
-                        </Button>
+                        {ingestedFindingId != null ? (
+                          <div className="flex flex-col gap-1">
+                            <StatusTag kind="ready" label="Finding recorded" />
+                            <Link
+                              className="text-al-link text-sm hover:underline"
+                              href={governanceFindingInspectHref(runId.trim(), ingestedFindingId)}
+                              data-testid={`infra-diagram-reconcile-finding-link-${row.correspondenceId}`}
+                              onClick={(event) => event.stopPropagation()}
+                            >
+                              Open finding
+                            </Link>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={findingBusyId === row.correspondenceId}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void runCreateFinding(row);
+                            }}
+                          >
+                            {findingBusyId === row.correspondenceId ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                            ) : null}
+                            Create operational finding
+                          </Button>
+                        )}
                         {rowActionError != null && rowActionError.correspondenceId === row.correspondenceId ? (
                           <OperatorMutationInlineError
                             message={rowActionError.message}
@@ -1724,7 +1951,7 @@ export function DiagramReconcileWorkbenchClient() {
                         ) : null}
                       </div>
                     </EnterpriseTableCell>
-                  </EnterpriseTableRow>
+                  </EnterpriseTableInteractiveRow>
                 );
               })}
             </EnterpriseTableBody>
@@ -1736,9 +1963,10 @@ export function DiagramReconcileWorkbenchClient() {
               <EnterpriseTable ariaLabel="Diagram connector gap rows">
                 <EnterpriseTableHead>
                   <EnterpriseTableRow>
-                    <EnterpriseTableHeaderCell>Drawing</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Inventory</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Gap</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Diagram edge</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Inventory association</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Gap kind</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Explanation</EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
@@ -1751,6 +1979,12 @@ export function DiagramReconcileWorkbenchClient() {
                         {gap.fromCloudResourceId ?? "—"} → {gap.toCloudResourceId ?? "—"}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{gap.associationType ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <StatusTag
+                          kind="needs-attention"
+                          label={formatDiagramReconcileEdgeGapKindLabel(gap.gapKind)}
+                        />
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell>{gap.explainText}</EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
@@ -1764,12 +1998,12 @@ export function DiagramReconcileWorkbenchClient() {
         <DiagramReconcileClaimOrientationStrip />
       </main>
 
-      {sealedReviewRecord.kind === "loaded" && modelNodeCount != null && modelNodeCount > 0 ? (
+      {sealedReviewRecord.kind === "loaded" && ingestConfirmOpen ? (
         <DiagramReconcileIngestConfirmDialog
           open={ingestConfirmOpen}
           reviewTitle={sealedReviewRecord.reviewTitle}
           runId={sealedReviewRecord.runId}
-          existingNodeCount={modelNodeCount}
+          existingNodeCount={modelNodeCount ?? 0}
           onOpenChange={setIngestConfirmOpen}
           onConfirm={() => {
             void executeIngest();

@@ -378,7 +378,11 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelectorAll(".font-semibold")).toHaveLength(2);
     expect(caption.querySelector(".font-semibold")?.textContent).toBe("may");
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
-    expect(screen.getByText(/Reading a card:/)).toBeInTheDocument();
+    const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
+    expect(readingCardCaption).toHaveTextContent(
+      "Reading a card: the first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.",
+    );
+    expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });
 
   it("does not show the data flow reading helper for other diagram types", async () => {

@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using ArchLucid.Api.Auth.Services;
@@ -51,6 +52,65 @@ public sealed class RecentAuthenticationEvaluatorTests
             "Bearer"));
 
         Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage()
+    {
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", "not-a-number"));
+        identity.AddClaim(new Claim("auth_time", fresh.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_every_auth_time_claim_is_unparseable_even_with_fresh_iat()
+    {
+        long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", "garbage-one"));
+        identity.AddClaim(new Claim("auth_time", "garbage-two"));
+        identity.AddClaim(new Claim("iat", iat.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values()
+    {
+        long stale = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds();
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", stale.ToString()));
+        identity.AddClaim(new Claim("auth_time", fresh.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time()
+    {
+        long stale = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds();
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, stale.ToString()));
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, fresh.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
     }
 
     [Fact]

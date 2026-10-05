@@ -23,7 +23,7 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(results);
 
-        string defaultRegion = ResolveDefaultRegion(request);
+        IReadOnlyList<string> requestRegions = ResolveRequestRegions(request);
 
         foreach (AgentResult result in results)
         {
@@ -34,23 +34,31 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
             foreach (ManifestService service in proposal.AddedServices ?? [])
             {
-                string region = string.IsNullOrWhiteSpace(service.AzureArmRegion) ? defaultRegion : service.AzureArmRegion.Trim();
-                TryAppendRegionWarning(proposal, region, ResolveRegionValidationPlatformHint(service.RuntimePlatform));
+                AppendRegionWarnings(
+                    proposal,
+                    service.AzureArmRegion,
+                    requestRegions,
+                    ResolveRegionValidationPlatformHint(service.RuntimePlatform));
             }
 
             foreach (ManifestDatastore datastore in proposal.AddedDatastores ?? [])
             {
-                string region = string.IsNullOrWhiteSpace(datastore.AzureArmRegion) ? defaultRegion : datastore.AzureArmRegion.Trim();
-                TryAppendRegionWarning(proposal, region, ResolveRegionValidationPlatformHint(datastore.RuntimePlatform));
+                AppendRegionWarnings(
+                    proposal,
+                    datastore.AzureArmRegion,
+                    requestRegions,
+                    ResolveRegionValidationPlatformHint(datastore.RuntimePlatform));
             }
         }
 
         return Task.CompletedTask;
     }
 
-    private static string ResolveDefaultRegion(ArchitectureRequest request)
+    private static IReadOnlyList<string> ResolveRequestRegions(ArchitectureRequest request)
     {
-        foreach (string constraint in request.Constraints)
+        List<string> regions = [];
+
+        foreach (string constraint in request.Constraints ?? [])
         {
             if (!constraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -58,10 +66,27 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
             string[] parts = constraint.Split(':', 2, StringSplitOptions.TrimEntries);
 
             if (parts.Length == 2 && !string.IsNullOrWhiteSpace(parts[1]))
-                return parts[1];
+                regions.Add(parts[1]);
         }
 
-        return string.Empty;
+        return regions;
+    }
+
+    private static void AppendRegionWarnings(
+        AgentTopologyProposal proposal,
+        string? resourceRegion,
+        IReadOnlyList<string> requestRegions,
+        string suggestedPlatform)
+    {
+        if (!string.IsNullOrWhiteSpace(resourceRegion))
+        {
+            TryAppendRegionWarning(proposal, resourceRegion.Trim(), suggestedPlatform);
+
+            return;
+        }
+
+        foreach (string requestRegion in requestRegions)
+            TryAppendRegionWarning(proposal, requestRegion, suggestedPlatform);
     }
 
     private static void TryAppendRegionWarning(AgentTopologyProposal proposal, string tenantRegion, string suggestedPlatform)

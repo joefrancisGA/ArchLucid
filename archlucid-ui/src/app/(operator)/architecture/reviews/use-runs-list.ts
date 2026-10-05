@@ -135,6 +135,15 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   useFocusTrap(mobileInspectorShellRef, mobileInspectorTrapActive);
 
   useEffect(() => {
+    if (filterTextRef.current === urlFilterText) {
+      return;
+    }
+
+    filterTextRef.current = urlFilterText;
+    setFilterTextState(urlFilterText);
+  }, [urlFilterText]);
+
+  useEffect(() => {
     const syncFilterTextFromUrl = (): void => {
       const next = parseRunsListSearchQuery(new URLSearchParams(readWindowLocationSearch()).get("q"));
 
@@ -219,6 +228,18 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   );
 
   useEffect(() => {
+    const next = [...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)];
+    const current = compareSelectionRef.current;
+
+    if (current.length === next.length && current.every((id, index) => id === next[index])) {
+      return;
+    }
+
+    compareSelectionRef.current = next;
+    setCompareSelectionState(next);
+  }, [urlCompareRunsRaw]);
+
+  useEffect(() => {
     const syncCompareSelectionFromUrl = (): void => {
       const next = [
         ...parseRunsListCompareRunIdsFromSearch(
@@ -250,24 +271,21 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       return;
     }
 
-    if (urlInspectorRunId.length > 0) {
-      const fromUrl = safeRuns.find((run) => run.runId === urlInspectorRunId) ?? null;
+    if (urlInspectorRunId.length === 0) {
+      setSelectedRunState(null);
 
-      if (fromUrl !== null) {
-        setSelectedRunState(fromUrl);
-
-        return;
-      }
+      return;
     }
 
-    setSelectedRunState((current) => {
-      if (current !== null && safeRuns.some((r) => r.runId === current.runId)) {
-        return current;
-      }
+    const fromUrl = safeRuns.find((run) => run.runId === urlInspectorRunId) ?? null;
 
-      // Keep drawer closed on initial load; only auto-close if the selected run was removed.
-      return null;
-    });
+    if (fromUrl !== null) {
+      setSelectedRunState(fromUrl);
+
+      return;
+    }
+
+    setSelectedRunState(null);
   }, [safeRuns, urlInspectorRunId]);
 
   const closeInspector = useCallback(() => {

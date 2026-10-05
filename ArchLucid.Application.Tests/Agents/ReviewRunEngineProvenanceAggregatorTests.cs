@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -108,6 +110,37 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
         provenance.TotalOutputTokens.Should().Be(50);
         provenance.EstimatedCostUsd.Should().Be(0.0025m);
         provenance.PolicyPackVersion.Should().BeNull();
+    }
+
+    [Fact]
+    public void Aggregate_tolerates_null_policies_on_deserialized_evidence_package()
+    {
+        const string evidenceJson = """
+            {
+              "evidencePackageId": "pkg-1",
+              "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "requestId": "req-1",
+              "policies": null
+            }
+            """;
+
+        AgentEvidencePackage? evidence =
+            JsonSerializer.Deserialize<AgentEvidencePackage>(evidenceJson, ContractJson.Default);
+
+        evidence.Should().NotBeNull();
+
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        List<AgentExecutionTrace> traces = [BuildTrace("gpt-4o-arch", inputTokens: 10, outputTokens: 5)];
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence!,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.PolicyPackVersion.Should().BeNull();
+        provenance.ProviderKind.Should().Be("azure-openai");
     }
 
     private static RunRecord BuildRun(StructuralExecutionMode mode)

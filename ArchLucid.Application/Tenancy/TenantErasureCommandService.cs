@@ -88,7 +88,14 @@ public sealed class TenantErasureCommandService(
         bool restored = await _tenantRepository.TryRestoreTenantErasureQuarantineAsync(tenantId, cancellationToken);
 
         if (!restored)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null && afterMiss.OffboardedUtc is null)
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureQuarantineRestored,
@@ -146,7 +153,14 @@ public sealed class TenantErasureCommandService(
             cancellationToken);
 
         if (!ok)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null && IsIdenticalLegalHoldRetry(afterMiss, untilUtc, normalizedReason))
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldSet,
@@ -197,7 +211,14 @@ public sealed class TenantErasureCommandService(
         bool approved = await _tenantRepository.TryApproveTenantErasureAsync(tenantId, now, actorUserId, cancellationToken);
 
         if (!approved)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss?.TenantErasureApprovedUtc is not null)
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureApproved,
@@ -221,15 +242,25 @@ public sealed class TenantErasureCommandService(
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        if (tenant is null || tenant.LegalHoldUntilUtc is null)
+        if (tenant is null)
             return false;
+
+        if (tenant.LegalHoldUntilUtc is null)
+            return true;
 
         DateTimeOffset? priorUntil = tenant.LegalHoldUntilUtc;
 
         bool cleared = await _tenantRepository.TryClearTenantErasureLegalHoldAsync(tenantId, cancellationToken);
 
         if (!cleared)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null && afterMiss.LegalHoldUntilUtc is null)
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldCleared,
@@ -250,7 +281,8 @@ public sealed class TenantErasureCommandService(
 
         string? storedReason = NormalizeLegalHoldReason(tenant.LegalHoldReason);
 
-        return tenant.LegalHoldUntilUtc == untilUtc
+        return tenant.LegalHoldUntilUtc.HasValue
+            && tenant.LegalHoldUntilUtc.Value.UtcDateTime == untilUtc.UtcDateTime
             && string.Equals(storedReason, normalizedReason, StringComparison.OrdinalIgnoreCase);
     }
 

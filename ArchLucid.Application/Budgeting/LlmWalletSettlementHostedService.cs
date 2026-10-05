@@ -38,6 +38,17 @@ public sealed class LlmWalletSettlementHostedService(
                             .ConfigureAwait(false);
                     }
                 }
+                else if (item.Kind == LlmWalletSettlementKind.RefillCredit)
+                {
+                    await walletService
+                        .ApplyWebhookPaymentIntentSucceededAsync(
+                            item.TenantId,
+                            item.StripePaymentIntentId!,
+                            item.AmountUsd,
+                            item.CorrelationId,
+                            stoppingToken)
+                        .ConfigureAwait(false);
+                }
                 else
                 {
                     await walletService.TryAutoRefillAsync(item.TenantId, item.CorrelationId, stoppingToken).ConfigureAwait(false);

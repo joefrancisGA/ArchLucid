@@ -149,6 +149,27 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate_nested_in_wrapper_when_deadlock_is_listed_first()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException(
+                    "parallel persist failed",
+                    new AggregateException(deadlock, fkViolation));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_generic_overload_retries_transient_sql_deadlock()
     {
         int attempts = 0;
@@ -291,6 +312,32 @@ public sealed class OrchestratorTransientDbRetryTests
 
                 if (attempts == 1)
                     throw SqlExceptionTestFactory.Create(40613);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_aggregate_inner_wraps_nested_aggregate()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                {
+                    throw new AggregateException(
+                        new InvalidOperationException(
+                            "parallel persist failed",
+                            new AggregateException(deadlock)));
+                }
 
                 return Task.CompletedTask;
             },
@@ -653,6 +700,29 @@ public sealed class OrchestratorTransientDbRetryTests
             CancellationToken.None);
 
         attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException(
+                    "parallel persist failed",
+                    new AggregateException());
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+        SqlTransientDetector.IsTransient(
+                new InvalidOperationException("parallel persist failed", new AggregateException()))
+            .Should()
+            .BeFalse("empty nested aggregate shells carry no transient SQL on the wrapper chain");
     }
 
     [SkippableFact]

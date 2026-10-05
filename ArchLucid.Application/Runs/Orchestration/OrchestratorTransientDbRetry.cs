@@ -61,13 +61,35 @@ public static class OrchestratorTransientDbRetry
     /// </summary>
     private static bool IsRetriableOrchestratorDbFailure(Exception ex)
     {
-        if (ex is AggregateException aggregate)
-        {
-            IReadOnlyCollection<Exception> inners = aggregate.Flatten().InnerExceptions;
-
+        if (TryGetParallelPersistInners(ex, out IReadOnlyCollection<Exception> inners))
             return inners.Count > 0 && inners.All(SqlTransientDetector.IsTransient);
-        }
 
         return SqlTransientDetector.IsTransient(ex);
+    }
+
+    /// <summary>
+    ///     Repository parallel persists surface <see cref="AggregateException" /> either at the root or inside a
+    ///     wrapper such as <see cref="InvalidOperationException" />. Apply the same all-inners-must-be-transient rule
+    ///     in both shapes so mixed permanent/transient aggregates fail fast regardless of inner ordering.
+    /// </summary>
+    private static bool TryGetParallelPersistInners(Exception ex, out IReadOnlyCollection<Exception> inners)
+    {
+        if (ex is AggregateException aggregate)
+        {
+            inners = aggregate.Flatten().InnerExceptions;
+            return true;
+        }
+
+        for (Exception? current = ex.InnerException; current is not null; current = current.InnerException)
+        {
+            if (current is AggregateException nested)
+            {
+                inners = nested.Flatten().InnerExceptions;
+                return true;
+            }
+        }
+
+        inners = Array.Empty<Exception>();
+        return false;
     }
 }

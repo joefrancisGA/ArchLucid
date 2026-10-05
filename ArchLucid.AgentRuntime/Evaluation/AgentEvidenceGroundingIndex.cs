@@ -23,6 +23,17 @@ internal static class AgentEvidenceGroundingIndex
             get;
         }
 
+        internal bool AllRefsResolve(IReadOnlyList<string> refs)
+        {
+            foreach (string r in refs)
+            {
+                if (string.IsNullOrWhiteSpace(r) || !_refBlobById.ContainsKey(r))
+                    return false;
+            }
+
+            return true;
+        }
+
         internal string ResolveRefsBlob(IReadOnlyList<string> refs)
         {
             if (refs.Count == 0)

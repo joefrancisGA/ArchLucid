@@ -358,6 +358,42 @@ public sealed class FindingIacStubGeneratorTests
             "emission-withheld findings must not trigger IaC generation even when enrichment merge re-hydrates them into Findings");
     }
 
+    [Fact]
+    public async Task GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            Findings = null!,
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([result]);
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+
+        FindingIacStubGenerator sut = CreateSut(
+            new Mock<IAgentCompletionClient>().Object,
+            resultRepository.Object,
+            enrichmentRepository.Object);
+
+        Func<Task> act = () => sut.GenerateAndPersistStubsForRunAsync("run-1", CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+
+        enrichmentRepository.Verify(
+            r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static FindingIacStubGenerator CreateSut(
         IAgentCompletionClient completionClient,
         IAgentResultRepository resultRepository,

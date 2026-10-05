@@ -233,6 +233,45 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ApplyWebhookPaymentIntentSucceededAsync_enqueues_auto_refill_when_credit_leaves_balance_below_trigger_threshold()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool credited = await service.ApplyWebhookPaymentIntentSucceededAsync(
+            tenantId,
+            "pi_small_topup",
+            5m,
+            Guid.NewGuid(),
+            CancellationToken.None);
+
+        credited.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(5m);
+        view.BalanceUsd.Should().BeLessThan(LlmTenantWalletDefaults.RefillTriggerThresholdUsd);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue(
+            "Stripe payment-intent webhook credit must enqueue auto-refill when balance remains below the trigger threshold");
+        item.Kind.Should().Be(LlmWalletSettlementKind.AutoRefill);
+        item.TenantId.Should().Be(tenantId);
+    }
+
+    [SkippableFact]
     public async Task ApplyWebhookPaymentIntentSucceededAsync_is_idempotent_for_same_payment_intent()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -336,6 +375,232 @@ public sealed class LlmTenantWalletServiceTests
         LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
         view.BalanceUsd.Should().Be(55m);
         view.AutoRefillsThisUtcMonthCount.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task TryAutoRefillAsync_parallel_requests_charge_stripe_only_once_when_balance_below_trigger()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            5m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        int chargeCalls = 0;
+        int paymentIntentCounter = 0;
+        using SemaphoreSlim chargeStarted = new(0, 2);
+        using SemaphoreSlim allowChargeComplete = new(0, 2);
+
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                Interlocked.Increment(ref chargeCalls);
+                chargeStarted.Release();
+                await allowChargeComplete.WaitAsync();
+
+                return StripeWalletChargeResult.Ok($"pi_{Interlocked.Increment(ref paymentIntentCounter)}");
+            });
+
+        LlmTenantWalletService service = CreateService(repository, stripe.Object);
+
+        Task<bool> first = service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        Task<bool> second = service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+
+        (await chargeStarted.WaitAsync(TimeSpan.FromSeconds(5))).Should().BeTrue();
+        chargeCalls.Should().Be(1, "concurrent auto-refill must not double-charge Stripe while the first refill is in flight");
+
+        allowChargeComplete.Release();
+
+        bool[] results = await Task.WhenAll(first, second);
+
+        results.Count(static succeeded => succeeded).Should().Be(1);
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+    }
+
+    [SkippableFact]
+    public async Task TryAutoRefillAsync_retries_wallet_credit_without_second_stripe_charge_when_first_credit_fails()
+    {
+        InMemoryLlmTenantWalletRepository inner = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await inner.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await inner.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await inner.TryCreditRefillAsync(
+            tenantId,
+            5m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        int creditAttempts = 0;
+        Mock<ILlmTenantWalletRepository> repository = new();
+        repository
+            .Setup(r => r.GetOrCreateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, CancellationToken ct) => inner.GetOrCreateAsync(id, ct));
+        repository
+            .Setup(r => r.UpdateSettingsAsync(It.IsAny<LlmTenantWalletUpdateSettingsRequest>(), It.IsAny<CancellationToken>()))
+            .Returns((LlmTenantWalletUpdateSettingsRequest request, CancellationToken ct) => inner.UpdateSettingsAsync(request, ct));
+        repository
+            .Setup(r => r.TryCreditRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<byte[]>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((
+                Guid id,
+                decimal amountUsd,
+                Guid correlationId,
+                string? stripePaymentIntentId,
+                int utcYearMonth,
+                byte[] expectedRowVersion,
+                CancellationToken ct) =>
+            {
+                creditAttempts++;
+
+                if (creditAttempts <= LlmTenantWalletConsumeRetry.MaxOptimisticRetries)
+                    return Task.FromResult(LlmTenantWalletCreditResult.Conflict());
+
+                return inner.TryCreditRefillAsync(
+                    id,
+                    amountUsd,
+                    correlationId,
+                    stripePaymentIntentId,
+                    utcYearMonth,
+                    expectedRowVersion,
+                    ct);
+            });
+        repository
+            .Setup(r => r.TryConsumeAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, decimal amountUsd, Guid correlationId, byte[] expectedRowVersion, CancellationToken ct) =>
+                inner.TryConsumeAsync(id, amountUsd, correlationId, expectedRowVersion, ct));
+        repository
+            .Setup(r => r.TryCreditAdjustmentAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, decimal amountUsd, Guid correlationId, byte[] expectedRowVersion, CancellationToken ct) =>
+                inner.TryCreditAdjustmentAsync(id, amountUsd, correlationId, expectedRowVersion, ct));
+        repository
+            .Setup(r => r.TryInsertStripeWebhookIdempotencyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string stripeEventId, string eventType, CancellationToken ct) =>
+                inner.TryInsertStripeWebhookIdempotencyAsync(stripeEventId, eventType, ct));
+        repository
+            .Setup(r => r.LedgerContainsPaymentIntentAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string stripePaymentIntentId, CancellationToken ct) =>
+                inner.LedgerContainsPaymentIntentAsync(stripePaymentIntentId, ct));
+
+        int chargeCalls = 0;
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref chargeCalls);
+
+                return Task.FromResult(StripeWalletChargeResult.Ok("pi_pending_credit"));
+            });
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository.Object, stripe.Object, queue);
+
+        bool first = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        first.Should().BeFalse();
+        chargeCalls.Should().Be(1);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem queued).Should().BeTrue();
+        queued.Kind.Should().Be(LlmWalletSettlementKind.RefillCredit);
+        queued.StripePaymentIntentId.Should().Be("pi_pending_credit");
+
+        bool second = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        second.Should().BeTrue();
+        chargeCalls.Should().Be(1);
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+    }
+
+    [SkippableFact]
+    public async Task TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            50m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 30m, CancellationToken.None);
+
+        authorized.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(8m);
+        view.BalanceUsd.Should().BeLessThan(LlmTenantWalletDefaults.RefillTriggerThresholdUsd);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue("overage authorize debits the wallet and must enqueue auto-refill like settlement consume");
+        item.Kind.Should().Be(LlmWalletSettlementKind.AutoRefill);
+        item.TenantId.Should().Be(tenantId);
     }
 
     [SkippableFact]
@@ -495,6 +760,54 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ReconcileOverageInternalAsync_enqueues_auto_refill_when_overage_credit_leaves_balance_below_trigger_threshold()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            65m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 40m, CancellationToken.None);
+        authorized.Should().BeTrue();
+
+        while (queue.Reader.TryRead(out _))
+        {
+        }
+
+        await service.ReconcileOverageInternalAsync(tenantId, 39.99m, 40m, Guid.NewGuid(), CancellationToken.None);
+
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().BeLessThan(LlmTenantWalletDefaults.RefillTriggerThresholdUsd);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue(
+            "overage reconciliation credit must enqueue auto-refill when balance remains below the trigger threshold");
+        item.Kind.Should().Be(LlmWalletSettlementKind.AutoRefill);
+        item.TenantId.Should().Be(tenantId);
+    }
+
+    [SkippableFact]
     public async Task ReconcileOverageInternalAsync_credits_wallet_when_actual_less_than_authorized()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -536,6 +849,7 @@ public sealed class LlmTenantWalletServiceTests
             stripeGateway,
             audit.Object,
             resolvedTimeProvider,
+            settlementQueue,
             NullLogger<LlmTenantWalletRefillStage>.Instance);
 
         return new LlmTenantWalletService(

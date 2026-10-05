@@ -166,6 +166,8 @@ public sealed class AzureInventoryDiffService(
             },
             cancellationToken);
 
+        await NotifyDiffConsumersAsync(persisted.Summary, [], cancellationToken);
+
         return new AzureInventoryDiffComputeResult
         {
             Succeeded = true,

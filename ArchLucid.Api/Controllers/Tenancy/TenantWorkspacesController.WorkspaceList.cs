@@ -42,6 +42,21 @@ public sealed partial class TenantWorkspacesController
         int retentionDays =
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
 
+        List<TenantWorkspaceProjectApiDto> workspaceProjects = byWorkspace[currentWorkspace.WorkspaceId]
+            .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(
+                p => new TenantWorkspaceProjectApiDto
+                {
+                    ProjectId = p.Id,
+                    Name = p.Name,
+                    DisplayName = p.Name
+                })
+            .ToList();
+
+        Guid defaultProjectId = workspaceProjects.Any(p => p.ProjectId == currentWorkspace.DefaultProjectId)
+            ? currentWorkspace.DefaultProjectId
+            : Guid.Empty;
+
         TenantWorkspacesListResponse body = new()
         {
             RetentionDays = retentionDays,
@@ -52,17 +67,8 @@ public sealed partial class TenantWorkspacesController
                     WorkspaceId = currentWorkspace.WorkspaceId,
                     Name = currentWorkspace.Name,
                     DisplayName = currentWorkspace.Name,
-                    DefaultProjectId = currentWorkspace.DefaultProjectId,
-                    Projects = byWorkspace[currentWorkspace.WorkspaceId]
-                        .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
-                        .Select(
-                            p => new TenantWorkspaceProjectApiDto
-                            {
-                                ProjectId = p.Id,
-                                Name = p.Name,
-                                DisplayName = p.Name
-                            })
-                        .ToList()
+                    DefaultProjectId = defaultProjectId,
+                    Projects = workspaceProjects
                 }
             ]
         };

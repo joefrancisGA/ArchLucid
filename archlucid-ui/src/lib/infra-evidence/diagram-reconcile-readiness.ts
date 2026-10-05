@@ -1,4 +1,6 @@
 import type { DiagramReconcileSealedReviewRecordState } from "@/lib/infra-evidence/diagram-reconcile-sealed-review-record";
+import type { DiagramReconcileWorkbenchMode } from "@/lib/infra-evidence/diagram-reconcile-workbench-mode";
+import { isDiagramReconcileAdvisoryWorkbenchMode } from "@/lib/infra-evidence/diagram-reconcile-workbench-mode";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type DiagramReconcileStepReadiness = {
@@ -6,13 +8,21 @@ export type DiagramReconcileStepReadiness = {
   readonly kind: EnterpriseStatusKind;
 };
 
-function isAdvisoryDiagramComparisonPath(
-  sealedRecord: DiagramReconcileSealedReviewRecordState,
-): boolean {
-  return sealedRecord.kind === "idle" || sealedRecord.kind === "invalid-id";
+export type DiagramReconcileBlockedReasonDetail = {
+  readonly message: string;
+  readonly fieldAnchorId: string;
+};
+
+export const DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID = "infra-diagram-reconcile-run-id";
+export const DIAGRAM_RECONCILE_FIELD_ANCHOR_MERMAID = "infra-diagram-reconcile-mermaid-input";
+export const DIAGRAM_RECONCILE_FIELD_ANCHOR_SNAPSHOT = "infra-diagram-reconcile-snapshot-picker";
+
+function isAdvisoryDiagramComparisonPath(workbenchMode: DiagramReconcileWorkbenchMode): boolean {
+  return isDiagramReconcileAdvisoryWorkbenchMode(workbenchMode);
 }
 
 export function resolveDiagramReconcileDiagramSourceStepReadiness(input: {
+  readonly workbenchMode: DiagramReconcileWorkbenchMode;
   readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
   readonly modelNodeCount: number | null;
   readonly loadingModel: boolean;
@@ -22,7 +32,7 @@ export function resolveDiagramReconcileDiagramSourceStepReadiness(input: {
     return { label: "Loading model", kind: "in-progress" };
   }
 
-  if (isAdvisoryDiagramComparisonPath(input.sealedRecord)) {
+  if (isAdvisoryDiagramComparisonPath(input.workbenchMode)) {
     if (input.modelNodeCount != null && input.modelNodeCount > 0) {
       return { label: "Model ready", kind: "ready" };
     }
@@ -41,6 +51,7 @@ export function resolveDiagramReconcileDiagramSourceStepReadiness(input: {
   if (
     input.sealedRecord.kind === "not-found"
     || input.sealedRecord.kind === "blocked"
+    || input.sealedRecord.kind === "invalid-id"
     || (input.sealedRecord.kind === "loaded" && !input.sealedRecord.isSealed)
   ) {
     return { label: "Needs attention", kind: "needs-attention" };
@@ -65,8 +76,17 @@ export function resolveDiagramReconcileSnapshotStepReadiness(input: {
   readonly selectedSnapshotId: string;
   readonly loadingSnapshots: boolean;
   readonly snapshotCount: number;
+  readonly knownSnapshotIds?: readonly string[];
 }): DiagramReconcileStepReadiness {
+  const selectedId = input.selectedSnapshotId.trim();
+
   if (input.loadingSnapshots) {
+    const knownIds = input.knownSnapshotIds ?? [];
+
+    if (selectedId.length > 0 && knownIds.includes(selectedId)) {
+      return { label: "Snapshot selected", kind: "ready" };
+    }
+
     return { label: "Loading snapshots", kind: "in-progress" };
   }
 
@@ -74,7 +94,7 @@ export function resolveDiagramReconcileSnapshotStepReadiness(input: {
     return { label: "No snapshots", kind: "needs-attention" };
   }
 
-  if (input.selectedSnapshotId.trim().length > 0) {
+  if (selectedId.length > 0) {
     return { label: "Snapshot selected", kind: "ready" };
   }
 
@@ -82,6 +102,7 @@ export function resolveDiagramReconcileSnapshotStepReadiness(input: {
 }
 
 export function resolveDiagramReconcileReconcileStepReadiness(input: {
+  readonly workbenchMode: DiagramReconcileWorkbenchMode;
   readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
   readonly selectedSnapshotId: string;
   readonly modelNodeCount: number | null;
@@ -102,7 +123,7 @@ export function resolveDiagramReconcileReconcileStepReadiness(input: {
     || input.mermaidDraft.trim().length > 0;
 
   if (
-    isAdvisoryDiagramComparisonPath(input.sealedRecord)
+    isAdvisoryDiagramComparisonPath(input.workbenchMode)
     && input.selectedSnapshotId.trim().length > 0
     && hasDiagramSource
   ) {
@@ -119,64 +140,156 @@ export function resolveDiagramReconcileReconcileStepReadiness(input: {
     return { label: "Ready to reconcile", kind: "ready" };
   }
 
+  const blocked = resolveDiagramReconcileBlockedReasonDetail({
+    workbenchMode: input.workbenchMode,
+    sealedRecord: input.sealedRecord,
+    selectedSnapshotId: input.selectedSnapshotId,
+    modelNodeCount: input.modelNodeCount,
+    mermaidDraft: input.mermaidDraft,
+  });
+
+  if (blocked != null) {
+    return { label: blocked.message, kind: "needs-attention" };
+  }
+
   return { label: "Needs prerequisites", kind: "needs-attention" };
 }
 
-export function resolveDiagramReconcileBlockedReason(input: {
+export function resolveDiagramReconcileBlockedReasonDetail(input: {
+  readonly workbenchMode: DiagramReconcileWorkbenchMode;
   readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
   readonly selectedSnapshotId: string;
   readonly modelNodeCount: number | null;
   readonly mermaidDraft: string;
-}): string | null {
-  if (isAdvisoryDiagramComparisonPath(input.sealedRecord)) {
+}): DiagramReconcileBlockedReasonDetail | null {
+  if (isAdvisoryDiagramComparisonPath(input.workbenchMode)) {
     if (input.selectedSnapshotId.trim().length === 0) {
-      return "Needs an inventory snapshot.";
+      return {
+        message: "Select an inventory snapshot in step 2.",
+        fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_SNAPSHOT,
+      };
     }
 
-    const hasDiagramSource =
-      (input.modelNodeCount != null && input.modelNodeCount > 0)
-      || input.mermaidDraft.trim().length > 0;
+    const hasDiagramSource = input.mermaidDraft.trim().length > 0;
 
     if (!hasDiagramSource) {
-      return "Needs a structured diagram draft or uploaded source.";
+      return {
+        message: "Add a Mermaid diagram draft in step 1.",
+        fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_MERMAID,
+      };
     }
 
     return null;
   }
 
+  if (input.sealedRecord.kind === "idle") {
+    return {
+      message: "Enter a sealed review record ID in step 1.",
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID,
+    };
+  }
+
   if (input.sealedRecord.kind === "invalid-id") {
-    return "Needs a valid sealed review record ID.";
+    return {
+      message: "Enter a valid sealed review record ID in step 1.",
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID,
+    };
   }
 
   if (input.sealedRecord.kind === "loading") {
-    return "Verifying sealed review record…";
+    return {
+      message: "Verifying sealed review record…",
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID,
+    };
   }
 
   if (input.sealedRecord.kind === "not-found") {
-    return input.sealedRecord.message;
+    return {
+      message: input.sealedRecord.message,
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID,
+    };
   }
 
   if (input.sealedRecord.kind === "blocked") {
-    return input.sealedRecord.message;
+    return {
+      message: input.sealedRecord.message,
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID,
+    };
   }
 
   if (input.sealedRecord.kind === "loaded" && !input.sealedRecord.isSealed) {
-    return "Review record is not sealed — finalize the record before reconciling.";
+    return {
+      message: "Review record is not sealed — finalize the record before reconciling.",
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_RUN_ID,
+    };
   }
 
   if (input.selectedSnapshotId.trim().length === 0) {
-    return "Needs an inventory snapshot.";
+    return {
+      message: "Select an inventory snapshot in step 2.",
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_SNAPSHOT,
+    };
   }
 
   if (input.modelNodeCount == null || input.modelNodeCount <= 0) {
-    return "Needs an ingested diagram model on this review record.";
+    return {
+      message: "Ingest a diagram model on this sealed review record in step 1.",
+      fieldAnchorId: DIAGRAM_RECONCILE_FIELD_ANCHOR_MERMAID,
+    };
   }
 
   return null;
 }
 
+export function resolveDiagramReconcileBlockedReason(input: {
+  readonly workbenchMode: DiagramReconcileWorkbenchMode;
+  readonly sealedRecord: DiagramReconcileSealedReviewRecordState;
+  readonly selectedSnapshotId: string;
+  readonly modelNodeCount: number | null;
+  readonly mermaidDraft: string;
+}): string | null {
+  const detail = resolveDiagramReconcileBlockedReasonDetail(input);
+
+  return detail?.message ?? null;
+}
+
 export function isDiagramReconcileAdvisoryComparisonPath(
-  sealedRecord: DiagramReconcileSealedReviewRecordState,
+  workbenchMode: DiagramReconcileWorkbenchMode,
 ): boolean {
-  return isAdvisoryDiagramComparisonPath(sealedRecord);
+  return isAdvisoryDiagramComparisonPath(workbenchMode);
+}
+
+export function resolveDiagramReconcileDiagramSourceActionReadiness(input: {
+  readonly workbenchMode: DiagramReconcileWorkbenchMode;
+  readonly validRunId: boolean;
+  readonly mutationsAllowed: boolean;
+  readonly validMermaidInput: boolean;
+  readonly ingestBusy: boolean;
+  readonly loadingModel: boolean;
+}): string | null {
+  if (isDiagramReconcileAdvisoryWorkbenchMode(input.workbenchMode)) {
+    return "Ingest is available only on a sealed review record.";
+  }
+
+  if (input.ingestBusy) {
+    return "Ingest in progress…";
+  }
+
+  if (!input.validRunId) {
+    return "Enter a valid sealed review record ID.";
+  }
+
+  if (!input.mutationsAllowed) {
+    return "Review record must be sealed before ingesting a diagram.";
+  }
+
+  if (!input.validMermaidInput) {
+    return "Add Mermaid diagram content before ingesting.";
+  }
+
+  if (input.loadingModel) {
+    return "Loading existing diagram model…";
+  }
+
+  return null;
 }

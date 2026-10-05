@@ -12,26 +12,45 @@ public static class RecentAuthenticationEvaluator
     {
         ArgumentNullException.ThrowIfNull(principal);
 
-        string? authTime = principal.FindFirst("auth_time")?.Value;
+        List<Claim> authTimeClaims = principal.FindAll("auth_time").ToList();
 
-        if (authTime is not null)
+        if (authTimeClaims.Count > 0)
         {
-            if (long.TryParse(authTime, out long authTimeSeconds))
+            DateTimeOffset? latest = null;
+
+            foreach (Claim claim in authTimeClaims)
             {
-                return DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
+                if (!long.TryParse(claim.Value, out long authTimeSeconds))
+                    continue;
+
+                DateTimeOffset instant = DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
+
+                if (latest is null || instant > latest)
+                    latest = instant;
             }
 
+            return latest;
+        }
+
+        List<Claim> iatClaims = principal.FindAll(JwtRegisteredClaimNames.Iat).ToList();
+
+        if (iatClaims.Count == 0)
             return null;
-        }
 
-        string? iat = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;
+        DateTimeOffset? latestIat = null;
 
-        if (long.TryParse(iat, out long iatSeconds))
+        foreach (Claim claim in iatClaims)
         {
-            return DateTimeOffset.FromUnixTimeSeconds(iatSeconds);
+            if (!long.TryParse(claim.Value, out long iatSeconds))
+                continue;
+
+            DateTimeOffset instant = DateTimeOffset.FromUnixTimeSeconds(iatSeconds);
+
+            if (latestIat is null || instant > latestIat)
+                latestIat = instant;
         }
 
-        return null;
+        return latestIat;
     }
 
     public static bool HasRecentAuthentication(

@@ -107,7 +107,7 @@ export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
     <EvidenceOrientationStripShell testId="connect-gcp-securely-help-orientation">
       <EvidenceOrientationClaimCallout
         testId="connect-gcp-securely-help-claim-discipline"
-        stripSlug="connect-gcp-securely-help"
+        stripSlug="cloud-connections-gcp"
         body={CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}
         style={EVIDENCE_CLAIM_STYLE.operatorInfo}
         heading={{

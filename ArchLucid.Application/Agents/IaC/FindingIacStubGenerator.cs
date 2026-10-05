@@ -75,7 +75,7 @@ public sealed class FindingIacStubGenerator(
             bool anyFindingUpdated = false;
 
 
-            foreach (ArchitectureFinding finding in updatedResult.Findings)
+            foreach (ArchitectureFinding finding in updatedResult.Findings ?? [])
             {
 
                 if (finding.IsMuted
@@ -151,7 +151,7 @@ public sealed class FindingIacStubGenerator(
         if (finding is null)
             return false;
 
-        return finding.EvidenceRefs.Any(static reference => !string.IsNullOrWhiteSpace(reference));
+        return (finding.EvidenceRefs ?? []).Any(static reference => !string.IsNullOrWhiteSpace(reference));
     }
 
     private static string BuildPrompt(ArchitectureFinding finding)
@@ -168,7 +168,7 @@ public sealed class FindingIacStubGenerator(
         prompt.AppendLine();
         prompt.AppendLine("Evidence references:");
 
-        foreach (string evidenceRef in finding.EvidenceRefs.Where(static reference => !string.IsNullOrWhiteSpace(reference)))
+        foreach (string evidenceRef in (finding.EvidenceRefs ?? []).Where(static reference => !string.IsNullOrWhiteSpace(reference)))
             prompt.AppendLine("- " + evidenceRef.Trim());
 
         return prompt.ToString();

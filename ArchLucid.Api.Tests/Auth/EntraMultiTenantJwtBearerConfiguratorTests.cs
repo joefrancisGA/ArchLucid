@@ -70,6 +70,71 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
     }
 
     [SkippableFact]
+    public async Task ApplyIfEnabled_when_allowlist_configured_accepts_parseable_tid_after_unparseable_tid_claim()
+    {
+        Guid tid = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        JwtBearerOptions options = new();
+        ArchLucidAuthOptions auth = new()
+        {
+            MultiTenantEntra = true,
+            AllowedEntraTenantIds = tid.ToString("D")
+        };
+
+        EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, auth);
+
+        DefaultHttpContext http = new();
+        AuthenticationScheme scheme = new(
+            JwtBearerDefaults.AuthenticationScheme,
+            "JWT Bearer",
+            typeof(JwtBearerHandler));
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("tid", "not-a-guid"));
+        identity.AddClaim(new Claim("tid", tid.ToString("D")));
+        TokenValidatedContext ctx = new(http, scheme, options)
+        {
+            Principal = new ClaimsPrincipal(identity)
+        };
+
+        JwtBearerEvents events = options.Events ?? throw new InvalidOperationException("Events not wired.");
+        await events.OnTokenValidated(ctx);
+
+        ctx.Result?.Failure.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task ApplyIfEnabled_when_allowlist_configured_fails_when_distinct_parseable_tid_claims_disagree()
+    {
+        Guid allowed = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid wrong = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        JwtBearerOptions options = new();
+        ArchLucidAuthOptions auth = new()
+        {
+            MultiTenantEntra = true,
+            AllowedEntraTenantIds = allowed.ToString("D")
+        };
+
+        EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, auth);
+
+        DefaultHttpContext http = new();
+        AuthenticationScheme scheme = new(
+            JwtBearerDefaults.AuthenticationScheme,
+            "JWT Bearer",
+            typeof(JwtBearerHandler));
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("tid", wrong.ToString("D")));
+        identity.AddClaim(new Claim("tid", allowed.ToString("D")));
+        TokenValidatedContext ctx = new(http, scheme, options)
+        {
+            Principal = new ClaimsPrincipal(identity)
+        };
+
+        JwtBearerEvents events = options.Events ?? throw new InvalidOperationException("Events not wired.");
+        await events.OnTokenValidated(ctx);
+
+        ctx.Result?.Failure.Should().NotBeNull();
+    }
+
+    [SkippableFact]
     public async Task ApplyIfEnabled_when_allowlist_configured_accepts_matching_tid()
     {
         Guid tid = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

@@ -148,6 +148,9 @@ internal sealed class LlmTenantWalletConsumeRetry(
             {
                 RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
 
+                if (credit.BalanceAfterUsd < state.RefillTriggerThresholdUsd)
+                    _settlementQueue.EnqueueAutoRefill(tenantId, correlationId);
+
                 return true;
             }
 

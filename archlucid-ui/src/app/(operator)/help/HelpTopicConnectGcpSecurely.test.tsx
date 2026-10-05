@@ -17,6 +17,16 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/cloud-connections/gcp",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpConnectGcpSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyGuideView";
 import {
   CONNECT_GCP_SECURELY_CANONICAL_PATH,
@@ -37,8 +47,7 @@ import {
   formatGcpPermissionRequirementLabel,
 } from "@/lib/gcp-cloud-connection-permissions-manifest";
 import { GCP_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/gcp-cloud-connection-permissions-copy";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { expectFollowUpLink, expectWhereToGoNextFollowUpLinks, whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -59,17 +68,18 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
 
     render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
-    expect(screen.getByTestId("connect-gcp-securely-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-connect-gcp-securely-claim-discipline-strip")).toHaveTextContent(
       CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("connect-gcp-securely-help-claim-discipline")).toBeNull();
 
     const sources = within(screen.getByTestId("connect-gcp-securely-help-sources"));
-    const visibleSources = filterWhereToGoNextFollowUpLinks(CONNECT_GCP_SECURELY_SOURCES);
+    const visibleSources = whereToGoNextFollowUpLinksForTests(
+      CONNECT_GCP_SECURELY_SOURCES,
+      "/help/cloud-connections/gcp",
+    );
 
-    for (const link of visibleSources) {
-      expectFollowUpLink(sources, link);
-      expect(link.href).not.toBe(CONNECT_GCP_SECURELY_CANONICAL_PATH);
-    }
+    expectWhereToGoNextFollowUpLinks(sources, CONNECT_GCP_SECURELY_SOURCES, "/help/cloud-connections/gcp");
 
     for (const link of CONNECT_GCP_SECURELY_SOURCES) {
       if (visibleSources.includes(link)) {
@@ -122,11 +132,12 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
 
 
     const sources = within(screen.getByTestId("connect-gcp-securely-help-sources"));
-    const visibleSources = filterWhereToGoNextFollowUpLinks(CONNECT_GCP_SECURELY_SOURCES);
+    const visibleSources = whereToGoNextFollowUpLinksForTests(
+      CONNECT_GCP_SECURELY_SOURCES,
+      "/help/cloud-connections/gcp",
+    );
 
-    for (const link of visibleSources) {
-      expectFollowUpLink(sources, link);
-    }
+    expectWhereToGoNextFollowUpLinks(sources, CONNECT_GCP_SECURELY_SOURCES, "/help/cloud-connections/gcp");
 
     for (const link of CONNECT_GCP_SECURELY_SOURCES) {
       if (visibleSources.includes(link)) {
