@@ -101,6 +101,8 @@
 
 2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
+2026-10-05 seed hunt (seed-only): `host-core-jobs` — re-read durable/in-memory cancel re-read parity, processor registry-cancel path, DLQ auto-retry pass timing, and parallel queue receive; no hunt-ready row proved in-run; seeded five candidates in zone ledger; 74 Host.Core + 36 focused Api background-job tests passed.
+
 2026-10-05 thorough hunt (dry): `host-core-coordination` — cheap-disproved all five seeded candidates: committed run header anchors (`TR_Runs_SealCommittedHeader`, `DATA_CONSISTENCY_MATRIX`) block graph/findings pointer drift without manifest anchor change; work-then-`MarkProcessedAsync` replay for retrieval/export/cosmos is documented at-least-once consumer responsibility (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §5, TB-993 retrieval replay test); transient `RecordDeadLetterAsync`/`RecordBackoffAfterProcessingFailureAsync` faults match lease re-drive semantics, not a coordination-shell defect. No failing repro; 21 Host.Core and 31 Host.Composition scoped tests passed.
 
 2026-10-05 seed hunt (seed-only): `host-core-coordination` — re-read recoverable outbox shell, shared failure handler (including retry-hook best-effort parity with dead-letter hooks), and export/post-commit/retrieval/cosmos processors after the 2026-10-05 retry-hook hit; no row met hunt-ready without a constructed-only prerequisite; seeded five at-least-once / cross-read candidates below; 21 Host.Core and 31 Host.Composition scoped coordination/outbox tests passed (`TreatWarningsAsErrors=false` for unrelated ARCH006 Persistence warnings).
@@ -10217,13 +10219,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed-only): re-read durable/in-memory cancel re-read parity, processor registry-cancel path, DLQ auto-retry frozen pass clock, and parallel queue receive; seeded five candidates; 74 Host.Core + 36 focused Api job/processor tests passed.
 
 2026-10-04 thorough hunt (dry): cheap-disproved all four seeded candidates — in-memory terminal/capacity paths use pre-log plus post-log `_info` re-reads with cancel-during-log regressions; durable retry scheduling already dual post-log `GetAsync` (missing after-log test is coverage-only); invalid-payload `RetryCount+1` uses the prepare snapshot on a single-threaded poll with no reachable concurrent retry mutation; 74 Host.Core + 25 processor + 11 in-memory queue tests passed.
 
@@ -10241,6 +10245,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2109 (seed-only): reseeded host-core-jobs; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — after the post-log `_info` cancel re-read, durable `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` performs a second post-log `GetAsync` before `MarkFailedTerminalAsync`; reachable concurrent `MarkCanceledAsync` during the single-threaded assignment window between the lone post-log read and `Failed` write may still overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / exhausted-retry terminal paths).
+- [ ] (candidate) `InMemoryBackgroundJobQueue` retry-scheduling branch — `LogWarning` before `Pending` assignment uses one post-log `_info` re-read vs durable dual post-log `GetAsync` before `MarkPendingRetryAsync`; same cancel-between-read-and-assign race class as the closed durable #1352 fix, with only cancel-during-log regression coverage today.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — when `IOperationCancellationRegistry.IsCancelRequestedAnyScope` is true, the processor always deletes the Azure queue message after `MarkCanceledAsync` even though SQL `MarkCanceledAsync` only updates `Pending`/`Running` rows (`BackgroundJobRepository.MarkCanceledAsync` WHERE clause); reachable duplicate notification for a row already in a terminal state relies on `TryPrepareQueuedJobAsync` to delete stale messages on the next poll.
+- [ ] (candidate) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` — captures `utcNow` once per leader pass; rows whose `DeadLetteredUtc` backoff elapses while the paginated `ListDeadLettersAsync` loop is still running remain skipped until the next 15-minute pass (latency tradeoff, not a missing `TimeProvider` injection bug — needs product contract proof before hunt-ready).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — `BoundedBatchParallelism.ForEachAsync` over Azure queue messages can dequeue multiple notifications for the same `JobId` concurrently; correctness depends on `TryPrepareQueuedJobAsync` `UPDLOCK` claim semantics and deleting notifications when the row is already `Running`/`terminal` (duplicate side effects if claim rules regress).
 
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — **valid-no-repro 2026-10-04 dry:** pre-log `_info` re-read before `LogError` plus post-log re-read before `Failed` assignment; `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read` covers cancel during log; cancel-between-reads on the single consumer thread matches prior retry-scheduling race classification.
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue` retry capacity-exhausted branch — **valid-no-repro 2026-10-04 dry:** pre-log re-read before capacity `LogError` plus post-log re-read before terminal `Failed`; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
