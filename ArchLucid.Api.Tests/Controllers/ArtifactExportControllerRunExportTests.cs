@@ -173,14 +173,6 @@ public sealed class ArtifactExportControllerRunExportTests
         manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
         Mock<IArtifactPackagingService> packaging = new();
-        packaging
-            .Setup(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()))
-            .Returns(new ArtifactPackage
-            {
-                Content = [0x50, 0x4b],
-                ContentType = "application/zip",
-                PackageFileName = "terraform.zip"
-            });
 
         ArtifactExportController sut = CreateController(
             out Mock<IAuthorityQueryService> authority,
@@ -209,6 +201,50 @@ public sealed class ArtifactExportControllerRunExportTests
         packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+        Mock<ITerraformGitHubPrService> terraformPr = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out _,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            terraformGitHubPrService: terraformPr.Object);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                },
+                GoldenManifest = new ManifestDocument { ManifestId = Guid.NewGuid() },
+            });
+
+        IActionResult result = await sut.CreateTerraformPr(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        terraformPr.Verify(
+            t => t.CreatePrAsync(It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

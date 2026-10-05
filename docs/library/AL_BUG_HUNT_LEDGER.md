@@ -1,6 +1,8 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired unused email OTP challenges still counted toward hourly send rate limits (`CountRecentRequestsForRateLimitAsync` / `MatchesRecentRequestByEmail`); require `CompletedUtc IS NOT NULL OR ExpiresUtc > nowUtc` in SQL and shared predicates; pass `now` from `AuthRateLimitHelper`; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`; 48 `EmailOtpAuthServiceTests` + 8 `InMemoryEmailOtpChallengeRepositoryCoverageTests` passed (1 SQL integration skipped).
+2026-10-05 thorough hunt (hit): `tenant-data-export` — Terraform advisory download/PR omitted `AuthorityLifecycleCompareExportGuard` while blob push enforced it; `GetRunExportHistoryAsync` omitted lifecycle parity with export-record get; aligned terraform paths and history facade with `EnsureAuthorityLifecycleCompleteOrConflict` / `TryEnsureExportRunLifecycleCompleteAsync`; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`, `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`, and `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`; cheap-disproof closed unbounded history pagination (`RunExportRecordRepository.GetByRunIdAsync` uses `SqlPagingSyntax.FirstRowsOnly(500)`).
+
+2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired unused email OTP challenges still counted toward hourly send rate limits (`CountRecentRequestsForRateLimitAsync` / `MatchesRecentRequestByEmail`); require active unexpired incomplete rows (`CompletedUtc IS NULL AND ExpiresUtc > nowUtc`) in SQL and shared predicates; pass `now` from `AuthRateLimitHelper`; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`; 48 `EmailOtpAuthServiceTests` + 8 `InMemoryEmailOtpChallengeRepositoryCoverageTests` passed (1 SQL integration skipped).
 
 2026-10-05 seed hunt (dry): `core-costing` — promoted sole-Azure retail+illustrative blend summary-note asymmetry; failing repro matched trunk fix already on `bugsmash` (`ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`); 421 scoped Costing tests passed; no additional commit.
 
@@ -10407,11 +10409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 935
-- **bugs-found:** 45
+- **hunts:** 936
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-26 — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI career export gate
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — Terraform advisory export/PR and export history omitted authority lifecycle Complete guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10509,9 +10511,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` not treated as true — **hit 2026-09-26 seed hunt (seed→hit):** CLI pilot-run-deltas JSON with `1.0` bypassed sample-workspace career gate while int `1` already blocked after #2351/#2355; fixed with `TryGetDouble` whole-number coercion in `TryParseJsonBoolean`; regressions `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_whole_number_double_one` and `ResolveFromDeltasJson_blocks_sample_run_when_is_demo_tenant_whole_number_double_one`.
 
-- [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omitted `AuthorityLifecycleCompareExportGuard` present on blob push — **hit 2026-10-05 thorough hunt:** lifecycle preflight before sealed-hash guard; regression `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`.
-- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce — **cheap-disproof 2026-10-05 thorough hunt:** history endpoint lists persisted export metadata after `ExportsController.EnsureSealedManifestReadAllowedAsync`; lifecycle Complete is enforced on record get/compare/replay that materialize or diff export bytes, not on audit-style history enumeration.
-- [x] (invalid) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportRecordRepository.GetByRunIdAsync` caps SQL reads at 500 rows via `SqlPagingSyntax.FirstRowsOnly(500)`; in-memory repo returns full per-run set which is bounded by export volume per run in practice.
+- [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `AuthorityLifecycleCompareExportGuard` present on blob push and compare paths — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs with committed manifest returned Terraform ZIP or opened PR while blob push returned 409; call `EnsureAuthorityLifecycleCompleteOrConflict` before sealed-hash guard; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete` and `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`.
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce — **hit 2026-10-05 thorough hunt:** history listed export rows when `GetExportRecordAsync` returned `LineageUnverified` for incomplete lifecycle; invoke `TryEnsureExportRunLifecycleCompleteAsync` before repository load; regression `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportRecordRepository.GetByRunIdAsync` already applies `SqlPagingSyntax.FirstRowsOnly(500)` on `ORDER BY CreatedUtc DESC`.
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
