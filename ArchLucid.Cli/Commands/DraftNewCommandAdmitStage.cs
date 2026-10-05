@@ -46,6 +46,16 @@ internal static class DraftNewCommandAdmitStage
 
         Guid draftId = created.Value.DraftId;
 
+        if (draftId == Guid.Empty)
+        {
+            await error.WriteLineAsync(
+                "Error creating draft: API returned success but no draftId. The intake was not started.");
+
+            CliOperatorHints.WriteAfterApiFailure(created.HttpStatusCode, created.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
         if (!CliExecutionContext.JsonOutput)
             await output.WriteLineAsync($"DraftId: {draftId}");
 

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved `CreateDraftAsync` HTTP 200 with `draftId=00000000-0000-0000-0000-000000000000` still ran patch/admit/submit; guard hollow `DraftId` in `DraftNewCommandAdmitStage` after create (parity with hollow `runId`/`requestId`); regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`; 22 scoped `DraftNewCommandCoreTests` passed.
+
 2026-10-05 seed hunt (seed→hit): `api-key-auth` — proved Unicode line separator (U+2028) embedded in configured key material still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip `LineSeparator` and `ParagraphSeparator`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
 2026-10-05 seed hunt (seed→hit): `api-key-auth` — proved embedded ASCII tab (U+0009) in configured `AdminKey` still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip `UnicodeCategory.Control` characters; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`; 67 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
@@ -7018,13 +7020,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 24
-- **bugs-found:** 13
+- **hunts:** 25
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — JSON MUST-question blocking, hollow submit requestId, admit PATCH trim
+- **last-bug:** 2026-10-05 — hollow `draftId` on successful create still advanced intake
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): hollow `draftId` on successful create; guard in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`; 22 scoped core tests passed.
 
 2026-10-05 thorough hunt (hit): closed five seeded `(candidate)` rows; `must_questions_pending` JSON fail-fast; 21 scoped core tests passed.
 
@@ -7041,6 +7045,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `DraftNewCommandMustQuestionLoop` — skip/answer `Value == null` on HTTP 200 — **cheap-disproof 2026-10-05 thorough hunt:** `ArchLucidApiClient.SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` map empty bodies to `DraftApiResult.Fail`.
 - [x] (proven) `DraftNewCommandAdmitStage` — prompted `systemName` / `businessOutcome` not trimmed before PATCH — **hit 2026-10-05 thorough hunt:** `.Trim()` on hook results; regressions `RunCoreAsync_prompted_system_name_is_trimmed_before_patch` and `RunCoreAsync_prompted_metadata_values_are_trimmed_before_patch`.
 - [x] (proven) `DraftNewCommandIntakeLoop` — hollow submit `requestId` still emitted success JSON — **hit 2026-10-05 thorough hunt:** mirror `runId` guard; regressions `RunCoreAsync_submit_without_request_id_returns_operation_failed` and `RunCoreAsync_json_output_submit_without_request_id_does_not_emit_ok_true`.
+- [x] (proven) `DraftNewCommandAdmitStage` — hollow `draftId` on successful create still advanced patch/admit — **hit 2026-10-05 seed hunt:** `CreateDraftAsync` success with `Guid.Empty` draftId continued intake; guard after create (parity with hollow `runId`/`requestId`); regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`.
 
 - [x] (proven) Draft is created under a tenant other than the signed-in CLI tenant — **hit 2026-08-24:** misconfigured scope headers could create a draft in another tenant while the CLI continued; `CliScopeResponseValidator` fails closed after create/patch when configured scope disagrees with API body; regressions in `RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed` / `RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed`
 - [x] (proven) Command reports success when the API returned a hollow success — **hit 2026-08-24:** submit returned HTTP 200 with empty `runId` and the command still printed success; now fails with `OperationFailed`; regression in `RunCoreAsync_submit_without_run_id_returns_operation_failed`

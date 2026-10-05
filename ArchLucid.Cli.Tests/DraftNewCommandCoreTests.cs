@@ -154,6 +154,29 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_create_with_empty_draft_id_returns_operation_failed()
+    {
+        ArchLucidApiClient client = CreateDraftFlowClient(new EmptyDraftIdOnCreateHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("draftId");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed()
     {
         Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
@@ -987,6 +1010,19 @@ public sealed class DraftNewCommandCoreTests
         }
     }
 
+    private sealed class EmptyDraftIdOnCreateHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(HttpRequestMessage request, string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.Created, DraftBody("Drafting", draftIdOverride: Guid.Empty));
+            }
+
+            return null;
+        }
+    }
+
     private class DraftFlowHandler : HttpMessageHandler
     {
         protected static readonly Guid TenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -1066,11 +1102,11 @@ public sealed class DraftNewCommandCoreTests
             };
         }
 
-        protected static object DraftBody(string status, Guid? tenantIdOverride = null)
+        protected static object DraftBody(string status, Guid? tenantIdOverride = null, Guid? draftIdOverride = null)
         {
             return new
             {
-                draftId = DraftId,
+                draftId = draftIdOverride ?? DraftId,
                 tenantId = tenantIdOverride ?? TenantId,
                 workspaceId = WorkspaceId,
                 projectId = ProjectId,
