@@ -90,8 +90,31 @@ internal static class EntraMultiTenantJwtBearerConfigurator
     {
         tenantId = Guid.Empty;
 
-        string? tid = principal?.FindFirst("tid")?.Value;
+        if (principal is null)
+            return false;
 
-        return !string.IsNullOrWhiteSpace(tid) && Guid.TryParse(tid, CultureInfo.InvariantCulture, out tenantId);
+        List<Guid> parsed = [];
+
+        foreach (Claim claim in principal.FindAll("tid"))
+        {
+            if (string.IsNullOrWhiteSpace(claim.Value))
+                continue;
+
+            if (!Guid.TryParse(claim.Value, CultureInfo.InvariantCulture, out Guid guid))
+                continue;
+
+            parsed.Add(guid);
+        }
+
+        if (parsed.Count == 0)
+            return false;
+
+        List<Guid> distinct = parsed.Distinct().ToList();
+
+        if (distinct.Count != 1)
+            return false;
+
+        tenantId = distinct[0];
+        return true;
     }
 }
