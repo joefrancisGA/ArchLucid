@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — blank `evidenceRefs` array entries were dropped in `TryDescribeClaim`, so `["pattern-a",""]` behaved like a single resolved ref; preserve blank/non-string slots and reject in `AllRefsResolve`; regression `Evaluate_blank_evidence_ref_entries_count_as_unresolved`; 190 scoped AgentRuntime `Evaluation` tests passed.
+
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — claims with mixed valid/invalid `evidenceRefs` passed faithfulness when any ref resolved; require `AgentEvidenceGroundingIndex.AllRefsResolve` before overlap/citation scoring; regression `Evaluate_partially_resolved_evidence_refs_count_as_unresolved`; 189 scoped AgentRuntime `Evaluation` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — `AgentResultEvidenceFaithfulnessChecker` treated short finding `category` values as grounded when `fullBlob.Contains` matched a substring (`app` inside `application`); require AgentType enum match or distinct evidence tokens; regression `Evaluate_finding_category_substring_does_not_count_as_grounded`; 188 scoped AgentRuntime `Evaluation` tests passed.
@@ -12112,11 +12114,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 26
-- **bugs-found:** 15
+- **hunts:** 27
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — partial evidenceRefs accepted when any ref resolved
+- **last-bug:** 2026-10-05 — blank evidenceRefs entries silently ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12176,6 +12178,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentResultEvidenceFaithfulnessChecker` finding `category` — `fullBlob.Contains(category)` marked findings supported when a short category substring appeared inside unrelated evidence tokens (`app` ⊆ `application`) — **hit 2026-10-05 seed hunt:** require `AgentType` enum match or distinct overlap tokens for category grounding; regression `Evaluate_finding_category_substring_does_not_count_as_grounded`
 
 2026-10-05 seed hunt (seed→hit): promoted finding-category substring candidate; 188 scoped AgentRuntime `Evaluation` tests passed.
+
+- [x] (proven) `AgentResultEvidenceFaithfulnessChecker` / `AgentEvidenceGroundingIndex.ResolveRefsBlob` — claims citing a mix of valid and invalid `evidenceRefs` passed when at least one ref resolved — **hit 2026-10-05 seed hunt:** require `AllRefsResolve` before citation/overlap scoring; aligned embedding faithfulness path; regression `Evaluate_partially_resolved_evidence_refs_count_as_unresolved`
+
+2026-10-05 seed hunt (seed→hit): promoted partial evidence-ref resolution candidate; 189 scoped AgentRuntime `Evaluation` tests passed.
+
+- [x] (proven) `AgentResultJsonEvidenceGrounding.TryDescribeClaim` — blank `evidenceRefs` entries were skipped so `["pattern-a",""]` cited only the valid id — **hit 2026-10-05 seed hunt:** preserve blank/non-string ref slots and fail `AllRefsResolve`; regression `Evaluate_blank_evidence_ref_entries_count_as_unresolved`
+
+2026-10-05 seed hunt (seed→hit): promoted blank evidence-ref slot candidate; 190 scoped AgentRuntime `Evaluation` tests passed.
 
 ---
 

@@ -27,7 +27,7 @@ internal static class AgentEvidenceGroundingIndex
         {
             foreach (string r in refs)
             {
-                if (!_refBlobById.ContainsKey(r))
+                if (string.IsNullOrWhiteSpace(r) || !_refBlobById.ContainsKey(r))
                     return false;
             }
 
