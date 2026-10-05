@@ -8730,3 +8730,4 @@
 {"at":"2026-10-05T01:38:51.4497661Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T01:49:29.5825472Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T01:59:47.4890564Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T02:07:43.2699003Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}

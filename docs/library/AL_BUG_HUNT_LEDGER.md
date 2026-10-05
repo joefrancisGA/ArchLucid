@@ -101,6 +101,8 @@
 
 2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
 
+2026-10-05 seed hunt (seed-only): `host-core-coordination` — re-read recoverable outbox shell, shared failure handler (including retry-hook best-effort parity with dead-letter hooks), and export/post-commit/retrieval/cosmos processors after the 2026-10-05 retry-hook hit; no row met hunt-ready without a constructed-only prerequisite; seeded five at-least-once / cross-read candidates below; 21 Host.Core and 31 Host.Composition scoped coordination/outbox tests passed (`TreatWarningsAsErrors=false` for unrelated ARCH006 Persistence warnings).
+
 2026-10-03 thorough hunt (dry): `host-core-coordination` — repeated all five candidate cheap-disproof checks; no failing reproduction or source change emerged; scoped coordination/outbox tests passed.
 
 2026-10-03 seed hunt (seed-only): `api-key-auth` — repeated the unchanged API-key authentication, rotation masking, and admin audit review with scoped verification; no new reachable mechanism-backed candidate emerged; scoped tests passed.
@@ -27298,6 +27300,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 thorough hunt (dry): cheap-disproved both candidates; the export package builder converts reachable persisted-state outcomes into `RunExportPackageResult` values, while provenance materialization explicitly no-ops when the run detail lacks a manifest. No failing repro was warranted. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests.
 
 ### Hypotheses
+
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — sealed-hash guard validates `GetRunDetailForManifestCompareAsync` golden manifest, but materialization builds from `GetRunDetailAsync` graph/findings; reachable input is the same finalized run where `RunRecord.GraphSnapshotId` / `FindingsSnapshotId` change between the two reads without `GoldenManifestId` changing (concurrent mutation or inconsistent reload), producing a provenance snapshot from snapshots that were never bound to the validated manifest.
+- [ ] (candidate) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` — `IndexAuthorityRunAsync` succeeds and `MarkProcessedAsync` fails (transient SQL); reachable replay re-executes indexing unless `IRetrievalRunCompletionIndexer` is idempotent for the same run/manifest revision (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5).
+- [ ] (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — `IRunExportBlobPushService.PushAsync` succeeds and `MarkProcessedAsync` fails; reachable replay may upload the same export ZIP twice to the customer SAS destination when the destination does not treat overwrite as safe.
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — `ICosmosGraphSnapshotOutboxCosmosWriter.SaveAsync` succeeds and `MarkProcessedAsync` fails; reachable replay upserts the same graph document again (expected at-least-once unless Cosmos write idempotency is proven for stable graph snapshot ids).
+- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — `RecordDeadLetterAsync` or `RecordBackoffAfterProcessingFailureAsync` throws after `ProcessEntryAsync` already failed; reachable transient persistence fault leaves the leased outbox row without persisted terminal/backoff state until lease expiry, so another worker may re-run `ProcessEntryAsync` before failure metadata is recorded.
 
 - [x] (proven) `RecoverableOutboxFailureHandler.HandleAsync` — after `RecordBackoffAfterProcessingFailureAsync`, `onRetryScheduledAsync` instrumentation can throw and escape batch isolation while the row is already in backoff — **hit 2026-10-05 seed hunt:** symmetric best-effort wrapper for retry hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`.
 
