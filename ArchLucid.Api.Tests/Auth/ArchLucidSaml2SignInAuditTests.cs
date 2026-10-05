@@ -246,6 +246,79 @@ public sealed class ArchLucidSaml2SignInAuditTests
     }
 
     [Fact]
+    public async Task AppendCookieSignedInAudit_uses_parseable_tenant_id_when_an_earlier_tenant_id_claim_is_not_a_guid()
+    {
+        TaskCompletionSource<AuditEvent> captured = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured.TrySetResult(e))
+            .Returns(Task.CompletedTask);
+
+        await using ServiceProvider provider = BuildProvider(samlEnabled: true, audit: audit.Object);
+
+        Guid tenantId = Guid.Parse("a1c2e3f4-a5b6-7890-abcd-ef1234567890");
+
+        DefaultHttpContext httpContext = new()
+        {
+            RequestServices = provider,
+            TraceIdentifier = "corr-tenant-multi"
+        };
+
+        ClaimsIdentity identity = new(Saml2Constants.AuthenticationScheme);
+        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "subject-xyz"));
+        identity.AddClaim(new Claim("tenant_id", "division-east"));
+        identity.AddClaim(new Claim("tenant_id", tenantId.ToString("D")));
+
+        CookieSignedInContext cookieContext = new(
+            httpContext,
+            new AuthenticationScheme(Saml2Constants.AuthenticationScheme, null, typeof(CookieAuthenticationHandler)),
+            new ClaimsPrincipal(identity),
+            new AuthenticationProperties(),
+            new CookieAuthenticationOptions());
+
+        await ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit(cookieContext, CancellationToken.None);
+
+        AuditEvent auditEvent = await captured.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        auditEvent.TenantId.Should().Be(tenantId);
+    }
+
+    [Fact]
+    public async Task AppendCookieSignedInAudit_omits_tenant_id_when_distinct_tenant_id_claims_disagree()
+    {
+        TaskCompletionSource<AuditEvent> captured = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured.TrySetResult(e))
+            .Returns(Task.CompletedTask);
+
+        await using ServiceProvider provider = BuildProvider(samlEnabled: true, audit: audit.Object);
+
+        Guid firstTenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid secondTenantId = Guid.Parse("a1c2e3f4-a5b6-7890-abcd-ef1234567890");
+
+        DefaultHttpContext httpContext = new() { RequestServices = provider };
+
+        ClaimsIdentity identity = new(Saml2Constants.AuthenticationScheme);
+        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "subject-xyz"));
+        identity.AddClaim(new Claim("tenant_id", firstTenantId.ToString("D")));
+        identity.AddClaim(new Claim("tenant_id", secondTenantId.ToString("D")));
+
+        CookieSignedInContext cookieContext = new(
+            httpContext,
+            new AuthenticationScheme(Saml2Constants.AuthenticationScheme, null, typeof(CookieAuthenticationHandler)),
+            new ClaimsPrincipal(identity),
+            new AuthenticationProperties(),
+            new CookieAuthenticationOptions());
+
+        await ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit(cookieContext, CancellationToken.None);
+
+        AuditEvent auditEvent = await captured.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        auditEvent.TenantId.Should().Be(Guid.Empty);
+        using JsonDocument doc = JsonDocument.Parse(auditEvent.DataJson);
+        doc.RootElement.GetProperty("tenantIdClaim").GetGuid().Should().Be(Guid.Empty);
+    }
+
+    [Fact]
     public async Task AppendCookieSignedInAudit_writes_succeeded_event_with_claim_shapes()
     {
         TaskCompletionSource<AuditEvent> captured = new(TaskCreationOptions.RunContinuationsAsynchronously);

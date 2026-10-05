@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 
@@ -105,12 +106,7 @@ internal static class ArchLucidSaml2SignInAudit
             ? nameId[..Math.Min(8, nameId.Length)]
             : string.Empty;
 
-        string? tenantRaw = principal.FindFirst("tenant_id")?.Value;
-        bool hasTenantClaim = !string.IsNullOrWhiteSpace(tenantRaw);
-        Guid tenantIdWhenPresent = Guid.Empty;
-
-        if (hasTenantClaim && Guid.TryParse(tenantRaw, out Guid parsedTenant))
-            tenantIdWhenPresent = parsedTenant;
+        (bool hasTenantClaim, Guid tenantIdWhenPresent) = TryGetAuditTenantId(principal);
 
         Saml2SignInSucceededPayload payload = new(
             Scheme: Saml2Constants.AuthenticationScheme,
@@ -137,6 +133,32 @@ internal static class ArchLucidSaml2SignInAudit
         [property: JsonPropertyName("nameIdPrefix")] string NameIdPrefix,
         [property: JsonPropertyName("hasTenantIdClaim")] bool HasTenantIdClaim,
         [property: JsonPropertyName("tenantIdClaim")] Guid TenantIdClaimParsed);
+
+    private static (bool HasTenantIdClaim, Guid TenantIdWhenPresent) TryGetAuditTenantId(ClaimsPrincipal principal)
+    {
+        List<Guid> parsed = [];
+
+        foreach (Claim claim in principal.FindAll("tenant_id"))
+        {
+            if (string.IsNullOrWhiteSpace(claim.Value))
+                continue;
+
+            if (Guid.TryParse(claim.Value, CultureInfo.InvariantCulture, out Guid tenantId))
+                parsed.Add(tenantId);
+        }
+
+        bool hasAnyTenantClaim = principal.FindAll("tenant_id").Any(static c => !string.IsNullOrWhiteSpace(c.Value));
+
+        if (parsed.Count == 0)
+            return (hasAnyTenantClaim, Guid.Empty);
+
+        List<Guid> distinct = parsed.Distinct().ToList();
+
+        if (distinct.Count != 1)
+            return (hasAnyTenantClaim, Guid.Empty);
+
+        return (true, distinct[0]);
+    }
 
     private sealed record Saml2SignInFailedPayload(
         [property: JsonPropertyName("scheme")] string Scheme,
