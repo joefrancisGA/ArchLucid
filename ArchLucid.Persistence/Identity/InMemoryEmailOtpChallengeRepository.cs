@@ -39,12 +39,13 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     public Task<int> CountRecentRequestsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc));
+            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc, nowUtc));
 
         return Task.FromResult(count);
     }
@@ -52,12 +53,13 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     public Task<int> CountRecentRequestsByClientIpHashAsync(
         string clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc));
+            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc, nowUtc));
 
         return Task.FromResult(count);
     }
@@ -66,35 +68,55 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         string normalizedEmail,
         string? clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         return Task.FromResult(
-            EmailOtpChallengeRepositoryCore.CountRecentRequests(_byId.Values, normalizedEmail, clientIpHash, sinceUtc));
+            EmailOtpChallengeRepositoryCore.CountRecentRequests(
+                _byId.Values,
+                normalizedEmail,
+                clientIpHash,
+                sinceUtc,
+                nowUtc));
     }
 
     public Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
+        bool emailHasActiveChallenge = _byId.Values.Any(row =>
+            row.NormalizedEmail == normalizedEmail
+            && EmailOtpChallengeRepositoryCore.IsActive(row)
+            && row.ExpiresUtc > nowUtc);
+
         int count = _byId.Values.Count(row =>
-            EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail(row, normalizedEmail, sinceUtc));
+            EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail(
+                row,
+                normalizedEmail,
+                sinceUtc,
+                nowUtc,
+                emailHasActiveChallenge));
 
         return Task.FromResult(count);
     }
 
     public Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(
         string normalizedEmail,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         DateTimeOffset? latest = _byId.Values
-            .Where(row => row.NormalizedEmail == normalizedEmail && EmailOtpChallengeRepositoryCore.IsActive(row))
+            .Where(row =>
+                row.NormalizedEmail == normalizedEmail
+                && EmailOtpChallengeRepositoryCore.IsActiveAndUnexpired(row, nowUtc))
             .Select(row => (DateTimeOffset?)row.CreatedUtc)
             .OrderByDescending(row => row)
             .FirstOrDefault();

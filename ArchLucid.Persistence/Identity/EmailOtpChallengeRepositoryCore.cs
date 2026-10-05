@@ -53,33 +53,49 @@ internal static class EmailOtpChallengeRepositoryCore
     public static bool IsActive(EmailOtpChallengeRecord row) =>
         row.CompletedUtc is null && row.InvalidatedUtc is null;
 
+    public static bool IsActiveAndUnexpired(EmailOtpChallengeRecord row, DateTimeOffset nowUtc) =>
+        IsActive(row) && row.ExpiresUtc > nowUtc;
+
     public static bool MatchesRecentRequestByEmail(
         EmailOtpChallengeRecord row,
         string normalizedEmail,
-        DateTimeOffset sinceUtc) =>
-        row.NormalizedEmail == normalizedEmail && row.CreatedUtc >= sinceUtc;
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc) =>
+        row.NormalizedEmail == normalizedEmail
+        && row.CreatedUtc >= sinceUtc
+        && CountsTowardRequestRateLimit(row, nowUtc);
 
     public static bool MatchesRecentRequestByClientIp(
         EmailOtpChallengeRecord row,
         string clientIpHash,
-        DateTimeOffset sinceUtc) =>
-        row.ClientIpHash == clientIpHash && row.CreatedUtc >= sinceUtc;
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc) =>
+        row.ClientIpHash == clientIpHash
+        && row.CreatedUtc >= sinceUtc
+        && CountsTowardRequestRateLimit(row, nowUtc);
+
+    private static bool CountsTowardRequestRateLimit(EmailOtpChallengeRecord row, DateTimeOffset nowUtc) =>
+        row.CompletedUtc is null && row.ExpiresUtc > nowUtc;
 
     public static bool MatchesFailedVerificationByEmail(
         EmailOtpChallengeRecord row,
         string normalizedEmail,
-        DateTimeOffset sinceUtc) =>
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
+        bool emailHasActiveChallenge) =>
         row.NormalizedEmail == normalizedEmail
         && row.FailedAttemptCount > 0
         && row.CreatedUtc >= sinceUtc
         && row.CompletedUtc is null
-        && row.InvalidatedUtc is null;
+        && row.ExpiresUtc > nowUtc
+        && (row.InvalidatedUtc is null || !emailHasActiveChallenge);
 
     public static EmailOtpRecentRequestCounts CountRecentRequests(
         IEnumerable<EmailOtpChallengeRecord> rows,
         string normalizedEmail,
         string? clientIpHash,
-        DateTimeOffset sinceUtc)
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc)
     {
         ArgumentNullException.ThrowIfNull(rows);
 
@@ -88,10 +104,10 @@ internal static class EmailOtpChallengeRepositoryCore
 
         foreach (EmailOtpChallengeRecord row in rows)
         {
-            if (MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc))
+            if (MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc, nowUtc))
                 emailCount++;
 
-            if (clientIpHash is not null && MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc))
+            if (clientIpHash is not null && MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc, nowUtc))
                 ipCount++;
         }
 

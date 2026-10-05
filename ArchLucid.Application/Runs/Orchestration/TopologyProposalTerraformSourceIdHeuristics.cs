@@ -136,4 +136,37 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
     private static bool IsDatastoreCategory(string? category) =>
         string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
         || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
+
+    internal static string? TryNormalizeTerraformEndpointIdentity(string? endpoint)
+    {
+        string? leafAddress = TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress(endpoint);
+
+        if (leafAddress is null || !RecognizesTerraformResourceType(leafAddress))
+            return null;
+
+        return leafAddress;
+    }
+
+    internal static void AddTerraformLeafResourceAddressKeys(HashSet<string> endpointKeys, string? terraformSourceId)
+    {
+        string? leafAddress = TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress(terraformSourceId);
+
+        if (leafAddress is null || !RecognizesTerraformResourceType(leafAddress))
+            return;
+
+        TopologyProposalRelationshipEndpointIndex.AddEndpointKey(endpointKeys, leafAddress);
+    }
+
+    internal static void AddTerraformLeafResourceAddressResolutionAliases(
+        Dictionary<string, string> aliasToNodeId,
+        string? terraformSourceId,
+        string nodeId)
+    {
+        string? leafAddress = TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress(terraformSourceId);
+
+        if (leafAddress is null || !RecognizesTerraformResourceType(leafAddress))
+            return;
+
+        TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(aliasToNodeId, leafAddress, nodeId);
+    }
 }

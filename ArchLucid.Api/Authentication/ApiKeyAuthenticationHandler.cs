@@ -148,7 +148,10 @@ public class ApiKeyAuthenticationHandler(
             if (string.IsNullOrWhiteSpace(value))
                 continue;
 
-            return ApiKeyMaterialNormalizer.Normalize(value);
+            string normalized = ApiKeyMaterialNormalizer.Normalize(value);
+
+            if (normalized.Length > 0)
+                return normalized;
         }
 
         return string.Empty;

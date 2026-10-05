@@ -9,6 +9,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, service.ServiceName);
         AddEndpointKey(endpointKeys, service.ServiceId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, service.ServiceId);
         AddSyntheticServiceEndpointKey(endpointKeys, service.ServiceName);
     }
 
@@ -23,6 +24,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, service.ServiceName, nodeId);
         AddResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(service.ServiceName), nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(service.ServiceId),
+            nodeId);
     }
 
     public static void AddDeclaredManifestServiceEndpointAliases(
@@ -38,6 +43,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(service.ServiceName), nodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(service.ServiceId),
+            nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
             aliasToNodeId,
             TrimManifestEndpointValue(service.ServiceId),
             nodeId);
@@ -75,7 +84,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         out string nodeId) =>
         TopologyProposalGraphNodeMatchers.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out nodeId);
 
-    private static string ResolveDeclaredServiceNodeId(ManifestService service)
+    internal static string ResolveDeclaredServiceNodeId(ManifestService service)
     {
         string? serviceId = TrimManifestEndpointValue(service.ServiceId);
 

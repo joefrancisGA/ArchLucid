@@ -56,6 +56,12 @@ public sealed class RunExecuteOwnershipLeaseService(
                 "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
         }
 
+        if (_activeHolderInstanceIds.ContainsKey(runId))
+        {
+            throw new ConflictException(
+                $"Run '{runId:D}' execute is already in progress on this host instance. Wait for the in-flight execute to finish or retry on another replica.");
+        }
+
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
         int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
         string holderInstanceId = _processInstanceId.Value;
@@ -77,7 +83,12 @@ public sealed class RunExecuteOwnershipLeaseService(
                     "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
             }
 
-            _activeHolderInstanceIds[runId] = holderInstanceId;
+            if (!_activeHolderInstanceIds.TryAdd(runId, holderInstanceId))
+            {
+                throw new ConflictException(
+                    $"Run '{runId:D}' execute is already in progress on this host instance. Wait for the in-flight execute to finish or retry on another replica.");
+            }
+
             return;
         }
 
@@ -138,14 +149,16 @@ public sealed class RunExecuteOwnershipLeaseService(
     }
 
     /// <inheritdoc />
-    public Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
+    public async Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
     {
         if (_storageMode.IsInMemory)
-            return Task.CompletedTask;
+            return;
 
         string holderInstanceId = ResolveHolderInstanceId(runId);
+
+        await _leaseRepository.TryReleaseAsync(runId, holderInstanceId, cancellationToken).ConfigureAwait(false);
+
         _activeHolderInstanceIds.TryRemove(runId, out _);
-        return _leaseRepository.TryReleaseAsync(runId, holderInstanceId, cancellationToken);
     }
 
     /// <inheritdoc />

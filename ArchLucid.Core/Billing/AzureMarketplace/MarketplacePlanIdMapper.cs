@@ -7,6 +7,45 @@ namespace ArchLucid.Core.Billing.AzureMarketplace;
 /// </summary>
 public static class MarketplacePlanIdMapper
 {
+    private static readonly HashSet<string> EnterpriseNegationExactTokens = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "non",
+        "not",
+        "no",
+        "never",
+        "anti",
+        "without",
+        "sans",
+        "minus",
+        "un",
+        "de",
+        "ex",
+        "pseudo",
+        "semi",
+        "sub",
+        "micro",
+        "less",
+        "lacking",
+        "omit",
+        "outside",
+        "pre",
+        "below",
+        "neither",
+        "bare",
+        "devoid",
+        "empty",
+        "free",
+        "negate",
+        "void",
+        "zero",
+        "absent",
+        "removed",
+        "cleared",
+        "stripped",
+        "missing",
+        "denied",
+    };
+
     /// <summary>
     ///     Maps Azure Marketplace <c>planId</c> text to persisted <see cref="TenantTier" /> storage codes (
     ///     <c>Standard</c> vs <c>Enterprise</c>).
@@ -59,30 +98,7 @@ public static class MarketplacePlanIdMapper
             || token.StartsWith("except", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        return token.Equals("non", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("not", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("no", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("never", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("anti", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("without", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("sans", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("minus", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("un", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("de", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("ex", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("pseudo", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("semi", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("sub", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("micro", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("less", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("lacking", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("omit", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("outside", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("pre", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("below", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("neither", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("bare", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("negate", StringComparison.OrdinalIgnoreCase);
+        return EnterpriseNegationExactTokens.Contains(token);
     }
 
     private static List<string> ExtractPlanIdTokens(string planId)

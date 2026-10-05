@@ -64,6 +64,12 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (normalizedSynthetic is not null && knownEndpointKeys.Contains(normalizedSynthetic))
             return true;
 
+        string? terraformEndpointIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
+
+        if (terraformEndpointIdentity is not null && knownEndpointKeys.Contains(terraformEndpointIdentity))
+            return true;
+
         return TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys);
     }
 
@@ -91,6 +97,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
         AddEndpointKey(claimedEndpointKeys, name);
         AddEndpointKey(claimedEndpointKeys, id);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(claimedEndpointKeys, id);
         AddEndpointKey(claimedEndpointKeys, syntheticNodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdEndpointKeys(claimedEndpointKeys, id);
 

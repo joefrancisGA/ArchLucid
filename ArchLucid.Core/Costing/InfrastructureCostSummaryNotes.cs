@@ -18,6 +18,9 @@ internal static class InfrastructureCostSummaryNotes
         if (soleFamily == CloudProvider.Gcp)
             return "GCP Cloud Billing Catalog sizing where API key and SKU matched; otherwise illustrative GCP USD/month.";
 
+        if (soleFamily == CloudProvider.Azure)
+            return "Illustrative Azure infrastructure USD/month (Retail API probing disabled).";
+
         return "Illustrative infrastructure USD/month (Retail API probing disabled).";
     }
 
@@ -26,16 +29,31 @@ internal static class InfrastructureCostSummaryNotes
         if (totals.TotalUsdPerMonth <= 0m)
             return "No billable topology rows surfaced for sizing.";
 
-        if (totals.AllRetailPricing)
-            return "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources).";
-
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
+
+        if (totals.AllRetailPricing)
+        {
+            if (soleFamily == CloudProvider.Aws)
+                return "AWS Price List on-demand sizing (see line-level price sources).";
+
+            if (soleFamily == CloudProvider.Gcp)
+                return "GCP Cloud Billing Catalog sizing (see line-level price sources).";
+
+            if (soleFamily == CloudProvider.Azure)
+                return "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources).";
+
+            return "Multi-cloud public pricing API sizing (see line-level price sources).";
+        }
+
 
         if (soleFamily == CloudProvider.Aws)
             return "Blend of AWS Price List matches and illustrative fallbacks (on-demand assumptions).";
 
         if (soleFamily == CloudProvider.Gcp)
             return "Blend of GCP Billing Catalog matches and illustrative fallbacks.";
+
+        if (soleFamily == CloudProvider.Azure)
+            return "Blend of Azure Retail Prices API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).";
 
         return "Blend of Retail API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).";
     }
@@ -53,6 +71,6 @@ internal static class InfrastructureCostSummaryNotes
                 return null;
         }
 
-        return first is CloudProvider.Azure ? null : first;
+        return first;
     }
 }

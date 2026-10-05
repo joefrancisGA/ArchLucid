@@ -450,6 +450,71 @@ public sealed class TopologyProposalConsensusMergerTests
     }
 
     [Fact]
+    public void Merge_intersects_relationships_when_models_use_module_qualified_versus_root_terraform_addresses()
+    {
+        const string rootTerraformAddress = "azurerm_app_service.main";
+
+        static List<ManifestService> Services() =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = rootTerraformAddress,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = rootTerraformAddress,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = $"module.wrapper.{rootTerraformAddress}",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void Merge_intersects_relationships_when_models_use_arm_endpoint_casing_variation()
     {
         const string armApiNormalized =

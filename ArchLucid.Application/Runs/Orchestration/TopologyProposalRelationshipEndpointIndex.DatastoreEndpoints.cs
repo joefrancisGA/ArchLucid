@@ -9,6 +9,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, datastore.DatastoreName);
         AddEndpointKey(endpointKeys, datastore.DatastoreId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, datastore.DatastoreId);
         AddSyntheticDatastoreEndpointKey(endpointKeys, datastore.DatastoreName);
     }
 
@@ -23,6 +24,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(datastore.DatastoreId),
+            nodeId);
     }
 
     public static void AddDeclaredManifestDatastoreEndpointAliases(
@@ -38,6 +43,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(datastore.DatastoreId),
+            nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
             aliasToNodeId,
             TrimManifestEndpointValue(datastore.DatastoreId),
             nodeId);
@@ -75,7 +84,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         out string nodeId) =>
         TopologyProposalGraphNodeMatchers.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out nodeId);
 
-    private static string ResolveDeclaredDatastoreNodeId(ManifestDatastore datastore)
+    internal static string ResolveDeclaredDatastoreNodeId(ManifestDatastore datastore)
     {
         string? datastoreId = TrimManifestEndpointValue(datastore.DatastoreId);
 

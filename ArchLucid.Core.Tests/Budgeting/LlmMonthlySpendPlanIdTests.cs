@@ -45,6 +45,18 @@ public sealed class LlmMonthlySpendPlanIdTests
     }
 
     [Fact]
+    public void FromCommercialPackaging_maps_professional_label_before_one_seat_architect_shortcut()
+    {
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 1, 1, "Active");
+
+        string? planId = LlmMonthlySpendPlanId.FromCommercialPackaging(
+            CommercialPackagingTierLabels.Professional,
+            subscription);
+
+        planId.Should().Be(LlmMonthlySpendPlanId.Professional);
+    }
+
+    [Fact]
     public void FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription()
     {
         BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Enterprise), 1, 1, "Active");
@@ -55,6 +67,18 @@ public sealed class LlmMonthlySpendPlanIdTests
 
         planId.Should().BeNull(
             "Enterprise packaging has no Stripe LLM SKU; the Architect shortcut must not apply");
+    }
+
+    [Fact]
+    public void FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat()
+    {
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 1, 1, "Active");
+
+        string? planId = LlmMonthlySpendPlanId.FromCommercialPackaging(
+            CommercialPackagingTierLabels.Professional,
+            subscription);
+
+        planId.Should().Be(LlmMonthlySpendPlanId.Professional);
     }
 
     [Fact]

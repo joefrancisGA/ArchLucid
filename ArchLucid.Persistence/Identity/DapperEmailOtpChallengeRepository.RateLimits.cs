@@ -11,13 +11,16 @@ public sealed partial class DapperEmailOtpChallengeRepository
     public async Task<int> CountRecentRequestsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
                            SELECT COUNT(1)
                            FROM dbo.EmailOtpChallenges
                            WHERE NormalizedEmail = @NormalizedEmail
-                             AND CreatedUtc >= @SinceUtc;
+                             AND CreatedUtc >= @SinceUtc
+                             AND CompletedUtc IS NULL
+                             AND ExpiresUtc > @NowUtc;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -25,20 +28,28 @@ public sealed partial class DapperEmailOtpChallengeRepository
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { NormalizedEmail = normalizedEmail, SinceUtc = sinceUtc.UtcDateTime },
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
+                },
                 cancellationToken: cancellationToken));
     }
 
     public async Task<int> CountRecentRequestsByClientIpHashAsync(
         string clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
                            SELECT COUNT(1)
                            FROM dbo.EmailOtpChallenges
                            WHERE ClientIpHash = @ClientIpHash
-                             AND CreatedUtc >= @SinceUtc;
+                             AND CreatedUtc >= @SinceUtc
+                             AND CompletedUtc IS NULL
+                             AND ExpiresUtc > @NowUtc;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -46,7 +57,12 @@ public sealed partial class DapperEmailOtpChallengeRepository
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { ClientIpHash = clientIpHash, SinceUtc = sinceUtc.UtcDateTime },
+                new
+                {
+                    ClientIpHash = clientIpHash,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -54,6 +70,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
         string normalizedEmail,
         string? clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string batchSql = """
@@ -66,6 +83,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                                 FROM dbo.EmailOtpChallenges
                                 WHERE ClientIpHash = @ClientIpHash
                                   AND CreatedUtc >= @SinceUtc
+                                  AND CompletedUtc IS NULL
+                                  AND ExpiresUtc > @NowUtc
                                   AND @ClientIpHash IS NOT NULL;
                                 """;
 
@@ -79,6 +98,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
                     NormalizedEmail = normalizedEmail,
                     ClientIpHash = clientIpHash,
                     SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
                 },
                 cancellationToken: cancellationToken));
 
@@ -91,16 +111,25 @@ public sealed partial class DapperEmailOtpChallengeRepository
     public async Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
                            SELECT COUNT(1)
-                           FROM dbo.EmailOtpChallenges
-                           WHERE NormalizedEmail = @NormalizedEmail
-                             AND CreatedUtc >= @SinceUtc
-                             AND FailedAttemptCount > 0
-                             AND CompletedUtc IS NULL
-                             AND InvalidatedUtc IS NULL;
+                           FROM dbo.EmailOtpChallenges c
+                           WHERE c.NormalizedEmail = @NormalizedEmail
+                             AND c.CreatedUtc >= @SinceUtc
+                             AND c.FailedAttemptCount > 0
+                             AND c.CompletedUtc IS NULL
+                             AND c.ExpiresUtc > @NowUtc
+                             AND (
+                                 c.InvalidatedUtc IS NULL
+                                 OR NOT EXISTS (
+                                     SELECT 1
+                                     FROM dbo.EmailOtpChallenges active
+                                     WHERE active.NormalizedEmail = @NormalizedEmail
+                                       AND active.CompletedUtc IS NULL
+                                       AND active.InvalidatedUtc IS NULL));
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -108,12 +137,18 @@ public sealed partial class DapperEmailOtpChallengeRepository
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { NormalizedEmail = normalizedEmail, SinceUtc = sinceUtc.UtcDateTime },
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
+                },
                 cancellationToken: cancellationToken));
     }
 
     public async Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(
         string normalizedEmail,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -122,13 +157,17 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            WHERE NormalizedEmail = @NormalizedEmail
                              AND CompletedUtc IS NULL
                              AND InvalidatedUtc IS NULL
+                             AND ExpiresUtc > @NowUtc
                            ORDER BY CreatedUtc DESC;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         DateTime? createdUtc = await connection.ExecuteScalarAsync<DateTime?>(
-            new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new { NormalizedEmail = normalizedEmail, NowUtc = nowUtc.UtcDateTime },
+                cancellationToken: cancellationToken));
 
         return createdUtc is null
             ? null

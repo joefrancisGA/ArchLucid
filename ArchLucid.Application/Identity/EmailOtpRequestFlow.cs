@@ -149,7 +149,7 @@ public sealed class EmailOtpRequestFlow(
         }
 
         DateTimeOffset? latestRequest =
-            await _challenges.GetLatestRequestUtcByEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
+            await _challenges.GetLatestRequestUtcByEmailAsync(normalizedEmail, now, cancellationToken).ConfigureAwait(false);
 
         if (latestRequest is DateTimeOffset lastUtc
             && now - lastUtc < TimeSpan.FromSeconds(_options.ResendCooldownSeconds))

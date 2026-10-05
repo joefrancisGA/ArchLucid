@@ -41,7 +41,7 @@ public static class AuthRateLimitHelper
         string? clientIpHash = EmailOtpRequestMetadataHasher.HashOptional(clientIp);
 
         EmailOtpRecentRequestCounts counts = await challenges
-            .CountRecentRequestsForRateLimitAsync(normalizedEmail, clientIpHash, since, cancellationToken)
+            .CountRecentRequestsForRateLimitAsync(normalizedEmail, clientIpHash, since, now, cancellationToken)
             .ConfigureAwait(false);
 
         if (counts.EmailRequestCount >= options.MaxCodeRequestsPerEmailPerHour)
@@ -80,7 +80,7 @@ public static class AuthRateLimitHelper
         DateTimeOffset since = now.AddHours(-1);
 
         int recentFailures = await challenges
-            .CountRecentFailedVerificationsByEmailAsync(normalizedEmail, since, cancellationToken)
+            .CountRecentFailedVerificationsByEmailAsync(normalizedEmail, since, now, cancellationToken)
             .ConfigureAwait(false);
 
         if (recentFailures < options.MaxVerificationAttemptsPerEmailPerHour)

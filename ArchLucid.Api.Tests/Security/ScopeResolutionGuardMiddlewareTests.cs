@@ -401,6 +401,27 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_unauthenticated_health_detailed_before_authorization()
+    {
+        DefaultHttpContext context = CreateContext("/health/detailed");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_rejects_unauthenticated_default_scope()
     {
         DefaultHttpContext context = CreateContext("/v1/runs");

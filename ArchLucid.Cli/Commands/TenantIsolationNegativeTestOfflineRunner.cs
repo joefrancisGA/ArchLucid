@@ -44,7 +44,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             }
             else
             {
-                verdict = EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
+                verdict = ResolveExcludeReplayVerdict(probe);
             }
         }
         else
@@ -83,10 +83,51 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         return observedOutcome.Contains("foreign runId present", StringComparison.OrdinalIgnoreCase);
     }
 
+    private static TenantIsolationNegativeTestVerdict ResolveExcludeReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
+            return EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
+
+        TenantIsolationNegativeTestVerdict fromField = EvaluateExcludeRunIdProbeVerdict(
+            ResolveObservedStatusCode(probe),
+            probe.ForeignRunIdVisible);
+
+        TenantIsolationNegativeTestVerdict fromOutcome = EvaluateExcludeRunIdProbeVerdict(
+            outcomeStatusCode,
+            probe.ForeignRunIdVisible);
+
+        if (ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(probe.ObservedOutcome)
+            && outcomeStatusCode is >= 200 and < 300
+            && ShouldTrustVerifiedAbsentOutcomeOverFieldStatus(probe))
+            return fromOutcome;
+
+        return WorstIsolationVerdict(fromField, fromOutcome);
+    }
+
+    private static bool ShouldTrustVerifiedAbsentOutcomeOverFieldStatus(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (probe.ObservedStatusCode is not int fieldStatusCode)
+            return true;
+
+        if (fieldStatusCode is >= 200 and < 300)
+            return true;
+
+        // Manifests may persist deny-style 404 on list probes while outcome copy captured HTTP 200 absent.
+        return fieldStatusCode == (int)HttpStatusCode.NotFound;
+    }
+
+    private static bool ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("foreign runId absent", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static TenantIsolationNegativeTestVerdict ResolveDenyReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
     {
         TenantIsolationNegativeTestVerdict fromStatusCode = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(
-            probe.ObservedStatusCode ?? 0);
+            ResolveObservedStatusCode(probe));
 
         if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
             return fromStatusCode;
