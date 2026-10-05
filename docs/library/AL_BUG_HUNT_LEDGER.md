@@ -29036,13 +29036,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 18
-- **bugs-found:** 2
+- **hunts:** 19
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — persisted inventory diff retries skipped diff-consumer fan-out
+- **last-bug:** 2026-10-05 — identical-content-hash inventory diffs skipped diff-consumer fan-out
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted composition-boundary candidate after prior persisted-pair consumer fix; proved `AzureInventoryDiffService.PersistEmptyDiffAsync` (reachable when snapshot headers share `ContentHashSha256` after post-materialize diff) persisted zero-change diffs without calling registered `IAzureInventoryDiffConsumer` implementations (`AuditContinuousReadinessDiffConsumer`, `SecureNowArchitectDiffConsumer`); fixed fan-out parity; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`; 3 Application diff-service tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-09-26 seed hunt (seed-only): reseeded host-infra-evidence-composition after Graphviz/delete/peel-catalog module churn; cheap-disproof closed duplicate peel-catalog provider and orphan bootstrapper candidates; 12 scoped InfraEvidenceComposition tests passed.
 
@@ -29079,6 +29081,7 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `TenantBrandingAdminService` — tenant-branding admin services are registered unconditionally; a reachable branding-profile mutation request under a host with only the read-side branding cache or a no-op persistence provider could report success without durable invalidation, leaving subsequent branded exports stale — **cheap-disproof 2026-10-05 thorough hunt:** InMemory/SQL registrars decorate branding repositories with cache invalidation on every mutation; admin activate paths persist through that wrapper.
 
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — recomputing a persisted snapshot-pair diff returned `WasExisting` without notifying registered consumers, so a retry after partial consumer failure could skip `SecureNowArchitectDiffConsumer` and `AuditContinuousReadinessDiffConsumer` side effects — **hit 2026-10-05 thorough hunt:** notify consumers on existing diffs and isolate per-consumer failures; regressions `ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers` and `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`.
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService.PersistEmptyDiffAsync` — when consecutive Azure inventory snapshots share the same `ContentHashSha256`, the diff service short-circuits to an empty persisted diff without notifying registered consumers, so post-materialize “no changes” captures never reach `AuditContinuousReadinessDiffConsumer` or `SecureNowArchitectDiffConsumer` — **hit 2026-10-05 seed hunt (seed→hit):** notify consumers after empty diff insert; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`.
 
 2026-10-05 thorough hunt (hit): proved inventory diff consumer fan-out gap on persisted snapshot pairs; cheap-disproved branding-cache race, worker-only missing-repo, and admin invalidation candidates; 2 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false` due to pre-existing ARCH006 persistence analyzer noise).
 
