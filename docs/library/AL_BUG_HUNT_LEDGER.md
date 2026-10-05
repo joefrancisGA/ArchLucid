@@ -10958,13 +10958,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 45
-- **bugs-found:** 30
+- **hunts:** 46
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — operator client-error telemetry omitted BFF CSRF on proxy POST
+- **last-bug:** 2026-10-05 — AllowAnonymous core-pilot / first-tenant funnel telemetry blocked by stale BFF cookie
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `recordCorePilotRailChecklistStep` POST to `[AllowAnonymous]` `v1/diagnostics/core-pilot-rail-step` omitted BFF CSRF and was missing from `isPublicAnonymousProxyPath`, so LK-07 returned 401/403 when a stale HttpOnly BFF cookie was present (same class as #1253 pre-auth routes); extended allowlist with exact `core-pilot-rail-step` and `first-tenant-funnel` paths; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`; scoped auth/proxy vitest 322 passed with 3 unrelated baseline seam failures.
 
 2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `reportClientError` posted to `/api/proxy/v1/diagnostics/client-error` without `applyBffCsrfHeader`, so LK-07 blocked signed-in operators with an active BFF session (403) while marketing and pre-auth routes already skip CSRF; fixed in `error-telemetry.ts`; regressions in `error-telemetry.test.ts` and `proxy-bff-session-guard.test.ts`; scoped auth/proxy vitest 319 passed with 3 unrelated baseline seam failures.
 
@@ -10975,6 +10977,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [x] (proven) `core-pilot-rail-telemetry.ts` / `isPublicAnonymousProxyPath` — **hit 2026-10-05 seed hunt (seed→hit):** `POST /api/proxy/v1/diagnostics/core-pilot-rail-step` is `[AllowAnonymous]` on `ClientErrorTelemetryController` but was absent from the public anonymous proxy allowlist; fire-and-forget `fetch` omits BFF CSRF; `enforceProxyBffSessionGuard` blocked mutations when a stale or active HttpOnly BFF cookie was present; checklist telemetry silently dropped; fixed by adding exact-path allowlist entries for `core-pilot-rail-step` and sibling `first-tenant-funnel`; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`.
 
 - [x] (proven) `reportClientError` / `error-telemetry.ts` — **hit 2026-10-05 seed hunt (seed→hit):** production `POST /api/proxy/v1/diagnostics/client-error` used raw `fetch` without `applyBffCsrfHeader`; `enforceProxyBffSessionGuard` returned 403 for mutating non-anonymous paths when a valid HttpOnly BFF session was present (unlike marketing and pre-auth allowlist bypasses); operator-shell error boundaries silently dropped telemetry; fixed by applying BFF CSRF headers before the proxy POST; regressions in `error-telemetry.test.ts` and `proxy-bff-session-guard.test.ts`.
 

@@ -196,6 +196,31 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("allows core-pilot rail telemetry when the BFF session cookie is expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() - 1,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-core-pilot-expired",
+      "v1/diagnostics/core-pilot-rail-step",
+    );
+
+    expect(result.allowed).toBe(true);
+
+    if (result.allowed) {
+      expect(result.payload).toBeNull();
+    }
+  });
+
   it("rejects operator client-error telemetry without a CSRF token when the BFF session is active", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
