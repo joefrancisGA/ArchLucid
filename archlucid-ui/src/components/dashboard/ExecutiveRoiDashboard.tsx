@@ -34,11 +34,7 @@ function formatTimeSavedHours(hours: number): string {
 }
 
 function formatCount(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "Not returned";
-  }
-
-  if (value < 0) {
+  if (!Number.isFinite(value) || value < 0) {
     return "Not returned";
   }
 
