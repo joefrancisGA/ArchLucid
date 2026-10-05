@@ -10958,13 +10958,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 48
-- **bugs-found:** 33
+- **hunts:** 49
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — BFF cookie bearer on anonymous proxy paths; core-pilot rail stepIndex above API max
+- **last-bug:** 2026-10-05 — proxy host scope leaked onto public anonymous routes in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `buildProxyUpstreamHeaders` applied production trusted `ARCHLUCID_PROXY_*` scope fallbacks on `isPublicAnonymousProxyPath` routes while ignoring browser registration scope headers needed by `first-tenant-funnel`; fixed with `resolveAnonymousPublicProxyScopeHeaders` (inbound browser scope + demo-run parity only); regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`; scoped auth/proxy vitest 326 passed with 3 unrelated baseline seam failures.
 
 2026-10-05 thorough hunt (hit): promoted two seeded candidates — proved `buildProxyUpstreamHeaders` still preferred HttpOnly BFF `Authorization` on `isPublicAnonymousProxyPath` routes (e.g. `v1/diagnostics/first-tenant-funnel`), risking wrong tenant scope when per-tenant funnel emission is enabled; fixed by using browser `Authorization` only on anonymous paths; proved `recordCorePilotRailChecklistStep` accepted indices 4–5 while API rejects `stepIndex > 3`; aligned client guard to 0–3; cheap-disproved email-OTP 403 mapping regression (no reachable proxy 403 without allowlist removal) and pulse without CSRF companion (intentional LK-07); regressions in `proxy-upstream-headers.test.ts` and `core-pilot-rail-telemetry.test.ts`; scoped auth/proxy vitest 324 passed with 3 unrelated baseline seam failures.
 
@@ -10981,6 +10983,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [x] (proven) `buildProxyUpstreamHeaders` / `resolveProxyUpstreamScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** production-like proxy posture attached trusted host `ARCHLUCID_PROXY_*` scope headers to `isPublicAnonymousProxyPath` routes without browser input, and dropped inbound registration scope on `v1/diagnostics/first-tenant-funnel`; fixed by resolving anonymous public paths via `resolveAnonymousPublicProxyScopeHeaders`; regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`.
 
 - [x] (proven) `core-pilot-rail-telemetry.ts` `recordCorePilotRailChecklistStep` — **hit 2026-10-05 thorough hunt:** client accepted `stepIndex` 4–5 but `POST /v1/diagnostics/core-pilot-rail-step` rejects `stepIndex > 3`; callers of the exported helper would POST and receive HTTP 400 with telemetry dropped silently; fixed by aligning the client guard to 0–3; regression `core-pilot-rail-telemetry.test.ts`.
 - [x] (proven) `buildProxyUpstreamHeaders` — **hit 2026-10-05 thorough hunt:** `isPublicAnonymousProxyPath` skipped the configured server bearer but still forwarded HttpOnly BFF session `Authorization` on routes such as `v1/diagnostics/first-tenant-funnel`, which can bind `FirstTenantFunnelEmitter` to the prior tenant when per-tenant emission is enabled; fixed by using only explicit browser `Authorization` on anonymous paths; regressions in `proxy-upstream-headers.test.ts`.

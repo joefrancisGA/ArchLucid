@@ -7,7 +7,9 @@ import {
 } from "@/lib/scope";
 import { readProxyScopeFromAuthorizationHeader } from "@/lib/proxy-bearer-scope";
 
-const SCOPE_HEADER_KEYS = ["x-tenant-id", "x-workspace-id", "x-project-id"] as const;
+export const PROXY_SCOPE_HEADER_KEYS = ["x-tenant-id", "x-workspace-id", "x-project-id"] as const;
+
+const SCOPE_HEADER_KEYS = PROXY_SCOPE_HEADER_KEYS;
 
 function readEnvScopeId(name: string): string | null {
   const raw = process.env[name]?.trim() ?? "";
@@ -67,6 +69,36 @@ function readTrustedServerScopeHeaders(): Record<string, string> | null {
  * Resolves upstream scope headers for `/api/proxy` — ignores client scope in production-like posture.
  * When `proxyPath` references a pinned demo-workspace run, scope headers match RSC run-detail loads.
  */
+/**
+ * Scope headers for `isPublicAnonymousProxyPath` routes: forward only what the browser sent
+ * (e.g. post-registration scope), never the proxy host's trusted server scope fallback.
+ */
+export function resolveAnonymousPublicProxyScopeHeaders(
+  incomingHeaders: Headers,
+  proxyPath?: string,
+): Record<string, string> {
+  const resolved: Record<string, string> = {};
+
+  for (const key of SCOPE_HEADER_KEYS) {
+    const incoming = incomingHeaders.get(key)?.trim() ?? "";
+
+    if (incoming.length > 0) {
+      resolved[key] = incoming;
+    }
+  }
+
+  const demoScopeFromPath =
+    proxyPath !== undefined && proxyPath.length > 0
+      ? resolveDemoWorkspaceScopeHeadersFromProxyPath(proxyPath)
+      : null;
+
+  if (demoScopeFromPath !== null) {
+    return { ...resolved, ...demoScopeFromPath };
+  }
+
+  return resolved;
+}
+
 export function resolveProxyUpstreamScopeHeaders(
   incomingHeaders: Headers,
   allowClientScope: boolean = isProxyClientScopeForwardingAllowed(),

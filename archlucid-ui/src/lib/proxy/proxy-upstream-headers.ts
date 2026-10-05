@@ -13,7 +13,10 @@ import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-
 import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
 import { applyProductLineUpstreamHeader } from "@/lib/proxy/product-line-upstream-header";
 import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
-import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
+import {
+  resolveAnonymousPublicProxyScopeHeaders,
+  resolveProxyUpstreamScopeHeaders,
+} from "@/lib/proxy-scope-resolution";
 
 export const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
 /** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
@@ -57,7 +60,11 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
     h.set("Authorization", bearerToUse);
   }
 
-  for (const [k, v] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers, undefined, proxyPath))) {
+  const scopeHeaders = skipPrivilegedUpstreamAuth
+    ? resolveAnonymousPublicProxyScopeHeaders(request.headers, proxyPath)
+    : resolveProxyUpstreamScopeHeaders(request.headers, undefined, proxyPath);
+
+  for (const [k, v] of Object.entries(scopeHeaders)) {
     h.set(k, v);
   }
 
