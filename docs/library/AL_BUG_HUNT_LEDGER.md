@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `orchestrator-transient-retry` — `InvalidOperationException` wrapping `AggregateException(deadlock, permanent SqlException)` retried because `SqlTransientDetector` walked only the first aggregate inner; flatten nested parallel-persist aggregates before applying the all-inners-must-be-transient rule; regression `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate_nested_in_wrapper_when_deadlock_is_listed_first`; 51 scoped transient-retry tests passed (35 Persistence + 16 Application).
+
 2026-10-05 seed hunt (seed-only): `api-tenancy-workspaces` — cheap-disproof closed recycle-bin `Guid.Empty` workspace parity candidate; seeded tenant-missing and default-metadata drift candidates; regression `ListRecycleBinAsync_returns_not_found_when_scope_workspace_id_is_empty`; 31 scoped TenantWorkspaces tests passed.
 
 2026-10-05 seed hunt (seed→hit): `llm-wallet` — `ApplyWebhookPaymentIntentSucceededAsync` credited a Stripe payment intent but did not enqueue auto-refill when the post-credit balance stayed below `RefillTriggerThresholdUsd` (settlement consume / overage paths already did); enqueue via `EnqueueAutoRefillIfBalanceBelowTriggerAsync` after webhook credit; regression `ApplyWebhookPaymentIntentSucceededAsync_enqueues_auto_refill_when_credit_leaves_balance_below_trigger_threshold`; 22 scoped `LlmTenantWalletServiceTests` passed.
@@ -4265,11 +4267,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 26
-- **bugs-found:** 2
+- **hunts:** 27
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — nested wrapper aggregate mixed transient/permanent retry order asymmetry
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -4354,6 +4356,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` sum for eight polls exceeds `RetryBudget` — **cheap-disproof 2026-09-11 seed hunt #1781:** inter-poll delay sum fits inside 20s budget; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
 
 2026-09-11 seed hunt #1781 (seed-only): reseeded orchestrator-transient-retry after #1767; cheap-disproof closed Azure `49920` throttling and eight-poll reconcile delay budget; 49 scoped transient-retry tests passed.
+
+- [x] (proven) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — `InvalidOperationException` wrapping `AggregateException(deadlock, permanent SqlException)` retried up to max attempts because `SqlTransientDetector` walked only the first aggregate inner — **hit 2026-10-05 seed hunt:** apply the same flattened all-inners-must-be-transient rule to nested parallel-persist aggregates; regression `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate_nested_in_wrapper_when_deadlock_is_listed_first`
+
+2026-10-05 seed hunt (seed→hit): promoted nested-wrapper mixed-aggregate candidate; proved order-dependent retry; 51 scoped transient-retry tests passed.
 
 ---
 
