@@ -1,4 +1,3 @@
-{"at":"2026-09-05T04:33:48.1292237Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T04:46:14.9347238Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T04:53:27.6110028Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
 {"at":"2026-09-05T05:00:02.3043307Z","zoneId":"saml-jwt-bearer","outcome":"dry"}
@@ -8729,3 +8728,4 @@
 {"at":"2026-10-05T04:15:46.0452765Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.ArtifactSynthesis/)"]}
 {"at":"2026-10-05T04:27:29.8128517Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow","paths":["@(ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs,ArchLucid.Application/InfraEvidence/AzureInventoryDiffService.cs)"]}
 {"at":"2026-10-05T04:33:12.7057511Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Coordination/)"]}
+{"at":"2026-10-05T04:36:50.5846451Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Coordination/)"]}

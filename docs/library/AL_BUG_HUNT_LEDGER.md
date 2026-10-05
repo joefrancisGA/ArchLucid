@@ -27318,11 +27318,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 29
-- **bugs-found:** 20
+- **hunts:** 30
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — direct export dead-letter logging failure scheduled backoff
+- **last-bug:** 2026-10-05 — post-commit benign-skip debug log scheduled backoff after mark processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27331,6 +27331,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-05 seed hunt (seed→hit): promoted and proved `RecoverableOutboxFailureHandler` propagated `OnRetryScheduledAsync` instrumentation failures after `RecordBackoffAfterProcessingFailureAsync`, aborting batch isolation while the row was already in backoff; wrapped retry hooks best-effort like dead-letter hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`. Scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
 
 2026-10-05 seed hunt (seed→hit): promoted and proved `RunExportBlobPushOutboxProcessor` direct dead-letter branches let `ILogger` failures escape after `RecordDeadLetterAsync`, scheduling backoff on a terminal row; centralized `RecordDirectDeadLetterAsync` best-effort observability; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_log_failure`. Scoped coordination/outbox tests passed 21 Host.Core and 32 Host.Composition.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `PostCommitProjectionOutboxProcessor.CompleteProcessedEntryAsync` let benign-skip `LogDebug` and success metrics escape after `MarkProcessedAsync`; mirrored best-effort observability on export skip/success `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_benign_skip_debug_log_failure`. Scoped coordination/outbox tests passed 21 Host.Core and 33 Host.Composition.
 
 2026-10-04 thorough hunt (dry): cheap-disproved both remaining coordination candidates; package-builder failures are explicit or transient by contract, and provenance materialization rejects incomplete build input; no failing repro.
 
@@ -27366,6 +27368,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RecoverableOutboxFailureHandler.HandleAsync` — after `RecordBackoffAfterProcessingFailureAsync`, `onRetryScheduledAsync` instrumentation can throw and escape batch isolation while the row is already in backoff — **hit 2026-10-05 seed hunt:** symmetric best-effort wrapper for retry hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`.
 
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, packaging-conflict, empty-ZIP, and non-retryable push dead-letter branches performed `ILogger` calls after `RecordDeadLetterAsync`; a failing log sink escaped into `RecoverableOutboxProcessorBase` and scheduled backoff for an already dead-lettered row — **hit 2026-10-05 seed hunt:** `RecordDirectDeadLetterAsync` best-effort observability after terminal persist; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_log_failure`.
+
+- [x] (proven) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` / `RunExportBlobPushOutboxProcessor` skip-and-success paths — `MarkProcessedAsync` preceded success metrics and benign-skip `LogDebug`, so observability failures scheduled backoff on already-processed rows — **hit 2026-10-05 seed hunt:** `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync` best-effort observability after mark-processed; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_benign_skip_debug_log_failure`.
 
 - [x] (proven) `RecoverableOutboxProcessorBase.OnProcessingFailedAsync` — after recording a dead letter, an `OnDeadLetterAsync` audit/metric hook can throw and abort the batch instead of isolating the already-classified failure; **hit 2026-10-04 seed hunt:** `RecoverableOutboxFailureHandler` propagated `InvalidOperationException` from a failing dead-letter hook after `RecordDeadLetterAsync` succeeded; `RecoverableOutboxFailureHandlerTests.HandleAsync_does_not_escape_dead_letter_hook_failure_after_recording_terminal_state` now proves hooks are best-effort while cancellation still propagates.
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, empty-export, and sealed-receipt dead-letter branches performed audit after `RecordDeadLetterAsync`; **hit 2026-10-04:** `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure` reproduced an audit failure being converted into backoff for the already-terminal row; `LogDeadLetterAuditAsync` now contains non-cancellation audit failures.

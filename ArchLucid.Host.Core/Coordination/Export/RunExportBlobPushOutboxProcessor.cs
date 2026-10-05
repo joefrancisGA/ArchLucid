@@ -136,8 +136,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
             Logger.LogWarning(
                 "Skipping run export blob push for run {RunId}: run detail no longer found.",
                 entry.RunId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+            await MarkExportPushProcessedAsync(outbox, entry.OutboxId, cancellationToken).ConfigureAwait(false);
 
             return;
         }
@@ -208,8 +207,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
                 "Skipping run export blob push for run {RunId}: {Reason}",
                 entry.RunId,
                 packageResult.NotFoundReason);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+            await MarkExportPushProcessedAsync(outbox, entry.OutboxId, cancellationToken).ConfigureAwait(false);
 
             return;
         }
@@ -269,8 +267,28 @@ public sealed class RunExportBlobPushOutboxProcessor(
             return;
         }
 
-        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-        ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+        await MarkExportPushProcessedAsync(outbox, entry.OutboxId, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task MarkExportPushProcessedAsync(
+        IRunExportBlobPushOutboxRepository outbox,
+        Guid outboxId,
+        CancellationToken cancellationToken)
+    {
+        await outbox.MarkProcessedAsync(outboxId, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The outbox row is already marked processed; observability must not schedule a retry.
+        }
     }
 
     protected override RunExportBlobPushOutboxProcessorOptions VerifyOptions(
