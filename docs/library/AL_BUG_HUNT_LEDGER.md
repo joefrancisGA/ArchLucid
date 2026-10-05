@@ -12171,6 +12171,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-04 thorough hunt (dry): cheap-disproved the three evaluation candidates; budget reservation semantics and evidence-ID uniqueness are outside the selected files, while `Task.WhenAll` exception propagation has no established wrong outcome and enforcing failures are intentional. No hunt-ready hypothesis remained and no failing repro was attempted.
 
+- [x] (proven) `AgentResultEvidenceFaithfulnessChecker` finding `category` — `fullBlob.Contains(category)` marked findings supported when a short category substring appeared inside unrelated evidence tokens (`app` ⊆ `application`) — **hit 2026-10-05 seed hunt:** require `AgentType` enum match or distinct overlap tokens for category grounding; regression `Evaluate_finding_category_substring_does_not_count_as_grounded`
+
+2026-10-05 seed hunt (seed→hit): promoted finding-category substring candidate; 188 scoped AgentRuntime `Evaluation` tests passed.
+
 ---
 
 ## Zone: decisioning
