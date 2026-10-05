@@ -30,6 +30,8 @@ public sealed class AzureInventoryDiffService(
                 IReadOnlyList<AzureInventoryChangeRecord> existingChanges =
                     await diffRepository.ListChangesByDiffIdAsync(scope, existing.DiffId, cancellationToken);
 
+                await NotifyDiffConsumersAsync(existing, existingChanges, cancellationToken);
+
                 return new AzureInventoryDiffComputeResult
                 {
                     Succeeded = true,
@@ -92,10 +94,7 @@ public sealed class AzureInventoryDiffService(
                 },
                 cancellationToken);
 
-            foreach (IAzureInventoryDiffConsumer consumer in diffConsumers)
-            {
-                await consumer.OnDiffComputedAsync(persisted.Summary, changes, cancellationToken);
-            }
+            await NotifyDiffConsumersAsync(persisted.Summary, changes, cancellationToken);
 
             return new AzureInventoryDiffComputeResult
             {
@@ -119,6 +118,28 @@ public sealed class AzureInventoryDiffService(
                 Succeeded = false,
                 ErrorMessage = ex.Message,
             };
+        }
+    }
+
+    private async Task NotifyDiffConsumersAsync(
+        AzureInventoryDiffSummaryRecord summary,
+        IReadOnlyList<AzureInventoryChangeRecord> changes,
+        CancellationToken cancellationToken)
+    {
+        foreach (IAzureInventoryDiffConsumer consumer in diffConsumers)
+        {
+            try
+            {
+                await consumer.OnDiffComputedAsync(summary, changes, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Azure inventory diff consumer {ConsumerType} failed for DiffId={DiffId}.",
+                    consumer.GetType().Name,
+                    summary.DiffId);
+            }
         }
     }
 
