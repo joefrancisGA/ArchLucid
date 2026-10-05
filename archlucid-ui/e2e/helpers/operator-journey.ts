@@ -540,6 +540,16 @@ export async function expectQuickDecisionSeverityVisible(
       return;
     }
 
+    const primaryCard = page.locator('[data-finding-workspace-primary="true"]');
+    const onPrimaryCard = quickDecisionSeverityBadge(primaryCard).first();
+
+    if (await onPrimaryCard.isVisible().catch(() => false)) {
+      await onPrimaryCard.scrollIntoViewIfNeeded();
+      await expect(onPrimaryCard).toBeVisible({ timeout: 5_000 });
+
+      return;
+    }
+
     const workspace = page
       .getByTestId("run-detail-findings-workspace")
       .or(page.getByTestId("review-workbench-column-findings"))

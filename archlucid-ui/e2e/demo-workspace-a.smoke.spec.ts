@@ -15,9 +15,9 @@ import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailWorkspaceCore,
+  expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
-  quickDecisionSeverityBadge,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -94,7 +94,7 @@ test.describe(
       timeout: 60_000,
     });
 
-    const quickSummaryBeforeEvidence = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
       runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
       timeoutMs: 120_000,
     });
