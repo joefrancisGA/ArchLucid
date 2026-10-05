@@ -128,6 +128,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
 
     public async Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(
         string normalizedEmail,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -136,13 +137,17 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            WHERE NormalizedEmail = @NormalizedEmail
                              AND CompletedUtc IS NULL
                              AND InvalidatedUtc IS NULL
+                             AND ExpiresUtc > @NowUtc
                            ORDER BY CreatedUtc DESC;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         DateTime? createdUtc = await connection.ExecuteScalarAsync<DateTime?>(
-            new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new { NormalizedEmail = normalizedEmail, NowUtc = nowUtc.UtcDateTime },
+                cancellationToken: cancellationToken));
 
         return createdUtc is null
             ? null

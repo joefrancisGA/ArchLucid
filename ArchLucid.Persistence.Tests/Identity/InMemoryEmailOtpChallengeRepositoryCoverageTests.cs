@@ -49,7 +49,9 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
         (await sut.CountRecentRequestsByClientIpHashAsync("ip-1", since, CancellationToken.None))
             .Should()
             .Be(2);
-        (await sut.GetLatestRequestUtcByEmailAsync("user@example.com", CancellationToken.None))
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        (await sut.GetLatestRequestUtcByEmailAsync("user@example.com", now, CancellationToken.None))
             .Should()
             .NotBeNull();
 
@@ -229,6 +231,26 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
                 CancellationToken.None))
             .Should()
             .Be(0);
+    }
+
+    [Fact]
+    public async Task GetLatestRequestUtc_ignores_expired_active_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+            },
+            CancellationToken.None);
+
+        (await sut.GetLatestRequestUtcByEmailAsync("otp@example.com", now, CancellationToken.None))
+            .Should()
+            .BeNull();
     }
 
     [Fact]

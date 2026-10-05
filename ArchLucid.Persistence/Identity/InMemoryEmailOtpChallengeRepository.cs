@@ -100,12 +100,15 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
 
     public Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(
         string normalizedEmail,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         DateTimeOffset? latest = _byId.Values
-            .Where(row => row.NormalizedEmail == normalizedEmail && EmailOtpChallengeRepositoryCore.IsActive(row))
+            .Where(row =>
+                row.NormalizedEmail == normalizedEmail
+                && EmailOtpChallengeRepositoryCore.IsActiveAndUnexpired(row, nowUtc))
             .Select(row => (DateTimeOffset?)row.CreatedUtc)
             .OrderByDescending(row => row)
             .FirstOrDefault();

@@ -1475,6 +1475,46 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                CodeLifetimeMinutes = 5,
+                ResendCooldownSeconds = 3600,
+                MaxCodeRequestsPerEmailPerHour = 10,
+            },
+            clock);
+
+        EmailOtpChallengeRequestResult firstRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "expired-cooldown@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(firstRequest.ChallengeId);
+        Assert.True(firstRequest.EmailDeliverySucceeded);
+
+        clock.Advance(TimeSpan.FromMinutes(6));
+
+        EmailOtpChallengeRequestResult secondRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "expired-cooldown@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(secondRequest.ChallengeId);
+        Assert.True(secondRequest.EmailDeliverySucceeded);
+        Assert.NotEqual(firstRequest.ChallengeId, secondRequest.ChallengeId);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify()
     {
         FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
@@ -1697,7 +1737,7 @@ public sealed class EmailOtpAuthServiceTests
             Times.Never);
 
         DateTimeOffset? latestRequest =
-            await challenges.GetLatestRequestUtcByEmailAsync("bot-gate@example.com", CancellationToken.None);
+            await challenges.GetLatestRequestUtcByEmailAsync("bot-gate@example.com", DateTimeOffset.UtcNow, CancellationToken.None);
 
         Assert.Null(latestRequest);
     }
@@ -1878,7 +1918,7 @@ public sealed class EmailOtpAuthServiceTests
             Times.Never);
 
         DateTimeOffset? latestRequest =
-            await challenges.GetLatestRequestUtcByEmailAsync("disabled@example.com", CancellationToken.None);
+            await challenges.GetLatestRequestUtcByEmailAsync("disabled@example.com", DateTimeOffset.UtcNow, CancellationToken.None);
 
         Assert.Null(latestRequest);
     }

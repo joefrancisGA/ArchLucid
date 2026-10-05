@@ -8800,3 +8800,4 @@
 {"at":"2026-10-05T15:34:17.9807505Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
 {"at":"2026-10-05T15:37:43.8898662Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
 {"at":"2026-10-05T15:40:53.5362119Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
+{"at":"2026-10-05T15:46:07.0263731Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}

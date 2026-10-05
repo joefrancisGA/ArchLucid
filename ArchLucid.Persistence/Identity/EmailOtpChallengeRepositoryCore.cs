@@ -53,6 +53,9 @@ internal static class EmailOtpChallengeRepositoryCore
     public static bool IsActive(EmailOtpChallengeRecord row) =>
         row.CompletedUtc is null && row.InvalidatedUtc is null;
 
+    public static bool IsActiveAndUnexpired(EmailOtpChallengeRecord row, DateTimeOffset nowUtc) =>
+        IsActive(row) && row.ExpiresUtc > nowUtc;
+
     public static bool MatchesRecentRequestByEmail(
         EmailOtpChallengeRecord row,
         string normalizedEmail,

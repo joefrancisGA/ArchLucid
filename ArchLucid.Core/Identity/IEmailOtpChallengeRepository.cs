@@ -31,6 +31,7 @@ public interface IEmailOtpChallengeRepository
 
     Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(
         string normalizedEmail,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken);
 
     Task InvalidateActiveChallengesForEmailAsync(
