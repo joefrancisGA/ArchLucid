@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `TerraformShowJsonInfrastructureDeclarationParser` ignored `terraform plan -json` roots (`planned_values` / `plannedValues`) and only read `values`; proved `ComposeEnvInfrastructureDeclarationParser` parsed list env `- KEY=https://…` with map regex and treated the `https:` colon as `KEY: value`; list `KEY=value` lines now run before map regex; regressions `ParseAsync_planned_values_root_module_emits_canonical_resource`, `ComposeEnv_environment_list_emits_proposed_host`; cheap-disproof `export`-prefixed dotenv (URL value still emits); 807 scoped tests passed.
+
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `IDiagramSourceParser.CanParse` accepted full MIME types with `; charset=utf-8` but rejected short `DiagramSourceFormats` tokens with the same suffix (`mermaid; charset=utf-8`); centralize lookup in `DiagramSourceFormats.Is*Format` using `NormalizeContentTypeForLookup` before short-token compare; regression `Parse_MermaidShortTokenWithCharsetParameter_YieldsNodesAndEdges`; cheap-disproof closed quoted-RFC2045 charset on document MIME base type and infra declaration `format` enum reachability; 804 scoped ContextIngestion/Canonicalization tests passed.
 
 2026-10-05 seed hunt (seed-only): `context-ingestion` — re-read MIME normalization follow-ons after diagram router charset fixes; cheap-disproved document connector delta churn on `text/plain` vs `text/plain; charset=utf-8` (`DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`); no new hunt-ready row; seeded five `(candidate)` rows; 803 scoped ContextIngestion/Canonicalization tests passed.
@@ -22538,6 +22540,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-05 seed hunt (seed→hit): terraform `planned_values` root + compose-env list URL misparsed; 807 scoped tests passed.
+
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.ParseAsync` — `terraform plan -json` pasted with `format=terraform-show-json` returned no resources because only `values` was accepted — **hit 2026-10-05 seed hunt:** `TryGetTerraformShowValuesRoot` also accepts `planned_values` / `plannedValues`; regression `ParseAsync_planned_values_root_module_emits_canonical_resource`.
+- [x] (proven) `ComposeEnvInfrastructureDeclarationParser` — YAML list `environment: [ - KEY=https://host ]` emitted nothing because map regex matched the colon in `https://` — **hit 2026-10-05 seed hunt:** parse `KEY=value` list lines before map-style regex; regression `ComposeEnv_environment_list_emits_proposed_host`.
+- [x] (valid-no-repro) `DotenvInfrastructureDeclarationParser` — `export KEY=value` lines — **cheap-disproof 2026-10-05 seed hunt:** value URL still parsed for host inference; setting name retains `export` prefix (separate hygiene candidate).
+
+- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — strip optional `export` shell prefix before `KEY=value` so `SettingName` and proposal names stay canonical — **seed 2026-10-05:** reachable `format=dotenv` pastes from shell scripts.
+- [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — treat top-level `services:` as structural key (not a service name) so nested `environment:` blocks bind to the correct service — **seed 2026-10-05:** multi-service compose-env extracts per SN-RT-09.
+- [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` — multi-doc `---` YAML with snake_case pod fields not projected on second document — **seed 2026-10-05:** parity with kubernetes-json snake_case tests.
+- [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform rows differing in `tf.tainted` / `mode` may collapse when type/name/occurrence match — **seed 2026-10-05:** repeated connector normalize batches.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — raw state JSON without `values` wrapper (legacy top-level `modules`) — **seed 2026-10-05:** mislabeled uploads still using `terraform-show-json` format.
 
 2026-10-05 seed hunt (seed→hit): short `DiagramSourceFormats` token + `; charset=utf-8` rejected by diagram parsers after MIME charset fix; `DiagramSourceFormats.Is*Format`; 804 scoped tests passed.
 
