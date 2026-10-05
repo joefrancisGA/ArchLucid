@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using ArchLucid.Api.Auth.Services;
@@ -91,6 +92,21 @@ public sealed class RecentAuthenticationEvaluatorTests
         ClaimsIdentity identity = new("Bearer");
         identity.AddClaim(new Claim("auth_time", stale.ToString()));
         identity.AddClaim(new Claim("auth_time", fresh.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time()
+    {
+        long stale = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds();
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, stale.ToString()));
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, fresh.ToString()));
 
         ClaimsPrincipal principal = new(identity);
 

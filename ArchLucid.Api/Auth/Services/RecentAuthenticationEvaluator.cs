@@ -32,14 +32,25 @@ public static class RecentAuthenticationEvaluator
             return latest;
         }
 
-        string? iat = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;
+        List<Claim> iatClaims = principal.FindAll(JwtRegisteredClaimNames.Iat).ToList();
 
-        if (long.TryParse(iat, out long iatSeconds))
+        if (iatClaims.Count == 0)
+            return null;
+
+        DateTimeOffset? latestIat = null;
+
+        foreach (Claim claim in iatClaims)
         {
-            return DateTimeOffset.FromUnixTimeSeconds(iatSeconds);
+            if (!long.TryParse(claim.Value, out long iatSeconds))
+                continue;
+
+            DateTimeOffset instant = DateTimeOffset.FromUnixTimeSeconds(iatSeconds);
+
+            if (latestIat is null || instant > latestIat)
+                latestIat = instant;
         }
 
-        return null;
+        return latestIat;
     }
 
     public static bool HasRecentAuthentication(
