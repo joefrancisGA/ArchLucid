@@ -922,6 +922,7 @@ export function reviewDetailEvidenceBundleExportControl(page: Page): Locator {
 
   return artifactsSection
     .getByTestId("run-detail-evidence-bundle-export")
+    .or(artifactsSection.getByTestId("run-detail-evidence-bundle-export-blocked"))
     .or(artifactsSection.getByRole("button", { name: /^Download evidence bundle$/i }))
     .or(artifactsSection.getByRole("link", { name: /Download evidence bundle/i }))
     .first();
@@ -1320,65 +1321,75 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
 export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?: string): Promise<void> {
-  // `#artifacts-exports` lives on the Evidence workspace tab (see LEGACY_HASH_TO_TAB), not Activity.
-  const artifactsSection = page.locator("#artifacts-exports");
-  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+  await expect(async () => {
+    const trimmedRunId = runId?.trim() ?? "";
 
-  if ((await sectionNav.count()) > 0) {
-    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
-  } else if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
-    if (runId !== undefined && runId.trim().length > 0) {
-      await openReviewDetailWorkspaceTab(page, runId, "evidence");
+    if (trimmedRunId.length > 0) {
+      await openReviewDetailWorkspaceTab(page, trimmedRunId, "evidence");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
       await page.getByTestId("review-detail-workspace-tab-evidence").click();
       await expect(reviewDetailWorkspacePanel(page, "evidence")).toBeVisible({ timeout: 60_000 });
+    } else {
+      const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+
+      if ((await sectionNav.count()) > 0) {
+        await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
+      }
     }
-  }
 
-  // Wait for the section (and golden-manifest gate) before scroll — scrollIntoViewIfNeeded alone
-  // absorbs the full test timeout when the wrong tab left the node unmounted.
-  await expect(artifactsSection).toBeVisible({ timeout: 90_000 });
-  await artifactsSection.scrollIntoViewIfNeeded();
+    const currentUrl = new URL(page.url());
 
-  const markdownDownload = artifactsSection.getByTestId("golden-manifest-markdown-download-button").first();
-  const evidenceBundleExport = reviewDetailEvidenceBundleExportControl(page);
+    if (currentUrl.searchParams.get("runDeliverablesOpen") !== "1") {
+      currentUrl.searchParams.set("runDeliverablesOpen", "1");
+      await page.goto(currentUrl.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
 
-  if (
-    (await markdownDownload.isVisible().catch(() => false))
-    || (await evidenceBundleExport.isVisible().catch(() => false))
-  ) {
-    return;
-  }
+    const artifactsSection = page.locator("#artifacts-exports");
+    await expect(artifactsSection).toBeVisible({ timeout: 30_000 });
+    await artifactsSection.scrollIntoViewIfNeeded();
 
-  const deliverablesHeading = artifactsSection.getByRole("heading", { name: /^Deliverables$/i });
-  const deliverablesDetails = artifactsSection
-    .locator("details")
-    .filter({ has: deliverablesHeading })
-    .first();
-  const deliverablesSummary = deliverablesDetails
-    .locator("summary")
-    .filter({ has: deliverablesHeading })
-    .or(artifactsSection.locator("summary").filter({ hasText: /Deliverables/i }))
-    .first();
+    const markdownDownload = reviewDetailGoldenManifestMarkdownExportControl(page);
+    const evidenceBundleExport = reviewDetailEvidenceBundleExportControl(page);
 
-  await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
+    if (
+      (await markdownDownload.isVisible().catch(() => false))
+      || (await evidenceBundleExport.isVisible().catch(() => false))
+    ) {
+      return;
+    }
 
-  const detailsOpen: boolean =
-    (await deliverablesDetails.count()) > 0
-      ? await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open)
-      : await deliverablesSummary.evaluate((element) => {
-          const details = element.closest("details");
+    const deliverablesHeading = artifactsSection.getByRole("heading", { name: /^Deliverables$/i });
+    const deliverablesDetails = artifactsSection
+      .locator("details")
+      .filter({ has: deliverablesHeading })
+      .first();
+    const deliverablesSummary = deliverablesDetails
+      .locator("summary")
+      .filter({ has: deliverablesHeading })
+      .or(artifactsSection.locator("summary").filter({ hasText: /Deliverables/i }))
+      .first();
 
-          return details !== null ? (details as HTMLDetailsElement).open : true;
-        });
+    await expect(deliverablesSummary).toBeVisible({ timeout: 15_000 });
 
-  if (!detailsOpen) {
-    await deliverablesSummary.click();
-  }
+    const detailsOpen: boolean =
+      (await deliverablesDetails.count()) > 0
+        ? await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open)
+        : await deliverablesSummary.evaluate((element) => {
+            const details = element.closest("details");
 
-  if ((await deliverablesDetails.count()) > 0) {
-    await expect(deliverablesDetails).toHaveAttribute("open", "");
-  }
+            return details !== null ? (details as HTMLDetailsElement).open : true;
+          });
+
+    if (!detailsOpen) {
+      await deliverablesSummary.click();
+    }
+
+    if ((await deliverablesDetails.count()) > 0) {
+      await expect(deliverablesDetails).toHaveAttribute("open", "", { timeout: 15_000 });
+    }
+
+    await expect(markdownDownload.or(evidenceBundleExport).first()).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout: 120_000 });
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */

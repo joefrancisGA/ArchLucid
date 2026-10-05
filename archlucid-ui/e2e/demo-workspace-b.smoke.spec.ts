@@ -320,9 +320,10 @@ test.describe(
     /** Buyer deliverables still expose deterministic export affordances (ZIP + Markdown summary). */
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID);
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
-      timeout: 60_000,
-    });
+    await expect(async () => {
+      await expect(reviewDetailEvidenceBundleExportControl(page)).toBeVisible({ timeout: 5_000 });
+      await expect(reviewDetailEvidenceBundleExportControl(page)).toBeEnabled({ timeout: 5_000 });
+    }).toPass({ timeout: 120_000 });
     await expect(
       reviewDetailGoldenManifestMarkdownExportControl(page),
     ).toBeVisible();

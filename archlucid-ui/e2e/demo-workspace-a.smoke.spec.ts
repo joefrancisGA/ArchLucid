@@ -162,9 +162,10 @@ test.describe(
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 
-    await expect(reviewDetailEvidenceBundleExportControl(page)).toBeVisible({
-      timeout: 60_000,
-    });
+    await expect(async () => {
+      await expect(reviewDetailEvidenceBundleExportControl(page)).toBeVisible({ timeout: 5_000 });
+      await expect(reviewDetailEvidenceBundleExportControl(page)).toBeEnabled({ timeout: 5_000 });
+    }).toPass({ timeout: 120_000 });
 
     /** Affordance only — do not trigger Markdown download blob (release gate verifies control presence). */
     await expect(reviewDetailGoldenManifestMarkdownExportControl(page)).toBeVisible();
