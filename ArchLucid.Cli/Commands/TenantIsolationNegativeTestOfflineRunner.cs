@@ -114,7 +114,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
     private static TenantIsolationNegativeTestVerdict ResolveDenyReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
     {
         TenantIsolationNegativeTestVerdict fromStatusCode = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(
-            probe.ObservedStatusCode ?? 0);
+            ResolveObservedStatusCode(probe));
 
         if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
             return fromStatusCode;

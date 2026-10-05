@@ -1756,6 +1756,55 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        string manifestPath = Path.Combine(Path.GetTempPath(), $"tenant-isolation-manifest-{Guid.NewGuid():N}.json");
+        string manifestJson = """
+                              {
+                                "schemaVersion": 1,
+                                "primaryRunId": "aaaaaaaa-1111-1111-1111-111111111111",
+                                "scenarios": [
+                                  {
+                                    "name": "deny-status-copy-only",
+                                    "probes": [
+                                      {
+                                        "name": "cross-tenant-run-get",
+                                        "path": "/v1/architecture/review/aaaaaaaa-1111-1111-1111-111111111111",
+                                        "expectedOutcome": "deny-status",
+                                        "observedOutcome": "HTTP 404",
+                                        "evidence": "fixture captured deny outcome without persisting status code",
+                                        "verdict": "pass"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                              """;
+
+        File.WriteAllText(manifestPath, manifestJson);
+
+        try
+        {
+            TenantIsolationNegativeTestRunner runner = new();
+            TenantIsolationNegativeTestReport report = runner.RunOffline(
+                repositoryRoot!,
+                new TenantIsolationNegativeTestOptions { ManifestPath = manifestPath });
+
+            report.Probes.Should().ContainSingle();
+            report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Pass);
+            report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Pass);
+        }
+        finally
+        {
+            File.Delete(manifestPath);
+        }
+    }
+
+    [Fact]
     public void RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
