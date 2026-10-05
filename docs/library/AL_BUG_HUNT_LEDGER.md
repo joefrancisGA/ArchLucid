@@ -19416,6 +19416,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-05 seed hunt (seed→hit): promoted and proved JSON effective values shaped as arrays of connection-string scalars leaked because `ConfigurationSensitiveConfigValueScanner` only walked property names; fixed by scanning JSON string elements for ADO.NET-style credential markers; regressions `Resolve_redacts_json_effective_values_when_effective_value_is_json_array_of_connection_strings` and `Resolve_preserves_non_credential_json_array_scalar_effective_values`; 1051 scoped Configuration tests passed (no-build filter).
 
+2026-10-05 seed hunt (seed→hit): promoted and proved plain ADO.NET connection-string effective values on non-sensitive paths leaked because the scanner only ran for JSON documents; fixed by applying embedded connection-string detection to non-JSON and invalid-JSON values; regressions `Resolve_redacts_plain_scalar_connection_string_effective_values` and `Resolve_preserves_plain_scalar_non_credential_effective_values`; 1054 scoped Configuration tests passed (no-build filter).
+
 2026-10-03 seed hunt (seed-only): re-read the configuration summary redaction, effective-value resolver, deployment options, OTP normalization, and configuration tests; no new candidate met the wrong-outcome and product-contract bar for same-run proof.
 
 2026-10-04 seed hunt (seed-only): re-read `ConfigurationSensitiveConfigPathMatcher`, `ConfigurationSensitiveConfigValueScanner`, `ConfigurationEffectiveValueResolver`, and the configuration tests; no new reachable mechanism-backed candidate emerged. The built configuration-filtered run was blocked by existing ARCH006/ARCH006a diagnostics in `ArchLucid.Persistence`; the existing no-build binary passed 1,045 configuration tests.
