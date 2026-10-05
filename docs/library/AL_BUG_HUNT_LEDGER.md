@@ -27251,11 +27251,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 27
-- **bugs-found:** 25
+- **hunts:** 28
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — null deserialized agent result/evidence lists crashed curated evidence prompt build
+- **last-bug:** 2026-10-05 — null Findings/EvidenceRefs on deserialized agent rows crashed IaC stub generation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -27303,6 +27303,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — multiple `region:` constraints only validated the first value when a service omitted `AzureArmRegion`, so restricted regions such as `qatarcentral` could miss `RegionMismatch` warnings — **hit 2026-10-05 thorough hunt:** validate every declared request region when inferring tenant region; regression `EnrichAsync_validates_each_request_region_constraint_when_service_region_missing`.
 - [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — persisted calibration rows with non-finite raw confidence or semantic scores created non-finite knots and `CalibrateAsync` returned `NaN` — **hit 2026-10-05 thorough hunt:** skip non-finite samples when binning and treat non-finite raw confidence as zero in `ClampUnit`; regression `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`.
 - [x] (invalid) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution — invalid: `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects every stored or catalog allowlist entry that is absent from the alias registry before the resolver receives it
+- [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null `Findings`/`Claims`/`EvidenceRefs` on deserialized `AgentResult` or catalog lists on `AgentEvidencePackage` threw before LLM prompt assembly — **hit 2026-10-05 seed hunt:** null-coalesce list properties before LINQ and `string.Join`; regression `BuildUserPrompt_tolerates_null_collections_on_result_and_evidence`
+- [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — null `AgentResult.Findings` or `ArchitectureFinding.EvidenceRefs` on deserialized enrichment rows threw in the findings loop and evidence-ref helpers — **hit 2026-10-05 seed hunt:** null-coalesce in the stub loop and `HasEvidenceReferences` / `BuildPrompt`; regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows`
+
+2026-10-05 seed hunt (seed→hit): re-read `FindingIacStubGenerator`; proved post-commit stub generation threw when deserialized `AgentResult.Findings` or `ArchitectureFinding.EvidenceRefs` was null; fixed with null-coalescing in the findings loop and evidence-ref helpers; regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows`; 97 scoped Application.Tests.Agents tests passed.
 
 2026-10-05 seed hunt (seed→hit): re-read `AgentCuratedEvidenceProposer`; proved `BuildUserPrompt` and typed-emission gating threw when deserialized `AgentResult`/`AgentEvidencePackage` list properties were null; fixed with null-coalescing on findings, claims, evidence refs, and catalog lists; regression `BuildUserPrompt_tolerates_null_collections_on_result_and_evidence`; 96 scoped Application.Tests.Agents tests passed.
 
