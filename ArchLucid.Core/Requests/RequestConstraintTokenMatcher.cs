@@ -463,14 +463,13 @@ internal static class RequestConstraintTokenMatcher
                 replacement = ' ';
 
                 return true;
+            case '\t':
+            case '\n':
+            case '\r':
+                replacement = ' ';
+
+                return true;
             default:
-                if (character is '\t' or '\n' or '\r')
-                {
-                    replacement = default;
-
-                    return false;
-                }
-
                 System.Globalization.UnicodeCategory category = char.GetUnicodeCategory(character);
 
                 if (category is System.Globalization.UnicodeCategory.SpaceSeparator
