@@ -5,6 +5,9 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 export const DECISION_GRADE_CITATION_REQUIRED_EXPORT_BLOCKED_REASON =
   "Decision-grade findings require visible evidence citations before copy or external cite.";
 
+export const DECISION_GRADE_EVIDENCE_NOT_RETURNED_EXPORT_BLOCKED_REASON =
+  "Decision-grade findings cannot be copied or cited until the evidence list is returned.";
+
 function resolveInspectClassification(payload: FindingInspectPayload): string | null {
   const direct = typedPayloadLookupString(payload, "classification")
     ?? typedPayloadLookupString(payload, "findingClassification");
@@ -30,7 +33,11 @@ export function resolveFindingInspectCitationExportBlockedReason(
     return null;
   }
 
-  const evidenceCount = payload.evidence?.length ?? 0;
+  if (payload.evidence === undefined || payload.evidence === null) {
+    return DECISION_GRADE_EVIDENCE_NOT_RETURNED_EXPORT_BLOCKED_REASON;
+  }
+
+  const evidenceCount = payload.evidence.length;
 
   if (evidenceCount > 0) {
     return null;

@@ -54,16 +54,17 @@ function progressToneClass(status: AiUsageBudgetPaceStatus): string {
 }
 
 export function AiUsageMonthlyBudgetPanel(props: Props) {
-  const usedUsd = props.kpi.usedThisMonthUsd ?? 0;
+  const usedUsd = props.kpi.usedThisMonthUsd;
   const totalUsd = props.kpi.budgetTotalUsd;
   const remainingUsd = props.kpi.remainingBudgetUsd;
-  const percentUsed = props.kpi.budgetPercentUsed ?? 0;
+  const percentUsed = props.kpi.budgetPercentUsed;
+  const utilizationKnown = percentUsed !== null && percentUsed !== undefined;
   const labelId = "ai-usage-monthly-budget-label";
 
   const budgetSummaryCopy =
     totalUsd !== null && remainingUsd !== null
       ? formatAiUsageRemainingBudgetCopy(remainingUsd, totalUsd)
-      : totalUsd !== null
+      : totalUsd !== null && usedUsd !== null && usedUsd !== undefined
         ? formatAiUsageUsedBudgetCopy(usedUsd, totalUsd)
         : null;
 
@@ -99,25 +100,37 @@ export function AiUsageMonthlyBudgetPanel(props: Props) {
                 {budgetSummaryCopy ?? "Budget summary unavailable"}
               </p>
               <p className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} aria-live="polite">
+<<<<<<< HEAD
                 {props.kpi.budgetPercentUsed !== null ? `${props.kpi.budgetPercentUsed}% used` : "Not returned"}
+=======
+                {utilizationKnown ? `${percentUsed}% used` : "Not returned"}
+>>>>>>> origin/master
               </p>
             </div>
-            <Progress
-              value={percentUsed}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={percentUsed}
-              aria-labelledby={labelId}
-              indicatorClassName={progressToneClass(props.paceStatus)}
-              className="mt-2"
-            />
+            {utilizationKnown ? (
+              <Progress
+                value={percentUsed}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={percentUsed}
+                aria-labelledby={labelId}
+                indicatorClassName={progressToneClass(props.paceStatus)}
+                className="mt-2"
+              />
+            ) : (
+              <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+                Budget utilization was not returned for this UTC month.
+              </p>
+            )}
           </div>
 
           <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="text-al-text-secondary">Used</dt>
               <dd className="m-0 font-medium tabular-nums text-al-text-primary">
-                {formatCostReportingEstimatedUsd(usedUsd, props.kpi.currency)}
+                {usedUsd !== null && usedUsd !== undefined
+                  ? formatCostReportingEstimatedUsd(usedUsd, props.kpi.currency)
+                  : "Not returned"}
               </dd>
             </div>
             <div>

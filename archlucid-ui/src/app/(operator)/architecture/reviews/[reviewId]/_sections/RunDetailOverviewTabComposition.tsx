@@ -159,6 +159,7 @@ export function buildRunDetailOutcomeCards(
       unresolvedIssueCountDisplay={model.manifestSummary?.unresolvedIssueCount ?? null}
       aggregateRiskPosture={model.explanationSummary?.riskPosture ?? null}
       governanceGateLabel={model.governanceGateLabel}
+      governanceGateOperatorLabel={model.governanceGateOperatorLabel}
       authorityLifecyclePhase={model.resolvedDetail.authorityLifecyclePhase ?? null}
       showcasePolicyPackStrip={showcasePolicyPackStrip}
       degradedFindingCoverage={model.resolvedDetail.degradedFindingCoverage === true}

@@ -99,4 +99,21 @@ describe("RunDetailOutcomeCards", () => {
     expect(dispositionLine.className).not.toContain("bg-al-surface-raised");
     expect(dispositionLine).not.toHaveAttribute("role", "status");
   });
+
+  it("renders the operator governance label when buyer copy differs", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest
+        findingCountDisplay={1}
+        warningCountDisplay={0}
+        artifactCount={1}
+        unresolvedIssueCountDisplay={0}
+        governanceGateLabel="Approved with monitoring"
+        governanceGateOperatorLabel="Passed"
+      />,
+    );
+
+    expect(screen.getByTestId("buyer-governance-gate-footnote")).toHaveTextContent("Operator gate: Passed");
+  });
 });

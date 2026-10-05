@@ -34,10 +34,10 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
   },
   "claims-intake-in-progress-003": {
     decisionSummary: "In progress · findings and manifest not finalized",
-    decisionDate: " — ",
+    decisionDate: "Not recorded",
     packageOwner: "Taylor Morgan",
-    riskOwner: " — ",
-    approvalAuthority: " — ",
+    riskOwner: "Not recorded",
+    approvalAuthority: "Not recorded",
     lastAuditEvent: "Review pipeline started",
   },
 };

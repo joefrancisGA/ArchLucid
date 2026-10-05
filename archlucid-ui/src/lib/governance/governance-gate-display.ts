@@ -21,7 +21,33 @@ export function governanceGateLabelFromManifestStatus(status: string | undefined
     return "Not required";
   }
 
-  return "Pending";
+  return "Status not recognized";
+}
+
+/** Operator hint when manifest status did not map to a known gate label (UU-507). */
+export function governanceGatePersistedStatusHint(manifestStatus: string | undefined | null): string {
+  const raw = (manifestStatus ?? "").trim();
+
+  if (raw.length === 0) {
+    return "No manifest status was returned.";
+  }
+
+  return `Persisted manifest status: ${raw}`;
+}
+
+/** Footnote when buyer-polished copy differs from the operator gate label (UU-507). */
+export function governanceGateOperatorFootnote(
+  operatorGateLabel: string | null | undefined,
+  displayedGateLabel: string | null | undefined,
+): string | null {
+  const operator = (operatorGateLabel ?? "").trim();
+  const displayed = (displayedGateLabel ?? "").trim();
+
+  if (operator.length === 0 || displayed.length === 0 || operator === displayed) {
+    return null;
+  }
+
+  return `Operator gate: ${operator}`;
 }
 
 /**
@@ -32,7 +58,7 @@ export function buyerGovernanceApprovalDisplayLabel(gateLabel: string | undefine
   const t = (gateLabel ?? "").trim();
 
   if (t.length === 0) {
-    return "Not recorded";
+    return "Not configured";
   }
 
   if (t === "Passed") {
