@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector stayed open after soft navigation cleared `inspectorRunId` because selection effect preserved `selectedRun` when the run remained on the page; close when `inspectorRunId` is absent from `useSearchParams`; regression `closes the inspector when inspectorRunId URL changes without a popstate event`; 45 scoped `RunsListClient` tests passed.
+
 2026-10-05 thorough hunt (hit): `ui-runs-list` — `compareSelection` stayed stale after soft navigation cleared `compareRuns` (popstate-only sync); subscribe to `useSearchParams` `compareRuns`; regression `re-applies compare selection when compareRuns URL changes without a popstate event`; cheap-disproof classified `runsListFilterOpen` disclosure as unreachable under buyer-polished layout gates; 44 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `ui-runs-list` — client text filter stayed on stale `filterText` after App Router `q=` navigation without `popstate` (sort already URL-derived); sync `filterText` from `useSearchParams` `q=`; regression `re-applies text filter when q= URL changes without a popstate event`; 42 scoped `RunsListClient` tests passed.
@@ -6977,11 +6979,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 26
+- **hunts:** 27
 - **last-hunt:** 2026-10-05
-- **bugs-found:** 13
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — compare bar stale after compareRuns URL navigation without popstate
+- **last-bug:** 2026-10-05 — inspector stayed open after inspectorRunId cleared on soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7047,6 +7049,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RunsListClient` — `runsListFilterOpen` disclosure open state follows `popstate` only — **cheap-disproof 2026-10-05 thorough hunt:** `<details open={runsListFilterOpen}>` mounts only when `buyerCollapseFilters` (`buyerPolished && totalCount <= 1`) while buyer-polished layout hides the whole filter block when `totalCount <= 1`; disclosure branch unreachable in current UX (ledger #1355 sibling)
 
 2026-10-05 thorough hunt (hit): proved stale `compareRuns` / compare bar after soft navigation; classified `runsListFilterOpen` disclosure candidate unreachable; 44 scoped `RunsListClient` tests passed.
+
+- [x] (proven) `useRunsList` — `selectedRun` / docked inspector stayed open after App Router navigation cleared `inspectorRunId` without `popstate` — **hit 2026-10-05 seed hunt:** url-driven selection effect kept `selectedRun` when the run remained in `safeRuns`; close when `inspectorRunId` is absent from `useSearchParams`; regression `closes the inspector when inspectorRunId URL changes without a popstate event`
+- [ ] (candidate) `useRunsList` — soft navigation to an unknown `inspectorRunId` leaves the prior inspector open while the URL names a missing run — wrong outcome: preview shows a row that is not the deep-linked id; mechanism: after fix, invalid ids set `selectedRun` null but a follow-on row activation without URL write could diverge; reachable from `GET /architecture/reviews?inspectorRunId=` with a run id not on the current server page
+- [ ] (candidate) `RunsListClient` — `BuyerPackageScopeFilterChips` navigate via `navigationSearch` while `buyerPackageScope` is derived from `useSearchParams` only — wrong outcome: scope chip `aria-current` disagrees with visible filtered rows after soft `scope=` navigation without `popstate`; mechanism: scope filter applies via `urlBuyerPackageScope` (already URL-derived) — needs repro to confirm chip UI vs list parity
+- [ ] (candidate) `useRunsList` — `compareSelectionNotice` is local state and is not cleared when `compareRuns` is removed from the URL via soft navigation — wrong outcome: stale “oldest selection was replaced” copy after compare selection cleared externally; mechanism: `setCompareSelectionState` from URL sync does not reset notice; reachable after tri-select then pagination link that drops `compareRuns`
+
+2026-10-05 seed hunt (seed→hit): promoted inspectorRunId soft-navigation gap; proved and fixed; reseeded invalid deep-link and compare-notice candidates; 45 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted stale `q=` / `filterText` parity gap after sort= fix; proved and fixed; reseeded compareRuns and runsListFilterOpen soft-navigation candidates; 43 scoped `RunsListClient` tests passed.
 
