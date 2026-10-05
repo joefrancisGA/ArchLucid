@@ -54,13 +54,20 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(revokeDialog).toBeVisible({ timeout: 15_000 });
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
 
-    const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
-    if (await showResolvedToggle.isVisible().catch(() => false)) {
-      await showResolvedToggle.click();
-    }
+    const revokedRow = page.locator("tr", { hasText: inviteEmail });
+    await expect(async () => {
+      const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
+      if (await showResolvedToggle.isVisible().catch(() => false)) {
+        const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
+        if (/show resolved invitations/i.test(toggleLabel)) {
+          await showResolvedToggle.click();
+        }
+      }
 
-    await expect(pendingRow).toContainText("Revoked", { timeout: 60_000 });
-    await expect(pendingRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+      await expect(revokedRow).toContainText("Revoked", { timeout: 5_000 });
+    }).toPass({ timeout: 60_000 });
+
+    await expect(revokedRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
   });
 
   test("duplicate pending invite from UI does not create a second row", async ({ page }) => {

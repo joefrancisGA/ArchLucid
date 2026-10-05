@@ -204,6 +204,8 @@ test.describe(
     }
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
-    await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible({ timeout: 60_000 });
+    await expect(
+      page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button").first(),
+    ).toBeVisible({ timeout: 60_000 });
   });
 });

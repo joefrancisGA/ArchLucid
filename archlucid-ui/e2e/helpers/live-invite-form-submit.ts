@@ -146,6 +146,8 @@ export async function submitAdminInviteFromUsersUi(
 
   await expect(submitButton).toBeEnabled({ timeout: 15_000 });
   await dismissBlockingModalOverlays(page);
+  await inviteForm.scrollIntoViewIfNeeded();
+  await submitButton.scrollIntoViewIfNeeded();
   const inviteResponsePromise = page.waitForResponse(
     (response) =>
       response.url().includes("/api/proxy/v1/admin/users/invite") &&

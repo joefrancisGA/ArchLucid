@@ -171,6 +171,10 @@ test.describe(
       await expect(page.getByTestId("review-detail-workspace-panel-findings")).toBeVisible({ timeout: 5_000 });
     }).toPass({ timeout: 90_000 });
 
+    await expect(page.getByTestId("review-detail-workspace-tab-findings")).toHaveAttribute("data-state", "active", {
+      timeout: 30_000,
+    });
+
     const quickSummary = page.getByTestId("quick-decision-summary");
 
     await expect(quickSummary).toBeVisible({ timeout: 60_000 });
