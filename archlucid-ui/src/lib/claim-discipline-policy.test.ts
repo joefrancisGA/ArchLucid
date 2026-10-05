@@ -177,6 +177,12 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("system-health")).toBe(false);
   });
 
+  it("omits procurement help when header or info claim strip owns claim discipline", () => {
+    expect(shouldOmitClaimDisciplineBand("procurement")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("procurement-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("procurement-help", "Not a diligence package.")).toBeUndefined();
+  });
+
   it("omits cloud provider connection help slugs when header claim strip owns claim discipline", () => {
     expect(shouldOmitClaimDisciplineBand("cloud-connections-aws")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("cloud-connections-azure")).toBe(true);

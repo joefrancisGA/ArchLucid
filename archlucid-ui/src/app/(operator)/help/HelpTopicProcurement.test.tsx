@@ -32,6 +32,7 @@ import {
   PROCUREMENT_HELP_PAGE_TITLE,
 } from "@/lib/procurement-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
 
 const PROCUREMENT_SOURCE = "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md";
 
@@ -282,6 +283,19 @@ describe("HelpProcurementGuideView procurement FAQ", () => {
     for (const banned of PROCUREMENT_HELP_BANNED_SUBSTRINGS) {
       expect(visible, `rendered copy contains "${banned}"`).not.toContain(banned.toLowerCase());
     }
+  });
+
+  it("shows procurement claim discipline once on operator shell", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("help-procurement-claim-discipline-strip")).toHaveTextContent(
+      PROCUREMENT_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByTestId("procurement-help-claim-discipline")).toBeNull();
   });
 
   it("renders procurement FAQ answers for buyers", () => {

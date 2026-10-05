@@ -29100,13 +29100,15 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 21
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 1
+- **hunts:** 22
+- **bugs-found:** 12
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — AWS/Azure connect help duplicated claim on operator shell (legacy orientation slugs outside omit set)
+- **last-bug:** 2026-10-05 — procurement help duplicated claim on operator shell (procurement-help slug outside omit set)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): proved operator `/help/procurement` rendered `ProcurementHelpClaimDisciplineStrip` and `ProcurementHelpEvidenceOrientationStrip` with legacy `procurement-help` slug while registry slug is `procurement`, duplicating claim discipline; omitted `procurement` and aliased `procurement-help`; 17 scoped `claim-discipline-policy` tests plus procurement help regressions passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproved authentication-sign-in slug parity (operator renders claim once via orientation strip only; buyer-polished hides strip and folds header claim; omit without operator claim strip would drop copy) and system-health slug mismatch (`SystemHealthHelpEvidenceOrientationStrip` uses omitted `help-system-health`; admin `SystemHealthEvidenceOrientationStrip` is sources-only on `system-health`); 16 scoped `claim-discipline-policy` tests passed.
 
@@ -29141,6 +29143,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `help-jira-integration` / `HelpJiraIntegrationGuideView` — TOC passed raw `JIRA_INTEGRATION_HELP_GUIDE_HEADINGS` while slug is omitted — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by filtered `guideHeadings`; regression in `HelpJiraIntegrationGuideView.test.tsx`
 
 - [x] (proven) `ConnectAwsSecurelyHelpEvidenceOrientationStrip` / `ConnectAzureSecurelyHelpEvidenceOrientationStrip` — legacy `connect-aws-securely-help` and `connect-azure-securely-help` slugs left orientation claim visible alongside `Connect*HelpClaimDisciplineStrip` on operator help pages while `cloud-connections-gcp` omit already suppressed GCP orientation claim — **hit 2026-10-05 seed hunt:** omit `cloud-connections-aws` / `cloud-connections-azure` plus aliases; regressions in `claim-discipline-policy.test.ts`, connect AWS/Azure help topic tests, and orientation strip tests
+- [x] (proven) `ProcurementHelpEvidenceOrientationStrip` / `procurement-help` — operator shell duplicated claim with `ProcurementHelpClaimDisciplineStrip` because strip slug `procurement-help` was not omitted while registry slug is `procurement` — **hit 2026-10-05 seed hunt:** omit `procurement` and alias `procurement-help`; regressions in `claim-discipline-policy.test.ts` and `HelpTopicProcurement.test.tsx`
+- [ ] (candidate) `contact-support-help` / `contact-support` — `ContactSupportHelpEvidenceOrientationStrip` uses `contact-support-help` while registry slug is `contact-support` and omit set has neither; reachable at `/help/contact-support` (single claim today via orientation strip only)
+- [ ] (candidate) `core-pilot-help` / `first-architecture-review` — `CorePilotHelpEvidenceOrientationStrip` uses `core-pilot-help` while omit set keys `help-first-review` and `first-review-guide`; live guide uses header/closing-panel claim paths and unused registry strip import
 - [x] (invalid) `AuthenticationSignInHelpEvidenceOrientationStrip` / `authentication-sign-in-help` — registry slug `authentication-sign-in`; buyer-polished folds claim into header while omit set lacks alias — **invalid 2026-10-05 thorough hunt:** operator shell shows claim once in orientation strip (no `*ClaimDisciplineStrip` duplicate); buyer-polished already omits orientation strip; adding omit without operator claim strip would remove required copy
 - [x] (invalid) `system-health` vs `help-system-health` — operator workspace strips use `system-health` slug while omit set keys `help-system-health` — **invalid 2026-10-05 thorough hunt:** `/help/system-health` orientation strip passes `help-system-health` (omitted; claim strip owns copy); `/administration/system-health` orientation strip is sources-only on `system-health` with no claim prop
 - [x] (proven) `shouldOmitClaimDisciplineBand` / `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — live orientation strips pass legacy ids (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`, `connect-gcp-securely-help`) while omit set keys canonical `help-*` / registry slugs, so `resolveClaimDisciplineForStrip` still surfaced duplicate claim bands — **hit 2026-10-05 seed hunt:** alias map in omit resolution; regressions in `claim-discipline-policy.test.ts` and evidence-trail, glossary, pilot-guide orientation strip tests

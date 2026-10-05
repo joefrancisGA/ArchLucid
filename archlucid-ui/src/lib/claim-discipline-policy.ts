@@ -148,6 +148,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "pricing-quote-aging",
   "product-learning",
   "projects-recycle-bin",
+  "procurement",
   "provenance",
   "quick-scan",
   "rag-health",
@@ -200,6 +201,7 @@ const CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES: ReadonlyMap<string, string>
   ["evidence-trail-help", "help-evidence-trail"],
   ["glossary-help", "help-glossary"],
   ["pilot-guide-help", "help-pilot-guide"],
+  ["procurement-help", "procurement"],
   ["help-path-chooser-bottom", "help-path-chooser"],
 ]);
 
