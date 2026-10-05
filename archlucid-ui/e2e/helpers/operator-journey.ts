@@ -689,15 +689,31 @@ export async function expectReviewDetailFindingInspectCopyVisible(
   runId: string,
   findingId: string,
   copy: string | RegExp,
-  options?: { timeoutMs?: number },
+  options?: {
+    timeoutMs?: number;
+    /** Run-detail URL to load first so isolated demo scope hydrates before finding deep link. */
+    primeRunDetailHref?: string;
+    beforeNavigate?: () => Promise<void>;
+  },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 90_000;
   const trimmedRunId = runId.trim();
   const trimmedFindingId = findingId.trim();
   const href = `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedFindingId)}`;
   const copyPattern = typeof copy === "string" ? new RegExp(copy.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") : copy;
+  const primeRunDetailHref = options?.primeRunDetailHref?.trim();
+  const beforeNavigate = options?.beforeNavigate;
 
   await expect(async () => {
+    if (beforeNavigate !== undefined) {
+      await beforeNavigate();
+    }
+
+    if (primeRunDetailHref !== undefined && primeRunDetailHref.length > 0) {
+      await page.goto(primeRunDetailHref, { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
+    }
+
     await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
 
     const main = page.getByRole("main");

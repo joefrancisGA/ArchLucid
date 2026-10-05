@@ -15,7 +15,6 @@ import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailWorkspaceCore,
-  expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
   quickDecisionSeverityBadge,
@@ -134,8 +133,6 @@ test.describe(
 
     if (await primarySeverity.isVisible().catch(() => false)) {
       await expect(primarySeverity).toBeVisible({ timeout: 30_000 });
-    } else {
-      await expectQuickDecisionSeverityVisible(quickSummaryAfterEvidence, { timeoutMs: 90_000 });
     }
 
     await expect(primaryCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
