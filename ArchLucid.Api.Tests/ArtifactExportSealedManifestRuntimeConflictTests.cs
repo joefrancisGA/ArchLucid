@@ -228,6 +228,49 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
     }
 
     [Fact]
+    public async Task ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid manifestId = Guid.NewGuid();
+        ManifestDocument manifest = new()
+        {
+            ManifestId = manifestId,
+            ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+        };
+
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = RunId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.ReadyForCommit),
+            },
+            GoldenManifest = manifest,
+        };
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(
+                Scope,
+                RunId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(runDetail);
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                Scope,
+                RunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+
+        ArtifactExportController sut = BuildController(authority: authority.Object);
+
+        IActionResult action = await sut.ListArtifactsForRun(RunId, CancellationToken.None);
+
+        AssertSealedManifestConflict409(action);
+    }
+
+    [Fact]
     public async Task DownloadBundleForRun_maps_manifest_compare_ConflictException_to_409()
     {
         Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
