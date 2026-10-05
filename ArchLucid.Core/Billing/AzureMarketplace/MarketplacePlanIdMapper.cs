@@ -82,6 +82,8 @@ public static class MarketplacePlanIdMapper
                || token.Equals("below", StringComparison.OrdinalIgnoreCase)
                || token.Equals("neither", StringComparison.OrdinalIgnoreCase)
                || token.Equals("bare", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("devoid", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("free", StringComparison.OrdinalIgnoreCase)
                || token.Equals("negate", StringComparison.OrdinalIgnoreCase);
     }
 

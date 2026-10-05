@@ -8795,6 +8795,10 @@
 {"at":"2026-10-05T15:04:46.1308686Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Identity/EmailOtpChallengeRepositoryCore.cs)"]}
 <<<<<<< HEAD
 {"at":"2026-10-05T15:07:18.6240438Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
+<<<<<<< HEAD
 =======
 {"at":"2026-10-05T15:13:29.8366912Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Costing/InfrastructureCostSummaryNotes.cs)"]}
 >>>>>>> 7046853e11 (Record core-costing hunt hit in rolling run log.)
+=======
+{"at":"2026-10-05T15:14:54.1454777Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/,ArchLucid.Core/Budgeting/"]}
+>>>>>>> af5030b91c (Fix marketplace devoid/free negation and Professional LLM plan mapping.)

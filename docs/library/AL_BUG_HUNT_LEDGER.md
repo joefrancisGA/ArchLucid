@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (hit): `core-tenancy-commercial` — `MarketplacePlanIdMapper.IsEnterpriseNegationToken` omitted `devoid`/`free` so `devoid-enterprise-*` and `free-enterprise-*` plan ids false-mapped to Enterprise tier; `LlmMonthlySpendPlanId.FromCommercialPackaging` applied the Architect 1-seat shortcut before the Professional branch for any label; scope Architect shortcut to Team packaging and extend negation tokens; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs` (devoid/free) and `FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat`; 53 scoped CommercialTenant/LlmMonthlySpendPlanId/TierStorageCodeFromPlanId tests passed.
+
 2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired email OTP challenges with prior wrong-code attempts still counted toward hourly verification rate limits (`MatchesFailedVerificationByEmail` / `CountRecentFailedVerificationsByEmailAsync`); require `ExpiresUtc > nowUtc` in shared predicate and SQL and pass `now` from `AuthRateLimitHelper`; regression `CountRecentFailedVerifications_ignores_expired_challenges`; 20 scoped AuthenticationIdentity/IdentityRepository/OTP repository tests passed (`RunAnalyzers=false`, 1 SQL integration skipped).
 
 2026-10-05 seed hunt (seed→hit): `run-execute-ownership` — `ReleaseAsync` cleared the pinned holder before `TryReleaseAsync`, so a transient release failure after process-instance rotation retried with the wrong holder and left the SQL lease pinned; clear the pin only after successful repository release; regression `ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`; 61 scoped ownership/orchestrator tests passed.
@@ -19970,11 +19972,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 25
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-09 — Enterprise one-seat subscription mapped to Architect LLM spend plan; exclude/excluding/except marketplace negation gaps
+- **hunts:** 26
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — devoid/free marketplace negation gaps; Professional label Architect shortcut bleed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
@@ -20004,8 +20006,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` / `IsEnterpriseNegationToken` — `exclude-*` / `excluding-*` / `excluded-*` and extended negation adverbs (`minus`, `un`, `de`, `ex`, `pseudo`, `semi`, `sub`, `micro`, `less`, `lacking`, `omit`, `outside`, `except`, `pre`, `below`, `neither`, `bare`, `negate`, and related delimited plans) false-positive Enterprise tier — **hit 2026-09-09 seed hunts #1380/#1382/#1384/#1385:** #1320 guarded `non`/`not`/`no`/`never`/`anti`/`without`/`sans` only; negation-adverb prefixes still matched delimiter-bounded `enterprise`; fixed with `exclud`/`except` stem guards plus extended negation adverb tokens; regressions in `TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs`, and `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
 - [x] (valid-no-repro) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — `above-enterprise-*` delimited plan id treated as Enterprise tier — **cheap-disproof 2026-09-09 seed hunt #1384:** `above-enterprise` reads as an enterprise-tier variant label, not a negation adverb; no change
 - [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Enterprise commercial tier with 1-seat subscription false-maps to Architect LLM spend plan — **hit 2026-09-09 seed hunts #1379/#1381/#1383/#1385/#1390:** architect shortcut ran before Enterprise label guard; Enterprise tenants with minimal seat rows inherited Team SKU budget caps; fixed by returning null for Enterprise before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_one_seat_subscription`
-- [ ] (candidate) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `bare-enterprise-*` / `free-enterprise-*` plan id may still false-positive Enterprise tier after minus/less/lacking sweep — **seeded 2026-09-09 seed hunts #1386/#1390**
-- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription may inherit Architect shortcut before Professional branch when callers pass mismatched resolver inputs — **seeded 2026-09-09 seed hunts #1386/#1390**
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `free-enterprise-*` plan id false-positive Enterprise tier (`bare` already guarded) — **hit 2026-10-05 thorough hunt:** extend `IsEnterpriseNegationToken` with `devoid` and `free`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
+- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription inherited Architect shortcut before Professional branch — **hit 2026-10-05 thorough hunt:** apply Architect shortcut only when commercial tier label is Team; regression `FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat`
 
 2026-09-09 seed hunt #1385 (hit): reseeded Identity/Billing/Budgeting after dry #1321; proved Enterprise LLM plan shortcut bleed and exclude/excluding/except marketplace negation gaps; seeded minus/less negation and Professional-label shortcut pairing candidates; 44 scoped CommercialTenant-related unit tests passed.
 

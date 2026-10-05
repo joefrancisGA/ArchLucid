@@ -58,6 +58,18 @@ public sealed class LlmMonthlySpendPlanIdTests
     }
 
     [Fact]
+    public void FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat()
+    {
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 1, 1, "Active");
+
+        string? planId = LlmMonthlySpendPlanId.FromCommercialPackaging(
+            CommercialPackagingTierLabels.Professional,
+            subscription);
+
+        planId.Should().Be(LlmMonthlySpendPlanId.Professional);
+    }
+
+    [Fact]
     public void FromCommercialPackaging_returns_null_for_enterprise_and_unknown()
     {
         LlmMonthlySpendPlanId.FromCommercialPackaging(CommercialPackagingTierLabels.Enterprise, null)
