@@ -16,6 +16,9 @@
      canvas that is wider than the frame, roll up repeated cards, fix
      the PNG browser fallback, read app settings and uploaded config,
      summarize the stages, and filter edges by evidence.
+     DFV-24 makes the existing rollup member list obvious. The list
+     already opens on click. The card, the reading sentence, and the
+     open heading do not say so.
      Do not implement from this index. -->
 
 # Data flow diagram — Luna prompt set (DFV-01–DFV-23)
@@ -53,6 +56,7 @@ Canonical wave doc: [`docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md`](../.
 | **Source type rollup** | After one card per host, Source can still be a stack of one connector type with different neighbors. | Hold until DFV-12 is on `master` and Source is still hard to read. Source rolls up more than three cards of one type even when neighbors differ. Other stages keep DFV-14. | **DFV-21** |
 | **Collect direction** | A static dataset name with parameters is dropped, so the package has linked services and no Reads from or Writes to. | Keep that dataset name. Also read source, sink, and dataset slots on `typeProperties`. Re-collect after this ships. | **DFV-22** |
 | **Paint direction** | The canvas says direction was not in the package whenever directional edges are missing. | **Reads from** and **Writes to** when those edges exist. Keep the re-collect sentence only when they do not. | **DFV-23** |
+| **Rollup list invitation** | A count card such as `6 storage accounts` opens the member list, and the only mark is a 10px `[1]`. **Reading a card** never says that. The open heading says `Showing connections for`. | Composer only. The card says `Click to list the 6`. **Reading a card** says a count opens the list and a second click closes it. The open heading is the count. Members stay. | **DFV-24** |
 
 ## What this set does not change
 
@@ -60,7 +64,7 @@ Keep the evidence catalog's exclusions. Do not put diagnostic settings, NIC, VNe
 
 ## Run order
 
-**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session at a time: **22**, then **23**. Re-collect after **22**. Readability sessions stay **16**, **20** (Composer), **12**, then **17**. **21** stays unpasted until **12** has shipped and Source is still hard to read. Do not run two of these in one session.
+**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session: **24** (Composer). The member list already exists. **24** only makes the click obvious. After that look: **22**, then **23**. Re-collect after **22**. Readability sessions stay **16**, **20** (Composer), **12**, then **17**. **21** stays unpasted until **12** has shipped and Source is still hard to read. Do not run two of these in one session.
 
 Each implementation prompt ends **before commit**. The owner looks, then says whether to commit.
 
@@ -91,3 +95,4 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 21 | `data-flow-diagram-21-source-type-rollup.md` | `dfv/21-source-type-rollup` |
 | 22 | `data-flow-diagram-22-collect-pipeline-direction.md` | `dfv/22-collect-pipeline-direction` |
 | 23 | `data-flow-diagram-23-paint-pipeline-direction.md` | `dfv/23-paint-pipeline-direction` |
+| 24 | `data-flow-diagram-24-rollup-list-invitation.md` | `dfv/24-rollup-list-invitation` |

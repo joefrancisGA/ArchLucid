@@ -87,6 +87,9 @@ public sealed class DiagramForestCanvasLabelContext
         IReadOnlyList<string> dataFlowDetailLines = _isDataFlow
             ? BuildDataFlowDetailLines(node, dataFlowTypeLine)
             : [];
+        string? dataFlowRollupInvitationLine = _isDataFlow && node.IsDataFlowRollup
+            ? $"Click to list the {node.DataFlowRollupMemberIds.Count}"
+            : null;
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines = suppressResourceGroupCaption
             || string.IsNullOrWhiteSpace(caption.ResourceGroupCaption)
@@ -106,6 +109,7 @@ public sealed class DiagramForestCanvasLabelContext
         longestLineChars = Math.Max(
             longestLineChars,
             dataFlowDetailLines.Select(line => line.Length).DefaultIfEmpty(0).Max());
+        longestLineChars = Math.Max(longestLineChars, dataFlowRollupInvitationLine?.Length ?? 0);
         double privateEndpointIndicatorWidth = node.HasPrivateEndpointAccess
             ? DiagramForestPrivateEndpointAccessSvgEmitter.ReservedWidth
             : 0.0d;
@@ -130,6 +134,7 @@ public sealed class DiagramForestCanvasLabelContext
             + (dataFlowTypeLine is null ? 0 : 1)
             + (consumerStatusLine is null ? 0 : 1)
             + resourceGroupLines.Count
+            + (dataFlowRollupInvitationLine is null ? 0 : 1)
             + (node.QuestionableAttention is null ? 0 : 1);
         double textBlockHeight = textLineCount * _options.LineHeight;
         double chipBandHeight = node.NsgInboundRuleChips.Count > 0
@@ -145,6 +150,7 @@ public sealed class DiagramForestCanvasLabelContext
             DataFlowTypeLine: dataFlowTypeLine,
             DataFlowDetailLines: dataFlowDetailLines,
             ConsumerStatusLine: consumerStatusLine,
+            DataFlowRollupInvitationLine: dataFlowRollupInvitationLine,
             ResourceGroupLines: resourceGroupLines,
             Caption: caption,
             PictogramKind: DiagramInventoryPictogramKindResolver.Resolve(node.ArmResourceType),

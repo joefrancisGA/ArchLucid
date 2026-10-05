@@ -384,7 +384,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
     const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
     expect(readingCardCaption).toHaveTextContent(
-      "Reading a card: The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link.",
+      "Reading a card: The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.",
     );
     expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });

@@ -1237,7 +1237,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           data-testid="diagram-click-focus-status"
           aria-live="polite"
         >
-          <p className="m-0">{`Showing connections for ${clickFocus.name}.`}</p>
+          <p className="m-0">
+            {clickFocus.memberNames !== undefined
+              ? clickFocus.name
+              : `Showing connections for ${clickFocus.name}.`}
+          </p>
           {clickFocus.memberNames !== undefined ? (
             <ul className="m-0 mt-1 list-disc pl-5">
               {clickFocus.memberNames.map((memberName) => (
