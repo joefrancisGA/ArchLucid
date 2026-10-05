@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (dry): `saml-jwt-bearer` — cheap-disproof closed duplicate JWT `sub`/`iss` `FindFirst` auth-version hook (signed JwtBearer tokens do not surface attacker-controlled duplicate `sub` before validation) and SCIM bearer interior whitespace (fail-closed parse/auth); regressions in `PlatformUserAuthVersionJwtBearerPostConfigureTests` and `ScimBearerTokenAuthenticatorTests`.
+
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("iat")` when `auth_time` was absent, so step-up treated stale first `iat` as the authentication instant even when a later `iat` was fresh; scan all `iat` claims and take the latest parseable instant; regression `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; 8 step-up unit tests passed.
 
 2026-10-05 thorough hunt (dry): `saml-jwt-bearer` — cheap-disproof closed SAML role case-duplicate surface claims (`ArchLucidRoleClaimExtractor` collapses for policy) and intentional non-GUID `oid` promotion for opaque directory keys; added multi-`auth_time` fail-closed and latest-fresh regressions; 16 scoped normalizer/step-up tests passed.
@@ -8407,9 +8409,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — step-up used first stale `iat` when multiple `iat` claims were present without `auth_time`
 - **related-pd-tb:** none
@@ -8461,8 +8463,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 thorough hunt (dry): cheap-disproved both open SAML normalizer candidates; hardened multi-`auth_time` step-up regressions.
 
 - [x] (proven) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — multiple `iat` claims without `auth_time`: `FindFirst("iat")` bound step-up to the first (stale) issue time — **hit 2026-10-05 seed hunt:** mirror multi-`auth_time` handling and take the latest parseable `iat`; regression `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`
-- [ ] (candidate) `PlatformUserAuthVersionJwtBearerPostConfigure` — `OnTokenValidated` reads `sub` / `iss` via `FindFirst` only; duplicate JWT claims with conflicting values could bypass or confuse auth-version stamping before `PlatformUserAuthVersionValidator` runs — reachable when a token middleware surfaces duplicate short-name claims on the principal
-- [ ] (candidate) `ScimBearerAuthenticationHandler.HandleAuthenticateAsync` — trims bearer token but does not reject embedded whitespace/control characters inside the `archlucid_scim.` payload before `ScimBearerTokenAuthenticator.TryParseToken` — wrong outcome: lookup miss vs alternate token shape; reachable via `Authorization: Bearer archlucid_scim.{pub}.{sec}` with interior whitespace in the secret segment
+- [x] (invalid) `PlatformUserAuthVersionJwtBearerPostConfigure` — `OnTokenValidated` reads `sub` / `iss` via `FindFirst` only; duplicate JWT claims with conflicting values could bypass auth-version stamping — **cheap-disproof 2026-10-05:** opaque-first duplicate `sub` skips stamp by design for non-Guid subjects; signed platform-user JWTs do not reach this hook with attacker-controlled duplicate `sub` before signature validation; regressions `OnTokenValidated_fails_when_first_sub_is_platform_user_without_auth_version_claim` and `OnTokenValidated_uses_find_first_sub_so_opaque_leading_sub_skips_auth_version_even_with_later_platform_user_sub`
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` / `ScimBearerTokenAuthenticator.TryParseToken` — interior whitespace in `archlucid_scim.{pub}.{sec}` segments — **cheap-disproof 2026-10-05:** whitespace in lookup key or secret segment fails authentication (no provisioning access); regressions `TryAuthenticateAsync_returns_null_when_secret_segment_contains_interior_whitespace` and `TryAuthenticateAsync_returns_null_when_public_lookup_key_contains_interior_whitespace`
+
+2026-10-05 thorough hunt (dry): cheap-disproved both open SAML/JWT/SCIM bearer candidates.
 
 2026-10-05 seed hunt (seed→hit): reseeded multi-`iat` step-up gap; proved and fixed; added SCIM bearer parsing and platform JWT post-config duplicate-claim candidates.
 
