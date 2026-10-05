@@ -8796,4 +8796,5 @@
 {"at":"2026-10-05T15:13:29.8366912Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Costing/InfrastructureCostSummaryNotes.cs)"]}
 {"at":"2026-10-05T15:14:54.1454777Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/,ArchLucid.Core/Budgeting/"]}
 {"at":"2026-10-05T15:20:22.7532731Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/AzureMarketplace/"]}
+{"at":"2026-10-05T15:20:27.0373981Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Budgeting/LlmMonthlySpendPlanId.cs,ArchLucid.Core/Billing/AzureMarketplace/MarketplacePlanIdMapper.cs)"]}
 {"at":"2026-10-05T15:23:34.1420213Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/AzureMarketplace/"]}

@@ -293,8 +293,6 @@ public sealed class MarketplaceWebhookPayloadParserTests
     [InlineData("devoid-enterprise-plan")]
     [InlineData("free-enterprise-plan")]
     [InlineData("negate-enterprise-plan")]
-    [InlineData("devoid-enterprise-plan")]
-    [InlineData("free-enterprise-plan")]
     [InlineData("void-enterprise-plan")]
     [InlineData("empty-enterprise-plan")]
     [InlineData("zero-enterprise-plan")]
