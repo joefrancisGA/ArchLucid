@@ -24873,13 +24873,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 75
-- **bugs-found:** 37
+- **hunts:** 76
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — policy-assignment document pagination accepted a same-subscription cross-collection next link
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — management group and ADF factory pagination accepted cross-listing ARM next links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted management-group ARM listing pagination; `ListManagementGroupRoleAssignmentsAsync`, `ListManagementGroupRoleEligibilitySchedulesAsync`, and `ListManagementGroupSubscriptionIdsAsync` validated only the management group id on `nextLink`, so a same-group cursor into `roleEligibilitySchedules` or another collection could be followed (parity gap vs subscription role listing guards); fixed with `EnsureTargetsArmRelativeListingPath` on each listing path; regression `ListManagementGroupRoleAssignmentsAsync_rejects_next_link_for_different_role_listing_path`. Proved `ListFactoryLinkedServicesAsync` and other ADF factory child listings used factory-only `nextLink` validation, so a same-factory cursor into `pipelines` (or another child collection) could be followed while listing linked services; fixed with per-collection `EnsureTargetsArmRelativeListingPath`; regression `ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_child_collection`. Seeded GCP asset parent-scope pagination as `(candidate)`. 107 Azure extractor tests and 52 AWS/GCP application tests passed (`TreatWarningsAsErrors=false` for unrelated `ARCH006` persistence analyzer noise).
 
 2026-10-03 thorough hunt (dry): cheap-disproved all three duplicate-resource candidates because live ARM/AWS/GCP provider reachability was not established; existing merger/collector tests covered pagination and scope guards. 98 Azure extractor tests and 78 AWS/GCP application tests passed; no failing repro.
 
@@ -24911,6 +24913,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedAzureInventoryNetworkAssociationBuilder.AddBastionAssociations` — a reachable Azure Bastion `ipConfigurations[].properties.publicIPAddress.id` is flattened by `HostedAzureInventoryResourcePropertyExpander` but no network-association row is emitted for that public IP — **cheap-disproof 2026-10-04:** selected extractor files define no expected Bastion public-IP association contract or catalog relationship, so no wrong outcome was established.
 - [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.AddDatabricksWorkspaceAssociations` — reachable Databricks custom subnet parameters were emitted with the generic `appServiceToSubnet` association type even though the source resource was a `Microsoft.Databricks/workspaces` resource — **hit 2026-10-04:** added `databricksWorkspaceToSubnet` with `DatabricksWorkspace → Subnet` catalog metadata; regression `Build_emits_databricks_workspace_to_subnet_association`.
 - [x] (proven) `AwsIamRoleArn.TryGetAccountId` / `EnsureAccountMatches` — a reachable hosted AWS extractor request with `RoleArn=arn:aws:iam::<account>:policy/<name>` passed account matching because only the account segment was validated, then was sent to STS as a role — **hit 2026-10-04 seed hunt:** require a non-empty `role/` resource segment; regression `EnsureAccountMatches_rejects_an_iam_policy_arn_as_a_role_arn`.
+
+- [x] (proven) `ListManagementGroupRoleAssignmentsAsync` / `ListManagementGroupRoleEligibilitySchedulesAsync` / `ListManagementGroupSubscriptionIdsAsync` — same-management-group ARM `nextLink` into a different authorization or subscription listing path passed management-group-only validation — **hit 2026-10-05 seed hunt (seed→hit):** `EnsureTargetsArmRelativeListingPath` per listing; regression `ListManagementGroupRoleAssignmentsAsync_rejects_next_link_for_different_role_listing_path`.
+- [x] (proven) `ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync` — same-factory ARM `nextLink` into a different child collection (`pipelines`, `datasets`, etc.) passed factory-only validation — **hit 2026-10-05 seed hunt (seed→hit):** per-collection `EnsureTargetsArmRelativeListingPath`; regression `ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_child_collection`.
+- [ ] (candidate) `GcpAssetInventoryCollector` — asset list requests scoped to a project parent may still accept a paginated `pageToken` response whose parent scope differs when the hosted client does not re-validate parent on continuation; reachability is hosted GCP inventory collection, but the selected files need a cited page-token producer or fixture.
 
 2026-10-04 thorough hunt (hit): proved and fixed VMSS and Databricks source-kind mismatches in hosted Azure subnet associations; cheap-disproved the unsupported Bastion public-IP contract. Azure association builder tests passed 16/16 and Core association catalog tests passed 14/14. The scoped compile-check script was inconclusive because its Linux path join prepended `/workspace` twice; no compile errors were observed in the test builds.
 
