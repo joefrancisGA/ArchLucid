@@ -28254,13 +28254,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 36
-- **bugs-found:** 17
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-27 — selective schedule clear / full execute run vanish immediately before ownership acquire
+- **hunts:** 37
+- **bugs-found:** 18
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — runtime ownership disable skipped SQL lease release during execute finalization and shutdown drain
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-05 seed hunt (seed→hit): promoted disabled-release candidate; proved `ReleaseAsync` and `ReleaseAllHeldByThisInstanceAsync` no-opped when `RunExecuteOwnershipLeaseOptions.Enabled` flipped false after acquisition, leaving SQL leases pinned until TTL; fixed by gating release paths on in-memory storage only (not `IsEnabled`); regressions `ReleaseAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `ReleaseAllHeldByThisInstanceAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage`; 56 scoped ownership/orchestrator tests passed.
 
 2026-10-04 seed hunt (seed-only): re-read the selected execute orchestrator and ownership lease sources; repeated pre-acquire guards are covered by prior race regressions but no new wrong outcome met the hunt-ready bar, so two contract-dependent candidates were seeded without product changes.
 
@@ -28316,7 +28318,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `ArchitectureRunExecuteOrchestrator` — release uses a non-cancellable token but the repository failure is not translated into execute failure, so a cancelled request can complete with a retained lease; reachable when release storage is unavailable after agent cancellation.
 - (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — the full-execute path performs two identical eligibility checks while selective execution performs a longer sequence, creating inconsistent admission semantics for equivalent run state transitions; reachable when authority completion changes between those reads.
 - (candidate) `RunExecuteOwnershipLeaseService.IsEnabled` — separate option reads within one acquire/renew/release operation can make a single operation change behavior mid-flight; reachable when `IOptionsMonitor<RunExecuteOwnershipLeaseOptions>` reloads during an ownership call.
-- (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — a runtime disable before finalization causes release to return immediately, retaining a lease acquired while ownership was enabled; reachable when ownership is disabled before the orchestrator’s `finally` block.
+- [x] (proven) `RunExecuteOwnershipLeaseService.ReleaseAsync` / `ReleaseAllHeldByThisInstanceAsync` — runtime disable before finalization caused release to return immediately, retaining a lease acquired while ownership was enabled — **hit 2026-10-05 seed hunt:** release and shutdown drain invoke the repository on SQL storage even when `Enabled` is false; regressions `ReleaseAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `ReleaseAllHeldByThisInstanceAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage`.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — the first immediate renewal can use a different enabled/lease-duration configuration than acquisition and silently skip or shorten the heartbeat; reachable during an options reload immediately after acquisition.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — interval clamping to `leaseDurationSeconds - 1` can produce a non-positive upper bound for invalid runtime lease options before duration clamping is applied; reachable through malformed options reload values.
 - (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — a changing process-instance identity between acquire and release can prevent conditional cleanup of the lease; reachable when the host identity provider rotates during a long-running execute.

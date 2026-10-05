@@ -59,6 +59,54 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
     }
 
     [Fact]
+    public async Task ReleaseAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        RunExecuteOwnershipLeaseOptions options = new() { Enabled = true };
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(() => options);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, new WorkerHostDrainGate(), optionsMonitor: optionsMonitor);
+
+        options.Enabled = false;
+
+        await sut.ReleaseAsync(runId, CancellationToken.None);
+
+        leases.Verify(
+            l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ReleaseAllHeldByThisInstanceAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage()
+    {
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        RunExecuteOwnershipLeaseOptions options = new() { Enabled = true };
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(() => options);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, new WorkerHostDrainGate(), optionsMonitor: optionsMonitor);
+
+        options.Enabled = false;
+
+        int released = await sut.ReleaseAllHeldByThisInstanceAsync(CancellationToken.None);
+
+        released.Should().Be(1);
+        leases.Verify(
+            l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ReleaseAllHeldByThisInstanceAsync_releases_all_leases_for_instance()
     {
         Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
@@ -79,7 +127,8 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
     private static RunExecuteOwnershipLeaseService CreateSut(
         Mock<IRunExecuteOwnershipLeaseRepository> leases,
         IWorkerHostDrainGate drainGate,
-        Mock<IHostProcessInstanceId>? instance = null)
+        Mock<IHostProcessInstanceId>? instance = null,
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>>? optionsMonitor = null)
     {
         instance ??= new Mock<IHostProcessInstanceId>();
         instance.Setup(i => i.Value).Returns("instance-a");
@@ -87,15 +136,18 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
         Mock<IArchLucidStorageMode> storage = new();
         storage.Setup(s => s.IsInMemory).Returns(false);
 
-        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+        if (optionsMonitor is null)
+        {
+            optionsMonitor = new Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>>();
+            optionsMonitor.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+        }
 
         return new RunExecuteOwnershipLeaseService(
             leases.Object,
             instance.Object,
             storage.Object,
             drainGate,
-            options.Object,
+            optionsMonitor.Object,
             NullLogger<RunExecuteOwnershipLeaseService>.Instance);
     }
 }

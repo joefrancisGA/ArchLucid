@@ -121,7 +121,7 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return Task.CompletedTask;
 
         return _leaseRepository.TryReleaseAsync(runId, _processInstanceId.Value, cancellationToken);
@@ -130,7 +130,7 @@ public sealed class RunExecuteOwnershipLeaseService(
     /// <inheritdoc />
     public async Task<int> ReleaseAllHeldByThisInstanceAsync(CancellationToken cancellationToken)
     {
-        if (!IsEnabled)
+        if (_storageMode.IsInMemory)
             return 0;
 
         Stopwatch stopwatch = Stopwatch.StartNew();
