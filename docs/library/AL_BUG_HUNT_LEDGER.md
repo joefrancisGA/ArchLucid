@@ -24211,13 +24211,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 42
-- **bugs-found:** 34
+- **hunts:** 43
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — provenance subgraph/neighborhood algorithms threw on JSON-null lists; targeted Protects/AppliesTo/RelatesTo omitted padded topology node ids
+- **last-bug:** 2026-10-05 — inventory overlay duplicated ARM case variants; graph edge inferer dropped case-variant node types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (hit): promoted inventory ARM casing candidate; `ArchitectureInventoryObservedFactGraphBuilder` emitted duplicate overlay nodes when snapshot rows differed only by ARM path casing because `ResolveFromArmResourceId` hashed raw strings and the builder always appended nodes; fixed with `ArmResourceIdNormalizer` before hash and normalized-arm dedup when materializing rows; regression `BuildOverlay_deduplicates_resources_when_arm_id_differs_only_by_case`. Promoted `DefaultGraphEdgeInferer` node-type partition candidate; strict `NodeType` equality dropped topology/security/policy/requirement nodes on casing drift (parity gap vs materialization helpers); fixed with `OrdinalIgnoreCase` partitions; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesTopologyWhenNodeTypeDiffersOnlyByCase`. 361 KnowledgeGraph tests passed with 3 pre-existing failures; 58 Provenance tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted JSON-null list parity on `ProvenanceGraphAlgorithms` (`TryResolveDecisionNodeId`, `ExtractDecisionSubgraph`, `ExtractNeighborhood` threw while mapper/analyzer treated null as empty); fixed with `CoalesceEmpty`; regressions `TryResolveDecisionNodeId_TreatsNullNodesAsEmpty`, `ExtractDecisionSubgraph_TreatsNullNodesAndEdgesAsEmpty`, `ExtractNeighborhood_TreatsNullNodesAndEdgesAsEmpty`. Proved `ProvenanceGraphViewMapper` NRE on `metadata:null` nodes; fixed with null-pattern metadata copy; regression `ToViewModel_MapsNodes_NullMetadata_AsNull`. Proved `SecurityProtectionEdgeInferenceRule` / `PolicyApplicabilityEdgeInferenceRule` / `RequirementRelevanceEdgeInferenceRule` omitted targeted topology edges when `GraphNode.NodeId` differed from listed target ids only by surrounding whitespace; fixed with `GraphEdgeInferenceHelpers.TargetedNodeIdsInclude`; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesResourceWhenNodeIdHasSurroundingWhitespace`. Seeded two follow-on candidates (ARM id casing hash, NodeType partition casing). 359 KnowledgeGraph tests passed with 3 pre-existing failures; 58 Provenance tests passed.
 
@@ -24295,8 +24297,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ProvenanceGraphAlgorithms` — `TryResolveDecisionNodeId` / `ExtractDecisionSubgraph` / `ExtractNeighborhood` threw on JSON-null `Nodes`/`Edges` while mapper and analyzer coalesced null lists — **hit 2026-10-05 seed hunt (seed→hit):** `CoalesceEmpty` on graph lists; regressions `TryResolveDecisionNodeId_TreatsNullNodesAsEmpty`, `ExtractDecisionSubgraph_TreatsNullNodesAndEdgesAsEmpty`, `ExtractNeighborhood_TreatsNullNodesAndEdgesAsEmpty`.
 - [x] (proven) `ProvenanceGraphViewMapper.ToViewModel` — deserialized node with JSON-null `metadata` caused NRE during API mapping — **hit 2026-10-05 seed hunt (seed→hit):** null-pattern metadata guard; regression `ToViewModel_MapsNodes_NullMetadata_AsNull`.
 - [x] (proven) `SecurityProtectionEdgeInferenceRule` / `PolicyApplicabilityEdgeInferenceRule` / `RequirementRelevanceEdgeInferenceRule` — targeted topology id lists omitted edges when resource `NodeId` differed only by surrounding whitespace from listed target tokens — **hit 2026-10-05 seed hunt (seed→hit):** `GraphEdgeInferenceHelpers.TargetedNodeIdsInclude`; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesResourceWhenNodeIdHasSurroundingWhitespace`.
-- [ ] (candidate) `ArchitectureInventoryGraphNodeIdResolver.ResolveFromArmResourceId` — case-sensitive SHA-256 over raw ARM strings may mint distinct `n_*` node ids for the same Azure resource when inventory rows differ only by path casing; reachability is multi-row inventory overlay build, but the selected zone files do not cite a producer that emits casing variants for one logical ARM id in a single customer snapshot.
-- [ ] (candidate) `DefaultGraphEdgeInferer.InferEdges` — strict equality on `GraphNodeTypes.*` constants when partitioning nodes may drop topology/security/policy/requirement nodes whose persisted `NodeType` casing drifted on round-trip; reachability is deserialized graph snapshots, but graph materialization in these paths emits canonical type constants from `WellKnownGraph`.
+- [x] (proven) `ArchitectureInventoryGraphNodeIdResolver.ResolveFromArmResourceId` / `ArchitectureInventoryObservedFactGraphBuilder` — duplicate overlay topology nodes when inventory rows differed only by ARM path casing — **hit 2026-10-05 thorough hunt:** normalize ARM ids before hash and skip duplicate normalized rows; regression `BuildOverlay_deduplicates_resources_when_arm_id_differs_only_by_case`.
+- [x] (proven) `DefaultGraphEdgeInferer.InferEdges` — strict `NodeType` equality omitted topology/security/policy/requirement nodes (and their inferred edges) when `NodeType` differed only by case — **hit 2026-10-05 thorough hunt:** `OrdinalIgnoreCase` partitions matching materialization stages; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesTopologyWhenNodeTypeDiffersOnlyByCase`.
 
 - [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
 - [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes
@@ -24874,7 +24876,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
 - **hunts:** 76
-- **bugs-found:** 38
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — management group and ADF factory pagination accepted cross-listing ARM next links
