@@ -4,7 +4,7 @@ namespace ArchLucid.Application.Pilots;
 
 internal static class BuyerProofPackLimitationsMarkdown
 {
-    internal static string Build(ArchitectureRunDetail detail, bool demoDataWarning)
+    internal static string Build(ArchitectureRunDetail detail, bool demoDataWarning, bool isSampleRun = false)
     {
         List<string> lines =
         [
@@ -14,7 +14,7 @@ internal static class BuyerProofPackLimitationsMarkdown
             "",
         ];
 
-        if (demoDataWarning)
+        if (demoDataWarning || isSampleRun)
         {
             lines.Add("- **Demo data warning:** This run used demo or sample tenant data. Do not circulate externally without replacing with a production pilot run.");
             lines.Add("");

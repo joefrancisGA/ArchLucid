@@ -171,7 +171,8 @@ public sealed class BuyerProofPackBuilder(
         byte[] deltasBytes = Utf8NoBom.GetBytes(PrettyPrintJson(deltasJson));
         byte[] artifactSummaryBytes = Utf8NoBom.GetBytes(BuyerProofPackArtifactSummaryBuilder.Build(deltasJson));
         byte[] trustPointerBytes = Utf8NoBom.GetBytes(BuyerProofPackTrustPointerMarkdown.Value);
-        byte[] limitationsBytes = Utf8NoBom.GetBytes(BuyerProofPackLimitationsMarkdown.Build(detail, demoWarning));
+        byte[] limitationsBytes = Utf8NoBom.GetBytes(
+            BuyerProofPackLimitationsMarkdown.Build(detail, demoWarning, deltasResponse.IsSampleRun));
 
         BuyerProofPackFileEntry[] entries =
         [
