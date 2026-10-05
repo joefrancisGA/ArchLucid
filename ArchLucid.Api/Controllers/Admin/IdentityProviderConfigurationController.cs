@@ -70,7 +70,7 @@ public sealed class IdentityProviderConfigurationController(
         IdentityProviderDiscoverResponse response =
             await _discoveryService.DiscoverAsync(request, cancellationToken).ConfigureAwait(false);
 
-        return Ok(response);
+        return Ok(WithCanonicalWizardUris(response));
     }
 
     [HttpPost("test-login")]
@@ -182,5 +182,42 @@ public sealed class IdentityProviderConfigurationController(
         }
 
         return Ok(record);
+    }
+
+    private static IdentityProviderDiscoverResponse WithCanonicalWizardUris(IdentityProviderDiscoverResponse response)
+    {
+        if (!response.DiscoverySucceeded)
+            return response;
+
+        string? issuerUri = response.IssuerUri;
+        if (!string.IsNullOrWhiteSpace(issuerUri)
+            && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(issuerUri, out string canonicalIssuer))
+        {
+            issuerUri = canonicalIssuer;
+        }
+
+        string? jwksUri = response.JwksUri;
+        if (!string.IsNullOrWhiteSpace(jwksUri)
+            && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(jwksUri, out string canonicalJwks))
+        {
+            jwksUri = canonicalJwks;
+        }
+
+        if (string.Equals(issuerUri, response.IssuerUri, StringComparison.Ordinal)
+            && string.Equals(jwksUri, response.JwksUri, StringComparison.Ordinal))
+        {
+            return response;
+        }
+
+        return new IdentityProviderDiscoverResponse
+        {
+            Protocol = response.Protocol,
+            IssuerUri = issuerUri,
+            JwksUri = jwksUri,
+            SigningCertificateThumbprints = response.SigningCertificateThumbprints,
+            AvailableClaimNames = response.AvailableClaimNames,
+            DiscoverySucceeded = response.DiscoverySucceeded,
+            DiagnosticSummary = response.DiagnosticSummary,
+        };
     }
 }

@@ -120,6 +120,39 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_returns_canonical_issuer_and_jwks_uris()
+    {
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example:443/oidc",
+                JwksUri = "https://idp.example:443/oidc/jwks",
+                DiscoverySucceeded = true,
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(discoveryService: discovery.Object);
+
+        IActionResult result = await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        IdentityProviderDiscoverResponse body =
+            ok.Value.Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+
+        body.IssuerUri.Should().Be("https://idp.example/oidc");
+        body.JwksUri.Should().Be("https://idp.example/oidc/jwks");
+    }
+
+    [Fact]
     public void TestLogin_passes_canonical_issuer_uri_to_sandbox_service()
     {
         IdentityProviderTestLoginRequest? captured = null;
@@ -181,7 +214,8 @@ public sealed class IdentityProviderConfigurationControllerTests
         ISsoWizardTestLoginService? testLoginService = null,
         IIdentityProviderActivationService? activationService = null,
         IActorContext? actorContext = null,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IIdentityProviderDiscoveryService? discoveryService = null)
     {
         Mock<IScopeContextProvider> scopeContextProvider = new();
         scopeContextProvider
@@ -194,7 +228,7 @@ public sealed class IdentityProviderConfigurationControllerTests
             });
 
         IdentityProviderConfigurationController controller = new(
-            Mock.Of<IIdentityProviderDiscoveryService>(),
+            discoveryService ?? Mock.Of<IIdentityProviderDiscoveryService>(),
             testLoginService ?? new SsoWizardTestLoginService(),
             activationService ?? Mock.Of<IIdentityProviderActivationService>(),
             Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
