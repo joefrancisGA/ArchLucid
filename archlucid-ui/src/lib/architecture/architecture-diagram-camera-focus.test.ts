@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  diagramOutlineIncludesFocusResource,
   inventoryDiagramNodeElementMatchesFocusId,
   resolveDiagramCameraFocusNodeIds,
 } from "@/lib/architecture/architecture-diagram-camera-focus";
@@ -40,6 +41,32 @@ describe("resolveDiagramCameraFocusNodeIds", () => {
     });
 
     expect(focusIds).toEqual(["B", "a", "c"]);
+  });
+});
+
+describe("diagramOutlineIncludesFocusResource", () => {
+  it("matches outline node ids case-insensitively", () => {
+    expect(
+      diagramOutlineIncludesFocusResource(
+        {
+          nodes: [{ id: "adf-edw-hi-dev", label: "ADF", resourceType: null, resourceGroup: null }],
+          edges: [],
+        },
+        "/subscriptions/sub/.../factories/ADF-EDW-HI-DEV",
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false when the resource is absent", () => {
+    expect(
+      diagramOutlineIncludesFocusResource(
+        {
+          nodes: [{ id: "other", label: "Other", resourceType: null, resourceGroup: null }],
+          edges: [],
+        },
+        "missing",
+      ),
+    ).toBe(false);
   });
 });
 
