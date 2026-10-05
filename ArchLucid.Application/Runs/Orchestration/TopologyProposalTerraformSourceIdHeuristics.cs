@@ -137,6 +137,16 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
         string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
         || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
 
+    internal static string? TryNormalizeTerraformEndpointIdentity(string? endpoint)
+    {
+        string? leafAddress = TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress(endpoint);
+
+        if (leafAddress is null || !RecognizesTerraformResourceType(leafAddress))
+            return null;
+
+        return leafAddress;
+    }
+
     internal static void AddTerraformLeafResourceAddressKeys(HashSet<string> endpointKeys, string? terraformSourceId)
     {
         string? leafAddress = TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress(terraformSourceId);

@@ -249,6 +249,21 @@ public static class TopologyProposalConsensusMerger
             return string.Empty;
 
         string trimmed = endpoint.Trim();
+        string? terraformEndpointIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
+
+        if (terraformEndpointIdentity is not null)
+        {
+            if (endpointCanonicalMap.TryGetValue(terraformEndpointIdentity, out string? terraformCanonical))
+                return terraformCanonical;
+
+            if (endpointCanonicalMap.TryGetValue(trimmed, out terraformCanonical))
+                return terraformCanonical;
+
+            if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(terraformEndpointIdentity, knownEndpointKeys))
+                return terraformEndpointIdentity;
+        }
+
         string normalizedSynthetic =
             TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
             ?? trimmed;

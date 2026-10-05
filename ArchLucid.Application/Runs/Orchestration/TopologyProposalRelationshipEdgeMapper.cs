@@ -154,6 +154,15 @@ public static class TopologyProposalRelationshipEdgeMapper
             return true;
         }
 
+        string? terraformEndpointIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmedCandidate);
+
+        if (terraformEndpointIdentity is not null
+            && endpointKeyToNodeId.TryGetValue(terraformEndpointIdentity, out nodeId!))
+        {
+            return true;
+        }
+
         if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedCandidate)
             && endpointKeyToNodeId.TryGetValue(
                 GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedCandidate),
