@@ -167,6 +167,16 @@ describe("claim-discipline-policy", () => {
     ).toBeUndefined();
   });
 
+  it("keeps authentication-sign-in-help visible on operator shell where no separate claim strip owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("authentication-sign-in-help")).toBe(false);
+    expect(shouldOmitClaimDisciplineBand("authentication-sign-in")).toBe(false);
+  });
+
+  it("omits help-system-health orientation claim while administration hub uses sources-only system-health slug", () => {
+    expect(shouldOmitClaimDisciplineBand("help-system-health")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("system-health")).toBe(false);
+  });
+
   it("omits cloud provider connection help slugs when header claim strip owns claim discipline", () => {
     expect(shouldOmitClaimDisciplineBand("cloud-connections-aws")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("cloud-connections-azure")).toBe(true);
