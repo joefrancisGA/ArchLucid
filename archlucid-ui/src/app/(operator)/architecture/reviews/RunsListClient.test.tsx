@@ -657,6 +657,33 @@ describe("RunsListClient inspector", () => {
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
+  it("closes stale inspector preview when inspectorRunId changes to an unknown run without popstate", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    runsListSearchParamsHarness.applyHref(
+      "/architecture/reviews?inspectorRunId=00000000-0000-0000-0000-00000000009999",
+    );
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+  });
+
   it("closes the inspector when inspectorRunId URL changes without a popstate event", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
@@ -824,6 +851,42 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
 
+  it("follows scope= URL changes without a popstate event on buyer scope chips", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const inFlight: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      hasGoldenManifest: false,
+      description: "In flight review",
+    };
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      hasGoldenManifest: true,
+      description: "Finalized review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(screen.getByTestId(`runs-row-${inFlight.runId}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.applyHref("/architecture/reviews?scope=finalized");
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.queryByTestId(`runs-row-${inFlight.runId}`)).toBeNull();
+    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /show:\s*finalized packages/i })).toHaveAttribute("aria-current", "page");
+  });
+
   it("buyer-polished: in_flight scope hides finalized package rows", () => {
     buyerPolishedShellVitestOverride.value = true;
     runsListWorkspaceModeHarness.mode = "guided";
@@ -872,6 +935,39 @@ describe("RunsListClient inspector", () => {
     expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
 
     vi.useRealTimers();
+  });
+
+  it("clears compare replacement notice when compareRuns URL changes without a popstate event", () => {
+    const runB: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+    const runC: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      description: "Third review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, runB, runC]} projectId="default" page={1} pageSize={20} totalCount={3} />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runB.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runC.runId}`)).getByRole("checkbox"));
+
+    expect(screen.getByText(/only two reviews can be compared/i)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.applyHref("/architecture/reviews");
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, runB, runC]} projectId="default" page={1} pageSize={20} totalCount={3} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.queryByText(/only two reviews can be compared/i)).toBeNull();
+    expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
   });
 
   it("shows a replacement notice when a third compare checkbox is selected", () => {
