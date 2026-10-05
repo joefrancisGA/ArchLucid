@@ -108,8 +108,24 @@ export function useReviewDetailWorkspaceTabs(
     props.tabLifecycle !== undefined
       ? resolveReviewWorkspaceTabFromSearchParams(searchParams, resolved, lifecycle)
       : resolveReviewDetailTabFromLocation(null, null);
+  const searchParamWorkbenchFocus = useMemo((): ReviewWorkbenchColumnId | null => {
+    if (props.tabLifecycle === undefined) {
+      return null;
+    }
+
+    const fromParam = resolveReviewWorkbenchFocusColumn(
+      searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+    );
+
+    if (fromParam !== null) {
+      return fromParam;
+    }
+
+    return isWorkbenchTab(searchParamTab) ? searchParamTab : null;
+  }, [props.tabLifecycle, searchParams, searchParamTab]);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
-  const [workbenchFocusColumn, setWorkbenchFocusColumnState] = useState<ReviewWorkbenchColumnId | null>(null);
+  const [workbenchFocusColumn, setWorkbenchFocusColumnState] =
+    useState<ReviewWorkbenchColumnId | null>(searchParamWorkbenchFocus);
   const workbenchFocusColumnRef = useRef(workbenchFocusColumn);
   workbenchFocusColumnRef.current = workbenchFocusColumn;
   const tabActivityAt = props.tabActivityAt ?? {};
@@ -118,6 +134,13 @@ export function useReviewDetailWorkspaceTabs(
   useEffect(() => {
     setActiveTab((current) => (current === searchParamTab ? current : searchParamTab));
   }, [searchParamTab]);
+
+  useEffect(() => {
+    setWorkbenchFocusColumnState((current) =>
+      current === searchParamWorkbenchFocus ? current : searchParamWorkbenchFocus,
+    );
+    workbenchFocusColumnRef.current = searchParamWorkbenchFocus;
+  }, [searchParamWorkbenchFocus]);
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
