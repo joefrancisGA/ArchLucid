@@ -474,6 +474,9 @@ export async function expectQuickDecisionSeverityVisible(
 
 const REVIEW_WORKBENCH_SURFACE_TABS = ["architecture", "findings", "evidence"] as const;
 
+/** Collapsible pipeline timeline title (`BUYER_SURFACE_VOCABULARY.auditTrail` and legacy labels). */
+const PIPELINE_TIMELINE_SECTION_LABEL = /Audit trail|Recent lifecycle events|Pipeline timeline/i;
+
 /** Findings quick-decision surface — tab panel or professional workbench column. */
 export function reviewDetailFindingsQuickSummary(page: Page): Locator {
   const panel = reviewDetailWorkspacePanel(page, "findings");
@@ -530,9 +533,38 @@ export async function expectReviewDetailFindingsQuickSummaryVisible(
     }
 
     await expect(reviewDetailFindingsQuickSummary(page)).toBeVisible({ timeout: 15_000 });
+
+    const showAllFindings = page.getByTestId("quick-decision-show-all-findings");
+
+    if (await showAllFindings.isVisible().catch(() => false)) {
+      await showAllFindings.click();
+    }
   }).toPass({ timeout: timeoutMs });
 
   return reviewDetailFindingsQuickSummary(page);
+}
+
+/** Assert seeded finding copy in findings workspace (card stack, dense table, or workbench column). */
+export async function expectReviewDetailSeedFindingCopyVisible(
+  page: Page,
+  pattern: RegExp,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 90_000;
+  const surface = page
+    .getByTestId("run-detail-findings-workspace")
+    .or(page.getByTestId("review-workbench-column-findings"))
+    .or(page.getByTestId("run-detail-findings-section"));
+
+  await expect(surface.first()).toBeVisible({ timeout: 30_000 });
+
+  const showAllFindings = surface.getByTestId("quick-decision-show-all-findings");
+
+  if (await showAllFindings.isVisible().catch(() => false)) {
+    await showAllFindings.click();
+  }
+
+  await expect(surface.getByText(pattern).first()).toBeVisible({ timeout });
 }
 
 async function buildReviewDetailTabHrefForSurface(
@@ -896,7 +928,7 @@ export async function expectBuyerPipelineTimelineSectionVisible(
     const sectionNav = page.getByTestId("provenance-section-nav-desktop");
 
     if ((await sectionNav.count()) > 0) {
-      const pipelineNavLink = sectionNav.getByRole("link", { name: /Recent lifecycle events/i });
+      const pipelineNavLink = sectionNav.getByRole("link", { name: PIPELINE_TIMELINE_SECTION_LABEL });
 
       if ((await pipelineNavLink.count()) > 0) {
         await pipelineNavLink.first().click();
@@ -912,14 +944,14 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 
     if ((await collapsible.count()) > 0 && (await collapsible.isVisible())) {
       await expect(
-        collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
+        collapsible.getByRole("heading", { name: PIPELINE_TIMELINE_SECTION_LABEL }).first(),
       ).toBeVisible({ timeout: 10_000 });
 
       return;
     }
 
     const heading = pipelineSection.getByRole("heading", {
-      name: /Recent lifecycle events|Pipeline timeline/i,
+      name: PIPELINE_TIMELINE_SECTION_LABEL,
     });
 
     await expect(heading.first()).toBeVisible({ timeout: 10_000 });
@@ -948,18 +980,45 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
   await expect(artifactsSection).toBeVisible({ timeout: 90_000 });
   await artifactsSection.scrollIntoViewIfNeeded();
 
-  const deliverablesDetails = artifactsSection.locator("details").first();
-  const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
+  const markdownDownload = artifactsSection.getByTestId("golden-manifest-markdown-download-button").first();
+  const evidenceBundleLink = artifactsSection.getByRole("link", { name: /Download evidence bundle/i });
+
+  if (
+    (await markdownDownload.isVisible().catch(() => false))
+    || (await evidenceBundleLink.isVisible().catch(() => false))
+  ) {
+    return;
+  }
+
+  const deliverablesHeading = artifactsSection.getByRole("heading", { name: /^Deliverables$/i });
+  const deliverablesDetails = artifactsSection
+    .locator("details")
+    .filter({ has: deliverablesHeading })
+    .first();
+  const deliverablesSummary = deliverablesDetails
+    .locator("summary")
+    .filter({ has: deliverablesHeading })
+    .or(artifactsSection.locator("summary").filter({ hasText: /Deliverables/i }))
+    .first();
 
   await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
 
-  const detailsOpen: boolean = await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open);
+  const detailsOpen: boolean =
+    (await deliverablesDetails.count()) > 0
+      ? await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open)
+      : await deliverablesSummary.evaluate((element) => {
+          const details = element.closest("details");
+
+          return details !== null ? (details as HTMLDetailsElement).open : true;
+        });
 
   if (!detailsOpen) {
     await deliverablesSummary.click();
   }
 
-  await expect(deliverablesDetails).toHaveAttribute("open", "");
+  if ((await deliverablesDetails.count()) > 0) {
+    await expect(deliverablesDetails).toHaveAttribute("open", "");
+  }
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */

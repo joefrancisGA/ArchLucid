@@ -28,6 +28,7 @@ import {
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   expectReviewDetailFindingsQuickSummaryVisible,
+  expectReviewDetailSeedFindingCopyVisible,
   openReviewDetailWorkspaceTab,
 } from "./helpers/operator-journey";
 
@@ -173,14 +174,18 @@ test.describe(
     });
 
     /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
-    await expect(
-      quickSummary.getByText(/Promoted scoring ensemble lacks immutable lineage hash/i).first(),
-    ).toBeVisible({ timeout: 90_000 });
+    await expectReviewDetailSeedFindingCopyVisible(
+      page,
+      /Promoted scoring ensemble lacks immutable lineage hash/i,
+      { timeoutMs: 90_000 },
+    );
 
     /** Pack B security baseline posture (public exposure from seed fixtures). */
-    await expect(
-      quickSummary.getByText(/Inference gateway still advertises interim public listener/i).first(),
-    ).toBeVisible({ timeout: 90_000 });
+    await expectReviewDetailSeedFindingCopyVisible(
+      page,
+      /Inference gateway still advertises interim public listener/i,
+      { timeoutMs: 90_000 },
+    );
 
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
 
