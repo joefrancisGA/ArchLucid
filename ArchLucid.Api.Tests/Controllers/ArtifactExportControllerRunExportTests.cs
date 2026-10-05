@@ -249,6 +249,65 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task DownloadRunExport_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+
+        Mock<IRunExportPackageBuilder> builder = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            builder.Object,
+            manifestHashService: manifestHashService);
+
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = manifest.ManifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            },
+            GoldenManifest = manifest,
+        };
+
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(
+                scope,
+                runId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(runDetail);
+
+        IActionResult result = await sut.DownloadRunExport(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        builder.Verify(
+            b => b.BuildAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<byte[]?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PushRunExportToBlob_returns_409_when_authority_lifecycle_not_complete()
     {
         Guid runId = Guid.NewGuid();
@@ -671,6 +730,33 @@ public sealed class ArtifactExportControllerRunExportTests
             {
                 Run = new RunRecord { RunId = Guid.NewGuid() },
                 FindingCoverageSummary = new RunFindingCoverageSummary { EnginesSucceeded = 50 },
+            });
+
+        authorityForExport
+            .Setup(s => s.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _, bool _) =>
+            {
+                Guid manifestId = Guid.NewGuid();
+
+                return new RunDetailDto
+                {
+                    Run = new RunRecord
+                    {
+                        RunId = runId,
+                        GoldenManifestId = manifestId,
+                        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        ManifestId = manifestId,
+                        RunId = runId,
+                        ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                    },
+                };
             });
 
         ArtifactExportController controller = new(

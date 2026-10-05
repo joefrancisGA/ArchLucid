@@ -120,6 +120,16 @@ public sealed partial class ArtifactExportController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(runDetail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
+
         IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
 
         if (careerBlockedResult is not null)
