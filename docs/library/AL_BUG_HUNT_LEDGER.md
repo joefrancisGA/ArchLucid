@@ -7444,13 +7444,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 36
-- **bugs-found:** 20
+- **hunts:** 37
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — activation accepted issuer URIs with fragment/userinfo; activate returned error after upsert when audit logging failed
+- **last-bug:** 2026-10-05 — activation persisted non-canonical issuer URI strings instead of AbsoluteUri
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): proved `IdentityProviderActivationService.ActivateAsync` stored the trimmed request `IssuerUri` verbatim while `IdentityProviderUriValidator` already parsed an absolute URI, so path-segment shortcuts (`/./`) and explicit default ports (`:443`) persisted non-canonical issuer values that OIDC token validation compares strictly; persist `parsedIssuer.AbsoluteUri`; regression `ActivateAsync_canonicalizes_issuer_uri_to_absolute_uri`; seeded sandbox test-login parity and discover-controller audit follow-ups; 46 scoped `IdentityProviderActivationServiceTests` passed.
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — issuer URI with redundant path segments or default HTTPS port persisted non-canonical strings — **hit 2026-10-05 seed hunt (seed→hit):** store `Uri.AbsoluteUri` after HTTP(S) validation; regression `ActivateAsync_canonicalizes_issuer_uri_to_absolute_uri`.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` / `SsoWizardTestLoginService.Execute` — sandbox test-login validates issuer HTTP(S) but does not canonicalize to `Uri.AbsoluteUri`, so a wizard dry-run can succeed while activation rewrites the issuer to a different canonical form than the operator typed.
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — discovery responses return issuer/entityID strings from remote metadata without the same canonicalization applied on activate, so the wizard may pre-fill an issuer the next activate call normalizes differently.
+- [ ] (candidate) `IdentityProviderActivationService.ResolveOptionalPersistedField` — protocol switch with omitted `MetadataXml`/`KeyVaultSecretName` clears cross-protocol secrets but leaves `IssuerUri` unchanged when the operator activates a new protocol using the prior issuer string without re-validation against SAML entityID shape.
 
 2026-10-05 thorough hunt (hit): proved `IdentityProviderUriValidator` accepted absolute HTTP(S) issuer URIs with non-empty `Fragment` or `UserInfo` while OIDC/SAML consumers expect canonical issuer identifiers; shared validator now rejects those URI parts; regressions `ActivateAsync_rejects_issuer_uri_with_fragment` and `ActivateAsync_rejects_issuer_uri_with_userinfo`; proved `IdentityProviderConfigurationController.ActivateAsync` surfaced audit failures after configuration upsert; audit logging is now best-effort like outbound webhook dry-run; regression `ActivateAsync_returns_success_when_audit_logging_fails`; cheap-disproof closed concurrent read-then-upsert lost-update (no row version; last-write-wins for rare admin edits) and unrestricted discover metadata URL (admin-authenticated customer IdP metadata fetch, including on-prem internal URLs); 56 scoped activation/controller/discovery tests passed.
 
