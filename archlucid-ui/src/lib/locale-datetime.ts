@@ -1,8 +1,11 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
+const MISSING_INSTANT_LABEL = "Not recorded";
+const UNREADABLE_INSTANT_LABEL = "Date not readable";
+
 /**
- * Locale string for an ISO-8601 instant, or em dash when missing / not parseable (avoids “Invalid Date” in UI).
+ * Locale string for an ISO-8601 instant, or explicit empty copy when missing / not parseable (avoids “Invalid Date” in UI).
  * Uses fixed `en-US` + product default IANA zone so server and client render the same text (hydration-safe).
  */
 export function formatInstantForLocale(iso: string | null | undefined): string {
@@ -15,19 +18,19 @@ export function formatInstantForLocale(iso: string | null | undefined): string {
  */
 export function formatConversationListDate(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const ms = Date.parse(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return " — ";
+    return UNREADABLE_INSTANT_LABEL;
   }
 
   return new Date(ms).toLocaleDateString("en-US", {
@@ -43,19 +46,19 @@ export function formatConversationListDate(iso: string | null | undefined): stri
  */
 export function formatInstantForBuyerGovernance(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const ms = Date.parse(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return trimmed;
+    return UNREADABLE_INSTANT_LABEL;
   }
 
   return (
@@ -136,19 +139,19 @@ export function formatInstantInPreferredTimeZone(
   ianaTimeZoneId: string | null | undefined = DEFAULT_IANA_TIME_ZONE_ID,
 ): string {
   if (iso === null || iso === undefined) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const ms = parseIsoUtcMs(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return trimmed;
+    return UNREADABLE_INSTANT_LABEL;
   }
 
   const instant = new Date(ms);
@@ -158,7 +161,7 @@ export function formatInstantInPreferredTimeZone(
     return formatInstantClockInTimeZone(instant, timeZoneId);
   } catch {
     if (timeZoneId === DEFAULT_IANA_TIME_ZONE_ID) {
-      return trimmed;
+      return UNREADABLE_INSTANT_LABEL;
     }
 
     return formatInstantClockInTimeZone(instant, DEFAULT_IANA_TIME_ZONE_ID);
@@ -171,19 +174,19 @@ export function formatInstantInPreferredTimeZoneMilitary(
   ianaTimeZoneId: string | null | undefined = DEFAULT_IANA_TIME_ZONE_ID,
 ): string {
   if (iso === null || iso === undefined) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const ms = parseIsoUtcMs(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return trimmed;
+    return UNREADABLE_INSTANT_LABEL;
   }
 
   const instant = new Date(ms);
@@ -193,7 +196,7 @@ export function formatInstantInPreferredTimeZoneMilitary(
     return formatInstantMilitaryClockInTimeZone(instant, timeZoneId);
   } catch {
     if (timeZoneId === DEFAULT_IANA_TIME_ZONE_ID) {
-      return trimmed;
+      return UNREADABLE_INSTANT_LABEL;
     }
 
     return formatInstantMilitaryClockInTimeZone(instant, DEFAULT_IANA_TIME_ZONE_ID);
@@ -209,19 +212,19 @@ export function formatInstantCompactMilitary(
   ianaTimeZoneId: string | null | undefined = DEFAULT_IANA_TIME_ZONE_ID,
 ): string {
   if (iso === null || iso === undefined) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return " — ";
+    return MISSING_INSTANT_LABEL;
   }
 
   const ms = parseIsoUtcMs(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return trimmed;
+    return UNREADABLE_INSTANT_LABEL;
   }
 
   const instant = new Date(ms);
@@ -231,7 +234,7 @@ export function formatInstantCompactMilitary(
     return formatInstantCompactMilitaryClockInTimeZone(instant, timeZoneId);
   } catch {
     if (timeZoneId === DEFAULT_IANA_TIME_ZONE_ID) {
-      return trimmed;
+      return UNREADABLE_INSTANT_LABEL;
     }
 
     return formatInstantCompactMilitaryClockInTimeZone(instant, DEFAULT_IANA_TIME_ZONE_ID);

@@ -18,9 +18,10 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
     return null;
   }
 
-  const rowCount = payload?.rows?.length ?? 0;
+  const rowsNotReturned = payload !== undefined && payload !== null && !Array.isArray(payload.rows);
+  const rowCount = Array.isArray(payload?.rows) ? payload.rows.length : 0;
 
-  if (rowCount === 0 && failure === null && props.showWhenFaithfulnessWarning !== true) {
+  if (!rowsNotReturned && rowCount === 0 && failure === null && props.showWhenFaithfulnessWarning !== true) {
     return null;
   }
 
@@ -28,7 +29,7 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
     <RunRetrievalGroundingPanel
       payload={payload ?? null}
       failure={failure}
-      blockedReason={blockedReason}
+      blockedReason={rowsNotReturned ? "Retrieval rows not returned" : blockedReason}
       sectionId="run-retrieval-grounding"
       title="Retrieval grounding"
     />

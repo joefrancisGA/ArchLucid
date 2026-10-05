@@ -28,11 +28,11 @@ export function formatAzureSubscriptionSummary(subscriptionIds: string): string 
     .filter((part) => part.length > 0);
 
   if (parts.length === 0) {
-    return "No subscriptions recorded";
+    return "Connection not recorded";
   }
 
   if (parts.length === 1) {
-    return parts[0] ?? " — ";
+    return parts[0] ?? "Not recorded";
   }
 
   return `${parts[0]} (+${parts.length - 1} more)`;

@@ -344,7 +344,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <EnterpriseTableRow key={t.traceId}>
                   <EnterpriseTableCell className="whitespace-nowrap">{buyerLabelForAgentType(t.agentType)}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap font-mono text-neutral-600 dark:text-neutral-400">
-                    {t.modelAlias?.trim() ? t.modelAlias : "Alias not recorded"}
+                    {t.modelAlias?.trim() ? t.modelAlias : "Not returned"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap text-neutral-600 dark:text-neutral-400">
                     {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
@@ -352,7 +352,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</EnterpriseTableCell>
                   <EnterpriseTableCell>{t.parseSucceeded ? "yes" : "no"}</EnterpriseTableCell>
                   <EnterpriseTableCell>
-                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "Upload not recorded"}
+                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "Not returned"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {sc
