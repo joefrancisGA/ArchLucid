@@ -104,6 +104,29 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
     }
 
     [Fact]
+    public async Task DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409()
+    {
+        const string lifecycleConflictMessage =
+            "Compare/export blocked for run 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa': authority lifecycle phase is InProgress; pipeline must be Complete.";
+
+        Mock<IRunExportPackageBuilder> builder = new(MockBehavior.Strict);
+        builder
+            .Setup(b => b.BuildAsync(Scope, RunId, null, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ConflictException(lifecycleConflictMessage));
+
+        ArtifactExportController sut = BuildController(runExportPackageBuilder: builder.Object);
+
+        IActionResult action = await sut.DownloadRunExport(RunId, CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+
+        MvcProblemDetails problem = conflict.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Be(lifecycleConflictMessage);
+    }
+
+    [Fact]
     public async Task VerifyRunExportLineage_maps_verifier_ConflictException_to_409()
     {
         Mock<IRunExportLineageVerifier> verifier = new(MockBehavior.Strict);

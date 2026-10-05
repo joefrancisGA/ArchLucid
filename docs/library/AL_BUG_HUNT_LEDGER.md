@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `tenant-data-export` — `ArtifactExportController.DownloadRunExport` let `RunExportPackageBuilder` / `RunExportAuthorityMaterialLoader` lifecycle `ConflictException` bubble as an unhandled 500 while sibling paths map export conflicts to HTTP 409; catch `ConflictException` around `BuildAsync`; regression `DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409`; seeded `VerifyRunExportLineage` lifecycle parity and export-history sealed-guard-only candidates.
+
 2026-10-05 thorough hunt (hit): `tenant-data-export` — Terraform advisory download/PR omitted `AuthorityLifecycleCompareExportGuard` while blob push enforced it; `GetRunExportHistoryAsync` omitted lifecycle parity with export-record get; aligned terraform paths and history facade with `EnsureAuthorityLifecycleCompleteOrConflict` / `TryEnsureExportRunLifecycleCompleteAsync`; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`, `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`, and `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`; cheap-disproof closed unbounded history pagination (`RunExportRecordRepository.GetByRunIdAsync` uses `SqlPagingSyntax.FirstRowsOnly(500)`).
 
 2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired unused email OTP challenges still counted toward hourly send rate limits (`CountRecentRequestsForRateLimitAsync` / `MatchesRecentRequestByEmail`); require active unexpired incomplete rows (`CompletedUtc IS NULL AND ExpiresUtc > nowUtc`) in SQL and shared predicates; pass `now` from `AuthRateLimitHelper`; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`; 48 `EmailOtpAuthServiceTests` + 8 `InMemoryEmailOtpChallengeRepositoryCoverageTests` passed (1 SQL integration skipped).
@@ -10409,13 +10411,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 936
-- **bugs-found:** 47
+- **hunts:** 937
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — Terraform advisory export/PR and export history omitted authority lifecycle Complete guard
+- **last-bug:** 2026-10-05 — run ZIP download unhandled lifecycle ConflictException from export package builder
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted `DownloadRunExport` lifecycle conflict mapping candidate from `RunExportAuthorityMaterialLoader` + `ArtifactExportController.Export.Download.cs`; proved unhandled `ConflictException` on lifecycle-incomplete runs; 3 scoped `ArtifactExportSealedManifestRuntimeConflictTests` passed.
 
 2026-09-13 seed hunt #2362 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
@@ -10514,6 +10518,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `AuthorityLifecycleCompareExportGuard` present on blob push and compare paths — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs with committed manifest returned Terraform ZIP or opened PR while blob push returned 409; call `EnsureAuthorityLifecycleCompleteOrConflict` before sealed-hash guard; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete` and `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`.
 - [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce — **hit 2026-10-05 thorough hunt:** history listed export rows when `GetExportRecordAsync` returned `LineageUnverified` for incomplete lifecycle; invoke `TryEnsureExportRunLifecycleCompleteAsync` before repository load; regression `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`.
 - [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportRecordRepository.GetByRunIdAsync` already applies `SqlPagingSyntax.FirstRowsOnly(500)` on `ORDER BY CreatedUtc DESC`.
+
+- [x] (proven) `ArtifactExportController.DownloadRunExport` / `RunExportAuthorityMaterialLoader` — lifecycle `ConflictException` from `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` not mapped to HTTP 409 — **hit 2026-10-05 seed hunt (seed→hit):** `BuildAsync` threw through `DownloadRunExport` while `MapArtifactExportSealedManifestConflict` handled returned `RunExportPackageResult.Conflict`; wrap `BuildAsync` in `catch (ConflictException)`; regression `DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409`.
+
+- [ ] (candidate) `ArtifactExportController.VerifyRunExportLineage` — omits `AuthorityLifecycleCompareExportGuard` while `PushRunExportToBlob` and `DownloadRunExport` material load enforce Complete (`ArtifactExportController.Export.Verify.cs` vs `Export.Push.cs` / `RunExportAuthorityMaterialLoader.cs`).
+- [ ] (candidate) `ExportsController.EnsureSealedManifestReadAllowedAsync` — sealed-hash only on `GetRunExportHistory` while `GetExportRecordAsync` also enforces lifecycle via `RunExportQueryFacade.TryEnsureExportRunLifecycleCompleteAsync` (`ExportsController.SealedManifestGuard.cs` vs `RunExportQueryFacade.cs`).
+- [ ] (candidate) `ArtifactExportController.DownloadRunExport` — optional Mermaid PNG branch calls `GetRunDetailAsync` + `GetArtifactsByManifestIdAsync` before `RunExportPackageBuilder` lifecycle gate (`ArtifactExportController.Export.Download.cs` when `ArchLucid:MermaidCli:Enabled`).
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 

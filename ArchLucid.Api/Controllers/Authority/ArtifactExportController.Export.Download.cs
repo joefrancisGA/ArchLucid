@@ -171,8 +171,16 @@ public sealed partial class ArtifactExportController
             }
         }
 
-        RunExportPackageResult packageResult =
-            await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
+        RunExportPackageResult packageResult;
+
+        try
+        {
+            packageResult = await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArtifactExportSealedManifestConflict(ex);
+        }
 
         if (!packageResult.Found)
         {
