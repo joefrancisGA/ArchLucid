@@ -42,14 +42,14 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
         second.Id.Should().NotBe(Guid.Empty);
         (await sut.GetByIdAsync(knownId, CancellationToken.None))!.CodeHash.Should().Be("hash-a");
 
-        DateTimeOffset since = TimeProvider.System.GetUtcNow().AddMinutes(-1);
-        (await sut.CountRecentRequestsByEmailAsync("user@example.com", since, CancellationToken.None))
-            .Should()
-            .Be(2);
-        (await sut.CountRecentRequestsByClientIpHashAsync("ip-1", since, CancellationToken.None))
-            .Should()
-            .Be(2);
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        DateTimeOffset since = now.AddMinutes(-1);
+        (await sut.CountRecentRequestsByEmailAsync("user@example.com", since, now, CancellationToken.None))
+            .Should()
+            .Be(2);
+        (await sut.CountRecentRequestsByClientIpHashAsync("ip-1", since, now, CancellationToken.None))
+            .Should()
+            .Be(2);
 
         (await sut.GetLatestRequestUtcByEmailAsync("user@example.com", now, CancellationToken.None))
             .Should()
@@ -251,7 +251,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
 
         await sut.TryCompleteAsync(active.Id, "correct-hash", now, maxFailedAttempts: 5, CancellationToken.None);
 
-        (await sut.CountRecentRequestsByEmailAsync("otp@example.com", since, CancellationToken.None))
+        (await sut.CountRecentRequestsByEmailAsync("otp@example.com", since, now, CancellationToken.None))
             .Should()
             .Be(0);
     }
@@ -274,6 +274,29 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
         (await sut.GetLatestRequestUtcByEmailAsync("otp@example.com", now, CancellationToken.None))
             .Should()
             .BeNull();
+    }
+
+    [Fact]
+    public async Task CountRecentRequests_ignores_expired_unused_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+                ClientIpHash = "ip-expired",
+            },
+            CancellationToken.None);
+
+        DateTimeOffset since = now.AddHours(-1);
+
+        (await sut.CountRecentRequestsForRateLimitAsync("otp@example.com", "ip-expired", since, now, CancellationToken.None))
+            .Should()
+            .Be(new EmailOtpRecentRequestCounts(0, 0));
     }
 
     [Fact]

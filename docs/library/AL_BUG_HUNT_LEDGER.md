@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired unused email OTP challenges still counted toward hourly send rate limits (`CountRecentRequestsForRateLimitAsync` / `MatchesRecentRequestByEmail`); require `CompletedUtc IS NOT NULL OR ExpiresUtc > nowUtc` in SQL and shared predicates; pass `now` from `AuthRateLimitHelper`; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`; 31 scoped AuthenticationIdentity/IdentityRepository + EmailOtp repository/service tests passed (1 SQL integration skipped).
+
 2026-10-05 seed hunt (dry): `core-costing` — promoted sole-Azure retail+illustrative blend summary-note asymmetry; failing repro matched trunk fix already on `bugsmash` (`ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`); 421 scoped Costing tests passed; no additional commit.
 
 2026-10-05 seed hunt (seed-only): `core-tenancy-commercial` — re-read Identity/Billing/Budgeting after negation-token saturation; seeded marketplace plan-id negation reachability, ChangePlan `planId` coercion, packaging inference without billing row, and claim-mapping duplicate-value candidates; 84 scoped CommercialPackagingTierResolver/LlmMonthlySpendPlanId/MarketplaceWebhookPayloadParser tests passed; no hunt-ready rows promoted this run.
@@ -14315,15 +14317,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 925
-- **bugs-found:** 22
+- **hunts:** 926
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — expired email OTP challenges still counted toward verification rate limits
+- **last-bug:** 2026-10-05 — expired unused email OTP challenges still counted toward hourly send rate limits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-05 seed hunt (seed→hit): promoted completed-challenge hourly request-cap candidate; proved `CountRecentRequestsForRateLimitAsync` still counted successfully verified OTP rows, so `MaxCodeRequestsPerEmailPerHour = 1` blocked a second sign-in in the same hour; fixed by excluding `CompletedUtc` challenges from request-rate predicates/SQL; regressions `CountRecentRequestsByEmail_ignores_completed_challenges` and `RequestCodeAsync_allows_new_code_after_successful_verification_when_hourly_cap_is_one`.
+
+2026-10-05 seed hunt (seed→hit): promoted expired-challenge hourly send-rate candidate; proved `CountRecentRequestsForRateLimitAsync` still counted expired unused rows toward `MaxCodeRequestsPerEmailPerHour` after lifetime elapsed; fixed by requiring active unexpired incomplete challenges in request-rate predicates/SQL (`CompletedUtc IS NULL AND ExpiresUtc > now`); regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`.
 
 2026-10-05 seed hunt (seed→hit): promoted expired-challenge resend-cooldown candidate; proved `GetLatestRequestUtcByEmailAsync` returned `CreatedUtc` for active rows past `ExpiresUtc`, blocking new codes until `ResendCooldownSeconds` elapsed even after lifetime expiry; fixed with `IsActiveAndUnexpired` + `nowUtc` parameter; regressions `GetLatestRequestUtc_ignores_expired_active_challenges` and `RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown`.
 
@@ -14396,6 +14400,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — invalidated challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after OTP resend replaced the active challenge — **hit 2026-10-05 seed hunt:** exclude invalidated rows only when another active challenge exists for the email; regressions `CountRecentFailedVerifications_ignores_invalidated_challenges_when_replaced_by_active_challenge` and `CountRecentFailedVerifications_counts_lockout_invalidated_challenge_when_no_replacement_is_active`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail` / `CountRecentRequestsForRateLimitAsync` — completed challenges still counted toward hourly OTP request caps after successful verification — **hit 2026-10-05 seed hunt:** exclude `CompletedUtc` rows in shared predicates and SQL; regressions `CountRecentRequestsByEmail_ignores_completed_challenges` and `RequestCodeAsync_allows_new_code_after_successful_verification_when_hourly_cap_is_one`.
 - [x] (proven) `GetLatestRequestUtcByEmailAsync` — expired but still-active challenges still enforced resend cooldown after code lifetime elapsed — **hit 2026-10-05 seed hunt:** filter `ExpiresUtc > nowUtc`; pass `now` from `EmailOtpRequestFlow`; regressions `GetLatestRequestUtc_ignores_expired_active_challenges` and `RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown`.
+- [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail` / `CountRecentRequestsForRateLimitAsync` — expired unused challenges still counted toward `AuthRateLimitHelper.IsEmailOtpRequestRateLimitedAsync` after code lifetime elapsed (blocking resend when `MaxCodeRequestsPerEmailPerHour` exhausted even though cooldown had cleared) — **hit 2026-10-05 seed hunt:** count rows only when `CompletedUtc` is set or `ExpiresUtc > nowUtc`; pass `now` from rate-limit helper; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — expired challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after `ExpiresUtc` passed — **hit 2026-10-05 seed hunt (seed→hit):** require `ExpiresUtc > nowUtc` in SQL and shared predicate; pass `now` from rate-limit helper; regression `CountRecentFailedVerifications_ignores_expired_challenges`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.

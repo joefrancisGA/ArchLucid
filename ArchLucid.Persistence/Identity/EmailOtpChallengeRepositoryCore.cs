@@ -59,18 +59,23 @@ internal static class EmailOtpChallengeRepositoryCore
     public static bool MatchesRecentRequestByEmail(
         EmailOtpChallengeRecord row,
         string normalizedEmail,
-        DateTimeOffset sinceUtc) =>
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc) =>
         row.NormalizedEmail == normalizedEmail
         && row.CreatedUtc >= sinceUtc
-        && row.CompletedUtc is null;
+        && CountsTowardRequestRateLimit(row, nowUtc);
 
     public static bool MatchesRecentRequestByClientIp(
         EmailOtpChallengeRecord row,
         string clientIpHash,
-        DateTimeOffset sinceUtc) =>
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc) =>
         row.ClientIpHash == clientIpHash
         && row.CreatedUtc >= sinceUtc
-        && row.CompletedUtc is null;
+        && CountsTowardRequestRateLimit(row, nowUtc);
+
+    private static bool CountsTowardRequestRateLimit(EmailOtpChallengeRecord row, DateTimeOffset nowUtc) =>
+        row.CompletedUtc is null && row.ExpiresUtc > nowUtc;
 
     public static bool MatchesFailedVerificationByEmail(
         EmailOtpChallengeRecord row,
@@ -89,7 +94,8 @@ internal static class EmailOtpChallengeRepositoryCore
         IEnumerable<EmailOtpChallengeRecord> rows,
         string normalizedEmail,
         string? clientIpHash,
-        DateTimeOffset sinceUtc)
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc)
     {
         ArgumentNullException.ThrowIfNull(rows);
 
@@ -98,10 +104,10 @@ internal static class EmailOtpChallengeRepositoryCore
 
         foreach (EmailOtpChallengeRecord row in rows)
         {
-            if (MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc))
+            if (MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc, nowUtc))
                 emailCount++;
 
-            if (clientIpHash is not null && MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc))
+            if (clientIpHash is not null && MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc, nowUtc))
                 ipCount++;
         }
 

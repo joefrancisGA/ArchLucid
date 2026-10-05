@@ -41,7 +41,7 @@ public static class AuthRateLimitHelper
         string? clientIpHash = EmailOtpRequestMetadataHasher.HashOptional(clientIp);
 
         EmailOtpRecentRequestCounts counts = await challenges
-            .CountRecentRequestsForRateLimitAsync(normalizedEmail, clientIpHash, since, cancellationToken)
+            .CountRecentRequestsForRateLimitAsync(normalizedEmail, clientIpHash, since, now, cancellationToken)
             .ConfigureAwait(false);
 
         if (counts.EmailRequestCount >= options.MaxCodeRequestsPerEmailPerHour)
