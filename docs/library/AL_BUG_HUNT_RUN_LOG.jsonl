@@ -8790,3 +8790,4 @@
 {"at":"2026-10-05T12:12:25.7493849Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T12:16:01.4231224Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T12:26:11.7779148Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T12:45:17.6571396Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
