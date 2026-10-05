@@ -887,6 +887,50 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_allows_new_code_after_successful_verification_when_hourly_cap_is_one()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            MaxCodeRequestsPerEmailPerHour = 1,
+            ResendCooldownSeconds = 0,
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            options);
+
+        EmailOtpChallengeRequestResult first = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "reuse-after-success@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(first.ChallengeId);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(first.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challenge.Id, Code = RecoverCodeForTests(challenge) },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+
+        EmailOtpChallengeRequestResult second = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "reuse-after-success@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(second.ChallengeId);
+        Assert.True(second.EmailDeliverySucceeded);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_flood_rate_limits_same_email_burst()
     {
         EmailOtpAuthOptions options = new()

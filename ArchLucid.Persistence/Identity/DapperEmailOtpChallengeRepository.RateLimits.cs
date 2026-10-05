@@ -17,7 +17,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            SELECT COUNT(1)
                            FROM dbo.EmailOtpChallenges
                            WHERE NormalizedEmail = @NormalizedEmail
-                             AND CreatedUtc >= @SinceUtc;
+                             AND CreatedUtc >= @SinceUtc
+                             AND CompletedUtc IS NULL;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -38,7 +39,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            SELECT COUNT(1)
                            FROM dbo.EmailOtpChallenges
                            WHERE ClientIpHash = @ClientIpHash
-                             AND CreatedUtc >= @SinceUtc;
+                             AND CreatedUtc >= @SinceUtc
+                             AND CompletedUtc IS NULL;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -60,12 +62,14 @@ public sealed partial class DapperEmailOtpChallengeRepository
                                 SELECT COUNT(1)
                                 FROM dbo.EmailOtpChallenges
                                 WHERE NormalizedEmail = @NormalizedEmail
-                                  AND CreatedUtc >= @SinceUtc;
+                                  AND CreatedUtc >= @SinceUtc
+                                  AND CompletedUtc IS NULL;
 
                                 SELECT COUNT(1)
                                 FROM dbo.EmailOtpChallenges
                                 WHERE ClientIpHash = @ClientIpHash
                                   AND CreatedUtc >= @SinceUtc
+                                  AND CompletedUtc IS NULL
                                   AND @ClientIpHash IS NOT NULL;
                                 """;
 

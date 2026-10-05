@@ -60,13 +60,17 @@ internal static class EmailOtpChallengeRepositoryCore
         EmailOtpChallengeRecord row,
         string normalizedEmail,
         DateTimeOffset sinceUtc) =>
-        row.NormalizedEmail == normalizedEmail && row.CreatedUtc >= sinceUtc;
+        row.NormalizedEmail == normalizedEmail
+        && row.CreatedUtc >= sinceUtc
+        && row.CompletedUtc is null;
 
     public static bool MatchesRecentRequestByClientIp(
         EmailOtpChallengeRecord row,
         string clientIpHash,
         DateTimeOffset sinceUtc) =>
-        row.ClientIpHash == clientIpHash && row.CreatedUtc >= sinceUtc;
+        row.ClientIpHash == clientIpHash
+        && row.CreatedUtc >= sinceUtc
+        && row.CompletedUtc is null;
 
     public static bool MatchesFailedVerificationByEmail(
         EmailOtpChallengeRecord row,
