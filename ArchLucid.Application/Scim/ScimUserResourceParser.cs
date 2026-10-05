@@ -41,7 +41,9 @@ public static class ScimUserResourceParser
         {
             JsonValueKind.True => true,
             JsonValueKind.False => false,
-            JsonValueKind.String => bool.TryParse(el.GetString(), out bool b) && b,
+            JsonValueKind.String => bool.TryParse(el.GetString(), out bool b)
+                ? b
+                : throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean."),
             JsonValueKind.Number => el.TryGetInt32(out int n)
                 ? n != 0
                 : throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean."),
