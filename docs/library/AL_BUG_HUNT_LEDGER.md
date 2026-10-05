@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("iat")` when `auth_time` was absent, so step-up treated stale first `iat` as the authentication instant even when a later `iat` was fresh; scan all `iat` claims and take the latest parseable instant; regression `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; 8 step-up unit tests passed.
+
 2026-10-05 thorough hunt (dry): `saml-jwt-bearer` — cheap-disproof closed SAML role case-duplicate surface claims (`ArchLucidRoleClaimExtractor` collapses for policy) and intentional non-GUID `oid` promotion for opaque directory keys; added multi-`auth_time` fail-closed and latest-fresh regressions; 16 scoped normalizer/step-up tests passed.
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
@@ -8405,11 +8407,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 12
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
+- **hunts:** 13
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — step-up ignored later parseable `auth_time` when an earlier `auth_time` claim was garbage
+- **last-bug:** 2026-10-05 — step-up used first stale `iat` when multiple `iat` claims were present without `auth_time`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -8457,6 +8459,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — non-GUID directory object ids promote onto canonical `oid` because `IsGuidScopeClaimType` excludes `oid` — **cheap-disproof 2026-10-05:** opaque `oid` strings are the supported external-directory key shape for `RoleSyncService.TryDirectoryObjectKey` / SCIM `GetByExternalIdAsync`; regression `Apply_promotes_opaque_directory_object_identifier_onto_oid`
 
 2026-10-05 thorough hunt (dry): cheap-disproved both open SAML normalizer candidates; hardened multi-`auth_time` step-up regressions.
+
+- [x] (proven) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — multiple `iat` claims without `auth_time`: `FindFirst("iat")` bound step-up to the first (stale) issue time — **hit 2026-10-05 seed hunt:** mirror multi-`auth_time` handling and take the latest parseable `iat`; regression `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`
+- [ ] (candidate) `PlatformUserAuthVersionJwtBearerPostConfigure` — `OnTokenValidated` reads `sub` / `iss` via `FindFirst` only; duplicate JWT claims with conflicting values could bypass or confuse auth-version stamping before `PlatformUserAuthVersionValidator` runs — reachable when a token middleware surfaces duplicate short-name claims on the principal
+- [ ] (candidate) `ScimBearerAuthenticationHandler.HandleAuthenticateAsync` — trims bearer token but does not reject embedded whitespace/control characters inside the `archlucid_scim.` payload before `ScimBearerTokenAuthenticator.TryParseToken` — wrong outcome: lookup miss vs alternate token shape; reachable via `Authorization: Bearer archlucid_scim.{pub}.{sec}` with interior whitespace in the secret segment
+
+2026-10-05 seed hunt (seed→hit): reseeded multi-`iat` step-up gap; proved and fixed; added SCIM bearer parsing and platform JWT post-config duplicate-claim candidates.
 
 2026-10-05 seed hunt (seed→hit): promoted multi-valued `auth_time` step-up gap; proved and fixed; reseeded SAML role case-dedup and oid non-GUID promotion candidates.
 
