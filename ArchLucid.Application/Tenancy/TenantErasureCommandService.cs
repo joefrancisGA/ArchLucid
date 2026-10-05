@@ -35,8 +35,11 @@ public sealed class TenantErasureCommandService(
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        if (tenant is null || tenant.OffboardedUtc is not null)
+        if (tenant is null)
             return null;
+
+        if (tenant.OffboardedUtc is not null)
+            return TryBuildExistingOffboardResult(tenant);
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
         int days = Math.Clamp(_tenantErasureOptions.CurrentValue.QuarantineDays, 1, 3650);
@@ -46,7 +49,11 @@ public sealed class TenantErasureCommandService(
             await _tenantRepository.TryStartTenantErasureOffboardAsync(tenantId, now, eligible, cancellationToken);
 
         if (!started)
-            return null;
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            return TryBuildExistingOffboardResult(afterMiss);
+        }
 
         await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
 
@@ -272,6 +279,14 @@ public sealed class TenantErasureCommandService(
             cancellationToken);
 
         return true;
+    }
+
+    private static TenantErasureOffboardResult? TryBuildExistingOffboardResult(TenantRecord? tenant)
+    {
+        if (tenant?.OffboardedUtc is null || tenant.ErasureEligibleUtc is null)
+            return null;
+
+        return new TenantErasureOffboardResult(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
     }
 
     private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? normalizedReason)
