@@ -8733,3 +8733,4 @@
 {"at":"2026-10-05T05:06:03.0046352Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T05:12:07.8603652Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/components/reviews/ReviewWorkbenchSelectionContext.tsx)"]}
 {"at":"2026-10-05T05:19:07.0197991Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Configuration/Summary/ConfigurationSensitiveConfigPathMatcher.cs)"]}
+{"at":"2026-10-05T05:23:29.4768628Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Configuration/Summary/ConfigurationSensitiveConfigPathMatcher.cs)"]}

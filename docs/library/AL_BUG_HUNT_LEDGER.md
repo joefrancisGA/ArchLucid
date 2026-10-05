@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `core-configuration-summary` — underscore-delimited JSON property `connection_string` split into non-sensitive tokens (`connection`, `string`) and skipped `ConnectionString` compound matching in operator config summary effective values; assemble PascalCase compounds from delimiter-separated property-name parts before segment matching; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_connection_string`; 1049 scoped Configuration tests passed (no-build filter).
+
 2026-10-05 seed hunt (seed→hit): `core-configuration-summary` — `ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPropertyName` returned early for delimiter-free JSON property names, so camelCase keys such as `apiKey` and `connectionString` bypassed embedded-credential scanning in operator config summary effective values; normalize camelCase compounds and tokenize camelCase segments before matching; regressions `Resolve_redacts_json_effective_values_when_property_names_use_camel_case_api_key` and `Resolve_redacts_json_effective_values_when_property_names_use_camel_case_connection_string`; 1048 scoped Configuration tests passed (no-build filter).
 
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewWorkbenchSelectionProvider` reconciled `findingId` from `window.location` only on `popstate`, so Next.js soft `<Link>` navigation left workbench finding selection stale; sync from the live address bar when `useSearchParams` `findingId` changes; regression `follows findingId query changes without a popstate event`; 29 scoped review-detail vitest tests passed.
@@ -19394,17 +19396,19 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 34
-- **bugs-found:** 17
+- **hunts:** 35
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — camelCase JSON credential property names leaked in config summary
+- **last-bug:** 2026-10-05 — snake_case `connection_string` JSON property leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after kebab-case fix; proved dotted JSON property names (`api.key`, `credentials.api_key`) bypassed delimiter tokenization; fixed by dot-delimiter splits and recursive `IsSensitiveConfigPropertyName` on split tokens; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`; 1044 scoped Configuration tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted and proved camelCase JSON credential property names (`apiKey`, `connectionString`) bypassed `IsSensitiveConfigPropertyName` because delimiter-free names returned before matching embedded credential fragments; fixed via PascalCase compound normalization and camelCase segment tokenization; regressions `Resolve_redacts_json_effective_values_when_property_names_use_camel_case_api_key` and `Resolve_redacts_json_effective_values_when_property_names_use_camel_case_connection_string`; 1048 scoped Configuration tests passed (no-build filter).
+
+2026-10-05 seed hunt (seed→hit): promoted and proved snake_case JSON property `connection_string` bypassed credential scanning because underscore token splits never formed `ConnectionString`; fixed by assembling PascalCase compounds from delimiter-separated JSON property-name parts; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_connection_string`; 1049 scoped Configuration tests passed (no-build filter).
 
 2026-10-03 seed hunt (seed-only): re-read the configuration summary redaction, effective-value resolver, deployment options, OTP normalization, and configuration tests; no new candidate met the wrong-outcome and product-contract bar for same-run proof.
 
@@ -19468,6 +19472,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — kebab-case JSON property `api-key` bypasses credential property scan — **hit 2026-09-27 seed hunt:** same JSON effective-value path class as snake_case `api_key`; hyphen delimiter left `key` token non-sensitive until split; fixed by hyphen tokenization in `IsSensitiveConfigPropertyName`; regression `Resolve_redacts_json_effective_values_when_property_names_use_kebab_case_api_key`
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — dotted JSON property names (`api.key`, `credentials.api_key`) bypass credential property scan — **hit 2026-09-27 seed hunt:** dot-delimited keys and mixed dotted snake_case tokens skipped `ApiKey` matching; fixed with dot splits and recursive delimiter tokenization on JSON property name parts; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` / `ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPropertyName` — camelCase JSON property names (`apiKey`, `connectionString`) bypass credential property scan — **hit 2026-10-05 seed hunt:** delimiter-free names returned before embedded-fragment matching; fixed with PascalCase compound normalization and camelCase segment tokenization; regressions `Resolve_redacts_json_effective_values_when_property_names_use_camel_case_api_key` and `Resolve_redacts_json_effective_values_when_property_names_use_camel_case_connection_string`
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` / `ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPropertyName` — snake_case JSON property `connection_string` bypassed credential property scan — **hit 2026-10-05 seed hunt:** underscore splits left non-sensitive tokens without assembling `ConnectionString`; fixed with PascalCase compound assembly from delimiter-separated parts; regression `Resolve_redacts_json_effective_values_when_property_names_use_snake_case_connection_string`
 
 2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
 2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
