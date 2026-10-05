@@ -458,6 +458,45 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
   }
 }
 
+/** Job-view chips render as `Needs my decision (0)`. A trailing `(0)` means that view has no rows. */
+export function findingJobViewChipListsRows(label: string): boolean {
+  return !/\(0\)\s*$/.test(label.replace(/\s+/g, " ").trim());
+}
+
+async function selectFindingJobViewThatListsRows(page: Page): Promise<void> {
+  const bar = page.getByTestId("finding-job-view-toggle-bar");
+
+  if (!(await bar.isVisible().catch(() => false))) {
+    return;
+  }
+
+  const moreJobViews = page.getByTestId("finding-job-view-more-toggle");
+
+  if (await moreJobViews.isVisible().catch(() => false)) {
+    await moreJobViews.click();
+  }
+
+  const chips = bar.locator('[data-testid^="finding-job-view-"]:not([data-testid="finding-job-view-more-toggle"])');
+  const chipCount = await chips.count();
+
+  for (let index = 0; index < chipCount; index += 1) {
+    const chip = chips.nth(index);
+    const label = (await chip.innerText()).replace(/\s+/g, " ");
+
+    if (!findingJobViewChipListsRows(label)) {
+      continue;
+    }
+
+    const current = await chip.getAttribute("aria-current");
+
+    if (current !== "page") {
+      await chip.click();
+    }
+
+    return;
+  }
+}
+
 /** Matches `SeverityTag` aria-labels (`FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT` + legacy labels). */
 const QUICK_DECISION_SEVERITY_ARIA_LABEL =
   /^Severity: (Critical|Error|Warning|Info|High|Medium|Low|Unclassified)$/i;
@@ -495,6 +534,20 @@ export async function ensureReviewDetailFindingsPresentationExpanded(page: Page)
 
   if ((await loadingCardView.count()) > 0) {
     await expect(loadingCardView.first()).toBeHidden({ timeout: 30_000 });
+  }
+
+  // Default job view is "Needs my decision". Seeded demo findings often sit in another view, which
+  // leaves the card list empty even when the sealed count is non-zero.
+  await selectFindingJobViewThatListsRows(page);
+
+  const cardsViewToggleAfterJobView = page.getByTestId("run-detail-findings-list-view-cards");
+
+  if (await cardsViewToggleAfterJobView.isVisible().catch(() => false)) {
+    const pressedAfterJobView = await cardsViewToggleAfterJobView.getAttribute("aria-pressed");
+
+    if (pressedAfterJobView !== "true") {
+      await cardsViewToggleAfterJobView.click();
+    }
   }
 
   const lowConfidenceToggle = page.getByTestId("quick-decision-show-low-confidence");
