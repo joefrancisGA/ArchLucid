@@ -171,7 +171,7 @@ export function TenantHealthAdminPageClient() {
                       label="Engagement risk"
                     />
                     <span className={cn("ml-2 tabular-nums font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                      {presentTenantHealthAdminCount(row.engagementScore)}
+                      {row.engagementScore}
                     </span>
                   </>
                 )}
