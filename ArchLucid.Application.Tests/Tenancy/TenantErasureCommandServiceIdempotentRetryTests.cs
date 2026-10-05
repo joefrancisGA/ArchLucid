@@ -17,6 +17,54 @@ namespace ArchLucid.Application.Tests.Tenancy;
 public sealed class TenantErasureCommandServiceIdempotentRetryTests
 {
     [Fact]
+    public async Task TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 5, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Erase Org",
+            "erase-org-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            now.AddDays(-1),
+            now.AddDays(29),
+            CancellationToken.None);
+
+        int auditAppends = 0;
+        Mock<IPlatformAuditRepository> audit = new();
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref auditAppends);
+                return Task.CompletedTask;
+            });
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        bool[] outcomes = await Task.WhenAll(
+            Enumerable.Range(0, 16)
+                .Select(_ => sut.TryApproveErasureAsync(tenantId, "admin@example.com", "Admin", "corr", CancellationToken.None))
+                .ToArray());
+
+        outcomes.Should().OnlyContain(result => result);
+        auditAppends.Should().Be(1);
+    }
+
+    [Fact]
     public async Task TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry()
     {
         Guid tenantId = Guid.NewGuid();

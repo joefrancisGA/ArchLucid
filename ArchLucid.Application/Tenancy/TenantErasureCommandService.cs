@@ -197,7 +197,14 @@ public sealed class TenantErasureCommandService(
         bool approved = await _tenantRepository.TryApproveTenantErasureAsync(tenantId, now, actorUserId, cancellationToken);
 
         if (!approved)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss?.TenantErasureApprovedUtc is not null)
+                return true;
+
             return false;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureApproved,
