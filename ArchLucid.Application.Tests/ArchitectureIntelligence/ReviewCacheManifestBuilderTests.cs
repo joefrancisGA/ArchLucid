@@ -338,6 +338,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.WorkspaceId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.WorkspaceId = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA";
+
+        ReviewCacheManifestBuilder.Build(lower).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).TenantConfigurationHash);
+    }
+
+    [Fact]
     public void Build_changes_tenant_configuration_hash_when_workspace_changes()
     {
         ClosedLoopReasoningRequest workspaceA = CreateRequest("Architecture note.");

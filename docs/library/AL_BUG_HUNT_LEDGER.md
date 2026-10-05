@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `TenantConfigurationHash` split on workspace GUID hex letter casing; canonicalize GUID scope ids in `ClosedLoopScopeIdHashNormalizer` for tenant/workspace/project hash inputs; regression `Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing`; cheap-disproof closed three lingering `(candidate)` rows; 64 scoped orchestrator/cache tests passed.
+
 2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `ReviewCacheManifestBuilder` content hash split on GUID hex letter casing while `ClosedLoopRunIdComparer` invalidates case-insensitively; lowercase hex in `ClosedLoopRunIdComparer.Normalize`; regression `Build_matches_content_hash_when_run_id_differs_only_by_hex_letter_casing`; cheap-disproof closed seven other open `(candidate)` rows; 63 scoped orchestrator/cache tests passed.
 
 2026-10-05 thorough hunt (dry): `tenant-settings-sql` — cheap-disproved all five open `(candidate)` rows (cancel mid-factory still reads post-upsert; out-of-band SQL cache staleness by design; in-memory whitespace parity not production-reachable; Unicode homoglyph keys outside ASCII `TenantSettingKeys`; intentional `SettingValue.Trim()` on upsert); regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`; 47 scoped TenantSettings tests passed.
@@ -28722,15 +28724,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 21
-- **bugs-found:** 7
+- **hunts:** 22
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — manifest content hash split on GUID hex letter casing
+- **last-bug:** 2026-10-05 — tenant configuration hash split on workspace GUID hex casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-05 thorough hunt (hit): workspace GUID hex casing in `TenantConfigurationHash`; `ClosedLoopScopeIdHashNormalizer`; closed three open candidates; 64 scoped tests passed.
 
 2026-10-05 thorough hunt (hit): run-id hex casing manifest split; `ClosedLoopRunIdComparer.Normalize` lowercases; closed eight open candidates; 63 scoped tests passed.
 
@@ -28779,9 +28783,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (invalid) `RunContinueFromExistingReviewAsync` — dual-manifest `PinScope` vs `continueManifest`-only probes with concurrent persistence mutation — **invalid 2026-10-04 thorough hunt:** `existing`/`ledgerEntries` load once and both manifests build synchronously on the same snapshots; `BuildContinueFromExistingRunCoalesceManifest` embeds `contentManifest.ContentHash`; both keys are pinned via `PinScope(continueManifest, contentManifest)`.
 - [x] (invalid) `ReviewResultCache.Set` — tombstone check before `_evictionLock` vs concurrent `InvalidateForRun` — **invalid 2026-10-04 thorough hunt:** `Set` re-checks `IsRunIdTombstonedUnlocked` inside the lock after clone/sanitize; regressions `Set_skips_insert_when_sanitized_run_id_matches_tombstone` and `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
 
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — `modelfp`/`ledgerfp` snapshot from entry-time `TryLoadExistingModelAsync`/`TryLoadLedgerEntriesAsync` while improve-loop stages may persist ledger/model updates before publish `Set`; overlapping continue requests with unchanged source texts may `TryGet` hit on pre-mutation fingerprints — **seed 2026-10-05:** needs stage reachability proof that returned bytes omit post-persist ledger rows without a manifest miss on the next request.
-- [ ] (candidate) `ReviewResultCache.PinScope` / `ReviewResultCacheCompositePinScope` — `MaxDistinctPinnedStorageKeys` rejects a new pin while an improve-loop entry is only protected by a deduped composite refcount; churn at cap may evict manifest-keyed bytes before unpin flushes deferred invalidations — **seed 2026-10-05:** reachable via existing pin-cap regression fixtures; wrong outcome would be stale `TryGet` hit after tombstone flush.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult` keys policy off resolved `runId` when client supplied `RunId`, but coalesced cache hits may still carry leader `PublishedToProduct`/`PublishBlocked` mix until `ApplyAnalysisOnlyCoalescedIsolation` runs — **seed 2026-10-05:** reachable via concurrent analysis-only followers after a publish leader; needs repro beyond hunt #1226 sanitize/finalize fixes.
+- [x] (proven) `ReviewCacheManifestBuilder.HashTenantConfiguration` / scope id `NormalizeForHash` — workspace GUID hex letter casing produced different `TenantConfigurationHash` and cache keys — **hit 2026-10-05 thorough hunt:** canonicalize parsed GUID scope ids to lowercase `D` format via `ClosedLoopScopeIdHashNormalizer`; regression `Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time `modelfp`/`ledgerfp` snapshot vs post-persist mutations — **cheap-disproof 2026-10-05 thorough hunt:** each request rebuilds manifest from reloaded baseline/ledger; no stale hit without manifest miss (seed 2026-10-05).
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap eviction — **cheap-disproof 2026-10-05 thorough hunt:** `PinScope_reports_not_pinned_when_distinct_key_cap_reached`, `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — coalesced publish-policy on cache hits — **cheap-disproof 2026-10-05 thorough hunt:** #1226 sanitize/isolation; `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
