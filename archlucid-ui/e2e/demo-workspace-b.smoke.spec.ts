@@ -211,31 +211,19 @@ test.describe(
     expect(packATitle, "Pack A finding title from authority snapshot").not.toBeNull();
     expect(packBTitle, "Pack B finding title from authority snapshot").not.toBeNull();
 
-    const packInspectOptions = {
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
+    await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
+
+    await expectReviewDetailFindingFromFindingsWorkspace(page, packAFindingId!, packATitle!, {
       timeoutMs: 90_000,
-      beforeNavigate: async () => {
-        await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
-        await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
-      },
-    } as const;
+    });
 
-    /** Pack A narrative — nested finding detail (stable when card stack filters hide seed copy). */
-    await expectReviewDetailFindingInspectCopyVisible(
-      page,
-      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
-      packAFindingId!,
-      packATitle!,
-      packInspectOptions,
-    );
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
+    await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
 
-    /** Pack B security baseline posture (public exposure from seed fixtures). */
-    await expectReviewDetailFindingInspectCopyVisible(
-      page,
-      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
-      packBFindingId!,
-      packBTitle!,
-      packInspectOptions,
-    );
+    await expectReviewDetailFindingFromFindingsWorkspace(page, packBFindingId!, packBTitle!, {
+      timeoutMs: 90_000,
+    });
 
     const historyRaw = await getRunArchitectureExportHistoryRaw(
       request,

@@ -684,6 +684,29 @@ export async function expectReviewDetailSeedFindingCopyVisible(
 }
 
 /** Opens nested finding detail and asserts title or rationale copy (buyer shell card stack fallback). */
+export async function expectReviewDetailFindingFromFindingsWorkspace(
+  page: Page,
+  findingId: string,
+  title: string,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 90_000;
+  const encodedFindingId = encodeURIComponent(findingId.trim());
+
+  await expect(async () => {
+    const findingLink = page.locator(`a[href*="/findings/${encodedFindingId}"]`).first();
+
+    await findingLink.scrollIntoViewIfNeeded();
+    await findingLink.click();
+
+    const main = page.getByRole("main");
+
+    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
+    await expect(main.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first()).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout });
+}
+
 export async function expectReviewDetailFindingInspectCopyVisible(
   page: Page,
   runId: string,
