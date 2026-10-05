@@ -316,6 +316,34 @@ public sealed class DocumentConnectorTests
     }
 
     [Fact]
+    public async Task NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument()
+    {
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload raw = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "spec.txt",
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "REQ: must encrypt",
+                }
+            ]
+        };
+
+        NormalizedContextBatch batch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task DeltaAsync_RequirementAndPolicyWithSameCanonicalText_CountsBothResources()
     {
         DocumentConnector connector = new(

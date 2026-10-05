@@ -11,7 +11,10 @@ public static class ContextIngestionStableReferenceIds
 {
     public static string ForDocument(string name, string contentType)
     {
-        return StableId("doc", name, contentType);
+        return StableId(
+            "doc",
+            name,
+            SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(contentType));
     }
 
     public static string ForInfrastructureDeclaration(string name, string format)
