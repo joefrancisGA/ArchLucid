@@ -29036,11 +29036,11 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 19
-- **bugs-found:** 3
+- **hunts:** 20
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — identical-content-hash inventory diffs skipped diff-consumer fan-out
+- **last-bug:** 2026-10-05 — post-materialize skipped SecureNow neighborhood carry-forward when empty diff was already persisted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29082,6 +29082,10 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — recomputing a persisted snapshot-pair diff returned `WasExisting` without notifying registered consumers, so a retry after partial consumer failure could skip `SecureNowArchitectDiffConsumer` and `AuditContinuousReadinessDiffConsumer` side effects — **hit 2026-10-05 thorough hunt:** notify consumers on existing diffs and isolate per-consumer failures; regressions `ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers` and `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService.PersistEmptyDiffAsync` — when consecutive Azure inventory snapshots share the same `ContentHashSha256`, the diff service short-circuits to an empty persisted diff without notifying registered consumers, so post-materialize “no changes” captures never reach `AuditContinuousReadinessDiffConsumer` or `SecureNowArchitectDiffConsumer` — **hit 2026-10-05 seed hunt (seed→hit):** notify consumers after empty diff insert; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`.
+
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize only called `SecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` when `AzureInventoryDiffComputeResult.WasExisting` was false, so a retry after a persisted empty snapshot-pair diff skipped neighborhood carry-forward and left SecureNow path state stale on the new snapshot — **hit 2026-10-05 seed hunt:** carry forward on any successful zero-change diff; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`.
+
+2026-10-05 seed hunt (hit): promoted hunt-ready row from post-materialize coordinator wiring registered by `InfraEvidenceCompositionModule`; empty persisted snapshot-pair diff with `WasExisting` skipped `CarryForwardAllAsync` on retry; fixed carry-forward guard and added regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-05 thorough hunt (hit): proved inventory diff consumer fan-out gap on persisted snapshot pairs; cheap-disproved branding-cache race, worker-only missing-repo, and admin invalidation candidates; 2 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false` due to pre-existing ARCH006 persistence analyzer noise).
 

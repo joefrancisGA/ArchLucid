@@ -69,7 +69,7 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             return;
         }
 
-        if (diffResult is { Succeeded: true, Changes.Count: 0, WasExisting: false })
+        if (diffResult is { Succeeded: true, Changes.Count: 0 })
         {
             await neighborhoodRunner.CarryForwardAllAsync(
                 scope,
