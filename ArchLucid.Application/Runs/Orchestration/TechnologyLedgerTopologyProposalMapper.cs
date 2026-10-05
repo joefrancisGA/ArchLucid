@@ -27,6 +27,8 @@ public static class TechnologyLedgerTopologyProposalMapper
         string proposalId = string.IsNullOrWhiteSpace(proposal.ProposalId) ? "unknown" : proposal.ProposalId;
         List<TechnologyLedgerEntry> candidates = [];
 
+        int datastoreOrdinal = 0;
+
         foreach (ManifestDatastore datastore in proposal.AddedDatastores)
         {
             CloudProvider family = RuntimePlatformCloudFamily.ResolveCloudFamily(datastore.RuntimePlatform);
@@ -34,10 +36,12 @@ public static class TechnologyLedgerTopologyProposalMapper
                 ? datastore.RuntimePlatform.ToString()
                 : datastore.DatastoreName;
             string subKey = string.IsNullOrWhiteSpace(datastore.DatastoreId)
-                ? Slug(technologyName)
+                ? BuildMissingManifestIdSubKey(technologyName, datastoreOrdinal++)
                 : StableTopologyIdentitySubKey(datastore.DatastoreId);
             candidates.Add(CreateCandidate(runId, TechnologyLedgerRole.PrimaryDatastore, technologyName, family, proposalId, subKey, utcNow));
         }
+
+        int serviceOrdinal = 0;
 
         foreach (ManifestService service in proposal.AddedServices)
         {
@@ -46,7 +50,7 @@ public static class TechnologyLedgerTopologyProposalMapper
                 ? service.RuntimePlatform.ToString()
                 : service.ServiceName;
             string subKey = string.IsNullOrWhiteSpace(service.ServiceId)
-                ? Slug(technologyName)
+                ? BuildMissingManifestIdSubKey(technologyName, serviceOrdinal++)
                 : StableTopologyIdentitySubKey(service.ServiceId);
             candidates.Add(CreateCandidate(runId, TechnologyLedgerRole.ComputeRuntime, technologyName, family, proposalId, subKey, utcNow));
         }
@@ -153,5 +157,12 @@ public static class TechnologyLedgerTopologyProposalMapper
             return "unknown";
 
         return trimmed.ToLowerInvariant();
+    }
+
+    private static string BuildMissingManifestIdSubKey(string technologyName, int ordinal)
+    {
+        string identitySubKey = StableTopologyIdentitySubKey(technologyName);
+
+        return $"{identitySubKey}-m{ordinal}";
     }
 }
