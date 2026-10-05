@@ -6,6 +6,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -57,6 +58,8 @@ public sealed class DemoSeedPersistenceChainTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             Mock.Of<IAuditRepository>(),
+            Mock.Of<IGoldenManifestRepository>(),
+            Mock.Of<IAuthorityFeasibilityVerdictComposer>(),
             Mock.Of<IActorContext>(),
             NullLogger.Instance);
 }
