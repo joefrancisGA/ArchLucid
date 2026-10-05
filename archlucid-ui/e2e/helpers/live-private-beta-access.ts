@@ -214,12 +214,34 @@ export async function waitForOperatorAuthMeProxyOk(page: Page, timeoutMs = 90_00
     response.ok();
 
   try {
-    await page.waitForResponse(matchesMe, { timeout: timeoutMs });
+    await page.waitForResponse(matchesMe, { timeout: 8_000 });
+    return;
   } catch {
-    const origin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
-    await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
-    await page.waitForResponse(matchesMe, { timeout: timeoutMs });
+    /* fall through — /me may have completed before this waiter registered */
   }
+
+  const meAlreadyOk = await page
+    .evaluate(async () => {
+      const response = await fetch("/api/proxy/api/auth/me", {
+        method: "GET",
+        credentials: "same-origin",
+      });
+
+      return response.ok;
+    })
+    .catch(() => false);
+
+  if (meAlreadyOk) {
+    return;
+  }
+
+  const origin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(origin)) {
+    await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
+  }
+
+  await page.waitForResponse(matchesMe, { timeout: timeoutMs });
 }
 
 /** Clears OIDC session hints to simulate expiry / signed-out state. */

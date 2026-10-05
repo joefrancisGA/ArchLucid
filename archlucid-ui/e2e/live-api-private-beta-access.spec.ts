@@ -32,6 +32,7 @@ import {
   resolveScopeFromAuthMe,
   writeJwtBrowserSession,
 } from "./helpers/live-private-beta-access";
+import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
@@ -345,7 +346,7 @@ test.describe(
     expect(pendingMatch).toBe(true);
 
     await primePrivateBetaBrowserPage(page, accessToken);
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await injectDefaultTenantOperatorScope(page);
 
     const me = await fetchAuthMeViaProxy(page);
     const scope = resolveScopeFromAuthMe(me, expectedScope);
