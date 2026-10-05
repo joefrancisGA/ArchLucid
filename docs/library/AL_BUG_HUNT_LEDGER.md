@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed empty nested-aggregate shell, unclamped `RetryDelay` misuse, and inner/outer budget interaction candidates; 55 scoped transient-retry tests passed (37 Persistence + 18 Application).
+
 2026-10-05 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after today's nested-wrapper hit; cheap-disproof closed aggregate-inner wrapper nested-deadlock retry (`SqlTransientDetector` walks wrapper `InnerException` chains); seeded empty nested-aggregate masking, `TryGetParallelPersistInners` fail-fast without outer `SqlTransientDetector` fallthrough, and unclamped `RetryDelay` above `MaxAttempts` misuse candidates; 51 scoped transient-retry tests passed (35 Persistence + 16 Application).
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` used `FindFirst("tenant_id")`, so a leading non-GUID `tenant_id` hid a later parseable tenant and conflicting GUIDs logged the first value; require exactly one distinct parseable `tenant_id` for audit scope; regressions `AppendCookieSignedInAudit_uses_parseable_tenant_id_when_an_earlier_tenant_id_claim_is_not_a_guid` and `AppendCookieSignedInAudit_omits_tenant_id_when_distinct_tenant_id_claims_disagree`; 19 SAML sign-in audit tests passed.
@@ -4305,9 +4307,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — nested wrapper aggregate mixed transient/permanent retry order asymmetry
 - **related-pd-tb:** none
@@ -4400,9 +4402,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 seed hunt (seed→hit): promoted nested-wrapper mixed-aggregate candidate; proved order-dependent retry; 51 scoped transient-retry tests passed.
 
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` whose sole inner is `InvalidOperationException` wrapping a nested `AggregateException(deadlock)` might skip retry because `inners.All(SqlTransientDetector.IsTransient)` only inspects direct aggregate inners — **cheap-disproof 2026-10-05 seed hunt:** `SqlTransientDetector` walks each inner's `InnerException` chain and still sees the deadlock; regression `ExecuteAsync_retries_deadlock_when_aggregate_inner_wraps_nested_aggregate`
-- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — stops at the first nested `AggregateException` on the `InnerException` chain; an earlier empty parallel-persist aggregate could return `inners.Count == 0` and make `IsRetriableOrchestratorDbFailure` return false without falling through to `SqlTransientDetector` on the outer wrapper — reachable only if repository attaches an empty `AggregateException` shell before the real parallel failure payload
-- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — does not clamp `attempt` to `MaxAttempts`, so misuse from a future caller passing `attempt > 12` yields delays beyond the documented linear backoff ceiling even while `IsExhausted` is already true — wrong outcome: unbounded helper delay for exhausted commit loops; reachable only via incorrect orchestrator call sites, not current authority commit loop
-- [ ] (candidate) `OrchestratorTransientDbRetry` Polly `DelayGenerator` — `args.AttemptNumber + 1` exponential backoff can schedule the third retry delay near 8s base plus jitter while the outer `CommitRunTransientRetryPolicy.RetryBudget` is 20s — wrong outcome: inner DB retry wall clock can consume most of the outer commit budget on a single orchestration attempt; reachable under sustained SQL deadlock pressure on authority commit
+2026-10-05 thorough hunt (dry): cheap-disproof closed the three seed candidates — empty nested `AggregateException` wrapper shells do not mask transient SQL on the `InnerException` chain (`ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell`); `RetryDelay` above `MaxAttempts` is an uncapped pure helper for non-authority misuse only (`RetryDelay_at_attempt_above_max_remains_linear_without_clamp`); minimum inner 2s/4s/8s backoff still fits inside the 20s commit `RetryBudget` (`Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`); 55 scoped transient-retry tests passed (37 Persistence + 18 Application).
+
+- [x] (invalid) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — empty nested aggregate shell on wrapper `InnerException` chain — **cheap-disproof 2026-10-05 thorough hunt:** no reachable deadlock behind an empty shell on a linear inner chain; regression `ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell`.
+- [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` — attempts above `MaxAttempts` not clamped — **cheap-disproof 2026-10-05 thorough hunt:** authority commit loop never calls the helper past exhaustion; regression `RetryDelay_at_attempt_above_max_remains_linear_without_clamp`.
+- [x] (invalid) `OrchestratorTransientDbRetry` Polly delay vs outer `RetryBudget` — **cheap-disproof 2026-10-05 thorough hunt:** intentional layered retry; minimum inner backoff sum remains below `RetryBudget`; regression `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`.
 
 2026-10-05 seed hunt (seed-only): reseeded orchestrator-transient-retry after nested-wrapper hit; cheap-disproof closed wrapper-nested aggregate retry gap; added empty-nested-aggregate masking, helper delay misuse, and inner/outer budget interaction candidates.
 

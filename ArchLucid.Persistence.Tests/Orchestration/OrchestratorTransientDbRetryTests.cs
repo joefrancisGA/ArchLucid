@@ -703,6 +703,29 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException(
+                    "parallel persist failed",
+                    new AggregateException());
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+        SqlTransientDetector.IsTransient(
+                new InvalidOperationException("parallel persist failed", new AggregateException()))
+            .Should()
+            .BeFalse("empty nested aggregate shells carry no transient SQL on the wrapper chain");
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_generic_overload_retries_azure_throttling_error_49919()
     {
         int attempts = 0;
