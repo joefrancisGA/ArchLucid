@@ -194,6 +194,32 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
     }
 
     [Fact]
+    public void Evaluate_finding_category_substring_does_not_count_as_grounded()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "application architecture kubernetes cluster nodes scheduling",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[],"findings":[{"severity":"Low","category":"app","description":"kubernetes cluster nodes scheduling","recommendation":"maintain application architecture standards annually"}]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("finding:grounding");
+    }
+
+    [Fact]
     public void Evaluate_does_not_count_substring_inside_unrelated_evidence_token_as_support()
     {
         AgentEvidencePackage evidence = new()

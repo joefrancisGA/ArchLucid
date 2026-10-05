@@ -126,10 +126,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
                         continue;
                     }
 
-                    bool categoryOk =
-                        !string.IsNullOrWhiteSpace(category) &&
-                        (fullBlob.Contains(category, StringComparison.OrdinalIgnoreCase) ||
-                         Enum.TryParse(category, ignoreCase: true, out Contracts.Common.AgentType _));
+                    bool categoryOk = CategoryIsGrounded(category, fullBlob);
 
                     bool textOk =
                         MeetsOverlapThreshold(description, fullBlob, options)
@@ -177,6 +174,24 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
             return;
 
         unsupported.Add(id);
+    }
+
+    private static bool CategoryIsGrounded(string category, string fullBlobLowercase)
+    {
+        if (string.IsNullOrWhiteSpace(category))
+            return false;
+
+        if (Enum.TryParse(category, ignoreCase: true, out Contracts.Common.AgentType _))
+            return true;
+
+        List<string> categoryTokens = CollectTokens(category);
+
+        if (categoryTokens.Count == 0)
+            return false;
+
+        HashSet<string> evidenceTokens = CollectTokens(fullBlobLowercase).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return categoryTokens.TrueForAll(evidenceTokens.Contains);
     }
 
     private static bool MeetsOverlapThreshold(string text, string blobLowercase, AgentFaithfulnessOptions options)
