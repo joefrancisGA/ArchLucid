@@ -7444,18 +7444,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 38
-- **bugs-found:** 22
+- **hunts:** 39
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — test-login sandbox received non-canonical issuer URI while activate canonicalized
+- **last-bug:** 2026-10-05 — discover API returned non-canonical issuer/JWKS URIs to the SSO wizard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.DiscoverAsync` returned raw `IssuerUri`/`JwksUri` strings from discovery while activate/test-login canonicalize HTTP(S) endpoints, so the wizard pre-filled values that disagreed with persisted activation; `WithCanonicalWizardUris` on successful discovery responses; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; seeded activate audit protocol and activate-response issuer echo follow-ups; 53 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.DiscoverAsync` — discovery success returned non-canonical issuer/JWKS URIs that activate would rewrite — **hit 2026-10-05 seed hunt (seed→hit):** `WithCanonicalWizardUris`; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` logs raw `request.Protocol` while `IdentityProviderActivationService` normalizes protocol before persist, so audit forensics can disagree with stored `TenantIdentityProtocol`.
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `IdentityProviderActivateResponse` omits the canonical `IssuerUri`, so the wizard cannot confirm post-activate normalization without a separate configuration GET.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `http://` issuers pass validation and persist for tenant SSO rows reachable from admin activate (policy gap vs HTTPS-only production expectations).
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.TestLogin` validated issuer HTTP(S) but forwarded the operator's non-canonical string to `SsoWizardTestLoginService` while `ActivateAsync` persisted `Uri.AbsoluteUri`; shared `TryGetCanonicalAbsoluteHttpOrHttps` and controller rebuilds the sandbox request with the canonical issuer; regression `TestLogin_passes_canonical_issuer_uri_to_sandbox_service`; cheap-disproof closed discover pre-fill mismatch (activate canonicalizes on commit regardless of wizard pre-fill) and protocol-switch issuer retention (issuer is protocol-agnostic URL; cross-protocol optional fields clear by design); 64 scoped activation/controller/test-login tests passed.
 
 - [x] (proven) `IdentityProviderConfigurationController.TestLogin` / `SsoWizardTestLoginService.Execute` — sandbox test-login accepted non-canonical issuer strings that activate canonicalized — **hit 2026-10-05 seed hunt (seed→hit):** controller passes canonical issuer in a rebuilt request; regression `TestLogin_passes_canonical_issuer_uri_to_sandbox_service`.
-- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — discovery pre-fill issuer vs activate canonicalization — **cheap-disproof 2026-10-05 seed hunt:** activate always re-canonicalizes `IssuerUri` on commit; wizard pre-fill is advisory.
+- [x] (proven) `IdentityProviderConfigurationController.DiscoverAsync` — discovery pre-fill issuer vs activate canonicalization — **superseded 2026-10-05 seed hunt (seed→hit):** wizard now receives canonical issuer/JWKS URIs; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — protocol switch leaves `IssuerUri` when optional SAML/OIDC fields omitted — **cheap-disproof 2026-10-05 seed hunt:** shared issuer URL across protocols is valid; secrets/metadata clear on protocol change by design.
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderActivationService.ActivateAsync` stored the trimmed request `IssuerUri` verbatim while `IdentityProviderUriValidator` already parsed an absolute URI, so path-segment shortcuts (`/./`) and explicit default ports (`:443`) persisted non-canonical issuer values that OIDC token validation compares strictly; persist `parsedIssuer.AbsoluteUri`; regression `ActivateAsync_canonicalizes_issuer_uri_to_absolute_uri`; seeded sandbox test-login parity and discover-controller audit follow-ups; 46 scoped `IdentityProviderActivationServiceTests` passed.
