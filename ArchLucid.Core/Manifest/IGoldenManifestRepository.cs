@@ -61,4 +61,12 @@ public interface IGoldenManifestRepository
         IDbConnection? connection,
         IDbTransaction? transaction,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Demo-seed / release-gate repair: updates <c>HasherBoundJson</c> and <c>ManifestHash</c> on an existing golden manifest row.
+    /// </summary>
+    Task UpdateSealedHasherBoundSliceAsync(
+        ScopeContext scope,
+        ManifestDocument manifest,
+        CancellationToken cancellationToken);
 }

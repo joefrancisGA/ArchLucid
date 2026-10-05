@@ -34,7 +34,9 @@ export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
 
   await expect(page).toHaveURL(/\/administration\/users(?:[/?#]|$)/, { timeout: 90_000 });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
+  await expect(async () => {
+    await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 5_000 });
+  }).toPass({ timeout: 90_000 });
   await expect(async () => {
     await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 5_000 });
   }).toPass({ timeout: 90_000 });

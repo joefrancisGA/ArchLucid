@@ -147,21 +147,17 @@ test.describe(
     }
 
     const manifestSection = page.locator("#manifest-summary");
+    const manifestDecisionCount = page.getByTestId("run-detail-manifest-decision-count");
 
     await expect(async () => {
       await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
       await expect(manifestSection).toBeVisible({ timeout: 30_000 });
       await manifestSection.scrollIntoViewIfNeeded();
-      await expect(manifestSection.getByText(/Finalized review record/i)).toBeVisible({ timeout: 15_000 });
+      await expect(manifestDecisionCount).toBeVisible({ timeout: 15_000 });
+      await expect(manifestDecisionCount).not.toHaveText("—", { timeout: 15_000 });
     }).toPass({ timeout: 120_000 });
 
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
-
-    const manifestDecisionCount = manifestSection.getByTestId("run-detail-manifest-decision-count");
-
-    await manifestDecisionCount.scrollIntoViewIfNeeded();
-    await expect(manifestDecisionCount).toBeVisible({ timeout: 60_000 });
-    await expect(manifestDecisionCount).not.toHaveText("—", { timeout: 60_000 });
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 

@@ -3,7 +3,9 @@ using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -32,6 +34,8 @@ public sealed class DemoSeedSeederDependencies(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IAuditRepository auditRepository,
+    IGoldenManifestRepository goldenManifestRepository,
+    IAuthorityFeasibilityVerdictComposer feasibilityVerdictComposer,
     IActorContext actorContext,
     ILogger logger)
 {
@@ -83,6 +87,12 @@ public sealed class DemoSeedSeederDependencies(
 
     public IAuditRepository AuditRepository { get; } =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+
+    public IGoldenManifestRepository GoldenManifestRepository { get; } =
+        goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    public IAuthorityFeasibilityVerdictComposer FeasibilityVerdictComposer { get; } =
+        feasibilityVerdictComposer ?? throw new ArgumentNullException(nameof(feasibilityVerdictComposer));
 
     public IActorContext ActorContext { get; } =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));

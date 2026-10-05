@@ -40,6 +40,12 @@ public sealed class DemoSeedExportLineageAuditRepairSeeder(
 
         using (AmbientScopeContext.Push(productTourScope))
         {
+            await DemoSeedSealedExportReceiptRepair.TryEnsureSealedExportReceiptFieldsAsync(
+                _deps,
+                productTourScope,
+                DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId,
+                cancellationToken);
+
             await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
                 _deps,
                 productTourScope,
@@ -56,6 +62,12 @@ public sealed class DemoSeedExportLineageAuditRepairSeeder(
 
         using (AmbientScopeContext.Push(regulatedScope))
         {
+            await DemoSeedSealedExportReceiptRepair.TryEnsureSealedExportReceiptFieldsAsync(
+                _deps,
+                regulatedScope,
+                DemoWorkspaceStableIds.RegulatedScenarioArchitectureReviewRunId,
+                cancellationToken);
+
             await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
                 _deps,
                 regulatedScope,

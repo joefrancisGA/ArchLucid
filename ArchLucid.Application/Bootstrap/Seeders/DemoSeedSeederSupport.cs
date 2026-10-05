@@ -43,6 +43,12 @@ internal static class DemoSeedSeederSupport
 
         if (!descriptionChanged && !projectChanged)
         {
+            await DemoSeedSealedExportReceiptRepair.TryEnsureSealedExportReceiptFieldsAsync(
+                deps,
+                workspaceScope,
+                run.RunId,
+                cancellationToken);
+
             await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
                 deps,
                 workspaceScope,
@@ -59,6 +65,12 @@ internal static class DemoSeedSeederSupport
             run.ProjectId = repairedProjectId;
 
         await deps.RunRepository.UpdateAsync(run, cancellationToken);
+
+        await DemoSeedSealedExportReceiptRepair.TryEnsureSealedExportReceiptFieldsAsync(
+            deps,
+            workspaceScope,
+            run.RunId,
+            cancellationToken);
 
         await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
             deps,
