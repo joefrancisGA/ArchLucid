@@ -26,10 +26,19 @@ internal static class InfrastructureCostSummaryNotes
         if (totals.TotalUsdPerMonth <= 0m)
             return "No billable topology rows surfaced for sizing.";
 
-        if (totals.AllRetailPricing)
-            return "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources).";
-
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
+
+        if (totals.AllRetailPricing)
+        {
+            if (soleFamily == CloudProvider.Aws)
+                return "AWS Price List on-demand sizing (see line-level price sources).";
+
+            if (soleFamily == CloudProvider.Gcp)
+                return "GCP Cloud Billing Catalog sizing (see line-level price sources).";
+
+            return "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources).";
+        }
+
 
         if (soleFamily == CloudProvider.Aws)
             return "Blend of AWS Price List matches and illustrative fallbacks (on-demand assumptions).";
