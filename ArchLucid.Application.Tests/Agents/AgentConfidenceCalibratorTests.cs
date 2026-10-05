@@ -62,6 +62,32 @@ public sealed class AgentConfidenceCalibratorTests
     }
 
     [Fact]
+    public async Task CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores()
+    {
+        List<AgentConfidenceCalibrationSampleRow> rows = Enumerable
+            .Range(0, 20)
+            .Select(i => new AgentConfidenceCalibrationSampleRow
+            {
+                RawConfidence = 0.05 + (i * 0.04),
+                SemanticScore = i == 10 ? double.NaN : 0.4 + (i * 0.02),
+            })
+            .ToList();
+
+        Mock<IAgentConfidenceCalibrationSampleRepository> samples = new();
+        samples
+            .Setup(r => r.GetRecentByAgentTypeAsync(AgentType.Topology, 200, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rows);
+
+        AgentConfidenceCalibrator sut = new(
+            samples.Object,
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true }));
+
+        double calibrated = await sut.CalibrateAsync(AgentType.Topology, 0.42, CancellationToken.None);
+
+        double.IsFinite(calibrated).Should().BeTrue();
+    }
+
+    [Fact]
     public void BuildIsotonicKnots_enforces_monotonic_mapping()
     {
         List<AgentConfidenceCalibrationSampleRow> rows =

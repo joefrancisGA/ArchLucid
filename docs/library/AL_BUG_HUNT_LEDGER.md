@@ -27251,11 +27251,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 24
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — dual-model consensus merge threw when topology proposal RequiredControls was null
+- **hunts:** 25
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — multi region constraints skipped restricted-region checks; non-finite calibration samples produced NaN calibrated confidence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -27299,9 +27299,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — null `primary.Warnings` throws when building merged proposal (`new List<string>(primary.Warnings)`) — **hit 2026-09-26 seed hunt:** dual-model consensus runs after structural post-process without initializing warnings; fixed by null-coalescing warning copy; regression `Merge_when_primary_warnings_is_null_does_not_throw`
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger` — null `RequiredControls` on topology proposals throws in `IntersectControls` / disagreement math — **hit 2026-09-27 seed hunt:** structural post-process leaves `RequiredControls` null for topology agents while dual-model consensus still intersects controls; fixed via null-coalescing; regression `Merge_when_required_controls_is_null_does_not_throw`
 
-- [ ] (candidate) `AgentResultRegionMismatchEnricher.ResolveDefaultRegion` — multiple user-supplied `region:` constraints select the first value without an explicit precedence or conflict result, which could validate recommendations against a non-authoritative region; confirm whether repeated constraints are supported and which region should win before promoting
-- [ ] (candidate) `AgentConfidenceCalibrator.BuildIsotonicKnots` — persisted calibration rows with non-finite raw confidence or semantic scores could create non-finite knots and calibrated output; confirm repository/API validation rejects `NaN` and infinities before attempting a repro
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — multiple `region:` constraints only validated the first value when a service omitted `AzureArmRegion`, so restricted regions such as `qatarcentral` could miss `RegionMismatch` warnings — **hit 2026-10-05 thorough hunt:** validate every declared request region when inferring tenant region; regression `EnrichAsync_validates_each_request_region_constraint_when_service_region_missing`.
+- [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — persisted calibration rows with non-finite raw confidence or semantic scores created non-finite knots and `CalibrateAsync` returned `NaN` — **hit 2026-10-05 thorough hunt:** skip non-finite samples when binning and treat non-finite raw confidence as zero in `ClampUnit`; regression `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`.
 - [x] (invalid) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution — invalid: `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects every stored or catalog allowlist entry that is absent from the alias registry before the resolver receives it
+
+2026-10-05 thorough hunt (hit): proved multi `region:` constraints only checked the first declared region for services without `AzureArmRegion`, missing `qatarcentral` restricted-service warnings; proved calibration samples with `NaN` semantic scores produced non-finite calibrated confidence; regressions `EnrichAsync_validates_each_request_region_constraint_when_service_region_missing` and `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`; 94 scoped Application.Tests.Agents tests passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the repeated `region:` constraint candidate because no repository contract defines repeated-region precedence or treats the first value as authoritative; cheap-disproved the non-finite calibration candidate because the selected path exposes no supported API/config input for `NaN` or infinity and persistence stores `FLOAT NOT NULL`; no hunt-ready defect remained. The scoped `Application.Tests.Agents` run was attempted but blocked by the unrelated existing `CS8999` raw-string error in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs`.
 
