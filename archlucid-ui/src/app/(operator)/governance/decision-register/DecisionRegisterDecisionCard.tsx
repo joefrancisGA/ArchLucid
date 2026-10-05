@@ -54,7 +54,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
   const supportingFindingIds = decision.supportingFindingIds;
   const findingCount =
     supportingFindingIds === undefined || supportingFindingIds === null
-      ? undefined
+      ? null
       : supportingFindingIds.length;
 
   return (

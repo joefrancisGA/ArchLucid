@@ -33,4 +33,13 @@ describe("resolveClarificationsFindingsLoopNext (TB-2367)", () => {
       }),
     ).toBeNull();
   });
+
+  it("returns null when clarification gaps were not loaded", () => {
+    expect(
+      resolveClarificationsFindingsLoopNext({
+        openClarificationGapCount: null,
+        findingsCount: 4,
+      }),
+    ).toBeNull();
+  });
 });

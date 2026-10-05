@@ -370,7 +370,7 @@ export function RunFindingExplainabilityTable({
               confidenceLevel !== null ? (
                 <FindingConfidenceBadge level={confidenceLevel} />
               ) : (
-                <span className="text-neutral-400 dark:text-neutral-500">Not recorded</span>
+                <span className="text-neutral-400 dark:text-neutral-500">Confidence not recorded</span>
               );
 
             const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, row.findingId);

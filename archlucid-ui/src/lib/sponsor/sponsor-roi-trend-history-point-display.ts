@@ -43,6 +43,7 @@ export function sponsorRoiTrendCriticalBarHeightPx(
   return Math.max(8, Math.round((count / maxCritical) * 120));
 }
 
+/** Simulator-only when both run counts are returned and real is exactly zero with simulator > 0. */
 export function isSponsorRoiTrendSimulatorOnlyPeriod(
   point: Pick<SponsorRoiHistoryPoint, "realRunCount" | "simulatorRunCount">,
 ): boolean {
