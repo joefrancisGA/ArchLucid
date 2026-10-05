@@ -12,16 +12,24 @@ public static class RecentAuthenticationEvaluator
     {
         ArgumentNullException.ThrowIfNull(principal);
 
-        string? authTime = principal.FindFirst("auth_time")?.Value;
+        List<Claim> authTimeClaims = principal.FindAll("auth_time").ToList();
 
-        if (authTime is not null)
+        if (authTimeClaims.Count > 0)
         {
-            if (long.TryParse(authTime, out long authTimeSeconds))
+            DateTimeOffset? latest = null;
+
+            foreach (Claim claim in authTimeClaims)
             {
-                return DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
+                if (!long.TryParse(claim.Value, out long authTimeSeconds))
+                    continue;
+
+                DateTimeOffset instant = DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
+
+                if (latest is null || instant > latest)
+                    latest = instant;
             }
 
-            return null;
+            return latest;
         }
 
         string? iat = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;

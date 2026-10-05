@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
+
 2026-10-05 thorough hunt (dry): `ui-runs-list` — cheap-disproof closed unknown `inspectorRunId` soft-nav, buyer `scope=` chip parity, and stale compare-notice candidates; regressions `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`, `follows scope= URL changes without a popstate event on buyer scope chips`, `clears compare replacement notice when compareRuns URL changes without a popstate event`; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector stayed open after soft navigation cleared `inspectorRunId` because selection effect preserved `selectedRun` when the run remained on the page; close when `inspectorRunId` is absent from `useSearchParams`; regression `closes the inspector when inspectorRunId URL changes without a popstate event`; 45 scoped `RunsListClient` tests passed.
@@ -8401,11 +8403,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 10
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-05 — SAML ambiguous multi-valued scope attributes promoted first value; custom-role permissions resolved via `sub` instead of `oid`; unparseable `auth_time` fell through to fresh `iat` for step-up
+- **hunts:** 11
+- **bugs-found:** 12
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — step-up ignored later parseable `auth_time` when an earlier `auth_time` claim was garbage
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -8447,6 +8449,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 thorough hunt #828 (dry): cheap-disproved both open JWT/SAML bearer candidates; no new hunt-ready repro.
 
 2026-09-05 seed hunt #812 (hit): reseeded SAML scope ambiguity, custom-role oid/sub alignment, and step-up `auth_time` parse fail-closed gaps.
+
+- [x] (proven) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — multiple `auth_time` claims: first unparseable value made step-up fail closed even when a later `auth_time` was fresh — **hit 2026-10-05 seed hunt:** scan all `auth_time` claims and take the latest parseable instant; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteIncomingRoleValues` — `HasClaim("roles", roleValue)` is case-sensitive so inbound SAML role attributes differing only by case create duplicate `roles` / `ClaimTypes.Role` entries — wrong outcome: inflated claim cardinality before `ArchLucidRoleClaimExtractor` dedupes; reachable when IdP emits `admin` and `Admin` in separate multi-valued role attributes
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — non-GUID directory object ids promote onto canonical `oid` because only tenant/workspace/project skip non-GUID values — wrong outcome: SCIM external-id lookup receives opaque strings; mechanism: `IsGuidScopeClaimType` excludes `oid`; reachable when `DirectoryObjectIdClaimType` maps LDAP `distinguishedName` style values
+
+2026-10-05 seed hunt (seed→hit): promoted multi-valued `auth_time` step-up gap; proved and fixed; reseeded SAML role case-dedup and oid non-GUID promotion candidates.
 
 ---
 

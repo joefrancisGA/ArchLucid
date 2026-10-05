@@ -54,6 +54,20 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage()
+    {
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", "not-a-number"));
+        identity.AddClaim(new Claim("auth_time", fresh.ToString()));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable()
     {
         long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
