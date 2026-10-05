@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
@@ -71,6 +73,53 @@ public sealed class IdentityProviderConfigurationControllerTests
 
         body.Success.Should().BeFalse();
         body.DiagnosticSummary.Should().Contain("RoleClaimName");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        TenantIdentityProviderConfigurationRecord activated = new()
+        {
+            TenantId = tenantId,
+            Protocol = TenantIdentityProtocol.Oidc,
+            IssuerUri = "https://idp.example/oidc",
+            IsActive = true,
+            UpdatedUtc = DateTimeOffset.UtcNow,
+        };
+
+        Mock<IIdentityProviderActivationService> activation = new();
+        activation
+            .Setup(s => s.ActivateAsync(tenantId, "actor@test", It.IsAny<IdentityProviderActivateRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activated);
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => captured = evt)
+            .Returns(Task.CompletedTask);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("actor@test");
+
+        IdentityProviderConfigurationController controller = CreateController(
+            activationService: activation.Object,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+
+        await controller.ActivateAsync(
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "  OIDC  ",
+                IssuerUri = "https://idp.example/oidc",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
+        document.RootElement.GetProperty("protocol").GetString().Should().Be("oidc");
     }
 
     [Fact]

@@ -143,7 +143,12 @@ public sealed class IdentityProviderConfigurationController(
                     DataJson = JsonSerializer.Serialize(
                         new
                         {
-                            protocol = request.Protocol,
+                            protocol = record.Protocol switch
+                            {
+                                TenantIdentityProtocol.Oidc => "oidc",
+                                TenantIdentityProtocol.Saml => "saml",
+                                _ => record.Protocol.ToString()
+                            },
                             issuerUri = record.IssuerUri,
                             keyVaultSecretName = record.KeyVaultSecretName
                         })
