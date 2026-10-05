@@ -233,6 +233,45 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ApplyWebhookPaymentIntentSucceededAsync_enqueues_auto_refill_when_credit_leaves_balance_below_trigger_threshold()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool credited = await service.ApplyWebhookPaymentIntentSucceededAsync(
+            tenantId,
+            "pi_small_topup",
+            5m,
+            Guid.NewGuid(),
+            CancellationToken.None);
+
+        credited.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(5m);
+        view.BalanceUsd.Should().BeLessThan(LlmTenantWalletDefaults.RefillTriggerThresholdUsd);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue(
+            "Stripe payment-intent webhook credit must enqueue auto-refill when balance remains below the trigger threshold");
+        item.Kind.Should().Be(LlmWalletSettlementKind.AutoRefill);
+        item.TenantId.Should().Be(tenantId);
+    }
+
+    [SkippableFact]
     public async Task ApplyWebhookPaymentIntentSucceededAsync_is_idempotent_for_same_payment_intent()
     {
         InMemoryLlmTenantWalletRepository repository = new();

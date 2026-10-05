@@ -171,6 +171,20 @@ public sealed class LlmTenantWalletRefillStage(
         return state.AutoRefillsThisUtcMonthCount;
     }
 
+    public async Task EnqueueAutoRefillIfBalanceBelowTriggerAsync(
+        Guid tenantId,
+        Guid correlationId,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty)
+            return;
+
+        LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (state.BalanceUsd < state.RefillTriggerThresholdUsd)
+            _settlementQueue.EnqueueAutoRefill(tenantId, correlationId);
+    }
+
     private async Task<bool> FinalizeRefillCreditAsync(
         Guid tenantId,
         decimal amountUsd,

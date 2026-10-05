@@ -51,6 +51,10 @@ public sealed class LlmTenantWalletWebhookStage(
         ArchLucidInstrumentation.RecordLlmWalletRefillUsd(amountUsd);
         ArchLucidInstrumentation.RecordLlmWalletBalanceUsd(tenantId, credit.BalanceAfterUsd);
 
+        await _refillStage
+            .EnqueueAutoRefillIfBalanceBelowTriggerAsync(tenantId, correlationId, cancellationToken)
+            .ConfigureAwait(false);
+
         return true;
     }
 }
