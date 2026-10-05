@@ -1,6 +1,12 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+<<<<<<< HEAD
 2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository`; no row met hunt-ready bar for promotion; seeded five mechanism-backed `(candidate)` rows below; 35 scoped TenantSettings/SqlTenantSettings tests passed (`--no-build` on Linux VM).
+=======
+2026-10-05 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommand` wrapper plus `DraftNewCommandIntakeLoop` / `DraftNewCommandAdmitStage` / `DraftNewCommandMustQuestionLoop` stages; no hunt-ready promotion; seeded five `(candidate)` rows; 16 scoped `DraftNewCommandCoreTests` passed (`--no-build`).
+
+2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository`; no row met hunt-ready bar for promotion; seeded five mechanism-backed `(candidate)` rows below; 12 scoped `SqlTenantSettingsRepository` unit tests passed (`--no-build`).
+>>>>>>> 7905d5546e (al-bug seed-only: reseed cli-draft-new hypotheses)
 
 2026-10-05 thorough hunt (dry): `api-governance-tenancy-controllers` — cheap-disproved five open `(candidate)` rows (null `ListWorkspacesAsync` contract violation, metadata-only disposition `Guid.Empty` guard skip, reviews-awaiting-action per-row sealed guard omission, pre-commit invisible-prefix run ids, tenant workspace list tenant-wide project load); regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration fixtures unavailable on Linux VM).
 
@@ -6961,19 +6967,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` → `DraftNewCommandIntakeLoop.RunCoreAsync` and stage partials; no row met hunt-ready bar; seeded five mechanism-backed `(candidate)` rows below; 16 scoped core tests passed (`--no-build`).
 
 2026-09-13 seed hunt #2276 (seed-only): reseeded cli-draft-new with `-Hint cli draft`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2084 (seed-only): reseeded cli-draft-new; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — `--json` requires `--text`, `--system-name`, and `--business-outcome` but not `--skip-must-questions`; when `GetDraftQuestionsAsync` returns pending MUST rows, `DraftNewCommandMustQuestionLoop` still blocks on `hooks.ReadLineAsync` (human prompts suppressed only) — reachable `archlucid draft new --json …` per `CommandRegistry` / `DraftNewCommandOptions.WriteUsage` without `--skip-must-questions`.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — whitespace/empty answer path returns `CliExitCode.UsageError` to stderr only (`"An answer or explicit 'skip' is required…"`) without `CliJson.WriteFailureLine` when `CliExecutionContext.JsonOutput` is true — wrong outcome: automation gets usage exit without structured JSON failure (parallel gap to #592 prompt suppression).
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` successes with `Value == null` skip `CliScopeResponseValidator.TryValidateDraftScope` (`if (skipped.Value is not null)` guard) — reachable when API returns HTTP 200 with empty draft body on skip/answer; wrong outcome: continue after MUST mutation without scope parity checks applied on create/patch/admit.
+- [ ] (candidate) `DraftNewCommandAdmitStage` — interactive `PromptRequiredAsync` results for `systemName` / `businessOutcome` are assigned without `.Trim()` before PATCH (`systemName = promptedName`) while flag-supplied values use `.Trim()` — reachable `archlucid draft new` without `--system-name` / `--business-outcome`; wrong outcome: leading/trailing whitespace persisted on draft metadata.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — success JSON emits `requestId = submit.Value.RequestId` without null/whitespace guard unlike `runId` (`runId?.Trim()` + `IsNullOrWhiteSpace` gate at lines 69–78) — reachable when submit returns a run id but omits/whitespaces `requestId`; wrong outcome: `"ok":true` JSON with empty `requestId` for downstream automation.
 
 - [x] (proven) Draft is created under a tenant other than the signed-in CLI tenant — **hit 2026-08-24:** misconfigured scope headers could create a draft in another tenant while the CLI continued; `CliScopeResponseValidator` fails closed after create/patch when configured scope disagrees with API body; regressions in `RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed` / `RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed`
 - [x] (proven) Command reports success when the API returned a hollow success — **hit 2026-08-24:** submit returned HTTP 200 with empty `runId` and the command still printed success; now fails with `OperationFailed`; regression in `RunCoreAsync_submit_without_run_id_returns_operation_failed`
