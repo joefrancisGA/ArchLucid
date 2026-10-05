@@ -50,7 +50,12 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
                 snapshotId,
                 cancellationToken);
 
-            if (priorSnapshotId is not null && priorSnapshotId != Guid.Empty)
+            if (priorSnapshotId == Guid.Empty)
+            {
+                priorSnapshotId = null;
+            }
+
+            if (priorSnapshotId is not null)
             {
                 diffResult = await diffService.ComputeAndPersistDiffAsync(
                     scope,
@@ -60,7 +65,10 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             }
         }
 
-        bool fullRecompute = neighborhoodOptions.Value.FullRecompute || priorSnapshotId is null;
+        bool fullRecompute = neighborhoodOptions.Value.FullRecompute
+            || priorSnapshotId is null
+            || diffResult is { Succeeded: false }
+            || diffResult is { ConsumerFanOutSucceeded: false };
 
         if (fullRecompute)
         {

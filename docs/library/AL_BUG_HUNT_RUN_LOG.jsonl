@@ -1,7 +1,3 @@
-{"at":"2026-09-05T13:57:59.105638Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-05T14:03:34.7098217Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-05T14:08:08.4060831Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-05T14:17:58.5974866Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T14:24:24.5739495Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T14:31:14.1752224Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T14:38:42.2618488Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8791,3 +8787,8 @@
 {"at":"2026-10-05T13:38:15.4187712Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-05T13:43:35.6454937Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-05T13:47:19.6466486Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-05T13:54:59.1509968Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-05T14:03:37.2347459Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-05T14:08:56.9012291Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-05T14:11:42.3793328Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T14:22:07.1371312Z","zoneId":"arm-terraform-source-ids","outcome":"hit","productLine":"archlucid-shared"}

@@ -72,7 +72,8 @@ internal static class EmailOtpChallengeRepositoryCore
         row.NormalizedEmail == normalizedEmail
         && row.FailedAttemptCount > 0
         && row.CreatedUtc >= sinceUtc
-        && row.CompletedUtc is null;
+        && row.CompletedUtc is null
+        && row.InvalidatedUtc is null;
 
     public static EmailOtpRecentRequestCounts CountRecentRequests(
         IEnumerable<EmailOtpChallengeRecord> rows,

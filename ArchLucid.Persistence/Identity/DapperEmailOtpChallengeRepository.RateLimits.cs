@@ -99,7 +99,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            WHERE NormalizedEmail = @NormalizedEmail
                              AND CreatedUtc >= @SinceUtc
                              AND FailedAttemptCount > 0
-                             AND CompletedUtc IS NULL;
+                             AND CompletedUtc IS NULL
+                             AND InvalidatedUtc IS NULL;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

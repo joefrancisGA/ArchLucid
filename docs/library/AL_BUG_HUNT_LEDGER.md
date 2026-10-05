@@ -3347,6 +3347,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - **id:** arm-terraform-source-ids
 
+2026-10-05 thorough hunt (hit): proved topology graph merge materialized `svc-`/`ds-` node ids from raw manifest names while endpoint indexing and relationship resolution used trimmed synthetic ids, so `DropDanglingEdges` removed agent-proposed edges; aligned materialization with `ResolveDeclaredServiceNodeId` / `BuildSyntheticServiceNodeId`; regression `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id`; 979 scoped edge-mapper/graph-merge tests passed.
+
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `endpointAliases` values copied without trim so padded declared alias targets missed relationship resolution and graph merge dropped dangling edges — **hit 2026-09-25 seed hunt #3908g (seed→hit):** #1777 trimmed alias keys only; rename-alias dictionaries could still map manifest labels to whitespace-padded graph node ids; relationships resolved to padded ids that `DropDanglingEdges` removed; fixed by trimming alias values before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_value_has_surrounding_whitespace`.
 
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelResolutionAliases` — compute and datastore nodes with the same label both registered `svc-{label}` and `ds-{label}` aliases so the first node stole the opposite-prefix id and relationships using explicit `svc-`/`ds-` node ids resolved to the wrong endpoint — **hit 2026-09-26 seed hunt (seed→hit):** #3911 re-broadened aliases after #3914; restored category-primary aliases with terraform source-id fallback for cross-prefix mismatches; regression `MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match`.
@@ -3362,7 +3364,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — a relationship using the accepted synthetic form `svc-  api` / `ds-  sql` passed endpoint-index validation but was dropped by a preceding raw-key check; removed the inconsistent precheck and added `Merge_keeps_relationships_when_synthetic_endpoints_have_internal_whitespace`.
 - [x] (proven) `TopologyProposalConsensusMerger.IntersectRelationships` — equivalent relationships with surrounding endpoint whitespace failed the consensus intersection before endpoint validation; normalized trimmed and synthetic endpoint identities, with regression `Merge_intersects_relationships_when_endpoint_whitespace_differs_between_models`.
 - [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — consensus identity normalizes outer whitespace and synthetic prefixes but not other non-canonical ARM resource-ID separators; input is two reachable agent proposals whose relationship endpoints use equivalent ARM IDs with separator variation.
-- [ ] (candidate) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names are copied into generated `svc-`/`ds-` node IDs; input is a reachable topology proposal with an outer-whitespace service or datastore name, potentially persisting a malformed synthetic node identity.
+- [x] (proven) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names were copied into generated `svc-`/`ds-` node IDs while endpoint keys used trimmed synthetic ids, so relationships referencing normalized `svc-{name}` resolved to dangling endpoints — **hit 2026-10-05 thorough hunt:** materialize via `ResolveMaterializedServiceNodeId` / `ResolveMaterializedDatastoreNodeId` sharing `BuildSyntheticServiceNodeId` / `BuildSyntheticDatastoreNodeId`; regression `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id`.
 
 2026-10-04 seed hunt (hit): proved consensus merge dropped reachable relationships whose synthetic endpoint references contained internal whitespace, despite the shared endpoint validator accepting them; removed the dual-path raw lookup and passed 1,595 scoped topology merge tests.
 2026-10-04 seed hunt (hit): proved consensus intersection dropped equivalent relationships when the two agent models differed only by endpoint whitespace; normalized relationship-key endpoints and passed 1,596 scoped topology merge tests.
@@ -3386,11 +3388,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 77
-- **bugs-found:** 63
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
+- **hunts:** 78
+- **bugs-found:** 64
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — topology graph merge used raw manifest names in synthetic node ids while relationships resolved trimmed `svc-`/`ds-` keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -14259,13 +14261,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 922
-- **bugs-found:** 19
+- **hunts:** 923
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-13 — hunt #2475: InsertAsync silently overwrote duplicate identity id
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — invalidated email OTP challenges still counted toward verification rate limits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync`; proved invalidated OTP challenges with prior wrong-code attempts still inflated hourly verification rate limits after resend (`InvalidateActiveChallengesForEmailAsync`); exclude `InvalidatedUtc` in shared predicate and SQL; regression `CountRecentFailedVerifications_ignores_invalidated_challenges`; 4 `InMemoryEmailOtpChallengeRepositoryCoverageTests` + 15 scoped AuthenticationIdentity/IdentityRepository tests passed (`RunAnalyzers=false`, 1 SQL integration skipped).
 
 2026-09-13 seed hunt #2267 (seed-only): reseeded persistence-identity with `-Hint persistence`; no new hunt-ready rows.
 
@@ -14327,6 +14331,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryAuthenticationIdentityLinkProposalRepository.InsertAsync` — duplicate explicit proposal `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2381:** `TryAdd` + `DuplicateAuthenticationIdentityLinkProposalException`; regression in `InsertAsync_throws_when_proposal_id_already_exists`.
 - [x] (proven) `InMemoryEmailOtpChallengeRepository.InsertAsync` — duplicate explicit challenge `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2382:** `TryAdd` + `DuplicateEmailOtpChallengeException`; regression in `InsertAsync_throws_when_challenge_id_already_exists`.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRecoveryAdminRepository.InsertAsync` — duplicate `(TenantId, NormalizedDomain, NormalizedRecoveryAdminEmail)` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2383:** `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; regression in `InsertAsync_throws_when_recovery_admin_already_exists`.
+- [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — invalidated challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after OTP resend replaced the active challenge — **hit 2026-10-05 seed hunt (seed→hit):** require `InvalidatedUtc IS NULL` in SQL and shared predicate; regression `CountRecentFailedVerifications_ignores_invalidated_challenges`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
@@ -29036,15 +29041,19 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 20
-- **bugs-found:** 4
+- **hunts:** 22
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — post-materialize skipped SecureNow neighborhood carry-forward when empty diff was already persisted
+- **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods unstale after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
+2026-10-05 seed hunt (hit): promoted composition-boundary row on `IAzureInventoryDiffConsumer` fan-out registered by `InfraEvidenceCompositionModule`; when `AzureInventoryDiffService` isolated a throwing `IAzureInventoryDiffConsumer`, post-materialize still treated the diff as healthy incremental work and skipped full SecureNow engines; surface `ConsumerFanOutSucceeded` on `AzureInventoryDiffComputeResult` and fall back to full recompute when fan-out fails; regressions `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs` (fan-out flag), `ComputeAndPersistDiffAsync_when_all_consumers_succeed_marks_consumer_fan_out_succeeded`, `OnSnapshotMaterializedAsync_when_diff_consumer_fan_out_fails_runs_full_securenow_pipeline`; 9 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
+
+2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` registered by the module; proved incremental post-materialize still ran downstream-only SecureNow engines when `IAzureInventoryDiffService.ComputeAndPersistDiffAsync` returned `Succeeded: false` for a reachable prior snapshot pair, skipping full path engines; treat diff failure like missing prior for `FullRecompute`; regression `OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline`; 4 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
+
+2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods never carried forward after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-05 seed hunt (hit): promoted composition-boundary candidate after prior persisted-pair consumer fix; proved `AzureInventoryDiffService.PersistEmptyDiffAsync` (reachable when snapshot headers share `ContentHashSha256` after post-materialize diff) persisted zero-change diffs without calling registered `IAzureInventoryDiffConsumer` implementations (`AuditContinuousReadinessDiffConsumer`, `SecureNowArchitectDiffConsumer`); fixed fan-out parity; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`; 3 Application diff-service tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
@@ -29085,6 +29094,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — recomputing a persisted snapshot-pair diff returned `WasExisting` without notifying registered consumers, so a retry after partial consumer failure could skip `SecureNowArchitectDiffConsumer` and `AuditContinuousReadinessDiffConsumer` side effects — **hit 2026-10-05 thorough hunt:** notify consumers on existing diffs and isolate per-consumer failures; regressions `ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers` and `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService.PersistEmptyDiffAsync` — when consecutive Azure inventory snapshots share the same `ContentHashSha256`, the diff service short-circuits to an empty persisted diff without notifying registered consumers, so post-materialize “no changes” captures never reach `AuditContinuousReadinessDiffConsumer` or `SecureNowArchitectDiffConsumer` — **hit 2026-10-05 seed hunt (seed→hit):** notify consumers after empty diff insert; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`.
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize carry-forward required `WasExisting: false` on zero-change diffs, so a rematerialize retry after the diff row already existed skipped `ISecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` even when neighborhoods were never carried forward — **hit 2026-10-05 seed hunt (seed→hit):** carry forward on any succeeded empty diff; regression `OnSnapshotMaterializedAsync_when_empty_diff_already_persisted_still_carries_forward_neighborhoods`.
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — when a prior materialized snapshot exists but inventory diff computation fails, incremental mode still ran downstream-only SecureNow engines instead of the full post-materialize pipeline — **hit 2026-10-05 seed hunt (seed→hit):** full recompute when `diffResult.Succeeded` is false; regression `OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline`.
+
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — per-consumer isolation logged consumer failures but still returned `Succeeded: true`, so `AzureInventorySnapshotPostMaterializeCoordinator` incremental post-materialize ran downstream-only SecureNow engines after a partial diff-consumer failure — **hit 2026-10-05 seed hunt:** `ConsumerFanOutSucceeded` on `AzureInventoryDiffComputeResult` and full-recompute fallback when fan-out fails; regressions `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`, `OnSnapshotMaterializedAsync_when_diff_consumer_fan_out_fails_runs_full_securenow_pipeline`.
 
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize only called `SecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` when `AzureInventoryDiffComputeResult.WasExisting` was false, so a retry after a persisted empty snapshot-pair diff skipped neighborhood carry-forward and left SecureNow path state stale on the new snapshot — **hit 2026-10-05 seed hunt:** carry forward on any successful zero-change diff; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`.
 

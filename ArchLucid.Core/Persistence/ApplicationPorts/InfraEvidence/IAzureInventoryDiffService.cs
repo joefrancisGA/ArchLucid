@@ -48,4 +48,10 @@ public sealed class AzureInventoryDiffComputeResult
         get;
         init;
     } = [];
+
+    public bool ConsumerFanOutSucceeded
+    {
+        get;
+        init;
+    } = true;
 }

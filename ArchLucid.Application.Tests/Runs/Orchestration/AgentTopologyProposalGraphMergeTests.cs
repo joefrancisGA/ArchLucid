@@ -15012,6 +15012,59 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            ResultId = "r-trim-svc",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceId = string.Empty,
+                        ServiceName = "api ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-api",
+                        TargetId = "ds-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().Contain(n => n.NodeId == "svc-api", "synthetic node ids must trim manifest name whitespace");
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-api" &&
+            e.ToNodeId == "ds-sql" &&
+            e.InferenceSource == GraphEdgeInferenceSources.AgentProposalRelationship);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_does_not_duplicate_edges_when_proposal_lists_identical_relationship_twice()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
