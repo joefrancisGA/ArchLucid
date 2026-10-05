@@ -8798,4 +8798,4 @@
 {"at":"2026-10-05T17:13:22.1915495Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
 {"at":"2026-10-05T17:17:40.4491409Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
 {"at":"2026-10-05T17:18:06.2265395Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestOfflineRunner.cs"]}
-{"at":"2026-10-05T17:32:44.8096113Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-05T17:32:44.8096113Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance","ArchLucid.Api/Controllers/Tenancy"]}
