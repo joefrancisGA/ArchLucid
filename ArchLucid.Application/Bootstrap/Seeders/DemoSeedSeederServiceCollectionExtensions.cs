@@ -2,9 +2,12 @@ using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,6 +35,9 @@ public static class DemoSeedSeederServiceCollectionExtensions
             sp.GetRequiredService<IRunExportRecordRepository>(),
             sp.GetRequiredService<IArtifactBundleRepository>(),
             sp.GetRequiredService<IAuditService>(),
+            sp.GetRequiredService<IAuthorityQueryService>(),
+            sp.GetRequiredService<IManifestHashService>(),
+            sp.GetRequiredService<IAuditRepository>(),
             sp.GetRequiredService<IActorContext>(),
             sp.GetRequiredService<ILogger<DemoSeedService>>()));
 

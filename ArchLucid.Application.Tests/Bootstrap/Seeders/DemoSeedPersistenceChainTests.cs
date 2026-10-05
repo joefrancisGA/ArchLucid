@@ -4,9 +4,9 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Core.Persistence.Ports;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -51,6 +51,9 @@ public sealed class DemoSeedPersistenceChainTests
             Mock.Of<IRunExportRecordRepository>(),
             Mock.Of<IArtifactBundleRepository>(),
             Mock.Of<IAuditService>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IAuditRepository>(),
             Mock.Of<IActorContext>(),
             NullLogger.Instance);
 }

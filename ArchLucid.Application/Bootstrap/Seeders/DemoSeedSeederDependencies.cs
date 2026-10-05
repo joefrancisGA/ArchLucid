@@ -2,9 +2,12 @@ using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,6 +29,9 @@ public sealed class DemoSeedSeederDependencies(
     IRunExportRecordRepository runExportRecordRepository,
     IArtifactBundleRepository artifactBundleRepository,
     IAuditService auditService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IAuditRepository auditRepository,
     IActorContext actorContext,
     ILogger logger)
 {
@@ -68,6 +74,15 @@ public sealed class DemoSeedSeederDependencies(
 
     public IAuditService AuditService { get; } =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    public IAuthorityQueryService AuthorityQueryService { get; } =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    public IManifestHashService ManifestHashService { get; } =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    public IAuditRepository AuditRepository { get; } =
+        auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
 
     public IActorContext ActorContext { get; } =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
