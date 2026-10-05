@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
@@ -18,6 +19,64 @@ namespace ArchLucid.Worker.Tests;
 [Trait("Category", "Integration")]
 public sealed class WorkerHostStartupTests
 {
+    [Fact]
+    public void Worker_host_loads_appsettings_advanced_overlay_from_content_root()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string contentRoot = Path.Combine(Path.GetTempPath(), "archlucid-worker-advanced-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(contentRoot);
+
+        try
+        {
+            const string advancedMaxPayloadBytes = "99999";
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.json"),
+                """
+                {
+                  "Hosting": { "Role": "Worker" }
+                }
+                """);
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.Advanced.json"),
+                $$"""
+                {
+                  "ArchLucid": {
+                    "ArchitectureRunCreation": {
+                      "MaxPayloadBytes": {{advancedMaxPayloadBytes}}
+                    }
+                  }
+                }
+                """);
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseContentRoot(contentRoot);
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration[ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey]
+                .Should()
+                .Be(advancedMaxPayloadBytes);
+        }
+        finally
+        {
+            snapshot.Restore();
+
+            try
+            {
+                Directory.Delete(contentRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort temp cleanup on shared CI hosts.
+            }
+        }
+    }
+
     [Fact]
     public void Worker_host_disables_kestrel_server_header()
     {

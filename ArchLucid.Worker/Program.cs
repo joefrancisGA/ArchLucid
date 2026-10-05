@@ -17,6 +17,27 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        // Configuration layering matches ArchLucid.Api/Program.cs so the shared /app image honors Pilot/Advanced/SaaS overlays when ENTRYPOINT runs ArchLucid.Worker.dll.
+        if (!builder.Environment.IsDevelopment())
+        {
+            builder.Configuration.AddJsonFile(
+                Path.Combine(builder.Environment.ContentRootPath, "appsettings.Pilot.json"),
+                optional: true,
+                reloadOnChange: true);
+        }
+
+        builder.Configuration.AddJsonFile(
+            Path.Combine(builder.Environment.ContentRootPath, "appsettings.Advanced.json"),
+            optional: true,
+            reloadOnChange: true);
+
+        builder.Configuration.AddJsonFile(
+            Path.Combine(builder.Environment.ContentRootPath, "appsettings.SaaS.json"),
+            optional: true,
+            reloadOnChange: true);
+
+        builder.Configuration.AddEnvironmentVariables();
+
         WorkerProcessHostingRoleConfiguration.Apply(builder);
 
         AzureOpenAiEnvironmentConfigurationBridge.Apply(builder.Configuration);

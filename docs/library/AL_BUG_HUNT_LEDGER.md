@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `worker-host` — Worker `Program.cs` ignored `appsettings.Advanced.json` / SaaS / Pilot overlays in the shared `/app` image; aligned configuration layering with the API host; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`; 12 focused worker tests passed.
+
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent erasure restore/clear/legal-hold commands returned `false` for atomic-transition losers while the desired tenant state was already applied; re-read tenant after repository compare-and-set miss and return idempotent success without duplicate audit (parity with erasure approval); regressions `TryRestoreQuarantineAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TryClearLegalHoldAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TrySetLegalHoldAsync_concurrent_identical_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 136 scoped tenancy tests passed.
 
 2026-10-05 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent admin erasure-approval requests returned `false` for the atomic-transition loser even though `TenantErasureApprovedUtc` was already set; re-read tenant after `TryApproveTenantErasureAsync` miss and return idempotent success without duplicate audit; regression `TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 133 scoped tenancy tests passed.
@@ -7666,17 +7668,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 18
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — Worker Kestrel left its default `Server` version header enabled on anonymous health endpoints
+- **hunts:** 19
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): `worker-host` — `ArchLucid.Worker/Program.cs` did not load optional `appsettings.Pilot.json` / `appsettings.Advanced.json` / `appsettings.SaaS.json` before environment variables, so Container Apps worker revisions running `dotnet ArchLucid.Worker.dll` from the shared `/app` image ignored Advanced/SaaS tuning present beside `ArchLucid.Api.dll`; aligned configuration layering with `ArchLucid.Api/Program.cs`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`; 12 focused worker host/composition tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` startup composition and worker test coverage; no new reachable mechanism-backed candidate emerged. Focused tests could not run because the scoped build hit unrelated `CS8999` raw-string indentation in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs:49`.
 
 ### Hypotheses
+
+- [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
 
 - [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — SQL bootstrap can delay route mapping, but `/health/live` is intentionally liveness-only and no wrong startup-probe outcome is established in the selected source; the focused startup/composition tests passed.
