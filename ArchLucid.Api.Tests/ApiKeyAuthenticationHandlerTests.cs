@@ -663,6 +663,28 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "\u200B");
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
     public async Task When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value()
     {
         DefaultHttpContext http = new();
@@ -862,6 +884,30 @@ public sealed class ApiKeyAuthenticationHandlerTests
 
         result.Succeeded.Should().BeFalse();
         result.Failure?.Message.Should().Contain("read-only API key has expired");
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "\u200B");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
     }
 
     [SkippableFact]

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `api-key-auth` — promoted duplicate `X-Api-Key` header candidate; first header value that normalizes to empty (e.g. lone U+200B) stopped `ExtractProvidedApiKey` before later valid values; skip normalized-empty segments like whitespace-only; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; 65 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
 2026-10-05 thorough hunt (dry): `scope-binding-middleware` — cheap-disproved all five open `(candidate)` rows (over-broad `/internal/` skip lacks a reachable tenant route today; duplicate `tenant_id` claims fall back to `ScopeSource.Default` and TB-304 fail-closed before header steering; authorized health routes return TB-304 403 before 401 by design; ITSM webhook `{tenantId}` binding is `[AllowUnscopedRoute]` plus facade contract; identity binding before `IAllowAnonymous` is intentional); regressions `GetCurrentScope_ignores_later_parseable_tenant_id_when_first_claim_is_non_guid` and `InvokeAsync_staging_host_rejects_unauthenticated_health_detailed_before_authorization`; 81 scoped Api unit tests + 7 `HttpScopeContextProvider` tests passed (6 SQL integration tests unavailable).
 
 2026-10-05 seed hunt (seed-only): `scope-binding-middleware` — re-read `ScopeIdentityBindingMiddleware`, `ScopeResolutionGuardMiddleware`, and `RouteTenantScopeBindingFilter` after recent Api churn; cheap-disproof closed segment-boundary health probe impostors (`/health/livefoo`, `/health/readyx`, `/health/versionextra`), trailing-slash public probes (`/health/live/`, `/health/ready/`, `/health/version/`), and EnableApiExplorer `GET /scalar/v1` TB-304 fail-closed on staging-like hosts; seeded five mechanism-backed `(candidate)` rows; 80 scoped unit tests passed (6 `ScopeIdentityBindingIntegrationTests` failed — no SQL Server in cloud VM).
@@ -8160,6 +8162,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
+2026-10-05 seed hunt (seed→hit): `ExtractProvidedApiKey` returned normalized-empty first duplicate `X-Api-Key` value (U+200B) without trying later headers; aligned with blank-first skip; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; 65 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
 2026-09-28 seed hunt #55 (seed→hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded zero-width space (U+200B) still showed configured in admin snapshot while `MatchesAnyCommaSeparatedKey` compared against material that still contained the invisible character and rejected the visible key; extended `ApiKeyMaterialNormalizer` to remove invisible key-material characters anywhere in the segment (not only leading/trailing); regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`, `GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured`; 53 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
 
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded no-break space (U+00A0) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** `SpaceSeparator` paste artifacts were not stripped after Cf normalization; fixed by removing non-ASCII space separators while preserving ordinary spaces; regressions `When_admin_key_config_has_embedded_no_break_space_still_authenticates`, `Normalize_strips_embedded_no_break_space_from_key_material`, `GetSnapshot_treats_no_break_space_only_admin_slot_as_unconfigured`.
@@ -8168,6 +8172,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded bidi embedding/override marks (U+202A–U+202E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** embedding marks were outside the invisible set; fixed by adding `\u202A`–`\u202E`; regressions `When_admin_key_config_has_embedded_left_to_right_embedding_still_authenticates`, `Normalize_strips_embedded_left_to_right_embedding_from_key_material`, `GetSnapshot_treats_left_to_right_embedding_only_readonly_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded left-to-right mark (U+200E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** bidi marks were outside the invisible set; fixed by adding `\u200E`/`\u200F`; regressions `When_admin_key_config_has_embedded_left_to_right_mark_still_authenticates`, `Normalize_strips_embedded_left_to_right_mark_from_key_material`, `GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded zero-width space in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-09-28 seed hunt #55:** normalization only trimmed invisible characters at segment edges; fixed by stripping the full invisible set throughout each segment; regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`.
+- [x] (proven) `ExtractProvidedApiKey` stopped at first duplicate `X-Api-Key` header when normalization emptied invisible-only paste (e.g. U+200B) — **hit 2026-10-05 seed hunt:** parity with whitespace-only first header skip was missing after `ApiKeyMaterialNormalizer` expansion; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`.
 
 2026-09-27 seed hunt #54 (seed→hit): reseeded api-key-auth; proved zero-width space (U+200B) only `ReadOnlyKey` still showed configured in admin snapshot and Append rotate while auth rejected all keys; extended `ApiKeyMaterialNormalizer` to trim invisible key-material characters (BOM + ZWSP family); regressions `GetSnapshot_treats_zero_width_space_only_readonly_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_is_zero_width_space_only`, `When_readonly_key_config_is_only_zero_width_space_returns_invalid_key`; 51 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
@@ -8181,11 +8186,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 71
-- **bugs-found:** 18
+- **hunts:** 72
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — embedded no-break space (U+00A0) in configured API key material broke authentication
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — duplicate `X-Api-Key` headers with invisible-only first value blocked auth
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
