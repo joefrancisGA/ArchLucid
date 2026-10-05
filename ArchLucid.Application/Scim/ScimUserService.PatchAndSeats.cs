@@ -136,6 +136,7 @@ public sealed partial class ScimUserService
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.String => bool.TryParse(el.GetString(), out bool b) && b,
+            JsonValueKind.Number => el.TryGetInt32(out int n) ? n != 0 : fallback,
             _ => fallback
         };
     }

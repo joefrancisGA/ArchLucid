@@ -530,6 +530,47 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_replace_active_numeric_zero_deactivates_user()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM Numeric Active Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "active", "value": 0 }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        ScimUserRecord? updated = await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None);
+        updated!.Active.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task ListAsync_normalizes_start_index_below_one()
     {
         Guid tenantId = Guid.NewGuid();

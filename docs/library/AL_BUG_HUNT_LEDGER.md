@@ -7554,15 +7554,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 18
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-03 — PUT/PATCH assigned `externalId` still held by directory-removed user
+- **hunts:** 19
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — PATCH numeric `active` ignored (user stayed active; seat not released)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-12 seed hunt #2087 (seed-only): reseeded scim-users; 13 scoped tests passed; no new hunt-ready rows
+
+2026-10-05 seed hunt (seed→hit): proved `ScimUserService.PatchAsync` `ReadActive` ignored JSON number `active` values (PATCH op `value: 0` left user active and enterprise seat reserved); `JsonValueKind.Number` now maps non-zero to true and zero to false; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`; seeded list `count=0` pagination and PATCH non-boolean `active` type parity follow-ups; 14 scoped `ScimUsers` unit tests passed.
+
+- [x] (proven) `ScimUserService.PatchAsync` / `ReadActive` — PATCH replace `active` with JSON number `0` left user active — **hit 2026-10-05 seed hunt (seed→hit):** numeric `active` honored; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`.
+
+- [ ] (candidate) `ScimUserService.ListAsync` — `count=0` returns `totalResults` for full tenant but zero `Resources` (Entra may interpret as broken pagination).
+- [ ] (candidate) `ScimUserResourceParser.ReadActive` vs patch `ReadActive` — PUT rejects non-boolean `active` while PATCH previously fell back silently for unsupported kinds (numbers fixed; arrays/objects still fall back).
 
 ### Hypotheses
 
