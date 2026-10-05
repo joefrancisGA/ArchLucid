@@ -224,6 +224,40 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_prompted_metadata_values_are_trimmed_before_patch()
+    {
+        CapturePatchMetadataHandler handler = new();
+        ArchLucidApiClient client = CreateDraftFlowClient(handler);
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => client,
+            PromptRequiredAsync = (label, _, _) =>
+                Task.FromResult<string?>(
+                    label.Contains("System name", StringComparison.Ordinal)
+                        ? "  Contoso API  "
+                        : "  Ship a governed review package.  "),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.Success);
+        handler.SystemName.Should().Be("Contoso API");
+        handler.BusinessOutcome.Should().Be("Ship a governed review package.");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_submit_without_run_id_returns_operation_failed()
     {
         DraftNewCommandOptions options = new()
@@ -244,6 +278,29 @@ public sealed class DraftNewCommandCoreTests
 
         exit.Should().Be(CliExitCode.OperationFailed);
         error.ToString().Should().Contain("no runId");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_submit_without_request_id_returns_operation_failed()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new SubmitWithoutRequestIdHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("no requestId");
     }
 
     [Fact]
@@ -505,34 +562,12 @@ public sealed class DraftNewCommandCoreTests
 
             using JsonDocument document = JsonDocument.Parse(jsonLine);
             document.RootElement.GetProperty("ok").GetBoolean().Should().BeFalse();
+            document.RootElement.GetProperty("error").GetString().Should().Be("must_questions_pending");
         }
         finally
         {
             CliExecutionContext.JsonOutput = previousJson;
         }
-    }
-
-    [Fact]
-    public async Task RunCoreAsync_submit_without_request_id_returns_operation_failed()
-    {
-        DraftNewCommandOptions options = new()
-        {
-            IntentText = ValidDraftIntent,
-            SystemName = "Contoso API",
-            BusinessOutcome = "Ship a governed review package for the architecture board.",
-            SkipMustQuestions = true,
-            NoAutoExecute = true,
-        };
-
-        ArchLucidApiClient client = CreateDraftFlowClient(new SubmitWithoutRequestIdHandler());
-        DraftNewCommandHooks hooks = ConnectedHooks(client);
-        StringWriter output = new();
-        StringWriter error = new();
-
-        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
-
-        exit.Should().Be(CliExitCode.OperationFailed);
-        error.ToString().Should().Contain("no requestId");
     }
 
     [Fact]
@@ -782,6 +817,30 @@ public sealed class DraftNewCommandCoreTests
                 Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
 
                 return Json(HttpStatusCode.OK, DraftBody("Drafting", mismatchedTenantId));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class CapturePatchMetadataHandler : DraftFlowHandler
+    {
+        public string? SystemName { get; private set; }
+
+        public string? BusinessOutcome { get; private set; }
+
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
+            {
+                string json = request.Content!.ReadAsStringAsync(CancellationToken.None).GetAwaiter().GetResult();
+                using JsonDocument document = JsonDocument.Parse(json);
+                SystemName = document.RootElement.GetProperty("systemName").GetString();
+                BusinessOutcome = document.RootElement.GetProperty("businessOutcome").GetString();
+
+                return Json(HttpStatusCode.OK, DraftBody("Drafting"));
             }
 
             return null;

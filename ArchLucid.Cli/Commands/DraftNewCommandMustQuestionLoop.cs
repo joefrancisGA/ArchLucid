@@ -37,10 +37,12 @@ internal static class DraftNewCommandMustQuestionLoop
         if (!skipAll && pending.Count > 0 && CliExecutionContext.JsonOutput)
         {
             const string message =
-                "JSON output mode requires --skip-must-questions when the draft has pending MUST questions.";
+                "JSON output mode cannot resolve pending MUST questions interactively. "
+                + "Pass --skip-must-questions or run without --json.";
 
             await error.WriteLineAsync(message);
-            CliJson.WriteFailureLine(output, CliExitCode.UsageError, "usage", message);
+
+            CliJson.WriteFailureLine(output, CliExitCode.UsageError, "must_questions_pending", message);
 
             return CliExitCode.UsageError;
         }
@@ -122,7 +124,7 @@ internal static class DraftNewCommandMustQuestionLoop
                 await error.WriteLineAsync(message);
 
                 if (CliExecutionContext.JsonOutput)
-                    CliJson.WriteFailureLine(output, CliExitCode.UsageError, "usage", message);
+                    CliJson.WriteFailureLine(output, CliExitCode.UsageError, "must_question_answer_required", message);
 
                 return CliExitCode.UsageError;
             }

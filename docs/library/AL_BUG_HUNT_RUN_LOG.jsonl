@@ -8797,3 +8797,4 @@
 {"at":"2026-10-05T18:26:28.7968148Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T18:26:50.6806938Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerTopologyProposalMapper.cs,ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-05T18:37:48.6604047Z","zoneId":"cli-draft-new","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T18:40:11.6928574Z","zoneId":"cli-draft-new","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommandIntakeLoop.cs,ArchLucid.Cli/Commands/DraftNewCommandMustQuestionLoop.cs"]}

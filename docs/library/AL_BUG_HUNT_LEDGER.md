@@ -1,12 +1,8 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-<<<<<<< HEAD
-2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — promoted case-only `ServiceId` candidate; proved `StableTopologyIdentitySubKey` lowercasing plus case-insensitive `EvidenceRefsMatch` collapsed `Svc-A` vs `svc-a` into one topology ref; preserve manifest sub-key casing and compare `agentTopologyProposal` sub-keys ordinally while keeping proposal-id segment case-insensitive; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`; cheap-disproved ResolveRegion slug and blank-`ProposalId` collision candidates; 76 scoped TechnologyLedger tests passed.
-=======
-2026-10-05 thorough hunt (hit): `cli-draft-new` — cheap-disproved two candidates (null skip/answer body unreachable via `ArchLucidApiClient`; default `PromptRequiredAsync` already trims); proved `--json` with pending MUST questions blocked on `ReadLineAsync` without `--skip-must-questions`, hollow submit `requestId`, and untrimmed custom-hook system names on PATCH; regressions `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`, `RunCoreAsync_submit_without_request_id_returns_operation_failed`, `RunCoreAsync_prompted_system_name_is_trimmed_before_patch`; 20 scoped `DraftNewCommandCoreTests` passed.
+2026-10-05 thorough hunt (hit): `cli-draft-new` — closed five seeded `(candidate)` rows (three proven, two cheap-disproof/invalid); JSON pending MUST questions fail fast with `must_questions_pending` before `ReadLineAsync`, submit guards hollow `requestId`, admit stage trims prompted metadata; regressions `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`, `RunCoreAsync_submit_without_request_id_returns_operation_failed`, `RunCoreAsync_prompted_system_name_is_trimmed_before_patch`; 21 scoped `DraftNewCommandCoreTests` passed.
 
-2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — promoted case-only `ServiceId` candidate; proved `StableTopologyIdentitySubKey` lowercasing plus case-insensitive `EvidenceRefsMatch` collapsed `Svc-A` vs `svc-a` into one topology ref; preserve manifest sub-key casing and compare `agentTopologyProposal` sub-keys ordinally while keeping proposal-id segment case-insensitive; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`; 76 scoped TechnologyLedger tests passed.
->>>>>>> d76b6b6b4c (Fix draft new JSON MUST-question hang and hollow submit requestId.)
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — promoted case-only `ServiceId` candidate; proved `StableTopologyIdentitySubKey` lowercasing plus case-insensitive `EvidenceRefsMatch` collapsed `Svc-A` vs `svc-a` into one topology ref; preserve manifest sub-key casing and compare `agentTopologyProposal` sub-keys ordinally while keeping proposal-id segment case-insensitive; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`; cheap-disproved ResolveRegion slug and blank-`ProposalId` collision candidates; 76 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved list-order ordinal in `BuildMissingManifestIdSubKey` changed `agentTopologyProposal:*` refs when `AddedServices` order changed on topology re-seed, so `HasMatchingProposal` missed duplicates and merge policy inserted extra compute rows; key missing manifest ids by `ServiceType`/`DatastoreType` plus `RuntimePlatform` instead of list ordinal; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
 
@@ -7016,11 +7012,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — JSON draft new blocked on MUST questions; hollow submit requestId; PATCH trim parity
+- **last-bug:** 2026-10-05 — JSON MUST-question blocking, hollow submit requestId, admit PATCH trim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-05 thorough hunt (hit): closed five seeded `(candidate)` rows (three proven, two cheap-disproof); 20 scoped core tests passed.
+2026-10-05 thorough hunt (hit): closed five seeded `(candidate)` rows; `must_questions_pending` JSON fail-fast; 21 scoped core tests passed.
 
 2026-10-05 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` → `DraftNewCommandIntakeLoop.RunCoreAsync` and stage partials; no row met hunt-ready bar; seeded five mechanism-backed `(candidate)` rows below; 16 scoped core tests passed (`--no-build`).
 
@@ -7030,10 +7026,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] (proven) `DraftNewCommandMustQuestionLoop` — `--json` with pending MUST questions still called `ReadLineAsync` when `--skip-must-questions` omitted — **hit 2026-10-05 thorough hunt:** fail closed with `CliJson.WriteFailureLine` before interactive read; regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
-- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — empty MUST answer JSON failure line — **cheap-disproof 2026-10-05 thorough hunt:** JSON mode now rejects pending MUST questions before the read loop; added defensive `WriteFailureLine` on the whitespace-answer branch for consistency.
-- [x] (invalid) `DraftNewCommandMustQuestionLoop` — skip/answer `Value == null` on HTTP 200 — **cheap-disproof 2026-10-05 thorough hunt:** `ArchLucidApiClient.SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` map empty bodies to `DraftApiResult.Fail` (`"Draft skip returned an empty body."`).
-- [x] (proven) `DraftNewCommandAdmitStage` — prompted `systemName` / `businessOutcome` not trimmed before PATCH — **hit 2026-10-05 thorough hunt:** `.Trim()` on hook results (default hook already trimmed; custom hooks could persist padding); regression `RunCoreAsync_prompted_system_name_is_trimmed_before_patch`.
+- [x] (proven) `DraftNewCommandMustQuestionLoop` — `--json` with pending MUST questions still called `ReadLineAsync` when `--skip-must-questions` omitted — **hit 2026-10-05 thorough hunt:** fail closed with `CliJson.WriteFailureLine` (`must_questions_pending`) before interactive read; regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — empty MUST answer JSON failure line — **cheap-disproof 2026-10-05 thorough hunt:** JSON mode rejects pending MUST questions before the read loop; defensive `WriteFailureLine` (`must_question_answer_required`) on whitespace-answer branch.
+- [x] (invalid) `DraftNewCommandMustQuestionLoop` — skip/answer `Value == null` on HTTP 200 — **cheap-disproof 2026-10-05 thorough hunt:** `ArchLucidApiClient.SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` map empty bodies to `DraftApiResult.Fail`.
+- [x] (proven) `DraftNewCommandAdmitStage` — prompted `systemName` / `businessOutcome` not trimmed before PATCH — **hit 2026-10-05 thorough hunt:** `.Trim()` on hook results; regressions `RunCoreAsync_prompted_system_name_is_trimmed_before_patch` and `RunCoreAsync_prompted_metadata_values_are_trimmed_before_patch`.
 - [x] (proven) `DraftNewCommandIntakeLoop` — hollow submit `requestId` still emitted success JSON — **hit 2026-10-05 thorough hunt:** mirror `runId` guard; regressions `RunCoreAsync_submit_without_request_id_returns_operation_failed` and `RunCoreAsync_json_output_submit_without_request_id_does_not_emit_ok_true`.
 
 - [x] (proven) Draft is created under a tenant other than the signed-in CLI tenant — **hit 2026-08-24:** misconfigured scope headers could create a draft in another tenant while the CLI continued; `CliScopeResponseValidator` fails closed after create/patch when configured scope disagrees with API body; regressions in `RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed` / `RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed`
