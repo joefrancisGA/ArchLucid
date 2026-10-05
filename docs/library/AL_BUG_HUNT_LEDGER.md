@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 thorough hunt (hit): `saml-jwt-bearer` — SAML cookie `OnSignedIn` audit read `tenant_id` before `ArchLucidSamlInboundClaimsNormalizer` ran, so configured IdP tenant attributes were missing from sign-in audit telemetry; apply inbound mapping in `AppendCookieSignedInAudit` before scope extraction; regression `AppendCookieSignedInAudit_promotes_configured_idp_tenant_before_logging_tenant_id`; cheap-disproof closed duplicate-`sub` platform-user resolver candidate; 18 SAML audit/resolver tests passed.
+
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `EntraMultiTenantJwtBearerConfigurator.TryGetTenantId` used `FindFirst("tid")` so allowlist validation failed when the first `tid` claim was unparseable even if a later claim matched `ArchLucidAuth:AllowedEntraTenantIds`; require exactly one distinct parseable `tid`; regressions `ApplyIfEnabled_when_allowlist_configured_accepts_parseable_tid_after_unparseable_tid_claim` and `ApplyIfEnabled_when_allowlist_configured_fails_when_distinct_parseable_tid_claims_disagree`; 8 Entra JWT configurator tests passed.
 
 2026-10-05 thorough hunt (dry): `saml-jwt-bearer` — cheap-disproof closed duplicate JWT `sub`/`iss` `FindFirst` auth-version hook (signed JwtBearer tokens do not surface attacker-controlled duplicate `sub` before validation) and SCIM bearer interior whitespace (fail-closed parse/auth); regressions in `PlatformUserAuthVersionJwtBearerPostConfigureTests` and `ScimBearerTokenAuthenticatorTests`.
@@ -8411,11 +8413,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 15
-- **bugs-found:** 14
+- **hunts:** 16
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — Entra multi-tenant allowlist rejected tokens when the first `tid` claim was unparseable
+- **last-bug:** 2026-10-05 — SAML sign-in audit omitted tenant id when only configured IdP tenant attributes were present
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -8471,8 +8473,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 thorough hunt (dry): cheap-disproved both open SAML/JWT/SCIM bearer candidates.
 
 - [x] (proven) `EntraMultiTenantJwtBearerConfigurator.TryGetTenantId` — multiple `tid` claims: first unparseable value failed allowlist gate even when a later `tid` matched — **hit 2026-10-05 seed hunt:** collect parseable `tid` values and require exactly one distinct tenant id; regressions `ApplyIfEnabled_when_allowlist_configured_accepts_parseable_tid_after_unparseable_tid_claim` and `ApplyIfEnabled_when_allowlist_configured_fails_when_distinct_parseable_tid_claims_disagree`
-- [ ] (candidate) `AuthenticatedPlatformUserResolver.ResolveAsync` — resolves platform user via `FindFirst(JwtRegisteredClaimNames.Sub)` only; duplicate `sub` claims with an opaque first value skip Guid lookup while a later Guid `sub` is ignored — wrong outcome: platform-user resolution miss; reachable only on manually constructed principals (same signed-JWT constraint as auth-version hook)
-- [ ] (candidate) `ArchLucidSaml2SignInAudit.TryExtractAuditScope` — `FindFirst("tenant_id")` on SAML cookie principals after inbound mapping; duplicate scope claims with conflicting GUIDs could log the wrong tenant in sign-in audit — reachable when IdP emits duplicate tenant attributes that survived earlier normalizer ambiguity skips
+- [x] (invalid) `AuthenticatedPlatformUserResolver.ResolveAsync` — duplicate `sub` with opaque-first skips Guid platform-user lookup — **cheap-disproof 2026-10-05:** fail-closed resolution miss only on manually constructed principals; signed JWTs do not surface attacker-controlled duplicate `sub` before validation; regression `ResolveAsync_returns_null_when_find_first_sub_is_opaque_even_if_later_sub_is_platform_user_guid`
+- [x] (proven) `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` — cookie sign-in audit read `tenant_id` before SAML inbound claim promotion — **hit 2026-10-05 thorough hunt:** configured IdP tenant attributes were absent from audit `TenantId` / payload; apply `ArchLucidSamlInboundClaimsNormalizer` before `FindFirst("tenant_id")`; regression `AppendCookieSignedInAudit_promotes_configured_idp_tenant_before_logging_tenant_id`
+
+2026-10-05 thorough hunt (hit): fixed SAML sign-in audit tenant promotion gap; cheap-disproved duplicate-`sub` platform-user resolver candidate.
 
 2026-10-05 seed hunt (seed→hit): reseeded Entra multi-tenant `tid` aggregation gap; proved and fixed; added platform-user resolver and SAML sign-in audit duplicate-claim candidates.
 
