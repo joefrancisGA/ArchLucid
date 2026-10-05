@@ -8,6 +8,33 @@ namespace ArchLucid.Provenance.Tests;
 public sealed class ProvenanceGraphViewMapperTests
 {
     [Fact]
+    public void ToViewModel_TreatsNullNodesAndEdgesAsEmpty()
+    {
+        DecisionProvenanceGraph graph = new() { Nodes = null!, Edges = null! };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().BeEmpty();
+        vm.Edges.Should().BeEmpty();
+        vm.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ToViewModel_AfterDeserializeWithExplicitNullLists_YieldsEmptyView()
+    {
+        const string json =
+            """{"id":"11111111-1111-1111-1111-111111111111","runId":"22222222-2222-2222-2222-222222222222","nodes":null,"edges":null}""";
+
+        DecisionProvenanceGraph graph = ProvenanceGraphSerializer.Deserialize(json)!;
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().BeEmpty();
+        vm.Edges.Should().BeEmpty();
+        vm.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
     public void ToViewModel_EmptyGraph_YieldsEmptyListsAndIsEmpty()
     {
         DecisionProvenanceGraph graph = new();

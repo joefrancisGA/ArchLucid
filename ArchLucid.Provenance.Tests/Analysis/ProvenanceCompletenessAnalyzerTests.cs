@@ -47,6 +47,30 @@ public sealed class ProvenanceCompletenessAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_ThrowsWhenDuplicateNodeIdsExist()
+    {
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = DecisionId, Type = ProvenanceNodeType.Decision, ReferenceId = "dec-a", Name = "A"
+                },
+                new ProvenanceNode
+                {
+                    Id = DecisionId, Type = ProvenanceNodeType.Finding, ReferenceId = "find-b", Name = "B"
+                }
+            ],
+            Edges = []
+        };
+
+        Action act = () => ProvenanceCompletenessAnalyzer.Analyze(graph);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void Analyze_TreatsNullEdgesAsEmpty_UncoveredDecision()
     {
         DecisionProvenanceGraph graph = new()

@@ -1,4 +1,3 @@
-{"at":"2026-09-05T00:49:41.1678598Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-09-05T00:53:49.0220051Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-05T01:02:46.3185918Z","zoneId":"application-pilots","outcome":"hit"}
 {"at":"2026-09-05T01:08:51.5935489Z","zoneId":"context-ingestion","outcome":"hit"}
@@ -8735,3 +8734,4 @@
 {"at":"2026-10-05T00:29:45.9616557Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T00:34:37.2386253Z","zoneId":"host-core-coordination","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T00:44:07.3105831Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-05T00:52:49.1280522Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}

@@ -70,6 +70,36 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_explicit_parent_child_rule_honors_parentNodeId_when_property_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode parent = new()
+        {
+            NodeId = "parent-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet",
+        };
+        GraphNode child = new()
+        {
+            NodeId = "child-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-a",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["parentNodeId"] = " parent-1 ",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [parent, child]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "parent-1"
+            && e.ToNodeId == "child-1"
+            && e.EdgeType == GraphEdgeTypes.ContainsResource
+            && e.InferenceSource == GraphEdgeInferenceSources.ExplicitParentChild);
+    }
+
+    [Fact]
     public void InferEdges_explicit_parent_child_rule_uses_canonical_parent_node_id_when_property_value_differs_only_by_case()
     {
         ContextSnapshot snapshot = BuildSnapshot();
