@@ -378,6 +378,44 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceled_during_dequeue_does_not_overwrite_with_running()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
+                {
+                    await Task.Delay(25, ct);
+
+                    throw new InvalidOperationException("dequeue race failure");
+                }));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        string jobId = await queueRef.EnqueueAsync(Work("dequeue-cancel-race"), maxRetries: 2);
+
+        Task cancelSpam = Task.Run(async () =>
+        {
+            for (int attempt = 0; attempt < 400; attempt++)
+            {
+                await queueRef!.MarkCanceledAsync(jobId);
+                await Task.Delay(0, CancellationToken.None);
+            }
+        });
+
+        await Task.WhenAny(cancelSpam, WaitForAnyTerminalStateAsync(queueRef, jobId, TimeSpan.FromSeconds(10)));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over Running assignment during dequeue");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed()
     {
         TaskCompletionSource<bool> releaseLog = new(TaskCreationOptions.RunContinuationsAsynchronously);

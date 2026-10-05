@@ -124,7 +124,14 @@ public sealed class InMemoryBackgroundJobQueue(
             if (current.State is not BackgroundJobState.Pending and not BackgroundJobState.Running)
                 continue;
 
-            _info[item.JobId] = current with { State = BackgroundJobState.Running, StartedUtc = current.StartedUtc ?? TimeProvider.System.GetUtcNow() };
+            if (!TryAssignUnlessCanceled(
+                    item.JobId,
+                    existing => existing with
+                    {
+                        State = BackgroundJobState.Running,
+                        StartedUtc = existing.StartedUtc ?? TimeProvider.System.GetUtcNow()
+                    }))
+                continue;
 
             try
             {
