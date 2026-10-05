@@ -33,7 +33,9 @@ public static class TechnologyLedgerTopologyProposalMapper
             string technologyName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
                 ? datastore.RuntimePlatform.ToString()
                 : datastore.DatastoreName;
-            string subKey = Slug(string.IsNullOrWhiteSpace(datastore.DatastoreId) ? technologyName : datastore.DatastoreId);
+            string subKey = string.IsNullOrWhiteSpace(datastore.DatastoreId)
+                ? Slug(technologyName)
+                : StableTopologyIdentitySubKey(datastore.DatastoreId);
             candidates.Add(CreateCandidate(runId, TechnologyLedgerRole.PrimaryDatastore, technologyName, family, proposalId, subKey, utcNow));
         }
 
@@ -43,7 +45,9 @@ public static class TechnologyLedgerTopologyProposalMapper
             string technologyName = string.IsNullOrWhiteSpace(service.ServiceName)
                 ? service.RuntimePlatform.ToString()
                 : service.ServiceName;
-            string subKey = Slug(string.IsNullOrWhiteSpace(service.ServiceId) ? technologyName : service.ServiceId);
+            string subKey = string.IsNullOrWhiteSpace(service.ServiceId)
+                ? Slug(technologyName)
+                : StableTopologyIdentitySubKey(service.ServiceId);
             candidates.Add(CreateCandidate(runId, TechnologyLedgerRole.ComputeRuntime, technologyName, family, proposalId, subKey, utcNow));
         }
 
@@ -135,5 +139,19 @@ public static class TechnologyLedgerTopologyProposalMapper
     {
         string trimmed = value.Trim();
         return trimmed.Length == 0 ? "unknown" : trimmed.ToLowerInvariant().Replace(" ", "-", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Lossless sub-key for manifest <c>ServiceId</c>/<c>DatastoreId</c> values so distinct ids are not collapsed
+    ///     (e.g. <c>foo bar</c> vs <c>foo-bar</c>) before merge-policy <c>EvidenceRef</c> dedupe.
+    /// </summary>
+    private static string StableTopologyIdentitySubKey(string manifestId)
+    {
+        string trimmed = manifestId.Trim();
+
+        if (trimmed.Length == 0)
+            return "unknown";
+
+        return trimmed.ToLowerInvariant();
     }
 }

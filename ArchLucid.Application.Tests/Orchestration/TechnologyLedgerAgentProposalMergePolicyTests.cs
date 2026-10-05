@@ -543,6 +543,63 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void MapCandidates_distinct_service_ids_that_slug_collide_both_survive_merge_policy()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            ProposalId = "p1",
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "foo bar",
+                    ServiceName = "api-a",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceId = "foo-bar",
+                    ServiceName = "api-b",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        IReadOnlyList<TechnologyLedgerEntry> mapped =
+            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
+
+        IReadOnlyList<TechnologyLedgerEntry> computeCandidates = mapped
+            .Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime)
+            .ToList();
+
+        computeCandidates.Should().HaveCount(2);
+        computeCandidates.Select(entry => entry.EvidenceRef).Should().OnlyHaveUniqueItems();
+
+        List<TechnologyLedgerEntry> existing = [];
+
+        foreach (TechnologyLedgerEntry candidate in computeCandidates)
+        {
+            TechnologyLedgerEntry? resolved =
+                TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing);
+
+            resolved.Should().NotBeNull();
+            existing.Add(resolved!);
+        }
+
+        existing.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void Seeder_sequence_keeps_distinct_topology_services_after_cold_start_promotion()
     {
         ArchitectureRequest request = new()
