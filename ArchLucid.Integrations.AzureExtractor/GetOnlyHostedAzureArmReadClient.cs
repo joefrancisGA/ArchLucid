@@ -40,8 +40,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
         List<HostedAzureArmResourceRecord> resources = [];
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string listingRelativePath = $"subscriptions/{trimmedSubscriptionId}/resources";
         string? nextLink =
-            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/resources?api-version={ResourcesApiVersion}";
+            $"https://management.azure.com/{listingRelativePath}?api-version={ResourcesApiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
 
@@ -100,9 +102,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
                         candidateNextLink,
-                        subscriptionId);
+                        listingRelativePath);
                     nextLink = candidateNextLink;
                 }
             }
@@ -113,7 +115,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             _logger.LogDebug(
                 "Hosted Azure extractor listed {Count} resources for subscription {SubscriptionId}.",
                 resources.Count,
-                subscriptionId);
+                trimmedSubscriptionId);
         }
 
         return resources;
