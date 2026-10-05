@@ -1,4 +1,3 @@
-{"at":"2026-09-05T14:24:24.5739495Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T14:31:14.1752224Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T14:38:42.2618488Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T14:44:30.937915Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8791,3 +8790,4 @@
 {"at":"2026-10-05T14:08:56.9012291Z","zoneId":"host-infra-evidence-composition","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-05T14:11:42.3793328Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:22:07.1371312Z","zoneId":"arm-terraform-source-ids","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T14:29:15.4624325Z","zoneId":"arm-terraform-source-ids","outcome":"dry","productLine":"archlucid-shared"}
