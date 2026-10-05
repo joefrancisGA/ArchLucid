@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `host-core-coordination` — early skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a throwing `ILogger` prevented skip-as-processed and scheduled backoff on purged-run orphan rows; moved skip warnings into post-mark best-effort observability on `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`; 21 Host.Core and 34 Host.Composition scoped coordination/outbox tests passed.
+
 2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `AgentExecution:Mode` caused `RegisterExecutorWiring` to register `RealAgentExecutor` even though `EffectiveAgentExecutionModeAccessor` treats missing/invalid mode as Simulator, so hosts with an explicit null mode key wired real executor infrastructure without Azure keys; normalize null/invalid mode to Simulator at registration time; regression `AgentCompositionModule_null_agent_execution_mode_registers_simulator_executor`; 413 scoped host-composition tests passed.
 
 2026-10-04 seed hunt (seed→hit): `host-composition` — null-bound `SchemaValidation:AgentResultSchemaPath` with `AzureOpenAI:UseJsonSchemaResponseFormat` enabled caused `AgentCompletionResolutionHelper` and `TenantAzureOpenAiStructuredOutputSchema` to call `.Trim()` on null when resolving structured-output schema bytes, aborting BYO/managed completion client wiring with `NullReferenceException` instead of the default schema path; null-safe trim now falls back to `schemas/agentresult.schema.json`; regressions `ResolveStructuredOutputAgentResultSchema_null_bound_schema_path_falls_back_without_null_reference` and `TenantAzureOpenAiStructuredOutputSchema_null_bound_schema_path_falls_back_without_null_reference`; 412 scoped host-composition tests passed.
@@ -27318,15 +27320,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 30
-- **bugs-found:** 21
+- **hunts:** 31
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — post-commit benign-skip debug log scheduled backoff after mark processed
+- **last-bug:** 2026-10-05 — early skip warning log scheduled backoff after mark processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded at-least-once / cross-read candidates; no failing repro; scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved post-commit and run-export early skip-as-processed paths logged `LogWarning` before mark-processed, so observability failures blocked skip-as-processed on purged-run orphan rows; post-mark best-effort `postMarkObservability` on `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync`; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`. Scoped coordination/outbox tests passed 21 Host.Core and 34 Host.Composition.
 
 2026-10-05 seed hunt (seed→hit): promoted and proved `RecoverableOutboxFailureHandler` propagated `OnRetryScheduledAsync` instrumentation failures after `RecordBackoffAfterProcessingFailureAsync`, aborting batch isolation while the row was already in backoff; wrapped retry hooks best-effort like dead-letter hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`. Scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
 
@@ -27370,6 +27374,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, packaging-conflict, empty-ZIP, and non-retryable push dead-letter branches performed `ILogger` calls after `RecordDeadLetterAsync`; a failing log sink escaped into `RecoverableOutboxProcessorBase` and scheduled backoff for an already dead-lettered row — **hit 2026-10-05 seed hunt:** `RecordDirectDeadLetterAsync` best-effort observability after terminal persist; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_log_failure`.
 
 - [x] (proven) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` / `RunExportBlobPushOutboxProcessor` skip-and-success paths — `MarkProcessedAsync` preceded success metrics and benign-skip `LogDebug`, so observability failures scheduled backoff on already-processed rows — **hit 2026-10-05 seed hunt:** `CompleteProcessedEntryAsync` and `MarkExportPushProcessedAsync` best-effort observability after mark-processed; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_benign_skip_debug_log_failure`.
+
+- [x] (proven) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` / `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — early skip-as-processed paths (missing manifest-compare run, export package not found) logged `LogWarning` before `MarkProcessedAsync`, so a failing log sink escaped before skip-as-processed and scheduled backoff on orphan rows — **hit 2026-10-05 seed hunt:** defer skip warnings to post-mark best-effort observability; regression `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure`.
 
 - [x] (proven) `RecoverableOutboxProcessorBase.OnProcessingFailedAsync` — after recording a dead letter, an `OnDeadLetterAsync` audit/metric hook can throw and abort the batch instead of isolating the already-classified failure; **hit 2026-10-04 seed hunt:** `RecoverableOutboxFailureHandler` propagated `InvalidOperationException` from a failing dead-letter hook after `RecordDeadLetterAsync` succeeded; `RecoverableOutboxFailureHandlerTests.HandleAsync_does_not_escape_dead_letter_hook_failure_after_recording_terminal_state` now proves hooks are best-effort while cancellation still propagates.
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — direct destination-policy, empty-export, and sealed-receipt dead-letter branches performed audit after `RecordDeadLetterAsync`; **hit 2026-10-04:** `ProcessPendingBatchAsync_does_not_schedule_retry_after_direct_dead_letter_audit_failure` reproduced an audit failure being converted into backoff for the already-terminal row; `LogDeadLetterAuditAsync` now contains non-cancellation audit failures.
