@@ -278,7 +278,8 @@ public sealed class TenantErasureCommandService(
 
         string? storedReason = NormalizeLegalHoldReason(tenant.LegalHoldReason);
 
-        return tenant.LegalHoldUntilUtc == untilUtc
+        return tenant.LegalHoldUntilUtc.HasValue
+            && tenant.LegalHoldUntilUtc.Value.UtcDateTime == untilUtc.UtcDateTime
             && string.Equals(storedReason, normalizedReason, StringComparison.OrdinalIgnoreCase);
     }
 
