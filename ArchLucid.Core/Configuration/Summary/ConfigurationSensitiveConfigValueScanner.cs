@@ -14,8 +14,11 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
         ReadOnlySpan<char> trimmed = value.AsSpan().TrimStart();
 
-        if (trimmed.Length == 0 || (trimmed[0] != '{' && trimmed[0] != '['))
+        if (trimmed.Length == 0)
             return false;
+
+        if (trimmed[0] != '{' && trimmed[0] != '[')
+            return LooksLikeEmbeddedConnectionString(value);
 
         try
         {
@@ -24,7 +27,7 @@ internal static class ConfigurationSensitiveConfigValueScanner
         }
         catch (JsonException)
         {
-            return false;
+            return LooksLikeEmbeddedConnectionString(value);
         }
     }
 
