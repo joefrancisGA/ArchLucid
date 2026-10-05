@@ -195,6 +195,8 @@
 
 2026-10-03 seed hunt (seed-only): `host-core-jobs` — re-read background job queues, job runners, and hosted-service cancellation/loop boundaries; no mechanism-backed reachable candidate emerged; 74 picker-scoped host-job tests passed.
 
+2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — Word-style en dash (U+2013) and non-breaking hyphen (U+2011) between phrase words still blocked `managed identity` matching while ASCII `-` must stay for compound slugs; map Unicode dash punctuation (U+2010–U+2015) to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_en_dash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_nonbreaking_hyphen_splits_phrase`; 872 scoped RequestConstraint tests passed.
+
 2026-10-05 seed hunt (seed→hit): `core-requests-constraints` — word joiner (U+2060) and soft hyphen (U+00AD) in pasted constraint text still split phrases like `managed identity`; extended `NormalizeConstraintMatchingText` to map `UnicodeCategory.Format` to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_word_joiner_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_soft_hyphen_splits_phrase`; 870 scoped RequestConstraint tests passed.
 
 2026-10-03 thorough hunt (hit): `core-explanation-json` — out-of-range whole-number strings such as `"1e20"` passed finite/integer checks and converted to `int.MaxValue`, turning malformed persisted explanation counts into valid-looking counts. Added explicit `int.MaxValue` bounds for string and numeric floating-point paths; regression `FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing`; 41 scoped `RunExplanation` tests passed.
@@ -19549,11 +19551,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 18
-- **bugs-found:** 17
+- **hunts:** 19
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — word joiner and other format characters split multi-word constraint phrases
+- **last-bug:** 2026-10-05 — Unicode en dash / non-breaking hyphen split multi-word constraint phrases
+
+2026-10-05 seed hunt #19 (seed→hit): reseeded unicode normalization after format-character fix; proved en dash (U+2013) and non-breaking hyphen (U+2011) still split phrases like `managed identity`; fixed by mapping Unicode dash punctuation U+2010–U+2015 to ASCII space while preserving ASCII hyphen for compound-identifier boundaries; regressions `HasManagedIdentityConstraint_returns_true_when_en_dash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_nonbreaking_hyphen_splits_phrase`; 872 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — Unicode dash punctuation (U+2010–U+2015) between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-05 seed hunt #19:** map Word-style dashes to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`.
 
 2026-10-05 seed hunt #18 (seed→hit): reseeded unicode normalization after zero-width joiner fix; proved word joiner (U+2060) and soft hyphen (U+00AD) still split phrases like `managed identity`; fixed by normalizing `UnicodeCategory.Format` to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_word_joiner_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_soft_hyphen_splits_phrase`; 870 scoped RequestConstraint tests passed.
 

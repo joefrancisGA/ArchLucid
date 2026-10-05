@@ -97,6 +97,22 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
         RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_en_dash_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2013identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_nonbreaking_hyphen_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2011identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
     private static ArchitectureRequest CreateRequest(
         List<string>? constraints = null,
         List<string>? capabilities = null)
