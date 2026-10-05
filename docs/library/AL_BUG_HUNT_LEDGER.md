@@ -7554,11 +7554,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 19
-- **bugs-found:** 11
+- **hunts:** 20
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — PATCH numeric `active` ignored (user stayed active; seat not released)
+- **last-bug:** 2026-10-05 — PUT/POST numeric `active` rejected while PATCH accepted numbers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7566,10 +7566,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-05 seed hunt (seed→hit): proved `ScimUserService.PatchAsync` `ReadActive` ignored JSON number `active` values (PATCH op `value: 0` left user active and enterprise seat reserved); `JsonValueKind.Number` now maps non-zero to true and zero to false; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`; seeded list `count=0` pagination and PATCH non-boolean `active` type parity follow-ups; 14 scoped `ScimUsers` unit tests passed.
 
+2026-10-05 seed hunt (seed→hit): promoted ledger candidate on PUT/POST `active` parity; `ScimUserResourceParser.ReadActive` threw on JSON number `active` while PATCH already honored `0`/`1`; PUT replace with `"active": 0` now deactivates and releases seats; regression `ReplaceAsync_numeric_zero_active_deactivates_user`; cheap-disproof closed `ListAsync` `count=0` as RFC-aligned empty page with `totalResults`; regression `ListAsync_count_zero_returns_empty_page_with_total_results`; seeded PATCH unsupported `active` JSON kinds follow-up; 16 scoped `ScimUsers` unit + 5 Api tests passed.
+
 - [x] (proven) `ScimUserService.PatchAsync` / `ReadActive` — PATCH replace `active` with JSON number `0` left user active — **hit 2026-10-05 seed hunt (seed→hit):** numeric `active` honored; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`.
 
-- [ ] (candidate) `ScimUserService.ListAsync` — `count=0` returns `totalResults` for full tenant but zero `Resources` (Entra may interpret as broken pagination).
-- [ ] (candidate) `ScimUserResourceParser.ReadActive` vs patch `ReadActive` — PUT rejects non-boolean `active` while PATCH previously fell back silently for unsupported kinds (numbers fixed; arrays/objects still fall back).
+- [x] (proven) `ScimUserResourceParser.ReadActive` / `ReplaceAsync` — PUT body `"active": 0` returned `invalidValue` instead of deactivating — **hit 2026-10-05 seed hunt (seed→hit):** numeric `active` on POST/PUT matches PATCH; regression `ReplaceAsync_numeric_zero_active_deactivates_user`.
+
+- [x] (valid-no-repro) `ScimUserService.ListAsync` — `count=0` returns `totalResults` with zero page items — **cheap-disproof 2026-10-05 seed hunt:** SCIM list count zero is a valid total-only query; regression `ListAsync_count_zero_returns_empty_page_with_total_results`.
+
+- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadActive` — PATCH replace `active` with JSON array/object still falls back to prior `active` instead of `invalidValue`.
 
 ### Hypotheses
 
