@@ -69,11 +69,13 @@ internal static class EmailOtpChallengeRepositoryCore
         EmailOtpChallengeRecord row,
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         bool emailHasActiveChallenge) =>
         row.NormalizedEmail == normalizedEmail
         && row.FailedAttemptCount > 0
         && row.CreatedUtc >= sinceUtc
         && row.CompletedUtc is null
+        && row.ExpiresUtc > nowUtc
         && (row.InvalidatedUtc is null || !emailHasActiveChallenge);
 
     public static EmailOtpRecentRequestCounts CountRecentRequests(

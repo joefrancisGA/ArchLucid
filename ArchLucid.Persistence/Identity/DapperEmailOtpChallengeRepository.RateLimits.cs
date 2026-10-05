@@ -91,6 +91,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
     public async Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -100,6 +101,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
                              AND c.CreatedUtc >= @SinceUtc
                              AND c.FailedAttemptCount > 0
                              AND c.CompletedUtc IS NULL
+                             AND c.ExpiresUtc > @NowUtc
                              AND (
                                  c.InvalidatedUtc IS NULL
                                  OR NOT EXISTS (
@@ -115,7 +117,12 @@ public sealed partial class DapperEmailOtpChallengeRepository
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { NormalizedEmail = normalizedEmail, SinceUtc = sinceUtc.UtcDateTime },
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
+                },
                 cancellationToken: cancellationToken));
     }
 

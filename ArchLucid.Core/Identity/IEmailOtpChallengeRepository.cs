@@ -26,6 +26,7 @@ public interface IEmailOtpChallengeRepository
     Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken);
 
     Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(

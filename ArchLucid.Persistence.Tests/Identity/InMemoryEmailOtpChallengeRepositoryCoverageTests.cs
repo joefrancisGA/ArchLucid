@@ -135,7 +135,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             .Result.Should()
             .Be(EmailOtpChallengeCompletionResult.InvalidCode);
 
-        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), CancellationToken.None))
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), now, CancellationToken.None))
             .Should()
             .Be(1);
 
@@ -196,7 +196,37 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             now,
             CancellationToken.None);
 
-        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), CancellationToken.None))
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), now, CancellationToken.None))
+            .Should()
+            .Be(0);
+    }
+
+    [Fact]
+    public async Task CountRecentFailedVerifications_ignores_expired_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 5, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.InvalidCode);
+
+        DateTimeOffset afterExpiry = now.AddMinutes(10);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync(
+                "otp@example.com",
+                afterExpiry.AddHours(-1),
+                afterExpiry,
+                CancellationToken.None))
             .Should()
             .Be(0);
     }
@@ -224,7 +254,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             .Result.Should()
             .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
 
-        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), CancellationToken.None))
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), now, CancellationToken.None))
             .Should()
             .Be(1);
     }

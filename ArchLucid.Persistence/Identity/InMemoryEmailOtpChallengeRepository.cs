@@ -77,6 +77,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     public Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
@@ -89,6 +90,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
                 row,
                 normalizedEmail,
                 sinceUtc,
+                nowUtc,
                 emailHasActiveChallenge));
 
         return Task.FromResult(count);

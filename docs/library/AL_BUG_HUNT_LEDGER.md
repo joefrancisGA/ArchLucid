@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired email OTP challenges with prior wrong-code attempts still counted toward hourly verification rate limits (`MatchesFailedVerificationByEmail` / `CountRecentFailedVerificationsByEmailAsync`); require `ExpiresUtc > nowUtc` in shared predicate and SQL and pass `now` from `AuthRateLimitHelper`; regression `CountRecentFailedVerifications_ignores_expired_challenges`; 20 scoped AuthenticationIdentity/IdentityRepository/OTP repository tests passed (`RunAnalyzers=false`, 1 SQL integration skipped).
+
 2026-10-05 seed hunt (seed→hit): `run-execute-ownership` — `ReleaseAsync` cleared the pinned holder before `TryReleaseAsync`, so a transient release failure after process-instance rotation retried with the wrong holder and left the SQL lease pinned; clear the pin only after successful repository release; regression `ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`; 61 scoped ownership/orchestrator tests passed.
 
 2026-10-05 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed empty nested-aggregate shell, unclamped `RetryDelay` misuse, and inner/outer budget interaction candidates; 55 scoped transient-retry tests passed (37 Persistence + 18 Application).
@@ -14297,15 +14299,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 924
-- **bugs-found:** 21
+- **hunts:** 925
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — lockout-invalidated OTP challenges dropped from verification rate-limit counts
+- **last-bug:** 2026-10-05 — expired email OTP challenges still counted toward verification rate limits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-05 seed hunt (seed→hit): promoted lockout verification rate-limit candidate; proved excluding all `InvalidatedUtc` rows from `CountRecentFailedVerificationsByEmailAsync` dropped lockout-invalidated challenges when no replacement challenge was active, bypassing hourly verification limits after `TooManyAttempts`; count invalidated failures only when no active challenge remains for the email (resend/replace still excluded); regressions `CountRecentFailedVerifications_counts_lockout_invalidated_challenge_when_no_replacement_is_active` and `CountRecentFailedVerifications_ignores_invalidated_challenges_when_replaced_by_active_challenge`; 21 scoped AuthenticationIdentity/IdentityRepository/EmailOtp tests passed (2 SQL integration skipped).
+
+2026-10-05 seed hunt (hit): promoted `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `CountRecentFailedVerificationsByEmailAsync`; proved expired OTP challenges with prior wrong-code attempts still inflated hourly verification rate limits after code lifetime elapsed; require `ExpiresUtc > nowUtc` in shared predicate and SQL; regression `CountRecentFailedVerifications_ignores_expired_challenges`; 22 scoped persistence-identity tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
 2026-10-05 seed hunt (hit): promoted `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync`; proved invalidated OTP challenges with prior wrong-code attempts still inflated hourly verification rate limits after resend (`InvalidateActiveChallengesForEmailAsync`); exclude `InvalidatedUtc` in shared predicate and SQL; regression `CountRecentFailedVerifications_ignores_invalidated_challenges`; 4 `InMemoryEmailOtpChallengeRepositoryCoverageTests` + 15 scoped AuthenticationIdentity/IdentityRepository tests passed (`RunAnalyzers=false`, 1 SQL integration skipped).
 
@@ -14370,6 +14374,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryEmailOtpChallengeRepository.InsertAsync` — duplicate explicit challenge `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2382:** `TryAdd` + `DuplicateEmailOtpChallengeException`; regression in `InsertAsync_throws_when_challenge_id_already_exists`.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRecoveryAdminRepository.InsertAsync` — duplicate `(TenantId, NormalizedDomain, NormalizedRecoveryAdminEmail)` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2383:** `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; regression in `InsertAsync_throws_when_recovery_admin_already_exists`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — invalidated challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after OTP resend replaced the active challenge — **hit 2026-10-05 seed hunt:** exclude invalidated rows only when another active challenge exists for the email; regressions `CountRecentFailedVerifications_ignores_invalidated_challenges_when_replaced_by_active_challenge` and `CountRecentFailedVerifications_counts_lockout_invalidated_challenge_when_no_replacement_is_active`.
+- [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — expired challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after `ExpiresUtc` passed — **hit 2026-10-05 seed hunt (seed→hit):** require `ExpiresUtc > nowUtc` in SQL and shared predicate; pass `now` from rate-limit helper; regression `CountRecentFailedVerifications_ignores_expired_challenges`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
