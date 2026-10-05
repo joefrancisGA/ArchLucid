@@ -1,4 +1,3 @@
-{"at":"2026-09-05T15:03:32.4159451Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:10:01.6363437Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:17:11.5692306Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T15:24:02.0677135Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8792,6 +8791,10 @@
 {"at":"2026-10-05T14:37:35.9294208Z","zoneId":"arm-terraform-source-ids","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:49:14.069499Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:57:22.9651048Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs)"]}
+<<<<<<< HEAD
 {"at":"2026-10-05T14:49:14.0694990Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T14:49:34.6954709Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
 {"at":"2026-10-05T14:57:01.9753678Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs"]}
+=======
+{"at":"2026-10-05T15:04:46.1308686Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Identity/EmailOtpChallengeRepositoryCore.cs)"]}
+>>>>>>> 7a63c46bd6 (Record persistence-identity hunt hit in rolling run log.)
