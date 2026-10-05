@@ -152,7 +152,7 @@ public static class TechnologyLedgerTopologyProposalMapper
         if (trimmed.Length == 0)
             return "unknown";
 
-        return trimmed.ToLowerInvariant();
+        return trimmed;
     }
 
     private static string BuildMissingDatastoreManifestIdSubKey(

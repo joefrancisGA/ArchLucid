@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — promoted case-only `ServiceId` candidate; proved `StableTopologyIdentitySubKey` lowercasing plus case-insensitive `EvidenceRefsMatch` collapsed `Svc-A` vs `svc-a` into one topology ref; preserve manifest sub-key casing and compare `agentTopologyProposal` sub-keys ordinally while keeping proposal-id segment case-insensitive; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`; 76 scoped TechnologyLedger tests passed.
+
 2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved list-order ordinal in `BuildMissingManifestIdSubKey` changed `agentTopologyProposal:*` refs when `AddedServices` order changed on topology re-seed, so `HasMatchingProposal` missed duplicates and merge policy inserted extra compute rows; key missing manifest ids by `ServiceType`/`DatastoreType` plus `RuntimePlatform` instead of list ordinal; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (dry): `technology-ledger-merge` — promoted missing-`ServiceId` slug-collision hypothesis; failing repro matched trunk `BuildMissingManifestIdSubKey` fix already on `bugsmash`; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
@@ -4315,13 +4317,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 41
-- **bugs-found:** 20
+- **hunts:** 42
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — missing manifest id subkey used list ordinal so reordered topology re-seed duplicated ledger rows
+- **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted case-only `ServiceId` candidate; fixed sub-key casing + scoped `EvidenceRefsMatch`; 76 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (seed→hit): proved order-dependent missing-id subkey on topology re-seed; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
 
@@ -4334,10 +4338,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 seed hunt (seed-only): closed multiple-`Chosen` `FirstOrDefault` candidates as invalid (`TechnologyLedgerRunCommandService` demotes prior chosen rows); seeded five replacement `(candidate)` rows; 72 scoped tests passed (`--no-build`).
 
 - [ ] (candidate) `TechnologyLedgerTopologyProposalMapper.ResolveRegion` / region row — `AzureArmRegion` values that `Slug` collapses (`East US` vs `east-us`) share one `agentTopologyProposal:*:east-us` ref when services carry conflicting regions — **reachability:** `MapCandidates` adds a single Region row keyed via `Slug(region)` (`TechnologyLedgerTopologyProposalMapper.cs` ~line 57).
-- [ ] (candidate) `TechnologyLedgerTopologyProposalMapper.StableTopologyIdentitySubKey` — manifest `ServiceId` values differing only by case (`Svc-A` vs `svc-a`) share the same lowered sub-key so merge policy drops the second compute candidate — **reachability:** topology agent `AddedServices` with distinct ids; seeder `TechnologyLedgerTopologyProposalSeeder.SeedFromTopologyResultAsync`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper.StableTopologyIdentitySubKey` / `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — manifest `ServiceId` values differing only by case (`Svc-A` vs `svc-a`) collapsed to one `agentTopologyProposal:*` ref — **hit 2026-10-05 seed hunt (seed→hit):** preserve sub-key casing; case-sensitive sub-key compare for `agentTopologyProposal` refs; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`.
 - [x] (proven) `TechnologyLedgerTopologyProposalMapper.MapCandidates` — whitespace-only `ServiceId` slug-colliding `ServiceName` pair — **hit 2026-10-05 seed hunt (parallel):** `BuildMissingManifestIdSubKey`; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`.
 - [ ] (candidate) `TechnologyLedgerTopologyProposalMapper.CreateCandidate` — blank `proposal.ProposalId` forces `"unknown"` in every `agentTopologyProposal:unknown:*` ref so unrelated topology batches on the same run collide on sub-key — **reachability:** `proposalId = string.IsNullOrWhiteSpace(proposal.ProposalId) ? "unknown" : proposal.ProposalId`.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — case-insensitive ref equality may treat distinct topology refs that differ only by proposal-id casing as duplicates when operators import mixed-case refs — **reachability:** `EvidenceRefsMatch` `OrdinalIgnoreCase` vs mapper lowercased sub-keys only.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — proposal-id segment case-insensitive dedupe — **cheap-disproof 2026-10-05 seed hunt:** intentional idempotent re-seed per `Resolve_skips_when_evidence_ref_matches_case_insensitively`; sub-key segment now case-sensitive for `agentTopologyProposal` refs.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its callers; duplicate-chosen and provider/name merge scenarios were not reachable through a production caller in this repository, so no candidate or hunt-ready row was added. No test execution was claimed.
 

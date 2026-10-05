@@ -657,6 +657,63 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            ProposalId = "p1",
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "Svc-A",
+                    ServiceName = "api-a",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceId = "svc-a",
+                    ServiceName = "api-b",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        IReadOnlyList<TechnologyLedgerEntry> mapped =
+            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
+
+        IReadOnlyList<TechnologyLedgerEntry> computeCandidates = mapped
+            .Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime)
+            .ToList();
+
+        computeCandidates.Should().HaveCount(2);
+        computeCandidates.Select(entry => entry.EvidenceRef).Should().OnlyHaveUniqueItems();
+
+        List<TechnologyLedgerEntry> existing = [];
+
+        foreach (TechnologyLedgerEntry candidate in computeCandidates)
+        {
+            TechnologyLedgerEntry? resolved =
+                TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing);
+
+            resolved.Should().NotBeNull();
+            existing.Add(resolved!);
+        }
+
+        existing.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy()
     {
         ArchitectureRequest request = new()

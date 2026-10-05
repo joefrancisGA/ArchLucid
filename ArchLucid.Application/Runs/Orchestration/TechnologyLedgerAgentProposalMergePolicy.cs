@@ -113,8 +113,50 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         return string.Join(' ', trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 
-    private static bool EvidenceRefsMatch(string? left, string? right) =>
-        !string.IsNullOrWhiteSpace(left)
-        && !string.IsNullOrWhiteSpace(right)
-        && string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
+    private static bool EvidenceRefsMatch(string? left, string? right)
+    {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+            return false;
+
+        string leftTrimmed = left.Trim();
+        string rightTrimmed = right.Trim();
+
+        if (TryParseAgentTopologyProposalRef(leftTrimmed, out string leftProposalId, out string leftSubKey)
+            && TryParseAgentTopologyProposalRef(rightTrimmed, out string rightProposalId, out string rightSubKey))
+        {
+            return string.Equals(leftProposalId, rightProposalId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(leftSubKey, rightSubKey, StringComparison.Ordinal);
+        }
+
+        return string.Equals(leftTrimmed, rightTrimmed, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryParseAgentTopologyProposalRef(
+        string evidenceRef,
+        out string proposalId,
+        out string stableSubKey)
+    {
+        const string prefix = "agentTopologyProposal:";
+
+        if (!evidenceRef.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            proposalId = string.Empty;
+            stableSubKey = string.Empty;
+            return false;
+        }
+
+        string remainder = evidenceRef[prefix.Length..];
+        int separator = remainder.IndexOf(':');
+
+        if (separator < 0)
+        {
+            proposalId = string.Empty;
+            stableSubKey = string.Empty;
+            return false;
+        }
+
+        proposalId = remainder[..separator];
+        stableSubKey = remainder[(separator + 1)..];
+        return true;
+    }
 }
