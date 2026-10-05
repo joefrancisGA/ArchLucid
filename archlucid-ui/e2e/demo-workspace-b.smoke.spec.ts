@@ -35,6 +35,7 @@ import {
   expectReviewDetailSeedFindingCopyVisible,
   openReviewDetailWorkspaceTab,
   reviewDetailFindingsQuickSummary,
+  reviewDetailEvidenceBundleExportControl,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 

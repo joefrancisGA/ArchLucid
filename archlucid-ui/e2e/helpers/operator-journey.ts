@@ -916,6 +916,17 @@ export function reviewDetailGoldenManifestMarkdownExportControl(page: Page): Loc
     .first();
 }
 
+/** Buyer-polished deliverables use a button (`run-detail-evidence-bundle-export`); legacy surfaces may expose a link. */
+export function reviewDetailEvidenceBundleExportControl(page: Page): Locator {
+  const artifactsSection = page.locator("#artifacts-exports");
+
+  return artifactsSection
+    .getByTestId("run-detail-evidence-bundle-export")
+    .or(artifactsSection.getByRole("button", { name: /^Download evidence bundle$/i }))
+    .or(artifactsSection.getByRole("link", { name: /Download evidence bundle/i }))
+    .first();
+}
+
 async function buildReviewDetailTabHrefForSurface(
   page: Page,
   runId: string,
@@ -1330,11 +1341,11 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
   await artifactsSection.scrollIntoViewIfNeeded();
 
   const markdownDownload = artifactsSection.getByTestId("golden-manifest-markdown-download-button").first();
-  const evidenceBundleLink = artifactsSection.getByRole("link", { name: /Download evidence bundle/i });
+  const evidenceBundleExport = reviewDetailEvidenceBundleExportControl(page);
 
   if (
     (await markdownDownload.isVisible().catch(() => false))
-    || (await evidenceBundleLink.isVisible().catch(() => false))
+    || (await evidenceBundleExport.isVisible().catch(() => false))
   ) {
     return;
   }

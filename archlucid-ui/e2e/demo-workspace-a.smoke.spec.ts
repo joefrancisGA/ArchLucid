@@ -20,6 +20,7 @@ import {
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
   reviewDetailFindingsQuickSummary,
+  reviewDetailEvidenceBundleExportControl,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -161,7 +162,7 @@ test.describe(
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
+    await expect(reviewDetailEvidenceBundleExportControl(page)).toBeVisible({
       timeout: 60_000,
     });
 
