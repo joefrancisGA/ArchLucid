@@ -136,27 +136,23 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         out string proposalId,
         out string stableSubKey)
     {
+        proposalId = string.Empty;
+        stableSubKey = string.Empty;
+
         const string prefix = "agentTopologyProposal:";
 
         if (!evidenceRef.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-        {
-            proposalId = string.Empty;
-            stableSubKey = string.Empty;
             return false;
-        }
 
         string remainder = evidenceRef[prefix.Length..];
         int separator = remainder.IndexOf(':');
 
         if (separator < 0)
-        {
-            proposalId = string.Empty;
-            stableSubKey = string.Empty;
             return false;
-        }
 
         proposalId = remainder[..separator];
         stableSubKey = remainder[(separator + 1)..];
-        return true;
+
+        return proposalId.Length > 0 && stableSubKey.Length > 0;
     }
 }

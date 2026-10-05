@@ -689,12 +689,7 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             ],
         };
 
-        IReadOnlyList<TechnologyLedgerEntry> mapped =
-            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
-
-        IReadOnlyList<TechnologyLedgerEntry> computeCandidates = mapped
-            .Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime)
-            .ToList();
+        IReadOnlyList<TechnologyLedgerEntry> computeCandidates = MapComputeCandidates(request, proposal).ToList();
 
         computeCandidates.Should().HaveCount(2);
         computeCandidates.Select(entry => entry.EvidenceRef).Should().OnlyHaveUniqueItems();
