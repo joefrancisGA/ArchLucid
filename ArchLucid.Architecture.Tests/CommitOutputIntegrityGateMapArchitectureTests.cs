@@ -39,6 +39,44 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     }
 
     [Fact]
+    public void CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist()
+    {
+        string integrity = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "CommitOutputIntegrityService.cs"));
+
+        int provenance = integrity.IndexOf(
+            "DecisionGradeFindingProvenanceValidator.GetViolations",
+            StringComparison.Ordinal);
+        int assumption = integrity.IndexOf(
+            "FinalizeAssumptionGateEvaluator.GetBlockingReasons",
+            StringComparison.Ordinal);
+        int scorecard = integrity.IndexOf(
+            "_finalizeQualityGate\n            .EnsurePassOrThrowAsync",
+            StringComparison.Ordinal);
+        int judge = integrity.IndexOf(
+            "_semanticSupportBandFinalizeJudge\n            .ApplyAsync",
+            StringComparison.Ordinal);
+        int evidence = integrity.IndexOf(
+            "FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons",
+            StringComparison.Ordinal);
+        int unsupported = integrity.IndexOf(
+            "UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons",
+            StringComparison.Ordinal);
+
+        provenance.Should().BeGreaterThan(0);
+        assumption.Should().BeGreaterThan(provenance);
+        scorecard.Should().BeGreaterThan(assumption);
+        evidence.Should().BeGreaterThan(scorecard);
+        judge.Should().BeGreaterThan(evidence);
+        unsupported.Should().BeGreaterThan(judge);
+    }
+
+    [Fact]
     public void FinalizeQualityScorecard_evaluator_counts_ten_ui_parity_dimensions()
     {
         string evaluator = File.ReadAllText(

@@ -169,18 +169,6 @@ public sealed class CommitOutputIntegrityService(
                 + string.Join(" ", qualityReasons));
         }
 
-        await _semanticSupportBandFinalizeJudge
-            .ApplyAsync(run, findings, scope, cancellationToken)
-            .ConfigureAwait(false);
-
-        IReadOnlyList<string> unsupportedSemanticSupportReasons =
-            UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons(run, gateOptions, findings.Findings);
-
-        if (unsupportedSemanticSupportReasons.Count > 0)
-        {
-            throw new ConflictException(string.Join(" ", unsupportedSemanticSupportReasons));
-        }
-
         IReadOnlyList<string> provenanceViolations = DecisionGradeFindingProvenanceValidator.GetViolations(findings);
 
         if (provenanceViolations.Count > 0)
@@ -226,6 +214,18 @@ public sealed class CommitOutputIntegrityService(
                         + string.Join(" ", evidenceIntegrityReasons));
                 }
             }
+        }
+
+        await _semanticSupportBandFinalizeJudge
+            .ApplyAsync(run, findings, scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<string> unsupportedSemanticSupportReasons =
+            UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons(run, gateOptions, findings.Findings);
+
+        if (unsupportedSemanticSupportReasons.Count > 0)
+        {
+            throw new ConflictException(string.Join(" ", unsupportedSemanticSupportReasons));
         }
     }
 

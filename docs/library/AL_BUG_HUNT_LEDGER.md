@@ -3582,11 +3582,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 61
-- **bugs-found:** 11
+- **hunts:** 62
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
+- **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
 
@@ -3641,6 +3641,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-04 seed hunt (seed-only): reread the selected integrity service, quality-gate evaluator, latest-per-task selector, and focused tests; no candidate met the same-run reachability and wrong-outcome bar. Seeded two bounded follow-ups; 54 application quality-gate tests and 33 core selector tests passed.
 
 2026-10-04 seed hunt (seed-only): repeated the selected integrity source and focused-test review; task identity normalization, retry ordering, quality-rank precedence, and fail-closed PilotStrict behavior remain covered or intentional. No new reachable candidate or code change.
+
+2026-10-04 thorough hunt (hit): `commit-output-integrity` — `CommitOutputIntegrityService.EnsurePassOrThrowAsync` invoked `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` (including overlay persist) before provenance, assumption, finalize-quality, and evidence-integrity gates, so a blocked commit could still write semantic-support overlays; moved judge + unsupported-band hold after those gates; regression `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist`; cheap-disproved missing-`TaskId` same-agent collapse candidate against intentional `agent:{AgentType}` retry chaining (#578); 87+ scoped integrity/selector tests passed.
 
 ### Hypotheses
 
@@ -3711,8 +3713,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-`Real` `StructuralExecutionMode` returns before trace fetch so persisted rejections are never evaluated at the integrity layer — **cheap-disproof 2026-09-10 thorough hunt #1626:** `EnsurePassOrThrowAsync` fetches traces before calling `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` (`CommitOutputIntegrityService.cs` lines 109–119); non-`Real` bypass is intentional in the evaluator (`GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`)
 - [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Accepted` — rank ladder may prefer Accepted and clear blocking on the QR+Rejected drift row — **cheap-disproof 2026-09-11 thorough hunt #1689:** intentional Accepted-over-blocking-duplicate policy extends #1615/#1624 (`Select_when_same_attempt_quality_rejected_rejected_outcome_and_accepted_prefers_accepted_trace`, `GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_accepted_duplicates_does_not_block`)
 - [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `StructuralExecutionMode.Mixed`/`Fallback` structural guard throws before quality-gate evaluation, so persisted rejections on otherwise-complete runs are never surfaced — **cheap-disproof 2026-09-11 thorough hunt #1689:** structural-mode block is intentional; traces are still fetched for Real runs before quality gate (#1626); Mixed/Fallback bypass matches simulator policy (`GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`)
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_semanticSupportBandFinalizeJudge.ApplyAsync` runs before provenance, assumption, finalize-quality, and evidence-integrity gates; a reachable commit request with findings that later fails one of those gates could observe judge-side mutation before the commit is rejected, but the selected files do not show whether the judge mutates persisted or caller-visible state.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — two distinct same-agent traces with missing or whitespace-only `TaskId` values are collapsed into one retry chain; the reachable input is a persisted `AgentExecutionTrace` list containing absent task ids, and the wrong outcome would be suppression of one task's rejection or acceptance, but the selected files do not identify whether same-agent missing-task traces are distinct tasks or retries.
+- [x] (proven) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_semanticSupportBandFinalizeJudge.ApplyAsync` persisted semantic-support overlays before provenance, assumption, finalize-quality, and evidence-integrity gates — **hit 2026-10-04 thorough hunt:** reorder judge + unsupported-band hold to run after those gates; architecture regression `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist`.
+
+- [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` collapses unrelated traces — **cheap-disproof 2026-10-04 thorough hunt:** distinct `AgentType` values remain separate (`Select_when_task_id_missing_keeps_each_trace_distinct`); same-agent missing ids intentionally chain retries per #578 (`Select_when_task_id_missing_chains_same_agent_retries_by_attempt_index`).
 
 2026-09-11 thorough hunt #1689 (dry): cheap-disproof closed QR+Rejected vs Accepted duplicate and Mixed/Fallback structural pre-gate candidates; 87 scoped commit-output-integrity tests passed.
 
