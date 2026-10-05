@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 {"at":"2026-09-05T16:47:23.1429349Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+=======
+>>>>>>> 2b4ea961d3 (Record tenant-data-export RunArtifacts lifecycle hunt hit in rolling run log.)
 {"at":"2026-09-05T16:54:09.074385Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T16:59:09.5800955Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T17:07:05.3512976Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8797,4 +8800,8 @@
 {"at":"2026-10-05T16:13:27.1378317Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Exports/,ArchLucid.Api/Controllers/Authority/"]}
 {"at":"2026-10-05T16:33:36.2444354Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs"]}
 {"at":"2026-10-05T16:35:03.6522299Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/,ArchLucid.TestSupport/SealedManifest/"]}
+<<<<<<< HEAD
 {"at":"2026-10-05T16:42:56.0393292Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs"]}
+=======
+{"at":"2026-10-05T16:49:36.4835062Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.RunArtifacts.cs"]}
+>>>>>>> 2b4ea961d3 (Record tenant-data-export RunArtifacts lifecycle hunt hit in rolling run log.)
