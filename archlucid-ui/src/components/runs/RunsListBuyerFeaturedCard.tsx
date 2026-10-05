@@ -72,7 +72,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Review owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.packageOwner ?? " — "}
+                {meta?.packageOwner ?? "Not recorded"}
               </dd>
             </div>
             <div>
@@ -80,7 +80,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Risk owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.riskOwner ?? " — "}
+                {meta?.riskOwner ?? "Not recorded"}
               </dd>
             </div>
             <div>
@@ -88,7 +88,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Approval authority
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.approvalAuthority ?? " — "}
+                {meta?.approvalAuthority ?? "Not recorded"}
               </dd>
             </div>
             <div>
@@ -96,7 +96,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Last audit event
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.lastAuditEvent ?? " — "}
+                {meta?.lastAuditEvent ?? "Not recorded"}
               </dd>
             </div>
             <div>

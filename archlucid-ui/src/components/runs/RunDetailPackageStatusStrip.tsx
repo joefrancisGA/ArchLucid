@@ -167,7 +167,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
     props.governanceGateLabel !== undefined &&
     props.governanceGateLabel.trim().length > 0
       ? props.governanceGateLabel.trim()
-      : " — ";
+      : "Not returned";
   const authorityPhaseLabel = authorityLifecyclePhaseLabel(props.authorityLifecyclePhase);
 
   const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";

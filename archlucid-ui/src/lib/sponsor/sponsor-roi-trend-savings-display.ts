@@ -46,6 +46,14 @@ export function mapSponsorRoiTrendSavingsChartPoints(
       };
     }
 
+    if (buyerPolished && realModeSavingsUsd === null) {
+      return {
+        snapshotUtc: point.snapshotUtc,
+        totalEstimatedUsdSavings: null,
+        savingsTooltipSuffix: "Amount not returned",
+      };
+    }
+
     const usd = resolveExecutiveTrendSavingsUsd(
       {
         totalEstimatedUsdSavings,

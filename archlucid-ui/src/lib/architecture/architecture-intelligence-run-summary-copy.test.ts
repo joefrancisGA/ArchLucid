@@ -22,6 +22,18 @@ describe("architecture-intelligence-run-summary-copy", () => {
     );
   });
 
+  it("labels omitted integrity finding counts as not returned", () => {
+    expect(formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: undefined }))).toBe(
+      "Analysis complete · Finding count not returned",
+    );
+
+    expect(
+      listArchitectureIntelligenceRunTechnicalDetails(sampleResult({ integrityPassedFindingIds: undefined })).find(
+        (row) => row.label === "Findings passed evidence checks",
+      )?.value,
+    ).toBe("Not returned");
+  });
+
   it("uses singular and zero finding phrasing", () => {
     expect(
       formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: ["f1"] })),

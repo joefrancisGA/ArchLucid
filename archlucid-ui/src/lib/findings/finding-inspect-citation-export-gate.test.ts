@@ -4,6 +4,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import {
   DECISION_GRADE_CITATION_REQUIRED_EXPORT_BLOCKED_REASON,
+  DECISION_GRADE_EVIDENCE_NOT_RETURNED_EXPORT_BLOCKED_REASON,
   resolveFindingInspectCitationExportBlockedReason,
 } from "./finding-inspect-citation-export-gate";
 
@@ -23,6 +24,14 @@ function payload(overrides: Partial<FindingInspectPayload> & { typedPayload?: Re
 }
 
 describe("resolveFindingInspectCitationExportBlockedReason (FC-39)", () => {
+  it("blocks decision-grade inspect when evidence was not returned", () => {
+    expect(
+      resolveFindingInspectCitationExportBlockedReason(
+        payload({ trustLabel: "EvidenceBacked", evidence: undefined }),
+      ),
+    ).toBe(DECISION_GRADE_EVIDENCE_NOT_RETURNED_EXPORT_BLOCKED_REASON);
+  });
+
   it("blocks decision-grade inspect without citations", () => {
     expect(
       resolveFindingInspectCitationExportBlockedReason(

@@ -97,7 +97,7 @@ function notesPreview(full: string | null | undefined): { text: string } {
   const s = full?.trim() ?? "";
 
   if (s.length === 0)
-    return { text: " — " };
+    return { text: "Not returned" };
 
   if (s.length <= notesPreviewMax)
     return { text: s };
@@ -360,26 +360,26 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                         ? "parse failure"
                         : sc.structuralCompletenessRatio.toFixed(2)
                       : evaluationFailure
-                        ? " — "
+                        ? "Not returned"
                         : "n/a"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure
-                      ? " — "
+                      ? "Not returned"
                       : sc.isJsonParseFailure
-                        ? " — "
+                        ? "Not returned"
                         : sem
                           ? ratioText(sem.overallSemanticScore)
                           : "n/a"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
-                      ? " — "
+                      ? "Not returned"
                       : ratioText(sem.heuristicOverallScore)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
-                      ? " — "
+                      ? "Not returned"
                       : ratioText(
                           sem.llmJudgeOverallQuality !== null &&
                             sem.llmJudgeOverallQuality !== undefined
@@ -389,7 +389,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="align-middle">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? (
-                      " — "
+                      "Not returned"
                     ) : (
                       <AgentEvidenceFaithfulnessBadge ratio={sem.agentResultFaithfulnessSupportRatio} />
                     )}
@@ -397,7 +397,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   <EnterpriseTableCell
                     className={cn("max-w-[14rem] break-words text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   >
-                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? " — " : rawNotes.text}
+                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "Not returned" : rawNotes.text}
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               );

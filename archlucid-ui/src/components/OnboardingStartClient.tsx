@@ -181,13 +181,13 @@ export function OnboardingStartClient() {
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Days remaining</dt>
               <dd className="font-medium">
-                {typeof status.daysRemaining === "number" ? status.daysRemaining : " — "}
+                {typeof status.daysRemaining === "number" ? status.daysRemaining : "Not returned"}
               </dd>
             </div>
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Reviews used</dt>
               <dd className="font-medium">
-                {status.trialRunsUsed ?? 0}
+                {typeof status.trialRunsUsed === "number" ? status.trialRunsUsed : "Not returned"}
                 {typeof status.trialRunsLimit === "number" ? ` / ${status.trialRunsLimit}` : ""}
               </dd>
             </div>

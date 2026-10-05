@@ -205,7 +205,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
             >
               <StatusTag kind="needs-attention" label={`Changed ${change.field}`} />
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {change.baselineValue ?? " — "} → {change.targetValue ?? " — "}
+                {change.baselineValue ?? "Not returned"} → {change.targetValue ?? "Not returned"}
               </p>
             </li>
           ))}

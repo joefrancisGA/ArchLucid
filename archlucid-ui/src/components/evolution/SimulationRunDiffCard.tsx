@@ -109,9 +109,9 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
               ) : null}
               <dl className="m-0 grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
                 <dt className="text-neutral-500 dark:text-neutral-400">Review status</dt>
-                <dd className="m-0">{parsed.shadow.runStatus ?? " — "}</dd>
+                <dd className="m-0">{parsed.shadow.runStatus ?? "Not returned"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Review record version</dt>
-                <dd className={cn("m-0 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>{parsed.shadow.manifestVersion ?? " — "}</dd>
+                <dd className={cn("m-0 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>{parsed.shadow.manifestVersion ?? "Not returned"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Has manifest</dt>
                 <dd className="m-0">{parsed.shadow.hasManifest ? "yes" : "no"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Summary length</dt>
