@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and `TechnologyLedgerRunCommandService` chosen demotion; closed two stale multiple-`Chosen` `FirstOrDefault` candidates as invalid; seeded five new `(candidate)` rows; 72 scoped TechnologyLedger tests passed (`--no-build`).
+
 2026-10-05 thorough hunt (dry): `tenant-settings-sql` — cheap-disproved all five open `(candidate)` rows (oversize `SettingKey` without repository guard, duplicate-row SQL fault, legacy whitespace `SettingValue` orphan rows, unbounded `CacheGenerations`, worker-catalog `ISqlConnectionFactory` mis-registration); 35 scoped TenantSettings/SqlTenantSettings tests passed (`--no-build`).
 
 2026-10-05 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommand` wrapper plus `DraftNewCommandIntakeLoop` / `DraftNewCommandAdmitStage` / `DraftNewCommandMustQuestionLoop` stages; no hunt-ready promotion; seeded five `(candidate)` rows; 16 scoped `DraftNewCommandCoreTests` passed (`--no-build`).
@@ -4305,13 +4307,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed-only): closed multiple-`Chosen` `FirstOrDefault` candidates as invalid (`TechnologyLedgerRunCommandService` demotes prior chosen rows); seeded five replacement `(candidate)` rows; 72 scoped tests passed (`--no-build`).
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its callers; duplicate-chosen and provider/name merge scenarios were not reachable through a production caller in this repository, so no candidate or hunt-ready row was added. No test execution was claimed.
 
@@ -4319,8 +4323,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its duplicate/provider-family/locked-choice gates; no new reachable mechanism-backed candidate emerged; 72 scoped TechnologyLedger tests passed.
 
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `existingRows` containing multiple `Chosen` entries for the candidate role with the matching authoritative row after the first entry — `FirstOrDefault` examines only one chosen row, so a later matching chosen technology may be missed and the agent candidate may be inserted; reachability is the seeder's repository-provided full `GetByRunIdAsync` row list.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — the first chosen row for a role is an agent-proposed cold-start row while a later chosen row is an authoritative user/evidence row with the same provider family and technology name — `FirstOrDefault` evaluates only the non-authoritative row and can admit a candidate that the later authoritative row should suppress; reachability is the same persisted per-run ledger row list returned by `GetByRunIdAsync`.
+- [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — multiple `Chosen` rows per role — `FirstOrDefault` ignores later authoritative chosen — **cheap-disproof 2026-10-05 seed hunt:** `TechnologyLedgerRunCommandService.PatchAsync` demotes other `Chosen` rows to `Alternative` when promoting a new chosen entry; topology seeder refreshes `GetByRunIdAsync` after each insert; unsupported persisted state.
+- [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — cold-start `AgentProposed` chosen listed before authoritative user chosen — **cheap-disproof 2026-10-05 seed hunt:** same single-chosen-per-role contract; constructed multi-chosen lists are not returned by production repositories.
+
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` rows (demoted former chosen) still participate in `EvidenceRef` dedupe, so topology re-seed with the same `agentTopologyProposal:*` ref returns null even after the operator chose a different technology — reachability: `TechnologyLedgerRunCommandService` demotion path when patching a new `Chosen` row.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.NormalizeTechnologyName` — punctuation vs whitespace variants (`"Amazon-ECS"` vs `"Amazon ECS"`) do not match, so merge policy may insert a second assumed row for the same display intent while `HasMatchingProposal` name dedupe only collapses internal whitespace — reachability: user-patched `TechnologyName` on ledger entries vs topology `ServiceName` strings from `TechnologyLedgerTopologyProposalMapper`.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — `EvidenceRef` tokens differing only by internal whitespace are treated as distinct, allowing duplicate assumed rows for the same topology node id when refs are padded — reachability: mapper emits `agentTopologyProposal:{proposalId}:{slug}` without interior spaces today; manual patch or import paths could introduce padded refs.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — locked authoritative chosen with whitespace-only `EvidenceRef` skips the locked gate (`HasSubstantiveEvidenceRef` false) yet an ungrounded agent candidate with the same normalized technology name may still be suppressed via `ShouldTreatAsDuplicateByName` when an `Alternative` assumed sibling shares the name — reachability: cold-start + demotion leaving mixed `Alternative`/`Assumed` rows in `existingRows`.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.SharesProviderFamilyGate` — concrete provider families outside `{Azure, Aws, Gcp}` plus `CloudProvider.None` fall through to provider-conflict insert even when `TechnologyLedgerEffectiveCloudTarget` treats the run as single-cloud — reachability: future `CloudProvider` enum members or inventory rows with unexpected family values returned by `RuntimePlatformCloudFamily.ResolveCloudFamily`.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its seeder tests; no single candidate met the full hunt-ready bar for a failing repro because the ledger contract does not establish that multiple `Chosen` rows for one role are a supported persisted state; retained two concrete multiple-chosen-row candidates; 72 scoped TechnologyLedger tests passed.
 
