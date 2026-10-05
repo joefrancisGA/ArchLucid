@@ -7554,11 +7554,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 21
-- **bugs-found:** 13
+- **hunts:** 22
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — invalid string/array `active` on PATCH silently deactivated or no-op
+- **last-bug:** 2026-10-05 — PATCH whitespace-only `userName` silently ignored (PUT rejects)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7578,7 +7578,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ScimUserService.PatchAsync` / `ReadActive` — PATCH replace `active` with non-boolean string or JSON array/object mis-handled — **hit 2026-10-05 seed hunt (seed→hit):** invalid `active` values return `invalidValue`; regressions above.
 
-- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadString` — PATCH replace `userName` with whitespace-only string keeps prior `userName` without `invalidValue` (PUT rejects empty `userName`).
+2026-10-05 seed hunt (seed→hit): promoted ledger candidate on PATCH `userName`; `ReadString` treated whitespace-only replace as no-op while `ScimUserResourceParser` rejects empty `userName` on PUT; `ReadPatchRequiredString` for PATCH `userName`; regression `PatchAsync_replace_userName_whitespace_only_throws`; seeded PATCH non-string `userName` and whitespace `externalId` follow-ups; 19 scoped `ScimUsers` unit + 5 Api tests passed.
+
+- [x] (proven) `ScimUserService.PatchAsync` / `ReadString` — PATCH replace `userName` with whitespace-only string kept prior `userName` — **hit 2026-10-05 seed hunt (seed→hit):** returns `invalidValue`; regression `PatchAsync_replace_userName_whitespace_only_throws`.
+
+- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadString` — PATCH replace `externalId` with whitespace-only string keeps prior `externalId` without `invalidValue`.
+- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadPatchRequiredString` — PATCH replace `userName` with non-string JSON type falls back to prior `userName` instead of `invalidValue`.
 
 ### Hypotheses
 
