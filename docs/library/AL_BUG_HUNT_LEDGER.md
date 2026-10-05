@@ -27251,11 +27251,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 28
-- **bugs-found:** 26
+- **hunts:** 29
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — null Findings/EvidenceRefs on deserialized agent rows crashed IaC stub generation
+- **last-bug:** 2026-10-05 — null Policies on deserialized evidence package crashed engine provenance aggregation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -27305,6 +27305,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — a workspace allowlist entry absent from the separately resolved alias registry reaches `GetRequired` and throws instead of returning a structured rejected resolution — invalid: `WorkspaceAllowedEngineSetService.ValidateSnapshot` rejects every stored or catalog allowlist entry that is absent from the alias registry before the resolver receives it
 - [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null `Findings`/`Claims`/`EvidenceRefs` on deserialized `AgentResult` or catalog lists on `AgentEvidencePackage` threw before LLM prompt assembly — **hit 2026-10-05 seed hunt:** null-coalesce list properties before LINQ and `string.Join`; regression `BuildUserPrompt_tolerates_null_collections_on_result_and_evidence`
 - [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — null `AgentResult.Findings` or `ArchitectureFinding.EvidenceRefs` on deserialized enrichment rows threw in the findings loop and evidence-ref helpers — **hit 2026-10-05 seed hunt:** null-coalesce in the stub loop and `HasEvidenceReferences` / `BuildPrompt`; regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows`
+- [x] (proven) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null `AgentEvidencePackage.Policies` after JSON deserialization threw on `.Count` during post-run provenance aggregation — **hit 2026-10-05 seed hunt:** null-coalesce policies before counting and enumerating titles; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`
+- [ ] (candidate) `AgentArchitectureFindingEmissionEnricher` / `AgentArchitectureFindingEmissionGate.ApplyToResults` — null `AgentResult.WithheldFindings` when withholding prose-only findings from deserialized results (post-execution enricher runs before persistence normalizers)
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher` — audit `DataJson` uses `.Count` on merged `AddedServices` / `AddedDatastores` / `AddedRelationships` when consensus merge returns null lists from JSON-shaped proposals
+
+2026-10-05 seed hunt (seed→hit): re-read `ReviewRunEngineProvenanceAggregator`; proved `DerivePolicyPackVersion` threw when deserialized `AgentEvidencePackage.Policies` was null; fixed with null-coalescing; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`; seeded WithheldFindings and consensus audit-count candidates; 98 scoped Application.Tests.Agents tests passed.
 
 2026-10-05 seed hunt (seed→hit): re-read `FindingIacStubGenerator`; proved post-commit stub generation threw when deserialized `AgentResult.Findings` or `ArchitectureFinding.EvidenceRefs` was null; fixed with null-coalescing in the findings loop and evidence-ref helpers; regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows`; 97 scoped Application.Tests.Agents tests passed.
 
