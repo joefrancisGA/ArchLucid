@@ -9,7 +9,6 @@ import {
   serializeOperatorScopeCookiePayload,
 } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY } from "@/lib/operator/operator-sample-workspace-visit";
-import { WORKSPACE_MODE_STORAGE_KEY } from "@/lib/workspace-mode/workspace-mode-preference";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import { resolveLiveJwtMode } from "./live-api-auth";

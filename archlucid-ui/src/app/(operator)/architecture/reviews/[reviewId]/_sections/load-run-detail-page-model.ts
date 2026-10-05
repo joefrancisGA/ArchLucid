@@ -5,6 +5,7 @@ import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bu
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { countCareerExportEligibleFindings } from "@/lib/career-export-finding-inventory";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -184,7 +185,12 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     return { kind: "not-found", reason: "workspace-mismatch" };
   }
 
-  const buyerPolishedArtifactTable = resolveProductionEvalChromeFromStorage();
+  // Pinned SQL demo runs (release-gate smokes) must SSR buyer deliverables even when workspace mode
+  // is not hydrated yet — `readWorkspaceModeFromStorage()` defaults to Working on the server (TB-2021).
+  const buyerPolishedArtifactTable =
+    isPinnedDemoWorkspaceRunId(runId) || usedStaticDemoRun || isShowcaseStaticDemoRunId(runId)
+      ? resolveProductionEvalChromeForServer("guided")
+      : resolveProductionEvalChromeFromStorage();
 
   const manifestId = resolvedDetail.run.goldenManifestId;
 

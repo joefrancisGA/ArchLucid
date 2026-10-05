@@ -924,8 +924,10 @@ export function reviewDetailEvidenceBundleExportControl(page: Page): Locator {
   return artifactsSection
     .getByTestId("run-detail-evidence-bundle-export")
     .or(artifactsSection.getByTestId("run-detail-evidence-bundle-export-blocked"))
+    .or(artifactsSection.getByTestId("run-detail-bundle-export-blocked"))
     .or(artifactsSection.getByRole("button", { name: /^Download evidence bundle$/i }))
     .or(artifactsSection.getByRole("link", { name: /Download evidence bundle/i }))
+    .or(artifactsSection.getByRole("button", { name: /^Download bundle \(ZIP\)$/i }))
     .first();
 }
 
