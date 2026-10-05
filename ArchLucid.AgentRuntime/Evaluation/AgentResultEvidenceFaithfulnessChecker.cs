@@ -73,14 +73,14 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
                         continue;
                     }
 
-                    string citedBlob = index.ResolveRefsBlob(refs);
-
-                    if (refs.Count > 0 && string.IsNullOrEmpty(citedBlob))
+                    if (refs.Count > 0 && !index.AllRefsResolve(refs))
                     {
                         PushUnsupported("claim:unresolved-ref", unsupported);
 
                         continue;
                     }
+
+                    string citedBlob = index.ResolveRefsBlob(refs);
 
                     string blobForOverlap = string.IsNullOrEmpty(citedBlob) ? fullBlob : citedBlob;
 

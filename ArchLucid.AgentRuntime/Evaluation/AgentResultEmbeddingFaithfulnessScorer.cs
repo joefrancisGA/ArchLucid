@@ -72,10 +72,10 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
                     if (!AgentResultJsonEvidenceGrounding.TryDescribeClaim(claim, out string claimText, out List<string> refs))
                         continue;
 
-                    string citedBlob = index.ResolveRefsBlob(refs);
-
-                    if (refs.Count > 0 && string.IsNullOrEmpty(citedBlob))
+                    if (refs.Count > 0 && !index.AllRefsResolve(refs))
                         continue;
+
+                    string citedBlob = index.ResolveRefsBlob(refs);
 
                     string blobForEvidence = string.IsNullOrEmpty(citedBlob) ? fullBlob : citedBlob;
 

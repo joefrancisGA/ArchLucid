@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — claims with mixed valid/invalid `evidenceRefs` passed faithfulness when any ref resolved; require `AgentEvidenceGroundingIndex.AllRefsResolve` before overlap/citation scoring; regression `Evaluate_partially_resolved_evidence_refs_count_as_unresolved`; 189 scoped AgentRuntime `Evaluation` tests passed.
+
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — `AgentResultEvidenceFaithfulnessChecker` treated short finding `category` values as grounded when `fullBlob.Contains` matched a substring (`app` inside `application`); require AgentType enum match or distinct evidence tokens; regression `Evaluate_finding_category_substring_does_not_count_as_grounded`; 188 scoped AgentRuntime `Evaluation` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `orchestrator-transient-retry` — `InvalidOperationException` wrapping `AggregateException(deadlock, permanent SqlException)` retried because `SqlTransientDetector` walked only the first aggregate inner; flatten nested parallel-persist aggregates before applying the all-inners-must-be-transient rule; regression `ExecuteAsync_does_not_retry_mixed_transient_and_permanent_aggregate_nested_in_wrapper_when_deadlock_is_listed_first`; 51 scoped transient-retry tests passed (35 Persistence + 16 Application).
@@ -12110,11 +12112,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 25
-- **bugs-found:** 14
+- **hunts:** 26
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — finding category substring matched evidence blob
+- **last-bug:** 2026-10-05 — partial evidenceRefs accepted when any ref resolved
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
