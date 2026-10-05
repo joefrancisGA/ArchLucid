@@ -18,6 +18,7 @@ public sealed class SupportedContextDocumentContentTypesTests
     [InlineData("text/vnd.mermaid", true)]
     [InlineData("TEXT/VND.MERMAID", true)]
     [InlineData("text/plain; charset=utf-8", true)]
+    [InlineData("text/plain; charset=\"utf-8\"", true)]
     [InlineData("text/vnd.mermaid; charset=utf-8", true)]
     [InlineData("application/vnd.archlucid.diagram+json; charset=UTF-8", true)]
     [InlineData("application/vnd.archlucid.diagram+svg", true)]

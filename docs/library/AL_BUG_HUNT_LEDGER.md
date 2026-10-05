@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `IDiagramSourceParser.CanParse` accepted full MIME types with `; charset=utf-8` but rejected short `DiagramSourceFormats` tokens with the same suffix (`mermaid; charset=utf-8`); centralize lookup in `DiagramSourceFormats.Is*Format` using `NormalizeContentTypeForLookup` before short-token compare; regression `Parse_MermaidShortTokenWithCharsetParameter_YieldsNodesAndEdges`; cheap-disproof closed quoted-RFC2045 charset on document MIME base type and infra declaration `format` enum reachability; 804 scoped ContextIngestion/Canonicalization tests passed.
+
 2026-10-05 seed hunt (seed-only): `context-ingestion` — re-read MIME normalization follow-ons after diagram router charset fixes; cheap-disproved document connector delta churn on `text/plain` vs `text/plain; charset=utf-8` (`DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`); no new hunt-ready row; seeded five `(candidate)` rows; 803 scoped ContextIngestion/Canonicalization tests passed.
 
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `StructuredDiagramParseRouter` diagram source parsers rejected MIME format strings with `; charset=utf-8` (only short `DiagramSourceFormats` tokens and bare MIME matched); route via `Is*ContentType` helpers in `ArchLucidDiagramJsonParser`, `SvgDiagramSourceParser`, `DrawIoXmlDiagramSourceParser`, and `VsdxDiagramSourceParser`; regressions `Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges`, `Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes`; 802 scoped tests passed.
@@ -22537,15 +22539,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-05 seed hunt (seed→hit): short `DiagramSourceFormats` token + `; charset=utf-8` rejected by diagram parsers after MIME charset fix; `DiagramSourceFormats.Is*Format`; 804 scoped tests passed.
+
+- [x] (proven) `StructuredDiagramParseRouter` / `IDiagramSourceParser.CanParse` — short tokens such as `mermaid; charset=utf-8` returned unsupported format while bare `mermaid` and MIME+charset worked — **hit 2026-10-05 seed hunt:** `DiagramSourceFormats.Is*Format` strips parameter suffix before short-token compare; regression `Parse_MermaidShortTokenWithCharsetParameter_YieldsNodesAndEdges`.
+- [x] (valid-no-repro) `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` — RFC 2045 quoted charset parameter values (`text/plain; charset="utf-8"`) — **cheap-disproof 2026-10-05 seed hunt:** base MIME is before first `;`; `IsSupported_MatchesCanonicalList` inline case.
+- [x] (invalid) `InfrastructureDeclarationsPayloadNormalizer` / `IInfrastructureDeclarationParser.CanParse` — parameterized declaration `format` (`terraform-show-json; charset=utf-8`) — **cheap-disproof 2026-10-05 seed hunt:** `InfrastructureDeclarationRequestValidator.SupportedFormats` exact match at API; not production-reachable.
+- [x] (valid-no-repro) `ContextIngestionRequestMapper.FromArchitectureRequest` — raw `ContentType` on reference vs normalized `DocumentId` — **cheap-disproof 2026-10-05:** `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`.
+- [x] (valid-no-repro) `PlainTextContextDocumentParser` — `text/markdown; charset=utf-8` vs `text/plain; charset=utf-8` routing — **cheap-disproof 2026-10-05:** both normalize to distinct supported types; same parser by design.
+
+- [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — `environment:` list entries (`- KEY=value`) under compose-env declarations — **seed 2026-10-05:** map-style lines are parsed; reachable `format=compose-env` uploads with YAML list env blocks per SN-RT-09.
+- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — lines prefixed with `export ` before `KEY=value` — **seed 2026-10-05:** shell-style dotenv extracts may be pasted verbatim; reachability `format=dotenv` on architecture requests.
+- [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` / `KubernetesYamlContentParser` — multi-doc YAML with `---` separators and mixed camelCase vs snake_case pod fields — **seed 2026-10-05:** parity with kubernetes-json snake_case projection paths.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — top-level `state` / `state_version` roots instead of `values` for non-show JSON exports — **seed 2026-10-05:** pasted terraform JSON variants in `terraform-show-json` declarations.
+- [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform resources differing only in `tf.tainted` or `mode` may collapse when type/name/occurrence match — **seed 2026-10-05:** reachable duplicate rows from repeated connector normalize passes.
+
 2026-10-05 seed hunt (seed-only): MIME charset delta + five candidates; 803 scoped tests passed.
 
 2026-10-05 seed hunt (seed→hit): diagram router MIME charset on SVG/diagram-json/draw.io/vsdx `CanParse`; 802 scoped tests passed.
-
-- [ ] (candidate) `ContextIngestionRequestMapper.FromArchitectureRequest` — stores raw `ContentType` on `ContextDocumentReference` while `DocumentId` uses `NormalizeContentTypeForLookup` — **seed 2026-10-05:** remaps that differ only by MIME parameters share stable ids; wrong outcome would be connector add/remove churn (cheap-disproof: `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`).
-- [ ] (candidate) `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` — does not trim RFC 2045 quoted media types (`text/plain; charset="utf-8"`) — **seed 2026-10-05:** parameter segment may include quotes; reachability HTTP `Content-Type` headers on `ContextDocumentRequestValidator` / `IsSupported`.
-- [ ] (candidate) `InfrastructureDeclarationsPayloadNormalizer` / `IInfrastructureDeclarationParser.CanParse` — declaration `format` strings use trim-only equality — **seed 2026-10-05:** if upload metadata ever carries parameterized format tokens, parsers would miss (`terraform-show-json; charset=utf-8`).
-- [ ] (candidate) `PlainTextContextDocumentParser` — `text/markdown; charset=utf-8` vs `text/plain; charset=utf-8` routing — **seed 2026-10-05:** both use `NormalizeContentTypeForLookup`; reachable inline document posts per `SupportedContextDocumentContentTypes.All`.
-- [ ] (candidate) `KubernetesManifestCanonicalObjectMapper` — pod `host_ip` / snake_case host alias fields beyond `hostAliases` — **seed 2026-10-05:** kubernetes-json fixtures may emit snake_case port/host fields similar to prior container port hits; reachability `KubernetesJsonInfrastructureDeclarationParser`.
 - [x] (valid-no-repro) `ContextIngestionStableReferenceIds.ForDocument` / `DocumentConnector.DeltaAsync` — charset suffix on `ContentType` might split stable document identity — **cheap-disproof 2026-10-05 seed hunt:** `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`.
 
 2026-10-05 seed hunt (seed→hit): pixel stub detector + diagram router MIME charset parity; `IsStructuredDiagramJsonContentType` in stub detector; 800 scoped tests passed.

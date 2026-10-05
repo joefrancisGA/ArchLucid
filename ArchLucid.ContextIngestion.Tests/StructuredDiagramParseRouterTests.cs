@@ -46,6 +46,27 @@ public sealed class StructuredDiagramParseRouterTests
     }
 
     [Fact]
+    public void Parse_MermaidShortTokenWithCharsetParameter_YieldsNodesAndEdges()
+    {
+        const string mermaid = """
+            flowchart LR
+                api["API Gateway"]
+                db["SQL Database"]
+                api --> db
+            """;
+
+        DiagramParseResult result = this.router.Parse(new DiagramSourceReference
+        {
+            Name = "fixture",
+            Format = $"{DiagramSourceFormats.Mermaid}; charset=utf-8",
+            Content = mermaid,
+        });
+
+        result.Warnings.Should().BeEmpty();
+        result.Model.Nodes.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges()
     {
         const string mermaid = """

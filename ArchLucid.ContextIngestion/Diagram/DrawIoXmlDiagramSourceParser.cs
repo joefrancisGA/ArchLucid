@@ -10,8 +10,7 @@ public sealed class DrawIoXmlDiagramSourceParser : IDiagramSourceParser
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, DiagramSourceFormats.DrawIoXml, StringComparison.OrdinalIgnoreCase)
-            || SupportedContextDocumentContentTypes.IsDrawIoXmlContentType(format);
+        return DiagramSourceFormats.IsDrawIoXmlFormat(format);
     }
 
     public DiagramParseResult Parse(DiagramSourceReference source)

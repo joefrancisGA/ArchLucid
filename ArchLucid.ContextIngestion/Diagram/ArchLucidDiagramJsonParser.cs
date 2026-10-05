@@ -13,8 +13,7 @@ public sealed class ArchLucidDiagramJsonParser : IDiagramSourceParser
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, DiagramSourceFormats.ArchLucidDiagramJson, StringComparison.OrdinalIgnoreCase)
-            || SupportedContextDocumentContentTypes.IsStructuredDiagramJsonContentType(format);
+        return DiagramSourceFormats.IsArchLucidDiagramJsonFormat(format);
     }
 
     public DiagramParseResult Parse(DiagramSourceReference source)
