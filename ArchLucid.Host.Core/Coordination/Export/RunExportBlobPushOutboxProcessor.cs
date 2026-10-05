@@ -133,10 +133,19 @@ public sealed class RunExportBlobPushOutboxProcessor(
 
         if (manifestCompareDetail?.GoldenManifest is null)
         {
-            Logger.LogWarning(
-                "Skipping run export blob push for run {RunId}: run detail no longer found.",
-                entry.RunId);
-            await MarkExportPushProcessedAsync(outbox, entry.OutboxId, cancellationToken).ConfigureAwait(false);
+            await MarkExportPushProcessedAsync(
+                outbox,
+                entry.OutboxId,
+                cancellationToken,
+                postMarkObservability: () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Warning))
+                    {
+                        Logger.LogWarning(
+                            "Skipping run export blob push for run {RunId}: run detail no longer found.",
+                            entry.RunId);
+                    }
+                }).ConfigureAwait(false);
 
             return;
         }
@@ -203,11 +212,20 @@ public sealed class RunExportBlobPushOutboxProcessor(
                 return;
             }
 
-            Logger.LogWarning(
-                "Skipping run export blob push for run {RunId}: {Reason}",
-                entry.RunId,
-                packageResult.NotFoundReason);
-            await MarkExportPushProcessedAsync(outbox, entry.OutboxId, cancellationToken).ConfigureAwait(false);
+            await MarkExportPushProcessedAsync(
+                outbox,
+                entry.OutboxId,
+                cancellationToken,
+                postMarkObservability: () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Warning))
+                    {
+                        Logger.LogWarning(
+                            "Skipping run export blob push for run {RunId}: {Reason}",
+                            entry.RunId,
+                            packageResult.NotFoundReason);
+                    }
+                }).ConfigureAwait(false);
 
             return;
         }
@@ -273,13 +291,15 @@ public sealed class RunExportBlobPushOutboxProcessor(
     private static async Task MarkExportPushProcessedAsync(
         IRunExportBlobPushOutboxRepository outbox,
         Guid outboxId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Action? postMarkObservability = null)
     {
         await outbox.MarkProcessedAsync(outboxId, cancellationToken).ConfigureAwait(false);
 
         try
         {
             ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+            postMarkObservability?.Invoke();
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

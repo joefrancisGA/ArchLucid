@@ -497,6 +497,73 @@ public sealed class PostCommitProjectionOutboxProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_run_skip_warning_log_failure()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PostCommitProjectionOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                    RunId = runId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        outbox
+            .Setup(o => o.RecordBackoffAfterProcessingFailureAsync(
+                outboxId,
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions()),
+            TimeProvider.System,
+            new ThrowingWarningLogger<PostCommitProjectionOutboxProcessor>());
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_does_not_schedule_retry_after_benign_skip_debug_log_failure()
     {
         Guid outboxId = Guid.NewGuid();
@@ -576,6 +643,34 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    private sealed class ThrowingWarningLogger<T> : ILogger<T>
+    {
+        private sealed class NullScope : IDisposable
+        {
+            public void Dispose()
+            {
+            }
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+            where TState : notnull => new NullScope();
+
+        public bool IsEnabled(LogLevel logLevel) => logLevel == LogLevel.Warning;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (logLevel == LogLevel.Warning)
+            {
+                throw new InvalidOperationException("log sink unavailable");
+            }
+        }
     }
 
     private sealed class ThrowingDebugLogger<T> : ILogger<T>
