@@ -133,7 +133,9 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public static bool IsForbiddenImageContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && contentType.Trim().StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        string normalized = NormalizeContentTypeForLookup(contentType);
+
+        return !string.IsNullOrEmpty(normalized)
+               && normalized.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
     }
 }

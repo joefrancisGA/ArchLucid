@@ -36,7 +36,7 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
     public bool CanParse(string format)
     {
         return string.Equals(format, DiagramSourceFormats.Mermaid, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(format, SupportedContextDocumentContentTypes.Mermaid, StringComparison.OrdinalIgnoreCase);
+            || SupportedContextDocumentContentTypes.IsMermaidContentType(format);
     }
 
     public DiagramParseResult Parse(DiagramSourceReference source)

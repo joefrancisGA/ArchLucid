@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `PixelDiagramIntakeStubDetector` used exact structured-diagram JSON MIME match so `; charset=utf-8` skipped pixel stub detection and the diagram JSON parser returned empty canonical objects instead of the not-verifiable warning; use `IsStructuredDiagramJsonContentType`; align `MermaidDiagramSourceParser.CanParse` and `IsForbiddenImageContentType` with `NormalizeContentTypeForLookup`; regressions `TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter`, `DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType`; 800 scoped tests passed.
+
 2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `SupportedContextDocumentContentTypes.IsSupported` and document parser `CanParse` rejected MIME types with `; charset=utf-8` parameters; strip parameters via `NormalizeContentTypeForLookup` for allowlist, parser routing, and stable document ids; regressions `IsSupported_MatchesCanonicalList`, `ForDocument_ignores_content_type_charset_parameters`, `NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument`; 798 scoped ContextIngestion/Canonicalization tests passed.
 
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator continue/cache manifest paths after tenant coalesce-key fixes; promoted continue run-id GUID hex casing cache hit (orchestrator integration) and cheap-disproved; no new hunt-ready row; seeded five `(candidate)` rows; 69 scoped orchestrator/cache tests passed.
@@ -22531,8 +22533,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-05 seed hunt (seed→hit): pixel stub detector + diagram router MIME charset parity; `IsStructuredDiagramJsonContentType` in stub detector; 800 scoped tests passed.
+
 2026-10-05 seed hunt (seed→hit): parameterized MIME types (`; charset=utf-8`) rejected by `IsSupported` and skipped document parsers; `NormalizeContentTypeForLookup`; 798 scoped tests passed.
 
+- [x] (proven) `PixelDiagramIntakeStubDetector.TryDetect` — exact MIME match missed `application/vnd.archlucid.diagram+json; charset=utf-8` so pixel intake stubs were parsed as empty native diagram JSON — **hit 2026-10-05 seed hunt:** use `IsStructuredDiagramJsonContentType`; regressions `TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter`, `DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType`.
 - [x] (proven) `SupportedContextDocumentContentTypes.IsSupported` / `IContextDocumentParser.CanParse` / `ContextIngestionStableReferenceIds.ForDocument` — MIME types with `; charset=utf-8` (and other parameters) failed allowlist lookup and parser routing — **hit 2026-10-05 seed hunt:** strip parameter suffixes before comparison; regressions `IsSupported_MatchesCanonicalList`, `ForDocument_ignores_content_type_charset_parameters`, `NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument`.
 
 2026-09-28 seed hunt #6997 (seed→hit): reseeded context-ingestion; proved terraform-show-json camelCase `forEach` for_each address suffix gap; cheap-disproof closed snake_case `provider_name`, `resource_address`, and `terraform_address`; regressions `ParseAsync_camel_case_for_each_appends_for_each_suffix_to_name`, `ParseAsync_snake_case_provider_name_projects_provider_name_exposure`, `ParseAsync_snake_case_resource_address_uses_explicit_address_when_name_collides`, and `ParseAsync_snake_case_terraform_address_uses_explicit_address`; 792 scoped ContextIngestion/Canonicalization tests passed.
