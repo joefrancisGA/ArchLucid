@@ -99,4 +99,37 @@ describe("buildProxyUpstreamHeaders BFF session (LK-05 P1 / LK-06 P2)", () => {
 
     expect(headers.get("Authorization")).toBe("Bearer cookie-token");
   });
+
+  it("does not forward HttpOnly BFF session bearer on public anonymous diagnostics paths", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "cookie-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const headers = buildProxyUpstreamHeaders(
+      mockNextRequest({ bffSessionCookie: issueResult?.sessionCookieValue ?? null }),
+      "v1/diagnostics/first-tenant-funnel",
+    );
+
+    expect(headers.get("Authorization")).toBeNull();
+  });
+
+  it("still forwards browser Authorization on public anonymous paths when present", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "cookie-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const headers = buildProxyUpstreamHeaders(
+      mockNextRequest({
+        authorization: "Bearer visitor-jwt",
+        bffSessionCookie: issueResult?.sessionCookieValue ?? null,
+      }),
+      "v1/marketing/early-access",
+    );
+
+    expect(headers.get("Authorization")).toBe("Bearer visitor-jwt");
+  });
 });

@@ -10958,13 +10958,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 47
-- **bugs-found:** 31
+- **hunts:** 48
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — AllowAnonymous core-pilot / first-tenant funnel telemetry blocked by stale BFF cookie
+- **last-bug:** 2026-10-05 — BFF cookie bearer on anonymous proxy paths; core-pilot rail stepIndex above API max
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (hit): promoted two seeded candidates — proved `buildProxyUpstreamHeaders` still preferred HttpOnly BFF `Authorization` on `isPublicAnonymousProxyPath` routes (e.g. `v1/diagnostics/first-tenant-funnel`), risking wrong tenant scope when per-tenant funnel emission is enabled; fixed by using browser `Authorization` only on anonymous paths; proved `recordCorePilotRailChecklistStep` accepted indices 4–5 while API rejects `stepIndex > 3`; aligned client guard to 0–3; cheap-disproved email-OTP 403 mapping regression (no reachable proxy 403 without allowlist removal) and pulse without CSRF companion (intentional LK-07); regressions in `proxy-upstream-headers.test.ts` and `core-pilot-rail-telemetry.test.ts`; scoped auth/proxy vitest 324 passed with 3 unrelated baseline seam failures.
 
 2026-10-05 seed hunt (seed-only): re-read BFF/proxy forwarding, anonymous allowlist parity, email-OTP and bootstrap clients, and keepalive paths after the diagnostics allowlist hit; cheap-disproved core-pilot step-index mismatch (only step 3 is emitted today) and idle keepalive without CSRF companion (intentional LK-07); no hunt-ready row met the failing-repro bar; seeded four bounded candidates below; scoped auth/proxy vitest 322 passed with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
 
@@ -10980,10 +10982,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `core-pilot-rail-telemetry.ts` `recordCorePilotRailChecklistStep` — client accepts `stepIndex` 0–5 but `POST /v1/diagnostics/core-pilot-rail-step` rejects `stepIndex > 3` (`ClientErrorTelemetryController.PostCorePilotRailChecklistStep`); a future checklist caller posting indices 4+ would get HTTP 400 and silently dropped telemetry.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — active HttpOnly BFF session on `isPublicAnonymousProxyPath` `v1/diagnostics/first-tenant-funnel` still forwards `Authorization` from the session cookie (`proxy-upstream-headers.test.ts` BFF precedence on operator paths); with owner flag `Telemetry:FirstTenantFunnel:PerTenantEmission`, signup funnel POST while a prior session cookie remains could attribute events to the wrong tenant.
-- [ ] (candidate) `email-otp-api.ts` `mapStatusToFailureCategory` — proxy-layer 403 responses (for example CSRF regression when a new pre-auth route ships without `isPublicAnonymousProxyPath`) surface as `unknown` rather than a distinct sign-in recovery category.
-- [ ] (candidate) `pulseBffSessionActivity` (`bff-session-sync.ts`) — returns without calling `/api/auth/bff-session/activity` when the readable CSRF companion cookie is missing even if the HttpOnly BFF session is still valid; presenter/print keepalive stops sliding idle activity until the operator re-authenticates.
+- [x] (proven) `core-pilot-rail-telemetry.ts` `recordCorePilotRailChecklistStep` — **hit 2026-10-05 thorough hunt:** client accepted `stepIndex` 4–5 but `POST /v1/diagnostics/core-pilot-rail-step` rejects `stepIndex > 3`; callers of the exported helper would POST and receive HTTP 400 with telemetry dropped silently; fixed by aligning the client guard to 0–3; regression `core-pilot-rail-telemetry.test.ts`.
+- [x] (proven) `buildProxyUpstreamHeaders` — **hit 2026-10-05 thorough hunt:** `isPublicAnonymousProxyPath` skipped the configured server bearer but still forwarded HttpOnly BFF session `Authorization` on routes such as `v1/diagnostics/first-tenant-funnel`, which can bind `FirstTenantFunnelEmitter` to the prior tenant when per-tenant emission is enabled; fixed by using only explicit browser `Authorization` on anonymous paths; regressions in `proxy-upstream-headers.test.ts`.
+- [x] (invalid) `email-otp-api.ts` `mapStatusToFailureCategory` — **invalid 2026-10-05 thorough hunt:** pre-auth email-OTP proxy paths remain on `isPublicAnonymousProxyPath`; no in-zone repro of proxy 403 without a hypothetical allowlist regression; mapping 403 to `unknown` is conservative for unclassified failures.
+- [x] (valid-no-repro) `pulseBffSessionActivity` (`bff-session-sync.ts`) — **valid-no-repro 2026-10-05 thorough hunt:** activity POST requires CSRF parity with other BFF mutations (`activity/route.ts`); skipping pulse when the readable CSRF cookie is missing is intentional, not idle-keepalive bypass.
 
 - [x] (proven) `core-pilot-rail-telemetry.ts` / `isPublicAnonymousProxyPath` — **hit 2026-10-05 seed hunt (seed→hit):** `POST /api/proxy/v1/diagnostics/core-pilot-rail-step` is `[AllowAnonymous]` on `ClientErrorTelemetryController` but was absent from the public anonymous proxy allowlist; fire-and-forget `fetch` omits BFF CSRF; `enforceProxyBffSessionGuard` blocked mutations when a stale or active HttpOnly BFF cookie was present; checklist telemetry silently dropped; fixed by adding exact-path allowlist entries for `core-pilot-rail-step` and sibling `first-tenant-funnel`; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`.
 

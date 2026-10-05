@@ -36,12 +36,15 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
     proxyPath !== undefined &&
     proxyPath.length > 0 &&
     isPublicAnonymousProxyPath(proxyPath);
-  const bearerToUse =
-    cookieBearer.length > 0
+  const bearerToUse = skipPrivilegedUpstreamAuth
+    ? browserBearer.length > 0
+      ? browserBearer
+      : ""
+    : cookieBearer.length > 0
       ? cookieBearer
       : browserBearer.length > 0
         ? browserBearer
-        : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
+        : serverBearerToken.length > 0
           ? `Bearer ${serverBearerToken}`
           : "";
   const hasBearer = bearerToUse.length > 0;
