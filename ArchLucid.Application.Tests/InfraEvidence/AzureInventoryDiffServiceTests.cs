@@ -67,6 +67,60 @@ public sealed class AzureInventoryDiffServiceTests
     }
 
     [Fact]
+    public async Task ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers()
+    {
+        ScopeContext scope = CreateScope();
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        byte[] sharedHash = [0x01, 0x02, 0x03];
+
+        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshotWithContentHash(snapshotAId, sharedHash);
+        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshotWithContentHash(snapshotBId, sharedHash);
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, snapshotAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotA);
+        snapshotRepository
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotB);
+
+        Mock<IAzureInventoryDiffRepository> diffRepository = new();
+        diffRepository
+            .Setup(repository => repository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AzureInventoryDiffSummaryRecord?)null);
+        diffRepository
+            .Setup(repository => repository.InsertDiffAsync(scope, It.IsAny<AzureInventoryDiffPersistRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, AzureInventoryDiffPersistRequest request, CancellationToken _) =>
+                new AzureInventoryDiffPersistResult
+                {
+                    DiffId = request.DiffId,
+                    Summary = request.Summary,
+                    WasExisting = false,
+                });
+
+        RecordingDiffConsumer consumer = new();
+        AzureInventoryDiffService service = CreateService(
+            diffRepository.Object,
+            snapshotRepository.Object,
+            consumers: [consumer]);
+
+        AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(
+            scope,
+            snapshotAId,
+            snapshotBId,
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Changes.Should().BeEmpty();
+        consumer.InvocationCount.Should().Be(1);
+        consumer.LastSummary.Should().NotBeNull();
+        consumer.LastSummary!.SnapshotAId.Should().Be(snapshotAId);
+        consumer.LastSummary.SnapshotBId.Should().Be(snapshotBId);
+        consumer.LastChanges.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs()
     {
         ScopeContext scope = CreateScope();
@@ -147,6 +201,21 @@ public sealed class AzureInventoryDiffServiceTests
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         };
+
+    private static AzureInventorySnapshotDetailReadModel BuildSnapshotWithContentHash(Guid snapshotId, byte[] contentHashSha256)
+    {
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId,
+                TenantId = Guid.NewGuid(),
+                SubscriptionId = "sub",
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                ContentHashSha256 = contentHashSha256,
+            },
+        };
+    }
 
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
         Guid snapshotId,

@@ -29036,13 +29036,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 18
-- **bugs-found:** 2
+- **hunts:** 20
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — persisted inventory diff retries skipped diff-consumer fan-out
+- **last-bug:** 2026-10-05 — post-materialize skipped SecureNow neighborhood carry-forward when empty diff was already persisted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted composition-boundary candidate after prior persisted-pair consumer fix; proved `AzureInventoryDiffService.PersistEmptyDiffAsync` (reachable when snapshot headers share `ContentHashSha256` after post-materialize diff) persisted zero-change diffs without calling registered `IAzureInventoryDiffConsumer` implementations (`AuditContinuousReadinessDiffConsumer`, `SecureNowArchitectDiffConsumer`); fixed fan-out parity; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`; 3 Application diff-service tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-09-26 seed hunt (seed-only): reseeded host-infra-evidence-composition after Graphviz/delete/peel-catalog module churn; cheap-disproof closed duplicate peel-catalog provider and orphan bootstrapper candidates; 12 scoped InfraEvidenceComposition tests passed.
 
@@ -29079,6 +29081,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `TenantBrandingAdminService` — tenant-branding admin services are registered unconditionally; a reachable branding-profile mutation request under a host with only the read-side branding cache or a no-op persistence provider could report success without durable invalidation, leaving subsequent branded exports stale — **cheap-disproof 2026-10-05 thorough hunt:** InMemory/SQL registrars decorate branding repositories with cache invalidation on every mutation; admin activate paths persist through that wrapper.
 
 - [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService` — recomputing a persisted snapshot-pair diff returned `WasExisting` without notifying registered consumers, so a retry after partial consumer failure could skip `SecureNowArchitectDiffConsumer` and `AuditContinuousReadinessDiffConsumer` side effects — **hit 2026-10-05 thorough hunt:** notify consumers on existing diffs and isolate per-consumer failures; regressions `ComputeAndPersistDiffAsync_when_snapshot_pair_already_persisted_still_notifies_diff_consumers` and `ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs`.
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventoryDiffConsumer` fan-out via `AzureInventoryDiffService.PersistEmptyDiffAsync` — when consecutive Azure inventory snapshots share the same `ContentHashSha256`, the diff service short-circuits to an empty persisted diff without notifying registered consumers, so post-materialize “no changes” captures never reach `AuditContinuousReadinessDiffConsumer` or `SecureNowArchitectDiffConsumer` — **hit 2026-10-05 seed hunt (seed→hit):** notify consumers after empty diff insert; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`.
+
+- [x] (proven) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` — incremental post-materialize only called `SecureNowArchitectNeighborhoodRunner.CarryForwardAllAsync` when `AzureInventoryDiffComputeResult.WasExisting` was false, so a retry after a persisted empty snapshot-pair diff skipped neighborhood carry-forward and left SecureNow path state stale on the new snapshot — **hit 2026-10-05 seed hunt:** carry forward on any successful zero-change diff; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`.
+
+2026-10-05 seed hunt (hit): promoted hunt-ready row from post-materialize coordinator wiring registered by `InfraEvidenceCompositionModule`; empty persisted snapshot-pair diff with `WasExisting` skipped `CarryForwardAllAsync` on retry; fixed carry-forward guard and added regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-05 thorough hunt (hit): proved inventory diff consumer fan-out gap on persisted snapshot pairs; cheap-disproved branding-cache race, worker-only missing-repo, and admin invalidation candidates; 2 Application + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false` due to pre-existing ARCH006 persistence analyzer noise).
 
@@ -29100,15 +29107,21 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 19
-- **bugs-found:** 10
+- **hunts:** 22
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — legacy orientation strip slugs missed omit-set alias resolution and duplicated claim bands
+- **last-bug:** 2026-10-05 — procurement help duplicated claim on operator shell (procurement-help slug outside omit set)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-05 seed hunt (hit): proved operator `/help/procurement` rendered `ProcurementHelpClaimDisciplineStrip` and `ProcurementHelpEvidenceOrientationStrip` with legacy `procurement-help` slug while registry slug is `procurement`, duplicating claim discipline; omitted `procurement` and aliased `procurement-help`; 17 scoped `claim-discipline-policy` tests plus procurement help regressions passed.
+
+2026-10-05 thorough hunt (dry): cheap-disproved authentication-sign-in slug parity (operator renders claim once via orientation strip only; buyer-polished hides strip and folds header claim; omit without operator claim strip would drop copy) and system-health slug mismatch (`SystemHealthHelpEvidenceOrientationStrip` uses omitted `help-system-health`; admin `SystemHealthEvidenceOrientationStrip` is sources-only on `system-health`); 16 scoped `claim-discipline-policy` tests passed.
+
 2026-10-03 seed hunt (seed-only): re-read `claim-discipline-policy.ts` and its focused policy tests; no hunt-ready row was promoted; seeded canonical-slug alias, heading-id variant, and non-canonical slug-input candidates; no production fix or repro was attempted.
+
+2026-10-05 seed hunt (hit): proved `ConnectAwsSecurelyHelpEvidenceOrientationStrip` / `ConnectAzureSecurelyHelpEvidenceOrientationStrip` still passed legacy `connect-*-securely-help` slugs while `Connect*HelpClaimDisciplineStrip` already owned claim on operator `/help/cloud-connections/{aws,azure}` (GCP parity via `cloud-connections-gcp` omit); added `cloud-connections-aws` / `cloud-connections-azure` to omit set and alias map; 14 scoped `claim-discipline-policy` tests plus AWS/Azure help and orientation strip regressions passed.
 
 2026-10-05 seed hunt (hit): proved multiple live orientation strips still pass legacy strip slugs (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`) while `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` keys the canonical `help-*` registry slugs, so `shouldOmitClaimDisciplineBand` left duplicate claim callouts; fixed via `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` in omit resolution; 13 scoped `claim-discipline-policy` tests plus evidence-trail, glossary, and pilot-guide strip regressions passed.
 
@@ -29136,6 +29149,12 @@ ABQ-09 churn hotspot.
 - [x] (proven) `help-workspace-settings` / `HelpWorkspaceSettingsGuideView` — TOC passed raw `WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS` while slug is omitted and claim renders in strip without matching h2 anchor — **hit 2026-09-08 thorough hunt #1307:** duplicate TOC links to missing claim anchor; fixed by `resolveGuideHeadingsForStrip("help-workspace-settings", …)`; regression in `HelpWorkspaceSettingsGuideView.test.tsx`
 - [x] (proven) `help-jira-integration` / `HelpJiraIntegrationGuideView` — TOC passed raw `JIRA_INTEGRATION_HELP_GUIDE_HEADINGS` while slug is omitted — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by filtered `guideHeadings`; regression in `HelpJiraIntegrationGuideView.test.tsx`
 
+- [x] (proven) `ConnectAwsSecurelyHelpEvidenceOrientationStrip` / `ConnectAzureSecurelyHelpEvidenceOrientationStrip` — legacy `connect-aws-securely-help` and `connect-azure-securely-help` slugs left orientation claim visible alongside `Connect*HelpClaimDisciplineStrip` on operator help pages while `cloud-connections-gcp` omit already suppressed GCP orientation claim — **hit 2026-10-05 seed hunt:** omit `cloud-connections-aws` / `cloud-connections-azure` plus aliases; regressions in `claim-discipline-policy.test.ts`, connect AWS/Azure help topic tests, and orientation strip tests
+- [x] (proven) `ProcurementHelpEvidenceOrientationStrip` / `procurement-help` — operator shell duplicated claim with `ProcurementHelpClaimDisciplineStrip` because strip slug `procurement-help` was not omitted while registry slug is `procurement` — **hit 2026-10-05 seed hunt:** omit `procurement` and alias `procurement-help`; regressions in `claim-discipline-policy.test.ts` and `HelpTopicProcurement.test.tsx`
+- [ ] (candidate) `contact-support-help` / `contact-support` — `ContactSupportHelpEvidenceOrientationStrip` uses `contact-support-help` while registry slug is `contact-support` and omit set has neither; reachable at `/help/contact-support` (single claim today via orientation strip only)
+- [ ] (candidate) `core-pilot-help` / `first-architecture-review` — `CorePilotHelpEvidenceOrientationStrip` uses `core-pilot-help` while omit set keys `help-first-review` and `first-review-guide`; live guide uses header/closing-panel claim paths and unused registry strip import
+- [x] (invalid) `AuthenticationSignInHelpEvidenceOrientationStrip` / `authentication-sign-in-help` — registry slug `authentication-sign-in`; buyer-polished folds claim into header while omit set lacks alias — **invalid 2026-10-05 thorough hunt:** operator shell shows claim once in orientation strip (no `*ClaimDisciplineStrip` duplicate); buyer-polished already omits orientation strip; adding omit without operator claim strip would remove required copy
+- [x] (invalid) `system-health` vs `help-system-health` — operator workspace strips use `system-health` slug while omit set keys `help-system-health` — **invalid 2026-10-05 thorough hunt:** `/help/system-health` orientation strip passes `help-system-health` (omitted; claim strip owns copy); `/administration/system-health` orientation strip is sources-only on `system-health` with no claim prop
 - [x] (proven) `shouldOmitClaimDisciplineBand` / `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — live orientation strips pass legacy ids (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`, `connect-gcp-securely-help`) while omit set keys canonical `help-*` / registry slugs, so `resolveClaimDisciplineForStrip` still surfaced duplicate claim bands — **hit 2026-10-05 seed hunt:** alias map in omit resolution; regressions in `claim-discipline-policy.test.ts` and evidence-trail, glossary, pilot-guide orientation strip tests
 - [x] (proven) `ConnectGcpSecurelyHelpEvidenceOrientationStrip` / `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — orientation strip passed `stripSlug="connect-gcp-securely-help"` while the help registry and omit set use `cloud-connections-gcp`, so `shouldOmitClaimDisciplineBand` left the shared claim callout visible alongside the header info strip — **hit 2026-10-05 thorough hunt:** pass registry slug `cloud-connections-gcp` to `EvidenceOrientationClaimCallout`; regressions in `ConnectGcpSecurelyHelpEvidenceOrientationStrip.test.tsx`, `HelpTopicConnectGcpSecurely.test.tsx`, and `claim-discipline-policy.test.ts`
 - [x] (invalid) `resolveGuideHeadingsForStrip` — alternate claim heading id vs caller `claimHeadingId` — **cheap-disproof 2026-10-05 thorough hunt:** omitted guides already pass matching ids (e.g. `help-advisory-scans` / `what-advisory-scans-are-not`); no live mismatch found in zone paths

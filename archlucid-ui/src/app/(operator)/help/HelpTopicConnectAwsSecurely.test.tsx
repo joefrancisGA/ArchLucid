@@ -5,6 +5,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/cloud-connections/aws",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpConnectAwsSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyGuideView";
 import {
   AWS_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
@@ -29,9 +39,7 @@ import {
   CONNECT_AWS_SECURELY_VERIFICATION_HEADING,
   buildConnectAwsSecurelyVerifyHref,
 } from "@/lib/connect-aws-securely-help-content";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectAwsSecurelyGuideView", () => {
@@ -92,29 +100,14 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
     expect(screen.getByTestId("connect-aws-securely-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("connect-aws-securely-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-connect-aws-securely-claim-discipline-strip")).toHaveTextContent(
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("connect-aws-securely-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
     const sources = within(screen.getByTestId("connect-aws-securely-help-sources"));
-    const visibleSources = filterWhereToGoNextFollowUpLinks(CONNECT_AWS_SECURELY_SOURCES);
-
-    for (const source of visibleSources) {
-      expectFollowUpLink(sources, source);
-    }
-
-    for (const source of CONNECT_AWS_SECURELY_SOURCES) {
-      if (visibleSources.includes(source)) {
-        continue;
-      }
-
-      expect(
-        sources.queryByRole("link", {
-          name: formatHelpFollowUpLinkAccessibleName(source.href, source.label),
-        }),
-      ).toBeNull();
-    }
+    expectWhereToGoNextFollowUpLinks(sources, CONNECT_AWS_SECURELY_SOURCES, "/help/cloud-connections/aws");
   });
 
   it("shows verification callout, troubleshoot section, and validate deep links", () => {
