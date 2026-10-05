@@ -34,6 +34,17 @@ internal static class DraftNewCommandMustQuestionLoop
         IReadOnlyList<DraftElicitationQuestion> pending =
             questionsResult.Value.Selection.PendingMustQuestions;
 
+        if (!skipAll && pending.Count > 0 && CliExecutionContext.JsonOutput)
+        {
+            const string message =
+                "JSON output mode requires --skip-must-questions when the draft has pending MUST questions.";
+
+            await error.WriteLineAsync(message);
+            CliJson.WriteFailureLine(output, CliExitCode.UsageError, "usage", message);
+
+            return CliExitCode.UsageError;
+        }
+
         foreach (DraftElicitationQuestion question in pending)
         {
             if (skipAll)
@@ -106,7 +117,12 @@ internal static class DraftNewCommandMustQuestionLoop
 
             if (string.IsNullOrWhiteSpace(answerLine))
             {
-                await error.WriteLineAsync("An answer or explicit 'skip' is required for MUST questions.");
+                const string message = "An answer or explicit 'skip' is required for MUST questions.";
+
+                await error.WriteLineAsync(message);
+
+                if (CliExecutionContext.JsonOutput)
+                    CliJson.WriteFailureLine(output, CliExitCode.UsageError, "usage", message);
 
                 return CliExitCode.UsageError;
             }

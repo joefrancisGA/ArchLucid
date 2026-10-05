@@ -459,6 +459,147 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+            bool readLineCalled = false;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = false,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new PendingMustQuestionsHandler());
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+                CreateApiClient = (_, _) => client,
+                ReadLineAsync = (_, _) =>
+                {
+                    readLineCalled = true;
+
+                    return Task.FromResult<string?>("should-not-read");
+                },
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            readLineCalled.Should().BeFalse();
+            error.ToString().Should().Contain("--skip-must-questions");
+
+            string jsonLine = output.ToString()
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Single(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("ok").GetBoolean().Should().BeFalse();
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_submit_without_request_id_returns_operation_failed()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new SubmitWithoutRequestIdHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("no requestId");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_submit_without_request_id_does_not_emit_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new SubmitWithoutRequestIdHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_prompted_system_name_is_trimmed_before_patch()
+    {
+        string? capturedSystemName = null;
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new CapturePatchSystemNameHandler(name => capturedSystemName = name));
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => client,
+            PromptRequiredAsync = (_, _, _) => Task.FromResult<string?>("  Contoso API  "),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.Success);
+        capturedSystemName.Should().Be("Contoso API");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_json_output_suppresses_human_progress_lines()
     {
         bool previousJson = CliExecutionContext.JsonOutput;
@@ -641,6 +782,86 @@ public sealed class DraftNewCommandCoreTests
                 Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
 
                 return Json(HttpStatusCode.OK, DraftBody("Drafting", mismatchedTenantId));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class PendingMustQuestionsHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "Admitted",
+                    selection = new
+                    {
+                        pendingMustQuestions = new[]
+                        {
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class SubmitWithoutRequestIdHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/submit", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "RunSpawned",
+                    runId = "run-draft-cli-001",
+                    requestId = "   ",
+                });
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class CapturePatchSystemNameHandler : DraftFlowHandler
+    {
+        private readonly Action<string?> _capture;
+
+        public CapturePatchSystemNameHandler(Action<string?> capture) => _capture = capture;
+
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
+            {
+                string json = request.Content!.ReadAsStringAsync().GetAwaiter().GetResult();
+                using JsonDocument document = JsonDocument.Parse(json);
+
+                if (document.RootElement.TryGetProperty("systemName", out JsonElement systemName))
+                    _capture(systemName.GetString());
+
+                return Json(HttpStatusCode.OK, DraftBody("Drafting"));
             }
 
             return null;

@@ -61,7 +61,7 @@ internal static class DraftNewCommandAdmitStage
             if (promptedName is null)
                 return (null, CliExitCode.OperationFailed);
 
-            systemName = promptedName;
+            systemName = promptedName.Trim();
         }
 
         string businessOutcome = options.BusinessOutcome?.Trim() ?? string.Empty;
@@ -76,7 +76,7 @@ internal static class DraftNewCommandAdmitStage
             if (promptedOutcome is null)
                 return (null, CliExitCode.OperationFailed);
 
-            businessOutcome = promptedOutcome;
+            businessOutcome = promptedOutcome.Trim();
         }
 
         PatchDraftRequest patch = new()
