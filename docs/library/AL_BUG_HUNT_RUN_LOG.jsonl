@@ -8797,8 +8797,6 @@
 {"at":"2026-10-05T15:20:27.0373981Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Budgeting/LlmMonthlySpendPlanId.cs,ArchLucid.Core/Billing/AzureMarketplace/MarketplacePlanIdMapper.cs)"]}
 {"at":"2026-10-05T15:23:34.1420213Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/AzureMarketplace/"]}
 {"at":"2026-10-05T15:28:06.2950045Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Billing/AzureMarketplace/"]}
-<<<<<<< HEAD
 {"at":"2026-10-05T15:31:09.0292414Z","zoneId":"core-tenancy-commercial","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity/,ArchLucid.Core/Billing/,ArchLucid.Core/Budgeting/"]}
-=======
 {"at":"2026-10-05T15:34:17.9807505Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
->>>>>>> 49bb0bbdf4 (Fix Azure-only illustrative infrastructure cost summary note.)
+{"at":"2026-10-05T15:37:43.8898662Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}

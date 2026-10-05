@@ -32,6 +32,37 @@ public sealed class InfrastructureCostSummaryNotesTests
     }
 
     [Fact]
+    public void ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp()
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [
+                new InfrastructureCostLine(
+                    "topology",
+                    "api",
+                    RuntimePlatform.AppService,
+                    "Azure App Service",
+                    55m,
+                    InfrastructureCostPriceSource.RetailApi),
+                new InfrastructureCostLine(
+                    "topology",
+                    "cache",
+                    RuntimePlatform.Redis,
+                    "Azure Cache for Redis",
+                    40m,
+                    InfrastructureCostPriceSource.Estimated),
+            ],
+            95m,
+            AnyRetailPricing: true,
+            AllRetailPricing: false);
+
+        string note = InfrastructureCostSummaryNotes.ComposeRetailBlendNote(totals);
+
+        note.Should().Contain("Azure");
+        note.Should().NotBe(
+            "Blend of Retail API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).");
+    }
+
+    [Fact]
     public void ComposeIllustrativeOnlyNote_azure_only_mentions_azure_not_generic_only()
     {
         InfrastructureCostEstimateTotals totals = new(

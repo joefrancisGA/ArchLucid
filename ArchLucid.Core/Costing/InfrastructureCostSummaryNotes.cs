@@ -49,6 +49,9 @@ internal static class InfrastructureCostSummaryNotes
         if (soleFamily == CloudProvider.Gcp)
             return "Blend of GCP Billing Catalog matches and illustrative fallbacks.";
 
+        if (soleFamily == CloudProvider.Azure)
+            return "Blend of Azure Retail Prices API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).";
+
         return "Blend of Retail API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).";
     }
 
