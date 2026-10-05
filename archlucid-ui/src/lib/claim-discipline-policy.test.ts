@@ -167,6 +167,14 @@ describe("claim-discipline-policy", () => {
     ).toBeUndefined();
   });
 
+  it("omits cloud provider connection help slugs when header claim strip owns claim discipline", () => {
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-aws")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-azure")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("connect-aws-securely-help")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("connect-azure-securely-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("connect-aws-securely-help", "Not a diligence package.")).toBeUndefined();
+  });
+
   it("omits legacy orientation strip slug aliases that differ from registry help-topic slugs", () => {
     expect(shouldOmitClaimDisciplineBand("connect-gcp-securely-help")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("evidence-trail-help")).toBe(true);

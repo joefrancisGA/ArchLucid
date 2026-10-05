@@ -35,6 +35,8 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "azure-permissions-help",
   "baseline-settings",
   "cloud-connections",
+  "cloud-connections-aws",
+  "cloud-connections-azure",
   "cloud-connections-gcp",
   "comparison-replay-help",
   "compliance-journey",
@@ -191,6 +193,8 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
  * as the canonical help-topic slug in {@link CLAIM_DISCIPLINE_BAND_OMIT_SLUGS}.
  */
 const CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES: ReadonlyMap<string, string> = new Map([
+  ["connect-aws-securely-help", "cloud-connections-aws"],
+  ["connect-azure-securely-help", "cloud-connections-azure"],
   ["connect-gcp-securely-help", "cloud-connections-gcp"],
   ["evidence-trail", "help-evidence-trail"],
   ["evidence-trail-help", "help-evidence-trail"],
