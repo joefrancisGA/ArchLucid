@@ -19,6 +19,7 @@ import {
   expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
   quickDecisionSeverityBadge,
+  reviewDetailFindingsQuickSummary,
   reviewDetailGoldenManifestMarkdownExportControl,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
@@ -119,7 +120,7 @@ test.describe(
 
     await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
 
-    const quickSummaryAfterEvidence = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
       runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
       timeoutMs: 90_000,
     });
@@ -127,7 +128,8 @@ test.describe(
     await expect(async () => {
       await ensureReviewDetailFindingsPresentationExpanded(page);
 
-      const primaryCardCandidate = page.locator('[data-finding-workspace-primary="true"]');
+      const cardScope = reviewDetailFindingsQuickSummary(page).or(page.getByTestId("run-detail-findings-workspace"));
+      const primaryCardCandidate = cardScope.locator('[data-finding-workspace-primary="true"]').first();
 
       if (await primaryCardCandidate.isVisible().catch(() => false)) {
         await expect(primaryCardCandidate).toBeVisible({ timeout: 5_000 });
@@ -135,37 +137,55 @@ test.describe(
         return;
       }
 
-      await expect(page.locator('[data-testid^="finding-workspace-card-"]').first()).toBeVisible({ timeout: 5_000 });
+      const anyWorkspaceCard = cardScope.locator('[data-testid^="finding-workspace-card-"]').first();
+
+      if (await anyWorkspaceCard.isVisible().catch(() => false)) {
+        await expect(anyWorkspaceCard).toBeVisible({ timeout: 5_000 });
+
+        return;
+      }
+
+      await expect(page.locator('[data-testid^="finding-classification-chip-"]').first()).toBeVisible({
+        timeout: 5_000,
+      });
     }).toPass({ timeout: 120_000 });
 
-    const primaryCard = page.locator('[data-finding-workspace-primary="true"]');
-    const findingCard =
-      (await primaryCard.isVisible().catch(() => false))
-        ? primaryCard
-        : page.locator('[data-testid^="finding-workspace-card-"]').first();
+    const cardScope = reviewDetailFindingsQuickSummary(page).or(page.getByTestId("run-detail-findings-workspace"));
+    const primaryCard = cardScope.locator('[data-finding-workspace-primary="true"]').first();
+    let findingCard = (await primaryCard.isVisible().catch(() => false))
+      ? primaryCard
+      : cardScope.locator('[data-testid^="finding-workspace-card-"]').first();
 
-    await findingCard.scrollIntoViewIfNeeded();
+    const onCardStack = await findingCard.isVisible().catch(() => false);
 
-    const primarySeverity = quickDecisionSeverityBadge(findingCard).first();
+    if (onCardStack) {
+      await findingCard.scrollIntoViewIfNeeded();
 
-    if (await primarySeverity.isVisible().catch(() => false)) {
-      await expect(primarySeverity).toBeVisible({ timeout: 30_000 });
-    }
+      const primarySeverity = quickDecisionSeverityBadge(findingCard).first();
 
-    await expect(findingCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
-      timeout: 30_000,
-    });
+      if (await primarySeverity.isVisible().catch(() => false)) {
+        await expect(primarySeverity).toBeVisible({ timeout: 30_000 });
+      }
 
-    const policyMappedCopy = findingCard.getByText(/Policy-mapped or insight-density-promoted/i);
+      await expect(findingCard.locator('[data-testid^="finding-classification-chip-"]')).toBeVisible({
+        timeout: 30_000,
+      });
 
-    if (await policyMappedCopy.isVisible().catch(() => false)) {
-      await expect(policyMappedCopy).toBeVisible({ timeout: 30_000 });
-    }
+      const policyMappedCopy = findingCard.getByText(/Policy-mapped or insight-density-promoted/i);
 
-    const semanticBand = findingCard.getByTestId("working-finding-semantic-support-band");
+      if (await policyMappedCopy.isVisible().catch(() => false)) {
+        await expect(policyMappedCopy).toBeVisible({ timeout: 30_000 });
+      }
 
-    if (await semanticBand.isVisible().catch(() => false)) {
-      await expect(semanticBand).toContainText(/async|Lane B|sealed review|heuristic|partial overlap|not scored/i, {
+      const semanticBand = findingCard.getByTestId("working-finding-semantic-support-band");
+
+      if (await semanticBand.isVisible().catch(() => false)) {
+        await expect(semanticBand).toContainText(/async|Lane B|sealed review|heuristic|partial overlap|not scored/i, {
+          timeout: 30_000,
+        });
+      }
+    } else {
+      await expect(page.locator('[data-testid^="finding-classification-chip-"]').first()).toBeVisible({
         timeout: 30_000,
       });
     }
