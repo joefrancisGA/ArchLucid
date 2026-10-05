@@ -21,6 +21,24 @@ describe("mapSponsorRoiTrendSavingsChartPoints", () => {
     expect(points[0]?.savingsTooltipSuffix).toBe("Run mix not returned");
   });
 
+  it("does not coerce omitted real-mode savings to zero in buyer-polished mode", () => {
+    const points = mapSponsorRoiTrendSavingsChartPoints(
+      [
+        {
+          snapshotUtc: "2026-05-15T00:00:00Z",
+          totalEstimatedUsdSavings: 500,
+          realModeSavingsUsd: undefined,
+          realRunCount: 2,
+          simulatorRunCount: 0,
+        },
+      ],
+      true,
+    );
+
+    expect(points[0]?.totalEstimatedUsdSavings).toBeNull();
+    expect(points[0]?.savingsTooltipSuffix).toBe("Amount not returned");
+  });
+
   it("does not coerce omitted total savings to zero when run mix is known", () => {
     const points = mapSponsorRoiTrendSavingsChartPoints(
       [
