@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository`; no row met hunt-ready bar for promotion; seeded five mechanism-backed `(candidate)` rows below; 12 scoped `SqlTenantSettingsRepository` unit tests passed (`--no-build`).
+2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository`; no row met hunt-ready bar for promotion; seeded five mechanism-backed `(candidate)` rows below; 35 scoped TenantSettings/SqlTenantSettings tests passed (`--no-build` on Linux VM).
 
 2026-10-05 thorough hunt (dry): `api-governance-tenancy-controllers` — cheap-disproved five open `(candidate)` rows (null `ListWorkspacesAsync` contract violation, metadata-only disposition `Guid.Empty` guard skip, reviews-awaiting-action per-row sealed guard omission, pre-commit invisible-prefix run ids, tenant workspace list tenant-wide project load); regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration fixtures unavailable on Linux VM).
 
@@ -3566,13 +3566,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
 - **hunts:** 36
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
-2026-10-05 seed hunt (seed-only): re-read `SqlTenantSettingsRepository` / `CachingTenantSettingsRepository` after `api-governance-tenancy-controllers` dry hunt; no hunt-ready promotion; seeded five `(candidate)` rows in Hypotheses; 12 scoped `SqlTenantSettingsRepository` tests passed (`--no-build`).
+2026-10-05 seed hunt (seed-only): re-read `SqlTenantSettingsRepository` / `CachingTenantSettingsRepository`; no hunt-ready promotion; seeded five `(candidate)` rows in Hypotheses; 35 scoped TenantSettings tests passed (`--no-build`).
 
 2026-09-12 seed hunt #2133 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows.
 
