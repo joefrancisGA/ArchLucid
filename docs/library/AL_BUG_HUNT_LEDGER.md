@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (dry): `core-costing` — promoted sole-Azure retail+illustrative blend summary-note asymmetry; failing repro matched trunk fix already on `bugsmash` (`ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`); 421 scoped Costing tests passed; no additional commit.
+
 2026-10-05 seed hunt (seed-only): `core-tenancy-commercial` — re-read Identity/Billing/Budgeting after negation-token saturation; seeded marketplace plan-id negation reachability, ChangePlan `planId` coercion, packaging inference without billing row, and claim-mapping duplicate-value candidates; 84 scoped CommercialPackagingTierResolver/LlmMonthlySpendPlanId/MarketplaceWebhookPayloadParser tests passed; no hunt-ready rows promoted this run.
 
 2026-10-05 seed hunt (seed→hit): `core-tenancy-commercial` — `MarketplacePlanIdMapper` omitted `stripped`/`missing`/`denied` negation tokens; consolidated exact negation adverbs into `EnterpriseNegationExactTokens` (stem guards unchanged); regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs` and `TierStorageCodeFromPlanId_still_maps_enterprise_when_stripe_token_precedes_enterprise`; 63 scoped CommercialTenant/LlmMonthlySpendPlanId/TierStorageCodeFromPlanId tests passed.
@@ -20125,6 +20127,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-10-05 seed hunt (dry): promoted sole-Azure retail blend summary-note candidate; repro failed on trunk after sync (fix already shipped); 421 scoped Costing tests passed.
+
 2026-10-05 seed hunt (seed→hit): promoted multi-cloud all-retail summary-note mislabel; proved `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` returned the sole-Azure Retail headline when every line was live `RetailApi` pricing across AWS and GCP (`soleFamily` null); fixed by requiring explicit `CloudProvider.Azure` before the Azure all-retail copy and using a multi-cloud headline otherwise; regression `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`; 422 scoped Costing tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted Azure-only partial-retail blend summary-note asymmetry; proved `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` returned the generic multi-cloud blend headline for sole-Azure mixes of `RetailApi` and `Estimated` lines while AWS/GCP got cloud-specific blend copy; fixed with an Azure blend branch; regression `ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`; 421 scoped Costing tests passed.
@@ -21952,9 +21956,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 945
+- **hunts:** 946
 - **bugs-found:** 224
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — all-retail AWS/GCP cost summaries incorrectly claimed Azure Retail API sizing
 - **related-pd-tb:** none
