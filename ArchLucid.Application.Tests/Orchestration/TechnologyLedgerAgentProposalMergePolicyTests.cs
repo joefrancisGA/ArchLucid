@@ -657,6 +657,75 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        ManifestService serviceA = new()
+        {
+            ServiceId = "   ",
+            ServiceName = "foo bar",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        };
+
+        ManifestService serviceB = new()
+        {
+            ServiceId = "  ",
+            ServiceName = "foo-bar",
+            ServiceType = ServiceType.Worker,
+            RuntimePlatform = RuntimePlatform.AppService,
+        };
+
+        AgentTopologyProposal firstPass = new()
+        {
+            ProposalId = "p1",
+            AddedServices = [serviceA, serviceB],
+        };
+
+        List<TechnologyLedgerEntry> existing = [];
+
+        foreach (TechnologyLedgerEntry candidate in MapComputeCandidates(request, firstPass))
+        {
+            TechnologyLedgerEntry? resolved =
+                TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing);
+
+            resolved.Should().NotBeNull();
+            existing.Add(resolved!);
+        }
+
+        existing.Should().HaveCount(2);
+
+        AgentTopologyProposal secondPass = new()
+        {
+            ProposalId = "p1",
+            AddedServices = [serviceB, serviceA],
+        };
+
+        foreach (TechnologyLedgerEntry candidate in MapComputeCandidates(request, secondPass))
+        {
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, existing).Should().BeNull();
+        }
+
+        existing.Should().HaveCount(2);
+    }
+
+    private static IEnumerable<TechnologyLedgerEntry> MapComputeCandidates(
+        ArchitectureRequest request,
+        AgentTopologyProposal proposal)
+    {
+        return TechnologyLedgerTopologyProposalMapper
+            .MapCandidates("run-1", request, proposal, DateTime.UtcNow)
+            .Where(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime);
+    }
+
+    [Fact]
     public void Seeder_sequence_keeps_distinct_topology_services_after_cold_start_promotion()
     {
         ArchitectureRequest request = new()

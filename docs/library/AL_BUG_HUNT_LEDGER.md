@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved list-order ordinal in `BuildMissingManifestIdSubKey` changed `agentTopologyProposal:*` refs when `AddedServices` order changed on topology re-seed, so `HasMatchingProposal` missed duplicates and merge policy inserted extra compute rows; key missing manifest ids by `ServiceType`/`DatastoreType` plus `RuntimePlatform` instead of list ordinal; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
+
 2026-10-05 seed hunt (dry): `technology-ledger-merge` — promoted missing-`ServiceId` slug-collision hypothesis; failing repro matched trunk `BuildMissingManifestIdSubKey` fix already on `bugsmash`; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved whitespace `ManifestService.ServiceId` fell back to `Slug(ServiceName)`, collapsing `foo bar` vs `foo-bar` into identical `agentTopologyProposal:*` refs; use `StableTopologyIdentitySubKey` plus ordinal `BuildMissingManifestIdSubKey` when ids are missing; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`; 74 scoped TechnologyLedger tests passed.
@@ -4313,13 +4315,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 40
-- **bugs-found:** 19
+- **hunts:** 41
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — whitespace ServiceId slug fallback collapsed distinct topology service EvidenceRefs
+- **last-bug:** 2026-10-05 — missing manifest id subkey used list ordinal so reordered topology re-seed duplicated ledger rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): proved order-dependent missing-id subkey on topology re-seed; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
 
 2026-10-05 seed hunt (dry): convergent missing-`ServiceId` slug-collision repro; trunk already fixed; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
 
@@ -4344,7 +4348,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — multiple `Chosen` rows per role — `FirstOrDefault` ignores later authoritative chosen — **cheap-disproof 2026-10-05 seed hunt:** `TechnologyLedgerRunCommandService.PatchAsync` demotes other `Chosen` rows to `Alternative` when promoting a new chosen entry; topology seeder refreshes `GetByRunIdAsync` after each insert; unsupported persisted state.
 - [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — cold-start `AgentProposed` chosen listed before authoritative user chosen — **cheap-disproof 2026-10-05 seed hunt:** same single-chosen-per-role contract; constructed multi-chosen lists are not returned by production repositories.
 
-- [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — whitespace `ManifestService.ServiceId` used `Slug(ServiceName)`, collapsing `foo bar` vs `foo-bar` service names into identical `agentTopologyProposal:*` refs — **hit 2026-10-05 seed hunt (seed→hit):** `BuildMissingManifestIdSubKey` with lossless name subkey plus ordinal; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — missing `ServiceId` subkey used list ordinal (`-m0`/`-m1`), so reordering `AddedServices` on topology re-seed changed `agentTopologyProposal:*` refs and duplicate compute rows inserted — **hit 2026-10-05 seed hunt (seed→hit):** `BuildMissingServiceManifestIdSubKey` / `BuildMissingDatastoreManifestIdSubKey` keyed by manifest type plus `RuntimePlatform`; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — whitespace `ManifestService.ServiceId` used `Slug(ServiceName)`, collapsing `foo bar` vs `foo-bar` service names into identical `agentTopologyProposal:*` refs — **hit 2026-10-05 seed hunt (seed→hit):** lossless name subkey for missing ids (later stabilized by type/platform disambiguators); regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`.
 - [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — distinct `ManifestService.ServiceId` values that `Slug` collapsed to the same subkey (`foo bar` vs `foo-bar`) produced identical `agentTopologyProposal:*` refs so the second topology service was dropped — **hit 2026-10-05 seed hunt (seed→hit):** `StableTopologyIdentitySubKey` for manifest ids; regression `MapCandidates_distinct_service_ids_that_slug_collide_both_survive_merge_policy`.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` rows still participate in `EvidenceRef` dedupe — **cheap-disproof 2026-10-05 seed hunt:** intentional idempotent topology re-seed; stable `agentTopologyProposal:*` identity should not duplicate ledger rows after operator demotion.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.NormalizeTechnologyName` — punctuation vs whitespace variants — **cheap-disproof 2026-10-05 seed hunt:** distinct normalized technology names remain distinct ledger labels by design.
