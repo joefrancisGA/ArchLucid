@@ -10958,13 +10958,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 44
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-03 — consumed OTP return URL bypassed safe-path validation
+- **hunts:** 45
+- **bugs-found:** 30
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — operator client-error telemetry omitted BFF CSRF on proxy POST
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `reportClientError` posted to `/api/proxy/v1/diagnostics/client-error` without `applyBffCsrfHeader`, so LK-07 blocked signed-in operators with an active BFF session (403) while marketing and pre-auth routes already skip CSRF; fixed in `error-telemetry.ts`; regressions in `error-telemetry.test.ts` and `proxy-bff-session-guard.test.ts`; scoped auth/proxy vitest 319 passed with 3 unrelated baseline seam failures.
 
 2026-10-04 thorough hunt (dry): cheap-disproved all four seeded candidates — evaluate routing `returnPath` has no in-zone consumer; `.json` matcher skip is intentional with explicit `/api/proxy/:path*` host gate (proven 2026-09-25); partial email-OTP session restore shows code step but verify rejects missing `challengeId`; LS-010 bootstrap redirect is tested intentional when dedicated scope cannot apply; scoped vitest 218 passed / 3 baseline seam failures.
 
@@ -10973,6 +10975,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [x] (proven) `reportClientError` / `error-telemetry.ts` — **hit 2026-10-05 seed hunt (seed→hit):** production `POST /api/proxy/v1/diagnostics/client-error` used raw `fetch` without `applyBffCsrfHeader`; `enforceProxyBffSessionGuard` returned 403 for mutating non-anonymous paths when a valid HttpOnly BFF session was present (unlike marketing and pre-auth allowlist bypasses); operator-shell error boundaries silently dropped telemetry; fixed by applying BFF CSRF headers before the proxy POST; regressions in `error-telemetry.test.ts` and `proxy-bff-session-guard.test.ts`.
 
 - [x] (invalid) `evaluateAuthSignInRouting` / `AuthSignInRoutingApiResponse.returnPath` — **invalid 2026-10-04 dry:** `use-sign-in-flow-state.ts` passes `safeReturnUrl` from query into evaluate and never navigates using API `returnPath`; no other in-zone caller consumes the field — hypothetical future caller is out of scope.
 - [x] (valid-no-repro) `proxy.ts` `config.matcher` — **valid-no-repro 2026-10-04 dry:** `.json` suffix exclusion is intentional for static assets; host gate for BFF JSON is covered by explicit `/api/proxy/:path*` matcher (proven 2026-09-25); contrived `.json` pathname bookmarks are not product routes.

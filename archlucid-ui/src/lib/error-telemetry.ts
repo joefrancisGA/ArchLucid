@@ -1,5 +1,6 @@
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { applyBffCsrfHeader } from "@/lib/proxy/bff-session-csrf-client";
 
 const maxReportsPerMinute = 5;
 
@@ -53,13 +54,16 @@ export function reportClientError(error: Error, context?: Record<string, string>
     context: context ?? undefined,
   };
 
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    [CORRELATION_ID_HEADER]: generateCorrelationId(),
+  });
+  applyBffCsrfHeader(headers);
+
   void fetch("/api/proxy/v1/diagnostics/client-error", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      [CORRELATION_ID_HEADER]: generateCorrelationId(),
-    },
+    headers,
     body: JSON.stringify(body),
     keepalive: true,
   }).catch(() => {
