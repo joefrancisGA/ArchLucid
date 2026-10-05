@@ -186,8 +186,25 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "why-archlucid",
 ]);
 
+/**
+ * Legacy orientation-strip ids and registry slug variants that should share the same omit decision
+ * as the canonical help-topic slug in {@link CLAIM_DISCIPLINE_BAND_OMIT_SLUGS}.
+ */
+const CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES: ReadonlyMap<string, string> = new Map([
+  ["connect-gcp-securely-help", "cloud-connections-gcp"],
+  ["evidence-trail", "help-evidence-trail"],
+  ["evidence-trail-help", "help-evidence-trail"],
+  ["glossary-help", "help-glossary"],
+  ["pilot-guide-help", "help-pilot-guide"],
+  ["help-path-chooser-bottom", "help-path-chooser"],
+]);
+
+function resolveStripSlugForOmitPolicy(stripSlug: string): string {
+  return CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES.get(stripSlug) ?? stripSlug;
+}
+
 export function shouldOmitClaimDisciplineBand(stripSlug: string): boolean {
-  return CLAIM_DISCIPLINE_BAND_OMIT_SLUGS.has(stripSlug);
+  return CLAIM_DISCIPLINE_BAND_OMIT_SLUGS.has(resolveStripSlugForOmitPolicy(stripSlug));
 }
 
 export function expectsVisibleClaimDisciplineBand(stripSlug: string): boolean {
