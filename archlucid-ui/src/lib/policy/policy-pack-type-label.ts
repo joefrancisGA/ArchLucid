@@ -11,11 +11,7 @@ export function policyPackTypeDisplayLabel(packTypeRaw: string): string {
   const t = packTypeRaw.trim();
 
   if (t.length === 0) {
-<<<<<<< HEAD
     return "Pack type not returned";
-=======
-    return "Pack type not recorded";
->>>>>>> origin/master
   }
 
   switch (t) {
@@ -44,11 +40,7 @@ export function policyPackTypeBuyerDisplayLabel(packTypeRaw: string): string {
   const t = packTypeRaw.trim();
 
   if (t.length === 0) {
-<<<<<<< HEAD
     return "Pack type not returned";
-=======
-    return "Pack type not recorded";
->>>>>>> origin/master
   }
 
   switch (t) {

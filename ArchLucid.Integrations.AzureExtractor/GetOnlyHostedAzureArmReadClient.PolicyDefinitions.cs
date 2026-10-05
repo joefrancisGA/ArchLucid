@@ -17,12 +17,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
+        string trimmedSubscriptionId = subscriptionId.Trim();
+
         return await ListPolicyDefinitionDocumentsAtRestPathAsync(
             accessToken,
-            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyDefinitions?api-version={PolicyDefinitionsApiVersion}",
+            $"https://management.azure.com/subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/policyDefinitions?api-version={PolicyDefinitionsApiVersion}",
             subscriptionId,
             validateSubscriptionNextLink: true,
-            subscriptionListingRelativePath: null,
+            subscriptionListingRelativePath:
+                $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/policyDefinitions",
             cancellationToken).ConfigureAwait(false);
     }
 

@@ -30,12 +30,16 @@ const question = {
   dispositionId: null,
   snapshotId: "snapshot-1",
   subscriptionId: "subscription-1",
-  resourceId: "/subscriptions/sub/resource",
+  resourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev",
   questionKey: "unknown-evidence@v1",
   source: "InventoryEvidence",
   scopeKind: "Resource",
   status: "Open",
-  questionText: "Should this resource connect to a peer, or stand alone?",
+  questionText: "Should adf-edw-hi-dev connect to a peer, or stand alone?",
+  resourceType: "Microsoft.DataFactory/factories",
+  resourceName: "adf-edw-hi-dev",
+  reasonText:
+    "SecureNow found no connection to or from adf-edw-hi-dev. Data factory is not treated as a shared service that can stand alone.",
   sourceLine: "Inventory evidence",
   answerCodes: ["NamePeer", "StandsAlone", "NotSure"],
   evidenceFingerprint: "fingerprint",
@@ -74,7 +78,38 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.getByTestId("infra-diagrams-question-drawer")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent("adf-edw-hi-dev");
+    expect(screen.getByText("Data Factory")).toBeInTheDocument();
+    expect(screen.getByText("Why SecureNow is asking")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent(question.reasonText);
     expect(screen.getByText("Inventory evidence")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+  });
+
+  it("calls onFocusResourceForQuestion when the drawer shows a resource question", async () => {
+    const onFocusResourceForQuestion = vi.fn();
+    mocks.listQuestions.mockResolvedValue([question]);
+
+    const { SecureNowQuestionQueueProvider } = await import(
+      "@/components/infra-evidence/securenow-question-queue-provider"
+    );
+    const { SecureNowQuestionQueueDrawer, SecureNowQuestionQueueHero } = await import(
+      "@/components/infra-evidence/SecureNowQuestionQueue",
+    );
+
+    render(
+      <SecureNowQuestionQueueProvider
+        snapshotId="snapshot-1"
+        onFocusResourceForQuestion={onFocusResourceForQuestion}
+      >
+        <SecureNowQuestionQueueHero />
+        <SecureNowQuestionQueueDrawer />
+      </SecureNowQuestionQueueProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
+
+    await waitFor(() => expect(onFocusResourceForQuestion).toHaveBeenCalledWith(question.resourceId));
   });
 
   it("keeps inventory questions visible when inferred connections fail to load", async () => {
@@ -123,7 +158,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
-    fireEvent.click(screen.getByRole("button", { name: "NotSure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     await waitFor(() => expect(screen.getByText("No questions match this filter.")).toBeInTheDocument());
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
@@ -136,16 +171,19 @@ describe("SecureNowQuestionQueue", () => {
       {
         ...question,
         resourceId: "/subscriptions/sub/other-resource",
-        questionText: "Should the other resource connect to a peer, or stand alone?",
+        questionText: "Should other-resource connect to a peer, or stand alone?",
+        resourceName: "other-resource",
+        resourceType: "",
+        reasonText: "SecureNow found no connection to or from other-resource. This type is not treated as a shared service that can stand alone.",
       },
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
-    fireEvent.click(screen.getByRole("button", { name: "NotSure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     expect(
-      await screen.findByText("Should the other resource connect to a peer, or stand alone?"),
+      await screen.findByText("Should other-resource connect to a peer, or stand alone?"),
     ).toBeInTheDocument();
   });
 
@@ -154,7 +192,7 @@ describe("SecureNowQuestionQueue", () => {
 
     const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Start answering" }));
-    fireEvent.click(screen.getByRole("button", { name: "NotSure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
 

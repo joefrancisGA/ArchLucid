@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { UseFormReset } from "react-hook-form";
 
 import { useNewRunWizardQueryPrefill } from "@/app/(operator)/architecture/reviews/new/use-new-run-wizard-query-prefill";
+import { REVIEW_INTAKE_EXAMPLE_TEMPLATES } from "@/lib/operator/operator-home-example-request";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function buildParams(acceleratorPackId: string | null) {
@@ -58,5 +59,52 @@ describe("useNewRunWizardQueryPrefill", () => {
 
     expect(goToStep).not.toHaveBeenCalled();
     expect(persistWizardMode).toHaveBeenCalledTimes(1);
+  });
+
+  it("applies example template prefill once after full wizard reaches step 2", async () => {
+    const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ stepIndex }: { stepIndex: number }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            exampleTemplate,
+          },
+          stepIndex,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { stepIndex: 0 } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).not.toHaveBeenCalled();
+    });
+
+    rerender({ stepIndex: 2 });
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("systemName", exampleTemplate.systemName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      expect(setValue).toHaveBeenCalledWith("description", exampleTemplate.briefText, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    rerender({ stepIndex: 2 });
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledTimes(2);
+    });
   });
 });

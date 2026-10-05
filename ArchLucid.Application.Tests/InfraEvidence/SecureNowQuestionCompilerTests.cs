@@ -71,17 +71,72 @@ public sealed class SecureNowQuestionCompilerTests
     [Fact]
     public void Unknown_with_actionable_evidence_emits_a_question()
     {
-        IReadOnlyList<SecureNowQuestionRecord> questions = Compile(
-            new SecureNowDiagramQuestionCandidate
-            {
-                ResourceId = "/subscriptions/sub/resource",
-                IsUnknownEvidence = true,
-                ProblemText = "No cited connection, but a peer may be expected.",
-            });
+        const string resourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = resourceId,
+                        ResourceType = "Microsoft.DataFactory/factories",
+                    },
+                ]),
+            [
+                new SecureNowDiagramQuestionCandidate
+                {
+                    ResourceId = resourceId,
+                    ResourceType = "Microsoft.DataFactory/factories",
+                    IsUnknownEvidence = true,
+                    ProblemText = "No cited connection, but a peer may be expected.",
+                },
+            ],
+            [],
+            []);
 
         questions.Should().ContainSingle();
         questions[0].QuestionKey.Should().Be("unknown-evidence@v1");
         questions[0].AnswerCodes.Should().Equal("NamePeer", "StandsAlone", "NotSure");
+        questions[0].ResourceName.Should().Be("adf-edw-hi-dev");
+        questions[0].ResourceType.Should().Be("Microsoft.DataFactory/factories");
+        questions[0].QuestionText.Should().Be("Should adf-edw-hi-dev connect to a peer, or stand alone?");
+        questions[0].ReasonText.Should().Contain("adf-edw-hi-dev");
+        questions[0].ReasonText.Should().Contain("shared service");
+    }
+
+    [Fact]
+    public void Orphan_intent_names_the_resource_and_states_why()
+    {
+        const string resourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-01";
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = resourceId,
+                        ResourceType = "Microsoft.Web/sites",
+                    },
+                ]),
+            [
+                new SecureNowDiagramQuestionCandidate
+                {
+                    ResourceId = resourceId,
+                    ResourceType = "Microsoft.Web/sites",
+                    IsOrphanIntent = true,
+                    ProblemText = "required subnet no longer exists",
+                },
+            ],
+            [],
+            []);
+
+        questions.Should().ContainSingle();
+        questions[0].QuestionText.Should().Be("Is app-01 still needed?");
+        questions[0].ReasonText.Should().Contain("could not find the parent");
+        questions[0].ReasonText.Should().Contain("app-01");
     }
 
     [Fact]
@@ -109,6 +164,8 @@ public sealed class SecureNowQuestionCompilerTests
         questions.Should().ContainSingle();
         questions[0].Source.Should().Be(SecureNowQuestionSource.InferredConnection);
         questions[0].QuestionText.Should().Be("Should this host connect to the app?");
+        questions[0].ReasonText.Should().Contain("inferred a connection");
+        questions[0].ResourceName.Should().Be("resource");
     }
 
     [Fact]
@@ -186,7 +243,8 @@ public sealed class SecureNowQuestionCompilerTests
             [],
             []);
 
-    private static AzureInventorySnapshotDetailReadModel CreateSnapshot() =>
+    private static AzureInventorySnapshotDetailReadModel CreateSnapshot(
+        IReadOnlyList<AzureInventoryResourceRecord>? resources = null) =>
         new()
         {
             Header = new AzureInventorySnapshotRecord
@@ -194,6 +252,7 @@ public sealed class SecureNowQuestionCompilerTests
                 SnapshotId = SnapshotId,
                 SubscriptionId = "sub",
             },
+            Resources = resources ?? [],
         };
 
     private static readonly Guid SnapshotId =

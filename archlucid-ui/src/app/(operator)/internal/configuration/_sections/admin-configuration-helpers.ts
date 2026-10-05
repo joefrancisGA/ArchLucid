@@ -38,8 +38,12 @@ export function parseSummaryPayload(json: unknown): ConfigSummaryKeyRow[] {
 }
 
 export function formatSources(sources: string[] | null | undefined): string {
-  if (sources === null || sources === undefined || sources.length === 0) {
-    return " — ";
+  if (sources === null || sources === undefined) {
+    return "Sources not returned";
+  }
+
+  if (sources.length === 0) {
+    return "No sources recorded";
   }
 
   return sources.join(", ");

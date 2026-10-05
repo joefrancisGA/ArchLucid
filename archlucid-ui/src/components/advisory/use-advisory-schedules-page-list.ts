@@ -30,13 +30,13 @@ import { resolveContinueLastAdvisorySchedule } from "@/lib/resolve-continue-last
 
 function formatAdvisorySchedulesLastLoaded(lastLoadedUtc: string | null): string {
   if (lastLoadedUtc === null) {
-    return " — ";
+    return "Not recorded";
   }
 
   const parsed = new Date(lastLoadedUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return " — ";
+    return "Date not readable";
   }
 
   return parsed.toLocaleString(undefined, {

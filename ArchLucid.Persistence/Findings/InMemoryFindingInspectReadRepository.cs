@@ -66,37 +66,32 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             .BuildEvidenceFromRelatedNodes(match.RelatedNodeIds)
             .ToList();
 
-        string? ruleId = null;
-        string? ruleName = null;
+        string? appliedRuleIdsJson = null;
 
-        if (detail.AuthorityTrace is RuleAuditTraceDto ruleAudit)
+        if (detail.AuthorityTrace is RuleAuditTraceDto ruleAudit
+            && ruleAudit.RuleAudit.AppliedRuleIds is { Count: > 0 } appliedRuleIds)
         {
-            RuleAuditTracePayload payload = ruleAudit.RuleAudit;
-
-            if (payload.AppliedRuleIds is { Count: > 0 })
-            {
-                ruleId = payload.AppliedRuleIds[0];
-                ruleName = ruleId;
-            }
+            appliedRuleIdsJson = JsonSerializer.Serialize(appliedRuleIds);
         }
 
-        if (ruleId is null && match.Trace.RulesApplied is { Count: > 0 })
-        {
-            ruleId = match.Trace.RulesApplied[0];
-            ruleName = ruleId;
-        }
+        string? firstRuleText = match.Trace?.RulesApplied is { Count: > 0 } rules
+            ? rules[0]
+            : null;
+
+        (string? ruleId, string? ruleName) =
+            FindingInspectReadRepositoryCore.ResolveRuleFields(appliedRuleIdsJson, firstRuleText);
 
         JsonElement? typed = includeTypedPayload
             ? TryPayloadElement(match)
             : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(match.Title, match.Rationale);
 
-        List<string> recommendedActions = match.RecommendedActions
-            .Where(static a => !string.IsNullOrWhiteSpace(a))
+        List<string> recommendedActions = FindingInspectReadRepositoryCore
+            .FilterRecommendedActions(match.RecommendedActions)
             .ToList();
 
         return new FindingInspectResponse
         {
-            FindingId = match.FindingId,
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(match.FindingId),
             Severity = match.Severity,
             TypedPayload = typed,
             Classification = match.Classification
@@ -106,24 +101,29 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             SemanticSupportBand = match.SemanticSupportBand
                 ?? FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed),
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName,
+            DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = recommendedActions,
             AuditRowId = null,
             RunId = runId,
-            ManifestVersion = detail.Run.CurrentManifestVersion,
-            ModelDeploymentName = match.ModelDeploymentName,
-            ModelAlias = match.ModelAlias,
-            PromptTemplateVersion = match.PromptTemplateVersion,
+            ManifestVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
+                detail.Run.CurrentManifestVersion),
+            ModelDeploymentName =
+                FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.ModelDeploymentName),
+            ModelAlias = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.ModelAlias),
+            PromptTemplateVersion =
+                FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.PromptTemplateVersion),
             ConfidenceScore = match.ConfidenceScore,
             EvaluationConfidenceScore = match.EvaluationConfidenceScore,
             ConfidenceLevel = match.ConfidenceLevel,
             HumanReviewStatus = match.HumanReviewStatus,
             IsMuted = match.IsMuted,
-            MuteReason = match.MuteReason,
-            ReasoningTrace = ResolveInspectReasoningTrace(match),
-            ReasoningTraceDigestSha256 = match.Trace.ReasoningTraceDigestSha256,
-            AssignedToUserId = match.AssignedToUserId,
+            MuteReason = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.MuteReason),
+            ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
+                ResolveInspectReasoningTrace(match)),
+            ReasoningTraceDigestSha256 = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(
+                match.Trace?.ReasoningTraceDigestSha256),
+            AssignedToUserId = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(match.AssignedToUserId),
             RemediationDueUtc = match.RemediationDueUtc,
             RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = detail.Run.RealModeFellBackToSimulator,

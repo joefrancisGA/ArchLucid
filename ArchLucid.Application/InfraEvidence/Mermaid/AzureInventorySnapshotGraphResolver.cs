@@ -271,6 +271,13 @@ public sealed class AzureInventorySnapshotGraphResolver(
         AzureInventorySnapshotNodeRelationshipGraphHydrator.Hydrate(snapshot, nodes);
         AzureInventorySnapshotParentAttachmentGraphHydrator.Hydrate(snapshot, nodes);
         AzureInventorySnapshotIndirectRelationshipGraphHydrator.Hydrate(snapshot, nodes, edges);
+        AzureInventorySnapshotExternalSourceHostConsolidator.Consolidate(
+            graphSnapshot,
+            nodes,
+            seenNodeIds,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
 
         DateTime createdUtc = graphSnapshot.Header.CapturedUtc ?? graphSnapshot.Header.CreatedUtc;
 

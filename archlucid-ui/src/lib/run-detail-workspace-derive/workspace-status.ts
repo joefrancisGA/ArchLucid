@@ -26,6 +26,7 @@ import {
   resolveWorkingPipelineCompleteReviewLabel,
   resolveWorkingPipelineCompleteStatusTagKind,
 } from "@/lib/runs/pipeline-complete-career-honesty-copy";
+import { resolveBlockingFindingCountPresentation } from "@/lib/run-detail-workspace-derive/blocking-finding-count-display";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 
 const PRODUCT_BRAND_NAME = "ArchLucid";
@@ -121,9 +122,9 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Awaiting decision", kind: "awaiting-decision", statusTagKind: "needs-attention" };
     }
 
-    const blockingCountKnown =
-      typeof input.blockingFindingCount === "number" && Number.isFinite(input.blockingFindingCount);
-    const blockingCount = blockingCountKnown ? input.blockingFindingCount! : 0;
+    const blockingPresentation = resolveBlockingFindingCountPresentation(input.blockingFindingCount);
+    const blockingCount = blockingPresentation.value;
+    const blockingCountKnown = blockingPresentation.known;
     const governancePending =
       gateLabel === "Pending" ||
       /pending/i.test(governanceDecision) ||
@@ -138,7 +139,15 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized;
 
     if (isFinalized) {
-      if (blockingCountKnown && blockingCount > 0) {
+      if (!blockingCountKnown) {
+        return {
+          label: "Finalized · blocking count not returned",
+          kind: "finalized",
+          statusTagKind: "needs-attention",
+        };
+      }
+
+      if (blockingCount > 0) {
         return {
           label: "Finalized · approval blocked",
           kind: "finalized",
@@ -161,7 +170,11 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
     }
 
-    if (blockingCountKnown && blockingCount > 0) {
+    if (!blockingCountKnown) {
+      return resolveReviewCompleteWorkspaceStatus(input, "blocking count not returned");
+    }
+
+    if (blockingCount > 0) {
       return resolveReviewCompleteWorkspaceStatus(input, "approval blocked");
     }
 

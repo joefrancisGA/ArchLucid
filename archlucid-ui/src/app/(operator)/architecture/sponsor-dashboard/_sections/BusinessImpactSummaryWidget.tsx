@@ -20,6 +20,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { readBusinessImpactThemeCountsDisplay } from "@/lib/sponsor/business-impact-theme-count-display";
+import {
+  businessImpactHasCommittedRuns,
+  presentBusinessImpactSystemCountLabel,
+} from "@/lib/sponsor/business-impact-system-count-display";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
 function formatEstimatedSavingsUsd(value: number | undefined): string {
@@ -32,18 +36,6 @@ function formatEstimatedSavingsUsd(value: number | undefined): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-function resolveSponsorSystemCountState(systemCount: number | undefined): "missing" | "none" | "has" {
-  if (typeof systemCount !== "number" || !Number.isFinite(systemCount)) {
-    return "missing";
-  }
-
-  if (systemCount <= 0) {
-    return "none";
-  }
-
-  return "has";
 }
 
 export type BusinessImpactSummaryWidgetProps = {
@@ -72,8 +64,8 @@ export function BusinessImpactSummaryWidget({
     return <OperatorApiProblem failure={failure} />;
   }
 
-  const systemCountState = resolveSponsorSystemCountState(data?.systemCount);
-  const hasCommittedRuns = systemCountState === "has";
+  const systemCountLabel = presentBusinessImpactSystemCountLabel(data?.systemCount);
+  const hasCommittedRuns = businessImpactHasCommittedRuns(data?.systemCount);
   const businessImpactCounts = readBusinessImpactThemeCountsDisplay(data);
   const themeCards = [
     { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
@@ -91,9 +83,11 @@ export function BusinessImpactSummaryWidget({
           Business impact summary
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Theme counts from finalized reviews in this workspace.
-          {systemCountState === "missing" && !isLoading ? " System count not returned for this workspace." : null}
-          {systemCountState === "none" && !isLoading ? " Finalize a review to populate these cards." : null}
+          Theme counts from the latest sponsor ROI summary.
+          {systemCountLabel !== null && !isLoading ? ` ${systemCountLabel}.` : null}
+          {systemCountLabel === null && !hasCommittedRuns && !isLoading
+            ? " Finalize a review to populate these cards."
+            : null}
         </p>
       </div>
 
@@ -154,13 +148,7 @@ export function BusinessImpactSummaryWidget({
                 {isLoading ? (
                   <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
                 ) : (
-                  <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                    {systemCountState === "missing"
-                      ? "Not returned"
-                      : hasCommittedRuns
-                        ? card.value
-                        : " — "}
-                  </p>
+                  <p className={OPERATOR_TYPOGRAPHY.kpiValue}>{card.value}</p>
                 )}
               </CardContent>
             </Card>

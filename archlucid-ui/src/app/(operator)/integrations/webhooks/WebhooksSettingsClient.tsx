@@ -96,7 +96,7 @@ export function WebhooksSettingsClient() {
     showAlertSeverityFilter,
     webhookRows,
     activeSubscriptionCount,
-    load,
+    refreshSubscriptions,
     onTestWebhook,
     onToggle,
     confirmEnableSubscription,
@@ -224,7 +224,7 @@ export function WebhooksSettingsClient() {
                 ) : null}
               </div>
               {webhookRows.length > 0 || failure !== null ? (
-                <RefreshButton busy={loading} onClick={() => void load()} />
+                <RefreshButton busy={loading} onClick={() => void refreshSubscriptions()} />
               ) : null}
             </div>
 

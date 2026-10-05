@@ -126,7 +126,7 @@ describe("formatAzureResourceTypeForDisplay", () => {
   });
 
   it("returns an em dash when the type is missing", () => {
-    expect(formatAzureResourceTypeForDisplay(null)).toBe("—");
-    expect(formatAzureResourceTypeForDisplay("  ")).toBe("—");
+    expect(formatAzureResourceTypeForDisplay(null)).toBe("Not recorded");
+    expect(formatAzureResourceTypeForDisplay("  ")).toBe("Not recorded");
   });
 });

@@ -377,6 +377,19 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelectorAll(".font-semibold")).toHaveLength(2);
     expect(caption.querySelector(".font-semibold")?.textContent).toBe("may");
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
+    expect(screen.getByText(/Reading a card:/)).toBeInTheDocument();
+  });
+
+  it("does not show the data flow reading helper for other diagram types", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "dataArchitecture" },
+    });
+
+    expect(screen.getByText("This diagram shows what stores data.")).toBeInTheDocument();
+    expect(screen.queryByText(/Reading a card:/)).not.toBeInTheDocument();
   });
 
   it("shows an all-resource-groups picker after subscription and snapshot selection", async () => {
@@ -591,7 +604,9 @@ describe("DiagramsWorkbenchClient", () => {
     await selectDiagramsSubscription(subscriptionId);
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
-    expect(picker).toHaveTextContent("889 resources");
+    await waitFor(() => {
+      expect(picker).toHaveTextContent("889 resources");
+    });
     expect(picker).not.toHaveTextContent(subscriptionId);
   });
 
@@ -754,6 +769,57 @@ describe("DiagramsWorkbenchClient", () => {
     );
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
     expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
+  });
+
+  it("distinguishes missing data-flow edge metrics from a true zero edge count", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "dataFlow",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "",
+      metrics: null,
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dataFlow",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const emptyState = await screen.findByTestId("infra-diagrams-empty-content");
+    expect(emptyState).toHaveTextContent("Edge count not returned");
+    expect(emptyState).not.toHaveTextContent("This data-flow canvas is empty.");
+  });
+
+  it("shows true-zero data-flow empty copy when metrics report zero edges", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "dataFlow",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "",
+      metrics: {
+        nodeCount: 4,
+        edgeCount: 0,
+        subgraphCount: 1,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 0,
+        layoutEstimate: 0,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dataFlow",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const emptyState = await screen.findByTestId("infra-diagrams-empty-content");
+    expect(emptyState).toHaveTextContent("This data-flow canvas is empty.");
+    expect(emptyState).toHaveTextContent("no declared connection to draw");
+    expect(emptyState).not.toHaveTextContent("Edge count not returned");
   });
 
   it("explains omitted identity resources instead of generic empty content", async () => {

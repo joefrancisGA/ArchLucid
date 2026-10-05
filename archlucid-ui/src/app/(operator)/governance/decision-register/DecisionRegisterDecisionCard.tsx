@@ -51,8 +51,11 @@ type DecisionRegisterDecisionCardProps = {
 
 export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCardProps): React.JSX.Element {
   const { decision } = props;
+  const supportingFindingIds = decision.supportingFindingIds;
   const findingCount =
-    decision.supportingFindingIds === undefined ? null : decision.supportingFindingIds.length;
+    supportingFindingIds === undefined || supportingFindingIds === null
+      ? null
+      : supportingFindingIds.length;
 
   return (
     <Card data-testid={`decision-register-card-${decision.decisionId}`}>

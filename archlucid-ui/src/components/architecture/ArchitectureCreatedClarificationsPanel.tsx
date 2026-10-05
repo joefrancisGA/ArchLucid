@@ -53,7 +53,21 @@ export type ArchitectureCreatedClarificationsPanelProps = {
 function hasOpenQuestionEntities(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
 ): boolean {
-  return (section?.entities.length ?? 0) > 0;
+  if (section === undefined || section.entities === undefined) {
+    return false;
+  }
+
+  return section.entities.length > 0;
+}
+
+export function presentOpenQuestionEntityCount(
+  section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
+): string {
+  if (section === undefined || section.entities === undefined) {
+    return "Not returned";
+  }
+
+  return String(section.entities.length);
 }
 
 /** Clarifications tab — unanswered gaps, open questions, and confidence impact. */
@@ -307,6 +321,12 @@ export function ArchitectureCreatedClarificationsPanel(
           No critical clarification gaps detected from your brief.
         </p>
       )}
+
+      {openQuestions !== undefined && openQuestions.entities === undefined ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Open question entities not returned ({presentOpenQuestionEntityCount(openQuestions)}).
+        </p>
+      ) : null}
 
       {showIntakeOpenQuestions && openQuestions !== undefined ? (
         <ArchitectureStructuredSectionView

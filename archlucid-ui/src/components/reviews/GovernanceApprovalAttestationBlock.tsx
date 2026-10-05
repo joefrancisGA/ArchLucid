@@ -27,7 +27,15 @@ function formatDecisionLabel(raw: string): string {
 }
 
 function formatUtc(utc: string | null | undefined): string {
-  if (!utc) return " — ";
+  if (!utc || utc.trim().length === 0) {
+    return "Date not recorded";
+  }
+
+  const parsed = Date.parse(utc);
+
+  if (Number.isNaN(parsed)) {
+    return "Date not readable";
+  }
 
   return new Date(utc).toISOString().replace("T", " ").replace(/\.\d{3}Z$/, " UTC");
 }

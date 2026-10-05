@@ -1553,6 +1553,26 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
         if (isDataFlow && dataFlowColumns is not null && dataFlowColumns.Count > 0)
         {
+            XElement? stageSummary = DiagramForestDataFlowStageSummarySvgEmitter.EmitLayer(
+                svgNamespace,
+                dataFlowColumns,
+                placements
+                    .Select(placement => new DiagramForestDataFlowColumnLayout.NodePlacement(
+                        placement.Node,
+                        placement.X,
+                        placement.Y,
+                        placement.Width,
+                        placement.Height,
+                        placement.Metrics,
+                        placement.DataFlowColumnIndex))
+                    .ToList(),
+                options);
+
+            if (stageSummary is not null)
+            {
+                root.Add(stageSummary);
+            }
+
             root.Add(DiagramForestDataFlowStageLabelSvgEmitter.EmitLayer(
                 svgNamespace,
                 dataFlowColumns,

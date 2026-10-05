@@ -15,9 +15,9 @@ describe("policyPackTypeDisplayLabel", () => {
     expect(policyPackTypeDisplayLabel("ExperimentalCustom")).toBe("ExperimentalCustom");
   });
 
-  it("labels empty pack type as not recorded", () => {
-    expect(policyPackTypeDisplayLabel("")).toBe("Pack type not recorded");
-    expect(policyPackTypeDisplayLabel("   ")).toBe("Pack type not recorded");
+  it("labels empty pack type as not returned", () => {
+    expect(policyPackTypeDisplayLabel("")).toBe("Pack type not returned");
+    expect(policyPackTypeDisplayLabel("   ")).toBe("Pack type not returned");
   });
 });
 

@@ -6,6 +6,9 @@ export const POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_WITH_INVENTORY_LINE =
 export const POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_LINE =
   "No policy packs are available for this workspace." as const;
 
+export const POLICY_PACKS_EFFECTIVE_LAYERS_NOT_LOADED_LINE =
+  "Effective policy layers not loaded for this scope." as const;
+
 export function resolvePolicyPacksWorkspaceAssignmentsEmptyLine(registeredPackCount: number): string {
   if (registeredPackCount > 0) {
     return POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_WITH_INVENTORY_LINE;

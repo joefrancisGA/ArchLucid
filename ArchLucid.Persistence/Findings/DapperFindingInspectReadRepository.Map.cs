@@ -47,7 +47,7 @@ public sealed partial class DapperFindingInspectReadRepository
 
         return new FindingInspectResponse
         {
-            FindingId = row.FindingId,
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(row.FindingId),
             Severity = recordSeverity,
             TypedPayload = typed,
             Classification = classification,
@@ -59,10 +59,10 @@ public sealed partial class DapperFindingInspectReadRepository
             RecommendedActions = joinResult.RecommendedActions,
             AuditRowId = joinResult.AuditRowId,
             RunId = row.RunId,
-            ManifestVersion = row.CurrentManifestVersion,
-            ModelDeploymentName = row.ModelDeploymentName,
-            ModelAlias = row.ModelAlias,
-            PromptTemplateVersion = row.PromptTemplateVersion,
+            ManifestVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.CurrentManifestVersion),
+            ModelDeploymentName = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ModelDeploymentName),
+            ModelAlias = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ModelAlias),
+            PromptTemplateVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.PromptTemplateVersion),
             ConfidenceScore = row.ConfidenceScore,
             EvaluationConfidenceScore = row.EvaluationConfidenceScore,
             ConfidenceLevel = evaluationLevel,
@@ -70,7 +70,8 @@ public sealed partial class DapperFindingInspectReadRepository
             IsMuted = row.IsMuted,
             MuteReason = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.MuteReason),
             ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ReasoningTrace),
-            ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256,
+            ReasoningTraceDigestSha256 =
+                FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ReasoningTraceDigestSha256),
             LatestDisposition = dispositionPointer.LatestDisposition,
             LatestDispositionOccurredAtUtc = dispositionPointer.LatestDispositionOccurredAtUtc,
             LatestDispositionEventId = dispositionPointer.LatestDispositionEventId,

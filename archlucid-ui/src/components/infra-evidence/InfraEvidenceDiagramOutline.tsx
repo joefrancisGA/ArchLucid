@@ -501,7 +501,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   }, [edgeRows]);
   const unknownNodes = stateRows.get("Unknown") ?? [];
   const showEdgesSection = outline.edges.length > 0;
-  const showLedgerSection = (outline.ledgerDrops?.length ?? 0) > 0;
+  const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
+  const showLedgerSection = ledgerDropsKnown && outline.ledgerDrops.length > 0;
+  const ledgerDropsNotReturned = !ledgerDropsKnown;
 
   const showNeighborhoodActions = onFocusNeighborhood != null;
 
@@ -625,6 +627,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   />
                   );
                 })}
+                {ledgerDropsNotReturned ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-diagrams-ledger-drops-not-returned"
+                  >
+                    Ledger drops not returned
+                  </p>
+                ) : null}
                 {showLedgerSection ? (
                   <section
                     className="flex flex-col gap-2"

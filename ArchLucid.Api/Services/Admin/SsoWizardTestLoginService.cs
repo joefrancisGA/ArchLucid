@@ -21,9 +21,7 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string issuerUri = request.IssuerUri?.Trim() ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(issuerUri))
+        if (string.IsNullOrWhiteSpace(request.IssuerUri?.Trim()))
         {
             return new IdentityProviderTestLoginResponse
             {
@@ -32,7 +30,7 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             };
         }
 
-        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out _))
         {
             return new IdentityProviderTestLoginResponse
             {

@@ -150,6 +150,58 @@ public sealed class ProvenanceGraphAlgorithmsTests
     }
 
     [Fact]
+    public void TryResolveDecisionNodeId_TreatsNullNodesAsEmpty()
+    {
+        DecisionProvenanceGraph graph = new()
+        {
+            Id = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            Nodes = null!,
+            Edges = null!
+        };
+
+        bool ok = ProvenanceGraphAlgorithms.TryResolveDecisionNodeId(graph, "ref-a", out Guid id);
+
+        ok.Should().BeFalse();
+        id.Should().Be(Guid.Empty);
+    }
+
+    [Fact]
+    public void ExtractDecisionSubgraph_TreatsNullNodesAndEdgesAsEmpty()
+    {
+        DecisionProvenanceGraph graph = new()
+        {
+            Id = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            Nodes = null!,
+            Edges = null!
+        };
+
+        DecisionProvenanceGraph sub = ProvenanceGraphAlgorithms.ExtractDecisionSubgraph(graph, Guid.NewGuid());
+
+        sub.Nodes.Should().BeEmpty();
+        sub.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ExtractNeighborhood_TreatsNullNodesAndEdgesAsEmpty()
+    {
+        DecisionProvenanceGraph graph = new()
+        {
+            Id = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            Nodes = null!,
+            Edges = null!
+        };
+
+        DecisionProvenanceGraph neighborhood =
+            ProvenanceGraphAlgorithms.ExtractNeighborhood(graph, Guid.NewGuid(), 1);
+
+        neighborhood.Nodes.Should().BeEmpty();
+        neighborhood.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ExtractNeighborhood_AtDepthZero_ReturnsStartNodeOnly()
     {
         DecisionProvenanceGraph graph = SampleGraph();

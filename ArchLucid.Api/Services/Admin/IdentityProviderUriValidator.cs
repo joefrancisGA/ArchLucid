@@ -11,13 +11,28 @@ internal static class IdentityProviderUriValidator
         }
 
         if (!Uri.TryCreate(value, UriKind.Absolute, out Uri? parsed)
-            || (parsed.Scheme != Uri.UriSchemeHttp && parsed.Scheme != Uri.UriSchemeHttps))
+            || (parsed.Scheme != Uri.UriSchemeHttp && parsed.Scheme != Uri.UriSchemeHttps)
+            || string.IsNullOrEmpty(parsed.Host)
+            || !string.IsNullOrEmpty(parsed.Fragment)
+            || !string.IsNullOrEmpty(parsed.UserInfo))
         {
             uri = null!;
             return false;
         }
 
         uri = parsed;
+        return true;
+    }
+
+    internal static bool TryGetCanonicalAbsoluteHttpOrHttps(string? value, out string canonicalUri)
+    {
+        if (value is null || !TryCreateAbsoluteHttpOrHttps(value, out Uri? parsed))
+        {
+            canonicalUri = null!;
+            return false;
+        }
+
+        canonicalUri = parsed.AbsoluteUri;
         return true;
     }
 }

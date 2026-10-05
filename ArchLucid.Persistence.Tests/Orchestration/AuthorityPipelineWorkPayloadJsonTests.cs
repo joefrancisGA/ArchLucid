@@ -127,6 +127,23 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id()
+    {
+        AuthorityPipelineWorkPayload payload = new()
+        {
+            ContextIngestionRequest = new ContextIngestionRequest
+            {
+                RunId = Guid.NewGuid(),
+                ProjectId = "default",
+            },
+            EvidenceBundleId = "bundle\u00A01",
+        };
+
+        payload.IsValidForProcessing().Should().BeFalse(
+            "embedded no-break space survives Trim() and breaks evidence bundle lookup after the worker gate");
+    }
+
+    [SkippableFact]
     public void IsValidForProcessing_rejects_embedded_combining_mark_in_evidence_bundle_id()
     {
         AuthorityPipelineWorkPayload payload = new()
@@ -500,6 +517,60 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "main", "format": "json\u0300", "content": "{\"resources\":[]}" },
+                  { "name": "keep", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_document_when_content_type_contains_embedded_combining_mark()
+    {
+        Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "keep", "contentType": "text/plain\u0300", "content": "diagram source" },
+                  { "name": "keep", "contentType": "text/plain", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.ContentType.Should().Be("text/plain");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_empty_document_objects()
     {
         Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
@@ -577,6 +648,98 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
               },
               "evidenceBundleId": "bundle-1",
               "workKind": 99
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.IsValidForProcessing().Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_inline_requirements_with_internal_spaces()
+    {
+        Guid runId = Guid.Parse("15151515-1515-1515-1515-151515151515");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["must use https"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("must use https");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("16161616-1616-1616-1616-161616161616");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "policyReferences": ["pci\u00A0/dss", "keep-policy"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.PolicyReferences.Should().Equal("keep-policy");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_document_when_name_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("14141414-1414-1414-1414-141414141414");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diag\u00A0ram", "contentType": "text/plain", "content": "body" },
+                  { "name": "keep", "contentType": "text/plain", "content": "body" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp()
+    {
+        const string json = """
+            {
+              "contextIngestionRequest": {
+                "runId": "11111111-1111-1111-1111-111111111111",
+                "projectId": "default"
+              },
+              "evidenceBundleId": "bundle\u00A01"
             }
             """;
 

@@ -43,7 +43,7 @@ export type ApiKeyCredentialTableProps = {
 
 function formatExpiresLabel(expiresAtUtc: string | null | undefined): string {
   if (expiresAtUtc === null || expiresAtUtc === undefined || expiresAtUtc.trim().length === 0) {
-    return " — ";
+    return "No expiry recorded";
   }
 
   return expiresAtUtc;
@@ -54,7 +54,7 @@ function formatConfigurationLabel(slotStatus: ApiKeySlotStatusDto | undefined): 
     return "Configured";
   }
 
-  return " — ";
+  return "Not configured";
 }
 
 function renderRowActions(

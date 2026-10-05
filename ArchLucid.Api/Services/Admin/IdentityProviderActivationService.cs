@@ -58,9 +58,7 @@ public sealed class IdentityProviderActivationService(
             _ => throw new ArgumentException("Protocol must be oidc or saml.")
         };
 
-        string issuerUri = request.IssuerUri?.Trim() ?? string.Empty;
-
-        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
 
         IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
@@ -82,7 +80,7 @@ public sealed class IdentityProviderActivationService(
         {
             TenantId = tenantId,
             Protocol = parsedProtocol,
-            IssuerUri = issuerUri,
+            IssuerUri = canonicalIssuerUri,
             MetadataXml = ResolveOptionalPersistedField(
                 request.MetadataXml,
                 sameProtocol ? existing?.MetadataXml : null),

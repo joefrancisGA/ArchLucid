@@ -34247,7 +34247,16 @@
               "string"
             ]
           },
+          "reasonText": {
+            "type": "string"
+          },
           "resourceId": {
+            "type": "string"
+          },
+          "resourceName": {
+            "type": "string"
+          },
+          "resourceType": {
             "type": "string"
           },
           "scopeKind": {

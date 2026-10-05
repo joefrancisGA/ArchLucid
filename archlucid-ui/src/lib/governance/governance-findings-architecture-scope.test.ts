@@ -9,6 +9,7 @@ import {
   resolveGovernanceFindingsArchitectureScopeFromUrl,
   scopedArchitectureIdFromQuery,
 } from "@/lib/governance/governance-findings-architecture-scope";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 
 const architectureId = "architecture-identity-001";
 
@@ -36,6 +37,19 @@ describe("governance-findings-architecture-scope (AO-28)", () => {
     expect(
       governanceFindingsArchitectureScopeHrefFromSearch("", architectureId, "/governance/findings"),
     ).toBe("/governance/findings?architectureId=architecture-identity-001");
+  });
+
+  it("clears stale resource-group disclosure when architecture scope changes", () => {
+    const href = governanceFindingsArchitectureScopeHrefFromSearch(
+      `groupBy=resource&${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=resource%3Aabc`,
+      architectureId,
+      "/governance/findings",
+    );
+
+    expect(href).toBe(
+      "/governance/findings?groupBy=resource&architectureId=architecture-identity-001",
+    );
+    expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   });
 
   it("treats architectureId=all as explicit all-architectures scope", () => {

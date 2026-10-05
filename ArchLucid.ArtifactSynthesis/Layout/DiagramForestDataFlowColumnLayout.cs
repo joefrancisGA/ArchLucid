@@ -74,7 +74,10 @@ internal static class DiagramForestDataFlowColumnLayout
         List<NodePlacement> placements = [];
         List<ColumnInfo> columns = [];
         double columnX = options.Padding;
-        double nodeTop = options.Padding + options.DataFlowSkyLaneHeight + options.DataFlowStageLabelBand;
+        double nodeTop = options.Padding
+            + options.DataFlowSkyLaneHeight
+            + options.DataFlowStageSummaryBand
+            + options.DataFlowStageLabelBand;
 
         foreach (List<DiagramNode> stage in orderedColumns)
         {

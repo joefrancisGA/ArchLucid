@@ -48,6 +48,7 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 ArmResourceKind = node.ArmResourceKind,
                 ExternalLinkedServiceType = node.ExternalLinkedServiceType,
                 ExternalFactoryName = node.ExternalFactoryName,
+                ExternalFactoryNames = node.ExternalFactoryNames.ToList(),
                 ExternalTargetHost = node.ExternalTargetHost,
                 ExternalIntegrationRuntime = node.ExternalIntegrationRuntime,
                 ExternalHostInKeyVault = node.ExternalHostInKeyVault,

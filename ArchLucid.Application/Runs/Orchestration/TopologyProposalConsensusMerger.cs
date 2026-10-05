@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 
@@ -18,7 +19,13 @@ public static class TopologyProposalConsensusMerger
             PruneRelationshipsToDeclaredEndpoints(
                 intersectedServices,
                 intersectedDatastores,
-                IntersectRelationships(primary.AddedRelationships, secondary.AddedRelationships));
+                IntersectRelationships(
+                    primary.AddedRelationships,
+                    secondary.AddedRelationships,
+                    primary.AddedServices,
+                    primary.AddedDatastores,
+                    secondary.AddedServices,
+                    secondary.AddedDatastores));
         List<string> intersectedControls = IntersectControls(
             primary.RequiredControls ?? [],
             secondary.RequiredControls ?? []);
@@ -105,22 +112,73 @@ public static class TopologyProposalConsensusMerger
 
     private static List<ManifestRelationship> IntersectRelationships(
         IReadOnlyList<ManifestRelationship> primary,
-        IReadOnlyList<ManifestRelationship> secondary)
+        IReadOnlyList<ManifestRelationship> secondary,
+        IReadOnlyList<ManifestService> primaryServices,
+        IReadOnlyList<ManifestDatastore> primaryDatastores,
+        IReadOnlyList<ManifestService> secondaryServices,
+        IReadOnlyList<ManifestDatastore> secondaryDatastores)
     {
+        Dictionary<string, string> endpointCanonicalMap =
+            TopologyProposalRelationshipEndpointIndex.BuildDeclaredEndpointCanonicalMap(
+                CombineManifestServices(primaryServices, secondaryServices),
+                CombineManifestDatastores(primaryDatastores, secondaryDatastores));
+
+        HashSet<string> knownEndpointKeys =
+            TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+                CombineManifestServices(primaryServices, secondaryServices),
+                CombineManifestDatastores(primaryDatastores, secondaryDatastores));
+
         HashSet<string> secondaryKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ManifestRelationship relationship in secondary)
-            secondaryKeys.Add(RelationshipKey(relationship));
+            secondaryKeys.Add(RelationshipKey(relationship, endpointCanonicalMap, knownEndpointKeys));
 
         List<ManifestRelationship> intersection = [];
+        HashSet<string> seenIntersectionKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ManifestRelationship relationship in primary)
         {
-            if (secondaryKeys.Contains(RelationshipKey(relationship)))
-                intersection.Add(relationship);
+            string key = RelationshipKey(relationship, endpointCanonicalMap, knownEndpointKeys);
+
+            if (!secondaryKeys.Contains(key) || !seenIntersectionKeys.Add(key))
+                continue;
+
+            intersection.Add(relationship);
         }
 
         return intersection;
+    }
+
+    private static List<ManifestService> CombineManifestServices(
+        IReadOnlyList<ManifestService> primary,
+        IReadOnlyList<ManifestService> secondary)
+    {
+        if (primary.Count == 0)
+            return secondary.Count == 0 ? [] : new List<ManifestService>(secondary);
+
+        if (secondary.Count == 0)
+            return new List<ManifestService>(primary);
+
+        List<ManifestService> combined = new(primary.Count + secondary.Count);
+        combined.AddRange(primary);
+        combined.AddRange(secondary);
+        return combined;
+    }
+
+    private static List<ManifestDatastore> CombineManifestDatastores(
+        IReadOnlyList<ManifestDatastore> primary,
+        IReadOnlyList<ManifestDatastore> secondary)
+    {
+        if (primary.Count == 0)
+            return secondary.Count == 0 ? [] : new List<ManifestDatastore>(secondary);
+
+        if (secondary.Count == 0)
+            return new List<ManifestDatastore>(primary);
+
+        List<ManifestDatastore> combined = new(primary.Count + secondary.Count);
+        combined.AddRange(primary);
+        combined.AddRange(secondary);
+        return combined;
     }
 
     private static List<string> IntersectControls(IReadOnlyList<string> primary, IReadOnlyList<string> secondary)
@@ -176,15 +234,41 @@ public static class TopologyProposalConsensusMerger
         return string.IsNullOrWhiteSpace(datastore.DatastoreName) ? string.Empty : datastore.DatastoreName.Trim();
     }
 
-    private static string RelationshipKey(ManifestRelationship relationship) =>
-        $"{NormalizeRelationshipEndpoint(relationship.SourceId)}|{NormalizeRelationshipEndpoint(relationship.TargetId)}|{relationship.RelationshipType}";
+    private static string RelationshipKey(
+        ManifestRelationship relationship,
+        Dictionary<string, string> endpointCanonicalMap,
+        HashSet<string> knownEndpointKeys) =>
+        $"{CanonicalizeConsensusRelationshipEndpoint(relationship.SourceId, endpointCanonicalMap, knownEndpointKeys)}|{CanonicalizeConsensusRelationshipEndpoint(relationship.TargetId, endpointCanonicalMap, knownEndpointKeys)}|{relationship.RelationshipType}";
 
-    private static string NormalizeRelationshipEndpoint(string endpoint)
+    private static string CanonicalizeConsensusRelationshipEndpoint(
+        string? endpoint,
+        Dictionary<string, string> endpointCanonicalMap,
+        HashSet<string> knownEndpointKeys)
     {
-        string trimmed = endpoint.Trim();
+        if (string.IsNullOrWhiteSpace(endpoint))
+            return string.Empty;
 
-        return TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
-               ?? trimmed;
+        string trimmed = endpoint.Trim();
+        string normalizedSynthetic =
+            TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
+            ?? trimmed;
+
+        if (endpointCanonicalMap.TryGetValue(normalizedSynthetic, out string? canonical))
+            return canonical;
+
+        if (endpointCanonicalMap.TryGetValue(trimmed, out canonical))
+            return canonical;
+
+        if (TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys))
+            return GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmed);
+
+        if (TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(normalizedSynthetic, knownEndpointKeys))
+            return GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(normalizedSynthetic);
+
+        if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(trimmed, knownEndpointKeys))
+            return normalizedSynthetic;
+
+        return normalizedSynthetic;
     }
 
     private static List<ManifestRelationship> PruneRelationshipsToDeclaredEndpoints(

@@ -348,6 +348,104 @@ public sealed class DiagramForestLayoutSvgRendererTests
         fullSubscriptionResult.Succeeded.Should().BeTrue(fullSubscriptionResult.Error);
         fullSubscriptionResult.Svg.Should().NotContain("Used by 2");
         fullSubscriptionResult.Svg.Should().NotContain("No consumer found");
+        fullSubscriptionResult.Svg.Should().NotContain("data-flow-stage-summary");
+    }
+
+    [Fact]
+    public void Render_data_flow_paints_stage_summary_above_columns()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-source", Label = "Source", OrderKey = 0 },
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-ingestion", Label = "Ingestion", OrderKey = 1 },
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-storage", Label = "Storage", OrderKey = 2 },
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-consumer", Label = "Consumer", OrderKey = 3 },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "source-a",
+                    Label = "source-a",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "source-b",
+                    Label = "source-b",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    OrderKey = 1,
+                },
+                new DiagramNode
+                {
+                    NodeId = "ingestion",
+                    Label = "ingestion",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.DataFactory/factories",
+                    SubgraphId = "data-flow-stage-ingestion",
+                    OrderKey = 2,
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage-used",
+                    Label = "storage-used",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 3,
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage-empty-a",
+                    Label = "storage-empty-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 4,
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage-empty-b",
+                    Label = "storage-empty-b",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 5,
+                },
+                new DiagramNode
+                {
+                    NodeId = "consumer",
+                    Label = "consumer",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Web/sites",
+                    SubgraphId = "data-flow-stage-consumer",
+                    OrderKey = 6,
+                },
+                new DiagramNode
+                {
+                    NodeId = "not-staged",
+                    Label = "not-staged",
+                    NodeType = "TopologyResource",
+                    OrderKey = 7,
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "storage-used", ToNodeId = "consumer", Label = "uses" },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain(
+            "2 Source → 1 Ingestion → 3 Storage (1 used, 2 no consumer found) → 1 Consumer · 1 not staged");
     }
 
     [Fact]

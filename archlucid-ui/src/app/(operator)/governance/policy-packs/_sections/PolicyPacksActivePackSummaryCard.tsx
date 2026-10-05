@@ -28,6 +28,10 @@ function resolveActivePackName(
   effective: EffectivePolicyPackSet | null,
   selectedPack: PolicyPack | undefined,
 ): string {
+  if (effective === null) {
+    return "Not loaded";
+  }
+
   const fromEffective = effective?.packs[0]?.name?.trim() ?? "";
 
   if (fromEffective.length > 0) {
@@ -47,6 +51,10 @@ function resolveActivePackVersion(
   effective: EffectivePolicyPackSet | null,
   selectedPack: PolicyPack | undefined,
 ): string {
+  if (effective === null) {
+    return "";
+  }
+
   const fromEffective = effective?.packs[0]?.version?.trim() ?? "";
 
   if (fromEffective.length > 0) {
@@ -67,12 +75,18 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
     canMutatePacks,
     onOpenCatalog,
   } = props;
+  const effectiveNotLoaded = effective === null;
   const packName = resolveActivePackName(effective, selectedPack);
   const packVersion = resolveActivePackVersion(effective, selectedPack);
-  const packType = selectedPack?.packType ?? effective?.packs[0]?.packType ?? "";
+  const packType = effectiveNotLoaded
+    ? ""
+    : selectedPack?.packType ?? effective?.packs[0]?.packType ?? "";
   const isEnabled =
+    !effectiveNotLoaded &&
     selectedPack !== undefined &&
     (effective?.packs ?? []).some((pack) => pack.policyPackId === selectedPack.policyPackId);
+  const showPackVersionTag =
+    !effectiveNotLoaded && (effective?.packs[0] !== undefined || selectedPack !== undefined);
   const ruleSetId = effectiveContent?.metadata?.ruleSetId?.trim() ?? "healthcare-claims-v3";
   const detailHref = policyPackBuyerGovernanceDetailHref(ruleSetId);
 
@@ -85,7 +99,7 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
         <div className="flex flex-wrap items-center gap-2">
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{packName}</p>
           <StatusTag kind={isEnabled ? "ready" : "neutral"} label={isEnabled ? "Enabled in workspace" : "Not in scope"} />
-          {effective?.packs[0] !== undefined || selectedPack !== undefined ? (
+          {showPackVersionTag ? (
             <StatusTag
               kind="neutral"
               label={packVersion === "Version not returned" ? packVersion : `Version ${packVersion}`}
@@ -93,7 +107,11 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
           ) : null}
         </div>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
-          {formatActivePolicyPackSummaryBody(packName, enforcedRuleCount)}
+          {effectiveNotLoaded
+            ? "Effective policy pack set not loaded for this workspace scope."
+            : packName === "No active pack"
+              ? "No active pack is resolved for this workspace scope."
+              : formatActivePolicyPackSummaryBody(packName, enforcedRuleCount)}
         </p>
         {effective !== null && effective.packs.length > 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

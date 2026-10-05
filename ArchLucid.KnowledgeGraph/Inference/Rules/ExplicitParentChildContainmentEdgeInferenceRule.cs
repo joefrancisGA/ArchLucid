@@ -16,6 +16,8 @@ internal sealed class ExplicitParentChildContainmentEdgeInferenceRule : IGraphEd
             if (string.IsNullOrWhiteSpace(parentId))
                 continue;
 
+            parentId = parentId.Trim();
+
             if (!context.NodeById.TryGetValue(parentId, out GraphNode? parentNode))
                 continue;
 

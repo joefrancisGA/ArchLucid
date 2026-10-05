@@ -64,6 +64,28 @@ public sealed class HotPathCacheRegistrationTests
     }
 
     [Fact]
+    public void RegisterHotPathReadCaching_null_redis_connection_reports_configuration_error()
+    {
+        ServiceCollection services = [];
+        services.AddLogging();
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["HotPathCache:Enabled"] = "true",
+                    ["HotPathCache:Provider"] = "Redis",
+                    ["HotPathCache:RedisConnectionString"] = null,
+                })
+            .Build();
+
+        Action act = () => ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*HotPathCache:RedisConnectionString is required*");
+    }
+
+    [Fact]
     public void RegisterHotPathReadCaching_AutoMultiReplicaWithRedis_resolves_to_redis_l2()
     {
         ServiceCollection services = [];

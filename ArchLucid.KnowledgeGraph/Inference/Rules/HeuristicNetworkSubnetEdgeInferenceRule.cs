@@ -37,7 +37,8 @@ internal sealed class HeuristicNetworkSubnetEdgeInferenceRule : IGraphEdgeInfere
     private static bool ShouldInferNetworkContainsSubnet(GraphNode network, GraphNode subnet, int networkCount)
     {
         if (GraphNodePropertyReader.TryGetPropertyValue(subnet.Properties, "parentNodeId", out string? parentId)
-            && string.Equals(parentId, network.NodeId, StringComparison.OrdinalIgnoreCase))
+            && !string.IsNullOrWhiteSpace(parentId)
+            && string.Equals(parentId.Trim(), network.NodeId, StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (networkCount == 1)
