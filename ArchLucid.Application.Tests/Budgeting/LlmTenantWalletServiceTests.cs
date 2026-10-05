@@ -339,6 +339,48 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAuthorizeOverageSpendAsync_enqueues_auto_refill_when_debit_drops_balance_below_trigger_threshold()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            50m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 30m, CancellationToken.None);
+
+        authorized.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(8m);
+        view.BalanceUsd.Should().BeLessThan(LlmTenantWalletDefaults.RefillTriggerThresholdUsd);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue("overage authorize debits the wallet and must enqueue auto-refill like settlement consume");
+        item.Kind.Should().Be(LlmWalletSettlementKind.AutoRefill);
+        item.TenantId.Should().Be(tenantId);
+    }
+
+    [SkippableFact]
     public async Task TryAuthorizeOverageSpendAsync_parallel_estimates_only_one_succeeds_when_balance_covers_single_estimate()
     {
         InMemoryLlmTenantWalletRepository repository = new();
