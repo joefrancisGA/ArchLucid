@@ -71,11 +71,7 @@ function renderTabPanel(
       hidden={hidden}
       data-testid={`review-detail-workspace-panel-${tabId}`}
     >
-      {!hidden ? (
-        content
-      ) : inPipelineBanner !== null && inPipelineBanner !== undefined && tabId !== "activity" ? (
-        <div className="space-y-4">{inPipelineBanner}</div>
-      ) : null}
+      {!hidden ? content : null}
     </div>
   );
 }

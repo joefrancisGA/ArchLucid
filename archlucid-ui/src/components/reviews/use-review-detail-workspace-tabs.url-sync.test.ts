@@ -99,6 +99,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
   });
 
+  it("follows workbenchFocus query changes without a popstate event", () => {
+    const { result, rerender } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.workbenchFocusColumn).toBeNull();
+
+    searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=evidence");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&workbenchFocus=evidence",
+    );
+    rerender();
+
+    expect(result.current.activeTab).toBe("findings");
+    expect(result.current.workbenchFocusColumn).toBe("evidence");
+  });
+
   it("follows reviewTab query changes without a popstate event", () => {
     const { result, rerender } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
       wrapper: SearchParamsRerenderHost,

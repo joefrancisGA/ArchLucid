@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewWorkbenchSelectionProvider` reconciled `findingId` from `window.location` only on `popstate`, so Next.js soft `<Link>` navigation left workbench finding selection stale; sync from the live address bar when `useSearchParams` `findingId` changes; regression `follows findingId query changes without a popstate event`; 29 scoped review-detail vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `useReviewDetailWorkspaceTabs` ignored reactive `workbenchFocus` query changes (same class as the 2026-10-03 `reviewTab` soft-navigation fix), leaving the workbench on the wrong column after `<Link>` navigation; sync `workbenchFocusColumn` from `useSearchParams`; regression `follows workbenchFocus query changes without a popstate event`; 41 scoped review-detail vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewDetailWorkspaceTabShell.renderTabPanel` mounted `inPipelineBanner` in every hidden tab panel, duplicating pipeline-in-flight banner markup (7 copies for Overview-active); render banner only on the visible panel; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`; 38 scoped review-detail vitest tests passed.
+
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — module-level `reviewFindingsLastVisitRestoredRunIds` never cleared on unmount, so returning to the same review with a bare findings URL skipped DR-13 last-visit toolbar restore; delete run id from the guard on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`; 18 scoped review-detail vitest tests passed.
 
 2026-10-05 seed hunt (seed→hit): `ui-review-detail-workspace` — `RunDetailFindingsWorkspace` kept the prior run’s classification band (and list view) after a client-side `runId` transition when the URL omitted band/list params; re-sync toolbar band + list view from the location on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped review-detail vitest tests passed (findings workspace + workspace tabs).
@@ -28210,11 +28216,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 28
-- **bugs-found:** 19
+- **hunts:** 31
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — findings last-visit restore skipped on same-run remount
+- **last-bug:** 2026-10-05 — findingId URL soft navigation desync (workbench selection)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28227,6 +28233,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 2026-10-03 seed hunt (seed-only): re-read the review-detail route, findings workspace, workspace header, presentation model, and focused tests; existing candidates remained below the wrong-outcome and product-contract bar, so no new candidate was promoted or proven.
 
 2026-10-05 seed hunt (seed→hit): promoted and proved `RunDetailFindingsWorkspace` classification-band state was not keyed to `runId`, so switching reviews without a `findingsBand` query left the prior run’s band active; re-read band + list view from `window.location` on `runId` change; regression `resets classification band when runId changes without a band query param`; 16 scoped vitest tests passed.
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `ReviewWorkbenchSelectionProvider` ignored reactive `findingId` query changes on soft navigation (same class as `reviewTab` / `workbenchFocus` fixes); reconcile selection from the live address bar when `searchParamFindingId` changes; regression `follows findingId query changes without a popstate event`; 29 scoped vitest tests passed.
 
 2026-10-03 seed hunt (hit): promoted the review-detail URL synchronization candidate; `useReviewDetailWorkspaceTabs` passed an empty search-param set to initial tab resolution and had no reactive `useSearchParams` dependency, so soft navigation from Overview to Findings left the active panel stale. Fixed by consuming reactive search params and synchronizing `activeTab`; regressions in `use-review-detail-workspace-tabs.url-sync.test.ts` (2 passed).
 
@@ -28249,13 +28257,13 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
 - (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
 - (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
-- (candidate) `ReviewDetailWorkspaceTabShell.renderTabPanel` — a non-null `inPipelineBanner` is rendered into every hidden non-activity tab panel as well as the active panel; reachable pipeline-in-flight input could duplicate interactive banner markup or IDs across the workspace, pending a banner contract/test-id check.
+- [x] (proven) `ReviewDetailWorkspaceTabShell.renderTabPanel` — `inPipelineBanner` rendered in hidden tab panels as well as the active panel — **hit 2026-10-05 seed hunt:** omit banner content when `hidden`; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`
 - (candidate) `ReviewDetailWorkspaceTabShell` workbench composition — the evidence vocabulary rail is rendered once inside `WorkbenchLayoutBridge` and again in the hidden evidence tab panel; reachable Working-mode workbench input could duplicate vocabulary navigation or its identifiers, pending focused DOM/accessibility proof.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused failure mocked `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; the hook intentionally reads presenter state from `window.location`, so the failure does not establish a product defect.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused test failure came from mocking `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; `useReviewDetailWorkspaceTabs` intentionally reads presenter state from `window.location`, so this does not establish a reachable product failure.
 
-- (candidate) `ReviewWorkbenchSelectionProvider` — finding selection only reconciles from `window.location` on `popstate`; a same-document control that replaces `findingId` without dispatching `popstate` can leave the visible finding selection stale, reachable through another review-detail control using `replaceState`.
-- (candidate) `ReviewWorkbenchSelectionProvider` — workbench focus is initialized from the parent prop only and is not read from the URL before the first render; a Working-mode deep link with `workbenchFocus=evidence` can briefly focus the default column, pending first-paint focus contract proof.
+- [x] (proven) `ReviewWorkbenchSelectionProvider` — finding selection only reconciled from `window.location` on `popstate`, so Next.js soft navigation left selection stale — **hit 2026-10-05 seed hunt:** reconcile from the live address bar when reactive `findingId` query changes; regression `follows findingId query changes without a popstate event`
+- [x] (proven) `useReviewDetailWorkspaceTabs` — `workbenchFocusColumn` did not follow `workbenchFocus` query changes on Next.js soft navigation (popstate-only sync) — **hit 2026-10-05 seed hunt:** reactive `searchParamWorkbenchFocus` from `useSearchParams`; regression `follows workbenchFocus query changes without a popstate event`
 - [x] (proven) `ReviewWorkspaceStaleBanner` — the activity fingerprint baseline was retained across a client-side `runId` transition; switching from a committed review to an in-review review surfaced a false stale banner. Reset the baseline and visibility when `runId` changes; regression `does not carry the previous run baseline into a client-side run transition`.
 
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)

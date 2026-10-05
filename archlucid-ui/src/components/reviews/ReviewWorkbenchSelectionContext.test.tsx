@@ -1,5 +1,36 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, renderHook, screen } from "@testing-library/react";
+import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+const searchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+    },
+  };
+});
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
+}));
 
 import {
   ReviewWorkbenchSelectionProvider,
@@ -28,12 +59,24 @@ function SelectionProbe(): React.JSX.Element {
   );
 }
 
+function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
+  useSyncExternalStore(
+    searchParamsHarness.subscribe,
+    () => searchParamsHarness.state.query,
+    () => "",
+  );
+
+  return createElement("div", null, children);
+}
+
 describe("ReviewWorkbenchSelectionProvider", () => {
   afterEach(() => {
+    searchParamsHarness.reset();
     window.history.replaceState({}, "", "/");
   });
 
   it("does not rewrite the URL when replaceState clears findingId and useSearchParams stays stale", () => {
+    searchParamsHarness.applyQuery("reviewTab=overview&findingId=stale-missing");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview&findingId=stale-missing");
 
     const onFindingIdChange = vi.fn();
@@ -69,5 +112,39 @@ describe("ReviewWorkbenchSelectionProvider", () => {
 
     expect(onFindingIdChange).not.toHaveBeenCalled();
     expect(screen.getByTestId("selected-finding-id")).toHaveTextContent("none");
+  });
+
+  it("follows findingId query changes without a popstate event", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-a");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-a",
+    );
+
+    function Wrapper({ children }: { readonly children: ReactNode }) {
+      return (
+        <SearchParamsRerenderHost>
+          <ReviewWorkbenchSelectionProvider>{children}</ReviewWorkbenchSelectionProvider>
+        </SearchParamsRerenderHost>
+      );
+    }
+
+    const { result, rerender } = renderHook(
+      () => useReviewWorkbenchSelection()?.selectedFindingId ?? null,
+      { wrapper: Wrapper },
+    );
+
+    expect(result.current).toBe("finding-a");
+
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-b");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-b",
+    );
+    rerender();
+
+    expect(result.current).toBe("finding-b");
   });
 });
