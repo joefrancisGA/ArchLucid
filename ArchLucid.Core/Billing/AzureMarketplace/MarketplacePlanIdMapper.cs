@@ -87,7 +87,10 @@ public static class MarketplacePlanIdMapper
                || token.Equals("free", StringComparison.OrdinalIgnoreCase)
                || token.Equals("negate", StringComparison.OrdinalIgnoreCase)
                || token.Equals("void", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("zero", StringComparison.OrdinalIgnoreCase);
+               || token.Equals("zero", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("absent", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("removed", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("cleared", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ExtractPlanIdTokens(string planId)
