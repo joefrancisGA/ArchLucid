@@ -3582,10 +3582,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
@@ -3644,7 +3644,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-04 thorough hunt (hit): `commit-output-integrity` — `CommitOutputIntegrityService.EnsurePassOrThrowAsync` invoked `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` (including overlay persist) before provenance, assumption, finalize-quality, and evidence-integrity gates, so a blocked commit could still write semantic-support overlays; moved judge + unsupported-band hold after those gates; regression `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist`; cheap-disproved missing-`TaskId` same-agent collapse candidate against intentional `agent:{AgentType}` retry chaining (#578); 87+ scoped integrity/selector tests passed.
 
+2026-10-05 seed hunt (seed-only): re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, and `AgentExecutionTraceLatestPerTaskSelector` after the semantic-judge ordering fix; cheap-disproof closed `AgentType` whitespace/casing split for missing-`TaskId` chains (extra groups fail-closed on PilotStrict) and caller `GoldenManifestId` vs DB stage outcomes (orchestrator loads `run` from persisted header). Scoped tests passed 54 Application quality-gate, 33 Core selector, and 6 architecture gate-map tests (93 total). Seeded bounded follow-up candidates below.
+
 ### Hypotheses
+
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` synthesizes `agent:{AgentType}` without trimming or case-normalizing `AgentType`, so persisted traces whose `AgentType` differs only by outer whitespace or casing form separate retry chains; reachable from `AgentExecutionTrace` rows written by the agent runtime.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` runs before `UnsupportedSemanticSupportFinalizeHoldEvaluator` on the same in-memory `findings` snapshot; if `ApplyAsync` partially persists overlays then throws, commit aborts but semantic-support storage may be left inconsistent with the sealed manifest attempt; reachable from finalize/commit API callers after TB-2321 gates pass.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome.Accepted` on the winning per-task trace is non-blocking when rank ladder prefers a same-attempt clean `Accepted` duplicate — extends #1624 policy; needs proof of a reachable upsert-drift shape that should block seal but does not.
 
 - [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes Î“Ã‡Ã¶ fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
 - [x] Missing optional artifact is treated as a hash match Î“Ã‡Ã¶ retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
@@ -27235,6 +27241,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **last-bug:** 2026-10-05 — retry-scheduled hook failure escaped after backoff persistence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted and proved `RecoverableOutboxFailureHandler` propagated `OnRetryScheduledAsync` instrumentation failures after `RecordBackoffAfterProcessingFailureAsync`, aborting batch isolation while the row was already in backoff; wrapped retry hooks best-effort like dead-letter hooks; regression `HandleAsync_does_not_escape_retry_hook_failure_after_recording_backoff`. Scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
 
 2026-10-04 thorough hunt (dry): cheap-disproved both remaining coordination candidates; package-builder failures are explicit or transient by contract, and provenance materialization rejects incomplete build input; no failing repro.
 
