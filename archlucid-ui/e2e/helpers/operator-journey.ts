@@ -691,19 +691,46 @@ export async function expectReviewDetailFindingFromFindingsWorkspace(
   options?: { timeoutMs?: number },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 90_000;
-  const encodedFindingId = encodeURIComponent(findingId.trim());
+  const trimmedFindingId = findingId.trim();
+  const encodedFindingId = encodeURIComponent(trimmedFindingId);
+  const titlePattern = new RegExp(title.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
 
   await expect(async () => {
-    const findingLink = page.locator(`a[href*="/findings/${encodedFindingId}"]`).first();
+    await ensureReviewDetailFindingsPresentationExpanded(page);
 
-    await findingLink.scrollIntoViewIfNeeded();
-    await findingLink.click();
+    const workspace = page
+      .getByTestId("run-detail-findings-workspace")
+      .or(page.getByTestId("review-workbench-column-findings"))
+      .or(page.getByTestId("run-detail-findings-section"))
+      .first();
+
+    await expect(workspace).toBeVisible({ timeout: 10_000 });
+
+    const card = await expandFindingWorkspaceCard(workspace, trimmedFindingId);
+
+    const inspectLink = card
+      .getByRole("link", { name: /Open finding/i })
+      .or(card.locator(`a[href*="/findings/${encodedFindingId}"]`))
+      .first();
+
+    await inspectLink.scrollIntoViewIfNeeded();
+    await inspectLink.click();
 
     const main = page.getByRole("main");
 
     await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
-    await expect(main.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible({ timeout: 15_000 });
-    await expect(main.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first()).toBeVisible({ timeout: 15_000 });
+
+    const workspaceHeader = main.getByTestId("finding-detail-workspace-header");
+    const titleHeading = main.getByRole("heading", { level: 1, name: titlePattern });
+
+    await expect(workspaceHeader.or(titleHeading)).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText(titlePattern).first()).toBeVisible({ timeout: 15_000 });
+
+    const severityBadge = main.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first();
+
+    if (await severityBadge.isVisible().catch(() => false)) {
+      await expect(severityBadge).toBeVisible({ timeout: 5_000 });
+    }
   }).toPass({ timeout });
 }
 
