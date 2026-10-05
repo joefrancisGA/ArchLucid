@@ -3852,9 +3852,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
@@ -3916,11 +3916,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-05 seed hunt (seed-only): re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, and `AgentExecutionTraceLatestPerTaskSelector` after the semantic-judge ordering fix; cheap-disproof closed `AgentType` whitespace/casing split for missing-`TaskId` chains (extra groups fail-closed on PilotStrict) and caller `GoldenManifestId` vs DB stage outcomes (orchestrator loads `run` from persisted header). Scoped tests passed 54 Application quality-gate, 33 Core selector, and 6 architecture gate-map tests (93 total). Seeded bounded follow-up candidates below.
 
+2026-10-05 thorough hunt (dry): retested three open candidates — `(invalid)` missing-`TaskId` `AgentType` whitespace/casing split (`AgentType` is an enum; key is `agent:{AgentType}` per #578); `(valid-no-repro)` judge-before-unsupported-hold ordering required by ADR 0099 (`ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureTests.As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; hold must evaluate post-judge bands); `(valid-no-repro)` `QualityRejected`+`Accepted` duplicate losing to clean `Accepted` sibling is intentional #1330/#1624 upsert-drift policy (`GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`). Scoped tests passed 54 Application quality-gate, 33 Core selector, 13 AS-099/gate-map architecture tests (100 total). No code changes.
+
 ### Hypotheses
 
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` synthesizes `agent:{AgentType}` without trimming or case-normalizing `AgentType`, so persisted traces whose `AgentType` differs only by outer whitespace or casing form separate retry chains; reachable from `AgentExecutionTrace` rows written by the agent runtime.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` runs before `UnsupportedSemanticSupportFinalizeHoldEvaluator` on the same in-memory `findings` snapshot; if `ApplyAsync` partially persists overlays then throws, commit aborts but semantic-support storage may be left inconsistent with the sealed manifest attempt; reachable from finalize/commit API callers after TB-2321 gates pass.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome.Accepted` on the winning per-task trace is non-blocking when rank ladder prefers a same-attempt clean `Accepted` duplicate — extends #1624 policy; needs proof of a reachable upsert-drift shape that should block seal but does not.
+- [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` `AgentType` whitespace/casing split — **cheap-disproof 2026-10-05 thorough hunt:** `AgentType` on `AgentExecutionTrace` is `AgentType` enum, not free text; missing-task grouping is intentional `agent:{AgentType}` retry chaining (#578); extra groups only add fail-closed PilotStrict coverage.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` before `UnsupportedSemanticSupportFinalizeHoldEvaluator` — **cheap-disproof 2026-10-05 thorough hunt:** ADR 0099 ratchet requires judge before hold so TB-1228 evaluates post-judge bands; architecture regressions `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist` and `As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; mid-batch overlay persist failure is not a reachable wrong seal outcome in these files.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `Accepted` on losing duplicate when clean `Accepted` wins — **cheap-disproof 2026-10-05 thorough hunt:** intentional non-blocking upsert-drift resolution (#1330, #1624); single winning `QualityRejected` trace still blocks (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
 
 - [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes Î“Ã‡Ã¶ fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
 - [x] Missing optional artifact is treated as a hash match Î“Ã‡Ã¶ retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
