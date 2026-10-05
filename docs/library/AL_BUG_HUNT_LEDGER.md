@@ -4912,13 +4912,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 262
-- **bugs-found:** 485
+- **hunts:** 263
+- **bugs-found:** 486
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — legal-hold reason whitespace broke idempotent retry audit dedupe
+- **last-bug:** 2026-10-05 — legal-hold `untilUtc` offset mismatch broke idempotent retry dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): proved `TenantErasureCommandService.IsIdenticalLegalHoldRetry` compared `LegalHoldUntilUtc` with `DateTimeOffset` equality so the same instant with a different offset duplicated `TenantErasureLegalHoldSet` audits on operator retry; compare `UtcDateTime`; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_until_utc_differs_only_by_offset`; 42 scoped `TenantErasure` tests passed (14 Application + 23 Api + 4 Core + 1 Persistence).
 
 2026-10-05 seed hunt (seed→hit): promoted and proved `TenantErasureCommandService.TrySetLegalHoldAsync` stored platform legal-hold reasons without trimming while `IsIdenticalLegalHoldRetry` compared raw strings, so operator retries with the same semantic reason after surrounding whitespace duplicated `TenantErasureLegalHoldSet` audits; normalize reason on write and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`. Scoped `TenantErasure` tests passed 36.
 
@@ -4932,7 +4934,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — `LegalHoldUntilUtc` compared with `==` so the same instant with a different `DateTimeOffset` offset duplicated legal-hold audits on retry — **hit 2026-10-05 seed hunt:** compare `UtcDateTime`; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_until_utc_differs_only_by_offset`.
 - [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — platform admin legal-hold requests passed untrimmed `Reason` while tenant-admin HTTP trimmed before the command service, so `IsIdenticalLegalHoldRetry` missed semantic duplicates and appended duplicate `TenantErasureLegalHoldSet` audits on safe retry — **hit 2026-10-05 seed hunt:** normalize legal-hold reason on persist and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`
+
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — operator-documented-safe-retry when legal hold already cleared may still append duplicate `TenantErasureLegalHoldCleared` audits unless the repository miss path is hit.
 - [x] (proven) Restore quarantine leaves active erasure legal hold on operational tenant — **hit 2026-09-11 seed hunt #1709:** `TryRestoreTenantErasureQuarantineAsync` and `CopyTenant(clearErasureQuarantine: true)` cleared offboard/suspend/approval but preserved `LegalHoldUntilUtc` and related columns, so a restored tenant could remain blocked by `TrialLifecycleTransitionEngine` and stale hold metadata; fixed by clearing legal-hold columns in Dapper restore SQL and when `clearErasureQuarantine` is true; regression `TryRestoreQuarantineAsync_clears_active_legal_hold_from_erasure_quarantine`
 - [x] (invalid) Erasure proceeds while a legal hold is still active — `IsEligibleForScheduledHardPurge` and SQL list queries exclude rows with future `LegalHoldUntilUtc`; orphan cleanup skips active holds in `OrphanedTenantCatalogCleanupBackgroundWork`
 - [x] (proven) Quarantine middleware lets mutating requests through after erasure has started — **hit 2026-08-23:** `TrialSeatReservationMiddleware` ran before `TenantErasureQuarantineMiddleware`, so offboarded active-trial tenants still incremented `TrialSeatsUsed` before the 403; fixed by running erasure quarantine first in `PipelineExtensions`
