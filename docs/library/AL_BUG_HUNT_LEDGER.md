@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository`; no row met hunt-ready bar for promotion; seeded five mechanism-backed `(candidate)` rows below; 12 scoped `SqlTenantSettingsRepository` unit tests passed (`--no-build`).
+
 2026-10-05 thorough hunt (dry): `api-governance-tenancy-controllers` — cheap-disproved five open `(candidate)` rows (null `ListWorkspacesAsync` contract violation, metadata-only disposition `Guid.Empty` guard skip, reviews-awaiting-action per-row sealed guard omission, pre-commit invisible-prefix run ids, tenant workspace list tenant-wide project load); regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration fixtures unavailable on Linux VM).
 
 2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but `observedOutcome` claimed verified `HTTP 200; foreign runId absent` because verified-absent shortcut ignored non-2xx field codes; gate with `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -3562,13 +3564,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
+
+2026-10-05 seed hunt (seed-only): re-read `SqlTenantSettingsRepository` / `CachingTenantSettingsRepository` after `api-governance-tenancy-controllers` dry hunt; no hunt-ready promotion; seeded five `(candidate)` rows in Hypotheses; 12 scoped `SqlTenantSettingsRepository` tests passed (`--no-build`).
 
 2026-09-12 seed hunt #2133 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows.
 
@@ -3577,6 +3581,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — `TenantSettingsWriteGuard` enforces `SettingValue` length only; `SettingKey` longer than migration `173` `NVARCHAR(128)` fails at SQL with `SqlException` instead of `ArgumentException` — reachable when a new caller introduces a dynamic `dbo.TenantSettings` key longer than audited `TenantSettingKeys` + `{workspaceId:D}` patterns (`SqlTenantSettingsRepositoryValidationTests.Longest_known_production_setting_key_fits_migration_nvarchar_128_limit` bounds today’s keys only).
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` throws when duplicate `(TenantId, SettingKey)` rows exist — reachable only after out-of-contract manual catalog inserts bypassing `PK_TenantSettings`; wrong outcome: tenant-setting read surfaces SQL fault instead of absent/null.
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — whitespace-only `SettingValue` rows in `dbo.TenantSettings` read as absent (`null`) but remain stored until explicit delete — reachable via legacy direct SQL seed of blank payloads; wrong outcome: operators see “missing” setting while orphaned row still occupies the key slot.
+- [ ] (candidate) `CachingTenantSettingsRepository` — static `CacheGenerations` entries are never removed per `(tenantId, settingKey)` slot — reachable on long-lived hosts provisioning many tenants/workspaces over time; wrong outcome: unbounded in-process dictionary growth without read staleness (correctness unaffected until memory pressure).
+- [ ] (candidate) `SqlTenantSettingsRepository` + `ISqlConnectionFactory` — mis-registered `IBackgroundWorkerSqlConnectionFactory` (primary catalog) instead of scoped tenant routing — reachable via deployment/DI misconfiguration (`SqlTenantSettingsRepository` remarks cite `SystemWithPerTenantCatalogs` SQL 208); wrong outcome: tenant settings read/write hit wrong catalog.
 
 - [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired Î“Ã‡Ã¶ `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
