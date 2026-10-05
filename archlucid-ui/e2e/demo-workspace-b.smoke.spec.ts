@@ -215,6 +215,7 @@ test.describe(
     await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
 
     await expectReviewDetailFindingFromFindingsWorkspace(page, packAFindingId!, packATitle!, {
+      runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID,
       timeoutMs: 90_000,
     });
 
@@ -222,6 +223,7 @@ test.describe(
     await refreshDemoWorkspaceOperatorScopeForNavigation(page, DEMO_WORKSPACE_B_LIVE_IDS);
 
     await expectReviewDetailFindingFromFindingsWorkspace(page, packBFindingId!, packBTitle!, {
+      runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID,
       timeoutMs: 90_000,
     });
 

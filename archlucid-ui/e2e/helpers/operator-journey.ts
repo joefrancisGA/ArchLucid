@@ -468,6 +468,35 @@ export function quickDecisionSeverityBadge(quickSummary: Locator): Locator {
 }
 
 export async function ensureReviewDetailFindingsPresentationExpanded(page: Page): Promise<void> {
+  const cardsViewToggle = page.getByTestId("run-detail-findings-list-view-cards");
+
+  if (await cardsViewToggle.isVisible().catch(() => false)) {
+    const pressed = await cardsViewToggle.getAttribute("aria-pressed");
+
+    if (pressed !== "true") {
+      await cardsViewToggle.click();
+    }
+  } else {
+    const url = new URL(page.url());
+    const onReviewDetail = /\/architecture\/reviews\/[^/?#]+/i.test(url.pathname);
+
+    if (onReviewDetail && url.searchParams.get(REVIEW_FINDINGS_LIST_VIEW_PARAM) !== "cards") {
+      url.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+
+      if (!url.searchParams.has(REVIEW_DETAIL_TAB_PARAM)) {
+        url.searchParams.set(REVIEW_DETAIL_TAB_PARAM, "findings");
+      }
+
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
+  }
+
+  const loadingCardView = page.getByText("Loading card view…", { exact: true });
+
+  if ((await loadingCardView.count()) > 0) {
+    await expect(loadingCardView.first()).toBeHidden({ timeout: 30_000 });
+  }
+
   const lowConfidenceToggle = page.getByTestId("quick-decision-show-low-confidence");
 
   if (await lowConfidenceToggle.isVisible().catch(() => false)) {
@@ -688,14 +717,25 @@ export async function expectReviewDetailFindingFromFindingsWorkspace(
   page: Page,
   findingId: string,
   title: string,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 90_000;
   const trimmedFindingId = findingId.trim();
+  const trimmedRunId = options?.runId?.trim() ?? "";
   const encodedFindingId = encodeURIComponent(trimmedFindingId);
   const titlePattern = new RegExp(title.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
 
   await expect(async () => {
+    if (trimmedRunId.length > 0) {
+      let href = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "findings");
+      const url = new URL(href, page.url());
+      url.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+      href = url.toString();
+
+      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expectReviewDetailWorkspaceTabSurfaceVisible(page, "findings");
+    }
+
     await ensureReviewDetailFindingsPresentationExpanded(page);
 
     const workspace = page
