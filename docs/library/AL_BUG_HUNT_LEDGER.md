@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 picker-scoped orchestrator/cache tests passed.
+
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator cache pin/coalesce, continue dual-manifest scopes, and manifest hashing after recent export-zone churn; no hunt-ready row promoted; seeded three bounded candidates (pre-pipeline baseline snapshot vs publish-stage storage fingerprint, composite pin cap mid-loop eviction, coalesced cache-hit publish policy run id); 62 scoped orchestrator/cache tests passed (`--no-build`).
 
 2026-10-05 thorough hunt (hit): `tenant-data-export` — `ArtifactExportController.RunArtifacts` list/bundle/artifact routes omitted `AuthorityLifecycleCompareExportGuard` while run ZIP export enforced it; add `EnsureManifestRunLifecycleCompleteOrConflict` after sealed-hash guards; regression `DownloadBundleForRun_returns_409_when_authority_lifecycle_not_complete`; cheap-disproof closed `ArchitectureExportController` lifecycle gap (`RunSummaryOnePagerExportService` / `ArchitectureReviewExportService` already guard before bytes).
@@ -28576,6 +28578,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
+2026-10-05 seed hunt (seed-only): re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 scoped orchestrator/cache tests passed.
+
 2026-10-04 seed hunt (seed-only): reseeded architecture-intelligence-orchestrator; reviewed continue coalescing and cache-hit finalize paths; no new hunt-ready rows; 62 scoped tests passed.
 2026-10-04 seed hunt (seed-only): re-read orchestrator finalize, continue dual-manifest pin scope, and tombstone invalidation caps; seeded three bounded candidates; 62 scoped orchestrator/cache tests passed.
 2026-10-04 thorough hunt (dry): cheap-disproved tombstone-cap saturation (pin-cap prevents 65th pinned invalidation path; existing `AddTombstonedRunId_skips_fifo_drop` + deferred flush), continue dual-manifest race (single-threaded snapshot builds), and `Set` tombstone TOCTOU (re-check under `_evictionLock`); 62 scoped tests passed; no code changes.
@@ -28585,6 +28589,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 2026-09-30 seed hunt (seed-only): re-read the orchestrator/cache slice; 61 scoped tests passed; retained two concrete cache candidates for the next repro pass.
 
 ### Hypotheses
+
+- [ ] (candidate) `CreateCoalescedCacheHitResult` — sets `CacheHit`/`CacheReuseReason` on the passed `ClosedLoopReasoningResult` instance without cloning; input is any caller that hands through a cache-stored or coalesce-leader reference instead of the `TryGet` clone, which could persist `CacheHit=true` on a stored entry after a miss-path probe.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `runid=` segment keeps GUID hex casing from `ClosedLoopRunIdNormalizer` while `ClosedLoopRunIdComparer` treats run ids case-insensitively for invalidation and publish-guard equality; input is two closed-loop analysis requests whose client `RunId` differs only by hex letter casing (architecture-intelligence API run scope).
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` — `TryGet(continueManifest)` returns before reloading persisted baseline/ledger; input is a continue review on an existing run where the knowledge model or technology ledger changes after the first continue manifest was built but before cache TTL expiry (improve-loop rerun in the same worker).
+- [ ] (candidate) `ReviewResultCache.TryGet` — pinned expired entries refresh `ExpiresUtc` without re-checking manifest version fields (`PromptVersion`, `ModelVersion`, etc.) against `ArchitectureIntelligenceCacheVersions`; input is a long-lived pin scope across a deployment that bumps cache version constants while the entry body still holds prior reasoning output.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — source texts sort by `FileName` with `StringComparer.Ordinal`, so attachments whose names differ only by casing contribute separate hash segments; input is multipart closed-loop intake with `notes.md` and `Notes.md` carrying different bodies.
 
 - [x] (proven) `ReviewCacheManifestBuilder.HashContent` — client-supplied `RunId` omitted from content hash while `modelfp`/`ledgerfp` identical for new runs — **hit 2026-09-07 (#1173):** concurrent distinct client `RunId`s with identical sources coalesced on one single-flight key; follower received its `RunId` but model persisted only for leader; fixed by hashing normalized `runid=` when request carries `RunId` (`Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources`, `RunAsync_concurrent_distinct_client_run_ids_both_persist_models`)
 - [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
