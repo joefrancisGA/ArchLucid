@@ -242,8 +242,11 @@ public sealed class TenantErasureCommandService(
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        if (tenant is null || tenant.LegalHoldUntilUtc is null)
+        if (tenant is null)
             return false;
+
+        if (tenant.LegalHoldUntilUtc is null)
+            return true;
 
         DateTimeOffset? priorUntil = tenant.LegalHoldUntilUtc;
 
