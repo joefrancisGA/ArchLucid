@@ -33,7 +33,7 @@ public sealed partial class ScimUserService
         Dictionary<string, JsonElement> core = ToCoreNextMap(next);
         bool nextActive = ReadActive(core, existing.Active);
         string externalId = ReadString(core, "externalId", existing.ExternalId);
-        string userName = ReadString(core, "userName", existing.UserName);
+        string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
 
@@ -143,6 +143,18 @@ public sealed partial class ScimUserService
                 : throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean."),
             _ => throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean.")
         };
+    }
+
+    private static string ReadPatchRequiredString(IReadOnlyDictionary<string, JsonElement> next, string key, string fallback)
+    {
+        if (!next.TryGetValue(key, out JsonElement el))
+            return fallback;
+        if (el.ValueKind != JsonValueKind.String)
+            throw new ScimUserResourceParseException("invalidValue", $"Missing or invalid '{key}'.");
+        string? raw = el.GetString();
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new ScimUserResourceParseException("invalidValue", $"'{key}' must be non-empty.");
+        return raw.Trim();
     }
 
     private static string ReadString(IReadOnlyDictionary<string, JsonElement> next, string key, string fallback)
