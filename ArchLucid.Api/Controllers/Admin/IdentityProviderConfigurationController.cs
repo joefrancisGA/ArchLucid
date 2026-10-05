@@ -82,9 +82,7 @@ public sealed class IdentityProviderConfigurationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string issuerUri = request.IssuerUri?.Trim() ?? string.Empty;
-
-        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuerUri, out _))
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
         {
             return this.BadRequestProblem(
                 "IssuerUri must be an absolute HTTP(S) URL.",
@@ -92,7 +90,15 @@ public sealed class IdentityProviderConfigurationController(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IdentityProviderTestLoginResponse response = _testLoginService.Execute(request, scope);
+        IdentityProviderTestLoginResponse response = _testLoginService.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = request.Protocol,
+                IssuerUri = canonicalIssuerUri,
+                ClaimMapping = request.ClaimMapping,
+                SampleClaimValues = request.SampleClaimValues,
+            },
+            scope);
 
         return Ok(response);
     }

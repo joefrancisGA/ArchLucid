@@ -23,4 +23,16 @@ internal static class IdentityProviderUriValidator
         uri = parsed;
         return true;
     }
+
+    internal static bool TryGetCanonicalAbsoluteHttpOrHttps(string? value, out string canonicalUri)
+    {
+        if (value is null || !TryCreateAbsoluteHttpOrHttps(value, out Uri? parsed))
+        {
+            canonicalUri = null!;
+            return false;
+        }
+
+        canonicalUri = parsed.AbsoluteUri;
+        return true;
+    }
 }

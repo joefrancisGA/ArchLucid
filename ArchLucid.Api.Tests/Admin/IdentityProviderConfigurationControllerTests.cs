@@ -119,6 +119,37 @@ public sealed class IdentityProviderConfigurationControllerTests
         body.IsActive.Should().BeTrue();
     }
 
+    [Fact]
+    public void TestLogin_passes_canonical_issuer_uri_to_sandbox_service()
+    {
+        IdentityProviderTestLoginRequest? captured = null;
+
+        Mock<ISsoWizardTestLoginService> testLogin = new();
+        testLogin
+            .Setup(s => s.Execute(It.IsAny<IdentityProviderTestLoginRequest>(), It.IsAny<ScopeContext>()))
+            .Callback<IdentityProviderTestLoginRequest, ScopeContext>((req, _) => captured = req)
+            .Returns(new IdentityProviderTestLoginResponse
+            {
+                Success = true,
+                MappedRoles = ["Admin"],
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(testLoginService: testLogin.Object);
+
+        controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example:443/oidc",
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        captured.Should().NotBeNull();
+        captured!.IssuerUri.Should().Be("https://idp.example/oidc");
+    }
+
     [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]
