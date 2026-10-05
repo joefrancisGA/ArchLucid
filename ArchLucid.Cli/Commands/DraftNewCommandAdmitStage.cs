@@ -151,6 +151,16 @@ internal static class DraftNewCommandAdmitStage
             return (null, CliExitCode.OperationFailed);
         }
 
+        if (admission.Value.Draft is null)
+        {
+            await error.WriteLineAsync(
+                "Error admitting draft: API returned success but no draft body. The intake was not started.");
+
+            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
         if (!CliScopeResponseValidator.TryValidateDraftScope(admission.Value.Draft, config, out string? admitScopeError))
         {
             await error.WriteLineAsync($"Error admitting draft: {admitScopeError}");
