@@ -10958,13 +10958,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 49
-- **bugs-found:** 34
+- **hunts:** 50
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — proxy host scope leaked onto public anonymous routes in production
+- **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `buildProxyUpstreamHeaders` resolved operator scope from `request.headers` only, so production posture ignored HttpOnly BFF JWT claims when the browser omitted `Authorization` and attached trusted `ARCHLUCID_PROXY_*` scope instead; fixed by passing the effective upstream bearer into `resolveProxyUpstreamScopeHeaders`; regression in `proxy-upstream-headers.test.ts`; scoped auth/proxy vitest 328 passed with 3 unrelated baseline seam failures.
 
 2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `buildProxyUpstreamHeaders` applied production trusted `ARCHLUCID_PROXY_*` scope fallbacks on `isPublicAnonymousProxyPath` routes while ignoring browser registration scope headers needed by `first-tenant-funnel`; fixed with `resolveAnonymousPublicProxyScopeHeaders` (inbound browser scope + demo-run parity only); regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`; scoped auth/proxy vitest 326 passed with 3 unrelated baseline seam failures.
 
@@ -10984,7 +10986,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] (proven) `buildProxyUpstreamHeaders` / `resolveProxyUpstreamScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** production-like proxy posture attached trusted host `ARCHLUCID_PROXY_*` scope headers to `isPublicAnonymousProxyPath` routes without browser input, and dropped inbound registration scope on `v1/diagnostics/first-tenant-funnel`; fixed by resolving anonymous public paths via `resolveAnonymousPublicProxyScopeHeaders`; regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`.
+- [x] (proven) `buildProxyUpstreamHeaders` / `resolveProxyUpstreamScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** protected proxy calls derived scope from raw `request.headers` while upstream `Authorization` came from the HttpOnly BFF cookie, so production posture ignored JWT `tenant_id` claims and fell back to trusted `ARCHLUCID_PROXY_*` env scope; fixed by feeding the effective upstream bearer into scope resolution; regression in `proxy-upstream-headers.test.ts`.
+
+- [x] (proven) `buildProxyUpstreamHeaders` / `resolveAnonymousPublicProxyScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** production-like proxy posture attached trusted host `ARCHLUCID_PROXY_*` scope headers to `isPublicAnonymousProxyPath` routes without browser input, and dropped inbound registration scope on `v1/diagnostics/first-tenant-funnel`; fixed by resolving anonymous public paths via `resolveAnonymousPublicProxyScopeHeaders`; regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`.
 
 - [x] (proven) `core-pilot-rail-telemetry.ts` `recordCorePilotRailChecklistStep` — **hit 2026-10-05 thorough hunt:** client accepted `stepIndex` 4–5 but `POST /v1/diagnostics/core-pilot-rail-step` rejects `stepIndex > 3`; callers of the exported helper would POST and receive HTTP 400 with telemetry dropped silently; fixed by aligning the client guard to 0–3; regression `core-pilot-rail-telemetry.test.ts`.
 - [x] (proven) `buildProxyUpstreamHeaders` — **hit 2026-10-05 thorough hunt:** `isPublicAnonymousProxyPath` skipped the configured server bearer but still forwarded HttpOnly BFF session `Authorization` on routes such as `v1/diagnostics/first-tenant-funnel`, which can bind `FirstTenantFunnelEmitter` to the prior tenant when per-tenant emission is enabled; fixed by using only explicit browser `Authorization` on anonymous paths; regressions in `proxy-upstream-headers.test.ts`.

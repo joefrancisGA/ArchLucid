@@ -60,9 +60,15 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
     h.set("Authorization", bearerToUse);
   }
 
+  const scopeResolutionHeaders = new Headers(request.headers);
+
+  if (!skipPrivilegedUpstreamAuth && bearerToUse.length > 0) {
+    scopeResolutionHeaders.set("authorization", bearerToUse);
+  }
+
   const scopeHeaders = skipPrivilegedUpstreamAuth
     ? resolveAnonymousPublicProxyScopeHeaders(request.headers, proxyPath)
-    : resolveProxyUpstreamScopeHeaders(request.headers, undefined, proxyPath);
+    : resolveProxyUpstreamScopeHeaders(scopeResolutionHeaders, undefined, proxyPath);
 
   for (const [k, v] of Object.entries(scopeHeaders)) {
     h.set(k, v);
