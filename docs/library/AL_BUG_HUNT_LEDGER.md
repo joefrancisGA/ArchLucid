@@ -28181,10 +28181,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -28250,6 +28250,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 2026-10-04 thorough hunt (dry): cheap-disproved the remaining query-prefill retry candidate; example prefilling marks its run-once ref only after full mode and step 2, while preset prefilling is immediately applicable and forces full mode. The focused step and query-prefill hook tests passed 4/4.
 
+2026-10-05 thorough hunt (dry): falsified the open query-prefill candidate with `applies example template prefill once after full wizard reaches step 2`; the run-once ref is not set until step 2 in full mode, so a later step transition still prefills. Focused step and query-prefill hook tests passed 5/5; broader `reviews/new` vitest retained 71 pre-existing harness failures.
+
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — orphan `rerun=` survives switch to guided intake and prefills Socratic intake — **cheap-disproof 2026-09-25 seed hunt #3908:** guided intake intentionally consumes `rerun=` via `useGuidedIntakePriorRunPrefill`; regression `prefills guided intake from rerun= when the prior package intake is available`.
 
 2026-09-25 seed hunt #3908 (seed→hit): reseeded ui-review-intake-wizards after #1684; proved stale wizard step after URL navigation; cheap-disproof closed guided-intake rerun prefill as intentional; 13 scoped intake step + path-switcher unit tests passed.
@@ -28296,7 +28298,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 - [x] (proven) `useGuidedIntakeWizard.sourceArchitectureId` — a nested review route carries a whitespace-only `sourceArchitectureId` query value — `.trim()` produced an empty string and `??` prevented fallback to the nested route architecture id, so the intake lost its source-architecture linkage; **hit 2026-10-03:** use the trimmed query value only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`.
 - [x] (proven) `useNewRunWizardSteps` URL synchronization — a deep link supplies an out-of-range `step` value — the hook originally clamped the rendered step but left the invalid value in the URL; fixed 2026-10-04 by canonicalizing numeric values during initial and popstate synchronization, with regression `canonicalizes an out-of-range deep-linked step in the URL`.
-- [ ] (candidate) `useNewRunWizardQueryPrefill` — a valid example/preset query is present while the wizard is not yet on its required step — the run-once ref can mark a prefill before a later route/mode transition makes the effect applicable, leaving a deep-linked form partially unfilled; input is reachable from review-intake query parameters and path switching.
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — a valid example/preset query is present while the wizard is not yet on its required step — **cheap-disproof 2026-10-05 thorough hunt:** the example effect returns before setting its run-once ref unless `wizardMode === "full"` and `stepIndex === 2`; regression `applies example template prefill once after full wizard reaches step 2`.
 
 ---
 
