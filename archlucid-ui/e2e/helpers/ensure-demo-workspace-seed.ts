@@ -189,18 +189,10 @@ async function waitForDemoWorkspaceSeedConvergence(
   workspaceChecks: readonly DemoWorkspaceSeedCheck[],
 ): Promise<void> {
   const deadline = Date.now() + liveE2eCommitWaitMs(90_000);
-  let seedPosted = false;
 
   while (Date.now() < deadline) {
     if (await areAllDemoWorkspaceSeedChecksReady(request, workspaceChecks)) {
       return;
-    }
-
-    if (!seedPosted) {
-      await postDemoSeedWithTransientRetries(request);
-      seedPosted = true;
-
-      continue;
     }
 
     await new Promise((resolve) => setTimeout(resolve, demoSeedConvergencePollIntervalMs));
@@ -218,6 +210,10 @@ export async function ensureDemoWorkspaceSeedReady(
 ): Promise<void> {
   const requested = new Set<DemoWorkspaceSeedProbe>(options?.workspaces ?? ["A", "B"]);
   const workspaceChecks = buildWorkspaceChecks(requested);
+
+  // Always POST seed: release-gate SQL catalog restore can replace the DB after API startup seed,
+  // and idempotent seed steps repair export-lineage audit anchors on existing demo runs.
+  await postDemoSeedWithTransientRetries(request);
 
   await waitForDemoWorkspaceSeedConvergence(request, workspaceChecks);
 }
