@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-05 thorough hunt (dry): `worker-host` — cheap-disproof closed `ConsoleHangDiagnostics.UseLogger` parity (hang breadcrumbs still emit via `ConsoleHangDiagnostics` stderr fallback when no logger is wired) and `LogAgentExecutionRealModeInformation` parity (informational startup line only; Real-mode worker startup already covered by `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`); 12 scoped worker host/composition tests passed.
+
 2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector closed when `runs` props refreshed after row activation because `inspectorRunId` selection effect trusted stale empty `useSearchParams` while `commitHrefIfChanged` had already committed `inspectorRunId`; resolve effective id from `readWindowLocationSearch()` when router param lags; clear compare replacement notice when URL-driven `compareRuns` clears; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 thorough hunt (dry): `ui-runs-list` — cheap-disproof closed unknown `inspectorRunId` soft-nav, buyer `scope=` chip parity, and stale compare-notice candidates; regressions `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`, `follows scope= URL changes without a popstate event on buyer scope chips`, `clears compare replacement notice when compareRuns URL changes without a popstate event`; 48 scoped `RunsListClient` tests passed.
@@ -8038,13 +8040,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (dry): cheap-disproof closed hang-diagnostics logger hook and Real-mode startup log parity candidates; 12 scoped worker host/composition tests passed.
 
 2026-10-05 seed hunt (seed→hit): `worker-host` — `ArchLucid.Worker/Program.cs` did not load optional `appsettings.Pilot.json` / `appsettings.Advanced.json` / `appsettings.SaaS.json` before environment variables, so Container Apps worker revisions running `dotnet ArchLucid.Worker.dll` from the shared `/app` image ignored Advanced/SaaS tuning present beside `ArchLucid.Api.dll`; aligned configuration layering with `ArchLucid.Api/Program.cs`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`; 12 focused worker host/composition tests passed.
 
@@ -8054,8 +8058,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
 
-- [ ] (candidate) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs`; reachable input is a hung worker-only Container Apps revision where operators expect the same hang-diagnostics logger hook as the API host.
-- [ ] (candidate) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation; reachable input is production-like worker fleet with `AgentExecution:Mode=Real` and configured Azure OpenAI where operators rely on the API startup confirmation log line.
+- [x] (valid-no-repro) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs` — **cheap-disproof 2026-10-05 thorough hunt:** `ConsoleHangDiagnostics.Log` still emits hang breadcrumbs via the documented stderr fallback when `_logger` is unset (`ArchLucid.Core/Diagnostics/ConsoleHangDiagnostics.cs`); missing the API hook changes log routing only, not hang visibility or request/agent outcomes.
+- [x] (valid-no-repro) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation — **cheap-disproof 2026-10-05 thorough hunt:** method is informational operator confirmation only (`ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` → `AgentExecutionRules.LogInformationWhenRealModeConfigured`); worker Real-mode startup with Managed Identity already succeeds without the line (`Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`).
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge` while the API host applies it before validation — **cheap-disproof 2026-10-05 seed hunt:** bridge is intentionally scoped to `ArchLucid.Api` (legacy key literal); worker does not register `IOptions<ArchitectureRunCreationPayloadLimitsOptions>` and has no `ContextIngestionMaxPayloadMiddleware`; `ContextIngestionRules` still validates a legacy-only flat key at `ValidateOrThrow`.
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent` — **cheap-disproof 2026-10-05 seed hunt:** advisor only emits CORS and browser-auth advisories; the worker pipeline exposes health/metrics only with no CORS or interactive auth stack.
 
