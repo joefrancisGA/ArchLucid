@@ -72,6 +72,32 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
     }
 
     [Fact]
+    public void Evaluate_non_array_evidence_refs_count_as_unresolved()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes scheduling policy","evidenceRefs":"pattern-a"}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:parse");
+    }
+
+    [Fact]
     public void Evaluate_blank_evidence_ref_entries_count_as_unresolved()
     {
         AgentEvidencePackage evidence = new()

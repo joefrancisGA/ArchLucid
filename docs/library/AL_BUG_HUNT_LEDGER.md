@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — scalar `evidenceRefs` JSON was ignored so malformed claims fell back to package-wide overlap; reject non-array `evidenceRefs` in `TryDescribeClaim`; regression `Evaluate_non_array_evidence_refs_count_as_unresolved`; 191 scoped AgentRuntime `Evaluation` tests passed.
+
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — blank `evidenceRefs` array entries were dropped in `TryDescribeClaim`, so `["pattern-a",""]` behaved like a single resolved ref; preserve blank/non-string slots and reject in `AllRefsResolve`; regression `Evaluate_blank_evidence_ref_entries_count_as_unresolved`; 190 scoped AgentRuntime `Evaluation` tests passed.
 
 2026-10-05 seed hunt (seed→hit): `agent-runtime-evaluation` — claims with mixed valid/invalid `evidenceRefs` passed faithfulness when any ref resolved; require `AgentEvidenceGroundingIndex.AllRefsResolve` before overlap/citation scoring; regression `Evaluate_partially_resolved_evidence_refs_count_as_unresolved`; 189 scoped AgentRuntime `Evaluation` tests passed.
@@ -12114,11 +12116,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 27
-- **bugs-found:** 16
+- **hunts:** 28
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — blank evidenceRefs entries silently ignored
+- **last-bug:** 2026-10-05 — scalar evidenceRefs ignored for faithfulness
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

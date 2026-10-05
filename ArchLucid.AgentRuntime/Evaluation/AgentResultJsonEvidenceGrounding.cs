@@ -28,10 +28,11 @@ internal static class AgentResultJsonEvidenceGrounding
                         claimText = string.IsNullOrEmpty(claimText) ? s : $"{claimText} {s}";
                 }
 
-                if (!claim.TryGetProperty("evidenceRefs", out JsonElement r) || r.ValueKind != JsonValueKind.Array)
-                    return !string.IsNullOrWhiteSpace(claimText) || refs.Count > 0;
-
+                if (claim.TryGetProperty("evidenceRefs", out JsonElement r))
                 {
+                    if (r.ValueKind != JsonValueKind.Array)
+                        return false;
+
                     foreach (JsonElement id in r.EnumerateArray())
                     {
                         if (id.ValueKind != JsonValueKind.String)
