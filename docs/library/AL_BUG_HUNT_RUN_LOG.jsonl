@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 {"at":"2026-09-05T18:26:41.7523389Z","zoneId":"archlucid-core","outcome":"hit"}
+=======
+>>>>>>> e534c7001a (Record technology-ledger-merge hunt hit in AL_BUG_HUNT_RUN_LOG.)
 {"at":"2026-09-05T18:31:15.1752546Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-05T18:36:25.7500425Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-05T18:40:49.436486Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8797,4 +8800,8 @@
 {"at":"2026-10-05T18:11:19.4920042Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs,ArchLucid.Application/Runs/Orchestration/TechnologyLedgerTopologyProposalMapper.cs)"]}
 {"at":"2026-10-05T18:14:55.8226747Z","zoneId":"technology-ledger-merge","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-05T18:18:36.4048954Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerTopologyProposalMapper.cs"]}
+<<<<<<< HEAD
 {"at":"2026-10-05T18:26:28.7968148Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared"}
+=======
+{"at":"2026-10-05T18:26:50.6806938Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerTopologyProposalMapper.cs,ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
+>>>>>>> e534c7001a (Record technology-ledger-merge hunt hit in AL_BUG_HUNT_RUN_LOG.)
