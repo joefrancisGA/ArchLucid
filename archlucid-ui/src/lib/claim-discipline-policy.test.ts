@@ -160,6 +160,13 @@ describe("claim-discipline-policy", () => {
     ).toEqual([]);
   });
 
+  it("omits cloud-connections-gcp when header info strip owns connect GCP claim discipline", () => {
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-gcp")).toBe(true);
+    expect(
+      resolveClaimDisciplineForStrip("cloud-connections-gcp", "Not a diligence package."),
+    ).toBeUndefined();
+  });
+
   it("omits help-recurrence-schedules claim heading from guide TOC when band is omitted", () => {
     expect(shouldOmitClaimDisciplineBand("help-recurrence-schedules")).toBe(true);
     expect(

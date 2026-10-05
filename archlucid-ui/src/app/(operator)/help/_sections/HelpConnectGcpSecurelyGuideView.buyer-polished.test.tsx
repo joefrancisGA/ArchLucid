@@ -26,6 +26,10 @@ vi.mock("@/app/(operator)/integrations/cloud-connections/_sections/GcpWifStarter
   GcpWifStarterPanel: () => <div data-testid="gcp-wif-starter-panel" />,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpConnectGcpSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyGuideView";
 import {
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
@@ -49,9 +53,10 @@ describe("HelpConnectGcpSecurelyGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: CONNECT_GCP_SECURELY_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID}`);
 
-    expect(screen.getByTestId("connect-gcp-securely-help-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-connect-gcp-securely-claim-discipline-strip").textContent).toContain(
       CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.queryByTestId("connect-gcp-securely-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("connect-gcp-securely-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
