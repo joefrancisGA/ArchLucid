@@ -27,8 +27,8 @@ import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
+  expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
-  reviewDetailFindingsQuickSummary,
 } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
@@ -167,13 +167,10 @@ test.describe(
 
     await expect(page.getByTestId("review-detail-workspace-panel-overview")).toBeVisible({ timeout: 60_000 });
 
-    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
-
-    const quickSummary = reviewDetailFindingsQuickSummary(page);
-
-    await expect(async () => {
-      await expect(quickSummary).toBeVisible({ timeout: 5_000 });
-    }).toPass({ timeout: 120_000 });
+    const quickSummary = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+      runId: DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      timeoutMs: 120_000,
+    });
 
     /** Pack A narrative (Responsible AI governance engine from seed fixtures). */
     await expect(

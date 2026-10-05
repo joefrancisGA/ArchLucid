@@ -16,8 +16,8 @@ import {
   expectBuyerPipelineTimelineSectionVisible,
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
+  expectReviewDetailFindingsQuickSummaryVisible,
   openReviewDetailWorkspaceTab,
-  reviewDetailFindingsQuickSummary,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 
@@ -79,6 +79,7 @@ test.describe(
     await expect(page.getByTestId("run-detail-first-review-spine-band")).toBeVisible({
       timeout: 120_000,
     });
+    const spineBand = page.getByTestId("run-detail-first-review-spine-band");
     await expect(spineBand.getByTestId("run-detail-first-review-spine-pack-delta-demo-link")).toBeVisible({
       timeout: 60_000,
     });
@@ -90,9 +91,10 @@ test.describe(
       timeout: 60_000,
     });
 
-    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
-
-    await expect(reviewDetailFindingsQuickSummary(page)).toBeVisible({ timeout: 90_000 });
+    const quickSummary = await expectReviewDetailFindingsQuickSummaryVisible(page, {
+      runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      timeoutMs: 120_000,
+    });
 
     await expectBuyerPipelineTimelineSectionVisible(page, {
       timeoutMs: 60_000,
@@ -109,8 +111,6 @@ test.describe(
       demoWorkspacesFixtureManifest.workspaceA.minimumEvidenceBasisTiles ?? 5;
 
     await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
-
-    const quickSummary = reviewDetailFindingsQuickSummary(page);
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
@@ -209,8 +209,7 @@ test.describe(
       await expect(rehearsalDoorStrip).toContainText(/practice/i);
     }
 
-    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "evidence");
-    await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
+    await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
     await expect(
       page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button").first(),
     ).toBeVisible({ timeout: 60_000 });

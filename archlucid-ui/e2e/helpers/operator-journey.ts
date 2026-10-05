@@ -6,6 +6,8 @@ import {
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
 import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
+import { REVIEW_FINDINGS_LIST_VIEW_PARAM } from "@/lib/findings/review-findings-list-view";
+import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
@@ -470,6 +472,8 @@ export async function expectQuickDecisionSeverityVisible(
   });
 }
 
+const REVIEW_WORKBENCH_SURFACE_TABS = ["architecture", "findings", "evidence"] as const;
+
 /** Findings quick-decision surface — tab panel or professional workbench column. */
 export function reviewDetailFindingsQuickSummary(page: Page): Locator {
   const panel = reviewDetailWorkspacePanel(page, "findings");
@@ -480,6 +484,73 @@ export function reviewDetailFindingsQuickSummary(page: Page): Locator {
     .or(panel.getByTestId("quick-decision-summary"))
     .or(page.getByTestId("quick-decision-summary"))
     .first();
+}
+
+/** Opens Findings and polls until card-view `QuickDecisionSummary` hydrates (deferred chunks + lazy card import). */
+export async function expectReviewDetailFindingsQuickSummaryVisible(
+  page: Page,
+  options?: { timeoutMs?: number; runId?: string },
+): Promise<Locator> {
+  const timeoutMs = options?.timeoutMs ?? 120_000;
+  const trimmedRunId = options?.runId?.trim() ?? "";
+
+  await expect(async () => {
+    if (trimmedRunId.length > 0) {
+      let href = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "findings");
+      const url = new URL(href, page.url());
+      url.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+      href = url.toString();
+
+      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+    } else {
+      await page.getByTestId("review-detail-workspace-tab-findings").click();
+    }
+
+    await expectReviewDetailWorkspaceTabSurfaceVisible(page, "findings");
+
+    const findingsSection = page.getByTestId("run-detail-findings-section");
+    const findingsWorkspace = page.getByTestId("run-detail-findings-workspace");
+
+    await expect(findingsSection.or(findingsWorkspace).first()).toBeVisible({ timeout: 30_000 });
+
+    const cardsViewToggle = page.getByTestId("run-detail-findings-list-view-cards");
+
+    if (await cardsViewToggle.isVisible().catch(() => false)) {
+      const pressed = await cardsViewToggle.getAttribute("aria-pressed");
+
+      if (pressed !== "true") {
+        await cardsViewToggle.click();
+      }
+    }
+
+    const loadingCardView = page.getByText("Loading card view…", { exact: true });
+
+    if ((await loadingCardView.count()) > 0) {
+      await expect(loadingCardView.first()).toBeHidden({ timeout: 30_000 });
+    }
+
+    await expect(reviewDetailFindingsQuickSummary(page)).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout: timeoutMs });
+
+  return reviewDetailFindingsQuickSummary(page);
+}
+
+async function buildReviewDetailTabHrefForSurface(
+  page: Page,
+  runId: string,
+  tab: ReviewDetailTabId,
+): Promise<string> {
+  const workbenchActive =
+    (REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)
+    && (await page.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID).isVisible().catch(() => false));
+
+  if (workbenchActive) {
+    return buildReviewDetailTabHref(runId, tab, {
+      workbenchFocus: tab as "architecture" | "findings" | "evidence",
+    });
+  }
+
+  return buildReviewDetailTabHref(runId, tab);
 }
 
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
@@ -494,8 +565,6 @@ export function reviewOutcomeSummaryStrip(page: Page): Locator {
 function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {
   return page.getByTestId(`review-detail-workspace-panel-${tab}`);
 }
-
-const REVIEW_WORKBENCH_SURFACE_TABS = ["architecture", "findings", "evidence"] as const;
 
 /** Tab panel or professional workbench column — workbench mode keeps panels `hidden` while content is mounted in-column. */
 async function expectReviewDetailWorkspaceTabSurfaceVisible(
@@ -541,10 +610,7 @@ export async function openReviewDetailWorkspaceTab(
   runId: string,
   tab: ReviewDetailTabId,
 ): Promise<void> {
-  const href =
-    (REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)
-      ? buildReviewDetailTabHref(runId, tab, { workbenchFocus: tab as "architecture" | "findings" | "evidence" })
-      : buildReviewDetailTabHref(runId, tab);
+  const href = await buildReviewDetailTabHrefForSurface(page, runId, tab);
   const url = new URL(page.url());
   const trimmedRunId = runId.trim();
   const encodedRunId = encodeURIComponent(trimmedRunId);
