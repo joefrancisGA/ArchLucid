@@ -14259,13 +14259,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 922
-- **bugs-found:** 19
+- **hunts:** 923
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-13 — hunt #2475: InsertAsync silently overwrote duplicate identity id
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — invalidated email OTP challenges still counted toward verification rate limits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (hit): promoted `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync`; proved invalidated OTP challenges with prior wrong-code attempts still inflated hourly verification rate limits after resend (`InvalidateActiveChallengesForEmailAsync`); exclude `InvalidatedUtc` in shared predicate and SQL; regression `CountRecentFailedVerifications_ignores_invalidated_challenges`; 4 `InMemoryEmailOtpChallengeRepositoryCoverageTests` + 15 scoped AuthenticationIdentity/IdentityRepository tests passed (`RunAnalyzers=false`, 1 SQL integration skipped).
 
 2026-09-13 seed hunt #2267 (seed-only): reseeded persistence-identity with `-Hint persistence`; no new hunt-ready rows.
 
@@ -14327,6 +14329,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryAuthenticationIdentityLinkProposalRepository.InsertAsync` — duplicate explicit proposal `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2381:** `TryAdd` + `DuplicateAuthenticationIdentityLinkProposalException`; regression in `InsertAsync_throws_when_proposal_id_already_exists`.
 - [x] (proven) `InMemoryEmailOtpChallengeRepository.InsertAsync` — duplicate explicit challenge `Id` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2382:** `TryAdd` + `DuplicateEmailOtpChallengeException`; regression in `InsertAsync_throws_when_challenge_id_already_exists`.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRecoveryAdminRepository.InsertAsync` — duplicate `(TenantId, NormalizedDomain, NormalizedRecoveryAdminEmail)` silently overwrote the prior row while SQL raises PK violation — **hit 2026-09-13 seed hunt #2383:** `TryAdd` + `DuplicateTenantSignInEmailDomainRecoveryAdminException`; regression in `InsertAsync_throws_when_recovery_admin_already_exists`.
+- [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — invalidated challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after OTP resend replaced the active challenge — **hit 2026-10-05 seed hunt (seed→hit):** require `InvalidatedUtc IS NULL` in SQL and shared predicate; regression `CountRecentFailedVerifications_ignores_invalidated_challenges`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
