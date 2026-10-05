@@ -35,7 +35,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
         // "ProposedChanges" is a provenance sentinel shared by every topology-agent node, not an architecture endpoint.
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
+        {
             AddEndpointKey(endpointKeys, node.SourceId);
+            TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, node.SourceId);
+        }
 
         TopologyProposalEndpointArmKeys.AddArmResourceIdEndpointKeys(
             endpointKeys,
@@ -53,7 +56,13 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
 
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
+        {
             AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+            TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
+                endpointKeyToNodeId,
+                node.SourceId,
+                node.NodeId);
+        }
 
         TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
             endpointKeyToNodeId,

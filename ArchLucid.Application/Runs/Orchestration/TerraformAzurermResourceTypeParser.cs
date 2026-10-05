@@ -36,4 +36,38 @@ internal static partial class TerraformAzurermResourceTypeParser
 
         return "azuread_" + azuread.Groups[1].Value;
     }
+
+    /// <summary>
+    ///     Returns the root Terraform resource address suffix (e.g. <c>azurerm_app_service.main</c>)
+    ///     when <paramref name="sourceId" /> is module-qualified.
+    /// </summary>
+    internal static string? TryParseLeafResourceAddress(string? sourceId)
+    {
+        if (string.IsNullOrWhiteSpace(sourceId))
+            return null;
+
+        string trimmed = sourceId.Trim();
+        MatchCollection azurermMatches = AzurermToken().Matches(trimmed);
+        MatchCollection azureadMatches = AzureadToken().Matches(trimmed);
+
+        Match? azurerm = azurermMatches.Count == 0 ? null : azurermMatches[^1];
+        Match? azuread = azureadMatches.Count == 0 ? null : azureadMatches[^1];
+
+        if (azurerm is null && azuread is null)
+            return null;
+
+        int leafStart;
+
+        if (azuread is null || (azurerm is not null && azurerm.Index > azuread.Index))
+            leafStart = azurerm!.Index;
+        else
+            leafStart = azuread!.Index;
+
+        string leaf = trimmed[leafStart..];
+
+        if (leaf.IndexOf('.', StringComparison.Ordinal) < 0)
+            return null;
+
+        return leaf;
+    }
 }

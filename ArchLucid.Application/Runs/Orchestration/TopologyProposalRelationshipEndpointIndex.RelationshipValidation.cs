@@ -91,6 +91,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
         AddEndpointKey(claimedEndpointKeys, name);
         AddEndpointKey(claimedEndpointKeys, id);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(claimedEndpointKeys, id);
         AddEndpointKey(claimedEndpointKeys, syntheticNodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdEndpointKeys(claimedEndpointKeys, id);
 

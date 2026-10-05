@@ -3349,6 +3349,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-05 thorough hunt (hit): proved topology graph merge materialized `svc-`/`ds-` node ids from raw manifest names while endpoint indexing and relationship resolution used trimmed synthetic ids, so `DropDanglingEdges` removed agent-proposed edges; aligned materialization with `ResolveDeclaredServiceNodeId` / `BuildSyntheticServiceNodeId`; regression `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id`; 979 scoped edge-mapper/graph-merge tests passed.
 
+2026-10-05 thorough hunt (hit): proved module-qualified Terraform `SourceId` values on graph nodes and manifest services were indexed only by the full address while agent relationships referenced the root resource address (`azurerm_*.name`), so `MapRelationships` dropped edges; index leaf Terraform addresses via `TryParseLeafResourceAddress`; regression `MapRelationships_resolves_root_terraform_address_when_graph_node_source_id_is_module_qualified`; 980 scoped edge-mapper/graph-merge tests passed.
+
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `endpointAliases` values copied without trim so padded declared alias targets missed relationship resolution and graph merge dropped dangling edges — **hit 2026-09-25 seed hunt #3908g (seed→hit):** #1777 trimmed alias keys only; rename-alias dictionaries could still map manifest labels to whitespace-padded graph node ids; relationships resolved to padded ids that `DropDanglingEdges` removed; fixed by trimming alias values before `TryAdd`; regression `MapRelationships_resolves_endpoints_when_declared_alias_value_has_surrounding_whitespace`.
 
 - [x] (proven) `TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelResolutionAliases` — compute and datastore nodes with the same label both registered `svc-{label}` and `ds-{label}` aliases so the first node stole the opposite-prefix id and relationships using explicit `svc-`/`ds-` node ids resolved to the wrong endpoint — **hit 2026-09-26 seed hunt (seed→hit):** #3911 re-broadened aliases after #3914; restored category-primary aliases with terraform source-id fallback for cross-prefix mismatches; regression `MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match`.
@@ -3363,7 +3365,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows emit duplicate `GraphEdge` objects that could create unstable duplicate committed edges — **cheap-disproof 2026-10-03 thorough hunt:** mapper intentionally emits one edge per relationship row, while `AgentTopologyProposalGraphMerge.AppendUniqueEdges` deduplicates by directed `(fromNodeId, toNodeId, edgeType)` before commit; 978 scoped edge-mapper/graph-merge tests passed.
 - [x] (proven) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — a relationship using the accepted synthetic form `svc-  api` / `ds-  sql` passed endpoint-index validation but was dropped by a preceding raw-key check; removed the inconsistent precheck and added `Merge_keeps_relationships_when_synthetic_endpoints_have_internal_whitespace`.
 - [x] (proven) `TopologyProposalConsensusMerger.IntersectRelationships` — equivalent relationships with surrounding endpoint whitespace failed the consensus intersection before endpoint validation; normalized trimmed and synthetic endpoint identities, with regression `Merge_intersects_relationships_when_endpoint_whitespace_differs_between_models`.
-- [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — consensus identity normalizes outer whitespace and synthetic prefixes but not other non-canonical ARM resource-ID separators; input is two reachable agent proposals whose relationship endpoints use equivalent ARM IDs with separator variation.
+- [ ] (candidate) `TopologyProposalConsensusMerger.RelationshipKey` — consensus identity normalizes outer whitespace and synthetic prefixes but not other non-canonical ARM resource-ID separators; input is two reachable agent proposals whose relationship endpoints use equivalent ARM IDs with separator variation (Terraform module vs root address parity fixed 2026-10-05; ARM path separator variants still untested).
 - [x] (proven) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names were copied into generated `svc-`/`ds-` node IDs while endpoint keys used trimmed synthetic ids, so relationships referencing normalized `svc-{name}` resolved to dangling endpoints — **hit 2026-10-05 thorough hunt:** materialize via `ResolveMaterializedServiceNodeId` / `ResolveMaterializedDatastoreNodeId` sharing `BuildSyntheticServiceNodeId` / `BuildSyntheticDatastoreNodeId`; regression `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id`.
 
 2026-10-04 seed hunt (hit): proved consensus merge dropped reachable relationships whose synthetic endpoint references contained internal whitespace, despite the shared endpoint validator accepting them; removed the dual-path raw lookup and passed 1,595 scoped topology merge tests.
@@ -3388,11 +3390,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 78
-- **bugs-found:** 64
+- **hunts:** 79
+- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — topology graph merge used raw manifest names in synthetic node ids while relationships resolved trimmed `svc-`/`ds-` keys
+- **last-bug:** 2026-10-05 — module-qualified Terraform source ids omitted leaf `azurerm_*.name` endpoint aliases
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3480,7 +3482,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-11 seed hunt #1777 (hit): reseeded arm-terraform-source-ids after #1776; proved padded endpoint alias key resolution gap; 1 scoped edge mapper regression passed.
 
 - [x] (proven) `TerraformAzurermResourceTypeParser.TryParseSlug` — a reachable Terraform module address such as `module.azurerm_wrapper.azurerm_app_service.main` matched the module token first, so the actual provider resource token was not recognized; synthetic service aliases were omitted and relationship edges were dropped — **hit 2026-10-02 seed hunt:** parse the final `azurerm_`/`azuread_` token; regression `MapRelationships_resolves_synthetic_service_id_when_terraform_module_name_contains_azurerm_token`.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — emits one `GraphEdge` per duplicate `ManifestRelationship` without deduplicating the derived edge id; reachable duplicate agent relationship proposals can create duplicate graph edges or unstable overwrite behavior, requiring graph-merge proof of the intended duplicate semantics.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows (duplicate ledger row closed 2026-10-05) — see proven classification at 2026-10-03 thorough hunt above; `AppendUniqueEdges` dedupes before commit.
+
+- [x] (proven) `TopologyProposalRelationshipEndpointIndex` / `TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress` — module-qualified Terraform `SourceId` on graph nodes and manifest endpoints did not register the root `azurerm_*.name` alias, so relationships referencing the short address missed resolution — **hit 2026-10-05 thorough hunt:** leaf address keys and resolution aliases; regression `MapRelationships_resolves_root_terraform_address_when_graph_node_source_id_is_module_qualified`.
 
 2026-10-02 seed hunt (hit): reseeded arm-terraform-source-ids; proved Terraform module-name provider-token collision; 978 scoped edge-mapper/graph-merge tests passed with analyzers disabled.
 

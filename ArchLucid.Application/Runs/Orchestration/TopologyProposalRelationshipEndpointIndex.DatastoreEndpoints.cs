@@ -9,6 +9,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, datastore.DatastoreName);
         AddEndpointKey(endpointKeys, datastore.DatastoreId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, datastore.DatastoreId);
         AddSyntheticDatastoreEndpointKey(endpointKeys, datastore.DatastoreName);
     }
 
@@ -38,6 +39,10 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+            aliasToNodeId,
+            TrimManifestEndpointValue(datastore.DatastoreId),
+            nodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
             aliasToNodeId,
             TrimManifestEndpointValue(datastore.DatastoreId),
             nodeId);
