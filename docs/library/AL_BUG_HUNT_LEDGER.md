@@ -24211,13 +24211,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 43
-- **bugs-found:** 36
+- **hunts:** 44
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — inventory overlay duplicated ARM case variants; graph edge inferer dropped case-variant node types
+- **last-bug:** 2026-10-05 — context membership inferer emitted self-loop on case-variant ContextSnapshot node type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted `ContextMembershipEdgeInferenceRule` case-sensitive `ContextSnapshot` exclusion; a persisted context node whose `NodeType` differed only by case was treated as a normal member and received a self-loop `Contains` edge from the context root; fixed with `OrdinalIgnoreCase` exclusion; regression `InferEdges_context_membership_rule_excludes_context_snapshot_node_when_node_type_differs_only_by_case`. Seeded `ProvenanceBuilder` null `GraphSnapshot.Nodes`/`Edges`, `ArchitectureKnowledgeModelGraphDeltaExtractor` ordinal node-id diff noise, and `GraphEdgeInferenceHelpers.Deduplicate` whitespace endpoint keys as `(candidate)` rows. 362 KnowledgeGraph tests passed with 3 pre-existing failures; 58 Provenance tests passed.
 
 2026-10-05 thorough hunt (hit): promoted inventory ARM casing candidate; `ArchitectureInventoryObservedFactGraphBuilder` emitted duplicate overlay nodes when snapshot rows differed only by ARM path casing because `ResolveFromArmResourceId` hashed raw strings and the builder always appended nodes; fixed with `ArmResourceIdNormalizer` before hash and normalized-arm dedup when materializing rows; regression `BuildOverlay_deduplicates_resources_when_arm_id_differs_only_by_case`. Promoted `DefaultGraphEdgeInferer` node-type partition candidate; strict `NodeType` equality dropped topology/security/policy/requirement nodes on casing drift (parity gap vs materialization helpers); fixed with `OrdinalIgnoreCase` partitions; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesTopologyWhenNodeTypeDiffersOnlyByCase`. 361 KnowledgeGraph tests passed with 3 pre-existing failures; 58 Provenance tests passed.
 
@@ -24299,6 +24301,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `SecurityProtectionEdgeInferenceRule` / `PolicyApplicabilityEdgeInferenceRule` / `RequirementRelevanceEdgeInferenceRule` — targeted topology id lists omitted edges when resource `NodeId` differed only by surrounding whitespace from listed target tokens — **hit 2026-10-05 seed hunt (seed→hit):** `GraphEdgeInferenceHelpers.TargetedNodeIdsInclude`; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesResourceWhenNodeIdHasSurroundingWhitespace`.
 - [x] (proven) `ArchitectureInventoryGraphNodeIdResolver.ResolveFromArmResourceId` / `ArchitectureInventoryObservedFactGraphBuilder` — duplicate overlay topology nodes when inventory rows differed only by ARM path casing — **hit 2026-10-05 thorough hunt:** normalize ARM ids before hash and skip duplicate normalized rows; regression `BuildOverlay_deduplicates_resources_when_arm_id_differs_only_by_case`.
 - [x] (proven) `DefaultGraphEdgeInferer.InferEdges` — strict `NodeType` equality omitted topology/security/policy/requirement nodes (and their inferred edges) when `NodeType` differed only by case — **hit 2026-10-05 thorough hunt:** `OrdinalIgnoreCase` partitions matching materialization stages; regression `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesTopologyWhenNodeTypeDiffersOnlyByCase`.
+- [x] (proven) `ContextMembershipEdgeInferenceRule` — strict `ContextSnapshot` exclusion left case-variant context nodes in the membership loop, emitting a self-loop `Contains` edge — **hit 2026-10-05 seed hunt (seed→hit):** `OrdinalIgnoreCase` exclusion; regression `InferEdges_context_membership_rule_excludes_context_snapshot_node_when_node_type_differs_only_by_case`.
+
+- [ ] (candidate) `ProvenanceBuilder.Build` — deserialized or hand-built `GraphSnapshot` with JSON-null `Nodes`/`Edges` can throw during provenance materialization instead of treating lists as empty; reachability is persisted graph JSON on the provenance build path, but `GraphSnapshot` defaults non-null lists and the selected builder callers typically supply materialized snapshots.
+- [ ] (candidate) `ArchitectureKnowledgeModelGraphDeltaExtractor.ExtractGraphDelta` — ordinal `NodeId` sets can emit spurious Added/Removed diff entries when before/after snapshots differ only by node-id casing; reachability requires a production caller of `ExtractGraphDelta` (currently unused repo-wide).
+- [ ] (candidate) `ArchitectureKnowledgeModelGraphDeltaExtractor.InferElementKind` — strict `NodeType` equality can mis-classify diff `ElementKind` when node types differ only by case; reachability is tied to the unused delta extractor path.
+- [ ] (candidate) `GraphEdgeInferenceHelpers.Deduplicate` — semantically identical inferred edges whose endpoint ids differ only by surrounding whitespace remain distinct dedupe keys; reachability requires inferrers that emit non-canonical endpoint strings on the same logical node (most paths now resolve canonical `NodeId`).
 
 - [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
 - [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes

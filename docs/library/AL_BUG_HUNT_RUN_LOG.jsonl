@@ -1,5 +1,3 @@
-{"at":"2026-09-05T01:39:26.9610756Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
-{"at":"2026-09-05T01:49:17.7044492Z","zoneId":"ui-auth-proxy","outcome":"dry"}
 {"at":"2026-09-05T01:57:54.0263916Z","zoneId":"decisioning","outcome":"hit"}
 {"at":"2026-09-05T02:22:50.3399811Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-09-05T02:36:56.1174499Z","zoneId":"saml-jwt-bearer","outcome":"hit"}
@@ -8731,3 +8729,4 @@
 {"at":"2026-10-05T01:17:07.1994876Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T01:30:23.6974578Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T01:38:51.4497661Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T01:49:29.5825472Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}

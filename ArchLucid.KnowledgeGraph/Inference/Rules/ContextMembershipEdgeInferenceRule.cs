@@ -8,7 +8,9 @@ internal sealed class ContextMembershipEdgeInferenceRule : IGraphEdgeInferenceRu
 
     public void InferEdges(GraphEdgeInferenceContext context, List<GraphEdge> edges)
     {
-        edges.AddRange(context.Nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot).Select(node =>
+        edges.AddRange(context.Nodes
+            .Where(x => !string.Equals(x.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase))
+            .Select(node =>
             GraphEdgeInferenceHelpers.CreateEdge(
                 context.ContextNodeId,
                 node.NodeId,
