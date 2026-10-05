@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` used `FindFirst("tenant_id")`, so a leading non-GUID `tenant_id` hid a later parseable tenant and conflicting GUIDs logged the first value; require exactly one distinct parseable `tenant_id` for audit scope; regressions `AppendCookieSignedInAudit_uses_parseable_tenant_id_when_an_earlier_tenant_id_claim_is_not_a_guid` and `AppendCookieSignedInAudit_omits_tenant_id_when_distinct_tenant_id_claims_disagree`; 19 SAML sign-in audit tests passed.
+
 2026-10-05 thorough hunt (hit): `saml-jwt-bearer` — SAML cookie `OnSignedIn` audit read `tenant_id` before `ArchLucidSamlInboundClaimsNormalizer` ran, so configured IdP tenant attributes were missing from sign-in audit telemetry; apply inbound mapping in `AppendCookieSignedInAudit` before scope extraction; regression `AppendCookieSignedInAudit_promotes_configured_idp_tenant_before_logging_tenant_id`; cheap-disproof closed duplicate-`sub` platform-user resolver candidate; 18 SAML audit/resolver tests passed.
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `EntraMultiTenantJwtBearerConfigurator.TryGetTenantId` used `FindFirst("tid")` so allowlist validation failed when the first `tid` claim was unparseable even if a later claim matched `ArchLucidAuth:AllowedEntraTenantIds`; require exactly one distinct parseable `tid`; regressions `ApplyIfEnabled_when_allowlist_configured_accepts_parseable_tid_after_unparseable_tid_claim` and `ApplyIfEnabled_when_allowlist_configured_fails_when_distinct_parseable_tid_claims_disagree`; 8 Entra JWT configurator tests passed.
@@ -8413,11 +8415,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 16
-- **bugs-found:** 15
+- **hunts:** 17
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — SAML sign-in audit omitted tenant id when only configured IdP tenant attributes were present
+- **last-bug:** 2026-10-05 — SAML sign-in audit used first `tenant_id` claim even when later claims held the sole parseable tenant GUID
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -8477,6 +8479,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` — cookie sign-in audit read `tenant_id` before SAML inbound claim promotion — **hit 2026-10-05 thorough hunt:** configured IdP tenant attributes were absent from audit `TenantId` / payload; apply `ArchLucidSamlInboundClaimsNormalizer` before `FindFirst("tenant_id")`; regression `AppendCookieSignedInAudit_promotes_configured_idp_tenant_before_logging_tenant_id`
 
 2026-10-05 thorough hunt (hit): fixed SAML sign-in audit tenant promotion gap; cheap-disproved duplicate-`sub` platform-user resolver candidate.
+
+- [x] (proven) `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` — multiple `tenant_id` claims: `FindFirst` bound audit scope to the first value even when only a later claim parsed as a GUID or when GUIDs conflicted — **hit 2026-10-05 seed hunt:** require exactly one distinct parseable `tenant_id`; regressions `AppendCookieSignedInAudit_uses_parseable_tenant_id_when_an_earlier_tenant_id_claim_is_not_a_guid` and `AppendCookieSignedInAudit_omits_tenant_id_when_distinct_tenant_id_claims_disagree`
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — duplicate canonical `tenant_id` claims emitted directly by the IdP (not via configured source attributes) are never collapsed before cookie persistence — wrong outcome: scope resolution order-dependence via `FindFirst("tenant_id")` on SAML sessions; reachable when the assertion maps the tenant attribute twice onto the short `tenant_id` claim type
+- [ ] (candidate) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` and `iat` are stamped from the same clock instant but only `iat` uses `ClaimValueTypes.Integer64`; downstream step-up reads both claim types and may treat skewed string `auth_time` differently from numeric `iat` on exotic JWT serializers
+
+2026-10-05 seed hunt (seed→hit): reseeded SAML sign-in audit multi-`tenant_id` aggregation gap; proved and fixed; added inbound normalizer duplicate-canonical-tenant and trial JWT claim-type candidates.
 
 2026-10-05 seed hunt (seed→hit): reseeded Entra multi-tenant `tid` aggregation gap; proved and fixed; added platform-user resolver and SAML sign-in audit duplicate-claim candidates.
 
