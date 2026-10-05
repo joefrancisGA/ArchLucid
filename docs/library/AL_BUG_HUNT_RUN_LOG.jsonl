@@ -1,5 +1,3 @@
-{"at":"2026-09-05T13:00:29.6307961Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-09-05T13:06:03.1572526Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T13:19:29.6533719Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T13:28:11.5753908Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T13:38:32.1766682Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
@@ -8791,3 +8789,4 @@
 {"at":"2026-10-05T12:26:11.7779148Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T12:45:17.6571396Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-05T12:55:56.0268919Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-05T13:07:38.8424773Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
