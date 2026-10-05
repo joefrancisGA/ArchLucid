@@ -52,6 +52,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             fullRecompute: false,
             hasPrior: true,
             emptyDiff: true,
+            diffWasExisting: false,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -87,6 +88,49 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
     }
 
     [Fact]
+    public async Task OnSnapshotMaterializedAsync_when_empty_diff_already_persisted_still_carries_forward_neighborhoods()
+    {
+        Mock<IPrivilegePathEngine> privilegePathEngine = new();
+        Mock<IIntendedReachabilityEngine> reachabilityEngine = new();
+        Mock<IToxicCombinationEngine> toxicEngine = new();
+        Mock<ICapabilityToFlowEngine> capabilityEngine = new();
+        Mock<ISharedControlBlastRadiusEngine> sharedEngine = new();
+        Mock<IFourRealityDriftEngine> driftEngine = new();
+        Mock<IPathRankingEngine> rankingEngine = new();
+        Mock<ICutPointAnalysisEngine> cutPointEngine = new();
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        neighborhoodRunner
+            .Setup(runner => runner.CarryForwardAllAsync(
+                Scope,
+                PriorSnapshotId,
+                SnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
+
+        AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
+            fullRecompute: false,
+            hasPrior: true,
+            emptyDiff: true,
+            diffWasExisting: true,
+            privilegePathEngine,
+            reachabilityEngine,
+            toxicEngine,
+            capabilityEngine,
+            sharedEngine,
+            driftEngine,
+            rankingEngine,
+            cutPointEngine,
+            neighborhoodRunner);
+
+        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
+
+        neighborhoodRunner.Verify(
+            runner => runner.CarryForwardAllAsync(Scope, PriorSnapshotId, SnapshotId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task OnSnapshotMaterializedAsync_full_recompute_runs_all_engines()
     {
         Mock<IPrivilegePathEngine> privilegePathEngine = new();
@@ -112,6 +156,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             fullRecompute: true,
             hasPrior: true,
             emptyDiff: false,
+            diffWasExisting: false,
             privilegePathEngine,
             reachabilityEngine,
             toxicEngine,
@@ -146,6 +191,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         bool fullRecompute,
         bool hasPrior,
         bool emptyDiff,
+        bool diffWasExisting,
         Mock<IPrivilegePathEngine> privilegePathEngine,
         Mock<IIntendedReachabilityEngine> reachabilityEngine,
         Mock<IToxicCombinationEngine> toxicEngine,
@@ -184,7 +230,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
                     Succeeded = true,
                     DiffId = Guid.NewGuid(),
                     Changes = emptyDiff ? [] : [new AzureInventoryChangeRecord()],
-                    WasExisting = false,
+                    WasExisting = diffWasExisting,
                 });
         }
 
