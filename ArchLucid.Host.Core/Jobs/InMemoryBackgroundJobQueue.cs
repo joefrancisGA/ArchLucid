@@ -48,23 +48,41 @@ public sealed class InMemoryBackgroundJobQueue(
             MaxRetries: safeMaxRetries);
         _workUnits[id] = workUnit;
 
-        if (!await _pendingJobs.WaitAsync(0, cancellationToken))
+        bool acquiredPendingSlot = false;
+
+        try
         {
+            if (!await _pendingJobs.WaitAsync(0, cancellationToken))
+            {
+                _info.TryRemove(id, out _);
+                _workUnits.TryRemove(id, out _);
+
+                throw new InvalidOperationException(
+                    $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
+            }
+
+            acquiredPendingSlot = true;
+
+            if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
+                return id;
+
+            _pendingJobs.Release();
+            acquiredPendingSlot = false;
             _info.TryRemove(id, out _);
             _workUnits.TryRemove(id, out _);
 
-            throw new InvalidOperationException(
-                $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
+            throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
         }
+        catch (OperationCanceledException)
+        {
+            if (acquiredPendingSlot)
+                _pendingJobs.Release();
 
-        if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
-            return id;
+            _info.TryRemove(id, out _);
+            _workUnits.TryRemove(id, out _);
 
-        _pendingJobs.Release();
-        _info.TryRemove(id, out _);
-        _workUnits.TryRemove(id, out _);
-
-        throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
+            throw;
+        }
     }
 
     public Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default)
@@ -124,7 +142,14 @@ public sealed class InMemoryBackgroundJobQueue(
             if (current.State is not BackgroundJobState.Pending and not BackgroundJobState.Running)
                 continue;
 
-            _info[item.JobId] = current with { State = BackgroundJobState.Running, StartedUtc = current.StartedUtc ?? TimeProvider.System.GetUtcNow() };
+            if (!TryAssignUnlessCanceled(
+                    item.JobId,
+                    existing => existing with
+                    {
+                        State = BackgroundJobState.Running,
+                        StartedUtc = existing.StartedUtc ?? TimeProvider.System.GetUtcNow()
+                    }))
+                continue;
 
             try
             {
@@ -142,14 +167,16 @@ public sealed class InMemoryBackgroundJobQueue(
                     beforeSuccessWrite.State == BackgroundJobState.Canceled)
                     continue;
 
-                _info[item.JobId] = beforeSuccessWrite with
-                {
-                    State = BackgroundJobState.Succeeded,
-                    CompletedUtc = TimeProvider.System.GetUtcNow(),
-                    Error = null,
-                    FileName = file.FileName,
-                    ContentType = file.ContentType
-                };
+                TryAssignUnlessCanceled(
+                    item.JobId,
+                    existing => existing with
+                    {
+                        State = BackgroundJobState.Succeeded,
+                        CompletedUtc = TimeProvider.System.GetUtcNow(),
+                        Error = null,
+                        FileName = file.FileName,
+                        ContentType = file.ContentType
+                    });
             }
             catch (Exception ex)
             {
@@ -172,10 +199,38 @@ public sealed class InMemoryBackgroundJobQueue(
                         beforePendingRetry.State == BackgroundJobState.Canceled)
                         continue;
 
-                    _info[item.JobId] = beforePendingRetry with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message };
+                    if (!TryAssignUnlessCanceled(
+                            item.JobId,
+                            existing => existing with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message }))
+                        continue;
 
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
-                    await Task.Delay(delayMs, stoppingToken);
+
+                    try
+                    {
+                        await Task.Delay(delayMs, stoppingToken);
+                    }
+                    catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                    {
+                        if (await TryRequeuePendingRetryWorkItemAsync(item))
+                            continue;
+
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? shutdownRetryCandidate) ||
+                            shutdownRetryCandidate.State == BackgroundJobState.Canceled)
+                            continue;
+
+                        TryAssignUnlessCanceled(
+                            item.JobId,
+                            existing => existing with
+                            {
+                                State = BackgroundJobState.Failed,
+                                CompletedUtc = TimeProvider.System.GetUtcNow(),
+                                RetryCount = nextRetry,
+                                Error = "Retry skipped: host stopped during backoff and the job could not be re-queued."
+                            });
+
+                        continue;
+                    }
 
                     if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeRequeue) ||
                         beforeRequeue.State == BackgroundJobState.Canceled)
@@ -195,13 +250,16 @@ public sealed class InMemoryBackgroundJobQueue(
                             beforeCapacityFailure.State == BackgroundJobState.Canceled)
                             continue;
 
-                        _info[item.JobId] = beforeCapacityFailure with
-                        {
-                            State = BackgroundJobState.Failed,
-                            CompletedUtc = TimeProvider.System.GetUtcNow(),
-                            RetryCount = nextRetry,
-                            Error = "Retry skipped: job queue at capacity."
-                        };
+                        if (!TryAssignUnlessCanceled(
+                                item.JobId,
+                                existing => existing with
+                                {
+                                    State = BackgroundJobState.Failed,
+                                    CompletedUtc = TimeProvider.System.GetUtcNow(),
+                                    RetryCount = nextRetry,
+                                    Error = "Retry skipped: job queue at capacity."
+                                }))
+                            continue;
                     }
                     else if (!_queue.Writer.TryWrite(item))
                     {
@@ -217,13 +275,16 @@ public sealed class InMemoryBackgroundJobQueue(
                             beforeWriterFailure.State == BackgroundJobState.Canceled)
                             continue;
 
-                        _info[item.JobId] = beforeWriterFailure with
-                        {
-                            State = BackgroundJobState.Failed,
-                            CompletedUtc = TimeProvider.System.GetUtcNow(),
-                            RetryCount = nextRetry,
-                            Error = "Retry skipped: queue writer not accepting jobs."
-                        };
+                        if (!TryAssignUnlessCanceled(
+                                item.JobId,
+                                existing => existing with
+                                {
+                                    State = BackgroundJobState.Failed,
+                                    CompletedUtc = TimeProvider.System.GetUtcNow(),
+                                    RetryCount = nextRetry,
+                                    Error = "Retry skipped: queue writer not accepting jobs."
+                                }))
+                            continue;
                     }
                 }
                 else
@@ -242,15 +303,60 @@ public sealed class InMemoryBackgroundJobQueue(
                         beforeTerminalFailure.State == BackgroundJobState.Canceled)
                         continue;
 
-                    _info[item.JobId] = beforeTerminalFailure with
-                    {
-                        State = BackgroundJobState.Failed, CompletedUtc = TimeProvider.System.GetUtcNow(), RetryCount = nextRetry, Error = ex.Message
-                    };
+                    if (!TryAssignUnlessCanceled(
+                            item.JobId,
+                            existing => existing with
+                            {
+                                State = BackgroundJobState.Failed,
+                                CompletedUtc = TimeProvider.System.GetUtcNow(),
+                                RetryCount = nextRetry,
+                                Error = ex.Message
+                            }))
+                        continue;
                 }
             }
 
             EvictOldTerminalJobs();
         }
+    }
+
+    private async Task<bool> TryRequeuePendingRetryWorkItemAsync(WorkItem item)
+    {
+        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
+            return false;
+
+        if (current.State is not BackgroundJobState.Pending)
+            return false;
+
+        if (!await _pendingJobs.WaitAsync(0, CancellationToken.None))
+            return false;
+
+        if (_queue.Writer.TryWrite(item))
+            return true;
+
+        _pendingJobs.Release();
+
+        return false;
+    }
+
+    private bool TryAssignUnlessCanceled(string jobId, Func<BackgroundJobInfo, BackgroundJobInfo> transform)
+    {
+        bool assigned = false;
+
+        _info.AddOrUpdate(
+            jobId,
+            _ => throw new InvalidOperationException($"Background job {jobId} is missing from the in-memory queue."),
+            (_, existing) =>
+            {
+                if (existing.State == BackgroundJobState.Canceled)
+                    return existing;
+
+                assigned = true;
+
+                return transform(existing);
+            });
+
+        return assigned;
     }
 
     private void EvictOldTerminalJobs()

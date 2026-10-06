@@ -237,6 +237,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
     compareSelectionRef.current = next;
     setCompareSelectionState(next);
+
+    if (next.length === 0) {
+      setCompareSelectionNotice(null);
+    }
   }, [urlCompareRunsRaw]);
 
   useEffect(() => {
@@ -271,13 +275,20 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       return;
     }
 
-    if (urlInspectorRunId.length === 0) {
+    const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
+      new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
+    );
+
+    if (urlInspectorRunId.length === 0 && committedInspectorRunId.length === 0) {
       setSelectedRunState(null);
 
       return;
     }
 
-    const fromUrl = safeRuns.find((run) => run.runId === urlInspectorRunId) ?? null;
+    const effectiveInspectorRunId =
+      urlInspectorRunId.length > 0 ? urlInspectorRunId : committedInspectorRunId;
+
+    const fromUrl = safeRuns.find((run) => run.runId === effectiveInspectorRunId) ?? null;
 
     if (fromUrl !== null) {
       setSelectedRunState(fromUrl);

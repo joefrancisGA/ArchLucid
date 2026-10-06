@@ -5,6 +5,7 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Serialization;
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -277,6 +278,71 @@ public sealed class TenantHomepageSettingsControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_audit_uses_actor_context_id_when_display_name_differs()
+    {
+        Guid selectedRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFeaturedCompletedSampleService> service = new();
+        service
+            .SetupSequence(s => s.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = false,
+                    IsAvailable = false,
+                })
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = false,
+                    IsAvailable = false,
+                });
+        service
+            .Setup(s => s.SetSelectedRunIdAsync(selectedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = true,
+                    IsAvailable = true,
+                    SelectedRunId = selectedRunId,
+                    IsSampleApproved = true,
+                });
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("actor-id@test");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            audit: audit.Object,
+            actorContext: actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new System.Security.Claims.ClaimsPrincipal(
+                    new System.Security.Claims.ClaimsIdentity(
+                        [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  Display Name  ")],
+                        "test")),
+            },
+        };
+
+        await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = selectedRunId },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be("actor-id@test");
+        captured.ActorUserName.Should().Be("  Display Name  ");
+    }
+
+    [Fact]
     public async Task PutAsync_skips_duplicate_audit_when_selected_run_id_unchanged_retry()
     {
         Guid selectedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -334,7 +400,8 @@ public sealed class TenantHomepageSettingsControllerTests
         IFeaturedCompletedSampleService service,
         bool tenantExists = true,
         Guid? workspaceId = null,
-        IAuditService? audit = null)
+        IAuditService? audit = null,
+        IActorContext? actorContext = null)
     {
         Guid resolvedWorkspaceId = workspaceId ?? Scope.WorkspaceId;
 
@@ -375,10 +442,14 @@ public sealed class TenantHomepageSettingsControllerTests
                 ]);
         }
 
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("operator");
+
         TenantHomepageSettingsController controller = new(
             service,
             scopeProvider.Object,
             audit ?? Mock.Of<IAuditService>(),
+            actorContext ?? actor.Object,
             tenants.Object);
         controller.ControllerContext = new ControllerContext
         {

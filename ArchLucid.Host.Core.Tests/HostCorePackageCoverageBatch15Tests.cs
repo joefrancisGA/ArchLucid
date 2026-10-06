@@ -322,6 +322,35 @@ public sealed class HostCorePackageCoverageBatch15Tests
     }
 
     [Fact]
+    public async Task DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes()
+    {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+        Mock<IBackgroundJobRepository> repository = new();
+        repository
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+        notifySender
+            .Setup(n => n.SendJobIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+        DurableBackgroundJobQueue queue = CreateQueue(repository, notifySender, maxPendingJobs: 5);
+
+        Func<Task> act = async () =>
+            await queue.EnqueueAsync(CreateWorkUnit("enqueue-canceled"), cancellationToken: cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        repository.Verify(r => r.MarkCanceledAsync(It.IsAny<string>(), CancellationToken.None), Times.Once);
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment()
     {
         Mock<IBackgroundJobRepository> repository = new();

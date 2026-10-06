@@ -40,7 +40,7 @@ public sealed partial class GovernanceController
         if (runIdValidation is not null)
             return runIdValidation;
 
-        if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        if (!TryParseGovernanceRunIdFromBody(request.RunId, out string normalizedRunId))
         {
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
         }
@@ -57,7 +57,7 @@ public sealed partial class GovernanceController
             return validationProblem;
 
         IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
-            request.RunId.Trim(),
+            normalizedRunId,
             cancellationToken);
 
         if (sealedGuardResult is not null)
@@ -69,7 +69,7 @@ public sealed partial class GovernanceController
         {
             result = await _policyPackHttpFacade.SimulateAsync(
                 request.Content,
-                request.RunId,
+                normalizedRunId,
                 request.BlockCommitOnCritical,
                 request.BlockCommitMinimumSeverity,
                 request.ProposedPolicyPackId,

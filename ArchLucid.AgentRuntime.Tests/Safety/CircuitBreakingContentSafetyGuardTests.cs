@@ -80,6 +80,28 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_circuit_open_and_token_cancelled_does_not_scrub_before_throwing()
+    {
+        CircuitBreakerGate gate = OpenGate();
+        Mock<IContentSafetyGuard> inner = new();
+        Mock<IPromptRedactor> redactor = new();
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = false },
+            redactor.Object);
+
+        using CancellationTokenSource cts = new();
+        await cts.CancelAsync();
+
+        Func<Task> act = () => sut.CheckInputAsync("hello", cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        redactor.Verify(r => r.RedactAlways(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
     public async Task When_circuit_open_and_not_FailClosedOnSdkError_CheckOutputAsync_allows_with_scrub()
     {
         CircuitBreakerGate gate = OpenGate();
@@ -302,7 +324,7 @@ public sealed class CircuitBreakingContentSafetyGuardTests
         second.IsAllowed.Should().BeTrue();
         inner.Verify(
             g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Exactly(2));
+            Times.Once);
     }
 
     [Fact]
@@ -335,7 +357,7 @@ public sealed class CircuitBreakingContentSafetyGuardTests
         second.IsAllowed.Should().BeTrue();
         inner.Verify(
             g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Exactly(2));
+            Times.Once);
     }
 
     [Fact]

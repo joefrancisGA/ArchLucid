@@ -7,6 +7,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Identity;
 
 using FluentAssertions;
 
@@ -123,6 +124,49 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService activation = new(repository);
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => captured = evt)
+            .Returns(Task.CompletedTask);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("  admin@test  ");
+
+        IdentityProviderConfigurationController controller = CreateController(
+            activationService: activation,
+            configurationRepository: repository,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+
+        await controller.ActivateAsync(
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be("admin@test");
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.UpdatedByActorId.Should().Be("admin@test");
+        captured.ActorUserId.Should().Be(loaded.UpdatedByActorId);
+    }
+
+    [Fact]
     public async Task ActivateAsync_returns_success_when_audit_logging_fails()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -166,6 +210,36 @@ public sealed class IdentityProviderConfigurationControllerTests
         IdentityProviderActivateResponse body =
             ok.Value.Should().BeOfType<IdentityProviderActivateResponse>().Subject;
         body.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example:443/oidc",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord body =
+            ok.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        body.IssuerUri.Should().Be("https://idp.example/oidc");
     }
 
     [Fact]
@@ -233,6 +307,66 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Theory]
+    [InlineData("")]
+    [InlineData("oauth")]
+    [InlineData("   ")]
+    public void TestLogin_rejects_invalid_protocol(string protocol)
+    {
+        IdentityProviderConfigurationController controller = CreateController(
+            testLoginService: new SsoWizardTestLoginService());
+
+        IActionResult result = controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = protocol,
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("oidc or saml");
+    }
+
+    [Fact]
+    public void TestLogin_passes_normalized_protocol_token_to_sandbox_service()
+    {
+        IdentityProviderTestLoginRequest? captured = null;
+
+        Mock<ISsoWizardTestLoginService> testLogin = new();
+        testLogin
+            .Setup(s => s.Execute(It.IsAny<IdentityProviderTestLoginRequest>(), It.IsAny<ScopeContext>()))
+            .Callback<IdentityProviderTestLoginRequest, ScopeContext>((req, _) => captured = req)
+            .Returns(new IdentityProviderTestLoginResponse
+            {
+                Success = true,
+                MappedRoles = ["Admin"],
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(testLoginService: testLogin.Object);
+
+        controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "  SAML  ",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        captured.Should().NotBeNull();
+        captured!.Protocol.Should().Be("saml");
+    }
+
+    [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]
     public void TestLogin_rejects_non_http_scheme_issuer_uri(string issuerUri)
@@ -264,7 +398,8 @@ public sealed class IdentityProviderConfigurationControllerTests
         IIdentityProviderActivationService? activationService = null,
         IActorContext? actorContext = null,
         IAuditService? auditService = null,
-        IIdentityProviderDiscoveryService? discoveryService = null)
+        IIdentityProviderDiscoveryService? discoveryService = null,
+        ITenantIdentityProviderConfigurationRepository? configurationRepository = null)
     {
         Mock<IScopeContextProvider> scopeContextProvider = new();
         scopeContextProvider
@@ -280,7 +415,7 @@ public sealed class IdentityProviderConfigurationControllerTests
             discoveryService ?? Mock.Of<IIdentityProviderDiscoveryService>(),
             testLoginService ?? new SsoWizardTestLoginService(),
             activationService ?? Mock.Of<IIdentityProviderActivationService>(),
-            Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
+            configurationRepository ?? Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
             scopeContextProvider.Object,
             actorContext ?? Mock.Of<IActorContext>(),
             auditService ?? Mock.Of<IAuditService>())

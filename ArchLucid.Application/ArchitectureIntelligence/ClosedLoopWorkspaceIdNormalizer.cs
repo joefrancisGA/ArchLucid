@@ -22,6 +22,6 @@ internal static class ClosedLoopWorkspaceIdNormalizer
         if (string.IsNullOrWhiteSpace(workspaceId))
             return string.Empty;
 
-        return workspaceId.Trim();
+        return ClosedLoopScopeIdHashNormalizer.Normalize(workspaceId);
     }
 }

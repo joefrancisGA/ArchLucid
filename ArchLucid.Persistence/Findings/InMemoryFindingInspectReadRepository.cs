@@ -74,15 +74,13 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             appliedRuleIdsJson = JsonSerializer.Serialize(appliedRuleIds);
         }
 
-        string? firstRuleText = match.Trace?.RulesApplied is { Count: > 0 } rules
-            ? rules[0]
-            : null;
+        string? firstRuleText = FindingInspectReadRepositoryCore.ResolveFirstTraceRuleText(match.Trace?.RulesApplied);
 
         (string? ruleId, string? ruleName) =
             FindingInspectReadRepositoryCore.ResolveRuleFields(appliedRuleIdsJson, firstRuleText);
 
         JsonElement? typed = includeTypedPayload
-            ? TryPayloadElement(match)
+            ? ResolveTypedPayloadForInMemoryInspect(match)
             : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(match.Title, match.Rationale);
 
         List<string> recommendedActions = FindingInspectReadRepositoryCore
@@ -136,7 +134,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ?? finding.Trace?.ReasoningTrace;
     }
 
-    private static JsonElement? TryPayloadElement(Finding finding)
+    private static JsonElement? ResolveTypedPayloadForInMemoryInspect(Finding finding)
     {
         if (finding.Payload is null)
             return null;
@@ -145,9 +143,13 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         {
             return JsonSerializer.SerializeToElement(finding.Payload);
         }
-        catch (NotSupportedException)
+        catch (Exception ex) when (ex is NotSupportedException or JsonException)
         {
-            return null;
+            // Parity with Dapper inspect corrupt non-empty PayloadJson metadata fallback (#1238).
+            return FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(
+                finding.Title,
+                finding.Rationale,
+                includeWhyThisMattersWhenTitleMissing: true);
         }
     }
 }

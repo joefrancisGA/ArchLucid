@@ -17,6 +17,14 @@ function isPreAuthSignInAnonymousProxyPath(normalized: string): boolean {
   );
 }
 
+/** `[AllowAnonymous]` + `[AllowUnscopedRoute]` diagnostics POSTs that omit BFF CSRF in the UI client. */
+function isAllowAnonymousUnscopedDiagnosticsProxyPath(normalized: string): boolean {
+  return (
+    normalized === "v1/diagnostics/core-pilot-rail-step" ||
+    normalized === "v1/diagnostics/first-tenant-funnel"
+  );
+}
+
 function isAnonymousMarketingProxyPathNormalized(normalized: string): boolean {
   return (
     normalized === "v1/marketing/quick-scan" ||
@@ -54,6 +62,7 @@ export function isPublicAnonymousProxyPath(proxyPath: string): boolean {
   return (
     isAnonymousMarketingProxyPathNormalized(normalized) ||
     isAnonymousInfrastructureProxyPath(normalized) ||
-    isPreAuthSignInAnonymousProxyPath(normalized)
+    isPreAuthSignInAnonymousProxyPath(normalized) ||
+    isAllowAnonymousUnscopedDiagnosticsProxyPath(normalized)
   );
 }

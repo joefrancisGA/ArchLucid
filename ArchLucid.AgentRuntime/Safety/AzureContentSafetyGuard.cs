@@ -49,6 +49,8 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
 
     private async Task<ContentSafetyResult> AnalyzeAsync(string text, string kind, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ContentSafetyOptions options = _optionsMonitor.CurrentValue;
 
         if (string.IsNullOrWhiteSpace(text))

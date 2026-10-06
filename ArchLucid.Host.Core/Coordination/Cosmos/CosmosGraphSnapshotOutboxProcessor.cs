@@ -83,22 +83,42 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
 
         if (snapshot is null)
         {
-            Logger.LogWarning(
-                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: graph snapshot was not found in SQL.",
-                entry.GraphSnapshotId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+            await CompleteProcessedEntryAsync(
+                    outbox,
+                    entry,
+                    cancellationToken,
+                    postMarkObservability: () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: graph snapshot was not found in SQL.",
+                                entry.GraphSnapshotId);
+                        }
+                    })
+                .ConfigureAwait(false);
 
             return;
         }
 
         if (entry.RunId != Guid.Empty && snapshot.RunId != entry.RunId)
         {
-            Logger.LogWarning(
-                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: SQL graph RunId {SqlRunId} does not match outbox RunId {OutboxRunId}.",
-                entry.GraphSnapshotId,
-                snapshot.RunId,
-                entry.RunId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+            await CompleteProcessedEntryAsync(
+                    outbox,
+                    entry,
+                    cancellationToken,
+                    postMarkObservability: () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: SQL graph RunId {SqlRunId} does not match outbox RunId {OutboxRunId}.",
+                                entry.GraphSnapshotId,
+                                snapshot.RunId,
+                                entry.RunId);
+                        }
+                    })
+                .ConfigureAwait(false);
 
             return;
         }
@@ -116,10 +136,20 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
 
             if (manifestCompareDetail?.GoldenManifest is null)
             {
-                Logger.LogWarning(
-                    "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: run detail no longer found.",
-                    entry.GraphSnapshotId);
-                await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+                await CompleteProcessedEntryAsync(
+                        outbox,
+                        entry,
+                        cancellationToken,
+                        postMarkObservability: () =>
+                        {
+                            if (Logger.IsEnabled(LogLevel.Warning))
+                            {
+                                Logger.LogWarning(
+                                    "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: run detail no longer found.",
+                                    entry.GraphSnapshotId);
+                            }
+                        })
+                    .ConfigureAwait(false);
 
                 return;
             }
@@ -131,7 +161,29 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
         }
 
         await cosmosWriter.SaveAsync(snapshot, cancellationToken);
-        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+        await CompleteProcessedEntryAsync(outbox, entry, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task CompleteProcessedEntryAsync(
+        ICosmosGraphSnapshotOutboxRepository outbox,
+        CosmosGraphSnapshotOutboxEntry entry,
+        CancellationToken cancellationToken,
+        Action? postMarkObservability = null)
+    {
+        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            postMarkObservability?.Invoke();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The outbox row is already marked processed; observability must not schedule a retry.
+        }
     }
 
     protected override CosmosGraphSnapshotOutboxProcessorOptions VerifyOptions(

@@ -18,6 +18,42 @@ namespace ArchLucid.Api.Tests;
 public sealed class PolicyPacksControllerSimulateTests
 {
     [Fact]
+    public async Task Simulate_accepts_run_id_with_interior_no_break_space()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdWithNbsp = runId.ToString("D").Insert(9, "\u00a0");
+        string? forwardedRunId = null;
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        httpFacade
+            .Setup(f => f.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                runId.ToString("D"),
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<PolicyPackContentDocument, string, bool?, int?, Guid?, CancellationToken>(
+                (_, forwarded, _, _, _, _) => forwardedRunId = forwarded)
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackGovernanceDryRunResult>.Success(
+                new PolicyPackGovernanceDryRunResult { ResolvedRunId = runId.ToString("D") }));
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = runIdWithNbsp,
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        forwardedRunId.Should().Be(runId.ToString("D"));
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task Simulate_forwards_canonical_run_id_to_facade()
     {
         const string canonicalRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";

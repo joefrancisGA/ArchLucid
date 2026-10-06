@@ -98,6 +98,29 @@ public sealed class UploadedConfigInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ComposeEnv_environment_list_emits_proposed_host()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "docker-compose.yml",
+            Format = "compose-env",
+            DeclarationId = "compose-list-1",
+            Content = """
+                      services:
+                        api:
+                          environment:
+                            - ARCHLUCID_API_BASE_URL=https://api.example.com
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _composeParser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToHost]
+            .Should().Be("api.example.com");
+    }
+
+    [Fact]
     public async Task ComposeEnv_environment_map_emits_proposed_host()
     {
         InfrastructureDeclarationReference declaration = new()

@@ -4,6 +4,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -27,6 +28,7 @@ public sealed class TenantHomepageSettingsController(
     IFeaturedCompletedSampleService featuredCompletedSampleService,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
+    IActorContext actorContext,
     ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IFeaturedCompletedSampleService _featuredCompletedSampleService =
@@ -37,6 +39,9 @@ public sealed class TenantHomepageSettingsController(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -120,7 +125,8 @@ public sealed class TenantHomepageSettingsController(
         if (scopeProblem is not null)
             return scopeProblem;
 
-        string actor = User?.Identity?.Name ?? "operator";
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
         FeaturedCompletedSampleSnapshot snapshot;
         FeaturedCompletedSampleSnapshot before =
             await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
@@ -135,8 +141,8 @@ public sealed class TenantHomepageSettingsController(
                     new AuditEvent
                     {
                         EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
+                        ActorUserId = actorUserId,
+                        ActorUserName = actorUserName,
                         TenantId = scope.TenantId,
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
@@ -175,8 +181,8 @@ public sealed class TenantHomepageSettingsController(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,

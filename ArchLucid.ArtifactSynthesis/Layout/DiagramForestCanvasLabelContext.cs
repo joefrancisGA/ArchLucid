@@ -163,12 +163,7 @@ public sealed class DiagramForestCanvasLabelContext
 
     private static string FormatExternalFactoriesLine(IReadOnlyList<string> factoryNames)
     {
-        List<string> ordered = factoryNames
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .Select(name => name.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        List<string> ordered = OrderDistinctTrimmed(factoryNames);
 
         if (ordered.Count <= 3)
         {
@@ -176,6 +171,50 @@ public sealed class DiagramForestCanvasLabelContext
         }
 
         return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+    }
+
+    private static string FormatExternalTargetHostsLine(IReadOnlyList<string> targetHosts)
+    {
+        List<string> ordered = OrderDistinctTrimmed(targetHosts);
+
+        if (ordered.Count == 1)
+        {
+            return ordered[0];
+        }
+
+        if (ordered.Count <= 3)
+        {
+            return $"Hosts {string.Join(", ", ordered)}";
+        }
+
+        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+    }
+
+    private static string FormatExternalIntegrationRuntimesLine(IReadOnlyList<string> integrationRuntimes)
+    {
+        List<string> ordered = OrderDistinctTrimmed(integrationRuntimes);
+
+        if (ordered.Count == 1)
+        {
+            return $"Runtime {ordered[0]}";
+        }
+
+        if (ordered.Count <= 3)
+        {
+            return $"Runtimes {string.Join(", ", ordered)}";
+        }
+
+        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+    }
+
+    private static List<string> OrderDistinctTrimmed(IReadOnlyList<string> values)
+    {
+        return values
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static IReadOnlyList<string> BuildDataFlowDetailLines(
@@ -203,16 +242,25 @@ public sealed class DiagramForestCanvasLabelContext
             lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
         }
 
-        if (!string.IsNullOrWhiteSpace(node.ExternalTargetHost))
+        if (node.ExternalTargetHosts.Count > 0)
+        {
+            lines.Add(FormatExternalTargetHostsLine(node.ExternalTargetHosts));
+        }
+        else if (!string.IsNullOrWhiteSpace(node.ExternalTargetHost))
         {
             lines.Add(node.ExternalTargetHost.Trim());
         }
-        else if (node.ExternalHostInKeyVault)
+
+        if (node.ExternalHostInKeyVault)
         {
             lines.Add("Host in Key Vault");
         }
 
-        if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
+        if (node.ExternalIntegrationRuntimes.Count > 0)
+        {
+            lines.Add(FormatExternalIntegrationRuntimesLine(node.ExternalIntegrationRuntimes));
+        }
+        else if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
         {
             lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
         }

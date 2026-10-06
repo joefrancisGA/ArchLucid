@@ -1,5 +1,75 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding ignored `+=` compound assignments, so `unscopedRunsSql += "… dbo.Runs …"` after a benign initializer never contributed SQL to ARCH006 analysis; fold add-assignments by appending statically resolved right-hand fragments; regression `ARCH006_reports_unscoped_sql_for_field_built_with_compound_assignment`; 25 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding covered fields and locals only, so auto-properties assigned unscoped SQL in instance methods (with benign `= string.Empty` initializers) still evaded ARCH006 after initializer merge; include `IPropertySymbol` in assignment scans; regression `ARCH006_reports_unscoped_sql_for_auto_property_assigned_in_instance_method`; 24 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — `ResolveFromSymbol` returned declarator-initializer SQL before assignment folding, so fields initialized to `string.Empty` then assigned unscoped SQL in instance methods resolved only the empty initializer; scan instance/static method bodies for field assignments and merge initializer plus assignment branches; regression `ARCH006_reports_unscoped_sql_for_field_assigned_in_instance_method`; 23 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding only scanned top-level statements in the declaring block, so nested `if`/`else` assignments and constructor body field assignments to SQL members still evaded ARCH006; scan descendant simple assignments in the declaring block and instance constructor bodies; regressions `ARCH006_reports_unscoped_sql_for_local_assigned_in_nested_block` and `ARCH006_reports_unscoped_sql_for_field_assigned_in_constructor`; 22 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — `TenantScopedSqlExpressionResolver` folded SQL only from declarator initializers, so `string sql; sql = "… dbo.Runs …";` passed to Dapper evaded ARCH006; fold simple block assignments to the same local; regression `ARCH006_reports_unscoped_sql_for_local_assigned_after_declaration`; 20 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` cleared `NsgInboundRuleChips` while parallel rollup edges already merged NSG annotations, so collapsed storage cards dropped inbound rule chips painted on members; merge distinct chips with the same three-visible-plus-remainder cap as single-node chips; regression `Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members`; 643 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalHostInKeyVault` while private-endpoint access already used `members.Any`, so mixed rollup cards hid Key Vault-hosted linked services when the first member had an explicit host; `members.Any` plus a separate Key Vault detail line when hosts are also shown; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`; 642 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while factory names already merged all members, so rolled-up ADF link cards hid peer hosts and runtimes; merge distinct values onto `ExternalTargetHosts` / `ExternalIntegrationRuntimes` and format rollup detail lines; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`; 640 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
+2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `PolicyPacksController.Simulate` / `SimulateBulk` and `GovernancePreviewController.Preview` still used `Trim()` + `Guid.TryParse` after `GovernanceController` policy-pack parity fix; shared `GovernanceRunIdHttpParser`; regressions `PolicyPacksControllerSimulate_accepts_run_id_with_interior_no_break_space`, `SimulateBulk_accepts_run_id_with_interior_no_break_space`, and `DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space`; 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
+
+2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `GovernanceController` policy-pack `Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` parsed run ids with `Trim()` + `Guid.TryParse` while submit routes use `GovernanceRunIdNormalizer`, rejecting Word-pasted interior no-break space run ids; `TryParseGovernanceRunIdFromBody` + normalized ids to sealed guard and services; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
+
+2026-10-06 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` after recursive nested-aggregate fixes; cheap-disproof closed triple-wrapper mixed aggregate (fail-fast on first attempt) and top-level sibling transient + wrapped-mixed aggregate (`inners.All` intentional fail-fast per parallel-persist semantics); seeded five candidates; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
+
+2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — `IsParallelPersistAggregateInnerRetriable` applied `SqlTransientDetector` to nested aggregate inners instead of recursing, so `AggregateException` → wrapper → wrapper → mixed nested aggregate retried; recurse `IsParallelPersistAggregateInnerRetriable` for nested parallel-persist sets; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
+
+2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — top-level `AggregateException` with wrapper inners used `inners.All(SqlTransientDetector.IsTransient)`, so a nested mixed parallel-persist aggregate behind `InvalidOperationException` retried on the first nested inner only; flatten nested aggregates per top-level inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
+
+2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — `ListRecycleBinAsync` omitted purge schedule only when the current workspace pinned `DefaultProjectId`, but `SqlArchitectureProjectRetentionPurgeService` excludes purge when any `TenantWorkspaces` row pins the project; align recycle-bin `purgeAfterUtc` with tenant-wide default metadata pins; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`; 42 scoped TenantWorkspaces tests passed.
+
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.Apply` deduplicated parallel edges from rolled-up members but kept only the first member's NSG annotation labels and blocked flag; merge labels, rule details, and `IsDataFlowNsgBlocked` on duplicate rollup edge keys; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`; 638 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
+2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — recycle bin advertised `purgeAfterUtc` for soft-deleted projects still referenced as `TenantWorkspaces.DefaultProjectId` while `SqlArchitectureProjectRetentionPurgeService` excludes those rows from hard purge; set nullable `PurgeAfterUtc` when workspace default metadata pins the project; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
+
+2026-10-06 seed hunt (seed→hit): `host-core-coordination` — retrieval and Cosmos skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a failing log sink escaped before skip-as-processed (post-commit/export parity gap); `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
+
+2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — pre-finalize `TryParseRunId` and approval audit parse omitted `GovernanceRunIdNormalizer`, rejecting Word-pasted run ids with interior U+00A0 while submit accepted them; normalize before parse; regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope` and `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
+
+2026-10-05 seed hunt (seed→hit): `application-pilots` — `BuyerProofPackBuilder` emitted `isSampleRun` in `pilot-run-deltas.json` but `limitations-and-next-actions.md` only showed the demo/sample banner for `isDemoTenant`; wire `IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; 28 scoped BuyerProofPack/BoardPack/limitations tests passed.
+
+2026-10-05 seed hunt (seed→hit): `application-pilots` — same sample-run gap on `pack-manifest.json` `demoDataWarning` and `BuyerProofPackBuildResult.DemoDataWarning` (audit `SponsorProofPackGenerated`); unify `cautionWarning = demoWarning || isSampleRun`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`; 26 scoped BuyerProofPack/BoardPack tests passed.
+
+2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `BuildContinueFromExistingRunCoalesceManifest` called `Build` without resolved run id so `modelfp`/`ledgerfp` were omitted when `request.RunId` was blank on continue; stale continue cache keys; use `BuildWithResolvedRunId` for coalesce content and dual-pin manifest; regression `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_baseline_model_changes_and_request_run_id_blank`; cheap-disproof closed four other open `(candidate)` rows; 70 scoped orchestrator/cache tests passed.
+
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `TerraformShowJsonInfrastructureDeclarationParser` ignored `terraform plan -json` roots (`planned_values` / `plannedValues`) and only read `values`; proved `ComposeEnvInfrastructureDeclarationParser` parsed list env `- KEY=https://…` with map regex and treated the `https:` colon as `KEY: value`; list `KEY=value` lines now run before map regex; regressions `ParseAsync_planned_values_root_module_emits_canonical_resource`, `ComposeEnv_environment_list_emits_proposed_host`; cheap-disproof `export`-prefixed dotenv (URL value still emits); 807 scoped tests passed.
+
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `IDiagramSourceParser.CanParse` accepted full MIME types with `; charset=utf-8` but rejected short `DiagramSourceFormats` tokens with the same suffix (`mermaid; charset=utf-8`); centralize lookup in `DiagramSourceFormats.Is*Format` using `NormalizeContentTypeForLookup` before short-token compare; regression `Parse_MermaidShortTokenWithCharsetParameter_YieldsNodesAndEdges`; cheap-disproof closed quoted-RFC2045 charset on document MIME base type and infra declaration `format` enum reachability; 804 scoped ContextIngestion/Canonicalization tests passed.
+
+2026-10-05 seed hunt (seed-only): `context-ingestion` — re-read MIME normalization follow-ons after diagram router charset fixes; cheap-disproved document connector delta churn on `text/plain` vs `text/plain; charset=utf-8` (`DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`); no new hunt-ready row; seeded five `(candidate)` rows; 803 scoped ContextIngestion/Canonicalization tests passed.
+
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `StructuredDiagramParseRouter` diagram source parsers rejected MIME format strings with `; charset=utf-8` (only short `DiagramSourceFormats` tokens and bare MIME matched); route via `Is*ContentType` helpers in `ArchLucidDiagramJsonParser`, `SvgDiagramSourceParser`, `DrawIoXmlDiagramSourceParser`, and `VsdxDiagramSourceParser`; regressions `Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges`, `Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes`; 802 scoped tests passed.
+
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `PixelDiagramIntakeStubDetector` used exact structured-diagram JSON MIME match so `; charset=utf-8` skipped pixel stub detection and the diagram JSON parser returned empty canonical objects instead of the not-verifiable warning; use `IsStructuredDiagramJsonContentType`; align `MermaidDiagramSourceParser.CanParse` and `IsForbiddenImageContentType` with `NormalizeContentTypeForLookup`; regressions `TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter`, `DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType`; 800 scoped tests passed.
+
+2026-10-05 seed hunt (seed→hit): `context-ingestion` — proved `SupportedContextDocumentContentTypes.IsSupported` and document parser `CanParse` rejected MIME types with `; charset=utf-8` parameters; strip parameters via `NormalizeContentTypeForLookup` for allowlist, parser routing, and stable document ids; regressions `IsSupported_MatchesCanonicalList`, `ForDocument_ignores_content_type_charset_parameters`, `NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument`; 798 scoped ContextIngestion/Canonicalization tests passed.
+
+2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator continue/cache manifest paths after tenant coalesce-key fixes; promoted continue run-id GUID hex casing cache hit (orchestrator integration) and cheap-disproved; no new hunt-ready row; seeded five `(candidate)` rows; 69 scoped orchestrator/cache tests passed.
+
+2026-10-05 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — proved `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` used trim-only tenant id while continue coalesce manifest canonicalizes GUID casing, splitting in-flight dedupe for the same logical tenant; use `NormalizeForHash` for tenant segment; regression `BuildCoalesceKey_matches_when_tenant_differs_only_by_guid_hex_letter_casing`; 69 scoped orchestrator/cache tests passed.
+
+2026-10-05 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — proved `BuildContinueFromExistingRunCoalesceManifest` used trim-only tenant id in `continue|tenant|run|…` hash while scope hashes canonicalize GUIDs; use `NormalizeForHash` for tenant segment; regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing`; 65 scoped orchestrator/cache tests passed.
+
+2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `TenantConfigurationHash` split on workspace GUID hex letter casing; canonicalize GUID scope ids in `ClosedLoopScopeIdHashNormalizer` for tenant/workspace/project hash inputs; regression `Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing`; cheap-disproof closed three lingering `(candidate)` rows; 64 scoped orchestrator/cache tests passed.
+
+2026-10-05 thorough hunt (hit): `architecture-intelligence-orchestrator` — proved `ReviewCacheManifestBuilder` content hash split on GUID hex letter casing while `ClosedLoopRunIdComparer` invalidates case-insensitively; lowercase hex in `ClosedLoopRunIdComparer.Normalize`; regression `Build_matches_content_hash_when_run_id_differs_only_by_hex_letter_casing`; cheap-disproof closed seven other open `(candidate)` rows; 63 scoped orchestrator/cache tests passed.
+
+2026-10-05 thorough hunt (dry): `tenant-settings-sql` — cheap-disproved all five open `(candidate)` rows (cancel mid-factory still reads post-upsert; out-of-band SQL cache staleness by design; in-memory whitespace parity not production-reachable; Unicode homoglyph keys outside ASCII `TenantSettingKeys`; intentional `SettingValue.Trim()` on upsert); regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`; 47 scoped TenantSettings tests passed.
+
+2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` / `CachingTenantSettingsRepository` after recent cli-draft-new churn; no hunt-ready promotion; cheap-disproof attempted on hybrid negative-cache TTL, cancel-during-factory, and in-memory whitespace read parity — no failing repro; seeded five `(candidate)` rows in zone Hypotheses; 46 scoped TenantSettings tests passed.
+
+2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved `AdmitDraftAsync` HTTP 200 with `admitted: true` and `draft: null` threw `ArgumentNullException` instead of failing closed; guard null `Draft` before scope validation in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_admit_with_null_draft_body_returns_operation_failed`; 24 scoped `DraftNewCommandCoreTests` passed.
+
 2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved prompted system name that trims to empty still PATCHed draft metadata; validate non-blank `systemName`/`businessOutcome` after prompt trim (parity with `DraftNewCommandConnectStage` intent length gate); regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`; 23 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved `CreateDraftAsync` HTTP 200 with `draftId=00000000-0000-0000-0000-000000000000` still ran patch/admit/submit; guard hollow `DraftId` in `DraftNewCommandAdmitStage` after create (parity with hollow `runId`/`requestId`); regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`; 22 scoped `DraftNewCommandCoreTests` passed.
@@ -95,6 +165,42 @@
 2026-10-05 thorough hunt (dry): `saml-jwt-bearer` — cheap-disproof closed SAML role case-duplicate surface claims (`ArchLucidRoleClaimExtractor` collapses for policy) and intentional non-GUID `oid` promotion for opaque directory keys; added multi-`auth_time` fail-closed and latest-fresh regressions; 16 scoped normalizer/step-up tests passed.
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
+
+2026-10-06 seed hunt (seed→hit): `agent-runtime-safety` — `ContentSafetyEnabledButUnconfiguredGuard` threw misconfiguration `InvalidOperationException` while `CancellationToken` already cancelled; `ThrowIfCancellationRequested` before fail-fast throw (parity with other guards); regression `CheckInputAsync_when_token_cancelled_throws_operation_canceled_before_configuration_error`; seeded five follow-up candidates; 582 scoped agent-runtime-safety tests passed.
+
+2026-10-06 thorough hunt (hit): `agent-runtime-safety` — cheap-disproof closed truncation budget-at-begin and streaming-buffer candidates; invalidated `EvidenceNote.NoteType` sanitizer parity (no user-prompt reachability); `NullContentSafetyGuard` and `CircuitBreakingContentSafetyGuard` ignored cancelled tokens on pass-through / circuit-open degraded paths; cooperative cancel before allow/scrub; regressions `CheckInputAsync_when_token_cancelled_throws_operation_canceled_even_for_whitespace`, `When_circuit_open_and_token_cancelled_does_not_scrub_before_throwing`, and `TruncatePreservingSectionBounds_when_budget_cannot_fit_end_marker_strips_back_before_open_begin_marker`; 605 scoped agent-runtime-safety tests passed.
+
+2026-10-06 seed hunt (seed→hit): `agent-runtime-safety` — `AzureContentSafetyGuard.AnalyzeAsync` returned allowed for whitespace-only input without honoring a cancelled token (early return before Azure SDK call); `ThrowIfCancellationRequested` before the whitespace shortcut; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`; 577 scoped agent-runtime-safety tests passed.
+
+2026-10-06 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` against `ArchLucid.Api/Program.cs` after the Pilot/Advanced/SaaS overlay hit; promoted Pilot-overlay parity and cheap-disproved (worker loads `appsettings.Pilot.json` when `!IsDevelopment()` before Advanced/SaaS and `AddEnvironmentVariables()`, matching API); seeded SaaS/Pilot regression gaps and post-`Build()` options-validator drift candidates; 12 scoped worker host/composition tests passed.
+
+2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger` copied model-graph edges verbatim while context edges were canonicalized, so padded model `FromNodeId`/`ToNodeId` values could diverge from merged node ids; canonicalize all edges via shared lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
+
+2026-10-06 thorough hunt (hit): `host-core-jobs` — `BackgroundJobStuckRunningWatchdogBackgroundWork` called `MarkFailedTerminalAsync` with `retryCount: 0` after reclaim notify failure, overwriting reclaimed `RetryCount`; preserve row `RetryCount`; regression `RunSinglePassAsync_preserves_reclaimed_retry_count_when_queue_notify_fails`; cheap-disproof closed enqueue cancel cleanup swallow and durable retry shutdown redelivery candidates; fixed in-memory shutdown retry when re-queue fails; 76 Host.Core + 45 focused Api background-job tests passed.
+
+2026-10-06 thorough hunt (hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` assigned `Pending` during retry then `Task.Delay(..., stoppingToken)` left orphan rows without channel work when host stop interrupted backoff; re-queue pending retry work items on shutdown-interrupted delay; regression `StopAsync_during_retry_backoff_requeues_pending_job_for_next_start`; cheap-disproof closed four seeded candidates (SQL capacity insert rollback, durable processor retry backoff vs shutdown, terminal eviction retention, watchdog notify batch semantics); reseeded four candidates; 75 Host.Core + 42 focused Api background-job tests passed.
+
+2026-10-05 thorough hunt (hit): `host-core-jobs` — `DurableBackgroundJobQueue.EnqueueAsync` committed SQL insert then treated `OperationCanceledException` from `SendJobIdAsync` like a notify failure (or left `Pending` without queue notification); cancel cleanup via `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`; cheap-disproof closed orphan blob on processor success cancel, in-memory `GetFileAsync` after cancel-during-execute, registry-cancel stale message delete, intentional cancel-wins contract, and SQL insert rollback on cancel during `TryInsertPendingJobIfUnderCapacityAsync`; reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
+
+2026-10-05 seed hunt (seed→hit): `host-core-jobs` — `InMemoryBackgroundJobQueue.EnqueueAsync` inserted `_info`/`_workUnits` before `WaitAsync(0, cancellationToken)` so a canceled enqueue left orphan `Pending` rows without channel items; cleanup on `OperationCanceledException` (release acquired slot when needed); regression `EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job`; reseeded five hosted-loop candidates; 74 Host.Core + 41 focused Api background-job tests passed.
+
+2026-10-05 thorough hunt (hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository` passed raw `RulesApplied[0]` into `ResolveRuleFields` trace fallback so invisible-only first trace entries dropped substantive later rules (unlike applied-rule-id JSON skipping); `ResolveFirstTraceRuleText` + in-memory wiring; regression `GetInspectAsync_uses_first_substantive_trace_rule_when_applied_rule_ids_are_absent`; cheap-disproof closed agent-trace `modelAlias` divergence (in-memory storage contract uses hydrated `Finding` fields) and null disposition/waiver/audit follow-up (no relational child hydration on demo inspect); reseeded three inspect parity candidates; 436 scoped Persistence inspect tests passed.
+
+2026-10-05 seed hunt (seed→hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository.ResolveTypedPayloadForInMemoryInspect` only caught `NotSupportedException`, so cyclic `Finding.Payload` graphs threw `JsonException` and failed inspect instead of metadata fallback; catch `JsonException` with the same #1238 parity path; regression `GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_has_circular_reference`; reseeded three inspect parity candidates; 434 scoped Persistence inspect tests passed.
+
+2026-10-05 thorough hunt (hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository` returned null `TypedPayload` when `Finding.Payload` was not JSON-serializable instead of title/rationale metadata fallback used by Dapper corrupt-`PayloadJson` inspect; regression `GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_is_not_json_serializable`; cheap-disproof closed invalid-severity throw (fail-closed contract) and overlay band format-character fallback (DB `CK_FindingSemanticSupportBandOverlays_Band`); 433 scoped Persistence inspect tests passed.
+
+2026-10-05 seed hunt (seed-only): `finding-inspect-sql` — re-read inspect SQL, mapper, and repository core after recent in-memory parity hits; cheap-disproof closed SortOrder tie-order candidates (child-table PK `(FindingRecordId, SortOrder)`), duplicate overlay/decisioning/agent-trace join fan-out (table PKs), format-character inspect normalization contract, and metadata `whyThisMatters` raw-title guard; seeded three bounded candidates; 423 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+2026-10-05 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: in-memory `MarkCanceledAsync` vs `TryAssignUnlessCanceled` last-writer (`MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled` plus existing dequeue/terminal regressions); processor `ShouldRunExecutor=false` visibility redelivery when `UPDLOCK` claim loses (`ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`); hung execute watchdog `StaleHours` default 2h vs `RunExecuteOwnershipLeaseOptions.LeaseDurationSeconds` default 900s with renewal (watchdog fails `WaitingForResults`, not lease reclaim); integration outbox `DequeuePending` excludes `DeadLetteredUtc` rows (not the 2026-08-23 DLQ list-cap class); 74 Host.Core + 15 in-memory/processor focused tests passed.
+
+2026-10-05 seed hunt (seed→hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` dequeue path still used a direct `_info` indexer for `Running` after `Pending` read, so concurrent `MarkCanceledAsync` could be overwritten before executor start; route Running transition through `TryAssignUnlessCanceled`; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`; reseeded four hosted-loop candidates; 74 Host.Core + 13 in-memory queue tests passed.
+
+2026-10-05 thorough hunt (hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` assigned `Failed`/`Pending`/`Succeeded` after cancel re-reads when `MarkCanceledAsync` landed on a `Running` row after the last read; refuse to overwrite `Canceled` via `TryAssignUnlessCanceled` (`ConcurrentDictionary.AddOrUpdate`); regression `MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed`; cheap-disproof closed processor registry-cancel queue delete, DLQ pass frozen clock, and parallel duplicate-JobId candidates; 74 Host.Core + 12 in-memory queue tests passed.
+
+2026-10-05 thorough hunt (dry): `worker-host` — cheap-disproof closed `ConsoleHangDiagnostics.UseLogger` parity (hang breadcrumbs still emit via `ConsoleHangDiagnostics` stderr fallback when no logger is wired) and `LogAgentExecutionRealModeInformation` parity (informational startup line only; Real-mode worker startup already covered by `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`); 12 scoped worker host/composition tests passed.
+
+2026-10-05 seed hunt (seed→hit): `ui-runs-list` — docked inspector closed when `runs` props refreshed after row activation because `inspectorRunId` selection effect trusted stale empty `useSearchParams` while `commitHrefIfChanged` had already committed `inspectorRunId`; resolve effective id from `readWindowLocationSearch()` when router param lags; clear compare replacement notice when URL-driven `compareRuns` clears; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 thorough hunt (dry): `ui-runs-list` — cheap-disproof closed unknown `inspectorRunId` soft-nav, buyer `scope=` chip parity, and stale compare-notice candidates; regressions `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`, `follows scope= URL changes without a popstate event on buyer scope chips`, `clears compare replacement notice when compareRuns URL changes without a popstate event`; 48 scoped `RunsListClient` tests passed.
 
@@ -3596,13 +3702,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 37
+- **hunts:** 39
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
+
+2026-10-05 thorough hunt (dry): closed five open `(candidate)` rows; cancel mid-read regression; 47 scoped TenantSettings tests passed.
+
+2026-10-05 seed hunt (seed-only): re-read repositories; no hunt-ready row; seeded five new `(candidate)` rows below; 46 scoped TenantSettings tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows; no hunt-ready repro; 35 scoped tests passed (`--no-build`).
 
@@ -3615,6 +3725,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `HybridHotPathReadCache.GetOrCreateAsync` + `CachingTenantSettingsRepository.TryGetAsync` — cancellation during inner factory — **cheap-disproof 2026-10-05 thorough hunt:** canceled cold-cache `TryGetAsync` does not block post-upsert reads; regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`.
+- [x] (invalid) `CachingTenantSettingsRepository.TryGetAsync` — negative cache survives out-of-band `dbo.TenantSettings` mutation — **cheap-disproof 2026-10-05 thorough hunt:** read-through cache by design; wrapper upsert/delete bumps generation; regression `TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write` (parity #1359).
+- [x] (invalid) `InMemoryTenantSettingsRepository.TryGetAsync` — whitespace-only stored values vs SQL absent normalization — **cheap-disproof 2026-10-05 thorough hunt:** `UpsertAsync` rejects whitespace values; no production caller seeds in-memory store outside repository APIs.
+- [x] (invalid) `TenantSettingKeyNormalizer.Normalize` — Unicode homoglyph key collapse — **cheap-disproof 2026-10-05 thorough hunt:** production keys are ASCII `TenantSettingKeys` constants or `{constant}.{workspaceId:D}` suffixes; no HTTP surface accepts arbitrary setting keys.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SettingValue.Trim()` prevents outer-padding round-trip — **cheap-disproof 2026-10-05 thorough hunt:** intentional normalization; regression `UpsertAsync_round_trips_trimmed_key_and_value`.
 
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SettingKey` longer than migration `173` `NVARCHAR(128)` without repository length guard — **cheap-disproof 2026-10-05 thorough hunt:** every `ITenantSettingsRepository.UpsertAsync` caller uses `TenantSettingKeys` constants, `{constant}.{workspaceId:D}` suffixes, or short provisioning literals; `Longest_known_production_setting_key_fits_migration_nvarchar_128_limit` bounds audited keys; no HTTP or attacker-controlled arbitrary setting-key surface in zone paths.
 - [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` throws on duplicate `(TenantId, SettingKey)` rows — **cheap-disproof 2026-10-05 thorough hunt:** migration `173` `PK_TenantSettings`; duplicate rows require out-of-contract manual catalog inserts (sibling row #1262 / #3602); not a product code path.
@@ -3812,9 +3928,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
@@ -3876,11 +3992,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-05 seed hunt (seed-only): re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, and `AgentExecutionTraceLatestPerTaskSelector` after the semantic-judge ordering fix; cheap-disproof closed `AgentType` whitespace/casing split for missing-`TaskId` chains (extra groups fail-closed on PilotStrict) and caller `GoldenManifestId` vs DB stage outcomes (orchestrator loads `run` from persisted header). Scoped tests passed 54 Application quality-gate, 33 Core selector, and 6 architecture gate-map tests (93 total). Seeded bounded follow-up candidates below.
 
+2026-10-05 thorough hunt (dry): retested three open candidates — `(invalid)` missing-`TaskId` `AgentType` whitespace/casing split (`AgentType` is an enum; key is `agent:{AgentType}` per #578); `(valid-no-repro)` judge-before-unsupported-hold ordering required by ADR 0099 (`ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureTests.As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; hold must evaluate post-judge bands); `(valid-no-repro)` `QualityRejected`+`Accepted` duplicate losing to clean `Accepted` sibling is intentional #1330/#1624 upsert-drift policy (`GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`). Scoped tests passed 54 Application quality-gate, 33 Core selector, 13 AS-099/gate-map architecture tests (100 total). No code changes.
+
 ### Hypotheses
 
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` synthesizes `agent:{AgentType}` without trimming or case-normalizing `AgentType`, so persisted traces whose `AgentType` differs only by outer whitespace or casing form separate retry chains; reachable from `AgentExecutionTrace` rows written by the agent runtime.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` runs before `UnsupportedSemanticSupportFinalizeHoldEvaluator` on the same in-memory `findings` snapshot; if `ApplyAsync` partially persists overlays then throws, commit aborts but semantic-support storage may be left inconsistent with the sealed manifest attempt; reachable from finalize/commit API callers after TB-2321 gates pass.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome.Accepted` on the winning per-task trace is non-blocking when rank ladder prefers a same-attempt clean `Accepted` duplicate — extends #1624 policy; needs proof of a reachable upsert-drift shape that should block seal but does not.
+- [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` `AgentType` whitespace/casing split — **cheap-disproof 2026-10-05 thorough hunt:** `AgentType` on `AgentExecutionTrace` is `AgentType` enum, not free text; missing-task grouping is intentional `agent:{AgentType}` retry chaining (#578); extra groups only add fail-closed PilotStrict coverage.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` before `UnsupportedSemanticSupportFinalizeHoldEvaluator` — **cheap-disproof 2026-10-05 thorough hunt:** ADR 0099 ratchet requires judge before hold so TB-1228 evaluates post-judge bands; architecture regressions `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist` and `As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; mid-batch overlay persist failure is not a reachable wrong seal outcome in these files.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `Accepted` on losing duplicate when clean `Accepted` wins — **cheap-disproof 2026-10-05 thorough hunt:** intentional non-blocking upsert-drift resolution (#1330, #1624); single winning `QualityRejected` trace still blocks (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
 
 - [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes Î“Ã‡Ã¶ fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
 - [x] Missing optional artifact is treated as a hash match Î“Ã‡Ã¶ retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
@@ -4446,11 +4564,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 29
-- **bugs-found:** 3
+- **hunts:** 32
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — nested wrapper aggregate mixed transient/permanent retry order asymmetry
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — nested parallel-persist flatten not recursive through multi-wrapper aggregate inners
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -4548,6 +4666,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `OrchestratorTransientDbRetry` Polly delay vs outer `RetryBudget` — **cheap-disproof 2026-10-05 thorough hunt:** intentional layered retry; minimum inner backoff sum remains below `RetryBudget`; regression `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`.
 
 2026-10-05 seed hunt (seed-only): reseeded orchestrator-transient-retry after nested-wrapper hit; cheap-disproof closed wrapper-nested aggregate retry gap; added empty-nested-aggregate masking, helper delay misuse, and inner/outer budget interaction candidates.
+
+- [x] (proven) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` whose sole inner is `InvalidOperationException` wrapping a mixed nested `AggregateException(deadlock, permanent SqlException)` retried because `inners.All(SqlTransientDetector.IsTransient)` only walked each wrapper's `InnerException` chain and saw the first nested aggregate inner — **hit 2026-10-06 seed hunt:** apply nested parallel-persist flatten per top-level aggregate inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`
+
+2026-10-06 seed hunt (seed→hit): promoted top-level aggregate + nested mixed parallel-persist candidate; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
+
+- [x] (proven) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — nested parallel-persist aggregate inners used `SqlTransientDetector` only, so a top-level `AggregateException` whose inner was a wrapper around another wrapper around a mixed nested aggregate retried on the first nested `SqlException` inner — **hit 2026-10-06 seed hunt:** recurse `IsParallelPersistAggregateInnerRetriable` for nested aggregate inners; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`
+
+2026-10-06 seed hunt (seed→hit): promoted multi-wrapper nested mixed aggregate candidate; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` from `Task.WhenAll` parallel persist with sibling inners where one inner is a transient-only `SqlException` (`1205`) and another inner is a repository wrapper around a mixed nested `AggregateException` — wrong outcome would retry for the deadlock sibling while the permanent mixed branch still fails; reachability: `AuthorityDrivenArchitectureRunCommitOrchestrator` parallel persistence stages surface a single `AggregateException` with one inner per failed task (`ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitDecisionMaterializationStage.cs` `Task.WhenAll`).
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — first `AggregateException` on a wrapper `InnerException` chain with an empty `InnerExceptions` list stops classification before a second mixed `AggregateException` deeper on the same chain — wrong outcome would skip fail-fast; reachability: requires repository to chain `InvalidOperationException` → empty `AggregateException` → further `InnerException` (not observed in current parallel-persist throw sites).
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — root `AggregateException()` with zero inners returns false without evaluating `SqlTransientDetector` on an outer wrapper — wrong outcome would mask transient SQL on a wrapper `InnerException` chain that never reaches a nested aggregate; reachability: `InvalidOperationException` → `AggregateException()` shell (`ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell`).
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — non-`InvalidOperationException` repository wrappers (for example `Exception` or `IOException`) around nested mixed parallel-persist aggregates — wrong outcome would diverge from `InvalidOperationException` shapes; reachability: `SqlTransientDetector` walks arbitrary wrapper chains once `TryGetParallelPersistInners` locates the nested aggregate.
+- [ ] (candidate) `CommitRunTransientRetryPolicy` — authority commit attempt `12` with `elapsed` just below `RetryBudget` while an inner `OrchestratorTransientDbRetry` Polly backoff delay is still sleeping — wrong outcome would return success or throw non-`ConflictException` after outer exhaustion; reachability: `AuthorityDrivenArchitectureRunCommitOrchestrator` commit retry loop uses `IsExhausted` then throws `ConflictException` on exhaustion.
+
+- [x] (invalid) `OrchestratorTransientDbRetry` — triple nested repository wrappers around a mixed parallel-persist aggregate still retried because recursion depth was capped at two wrappers — **cheap-disproof 2026-10-06 seed hunt:** recursive `IsParallelPersistAggregateInnerRetriable` already fail-fast on first attempt for three wrapper layers (falsification attempt, no new regression committed).
+- [x] (invalid) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` with one transient-only `SqlException` sibling and one wrapper around mixed nested aggregate should retry for the sibling — **cheap-disproof 2026-10-06 seed hunt:** `inners.All` fail-fast is intentional parallel-persist semantics (same class as #1259 mixed-aggregate rows).
+
+2026-10-06 seed hunt (seed-only): reseeded orchestrator-transient-retry after recursive wrapper fixes; cheap-disproof closed triple-wrapper and sibling-transient candidates; seeded five new candidates; 58 scoped transient-retry tests passed.
 
 ---
 
@@ -5115,15 +5252,35 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 25
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-02 — triple-scoped table primary-key mutation bypassed ARCH006 scope binding
+- **hunts:** 30
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — compound += SQL assignments bypassed ARCH006 folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer` and focused tests; no failing repro was attempted for candidate-only rows; seeded record-declaration exemption handling as a fresh analyzer-shape candidate; 19 scoped analyzer tests passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — locals declared without an initializer and assigned SQL in a later statement bypassed ARCH006 static folding (declarator-initializer path only) — **hit 2026-10-06 seed hunt (seed→hit):** fold simple block assignments to the same local; regression `ARCH006_reports_unscoped_sql_for_local_assigned_after_declaration`.
+
+2026-10-06 seed hunt (seed→hit): promoted split local declaration plus assignment resolver bypass after two dry hunts; 20 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromSimpleAssignments` — assignment folding scanned only direct statements in the declaring block, missing nested-block local assignments and instance-field assignments in constructor bodies — **hit 2026-10-06 seed hunt (seed→hit):** descendant assignment scan plus constructor-body field assignments; regressions `ARCH006_reports_unscoped_sql_for_local_assigned_in_nested_block` and `ARCH006_reports_unscoped_sql_for_field_assigned_in_constructor`.
+
+2026-10-06 seed hunt (seed→hit): extended assignment folding after split-local fix; 22 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — declarator initializer resolution ran before assignment folding and short-circuited, so fields with `= string.Empty` (or other benign initializers) assigned tenant-scoped SQL in instance methods never reached ARCH006 — **hit 2026-10-06 seed hunt (seed→hit):** merge initializer and assignment branch SQL; scan ordinary instance/static methods for field assignments; regression `ARCH006_reports_unscoped_sql_for_field_assigned_in_instance_method`.
+
+2026-10-06 seed hunt (seed→hit): promoted empty-initializer short-circuit over instance-method field assignments; 23 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromSimpleAssignments` — assignment folding applied to locals and fields only, so auto-properties assigned tenant-scoped SQL in instance methods were not merged with benign initializers — **hit 2026-10-06 seed hunt (seed→hit):** scan method-body assignments for `IPropertySymbol`; regression `ARCH006_reports_unscoped_sql_for_auto_property_assigned_in_instance_method`.
+
+2026-10-06 seed hunt (seed→hit): promoted auto-property assignment gap; 24 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.GetTargetAssignmentsInBlock` — only `=` simple assignments were folded, so `+=` string builds of tenant-scoped SQL evaded ARCH006 — **hit 2026-10-06 seed hunt (seed→hit):** treat add-assignment as append of statically resolved right-hand SQL; regression `ARCH006_reports_unscoped_sql_for_field_built_with_compound_assignment`.
+
+2026-10-06 seed hunt (seed→hit): promoted compound += assignment gap; 25 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-01 seed hunt (seed-only): repeated the selected `RunsListClient.tsx` source review for filter disclosure, row/card activation, inspector state, and pagination; the exact focused filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
@@ -5422,11 +5579,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 78
-- **bugs-found:** 21
+- **hunts:** 82
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — manifest version and disposition reviewer skipped inspect display normalization
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — in-memory inspect trace fallback ignored substantive rules after invisible prefix entries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5438,8 +5595,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- (candidate) `FindingInspectReadSql.FollowUpBatch` — trace-rule rows are ordered only by `tra.SortOrder`; persisted ties could make `ReadSingleOrDefaultAsync<string>()` return nondeterministic rule text for the same inspect request. Reachability is the SQL-selected `FindingTraceRulesApplied` rows associated with an inspected finding.
-- (candidate) `FindingInspectReadSql.FollowUpBatch` — related-node rows are ordered only by `frn.SortOrder`; persisted ties could reorder evidence items between identical inspect reads. Reachability is the SQL-selected `FindingRelatedNodes` rows associated with an inspected finding.
+- [x] (invalid) `FindingInspectReadSql.FollowUpBatch` trace-rule `SortOrder` ties — **cheap-disproof 2026-10-05 seed hunt:** baseline schema `PK_FindingTraceRulesApplied (FindingRecordId, SortOrder)` prevents duplicate sort orders per finding record; `TOP 1 … ORDER BY tra.SortOrder` is deterministic.
+- [x] (invalid) `FindingInspectReadSql.FollowUpBatch` related-node `SortOrder` ties — **cheap-disproof 2026-10-05 seed hunt:** baseline schema `PK_FindingRelatedNodes (FindingRecordId, SortOrder)` prevents duplicate sort orders per finding record; `ORDER BY frn.SortOrder` is deterministic.
 
 - [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — model metadata and digest fields skipped `NormalizeInspectDisplayText` — **hit 2026-10-04 seed hunt:** sanitize `ModelDeploymentName`, `ModelAlias`, `PromptTemplateVersion`, and `ReasoningTraceDigestSha256`; in-memory inspect parity; regression `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters`.
 
@@ -5466,9 +5623,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspect*` `AND (r.ArchivedUtc IS NULL)` serves older active run when newest rerun is archived — **cheap-disproof 2026-09-07 hunt #1233:** intentional soft-archive parity with list/run surfaces; archived runs remain in DB but drop out of active inspect selection
 - [x] (proven) Corrupt non-empty `PayloadJson` returned `TypedPayload: null` indistinguishable from a missing payload column — **hit 2026-09-07 hunt #1238:** `TryParsePayloadJson` swallowed `JsonException`; `FindingRecords.PayloadJson` has no ISJSON guard unlike `DecisioningTraces.AppliedRuleIdsJson`; fixed with `ResolveTypedPayloadForInspect` metadata fallback when the column is non-empty but invalid JSON; regressions in `ResolveTypedPayloadForInspect_falls_back_to_metadata_when_payload_json_is_corrupt` and related core tests.
 - [x] (invalid) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — **cheap-disproof 2026-09-07 hunt #1238:** `docs/library/EXPLAINABILITY.md` and #667 fix require first applied rule id from `DecisioningTraces` when present; per-finding trace text is the fallback when JSON is absent.
-- (candidate) `NormalizeInspectText` rejects a substantive persisted inspect field when the text contains a Unicode format/control character — a `FindingRecords.Title`, `Rationale`, `ReasoningTrace`, `MuteReason`, or `AssignedToUserId` value such as `TLS\u200B` is selected by `FindingInspectReadSql` and then normalized to null instead of preserving the visible text; reachability is the SQL-backed FindingRecords fields mapped by `DapperFindingInspectReadRepository.MapInspectResponse`, but the selected zone does not establish that such stored values are produced by a real caller.
-- (candidate) The `AgentExecutionTraces` left join is scoped by `TraceId` and `RunId` but not tenant/workspace/project — a reused trace identity in a persisted FindingRecords row could project another scope's `modelAlias`; the selected SQL shows the missing predicates, but the selected files do not establish that trace identifiers can collide across scopes.
-- (candidate) `BuildMetadataTypedPayload` tests raw `title is not null` rather than normalized title when deciding whether to emit `whyThisMatters` — metadata-only inspect for a whitespace-only title plus a rationale can emit a rationale-derived field while `title` is null; the input is reachable through the selected SQL's `fr.Title`/`fr.Rationale` columns, but the contract does not yet show this is an incorrect response.
+- [x] (valid-no-repro) `NormalizeInspectText` rejects strings containing embedded Unicode format/control characters — **cheap-disproof 2026-10-05 seed hunt:** intentional inspect display contract; regressions `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters` and `FilterNonBlankTrimmedStrings` mixed invisible/substantive arrays.
+- [x] (valid-no-repro) `AgentExecutionTraces` left join without tenant/workspace/project predicates — **cheap-disproof 2026-10-05 seed hunt:** `TraceId` is globally unique (`AgentExecutionTraces` PK) and join binds `aet.TraceId = fr.AgentExecutionTraceId` plus `aet.RunId = r.RunId`; regression `MainInspect_scopes_agent_execution_trace_to_finding_trace_id`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` uses raw `title is not null` for `whyThisMatters` — **cheap-disproof 2026-10-05 seed hunt:** intentional slim metadata contract when corrupt payload requests `includeWhyThisMattersWhenTitleMissing`; regressions `BuildMetadataTypedPayload_builds_rationale_only_payload_when_title_is_whitespace` and `ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt_and_title_is_whitespace`.
 - [x] (proven) `DapperFindingInspectReadRepository.MapInspectResponse` — response `FindingId` omitted trim parity with `@FindingId` binding — **hit 2026-10-04 seed hunt:** `NormalizeFindingId(row.FindingId)` on inspect response (see in-memory governance parity hit).
 
 2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
@@ -5922,10 +6079,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 seed hunt #1736 (seed→hit): reseeded finding-inspect-sql after #1733; proved invisible-only governance display fields on Dapper map path; cheap-disproof closed invisible-then-valid applied-rule-id array selection; 417 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 - [x] (proven) `FindingInsightDensityColumnCodec.FromClassificationStorage` / `FromTreatmentStorage` — unchecked TINYINT-to-enum casts returned undefined ordinals (for example `99`) so `ResolveInspectClassification` / `ResolveInspectTreatment` preferred corrupt relational storage over typed-payload fallback — **hit 2026-09-26 seed hunt (seed→hit):** `Enum.IsDefined` guard on storage decode; regressions `FromClassificationStorage_returns_null_for_undefined_storage_byte`, `ResolveInspectClassification_falls_back_to_typed_payload_when_storage_byte_is_undefined`, and `ResolveInspectTreatment_falls_back_to_typed_payload_when_storage_byte_is_undefined`.
-- (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — the semantic-support overlay is a direct `LEFT JOIN`; if persisted duplicate rows share the same scoped snapshot/finding key, Dapper `QuerySingleOrDefaultAsync<MainRow>` can fail instead of returning the inspect response. Reachable input: repeated overlay persistence for one finding/snapshot in the inspect read path.
-- (candidate) `FindingInspectReadRepositoryCore.ToUtcDateTimeOffset` — `DateTime.SpecifyKind(..., Utc)` relabels a non-UTC database timestamp instead of converting its wall-clock value; a reachable SQL date-time value with `DateTimeKind.Local` could shift remediation/revisit semantics when displayed. Reachable input: persisted `RemediationDueUtc` or `RevisitDueUtc` returned by the SQL driver.
-- (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — duplicate `DecisioningTraces` rows for the same `DecisionTraceId` and scoped run could multiply the main row and make Dapper `QuerySingleOrDefaultAsync<MainRow>` throw instead of returning inspect data. Reachable input: repeated decision-trace persistence for a run selected by the inspect SQL.
-- (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — duplicate `AgentExecutionTraces` rows for the same `TraceId` and `RunId` could multiply the main row despite the left join and make the inspect read fail. Reachable input: repeated agent-execution-trace persistence for a finding's selected run.
+- [x] (invalid) `FindingInspectReadSql` semantic-support overlay join fan-out — **cheap-disproof 2026-10-05 seed hunt:** migration `379_FindingSemanticSupportBandOverlays` defines `PK (FindingsSnapshotId, FindingId)`; duplicate overlay rows cannot persist.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ToUtcDateTimeOffset` relabels non-UTC `DateTimeKind` — **cheap-disproof 2026-10-05 seed hunt:** documented SQL datetime labeling contract for inspect pointers; regressions `ToUtcDateTimeOffset_specifies_utc_kind_for_unspecified_database_timestamps` and `MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset`.
+- [x] (invalid) `FindingInspectReadSql` duplicate `DecisioningTraces` join fan-out — **cheap-disproof 2026-10-05 seed hunt:** `DecisionTraceId` is the table primary key; join cannot multiply main inspect rows.
+- [x] (invalid) `FindingInspectReadSql` duplicate `AgentExecutionTraces` join fan-out — **cheap-disproof 2026-10-05 seed hunt:** `TraceId` is the table primary key; join binds the finding's trace id and run id.
+- [x] (proven) `InMemoryFindingInspectReadRepository` cyclic / non-serializable `Finding.Payload` — **hit 2026-10-05 seed hunt:** `NotSupportedException` and `JsonException` from `JsonSerializer.SerializeToElement` skipped title/rationale metadata fallback; use `BuildMetadataTypedPayload(..., includeWhyThisMattersWhenTitleMissing: true)` for parity with Dapper corrupt `PayloadJson` inspect (#1238); regressions `GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_is_not_json_serializable` and `GetInspectAsync_falls_back_to_metadata_typed_payload_when_payload_has_circular_reference`.
+- [x] (proven) `InMemoryFindingInspectReadRepository.GetInspectAsync` — trace fallback used `RulesApplied[0]` instead of the first substantive trace rule — **hit 2026-10-05 thorough hunt:** `ResolveFirstTraceRuleText` mirrors applied-rule-id skipping; regressions `GetInspectAsync_uses_first_substantive_trace_rule_when_applied_rule_ids_are_absent` and `ResolveFirstTraceRuleText_skips_invisible_prefix_entries`.
+- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ModelAlias` from `Finding.ModelAlias` vs Dapper `JSON_VALUE(aet.TraceJson, '$.modelAlias')` — **cheap-disproof 2026-10-05 thorough hunt:** in-memory storage inspect resolves from hydrated `RunDetailDto` findings without `AgentExecutionTraces` join; SQL path is relational contract (#1636 model-alias projection already covered for Dapper).
+- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — disposition/waiver/audit follow-up always null — **cheap-disproof 2026-10-05 thorough hunt:** demo finding ids intentionally omit `FindingCurrentDispositions` / waiver / audit child hydration; relational inspect covered by ADR 0076 pointer regressions.
+
+- [ ] (candidate) `DapperFindingInspectReadRepository` follow-up batch — `TOP 1 tra.RuleText ORDER BY tra.SortOrder` does not skip invisible-only first trace rows when `AppliedRuleIdsJson` is absent; in-memory now uses `ResolveFirstTraceRuleText` so parity may diverge when SortOrder=0 rule text is format-only but SortOrder=1 is substantive.
+- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ReasoningTraceDigestSha256` is normalized on read but never populated from `RunDetailDto` agent traces when the finding field is null (Dapper projects digest from `AgentExecutionTraces`).
+- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes` — in-memory passes `RelatedNodeIds` while SQL follow-up orders by `frn.SortOrder`; inspect evidence order may diverge when the hydrated list order differs from persisted child sort order.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` invalid stored severity — **cheap-disproof 2026-10-05 thorough hunt:** fail-closed `InvalidDataException` is the documented contract (replacing silent `Info` default after #1309); regressions `ParseFindingSeverity_rejects_unrecognized_or_undefined_values` and related mapper tests.
+- [x] (invalid) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` overlay format characters — **cheap-disproof 2026-10-05 thorough hunt:** migration `379_FindingSemanticSupportBandOverlays` `CK_FindingSemanticSupportBandOverlays_Band` allows only `Supported`/`Unchecked`/`Unsupported`/`NotScored`; embedded format characters cannot be persisted in the overlay column.
 
 2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
@@ -5938,6 +6105,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read the selected inspect SQL, mapper, and repository paths; no new hunt-ready row met the reachable-input and wrong-outcome bar. Added two bounded duplicate-join candidates; 419 focused tests passed with unrelated analyzers disabled.
 2026-10-03 seed hunt (seed-only): re-read inspect SQL scope predicates, multi-result mapping, enum/payload normalization, and existing candidate rows; no additional hunt-ready input or wrong outcome emerged. The scoped Persistence build was blocked by unrelated ARCH006/ARCH006a analyzer errors before tests ran. No code changes.
+
+2026-10-05 seed hunt (seed-only): re-read inspect SQL joins, mapper enum fail-closed paths, and repository normalization; cheap-disproof closed SortOrder tie and duplicate-join fan-out candidates via schema PKs; seeded in-memory payload serialization, invalid severity throw, and overlay band parse fallback candidates; 423 scoped Persistence inspect tests passed.
+
+2026-10-05 thorough hunt (hit): proved in-memory non-serializable payload metadata fallback gap; cheap-disproof closed invalid-severity throw contract and overlay band CHECK constraint; 433 scoped Persistence inspect tests passed.
+
+2026-10-05 seed hunt (seed→hit): proved in-memory cyclic Payload JsonException inspect failure; reseeded three in-memory/SQL parity candidates; 434 scoped Persistence inspect tests passed.
 
 ---
 
@@ -7022,13 +7195,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 26
-- **bugs-found:** 15
+- **hunts:** 27
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — whitespace-only prompted system name still PATCHed metadata
+- **last-bug:** 2026-10-05 — admitted draft with null body crashed scope validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): null draft body on successful admit; guard in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_admit_with_null_draft_body_returns_operation_failed`; 24 scoped core tests passed.
 
 2026-10-05 seed hunt (seed→hit): whitespace-only prompted system name; non-blank metadata validation in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`; 23 scoped core tests passed.
 
@@ -7051,6 +7226,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DraftNewCommandIntakeLoop` — hollow submit `requestId` still emitted success JSON — **hit 2026-10-05 thorough hunt:** mirror `runId` guard; regressions `RunCoreAsync_submit_without_request_id_returns_operation_failed` and `RunCoreAsync_json_output_submit_without_request_id_does_not_emit_ok_true`.
 - [x] (proven) `DraftNewCommandAdmitStage` — hollow `draftId` on successful create still advanced patch/admit — **hit 2026-10-05 seed hunt:** `CreateDraftAsync` success with `Guid.Empty` draftId continued intake; guard after create (parity with hollow `runId`/`requestId`); regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`.
 - [x] (proven) `DraftNewCommandAdmitStage` — prompted `systemName` / `businessOutcome` that trim to empty still PATCHed — **hit 2026-10-05 seed hunt:** interactive prompt could return whitespace-only text; fail closed with `UsageError` after trim (parity with connect-stage intent validation); regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`.
+- [x] (proven) `DraftNewCommandAdmitStage` — `AdmitDraftAsync` success with `Admitted=true` and null `Draft` body — **hit 2026-10-05 seed hunt:** `CliScopeResponseValidator.TryValidateDraftScope` threw `ArgumentNullException`; guard null draft before scope validation (parity with hollow `draftId`/`runId`); regression `RunCoreAsync_admit_with_null_draft_body_returns_operation_failed`.
 
 - [x] (proven) Draft is created under a tenant other than the signed-in CLI tenant — **hit 2026-08-24:** misconfigured scope headers could create a draft in another tenant while the CLI continued; `CliScopeResponseValidator` fails closed after create/patch when configured scope disagrees with API body; regressions in `RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed` / `RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed`
 - [x] (proven) Command reports success when the API returned a hollow success — **hit 2026-08-24:** submit returned HTTP 200 with empty `runId` and the command still printed success; now fails with `OperationFailed`; regression in `RunCoreAsync_submit_without_run_id_returns_operation_failed`
@@ -7196,11 +7372,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 28
+- **hunts:** 29
 - **last-hunt:** 2026-10-05
-- **bugs-found:** 14
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-05 — inspector stayed open after inspectorRunId cleared on soft navigation
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-05 — inspector closed on runs refresh when useSearchParams lagged committed inspectorRunId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7271,6 +7447,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `useRunsList` — soft navigation to an unknown `inspectorRunId` leaves the prior inspector open while the URL names a missing run — **cheap-disproof 2026-10-05 thorough hunt:** invalid `inspectorRunId` clears `selectedRun`; regression `closes stale inspector preview when inspectorRunId changes to an unknown run without popstate`
 - [x] (valid-no-repro) `RunsListClient` / `BuyerPackageScopeFilterChips` — scope chip `aria-current` disagrees with filtered rows after soft `scope=` navigation — **cheap-disproof 2026-10-05 thorough hunt:** `buyerPackageScope` is URL-derived from `useSearchParams`; regression `follows scope= URL changes without a popstate event on buyer scope chips`
 - [x] (valid-no-repro) `useRunsList` — `compareSelectionNotice` persists after `compareRuns` removed from URL via soft navigation — **cheap-disproof 2026-10-05 thorough hunt:** clearing `compareRuns` removes compare bar and notice together; regression `clears compare replacement notice when compareRuns URL changes without a popstate event`
+
+- [x] (proven) `useRunsList` — docked inspector closed when `runs` props refreshed after row activation because the selection effect cleared `selectedRun` when `useSearchParams` still lacked `inspectorRunId` while `commitHrefIfChanged` had committed it on `window.location` — **hit 2026-10-05 seed hunt:** resolve effective `inspectorRunId` from `readWindowLocationSearch()` when router param is empty but committed query has a value; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`; also clear `compareSelectionNotice` when URL-driven `compareRuns` sync empties selection.
+
+2026-10-05 seed hunt (seed→hit): promoted committed-vs-router `inspectorRunId` lag after row activation; proved and fixed; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproof closed three open candidates; 48 scoped `RunsListClient` tests passed.
 
@@ -7810,22 +7990,36 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 40
-- **bugs-found:** 24
+- **hunts:** 43
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — activate audit logged raw request protocol instead of persisted protocol
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — GET configuration returned non-canonical issuer for legacy rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.GetConfigurationAsync` returned repository `IssuerUri` verbatim while discover, test-login, and activate canonicalize HTTP(S) issuers, so wizard reload after a legacy `:443` row disagreed with sandbox and activation; `WithCanonicalConfigurationIssuer` on successful reads; regression `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`; cheap-disproof closed activate audit metadata presence gap (audit logs activation summary fields; full row remains on GET configuration); seeded malformed legacy issuer passthrough on GET; 60 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.GetConfigurationAsync` — stored issuer with redundant default port returned verbatim — **hit 2026-10-06 seed hunt (seed→hit):** `WithCanonicalConfigurationIssuer`; regression above.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits SAML metadata configured flag — **cheap-disproof 2026-10-06 seed hunt:** intentional audit summary; operators use GET configuration or DB row for full SAML fields.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — when stored `IssuerUri` is not canonicalizable (legacy bad URL), read path returns it verbatim with no validation envelope, so the wizard may loop on activate 400 until the operator edits the issuer manually.
+
+2026-10-06 seed hunt (seed→hit): promoted and proved `IdentityProviderConfigurationController.TestLogin` returned sandbox success for invalid `Protocol` values (`oauth`, whitespace) while `IdentityProviderActivationService` rejects them on activate; shared `IdentityProviderProtocolParser` validates and normalizes protocol on test-login (and activation); regressions `TestLogin_rejects_invalid_protocol` and `TestLogin_passes_normalized_protocol_token_to_sandbox_service`; seeded GET configuration issuer canonicalization on read and activate audit metadata presence follow-ups; 59 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.TestLogin` — invalid or whitespace `Protocol` succeeded in sandbox while activate rejects — **hit 2026-10-06 seed hunt (seed→hit):** controller validates via `IdentityProviderProtocolParser`; regressions above.
+
+2026-10-06 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.ActivateAsync` logged `IActorContext.GetActorId()` verbatim in audit `ActorUserId` while `IdentityProviderActivationService` trimmed and persisted `UpdatedByActorId`, so SSO activation forensics could not correlate audit events with the configuration row; audit now uses `record.UpdatedByActorId`; regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`; cheap-disproof closed GET configuration claim-mapping exposure (admin contract returns full wizard row by design) and whitespace-only `MetadataXml` clear-on-reactivate (documented null-preserve / whitespace-clear semantics with regressions); seeded test-login protocol field unused in sandbox path; 55 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `ActorUserId` logged raw context actor id while persisted `UpdatedByActorId` was trimmed — **hit 2026-10-06 seed hunt (seed→hit):** audit uses `record.UpdatedByActorId`; regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` and Key Vault secret name to tenant admins without extra redaction — **cheap-disproof 2026-10-06 seed hunt:** admin-only wizard read model; no secret values in row; field exposure matches API contract.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — whitespace-only `MetadataXml` on re-activate clears SAML metadata — **cheap-disproof 2026-10-06 seed hunt:** intentional clear vs null-preserve; regressions `ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided` and invisible-unicode variant.
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.ActivateAsync` wrote `request.Protocol` verbatim into audit `DataJson` while `IdentityProviderActivationService` normalized protocol before upsert, so forensics could disagree with `TenantIdentityProviderConfigurationRecord.Protocol`; audit now logs persisted `oidc`/`saml` strings from `record.Protocol`; regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`; cheap-disproof closed activate-response missing issuer echo (wizard uses GET configuration) and HTTP issuer policy (absolute HTTP(S) is intentional for dev IdP endpoints); 54 scoped activation/controller tests passed.
 
 - [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` logged raw `request.Protocol` — **hit 2026-10-05 seed hunt (seed→hit):** audit uses persisted protocol; regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — activate response omits canonical `IssuerUri` — **cheap-disproof 2026-10-05 seed hunt:** `GET configuration` returns the persisted row including canonical issuer.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — `http://` issuers accepted — **cheap-disproof 2026-10-05 seed hunt:** validator intentionally allows HTTP(S) for non-TLS dev IdPs; production TLS is an deployment/policy concern outside the wizard guard.
-
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` and optional secret metadata to any admin in tenant scope without field-level redaction beyond what the API contract documents.
-- [ ] (candidate) `IdentityProviderActivationService.ResolveOptionalPersistedField` — whitespace-only `MetadataXml` on re-activate clears SAML metadata even when the operator intended to preserve the prior XML by sending an empty string from a stale wizard form.
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.DiscoverAsync` returned raw `IssuerUri`/`JwksUri` strings from discovery while activate/test-login canonicalize HTTP(S) endpoints, so the wizard pre-filled values that disagreed with persisted activation; `WithCanonicalWizardUris` on successful discovery responses; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; seeded activate audit protocol and activate-response issuer echo follow-ups; 53 scoped activation/controller tests passed.
 
@@ -7983,13 +8177,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 20
+- **hunts:** 22
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` startup layering vs API; cheap-disproved Pilot overlay skip candidate; seeded SaaS/Pilot regression-gap and post-`Build()` validator drift candidates; 12 scoped worker host/composition tests passed.
+
+2026-10-05 thorough hunt (dry): cheap-disproof closed hang-diagnostics logger hook and Real-mode startup log parity candidates; 12 scoped worker host/composition tests passed.
 
 2026-10-05 seed hunt (seed→hit): `worker-host` — `ArchLucid.Worker/Program.cs` did not load optional `appsettings.Pilot.json` / `appsettings.Advanced.json` / `appsettings.SaaS.json` before environment variables, so Container Apps worker revisions running `dotnet ArchLucid.Worker.dll` from the shared `/app` image ignored Advanced/SaaS tuning present beside `ArchLucid.Api.dll`; aligned configuration layering with `ArchLucid.Api/Program.cs`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`; 12 focused worker host/composition tests passed.
 
@@ -7999,8 +8197,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
 
-- [ ] (candidate) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs`; reachable input is a hung worker-only Container Apps revision where operators expect the same hang-diagnostics logger hook as the API host.
-- [ ] (candidate) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation; reachable input is production-like worker fleet with `AgentExecution:Mode=Real` and configured Azure OpenAI where operators rely on the API startup confirmation log line.
+- [x] (valid-no-repro) `Program.Main` — Worker skips `appsettings.Pilot.json` for non-Development hosts so Container Apps worker revisions ignore pilot profile tuning — **cheap-disproof 2026-10-06 seed hunt:** `Program.Main` loads optional `appsettings.Pilot.json` when `!builder.Environment.IsDevelopment()` before Advanced/SaaS and a second `AddEnvironmentVariables()` (same ordering as `ArchLucid.Api/Program.cs`); `Worker_host_loads_appsettings_advanced_overlay_from_content_root` already proves post-default JSON overlays bind on the worker host.
+
+- [ ] (candidate) `Program.Main` — No regression test that `appsettings.Pilot.json` is honored for Staging/Production worker hosts (only `appsettings.Advanced.json` is covered today).
+
+- [ ] (candidate) `Program.Main` — No regression test that `appsettings.SaaS.json` is honored on the worker host (same overlay chain as Advanced).
+
+- [ ] (candidate) `Program.Main` — Worker calls `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` while the API re-runs `ArchLucidConfigurationRules.CollectErrors` after `Build()`; an `IValidateOptions` failure at first service resolution could still surface after a passing pre-Build snapshot without a worker-specific repro.
+
+- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline`, so SQL bootstrap failures prevent `/health/live` from being mapped in the same startup attempt (operator may misattribute probe failure to the health pipeline rather than migrations).
+
+- [x] (valid-no-repro) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs` — **cheap-disproof 2026-10-05 thorough hunt:** `ConsoleHangDiagnostics.Log` still emits hang breadcrumbs via the documented stderr fallback when `_logger` is unset (`ArchLucid.Core/Diagnostics/ConsoleHangDiagnostics.cs`); missing the API hook changes log routing only, not hang visibility or request/agent outcomes.
+- [x] (valid-no-repro) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation — **cheap-disproof 2026-10-05 thorough hunt:** method is informational operator confirmation only (`ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` → `AgentExecutionRules.LogInformationWhenRealModeConfigured`); worker Real-mode startup with Managed Identity already succeeds without the line (`Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`).
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge` while the API host applies it before validation — **cheap-disproof 2026-10-05 seed hunt:** bridge is intentionally scoped to `ArchLucid.Api` (legacy key literal); worker does not register `IOptions<ArchitectureRunCreationPayloadLimitsOptions>` and has no `ContextIngestionMaxPayloadMiddleware`; `ContextIngestionRules` still validates a legacy-only flat key at `ValidateOrThrow`.
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent` — **cheap-disproof 2026-10-05 seed hunt:** advisor only emits CORS and browser-auth advisories; the worker pipeline exposes health/metrics only with no CORS or interactive auth stack.
 
@@ -10673,9 +10881,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactExportController.RunArtifacts` download/list paths — sealed-hash guard only — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs listed or downloaded artifacts while run ZIP export returned 409; regressions `ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete` and `DownloadBundleForRun_returns_409_when_authority_lifecycle_not_complete`.
 - [x] (valid-no-repro) `ArchitectureExportController.ExportRunSummary` — controller sealed-hash only — **cheap-disproof 2026-10-05 thorough hunt:** `RunSummaryOnePagerExportService.GenerateMarkdownAsync` calls `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` before building markdown; controller maps `ConflictException` to 409.
 
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — `modelfp`/`ledgerfp` snapshot from entry-time `TryLoadExistingModelAsync`/`TryLoadLedgerEntriesAsync` while improve-loop stages may persist ledger/model updates before publish `Set`; overlapping continue requests with unchanged source texts may `TryGet` hit on pre-mutation fingerprints — **seed 2026-10-05:** needs stage reachability proof that returned bytes omit post-persist ledger rows without a manifest miss on the next request.
-- [ ] (candidate) `ReviewResultCache.PinScope` / `ReviewResultCacheCompositePinScope` — `MaxDistinctPinnedStorageKeys` rejects a new pin while an improve-loop entry is only protected by a deduped composite refcount; churn at cap may evict manifest-keyed bytes before unpin flushes deferred invalidations — **seed 2026-10-05:** reachable via existing pin-cap regression fixtures; wrong outcome would be stale `TryGet` hit after tombstone flush.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult` keys policy off resolved `runId` when client supplied `RunId`, but coalesced cache hits may still carry leader `PublishedToProduct`/`PublishBlocked` mix until `ApplyAnalysisOnlyCoalescedIsolation` runs — **seed 2026-10-05:** reachable via concurrent analysis-only followers after a publish leader; needs repro beyond hunt #1226 sanitize/finalize fixes.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — coalesced publish-policy mix — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
@@ -10701,13 +10909,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 32
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-04 — invalid WorkUnitJson terminal path logged before post-log cancel re-read
+- **hunts:** 40
+- **bugs-found:** 30
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — watchdog notify failure reset reclaimed RetryCount to zero
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (dry): cheap-disproved four seeded candidates (MarkCanceled vs TryAssignUnlessCanceled, processor not-claimable poll, hung execute watchdog vs execute lease TTL, integration outbox dequeue pagination); 74 Host.Core + 15 focused Api tests passed.
+
+2026-10-05 seed hunt (seed→hit): proved in-memory dequeue `Running` assignment cancel race; reseeded four hosted-loop candidates; 74 Host.Core + 13 in-memory queue tests passed.
+
+2026-10-05 thorough hunt (hit): proved `InMemoryBackgroundJobQueue` `TryAssignUnlessCanceled` gap; cheap-disproof closed processor registry-cancel, DLQ pass clock, and parallel duplicate-JobId candidates; 74 Host.Core + 12 in-memory queue tests passed.
 
 2026-10-05 seed hunt (seed-only): re-read durable/in-memory cancel re-read parity, processor registry-cancel path, DLQ auto-retry frozen pass clock, and parallel queue receive; seeded five candidates; 74 Host.Core + 36 focused Api job/processor tests passed.
 
@@ -10728,11 +10942,46 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — after the post-log `_info` cancel re-read, durable `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` performs a second post-log `GetAsync` before `MarkFailedTerminalAsync`; reachable concurrent `MarkCanceledAsync` during the single-threaded assignment window between the lone post-log read and `Failed` write may still overwrite `Canceled` with `Failed` (parity gap vs processor invalid-payload / exhausted-retry terminal paths).
-- [ ] (candidate) `InMemoryBackgroundJobQueue` retry-scheduling branch — `LogWarning` before `Pending` assignment uses one post-log `_info` re-read vs durable dual post-log `GetAsync` before `MarkPendingRetryAsync`; same cancel-between-read-and-assign race class as the closed durable #1352 fix, with only cancel-during-log regression coverage today.
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — when `IOperationCancellationRegistry.IsCancelRequestedAnyScope` is true, the processor always deletes the Azure queue message after `MarkCanceledAsync` even though SQL `MarkCanceledAsync` only updates `Pending`/`Running` rows (`BackgroundJobRepository.MarkCanceledAsync` WHERE clause); reachable duplicate notification for a row already in a terminal state relies on `TryPrepareQueuedJobAsync` to delete stale messages on the next poll.
-- [ ] (candidate) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` — captures `utcNow` once per leader pass; rows whose `DeadLetteredUtc` backoff elapses while the paginated `ListDeadLettersAsync` loop is still running remain skipped until the next 15-minute pass (latency tradeoff, not a missing `TimeProvider` injection bug — needs product contract proof before hunt-ready).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — `BoundedBatchParallelism.ForEachAsync` over Azure queue messages can dequeue multiple notifications for the same `JobId` concurrently; correctness depends on `TryPrepareQueuedJobAsync` `UPDLOCK` claim semantics and deleting notifications when the row is already `Running`/`terminal` (duplicate side effects if claim rules regress).
+- [x] (proven) `InMemoryBackgroundJobQueue.EnqueueAsync` — canceled `WaitAsync(0, cancellationToken)` after inserting `_info`/`_workUnits` left orphan `Pending` jobs without channel work items — **hit 2026-10-05 seed hunt:** remove inserted state and release any acquired pending slot on `OperationCanceledException`; regression `EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job`.
+
+- [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — post-insert `SendJobIdAsync` `OperationCanceledException` mishandled as notify failure or left orphan `Pending` rows — **hit 2026-10-05 thorough hunt:** best-effort `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService` success path — blob upload before cancel re-reads — **cheap-disproof 2026-10-05 thorough hunt:** cancel skips `MarkSucceededAsync` by design (`ProcessOneMessageAsync_does_not_mark_succeeded_when_cancel_visible_before_success_assignment`); orphan blobs without `ResultBlobName` are storage hygiene only, not incorrect job state.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue` success path — `_files` assigned before cancel re-reads — **cheap-disproof 2026-10-05 thorough hunt:** cancel-wins on `State` is the supported contract (`MarkCanceled_while_running_does_not_overwrite_with_succeeded`); incidental file retention on `Canceled` rows is not a queue state defect.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` registry-cancel branch — **cheap-disproof 2026-10-05 thorough hunt:** deleting stale notifications after `MarkCanceledAsync` matches prior processor not-claimable / registry-cancel dry-hunt contract; `TryPrepareQueuedJobAsync` prevents duplicate execution on terminal rows.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.MarkCanceledAsync` outside `TryAssignUnlessCanceled` — **cheap-disproof 2026-10-05 thorough hunt:** intentional cancel-wins ordering documented by `MarkCanceled_while_running_does_not_overwrite_with_succeeded`; `TryAssignUnlessCanceled` guards executor transitions, not user cancel entry.
+
+- [x] (valid-no-repro) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` cancel during SQL — **cheap-disproof 2026-10-06 thorough hunt:** `BackgroundJobRepository.CapacityInsert` `catch` rolls back the transaction; no committed orphan on `OperationCanceledException`.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry backoff interrupted by `stoppingToken` — **cheap-disproof 2026-10-06 thorough hunt:** `Task.Delay` OCE exits before `SendMessageAsync`; Azure message remains for visibility retry (intentional).
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.EvictOldTerminalJobs` — poll after eviction returns null — **cheap-disproof 2026-10-06 thorough hunt:** bounded terminal retention by design; regression `EvictOldTerminalJobs_AfterMoreThan200Succeeded_OldestJobRemoved`.
+- [x] (valid-no-repro) `BackgroundJobStuckRunningWatchdogBackgroundWork` — mid-batch shutdown trailing notify — **cheap-disproof 2026-10-06 thorough hunt:** trailing reclaimed ids wait for next pass (#1429 batch semantics); `cancellationToken` honored in notify loop.
+
+- [x] (proven) `InMemoryBackgroundJobQueue.ExecuteAsync` — retry backoff `Task.Delay(..., stoppingToken)` interrupted by host stop left `Pending` jobs without channel work items — **hit 2026-10-06 thorough hunt:** `TryRequeuePendingRetryWorkItemAsync` on shutdown-interrupted delay; regression `StopAsync_during_retry_backoff_requeues_pending_job_for_next_start`.
+
+2026-10-06 thorough hunt (hit): cheap-disproof closed four seeded candidates; proved in-memory retry orphan on shutdown-interrupted backoff; reseeded four candidates; 75 Host.Core + 42 focused Api background-job tests passed.
+
+- [x] (valid-no-repro) `DurableBackgroundJobQueue.EnqueueAsync` — `TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` swallows `MarkCanceledAsync` failures — **cheap-disproof 2026-10-06 thorough hunt:** best-effort cleanup after caller-cancelled enqueue; exceptional SQL failures are operational, not a reachable happy-path defect without inventing fault injection.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` before backoff when shutdown interrupts delay — **cheap-disproof 2026-10-06 thorough hunt:** undeleted Azure message visibility retry is intentional; `TryPrepareQueuedJobAsync` claim rules prevent duplicate execution (`ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`).
+- [x] (proven) `InMemoryBackgroundJobQueue.TryRequeuePendingRetryWorkItemAsync` — shutdown-interrupted retry backoff that could not re-acquire pending capacity left orphan `Pending` rows — **hit 2026-10-06 thorough hunt:** terminal `Failed` assignment when re-queue fails during host stop (parity with post-delay capacity exhaustion).
+- [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork` — notify failure after stale reclaim called `MarkFailedTerminalAsync` with `retryCount: 0`, overwriting reclaimed attempt counts — **hit 2026-10-06 thorough hunt:** persist `current.RetryCount`; regression `RunSinglePassAsync_preserves_reclaimed_retry_count_when_queue_notify_fails`.
+
+2026-10-06 thorough hunt (hit): proved watchdog reclaimed retry-count regression and in-memory shutdown re-queue failure orphan; cheap-disproof closed enqueue cancel cleanup swallow and durable retry shutdown redelivery; reseeded four candidates; 76 Host.Core + 45 focused Api background-job tests passed.
+
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — notify-failure `MarkFailedTerminalAsync(..., retryCount: 0)` on brand-new inserts may mis-report when `TryInsertPendingJobIfUnderCapacityAsync` reused a row shape with non-zero `RetryCount` (verify insert always starts at zero).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — capacity-exhausted retry path deletes the Azure message after `MarkFailedTerminalAsync` while row remains `Failed` with elevated `RetryCount` (client poll vs operator metrics parity).
+- [ ] (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — host stop during retry backoff marks `Failed` when re-queue fails but leaves `_workUnits` entries for terminal rows until eviction (memory retention vs `GetInfoAsync` poll contract).
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — notify failure uses first `GetAsync` cancel re-read only; racing `MarkCanceledAsync` between re-reads may still reach `MarkFailedTerminalAsync` (mirror processor dual re-read parity).
+
+- [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
+
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.MarkCanceledAsync` vs `TryAssignUnlessCanceled` — **cheap-disproof 2026-10-05 thorough hunt:** executor transitions use `AddOrUpdate` that refuses to overwrite `Canceled`; cancel spam stress `MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled` plus dequeue/terminal regressions; no deterministic failing repro for transient `Running`/`Pending` after cancel.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` not-claimable poll — **cheap-disproof 2026-10-05 thorough hunt:** `TryPrepareQueuedJobAsync` returns `ShouldRunExecutor=false` when `UPDLOCK` claim loses (`affected == 0`); leaving the Azure message for visibility retry is intentional; duplicate execution prevented by claim rules and immediate delete for terminal/`Running` duplicates; regression `ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`.
+- [x] (valid-no-repro) `HungReviewExecuteWatchdogHostedService` vs execute ownership lease — **cheap-disproof 2026-10-05 thorough hunt:** watchdog marks stale `WaitingForResults` runs failed via `HungReviewExecuteWatchdogSql` (`StaleHours` default 2h); it does not reclaim `RunExecuteOwnership` leases; default `LeaseDurationSeconds` 900 with `RunExecuteOwnershipLeaseRenewalScope` renewal is shorter than staleness threshold when renewal is active.
+- [x] (valid-no-repro) `IntegrationEventOutboxHostedService` dequeue pagination — **cheap-disproof 2026-10-05 thorough hunt:** `IntegrationEventOutboxSql.DequeuePending` filters `DeadLetteredUtc IS NULL` and eligible `NextRetryUtc`; dead-lettered rows do not occupy pending dequeue slots; distinct from the proven 2026-08-23 DLQ retry list-cap defect.
+
+- [x] (proven) `InMemoryBackgroundJobQueue` exhausted-retry / retry-scheduling / capacity / writer terminal assignments — **hit 2026-10-05 thorough hunt:** post-log cancel re-reads could still lose to `MarkCanceledAsync` on a `Running` row when cancel landed after the last read; assignments now use `TryAssignUnlessCanceled` so `Canceled` is never overwritten; regression `MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed` plus existing cancel-during-log regressions.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` registry-cancel path — **cheap-disproof 2026-10-05 thorough hunt:** deleting the Azure notification after a no-op `MarkCanceledAsync` on an already-terminal row is intentional stale-message cleanup; `TryPrepareQueuedJobAsync` returns `ShouldDeleteQueueMessageImmediately` for terminal/`Running` duplicates.
+- [x] (valid-no-repro) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` frozen pass clock — **cheap-disproof 2026-10-05 thorough hunt:** single `TimeProvider` snapshot per pass is intentional after #423 TimeProvider fix; deferring rows until the next 15-minute leader pass is latency-only, not a wrong retry outcome.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` parallel receive for duplicate `JobId` — **cheap-disproof 2026-10-05 thorough hunt:** `TryPrepareQueuedJobAsync` `UPDLOCK` claim and immediate delete for non-claimable rows prevent duplicate execution under current SQL semantics; no failing repro without regressing claim rules.
 
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue` exhausted-retry terminal branch — **valid-no-repro 2026-10-04 dry:** pre-log `_info` re-read before `LogError` plus post-log re-read before `Failed` assignment; `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read` covers cancel during log; cancel-between-reads on the single consumer thread matches prior retry-scheduling race classification.
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue` retry capacity-exhausted branch — **valid-no-repro 2026-10-04 dry:** pre-log re-read before capacity `LogError` plus post-log re-read before terminal `Failed`; regression `MarkCanceled_during_retry_capacity_exhausted_does_not_overwrite_with_failed_after_second_state_read`.
@@ -10915,13 +11164,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 44
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-03 — consumed OTP return URL bypassed safe-path validation
+- **hunts:** 50
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `buildProxyUpstreamHeaders` resolved operator scope from `request.headers` only, so production posture ignored HttpOnly BFF JWT claims when the browser omitted `Authorization` and attached trusted `ARCHLUCID_PROXY_*` scope instead; fixed by passing the effective upstream bearer into `resolveProxyUpstreamScopeHeaders`; regression in `proxy-upstream-headers.test.ts`; scoped auth/proxy vitest 328 passed with 3 unrelated baseline seam failures.
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `buildProxyUpstreamHeaders` applied production trusted `ARCHLUCID_PROXY_*` scope fallbacks on `isPublicAnonymousProxyPath` routes while ignoring browser registration scope headers needed by `first-tenant-funnel`; fixed with `resolveAnonymousPublicProxyScopeHeaders` (inbound browser scope + demo-run parity only); regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`; scoped auth/proxy vitest 326 passed with 3 unrelated baseline seam failures.
+
+2026-10-05 thorough hunt (hit): promoted two seeded candidates — proved `buildProxyUpstreamHeaders` still preferred HttpOnly BFF `Authorization` on `isPublicAnonymousProxyPath` routes (e.g. `v1/diagnostics/first-tenant-funnel`), risking wrong tenant scope when per-tenant funnel emission is enabled; fixed by using browser `Authorization` only on anonymous paths; proved `recordCorePilotRailChecklistStep` accepted indices 4–5 while API rejects `stepIndex > 3`; aligned client guard to 0–3; cheap-disproved email-OTP 403 mapping regression (no reachable proxy 403 without allowlist removal) and pulse without CSRF companion (intentional LK-07); regressions in `proxy-upstream-headers.test.ts` and `core-pilot-rail-telemetry.test.ts`; scoped auth/proxy vitest 324 passed with 3 unrelated baseline seam failures.
+
+2026-10-05 seed hunt (seed-only): re-read BFF/proxy forwarding, anonymous allowlist parity, email-OTP and bootstrap clients, and keepalive paths after the diagnostics allowlist hit; cheap-disproved core-pilot step-index mismatch (only step 3 is emitted today) and idle keepalive without CSRF companion (intentional LK-07); no hunt-ready row met the failing-repro bar; seeded four bounded candidates below; scoped auth/proxy vitest 322 passed with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `recordCorePilotRailChecklistStep` POST to `[AllowAnonymous]` `v1/diagnostics/core-pilot-rail-step` omitted BFF CSRF and was missing from `isPublicAnonymousProxyPath`, so LK-07 returned 401/403 when a stale HttpOnly BFF cookie was present (same class as #1253 pre-auth routes); extended allowlist with exact `core-pilot-rail-step` and `first-tenant-funnel` paths; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`; scoped auth/proxy vitest 322 passed with 3 unrelated baseline seam failures.
+
+2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `reportClientError` posted to `/api/proxy/v1/diagnostics/client-error` without `applyBffCsrfHeader`, so LK-07 blocked signed-in operators with an active BFF session (403) while marketing and pre-auth routes already skip CSRF; fixed in `error-telemetry.ts`; regressions in `error-telemetry.test.ts` and `proxy-bff-session-guard.test.ts`; scoped auth/proxy vitest 319 passed with 3 unrelated baseline seam failures.
 
 2026-10-04 thorough hunt (dry): cheap-disproved all four seeded candidates — evaluate routing `returnPath` has no in-zone consumer; `.json` matcher skip is intentional with explicit `/api/proxy/:path*` host gate (proven 2026-09-25); partial email-OTP session restore shows code step but verify rejects missing `challengeId`; LS-010 bootstrap redirect is tested intentional when dedicated scope cannot apply; scoped vitest 218 passed / 3 baseline seam failures.
 
@@ -10930,6 +11191,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [x] (proven) `buildProxyUpstreamHeaders` / `resolveProxyUpstreamScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** protected proxy calls derived scope from raw `request.headers` while upstream `Authorization` came from the HttpOnly BFF cookie, so production posture ignored JWT `tenant_id` claims and fell back to trusted `ARCHLUCID_PROXY_*` env scope; fixed by feeding the effective upstream bearer into scope resolution; regression in `proxy-upstream-headers.test.ts`.
+
+- [x] (proven) `buildProxyUpstreamHeaders` / `resolveAnonymousPublicProxyScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** production-like proxy posture attached trusted host `ARCHLUCID_PROXY_*` scope headers to `isPublicAnonymousProxyPath` routes without browser input, and dropped inbound registration scope on `v1/diagnostics/first-tenant-funnel`; fixed by resolving anonymous public paths via `resolveAnonymousPublicProxyScopeHeaders`; regressions in `proxy-upstream-headers.test.ts` and `proxy-scope-resolution.test.ts`.
+
+- [x] (proven) `core-pilot-rail-telemetry.ts` `recordCorePilotRailChecklistStep` — **hit 2026-10-05 thorough hunt:** client accepted `stepIndex` 4–5 but `POST /v1/diagnostics/core-pilot-rail-step` rejects `stepIndex > 3`; callers of the exported helper would POST and receive HTTP 400 with telemetry dropped silently; fixed by aligning the client guard to 0–3; regression `core-pilot-rail-telemetry.test.ts`.
+- [x] (proven) `buildProxyUpstreamHeaders` — **hit 2026-10-05 thorough hunt:** `isPublicAnonymousProxyPath` skipped the configured server bearer but still forwarded HttpOnly BFF session `Authorization` on routes such as `v1/diagnostics/first-tenant-funnel`, which can bind `FirstTenantFunnelEmitter` to the prior tenant when per-tenant emission is enabled; fixed by using only explicit browser `Authorization` on anonymous paths; regressions in `proxy-upstream-headers.test.ts`.
+- [x] (invalid) `email-otp-api.ts` `mapStatusToFailureCategory` — **invalid 2026-10-05 thorough hunt:** pre-auth email-OTP proxy paths remain on `isPublicAnonymousProxyPath`; no in-zone repro of proxy 403 without a hypothetical allowlist regression; mapping 403 to `unknown` is conservative for unclassified failures.
+- [x] (valid-no-repro) `pulseBffSessionActivity` (`bff-session-sync.ts`) — **valid-no-repro 2026-10-05 thorough hunt:** activity POST requires CSRF parity with other BFF mutations (`activity/route.ts`); skipping pulse when the readable CSRF cookie is missing is intentional, not idle-keepalive bypass.
+
+- [x] (proven) `core-pilot-rail-telemetry.ts` / `isPublicAnonymousProxyPath` — **hit 2026-10-05 seed hunt (seed→hit):** `POST /api/proxy/v1/diagnostics/core-pilot-rail-step` is `[AllowAnonymous]` on `ClientErrorTelemetryController` but was absent from the public anonymous proxy allowlist; fire-and-forget `fetch` omits BFF CSRF; `enforceProxyBffSessionGuard` blocked mutations when a stale or active HttpOnly BFF cookie was present; checklist telemetry silently dropped; fixed by adding exact-path allowlist entries for `core-pilot-rail-step` and sibling `first-tenant-funnel`; regressions in `proxy-anonymous-marketing-paths.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-route-pre-auth-anonymous.test.ts`.
+
+- [x] (proven) `reportClientError` / `error-telemetry.ts` — **hit 2026-10-05 seed hunt (seed→hit):** production `POST /api/proxy/v1/diagnostics/client-error` used raw `fetch` without `applyBffCsrfHeader`; `enforceProxyBffSessionGuard` returned 403 for mutating non-anonymous paths when a valid HttpOnly BFF session was present (unlike marketing and pre-auth allowlist bypasses); operator-shell error boundaries silently dropped telemetry; fixed by applying BFF CSRF headers before the proxy POST; regressions in `error-telemetry.test.ts` and `proxy-bff-session-guard.test.ts`.
 
 - [x] (invalid) `evaluateAuthSignInRouting` / `AuthSignInRoutingApiResponse.returnPath` — **invalid 2026-10-04 dry:** `use-sign-in-flow-state.ts` passes `safeReturnUrl` from query into evaluate and never navigates using API `returnPath`; no other in-zone caller consumes the field — hypothetical future caller is out of scope.
 - [x] (valid-no-repro) `proxy.ts` `config.matcher` — **valid-no-repro 2026-10-04 dry:** `.json` suffix exclusion is intentional for static assets; host gate for BFF JSON is covered by explicit `/api/proxy/:path*` matcher (proven 2026-09-25); contrived `.json` pathname bookmarks are not product routes.
@@ -11130,6 +11404,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: agent-runtime-safety
+
+2026-10-06 seed hunt (seed→hit): `ContentSafetyEnabledButUnconfiguredGuard` honored cooperative cancellation before misconfiguration throw; 582 scoped agent-runtime-safety tests passed.
+
+2026-10-06 thorough hunt (hit): cancel-contract parity on disabled and circuit-breaking guards; closed truncation/streaming/note-type candidates; 605 scoped agent-runtime-safety tests passed.
+
+2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard.AnalyzeAsync` returned allowed for whitespace-only scans without honoring a cancelled token; `ThrowIfCancellationRequested` before the whitespace shortcut; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`; seeded five follow-up candidates; 577 scoped agent-runtime-safety tests passed.
 
 2026-10-02 thorough hunt (dry): cheap-disproved the disabled-guard cancellation candidate because `NullContentSafetyGuard` is an intentional pass-through used only when content safety is disabled and its focused tests establish allowed/no-category behavior; 575 focused tests passed with analyzers disabled.
 
@@ -11999,13 +12279,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 56
-- **last-hunt:** 2026-10-02
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
+- **hunts:** 59
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-06 — unconfigured content safety guard surfaced config error instead of cooperative cancellation
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): `ContentSafetyEnabledButUnconfiguredGuard` cancel-before-misconfiguration throw; 582 scoped agent-runtime-safety tests passed.
+
+2026-10-06 thorough hunt (hit): cancel-contract parity on `NullContentSafetyGuard` and `CircuitBreakingContentSafetyGuard`; cheap-disproof/invalid closed three seeded candidates; 605 scoped agent-runtime-safety tests passed.
+
+2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard` whitespace early-return skipped `ThrowIfCancellationRequested`; fixed before non-cancellable allow path; 577 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
@@ -12019,9 +12305,31 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `AzureContentSafetyGuard.AnalyzeAsync` — whitespace-only input returns allowed without checking `CancellationToken` — **hit 2026-10-06 seed hunt:** `string.IsNullOrWhiteSpace` short-circuit ran before cooperative cancel; host shutdown could complete a no-op allow while callers expected `OperationCanceledException`; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`.
+
+- [x] (proven) `NullContentSafetyGuard` — pass-through allowed scans while `CancellationToken` already cancelled — **hit 2026-10-06 thorough hunt:** disabled guard returned allowed without `ThrowIfCancellationRequested`; regression `CheckInputAsync_when_token_cancelled_throws_operation_canceled_even_for_whitespace`.
+
+- [x] (proven) `CircuitBreakingContentSafetyGuard.GuardAsync` — circuit-open degraded allow path scrubbed while `CancellationToken` already cancelled — **hit 2026-10-06 thorough hunt:** `GuardAsync` invoked deny-list scrub before cooperative cancel; regression `When_circuit_open_and_token_cancelled_does_not_scrub_before_throwing`.
+
+- [x] (invalid) `AgentEvidenceUntrustedInputSanitizer` — `EvidenceNote.NoteType` is not sanitized — **cheap-disproof 2026-10-06 thorough hunt:** `AgentUserPromptComposer` filters on `NoteType` and renders only staged-summary `Message` bodies; `NoteType` never reaches agent user prompts.
+
+- [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — tight char budget at an open `CUSTOMER_CONTENT_BEGIN` may leave a truncated section unclosed — **cheap-disproof 2026-10-06 thorough hunt:** when `EndMarker` cannot fit, implementation strips back to before the open begin marker; regression `TruncatePreservingSectionBounds_when_budget_cannot_fit_end_marker_strips_back_before_open_begin_marker`.
+
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — buffered chunks retained for entire completion before output scan — **cheap-disproof 2026-10-06 thorough hunt:** pre-yield buffering is the intentional output-safety boundary (reconfirmed 2026-10-02); no failing repro under the zone fix bar.
+
 - [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` mutates evidence and request objects in place, so repeated sanitization of the same objects may nest `<untrusted_input>` wrappers and grow prompt content — cheap-disproof 2026-10-02 thorough hunt: `AgentLoopPrepareStage.PrepareAsync` builds a fresh evidence package and request, then invokes the sanitizer once; no production caller provides the required repeated-object reachability.
 - [x] (valid-no-repro) `NullContentSafetyGuard.CheckInputAsync` and `CheckOutputAsync` ignore an already-canceled token and return allowed — cheap-disproof 2026-10-02 thorough hunt: the guard is an intentional disabled-content-safety pass-through and focused tests establish allowed/no-category behavior; no cancellation-contract failure was reproduced.
-- [x] (valid-no-repro) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — cheap-disproof 2026-10-02 thorough hunt: the guard intentionally throws a deterministic configuration error before any cancellable operation; no cancellation-contract failure was reproduced.
+- [x] (proven) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — **hit 2026-10-06 seed hunt:** misconfigured enabled-without-client hosts threw `InvalidOperationException` during cooperative shutdown instead of `OperationCanceledException`; `ThrowIfCancellationRequested` before fail-fast throw; regression `CheckInputAsync_when_token_cancelled_throws_operation_canceled_before_configuration_error`.
+
+- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — method entry does not call `ThrowIfCancellationRequested` before guard scans (relies on guard/inner only).
+
+- [ ] (candidate) `AzureContentSafetyGuard.AnalyzeAsync` — `OperationCanceledException` from the Azure SDK is excluded from `HandleSdkFailure` but may still be logged as a warning before rethrow depending on SDK behavior.
+
+- [ ] (candidate) `AgentRunHeaderPromptSanitizer.SanitizeOutsideQuarantineField` — `IsNullOrWhiteSpace` returns empty string without collapsing embedded Unicode line separators in header identifiers.
+
+- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — duplicate keys after `Trim()` collapse via case-insensitive dictionary (last-writer) without deterministic ordering signal to operators.
+
+- [ ] (candidate) `CustomerContentPromptDelimiters.AppendQuarantinedSection` — `FramingInstruction` line is trusted host text placed immediately outside begin marker (customer prose cannot spoof it, but truncation helpers must preserve it).
 - [x] (invalid) `CustomerContentPromptDelimiters.AppendQuarantinedSection` writes callback content directly between the begin/end markers — cheap-disproof 2026-10-02 thorough hunt: every production caller escapes customer content before writing it, so the callback-level concern has no reachable untrusted-input path.
 - [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` returns an allowed result after `IPromptRedactor.RedactAlways` without proving that every harmful category is covered by the deny-list — cheap-disproof 2026-10-02 thorough hunt: the existing fail-open scrub/audit coverage showed the intended degraded boundary and no failing repro for an uncovered denial category.
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` trims tag keys but wraps only tag values — cheap-disproof 2026-10-02 thorough hunt: `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` documents that tag keys are not production prompt inputs.
@@ -12294,13 +12602,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 38
-- **bugs-found:** 26
+- **hunts:** 40
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — proof-pack deltas JSON boolean parsing threw on non-boolean isDemoTenant
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — buyer proof pack-manifest and DemoDataWarning omitted sample-run caution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted `isSampleRun` honesty gap — `BuyerProofPackBuilder` wrote `isSampleRun` into `pilot-run-deltas.json` from `GetRunSummaryAsync` but `limitations-and-next-actions.md` only honored `isDemoTenant` for the demo/sample banner; wire `deltasResponse.IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; cheap-disproved unsafe ZIP filename, partial board-pack quarter override, and non-GUID receipt-skip candidates; 25 scoped BuyerProofPack/BoardPack tests plus 3 limitations markdown tests passed.
+
+2026-10-05 seed hunt (seed→hit): extended sample-run caution to `pack-manifest.json` and `BuyerProofPackBuildResult.DemoDataWarning`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`; 26 scoped BuyerProofPack/BoardPack tests passed.
+
+- [x] (proven) `BuyerProofPackBuilder` — `pack-manifest.json` / `DemoDataWarning` ignored `isSampleRun` while deltas JSON included it — **hit 2026-10-05 seed hunt:** `cautionWarning = demoWarning || deltasResponse.IsSampleRun`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`.
 
 2026-09-27 seed hunt (seed→hit): reseeded application-pilots after advisory-inflation fix; proved `preferSnapshotMaterialFindings` from stronger snapshot governed coverage still replaced agent `FindingsBySeverity` and `TopFindingId` when agent held a higher-severity governed Critical not yet in snapshot; fixed by requiring equal governed counts for under-count snapshot preference and skipping snapshot severity/top override when agent max severity outranks snapshot; regressions `ComputeAsync_WhenAgentHasHigherSeverityGovernedFinding_KeepsAgentBucketsDespiteSnapshotGovernedCount` plus prior advisory-inflation test; 56 scoped BuyerProofPack/BoardPack/PilotRunDelta/SponsorDecisionDelta tests passed.
 
@@ -12415,11 +12729,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PilotSponsorMaterialFindingsResolver.Resolve` — equal maximum severity with agent over-count keeps agent material — **cheap-disproof 2026-10-03 thorough hunt:** the `agentFindings.Count > snapshot.Count` branch uses `>=` max-severity preference and returns persisted narrative findings on the equal-rank case.
 - [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — any non-empty `baseUrlForLinks` is accepted without validating link usability — **cheap-disproof 2026-10-03 thorough hunt:** public pilot controllers derive the base URL from `Request.Scheme` and `Request.Host.Value`; arbitrary external base URLs do not reach this builder through the live route.
 - [x] (valid-no-repro) `PilotRunDeltaComputer.ResolveManifestCommittedUtc` — future manifest metadata inflates time-to-commit — **cheap-disproof 2026-10-03 thorough hunt:** the completed-UTC preference and future-timestamp regression already close this path.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — non-GUID `runId` values skip the application-level sealed export receipt verification before packaging a buyer artifact; input originates from the public sponsor-proof-pack route's `{runId}` path and needs a committed non-GUID run fixture.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — the returned ZIP filename includes the raw route `runId`, so a route token containing filename-significant characters could produce an unsafe `Content-Disposition` name; input originates from the public `{runId}` route and needs an ASP.NET `File` result/header repro.
-- (candidate) `BoardPackQuarterWindow.Resolve` — supplying only one of `PeriodStartUtc` or `PeriodEndUtc` silently discards the supplied bound and uses the full calendar quarter; input originates from the public board-pack request body and needs confirmation of the partial-window contract.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — non-GUID `runId` skips sealed export receipt — **cheap-disproof 2026-10-05 seed hunt:** `ArchitectureRun.RunId` is contractually a GUID-shaped identifier; duplicate of 2026-10-03 invalid row.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — raw route `runId` in ZIP filename — **cheap-disproof 2026-10-05 seed hunt:** committed runs resolve through scoped `GetRunDetailAsync`; pathological tokens do not match persisted run ids.
+- [x] (invalid) `BoardPackQuarterWindow.Resolve` — partial override window — **cheap-disproof 2026-10-05 seed hunt:** both bounds required by design; regression `Resolve_returns_calendar_quarter_window_when_overrides_absent` (#1570).
 - [x] (proven) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — malformed or string `isDemoTenant` JSON types threw from `GetBoolean` instead of fail-closed validation — **hit 2026-10-04 seed hunt:** `TryParseJsonBoolean` for `isDemoTenant` and `runInCommittedStatus`; regressions `TryValidateDeltasJson_accepts_string_boolean_is_demo_tenant_without_throwing` and `TryValidateDeltasJson_when_is_demo_tenant_malformed_returns_false_instead_of_throwing`.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a missing `GetRunSummaryAsync` result defaults `isSampleRun` to false and may omit sample/demo honesty in the proof package; input originates from the authority summary lookup for a committed run and needs a repository-degraded response fixture.
+- [x] (proven) `BuyerProofPackBuilder` / `BuyerProofPackLimitationsMarkdown` — `isSampleRun` true in deltas JSON but limitations markdown only keyed off `isDemoTenant` — **hit 2026-10-05 seed hunt:** pass `deltasResponse.IsSampleRun` into limitations builder; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`.
+- [x] (valid-no-repro) `BuyerProofPackBuilder.TryBuildZipAsync` — missing `GetRunSummaryAsync` defaults `isSampleRun` false — **cheap-disproof 2026-10-05 seed hunt:** degraded summary lookup is indistinguishable from a non-sample run at pack build time; honesty banner fix covers the reachable `IsSample=true` summary path.
 - [x] (proven) `PilotValueReportService.BuildAsync` — run-detail cap used `Take` on ascending-sorted committed runs, omitting newest pilots from findings/timeline aggregation — **hit 2026-10-04 seed hunt:** `TakeLast(DefaultRunDetailCap)`; regression `BuildAsync_when_run_detail_cap_exceeded_loads_newest_runs_not_oldest`.
 - [x] (proven) `PilotRunDeltaComputer.ComputeAsync` / `TryLoadFindingsSnapshotAsync` — zero-row persisted snapshot treated as unavailable, leaving stale agent severity/top findings in buyer deltas — **hit 2026-10-04 seed hunt:** load empty snapshots and clear agent-derived findings; regression `ComputeAsync_WhenPersistedFindingsSnapshotIsEmpty_ClearsStaleAgentSeverityBuckets`.
 - [x] (proven) `PilotValueReportService.BuildAsync` — audit export at exactly `AuditExportMaxRows` rows marked truncated with no additional rows — **hit 2026-10-04 seed hunt:** over-fetch one row and set `AuditExportTruncated` only when count exceeds cap; regression `BuildAsync_when_audit_export_equals_cap_does_not_mark_truncated`.
@@ -14781,13 +15096,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 463
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 3503
+- **hunts:** 464
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 3504
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — `GraphSnapshotKnowledgeModelMerger` left padded context edge endpoints after model node deduplication
+- **last-bug:** 2026-10-06 — `GraphSnapshotKnowledgeModelMerger` left padded model edge endpoints uncorrected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted and proved `GraphSnapshotKnowledgeModelMerger` left model-graph edge endpoints unpadded while context edges were canonicalized; fixed by canonicalizing model and context edges through the same lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
 
 2026-10-05 seed hunt (seed→hit): promoted and proved `GraphSnapshotKnowledgeModelMerger` context edges could keep whitespace-padded `FromNodeId`/`ToNodeId` after model nodes deduplicated by trim; fixed by resolving endpoints to canonical merged node ids; regression `Merge_canonicalizes_context_edge_endpoints_when_model_node_id_is_trimmed`. Scoped `FullyQualifiedName~ArchLucid.Core` passed 7204/7204; KnowledgeGraph merger suite 7/7.
 
@@ -14812,6 +15129,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — model-graph edges kept padded `FromNodeId`/`ToNodeId` while merged nodes used trim-normalized ids — **hit 2026-10-06 seed hunt:** canonicalize model edges through the same endpoint lookup as context edges; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context graph edge endpoints differ from model node ids only by outer whitespace — deduplication skipped the context node but appended the edge with padded `FromNodeId`/`ToNodeId`, leaving dangling endpoints in the merged snapshot; **hit 2026-10-05 seed hunt:** resolve endpoints against canonical merged node ids before append; regression `Merge_canonicalizes_context_edge_endpoints_when_model_node_id_is_trimmed`.
 
@@ -22500,6 +22819,46 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-05 seed hunt (seed→hit): terraform `planned_values` root + compose-env list URL misparsed; 807 scoped tests passed.
+
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.ParseAsync` — `terraform plan -json` pasted with `format=terraform-show-json` returned no resources because only `values` was accepted — **hit 2026-10-05 seed hunt:** `TryGetTerraformShowValuesRoot` also accepts `planned_values` / `plannedValues`; regression `ParseAsync_planned_values_root_module_emits_canonical_resource`.
+- [x] (proven) `ComposeEnvInfrastructureDeclarationParser` — YAML list `environment: [ - KEY=https://host ]` emitted nothing because map regex matched the colon in `https://` — **hit 2026-10-05 seed hunt:** parse `KEY=value` list lines before map-style regex; regression `ComposeEnv_environment_list_emits_proposed_host`.
+- [x] (valid-no-repro) `DotenvInfrastructureDeclarationParser` — `export KEY=value` lines — **cheap-disproof 2026-10-05 seed hunt:** value URL still parsed for host inference; setting name retains `export` prefix (separate hygiene candidate).
+
+- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — strip optional `export` shell prefix before `KEY=value` so `SettingName` and proposal names stay canonical — **seed 2026-10-05:** reachable `format=dotenv` pastes from shell scripts.
+- [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — treat top-level `services:` as structural key (not a service name) so nested `environment:` blocks bind to the correct service — **seed 2026-10-05:** multi-service compose-env extracts per SN-RT-09.
+- [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` — multi-doc `---` YAML with snake_case pod fields not projected on second document — **seed 2026-10-05:** parity with kubernetes-json snake_case tests.
+- [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform rows differing in `tf.tainted` / `mode` may collapse when type/name/occurrence match — **seed 2026-10-05:** repeated connector normalize batches.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — raw state JSON without `values` wrapper (legacy top-level `modules`) — **seed 2026-10-05:** mislabeled uploads still using `terraform-show-json` format.
+
+2026-10-05 seed hunt (seed→hit): short `DiagramSourceFormats` token + `; charset=utf-8` rejected by diagram parsers after MIME charset fix; `DiagramSourceFormats.Is*Format`; 804 scoped tests passed.
+
+- [x] (proven) `StructuredDiagramParseRouter` / `IDiagramSourceParser.CanParse` — short tokens such as `mermaid; charset=utf-8` returned unsupported format while bare `mermaid` and MIME+charset worked — **hit 2026-10-05 seed hunt:** `DiagramSourceFormats.Is*Format` strips parameter suffix before short-token compare; regression `Parse_MermaidShortTokenWithCharsetParameter_YieldsNodesAndEdges`.
+- [x] (valid-no-repro) `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` — RFC 2045 quoted charset parameter values (`text/plain; charset="utf-8"`) — **cheap-disproof 2026-10-05 seed hunt:** base MIME is before first `;`; `IsSupported_MatchesCanonicalList` inline case.
+- [x] (invalid) `InfrastructureDeclarationsPayloadNormalizer` / `IInfrastructureDeclarationParser.CanParse` — parameterized declaration `format` (`terraform-show-json; charset=utf-8`) — **cheap-disproof 2026-10-05 seed hunt:** `InfrastructureDeclarationRequestValidator.SupportedFormats` exact match at API; not production-reachable.
+- [x] (valid-no-repro) `ContextIngestionRequestMapper.FromArchitectureRequest` — raw `ContentType` on reference vs normalized `DocumentId` — **cheap-disproof 2026-10-05:** `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`.
+- [x] (valid-no-repro) `PlainTextContextDocumentParser` — `text/markdown; charset=utf-8` vs `text/plain; charset=utf-8` routing — **cheap-disproof 2026-10-05:** both normalize to distinct supported types; same parser by design.
+
+- [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — `environment:` list entries (`- KEY=value`) under compose-env declarations — **seed 2026-10-05:** map-style lines are parsed; reachable `format=compose-env` uploads with YAML list env blocks per SN-RT-09.
+- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — lines prefixed with `export ` before `KEY=value` — **seed 2026-10-05:** shell-style dotenv extracts may be pasted verbatim; reachability `format=dotenv` on architecture requests.
+- [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` / `KubernetesYamlContentParser` — multi-doc YAML with `---` separators and mixed camelCase vs snake_case pod fields — **seed 2026-10-05:** parity with kubernetes-json snake_case projection paths.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — top-level `state` / `state_version` roots instead of `values` for non-show JSON exports — **seed 2026-10-05:** pasted terraform JSON variants in `terraform-show-json` declarations.
+- [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform resources differing only in `tf.tainted` or `mode` may collapse when type/name/occurrence match — **seed 2026-10-05:** reachable duplicate rows from repeated connector normalize passes.
+
+2026-10-05 seed hunt (seed-only): MIME charset delta + five candidates; 803 scoped tests passed.
+
+2026-10-05 seed hunt (seed→hit): diagram router MIME charset on SVG/diagram-json/draw.io/vsdx `CanParse`; 802 scoped tests passed.
+- [x] (valid-no-repro) `ContextIngestionStableReferenceIds.ForDocument` / `DocumentConnector.DeltaAsync` — charset suffix on `ContentType` might split stable document identity — **cheap-disproof 2026-10-05 seed hunt:** `DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged`.
+
+2026-10-05 seed hunt (seed→hit): pixel stub detector + diagram router MIME charset parity; `IsStructuredDiagramJsonContentType` in stub detector; 800 scoped tests passed.
+
+- [x] (proven) `StructuredDiagramParseRouter` / `IDiagramSourceParser.CanParse` — MIME diagram formats with `; charset=utf-8` returned unsupported format while bare MIME worked — **hit 2026-10-05 seed hunt:** align `ArchLucidDiagramJsonParser`, `SvgDiagramSourceParser`, `DrawIoXmlDiagramSourceParser`, and `VsdxDiagramSourceParser` with `SupportedContextDocumentContentTypes` lookup; regressions `Parse_MermaidMimeWithCharsetParameter_YieldsNodesAndEdges`, `Parse_SvgMimeWithCharsetParameter_YieldsLabeledNodes`.
+
+2026-10-05 seed hunt (seed→hit): parameterized MIME types (`; charset=utf-8`) rejected by `IsSupported` and skipped document parsers; `NormalizeContentTypeForLookup`; 798 scoped tests passed.
+
+- [x] (proven) `PixelDiagramIntakeStubDetector.TryDetect` — exact MIME match missed `application/vnd.archlucid.diagram+json; charset=utf-8` so pixel intake stubs were parsed as empty native diagram JSON — **hit 2026-10-05 seed hunt:** use `IsStructuredDiagramJsonContentType`; regressions `TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter`, `DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType`.
+- [x] (proven) `SupportedContextDocumentContentTypes.IsSupported` / `IContextDocumentParser.CanParse` / `ContextIngestionStableReferenceIds.ForDocument` — MIME types with `; charset=utf-8` (and other parameters) failed allowlist lookup and parser routing — **hit 2026-10-05 seed hunt:** strip parameter suffixes before comparison; regressions `IsSupported_MatchesCanonicalList`, `ForDocument_ignores_content_type_charset_parameters`, `NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument`.
+
 2026-09-28 seed hunt #6997 (seed→hit): reseeded context-ingestion; proved terraform-show-json camelCase `forEach` for_each address suffix gap; cheap-disproof closed snake_case `provider_name`, `resource_address`, and `terraform_address`; regressions `ParseAsync_camel_case_for_each_appends_for_each_suffix_to_name`, `ParseAsync_snake_case_provider_name_projects_provider_name_exposure`, `ParseAsync_snake_case_resource_address_uses_explicit_address_when_name_collides`, and `ParseAsync_snake_case_terraform_address_uses_explicit_address`; 792 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (proven) `MapTerraformResource` — camelCase `forEach` on managed resources omitted for_each address suffix — **hit 2026-09-28 seed hunt #6997:** alias `forEach` alongside `for_each`; regression `ParseAsync_camel_case_for_each_appends_for_each_suffix_to_name`
@@ -25163,11 +25522,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 31
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 39
+- **hunts:** 35
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — data-flow rollup cards showed only the first ADF factory name
+- **last-bug:** 2026-10-06 — data-flow rollup dropped NSG inbound rule chips from collapsed members
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25224,6 +25583,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up ADF external link cards copied only `ExternalFactoryName` from the first member while `DiagramForestCanvasLabelContext` prefers `ExternalFactoryNames`, so four or more same-neighbor linked services hid every factory after the first on the canvas — **hit 2026-10-05 seed hunt (seed→hit):** merge distinct factory names from all members onto the rollup node; regression `Render_data_flow_rollup_card_lists_all_adf_factory_names`
 
 2026-10-05 seed hunt (seed→hit): promoted and proved data-flow rollup ADF factory identity loss; focused filter reported 637 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.Apply` — parallel edges from rolled-up members to the same neighbor with identical label/layout-only key kept only the first member's `DataFlowNsgAnnotationLabels` and `IsDataFlowNsgBlocked` — **hit 2026-10-06 seed hunt (seed→hit):** merge NSG labels, rule details, and blocked flag when deduplicating rollup edges; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`.
+
+2026-10-06 seed hunt (seed→hit): reseeded artifact-synthesis after rollup consumer-label fixes; proved data-flow rollup parallel edge dedupe dropped NSG annotations from collapsed storage members; focused filter reported 638 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up ADF external link cards copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while `ExternalFactoryNames` already merged all members, so four or more same-neighbor links hid peer hosts and runtimes on the canvas — **hit 2026-10-06 seed hunt (seed→hit):** merge distinct hosts and runtimes onto rollup node list fields; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`.
+
+2026-10-06 seed hunt (seed→hit): promoted rollup external host/runtime identity loss after factory-name parity fix; focused filter reported 640 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` / `DiagramForestCanvasLabelContext.BuildDataFlowDetailLines` — rolled-up ADF link cards copied only the first member's `ExternalHostInKeyVault` and treated Key Vault as mutually exclusive with explicit host lines, hiding Key Vault-hosted peers when the first member listed a hostname — **hit 2026-10-06 seed hunt (seed→hit):** `members.Any` for Key Vault flag and show `Host in Key Vault` alongside merged host lines; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`.
+
+2026-10-06 seed hunt (seed→hit): promoted rollup Key Vault host indicator loss on mixed explicit-host / Key Vault members; focused filter reported 642 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up storage (and other) cards replaced member `NsgInboundRuleChips` with an empty list while edge dedupe already merged NSG annotations, hiding inbound rule chips on the collapsed canvas card — **hit 2026-10-06 seed hunt (seed→hit):** merge distinct member chips with max-three-visible plus remainder overflow; regression `Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members`.
+
+2026-10-06 seed hunt (seed→hit): promoted rollup NSG inbound chip loss after edge-annotation merge fix; focused filter reported 643 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
@@ -25880,13 +26255,33 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 303
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 509
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
+- **hunts:** 308
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 513
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-06 — homepage settings audit used display name as ActorUserId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted `TenantHomepageSettingsController.PutAsync` — audit logged `User.Identity.Name` as both `ActorUserId` and `ActorUserName`, breaking correlation with governance/core-pilot audits that use `IActorContext.GetActorId()`; inject `IActorContext` and log stable actor id plus display name; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; cheap-disproof closed batch/approve approval-request id normalizer gap (opaque string ids, not GUID run literals), product-feedback finding ref parity (stickiness validators also trim-only), and preview validation message ordering (same invalid-guid outcome); 14 homepage + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — audit `ActorUserId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
+- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — approval ids need run-id invisible-char normalizer — **cheap-disproof 2026-10-06 seed hunt:** `approvalRequestId` values are opaque workflow strings (e.g. `apr-…`), not governance run GUID literals.
+- [x] (invalid) `GovernanceController.ApproveAsync` / `RejectAsync` — approval-request id invisible-char gap — **cheap-disproof 2026-10-06 seed hunt:** same opaque id contract; trim matches repository keys created by workflow.
+- [x] (valid-no-repro) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `FindingRef` normalization gap vs disposition routes — **cheap-disproof 2026-10-06 seed hunt:** `GovernanceStickinessControllerCore.ValidateFindingId` also trim-only; no extra normalizer on either path.
+- [x] (valid-no-repro) `GovernancePreviewController.Preview` — `ValidateGovernanceRunId` before parse yields different error copy — **cheap-disproof 2026-10-06 seed hunt:** invalid GUIDs still return HTTP 400 validation; message casing differs only.
+
+2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/*` and `ArchLucid.Api/Controllers/Tenancy/*` after run-id normalization hits; no row met hunt-ready bar for promotion (facades already normalize via `GovernanceRunScope` / `GovernanceRunIdHttpParser` on mutate and simulate paths); scoped filter `GovernanceController|TenancyController` reported 140 passed and 18 SQL integration constructor failures on Linux VM; seeded five mechanism-backed `(candidate)` rows below.
+
+2026-10-06 seed hunt (seed→hit): promoted `GovernancePreCommitSimulationController.TryParseRunId` / `GovernanceController.TryParseArchitectureRunIdForAudit` — interior no-break space (U+00A0) in run ids failed `Guid.TryParse` on pre-finalize GET/simulate while `ValidateGovernanceRouteRunId` accepted the same literal on submit; normalize via `GovernanceRunIdNormalizer` before parse (workflow parity); regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`, `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`, and updated zero-width-prefix simulate test for normalize parity; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
+
+2026-10-06 seed hunt (seed→hit): promoted `GovernanceController.PolicyPacks.Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` — same interior U+00A0 parity gap on policy-pack dry-run/simulate bodies; `TryParseGovernanceRunIdFromBody`; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
+- [x] (proven) `GovernanceController.Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` — `Guid.TryParse(request.RunId.Trim())` and per-id `Trim()` on `evaluateAgainstRunIds` rejected interior no-break space run ids that `ValidateGovernanceRouteRunId` accepts on submit — **hit 2026-10-06 seed hunt:** `GovernanceRunIdNormalizer` via `TryParseGovernanceRunIdFromBody`; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`.
+
+- [x] (proven) `PolicyPacksController.Simulate` / `SimulateBulk` and `GovernancePreviewController.Preview` — same `Trim()` + `Guid.TryParse` gap on policy-pack catalog and governance-preview bodies — **hit 2026-10-06 seed hunt:** `GovernanceRunIdHttpParser.TryParseFromBody`; regressions `PolicyPacksControllerSimulate_accepts_run_id_with_interior_no_break_space`, `SimulateBulk_accepts_run_id_with_interior_no_break_space`, and `DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space`.
+
+2026-10-06 seed hunt (seed→hit): promoted PolicyPacksController / GovernancePreview run-id normalization parity; 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows after re-reading Governance/Tenancy controller and facade paths; regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Api unit tests passed (17 SQL integration constructor failures on Linux VM).
 
@@ -25931,6 +26326,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2298 (seed-only): reseeded api-governance-tenancy-controllers; cheap-disproof closed mutation-corrections and insights tenant preflight siblings; 128 scoped Api tests passed (25 SQL integration skipped); no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `GovernancePreCommitSimulationController.TryParseRunId` / `GetChecklistAsync` / `GetReadinessAsync` / `SimulateAsync` — interior no-break space (U+00A0) inside run id failed `Guid.TryParse` after trim-only while `ValidateGovernanceRouteRunId` on submit normalized the same literal — **hit 2026-10-06 seed hunt (seed→hit):** `GovernanceRunIdNormalizer.Normalize` in `TryParseRunId`; regression `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`.
+- [x] (proven) `GovernanceController.TryParseArchitectureRunIdForAudit` / `LogGovernanceApprovalRequestedAuditAsync` — same interior invisible separator dropped `RunId` on audit events while submit succeeded — **hit 2026-10-06 seed hunt (seed→hit):** normalize before audit parse; regression `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`.
 
 - [x] (invalid) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — **cheap-disproof 2026-10-05 thorough hunt:** production `DapperTenantRepository`, `InMemoryTenantRepository`, and `CachingTenantRepository` implement `IWorkspaceQueryTenantRepository.WorkspaceExistsAsync` or return non-null workspace lists; null is a test-double contract violation only.
 - [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — **cheap-disproof 2026-10-05 thorough hunt:** `FindingInspectReadOptions.MetadataOnly` omits typed payload only; disposition history still scope-gated via `ListHistoryAsync`; `Guid.Empty` skip is intentional when inspect has no run binding.
@@ -27448,11 +27846,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 20
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — default-project delete guard blocked idempotent retry for soft-deleted default metadata
+- **hunts:** 22
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — recycle bin false purge when another workspace pins DefaultProjectId
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -27505,6 +27903,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-05 thorough hunt (dry): cheap-disproof closed three open candidates; 40 scoped TenantWorkspaces tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted default-delete idempotent-retry hypothesis from controller read; proved stale-metadata default guard; reseeded retention clamp and cross-workspace default-metadata candidates; 37 scoped TenantWorkspaces tests passed.
+
+2026-10-06 seed hunt (seed→hit): promoted recycle-bin purge schedule parity with `SqlArchitectureProjectRetentionPurgeService` (`NOT EXISTS` on `TenantWorkspaces.DefaultProjectId`); proved `ListRecycleBinAsync` still computed `purgeAfterUtc` for soft-deleted workspace-default metadata pins; nullable `PurgeAfterUtc` on `TenantWorkspaceDeletedProjectApiDto`; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — soft-deleted project still referenced as `TenantWorkspaces.DefaultProjectId` returned `purgeAfterUtc` while retention purge SQL never hard-deletes pinned defaults — **hit 2026-10-06 seed hunt (seed→hit):** omit purge schedule (`purgeAfterUtc: null`) when `projectId == currentWorkspace.DefaultProjectId`; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`.
+
+- [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — purge schedule used only `currentWorkspace.DefaultProjectId` while retention purge SQL skips any project id referenced on any `TenantWorkspaces` row — **hit 2026-10-06 seed hunt (seed→hit):** build tenant-wide pinned-default set from `ListWorkspacesAsync`; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`.
+
+2026-10-06 seed hunt (seed→hit): promoted cross-workspace default-metadata purge parity with `SqlArchitectureProjectRetentionPurgeService`; 42 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents
@@ -27911,13 +28317,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 31
-- **bugs-found:** 22
+- **hunts:** 32
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — early skip warning log scheduled backoff after mark processed
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — retrieval/cosmos skip paths logged before mark-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted retrieval/cosmos skip-as-processed observability ordering after post-commit/export parity fixes; proved `LogWarning` before `MarkProcessedAsync` let failing log sinks schedule backoff on orphan skip rows; post-mark best-effort observability via `CompleteProcessedEntryAsync`; regressions on retrieval incomplete-detail skip and Cosmos missing SQL graph skip; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded at-least-once / cross-read candidates; no failing repro; scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
 
@@ -27953,6 +28361,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 thorough hunt (dry): cheap-disproved both candidates; the export package builder converts reachable persisted-state outcomes into `RunExportPackageResult` values, while provenance materialization explicitly no-ops when the run detail lacks a manifest. No failing repro was warranted. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests.
 
 ### Hypotheses
+
+- [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` / `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so observability failures blocked skip-as-processed on orphan rows (parity gap vs post-commit/export Oct 2026-10-05 fixes) — **hit 2026-10-06 seed hunt (seed→hit):** `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`.
 
 - [x] (invalid) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — cross-read graph/findings drift with unchanged `GoldenManifestId` — **cheap-disproof 2026-10-05 thorough hunt:** post-commit outbox rows enqueue after finalize; committed run header evidence anchors (`GraphSnapshotId`, `FindingsSnapshotId`, `GoldenManifestId`) are frozen by `TR_Runs_SealCommittedHeader` / `DATA_CONSISTENCY_MATRIX` once `GoldenManifestId` is set, so mutating snapshot pointers without manifest anchor change is not a reachable production input.
 - [x] (valid-no-repro) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` — `IndexAuthorityRunAsync` before `MarkProcessedAsync` replay — **cheap-disproof 2026-10-05 thorough hunt:** internal SQL outbox work-then-mark is at-least-once by contract (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §5); retrieval indexing must upsert/supersede on replay (`RetrievalIndexingOutboxProcessorReplayIdempotencyTests`, TB-993).
@@ -28695,21 +29105,45 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-05 thorough hunt (hit): continue coalesce manifest omitted model fingerprint when `request.RunId` blank; `BuildWithResolvedRunId`; 70 scoped tests passed.
+
+- [x] (proven) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` / `HashContent` — `modelfp`/`ledgerfp` gated on `request.RunId` while continue resolves `runId` separately, so baseline model drift did not change coalesce `ContentHash` — **hit 2026-10-05 thorough hunt:** build inner manifest via `BuildWithResolvedRunId`; align `RunContinueFromExistingReviewAsync` dual-pin `contentManifest`; regression `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_baseline_model_changes_and_request_run_id_blank`.
+- [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — tenant GUID hex casing between continues — **cheap-disproof 2026-10-05:** `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing` + `NormalizeForHash` on coalesce tenant segment.
+- [x] (invalid) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — missing workspace/project partition — **cheap-disproof 2026-10-05:** `requestManifest.ContentHash` includes `TenantConfigurationHash` over tenant/workspace/project via `HashTenantConfiguration`.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` / `PinScope` — storage pin vs continue lookup manifest lifetime — **cheap-disproof 2026-10-05:** publish `Set` uses same `BuildContinueFromExistingRunCoalesceManifest` as `TryGet`; composite pin holds keys through leader flight.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned TTL refresh returns shared mutable `entry.Result` — **cheap-disproof 2026-10-05:** `TryGet` returns `ClosedLoopReasoningResultCloner.Clone` before exit.
+
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — continue with blank `request.RunId` assigns a fresh GUID instead of requiring persisted run id — **seed 2026-10-05:** API/clients should pass `RunId`; wrong outcome accidental new-run continue when omitted.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `ContinueFromExistingRun=1` prefix without run-scoped fingerprints when neither `request.RunId` nor resolved id applied on non-continue `Build` — **seed 2026-10-05:** full-run cache keys when continue flag set incorrectly.
+- [ ] (candidate) `ReviewResultCache.Set` — max entry eviction skips insert silently when all entries pinned — **seed 2026-10-05:** burst continue leaders under pin cap; reachability `TryEvictOldestUnpinnedEntry` failure path.
+- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — identical `publishToProduct` flag required for coalesce but divergent `DeclaredPriorities` not in key — **seed 2026-10-05:** priorities flow through `ContentHash` via `Build`; verify cross-priority coalesce impossible.
+- [ ] (candidate) `FinalizeCoalescedReviewResult` — `policyRunId` uses `effectiveRequest.RunId` when non-blank but may diverge from resolved `runId` casing — **seed 2026-10-05:** cache-hit publish guard path in `ClosedLoopCacheHitPublishGuard`.
+
 - **id:** architecture-intelligence-orchestrator
 - **status:** open
 - **impact:** high
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 20
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
+- **hunts:** 25
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
+- **last-bug:** 2026-10-05 — continue in-flight coalesce key split on tenant GUID hex casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-05 seed hunt (seed-only): re-read continue/cache after coalesce-key fixes; cheap-disproved continue run-id hex casing cache hit at orchestrator; seeded five candidates; 69 scoped tests passed.
+
+2026-10-05 seed hunt (seed→hit): continue in-flight `BuildCoalesceKey` tenant GUID casing; `NormalizeForHash`; 69 scoped tests passed.
+
+2026-10-05 seed hunt (seed→hit): continue coalesce tenant GUID casing; `NormalizeForHash` in `BuildContinueFromExistingRunCoalesceManifest`; 65 scoped tests passed.
+
+2026-10-05 thorough hunt (hit): workspace GUID hex casing in `TenantConfigurationHash`; `ClosedLoopScopeIdHashNormalizer`; closed three open candidates; 64 scoped tests passed.
+
+2026-10-05 thorough hunt (hit): run-id hex casing manifest split; `ClosedLoopRunIdComparer.Normalize` lowercases; closed eight open candidates; 63 scoped tests passed.
 
 2026-10-05 seed hunt (seed-only): re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 scoped orchestrator/cache tests passed.
 
@@ -28723,11 +29157,14 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ### Hypotheses
 
-- [ ] (candidate) `CreateCoalescedCacheHitResult` — sets `CacheHit`/`CacheReuseReason` on the passed `ClosedLoopReasoningResult` instance without cloning; input is any caller that hands through a cache-stored or coalesce-leader reference instead of the `TryGet` clone, which could persist `CacheHit=true` on a stored entry after a miss-path probe.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `runid=` segment keeps GUID hex casing from `ClosedLoopRunIdNormalizer` while `ClosedLoopRunIdComparer` treats run ids case-insensitively for invalidation and publish-guard equality; input is two closed-loop analysis requests whose client `RunId` differs only by hex letter casing (architecture-intelligence API run scope).
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` — `TryGet(continueManifest)` returns before reloading persisted baseline/ledger; input is a continue review on an existing run where the knowledge model or technology ledger changes after the first continue manifest was built but before cache TTL expiry (improve-loop rerun in the same worker).
-- [ ] (candidate) `ReviewResultCache.TryGet` — pinned expired entries refresh `ExpiresUtc` without re-checking manifest version fields (`PromptVersion`, `ModelVersion`, etc.) against `ArchitectureIntelligenceCacheVersions`; input is a long-lived pin scope across a deployment that bumps cache version constants while the entry body still holds prior reasoning output.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — source texts sort by `FileName` with `StringComparer.Ordinal`, so attachments whose names differ only by casing contribute separate hash segments; input is multipart closed-loop intake with `notes.md` and `Notes.md` carrying different bodies.
+- [x] (valid-no-repro) `CreateCoalescedCacheHitResult` — mutates passed `ClosedLoopReasoningResult` without cloning — **cheap-disproof 2026-10-05 thorough hunt:** every caller passes `TryGet` clones; `Set` re-clones on write; regression `TryGet_returns_snapshot_isolated_from_stored_entry`.
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` / `ClosedLoopRunIdComparer.Normalize` — `runid=` segment treated GUID hex letter casing as significant while invalidation is case-insensitive — **hit 2026-10-05 thorough hunt:** uppercase vs lowercase client `RunId` produced different content hashes; fixed by lowercasing compact run ids in `Normalize`; regression `Build_matches_content_hash_when_run_id_differs_only_by_hex_letter_casing`.
+- [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` — `TryGet(continueManifest)` before reload on ledger/model mutation — **cheap-disproof 2026-10-05 thorough hunt:** synchronous snapshot at request entry; coalesce manifest embeds content hash; parity #1195 continue cache storage fix.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired TTL refresh without manifest version re-check — **cheap-disproof 2026-10-05 thorough hunt:** intentional improve-loop pin semantics; version fields live on manifest key via `ReviewCacheKeyBuilder`; regression `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — ordinal `FileName` sort treats `notes.md` vs `Notes.md` as distinct attachments — **cheap-disproof 2026-10-05 thorough hunt:** distinct file names are distinct intake attachments by contract; not a cache defect.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time `modelfp`/`ledgerfp` vs post-persist mutations — **cheap-disproof 2026-10-05 thorough hunt:** manifest rebuild on each request reloads baseline/ledger; no proven stale hit without manifest miss (seed 2026-10-05).
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap eviction — **cheap-disproof 2026-10-05 thorough hunt:** regressions `PinScope_reports_not_pinned_when_distinct_key_cap_reached` and `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` / cache-hit publish policy on coalesced followers — **cheap-disproof 2026-10-05 thorough hunt:** #1226 sanitize/isolation fixes; regression `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`.
 
 - [x] (proven) `ReviewCacheManifestBuilder.HashContent` — client-supplied `RunId` omitted from content hash while `modelfp`/`ledgerfp` identical for new runs — **hit 2026-09-07 (#1173):** concurrent distinct client `RunId`s with identical sources coalesced on one single-flight key; follower received its `RunId` but model persisted only for leader; fixed by hashing normalized `runid=` when request carries `RunId` (`Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources`, `RunAsync_concurrent_distinct_client_run_ids_both_persist_models`)
 - [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
@@ -28753,9 +29190,17 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (invalid) `RunContinueFromExistingReviewAsync` — dual-manifest `PinScope` vs `continueManifest`-only probes with concurrent persistence mutation — **invalid 2026-10-04 thorough hunt:** `existing`/`ledgerEntries` load once and both manifests build synchronously on the same snapshots; `BuildContinueFromExistingRunCoalesceManifest` embeds `contentManifest.ContentHash`; both keys are pinned via `PinScope(continueManifest, contentManifest)`.
 - [x] (invalid) `ReviewResultCache.Set` — tombstone check before `_evictionLock` vs concurrent `InvalidateForRun` — **invalid 2026-10-04 thorough hunt:** `Set` re-checks `IsRunIdTombstonedUnlocked` inside the lock after clone/sanitize; regressions `Set_skips_insert_when_sanitized_run_id_matches_tombstone` and `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
 
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — `modelfp`/`ledgerfp` snapshot from entry-time `TryLoadExistingModelAsync`/`TryLoadLedgerEntriesAsync` while improve-loop stages may persist ledger/model updates before publish `Set`; overlapping continue requests with unchanged source texts may `TryGet` hit on pre-mutation fingerprints — **seed 2026-10-05:** needs stage reachability proof that returned bytes omit post-persist ledger rows without a manifest miss on the next request.
-- [ ] (candidate) `ReviewResultCache.PinScope` / `ReviewResultCacheCompositePinScope` — `MaxDistinctPinnedStorageKeys` rejects a new pin while an improve-loop entry is only protected by a deduped composite refcount; churn at cap may evict manifest-keyed bytes before unpin flushes deferred invalidations — **seed 2026-10-05:** reachable via existing pin-cap regression fixtures; wrong outcome would be stale `TryGet` hit after tombstone flush.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult` keys policy off resolved `runId` when client supplied `RunId`, but coalesced cache hits may still carry leader `PublishedToProduct`/`PublishBlocked` mix until `ApplyAnalysisOnlyCoalescedIsolation` runs — **seed 2026-10-05:** reachable via concurrent analysis-only followers after a publish leader; needs repro beyond hunt #1226 sanitize/finalize fixes.
+- [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` / `ReviewCacheManifestBuilder.Build` — second identical continue with `TenantId` GUID differing only in hex letter casing between requests — **cheap-disproof 2026-10-05 thorough hunt:** coalesce manifest normalizes tenant for hash; regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing`.
+- [x] (invalid) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — omits `TenantConfigurationHash` and workspace/project partition — **cheap-disproof 2026-10-05 thorough hunt:** wrapped `requestManifest.ContentHash` includes tenant/workspace/project configuration hash.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` / `ReviewResultCache.PinScope` — continue storage `Set` pins only `storageManifest` while entry lookup uses `continueManifest` from orchestrator dual-pin scope disposed before publish — **cheap-disproof 2026-10-05 thorough hunt:** lookup and `Set` share `BuildContinueFromExistingRunCoalesceManifest`; leader holds composite pin through pipeline.
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` — `modelfp`/`ledgerfp` gated on non-blank `request.RunId` while continue path resolves `runId` param separately — **hit 2026-10-05 thorough hunt:** `BuildWithResolvedRunId` inside continue coalesce manifest; regression `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_baseline_model_changes_and_request_run_id_blank`.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired TTL refresh reuses `entry.Result` instance when extending `ExpiresUtc` — **cheap-disproof 2026-10-05 thorough hunt:** callers receive cloned results from `TryGet`.
+- [x] (proven) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — trim-only tenant id split continue in-flight dedupe on GUID hex letter casing while coalesce manifest hashes canonicalize tenant — **hit 2026-10-05 seed hunt:** use `ClosedLoopTenantIdNormalizer.NormalizeForHash` for the tenant segment; regression `BuildCoalesceKey_matches_when_tenant_differs_only_by_guid_hex_letter_casing`.
+- [x] (proven) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — trim-only tenant id in continue coalesce `ContentHash` split on GUID hex letter casing — **hit 2026-10-05 seed hunt:** use `ClosedLoopTenantIdNormalizer.NormalizeForHash` for the `continue|tenant|…` segment; regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_guid_hex_letter_casing`.
+- [x] (proven) `ReviewCacheManifestBuilder.HashTenantConfiguration` / scope id `NormalizeForHash` — workspace GUID hex letter casing produced different `TenantConfigurationHash` and cache keys — **hit 2026-10-05 thorough hunt:** canonicalize parsed GUID scope ids to lowercase `D` format via `ClosedLoopScopeIdHashNormalizer`; regression `Build_matches_tenant_configuration_hash_when_workspace_differs_only_by_hex_letter_casing`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time `modelfp`/`ledgerfp` snapshot vs post-persist mutations — **cheap-disproof 2026-10-05 thorough hunt:** each request rebuilds manifest from reloaded baseline/ledger; no stale hit without manifest miss (seed 2026-10-05).
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap eviction — **cheap-disproof 2026-10-05 thorough hunt:** `PinScope_reports_not_pinned_when_distinct_key_cap_reached`, `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — coalesced publish-policy on cache hits — **cheap-disproof 2026-10-05 thorough hunt:** #1226 sanitize/isolation; `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 

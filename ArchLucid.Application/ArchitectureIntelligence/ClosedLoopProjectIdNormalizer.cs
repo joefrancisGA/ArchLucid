@@ -22,6 +22,6 @@ internal static class ClosedLoopProjectIdNormalizer
         if (string.IsNullOrWhiteSpace(projectId))
             return string.Empty;
 
-        return projectId.Trim();
+        return ClosedLoopScopeIdHashNormalizer.Normalize(projectId);
     }
 }
