@@ -8,10 +8,15 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
     {
         ArgumentNullException.ThrowIfNull(source);
 
+        string contentType = source.ContentType?.Trim() ?? string.Empty;
+
+        if (contentType.Length > 0)
+            contentType = contentType.ToLowerInvariant();
+
         return new ClosedLoopReasoningSourceText
         {
             FileName = source.FileName?.Trim() ?? string.Empty,
-            ContentType = source.ContentType?.Trim() ?? string.Empty,
+            ContentType = contentType,
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
                 : source.Content.Trim(),

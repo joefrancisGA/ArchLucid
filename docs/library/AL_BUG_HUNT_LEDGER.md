@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted source `ContentType` casing split on review cache manifest `ContentHash` while attachments are the same; canonicalize via `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on `(candidate)` rows; 82 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed→hit): `context-ingestion` — promoted dotenv `export KEY=value` shell prefix: `SettingName` and proposal `Name` kept the `export` token while host inference still worked; strip optional `export ` before key parse; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`; seeded five follow-on `(candidate)` rows; 808 scoped ContextIngestion/Canonicalization tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `architecture-intelligence-orchestrator` — cheap-disproof closed five seeded `(candidate)` rows (null vs empty source `Content` intentional hash parity; continue budget rejection before model load; framing keys differing only by casing produce distinct hashes not collapse; silent `Set` at max entries unreachable when all pinned due to pin-cap vs `MaxEntries`; continue unknown run id fails closed after manifest built with null model); regressions `Build_matches_content_hash_when_source_content_is_null_vs_empty_string`, `Build_changes_content_hash_when_framing_keys_differ_only_by_casing`, `RunAsync_continue_budget_rejection_occurs_before_model_load`, `RunAsync_continue_with_unknown_run_id_fails_closed_before_cache_reuse`; 81 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -29975,6 +29977,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-06 seed hunt (seed→hit): source `ContentType` letter casing split cache manifest hash; lowercase in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on candidates; 82 scoped tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` / `ReviewCacheManifestBuilder.HashContent` — `SourceTexts.ContentType` casing split `ContentHash` for identical attachments — **hit 2026-10-06 seed hunt:** lowercase trimmed content types in normalizer (manifest + snapshot); regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
+- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters (`text/plain; charset=utf-8` vs bare `text/plain`) may split cache keys despite equivalent intake — **seed 2026-10-06:** parity with context-ingestion charset normalization on architecture `SourceTexts`.
+- [ ] (candidate) `ReviewCacheLedgerFingerprint` — technology ledger entry order permutations may change `ledgerfp` when semantic content matches — **seed 2026-10-06:** reachable when ledger reload order differs between coalesced requests.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` with identical `FileName`/`ContentType` but different `Content` order in request list — **seed 2026-10-06:** order-sensitive hash may false-split or false-merge multi-attachment reviews.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` toggled between consecutive identical analysis manifests may bypass vs hit review cache asymmetrically — **seed 2026-10-06:** `ReviewCacheKeyBuilder.BuildInFlight` publish partition vs storage keys.
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone FIFO saturation when every queued run still has a pinned entry may leave deferred invalidation uncleared after last unpin — **seed 2026-10-06:** improve-loop pin pressure at `MaxTombstonedRunIds`.
+
 2026-10-06 thorough hunt (dry): closed five seeded candidates (source content null/empty, continue budget, framing key casing, Set saturation, unknown continue run id); 81 scoped tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read continue/budget, source/framing hash, cache capacity; seeded five `(candidate)` rows; 77 scoped tests passed.
@@ -30003,11 +30014,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 30
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **hunts:** 31
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-05 — continue in-flight coalesce key split on tenant GUID hex casing
+- **last-bug:** 2026-10-06 — source `ContentType` casing split review cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30109,6 +30120,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (invalid) `ReviewCacheManifestBuilder.HashContent` / `ClosedLoopFramingAnswersNormalizer` — framing keys differing only by casing collapse — **cheap-disproof 2026-10-06 thorough hunt:** casing normalizer dedupes within one map only; distinct keys hash separately; regression `Build_changes_content_hash_when_framing_keys_differ_only_by_casing`.
 - [x] (valid-no-repro) `ReviewResultCache.Set` — silent skip when all entries pinned at `MaxEntries` — **cheap-disproof 2026-10-06 thorough hunt:** `MaxDistinctPinnedStorageKeys` (64) < `MaxEntries` (128) makes all-pinned saturation unreachable; regression `Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`.
 - [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — continue manifest with `existing == null` for unknown run id — **cheap-disproof 2026-10-06 thorough hunt:** extraction fails closed; no cache reuse; regression `RunAsync_continue_with_unknown_run_id_fails_closed_before_cache_reuse`.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` / `ReviewCacheManifestBuilder.HashContent` — `SourceTexts.ContentType` letter casing produced different `ContentHash` for the same attachment body — **hit 2026-10-06 seed hunt:** lowercase trimmed content types in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
