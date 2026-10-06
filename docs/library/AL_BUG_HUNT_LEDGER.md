@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator entry, dual-manifest pin scopes, manifest hashing, and review-cache invalidation after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (whitespace-only client `RunId` manifest parity, first-run client `RunId` before persist, composite pin partial failure at pin cap, declared-priority casing collapse, `InvalidateForRun` skip when stored `RunId` blank); 68 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `architecture-intelligence-orchestrator` — cheap-disproof closed five seeded `(candidate)` rows (continue without client `RunId` generates a fresh id and fails closed when no persisted model; blank client `RunId` intentionally omits `modelfp`/`ledgerfp` from full-run manifest; `continue=1|` on `Build()` is partitioned from continue coalesce keys by design; `policyRunId` uses orchestrator-normalized `runId` and `ClosedLoopRunIdComparer` on publish guard; `TryGet` tombstone gate normalizes cached `RunId` via `IsRunIdTombstonedUnlocked`); regressions `RunAsync_continue_without_request_run_id_does_not_load_prior_persisted_model`, `Build_matches_content_hash_when_baseline_model_changes_and_client_run_id_is_blank`, `TryGet_misses_tombstone_when_cached_run_id_is_compact_and_invalidation_used_hyphenated_form`; 84 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator, continue coalesce manifests, and review cache after Oct 5 modelfp fix; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (continue without client run id, blank-runid manifest fingerprints, `Build()` continue prefix partition, finalize `policyRunId` vs normalized id, tombstone run-id casing on `TryGet`); 66 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -29952,6 +29954,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-06 seed hunt (seed-only): re-read orchestrator entry, dual-manifest pins, manifest hashing, and invalidation after thorough dry; seeded five new `(candidate)` rows; 68 scoped picker-filter tests passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded candidates (continue without client run id, blank-runid manifest fingerprints, continue build partition, finalize policy run id, tombstone TryGet normalization); 84 scoped orchestrator/cache tests passed.
 
 2026-10-05 thorough hunt (hit): continue coalesce manifest omitted model fingerprint when `request.RunId` blank; `BuildWithResolvedRunId`; 70 scoped tests passed.
@@ -29970,7 +29974,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
 - **hunts:** 27
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — continue in-flight coalesce key split on tenant GUID hex casing
 - **related-pd-tb:** none
@@ -30052,6 +30056,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `continue=1|` on `Build()` vs continue coalesce manifest partition — **cheap-disproof 2026-10-06 thorough hunt:** continue orchestration uses `BuildContinueFromExistingRunCoalesceManifest` exclusively; regression `BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build` (#1218).
 - [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `policyRunId` vs normalized `isolated.RunId` on hyphenated client `RunId` — **cheap-disproof 2026-10-06 thorough hunt:** `RunAsync` normalizes `runId` before finalize; `ShouldApplyCacheHitPolicyOnCoalescedResult_treats_hyphenated_run_ids_as_equal`.
 - [x] (invalid) `ReviewResultCache.TryGet` — tombstone gate without normalizing cached `RunId` — **cheap-disproof 2026-10-06 thorough hunt:** `IsRunIdTombstonedUnlocked` calls `ClosedLoopRunIdNormalizer.NormalizeRequired`; regressions `TryGet_misses_tombstone_when_cached_run_id_is_compact_and_invalidation_used_hyphenated_form`, `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
+
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.HashContent` — whitespace-only `request.RunId` (`"   "`) follows the generated-run-id path while `NormalizeOptional` omits the `runid=` segment, so whitespace and omitted client run ids share the same cache manifest (reachable repeat analysis API calls).
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — non-blank client `RunId` on a first full run loads a null baseline but still hashes `runid=` with empty `modelfp`/`ledgerfp` before persistence materializes the model (reachable analysis POST with a new client-chosen run id).
+- [ ] (candidate) `ReviewResultCacheCompositePinScope` / `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — when `PinStorageKey` fails for the secondary resolved-run manifest under `MaxDistinctPinnedStorageKeys`, `IsPinned` is false while the primary manifest key may remain pinned for the flight (reachable client-supplied `RunId` dual-pin path at pin-cap saturation).
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` / `HashPriorities` — duplicate `DeclaredPriorities` that differ only by letter casing collapse via `ClosedLoopDeclaredPrioritiesNormalizer` before hashing (reachable request carrying `["Security","security"]`).
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — loop skips cache rows whose stored `Result.RunId` is null/whitespace after `SanitizeForStorage`, so invalidation cannot evict entries that lack a normalized run id on the stored payload (reachable if a stored analysis entry retains a blank run id).
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
