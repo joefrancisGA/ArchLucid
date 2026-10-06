@@ -20,7 +20,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { showError, showSuccess } from "@/lib/toast";
-import { SignupForm } from "./SignupForm";
+import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
 function fillRequiredFields() {
   fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
@@ -29,6 +29,17 @@ function fillRequiredFields() {
 }
 
 describe("SignupForm", () => {
+  it("omits non-integer optional architecture team size from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "3.5",
+    });
+
+    expect(payload.architectureTeamSize).toBeUndefined();
+  });
+
   it("disables submit until required fields are valid (TB-2010)", () => {
     render(<SignupForm />);
 

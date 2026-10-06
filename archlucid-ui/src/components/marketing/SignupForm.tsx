@@ -39,6 +39,43 @@ type TenantProvisioningResult = {
   wasAlreadyProvisioned?: boolean;
 };
 
+/** JSON body for `POST /v1/register` (same shaping as submit handler). */
+export function buildSignupRegisterPayload(values: SignupFormValues): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    organizationName: values.organizationName,
+    adminEmail: values.adminEmail,
+    adminDisplayName: values.adminDisplayName,
+  };
+
+  if (values.companySize) {
+    payload.companySize = values.companySize;
+  }
+
+  const teamTrim = values.architectureTeamSize?.trim() ?? "";
+
+  if (teamTrim.length > 0) {
+    const t = Number(teamTrim);
+
+    if (Number.isFinite(t) && Number.isInteger(t) && t > 0 && t <= 10_000) {
+      payload.architectureTeamSize = t;
+    }
+  }
+
+  if (values.industryVertical) {
+    payload.industryVertical = values.industryVertical;
+  }
+
+  if (values.industryVertical === "Other") {
+    const o = values.industryVerticalOther?.trim() ?? "";
+
+    if (o.length > 0) {
+      payload.industryVerticalOther = o;
+    }
+  }
+
+  return payload;
+}
+
 const optionalFieldLabelClass = cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
 
 /** Self-service signup: posts to `POST /v1/register` via same-origin API proxy. */
@@ -79,37 +116,7 @@ export function SignupForm() {
     let registerSucceeded = false;
 
     try {
-      const payload: Record<string, unknown> = {
-        organizationName: values.organizationName,
-        adminEmail: values.adminEmail,
-        adminDisplayName: values.adminDisplayName,
-      };
-
-      if (values.companySize) {
-        payload.companySize = values.companySize;
-      }
-
-      const teamTrim = values.architectureTeamSize?.trim() ?? "";
-
-      if (teamTrim.length > 0) {
-        const t = Number(teamTrim);
-
-        if (Number.isFinite(t)) {
-          payload.architectureTeamSize = t;
-        }
-      }
-
-      if (values.industryVertical) {
-        payload.industryVertical = values.industryVertical;
-      }
-
-      if (values.industryVertical === "Other") {
-        const o = values.industryVerticalOther?.trim() ?? "";
-
-        if (o.length > 0) {
-          payload.industryVerticalOther = o;
-        }
-      }
+      const payload = buildSignupRegisterPayload(values);
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
