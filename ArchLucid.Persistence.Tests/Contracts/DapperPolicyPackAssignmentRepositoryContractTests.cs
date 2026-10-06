@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Scoping;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -34,7 +35,7 @@ public sealed class DapperPolicyPackAssignmentRepositoryContractTests(SqlServerP
     {
         SqlConnectionFactory sql = new(fixture.ConnectionString);
         SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
-        DapperPolicyPackRepository packRepository = new(sql, readMirror);
+        DapperPolicyPackRepository packRepository = new(sql, readMirror, new EmptyPersistenceScopeContextProvider());
 
         PolicyPack? existing = await packRepository.GetByIdAsync(assignment.PolicyPackId, cancellationToken);
 

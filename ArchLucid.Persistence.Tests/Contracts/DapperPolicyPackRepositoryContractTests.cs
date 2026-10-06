@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Scoping;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -21,6 +22,6 @@ public sealed class DapperPolicyPackRepositoryContractTests(SqlServerPersistence
     {
         TestSqlConnectionFactory sql = new(fixture.ConnectionString);
         SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
-        return new DapperPolicyPackRepository(sql, readMirror);
+        return new DapperPolicyPackRepository(sql, readMirror, new EmptyPersistenceScopeContextProvider());
     }
 }

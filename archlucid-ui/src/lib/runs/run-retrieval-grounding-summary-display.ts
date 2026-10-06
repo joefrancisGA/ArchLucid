@@ -1,6 +1,18 @@
 /** Display helpers for run retrieval grounding rollup (UU-462, UU-473). */
 
-export function formatRetrievalGroundingRatioPercent(value: number | null | undefined): string {
+export function formatRetrievalGroundingRatioPercent(
+  value: number | string | null | undefined,
+): string {
+  if (typeof value === "string") {
+    const parsed = Number(value);
+
+    if (!Number.isFinite(parsed)) {
+      return "Not recorded";
+    }
+
+    value = parsed;
+  }
+
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return "Not recorded";
   }

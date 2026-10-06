@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -27,7 +28,8 @@ namespace ArchLucid.Persistence.Repositories;
 public sealed partial class SqlArtifactBundleRepository(
     ISqlConnectionFactory connectionFactory,
     IArtifactBlobStore blobStore,
-    IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions) : IArtifactBundleRepository
+    IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions,
+    IScopeContextProvider scopeContextProvider) : IArtifactBundleRepository
 {
     public async Task<ArtifactBundle?> GetByManifestIdAsync(
         ScopeContext scope,
@@ -147,12 +149,14 @@ public sealed partial class SqlArtifactBundleRepository(
         IDbTransaction? transaction,
         CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            SELECT
                                TenantId, WorkspaceId, ProjectId,
                                BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson, BundlePayloadBlobUri
                            FROM dbo.ArtifactBundles
-                           WHERE BundleId = @BundleId;
+                           WHERE BundleId = @BundleId
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
                            """;
 
         ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
@@ -160,7 +164,10 @@ public sealed partial class SqlArtifactBundleRepository(
                 sql,
                 new
                 {
-                    BundleId = bundleId
+                    BundleId = bundleId,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 transaction,
                 cancellationToken: ct));

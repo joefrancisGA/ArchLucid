@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Advisory.Delivery;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -10,6 +11,7 @@ public interface IDigestDeliveryAttemptRepository
     Task UpdateAsync(DigestDeliveryAttempt attempt, CancellationToken ct);
 
     Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
+        ScopeContext scope,
         Guid digestId,
         CancellationToken ct);
 
@@ -25,6 +27,7 @@ public interface IDigestDeliveryAttemptRepository
         CancellationToken ct);
 
     Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid subscriptionId,
         int take,
         CancellationToken ct);

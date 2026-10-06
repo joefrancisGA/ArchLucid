@@ -92,11 +92,23 @@ internal sealed partial class DapperProductLearningPlanningPlanRepository(ISqlCo
         const string sql = """
                            SELECT TenantId, WorkspaceId, ProjectId
                            FROM dbo.ProductLearningImprovementThemes
-                           WHERE ThemeId = @ThemeId;
+                           WHERE ThemeId = @ThemeId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
                            """;
 
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
-            new CommandDefinition(sql, new { ThemeId = themeId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ThemeId = themeId,
+                    plan.TenantId,
+                    plan.WorkspaceId,
+                    plan.ProjectId
+                },
+                cancellationToken: cancellationToken));
 
         if (row is null)
             throw new InvalidOperationException("Theme not found for ThemeId=" + themeId + ".");

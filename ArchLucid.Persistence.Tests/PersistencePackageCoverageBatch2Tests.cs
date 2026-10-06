@@ -242,6 +242,7 @@ public sealed class PersistencePackageCoverageBatch2Tests
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
+            MetadataJson = """{"manifestHash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}""",
         };
         DigestSubscription subscription = new()
         {
@@ -276,7 +277,7 @@ public sealed class PersistencePackageCoverageBatch2Tests
     {
         Guid recommendationId = Guid.NewGuid();
         Mock<IRecommendationRepository> repository = new();
-        repository.Setup(r => r.GetByIdAsync(recommendationId, It.IsAny<CancellationToken>()))
+        repository.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recommendationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RecommendationRecord
             {
                 RecommendationId = recommendationId,
@@ -305,9 +306,12 @@ public sealed class PersistencePackageCoverageBatch2Tests
             ],
         };
         Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
 
-        await sut.PersistPlanAsync(plan, tenantId, Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
+        await sut.PersistPlanAsync(plan, tenantId, workspaceId, projectId, CancellationToken.None);
         RecommendationRecord? updated = await sut.ApplyActionAsync(
+            new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
             recommendationId,
             "user-1",
             "User One",

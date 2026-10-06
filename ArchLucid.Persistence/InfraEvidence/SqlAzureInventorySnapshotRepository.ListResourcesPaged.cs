@@ -3,6 +3,7 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -51,7 +52,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                            SELECT COUNT(1)
                            FROM dbo.AzureInventoryResources
                            WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter};
-                           """;
+                           """
+                           + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         string listSql = $"""
                           SELECT ResourceRowId, SnapshotId, TenantId, CloudResourceId, AzureResourceId,
@@ -61,7 +63,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter}
                           ORDER BY AzureResourceId
                           OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
-                          """;
+                          """
+                          + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         object parameters = filterByCloudResource
             ? new

@@ -89,6 +89,7 @@ public sealed partial class SqlBillingLedger
                                NewProviderSubscriptionId
                            FROM dbo.BillingSubscriptionStateHistory
                            WHERE TenantId = @TenantId
+                             AND RecordedUtc IS NOT NULL
                            ORDER BY RecordedUtc DESC;
                            """;
 

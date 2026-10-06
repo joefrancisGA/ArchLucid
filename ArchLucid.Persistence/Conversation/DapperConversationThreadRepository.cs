@@ -2,8 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -15,7 +17,9 @@ namespace ArchLucid.Persistence.Conversation;
 ///     SQL Server <see cref="IConversationThreadRepository" /> for <c>dbo.ConversationThreads</c>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperConversationThreadRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperConversationThreadRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IConversationThreadRepository
 {
     /// <inheritdoc />
@@ -44,18 +48,26 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            SELECT ThreadId, TenantId, WorkspaceId, ProjectId,
                                   RunId, BaseRunId, TargetRunId,
                                   Title, CreatedUtc, LastUpdatedUtc, ArchivedUtc
                            FROM dbo.ConversationThreads
                            WHERE ThreadId = @ThreadId
-                             AND ArchivedUtc IS NULL;
+                             AND ArchivedUtc IS NULL
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ConversationThread>(
-            new CommandDefinition(sql, new { ThreadId = threadId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ThreadId = threadId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            }, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -149,15 +161,27 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            UPDATE dbo.ConversationThreads
                            SET LastUpdatedUtc = @UpdatedUtc
-                           WHERE ThreadId = @ThreadId;
+                           WHERE ThreadId = @ThreadId
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { ThreadId = threadId, UpdatedUtc = updatedUtc }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ThreadId = threadId,
+                    UpdatedUtc = updatedUtc,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
+                },
+                cancellationToken: ct));
     }
 
     /// <inheritdoc />

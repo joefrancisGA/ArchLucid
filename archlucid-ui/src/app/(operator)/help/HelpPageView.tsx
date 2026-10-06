@@ -18,6 +18,7 @@ import {
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_SHORTCUT_GROUPS } from "@/lib/page-shortcut-groups";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
 import { cn } from "@/lib/utils";
@@ -97,6 +98,29 @@ export function HelpPageView(): React.JSX.Element {
       {buyerPolishedShell ? null : (
         <ReportProblemDialogHelpHubVocabularyRail currentSurfaceId="help-hub" />
       )}
+      <section aria-labelledby="help-page-shortcuts" className="space-y-3">
+        <h2 id="help-page-shortcuts" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+          Page shortcuts
+        </h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Keyboard shortcuts are documented here instead of repeated as tips on individual pages.
+        </p>
+        <div className="space-y-2">
+          {HELP_PAGE_SHORTCUT_GROUPS.map((group) => (
+            <details key={group.label} className="rounded-md border border-al-border px-3 py-2">
+              <summary className="cursor-pointer font-medium text-al-text-primary">{group.label}</summary>
+              <ul className="m-0 mt-2 list-none space-y-2 p-0">
+                {group.entries.map((entry) => (
+                  <li key={`${entry.key ?? entry.id}-${entry.label}`} className={OPERATOR_TYPOGRAPHY.body}>
+                    <span className="font-medium text-al-text-primary">{entry.key ?? entry.label}</span>
+                    <span className="text-al-text-secondary"> — {entry.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))}
+        </div>
+      </section>
       <HelpProductGuide />
       {buyerPolishedShell ? (
         <div className="mb-4 text-left" data-testid={HELP_HUB_ORIENTATION_BOTTOM_TEST_ID}>

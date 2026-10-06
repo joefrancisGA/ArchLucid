@@ -4,9 +4,14 @@ import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE_SECURENOW = secureNowTitleCase(
+  EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+) as "Extract & Upload";
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE = "Loading extract and upload workspace…" as const;
 
@@ -42,6 +47,12 @@ export function extractUploadSettingsPageSubtitle(
   return buyerPolishedShell
     ? EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER
     : EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE;
+}
+
+export function extractUploadSettingsPageTitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE_SECURENOW
+    : EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE;
 }
 
 export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;
@@ -97,7 +108,7 @@ export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF = "/help/cloud-connections
 
 export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL = "Set up scheduled collection" as const;
 
-export const EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE = "One-time local collection (pilot)" as const;
+export const EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE = "One-time local collection" as const;
 
 export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
 
@@ -107,8 +118,25 @@ export const EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION =
 export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
   "Advanced: full inventory packager command (Azure example)" as const;
 
+export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY_SECURENOW =
+  "Advanced: full inventory packager command" as const;
+
 export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL =
   "Download packager script — Azure example" as const;
+
+export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL_SECURENOW = "Download packager script" as const;
+
+export function extractUploadAdvancedCommandDisclosureSummary(productLineId: ProductLineId): string {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY_SECURENOW
+    : EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY;
+}
+
+export function extractUploadScriptDownloadLabel(productLineId: ProductLineId): string {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL_SECURENOW
+    : EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL;
+}
 
 export const EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL = "Cloud inventory ZIP upload" as const;
 

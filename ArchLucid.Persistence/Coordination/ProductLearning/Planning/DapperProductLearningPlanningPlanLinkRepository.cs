@@ -2,7 +2,9 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -11,7 +13,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnectionFactory connectionFactory)
+internal sealed class DapperProductLearningPlanningPlanLinkRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
 {
     public async Task AddPlanArchitectureRunLinkAsync(
         ProductLearningImprovementPlanRunLinkRecord link,
@@ -165,15 +169,25 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
             .ToList();
     }
 
-    private static async Task<ProductLearningScope> RequirePlanScopeAsync(
+    private async Task<ProductLearningScope> RequirePlanScopeAsync(
         SqlConnection connection,
         Guid planId,
         CancellationToken cancellationToken)
     {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = ProductLearningPlanningPlanLinkSql.SelectPlanScope.TrimEnd().TrimEnd(';')
+                     + PersistenceTenantScope.AndTripleWhere(scope);
+
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
             new CommandDefinition(
-                ProductLearningPlanningPlanLinkSql.SelectPlanScope,
-                new { PlanId = planId },
+                sql,
+                new
+                {
+                    PlanId = planId,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
+                },
                 cancellationToken: cancellationToken));
 
         if (row is null)

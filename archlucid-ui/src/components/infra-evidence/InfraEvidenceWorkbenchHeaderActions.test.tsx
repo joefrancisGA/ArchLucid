@@ -15,7 +15,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 
 describe("InfraEvidenceWorkbenchHeaderActions", () => {
-  it("renders shortcut disclosure entries when shortcuts are provided", () => {
+  it("keeps page shortcut tips out of the workbench header", () => {
     render(
       <InfraEvidenceWorkbenchHeaderActions
         shortcutsTestId="infra-resource-explorer-page-shortcuts"
@@ -29,7 +29,7 @@ describe("InfraEvidenceWorkbenchHeaderActions", () => {
       />,
     );
 
-    expect(screen.getByTestId("infra-resource-explorer-page-shortcuts")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-explorer-page-shortcuts-entry-enter")).toHaveTextContent("Apply filters");
+    expect(screen.queryByTestId("infra-resource-explorer-page-shortcuts")).not.toBeInTheDocument();
+    expect(screen.getByText(/page help/)).toBeInTheDocument();
   });
 });

@@ -2,16 +2,19 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 /// <summary>Dapper access to 59R planning bridge tables.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperProductLearningPlanningRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IProductLearningPlanningRepository
 {
-    private readonly DapperProductLearningPlanningPlanLinkRepository _links = new(connectionFactory);
+    private readonly DapperProductLearningPlanningPlanLinkRepository _links = new(connectionFactory, scopeContextProvider);
     private readonly DapperProductLearningPlanningPlanRepository _plans = new(connectionFactory);
     private readonly DapperProductLearningPlanningThemeRepository _themes = new(connectionFactory);
 

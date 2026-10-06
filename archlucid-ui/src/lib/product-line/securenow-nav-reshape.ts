@@ -45,6 +45,7 @@ import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
 import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
 export const SECURENOW_INTEGRATION_NAV_GROUP_ID = "operate-integration" as const;
@@ -148,6 +149,13 @@ function applySecureNowIntegrationNavLinkLabels(links: readonly NavLinkItem[]): 
   });
 }
 
+function titleCaseSecureNowNavLink(link: NavLinkItem): NavLinkItem {
+  return {
+    ...link,
+    label: secureNowTitleCase(link.label),
+  };
+}
+
 const SECURENOW_COMPLIANCE_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, string>> = {
   [GOVERNANCE_POLICY_PACKS_PATH]: SECURENOW_POLICY_PACKS_PATH,
   [GOVERNANCE_STANDARDS_AND_RULES_PATH]: SECURENOW_STANDARDS_AND_RULES_PATH,
@@ -228,12 +236,12 @@ function buildSecureNowNavGroup(
   return {
     group: {
       id,
-      label,
+      label: secureNowTitleCase(label),
       surface: sourceGroup.surface,
       caption,
-      links: [...links],
+      links: links.map(titleCaseSecureNowNavLink),
     },
-    visibleLinks: [...links],
+    visibleLinks: links.map(titleCaseSecureNowNavLink),
   };
 }
 
@@ -292,14 +300,15 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
-  const infrastructureLinks = pickNavLinks(linksByHref, SECURENOW_INFRASTRUCTURE_NAV_HREFS).map(
-    remapSecureNowInfrastructureNavLink,
-  );
+  const infrastructureLinks = pickNavLinks(linksByHref, SECURENOW_INFRASTRUCTURE_NAV_HREFS)
+    .map(remapSecureNowInfrastructureNavLink)
+    .map(titleCaseSecureNowNavLink);
 
   reshaped.push({
     ...infrastructureRow,
     group: {
       ...infrastructureRow.group,
+      label: secureNowTitleCase(infrastructureRow.group.label),
       caption:
         "Explore Azure inventory snapshots, diagrams, resource evidence, and grounded Ask.",
       links: infrastructureLinks,

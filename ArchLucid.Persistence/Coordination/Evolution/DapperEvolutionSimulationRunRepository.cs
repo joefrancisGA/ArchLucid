@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Evolution;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -11,15 +13,19 @@ namespace ArchLucid.Persistence.Coordination.Evolution;
 
 /// <summary>Dapper access to <c>EvolutionSimulationRuns</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperEvolutionSimulationRunRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IEvolutionSimulationRunRepository
 {
     public async Task InsertAsync(EvolutionSimulationRunRecord record, CancellationToken cancellationToken)
     {
-        const string scopeSql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = $"""
                                 SELECT TenantId, WorkspaceId, ProjectId
                                 FROM dbo.EvolutionCandidateChangeSets
-                                WHERE CandidateChangeSetId = @CandidateChangeSetId;
+                                WHERE CandidateChangeSetId = @CandidateChangeSetId
+                                {PersistenceTenantScope.AndTripleWhere(scope)};
                                 """;
 
         const string sql = """
@@ -57,7 +63,16 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
 
         EvolutionSimulationScopeRow? scopeHdr =
             await connection.QuerySingleOrDefaultAsync<EvolutionSimulationScopeRow>(
-                new CommandDefinition(scopeSql, new { record.CandidateChangeSetId }, cancellationToken: cancellationToken));
+                new CommandDefinition(
+                    scopeSql,
+                    new
+                    {
+                        record.CandidateChangeSetId,
+                        ScopeTenantId = scope.TenantId,
+                        ScopeWorkspaceId = scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
+                    },
+                    cancellationToken: cancellationToken));
 
         if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
             throw new InvalidOperationException(

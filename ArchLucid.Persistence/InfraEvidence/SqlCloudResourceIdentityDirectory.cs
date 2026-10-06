@@ -6,6 +6,7 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -331,7 +332,8 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                   AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
                                   AND {VisibleExplorerResourceTypePredicate}
                                   AND {VisibleExplorerAzureResourceIdPredicate}
-                                  {workQueueFilter};
+                                  {workQueueFilter}
+                                  {PersistenceTenantScope.AndTripleWhere(scope)};
                                 """;
 
         string listSql = $"""
@@ -353,6 +355,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                  AND {VisibleExplorerResourceTypePredicate}
                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
+                                 {PersistenceTenantScope.AndTripleWhere(scope)}
                                ORDER BY LastSeenUtc DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
@@ -367,6 +370,9 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
             ResourceGroup = trimmedGroup,
             Skip = skip,
             PageSize = safePageSize,
+            ScopeTenantId = scope.TenantId,
+            ScopeWorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
             FindingStatusOpen = (int)OperationalSecurityFindingStatus.Open,
             FindingStatusRecurred = (int)OperationalSecurityFindingStatus.Recurred,
             FindingStatusAwaitingVerification = (int)OperationalSecurityFindingStatus.AwaitingVerification,

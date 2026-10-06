@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Governance;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchLucid.Persistence.Governance;
@@ -33,9 +35,11 @@ public sealed partial class ArchitectureRiskRegisterReader
                       SELECT COUNT(1)
                       FROM dbo.FindingRecords AS fr
                       INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                        AND fs.TenantId = @TenantId AND fs.WorkspaceId = @WorkspaceId
                       LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.ProjectId = fr.ProjectId AND ld.rn = 1
                       WHERE fr.TenantId = @TenantId AND fr.WorkspaceId = @WorkspaceId{projectFilter}{assigneeFilter}{openFindingsFilter};
-                      """;
+                      """
+                      + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

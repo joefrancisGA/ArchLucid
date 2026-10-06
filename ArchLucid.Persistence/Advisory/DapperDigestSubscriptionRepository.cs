@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -49,7 +51,10 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                 IsEnabled = @IsEnabled,
                 LastDeliveredUtc = @LastDeliveredUtc,
                 MetadataJson = @MetadataJson
-            WHERE SubscriptionId = @SubscriptionId;
+            WHERE SubscriptionId = @SubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -57,22 +62,29 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
-    public async Task<DigestSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct)
+    public async Task<DigestSubscription?> GetByIdAsync(ScopeContext scope, Guid subscriptionId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT
                 SubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, IsEnabled,
                 CreatedUtc, LastDeliveredUtc, MetadataJson
             FROM dbo.DigestSubscriptions
-            WHERE SubscriptionId = @SubscriptionId;
+            WHERE SubscriptionId = @SubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<DigestSubscription>(
             new CommandDefinition(sql, new
             {
-                SubscriptionId = subscriptionId
+                SubscriptionId = subscriptionId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 

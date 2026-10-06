@@ -327,6 +327,20 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         @($rows | Where-Object { $_.pimEligibilityKind -eq 'standing' }).Count | Should -Be 2
     }
 
+    It 'isolates a failed companion collector from successful companion results' {
+        $successful = Invoke-ArchLucidSecurityInventoryCompanion `
+            -CompanionName 'adf-pipeline-flows.json' `
+            -Collector { return @([PSCustomObject]@{ flowDirection = 'Read' }) }
+        $failed = Invoke-ArchLucidSecurityInventoryCompanion `
+            -CompanionName 'network-associations.json' `
+            -Collector { throw 'natGatewayId is unavailable' }
+
+        @($successful.rows).Count | Should -Be 1
+        $successful.errorMessage | Should -BeNullOrEmpty
+        @($failed.rows).Count | Should -Be 0
+        $failed.errorMessage | Should -Match 'natGatewayId'
+    }
+
     It 'prefers standing assignments over eligible duplicates' {
         function Get-AzRoleAssignment {
             return @(

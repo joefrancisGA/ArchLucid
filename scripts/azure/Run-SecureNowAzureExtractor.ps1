@@ -7,10 +7,10 @@
     context exists (unless -SkipConnect), prompts for a sign-in method and subscription
     by friendly name when -SubscriptionId is omitted (unless -NonInteractive), writes
     ./securenow-azure-package.zip by default, and delegates to Get-SecureNowAzurePackage.ps1
-    with -IncludeCost, -IncludeRetailPrices, and -IncludeAppSettingsHosts enabled.
-    Azure CLI is signed in from the same Azure PowerShell session so cost collection can
-    succeed without a separate az login. Use -SkipCost to omit the optional Cost Management
-    query, or -CostTimeoutSeconds to bound transient Cost Management retries.
+    with -IncludeAppSettingsHosts enabled by default.
+    Azure CLI is signed in from the same Azure PowerShell session. Pass -IncludeCost for
+    Cost Management data, -IncludeRetailPrices for retail prices, and -CostTimeoutSeconds
+    to bound transient Cost Management retries. Use -SkipCost to force cost off.
 
 .NOTES
     Upload the resulting ZIP manually in SecureNow — this script never sends data to SecureNow.
@@ -45,6 +45,12 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch] $SkipCost,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeCost,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeRetailPrices,
 
     [Parameter(Mandatory = $false)]
     [ValidateSet("Browser", "Credential", "DeviceCode", "")]
@@ -99,7 +105,7 @@ else
     Write-Host ("  Subscription: {0}" -f $resolvedSubscriptionId)
 }
 Write-Host ("  Output ZIP:   {0}" -f $resolvedOutputPath)
-Write-Host ("  Cost summary: {0}" -f $(if ($SkipCost) { "skipped" } else { "enabled (timeout: $CostTimeoutSeconds seconds)" }))
+Write-Host ("  Cost summary: {0}" -f $(if ($IncludeCost -and -not $SkipCost) { "enabled (timeout: $CostTimeoutSeconds seconds)" } else { "off" }))
 
 if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
 {
@@ -111,8 +117,8 @@ Write-Host ""
 [hashtable]$extractorParams = @{
     SubscriptionId = $resolvedSubscriptionId
     OutputPath = $resolvedOutputPath
-    IncludeCost = (-not $SkipCost)
-    IncludeRetailPrices = $true
+    IncludeCost = ([bool]$IncludeCost -and -not [bool]$SkipCost)
+    IncludeRetailPrices = [bool]$IncludeRetailPrices
     IncludeAppSettingsHosts = $true
     CostTimeoutSeconds = $CostTimeoutSeconds
 }

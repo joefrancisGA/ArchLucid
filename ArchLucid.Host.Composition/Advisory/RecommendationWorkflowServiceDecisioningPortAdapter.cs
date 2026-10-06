@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Host.Composition.Advisory;
 
@@ -23,10 +24,11 @@ internal sealed class RecommendationWorkflowServiceDecisioningPortAdapter(
         _inner.PersistPlanAsync(plan, tenantId, workspaceId, projectId, ct);
 
     public Task<RecommendationRecord?> ApplyActionAsync(
+        ScopeContext scope,
         Guid recommendationId,
         string userId,
         string userName,
         RecommendationActionRequest request,
         CancellationToken ct) =>
-        _inner.ApplyActionAsync(recommendationId, userId, userName, request, ct);
+        _inner.ApplyActionAsync(scope, recommendationId, userId, userName, request, ct);
 }

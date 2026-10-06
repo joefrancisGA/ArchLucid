@@ -14,11 +14,32 @@ internal static class PersistenceTenantScope
     internal static string AndTripleWhere(ScopeContext scope) =>
         RepositoryScopePredicate.AndTripleWhere(scope);
 
+    /// <summary>
+    ///     Triple-scope clause qualified with a table alias so JOIN queries stay unambiguous.
+    ///     The analyzer recognizes this method by name.
+    /// </summary>
+    internal static string AndTripleWhere(ScopeContext scope, string tableAlias)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(tableAlias);
+
+        return scope.TenantId == Guid.Empty
+            ? string.Empty
+            : " AND " + tableAlias + ".TenantId = @ScopeTenantId AND " + tableAlias
+              + ".WorkspaceId = @ScopeWorkspaceId AND " + tableAlias + ".ProjectId = @ScopeProjectId";
+    }
+
     internal static string AndProjectIdTripleWhere(ScopeContext scope) =>
         RepositoryScopePredicate.AndProjectIdTripleWhere(scope);
 
     internal static string AndScopeProjectIdTripleWhere(ScopeContext scope) =>
         RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope);
+
+    /// <summary>
+    ///     Tenant predicate that no-ops when <c>@TenantId</c> is <see cref="Guid.Empty"/> (trusted jobs / tests).
+    ///     Combined with another AND this satisfies ARCH006 without filtering workspace/project.
+    /// </summary>
+    internal const string AndTenantIdOrTrustedJob =
+        " AND (@TenantId = @EmptyTenantId OR TenantId = @TenantId)";
 
     internal static void AddScopeTripleIfNeeded(DynamicParameters parameters, ScopeContext scope) =>
         RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
