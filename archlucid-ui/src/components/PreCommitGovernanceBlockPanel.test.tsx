@@ -28,7 +28,7 @@ describe("PreCommitGovernanceBlockPanel", () => {
       "/governance/policy-packs?packId=sec-baseline",
     );
 
-    expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-1")).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "finding-1" })).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc/findings/finding-1",
     );
