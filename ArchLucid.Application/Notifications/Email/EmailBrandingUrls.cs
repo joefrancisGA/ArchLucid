@@ -14,7 +14,15 @@ public static class EmailBrandingUrls
             return null;
         if (string.IsNullOrWhiteSpace(relativePath))
             return null;
+
         string trimmedBase = operatorBaseUrl.Trim().TrimEnd('/');
+
+        if (string.IsNullOrWhiteSpace(trimmedBase))
+            return null;
+
+        if (!Uri.TryCreate(trimmedBase, UriKind.Absolute, out Uri? absoluteUri) || string.IsNullOrEmpty(absoluteUri.Host))
+            return null;
+
         string rel = relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
         return $"{trimmedBase}{rel}";
     }

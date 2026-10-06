@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `EmailBrandingUrls.TryBuildLogoImageUrl` accepted scheme-only `EmailNotificationOptions.OperatorBaseUrl` values such as `https://` after `TrimEnd('/')`, producing malformed weekly Sponsor report logo URLs (`https:/logo/icon-192.png`); require absolute URI with a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`; 27 scoped branding + report dispatcher tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `normalizeDocIndexUrlForDedupe` returned `https://` and `//` URLs unchanged, so two fetched doc-index rows for the same external path with and without a trailing slash both rendered; normalize absolute URLs via `URL` pathname trailing-slash trim for merge dedupe and link `href`; regression `does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url`; 31 scoped HelpDocsClient tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `mergeDocIndex` deduped fetched rows against static URLs only, so two doc-index rows for the same `/help/{slug}` path with and without a trailing slash rendered duplicate cards; track claimed normalized paths across fetched merges (except shared `/help` hub stubs); trim/normalize link `href`; regression `does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path`; 30 scoped HelpDocsClient tests passed.
@@ -6578,7 +6580,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: weekly-digest-email
 
-2026-09-27 seed hunt (seed→hit): reseeded weekly-digest-email; proved `WeeklySponsorReportEmailDispatcher` passed padded `EmailNotificationOptions.OperatorBaseUrl` into `EmailBrandingUrls.TryBuildLogoImageUrl` without `.Trim()`, producing broken logo URLs; fixed with `Trim().TrimEnd('/')` parity to `CommitSponsorEmailNotifier`; seeded sibling summary dispatcher operator-base trim candidate; 2 WeeklyExecutiveSummaryJob + 21 report dispatcher tests passed.
+2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved scheme-only `OperatorBaseUrl` (`https://`) produced malformed logo URLs in weekly Sponsor report mail; fixed in `EmailBrandingUrls.TryBuildLogoImageUrl`; 27 scoped branding + report dispatcher tests passed.
 
 - **id:** weekly-digest-email
 - **status:** open
@@ -6586,11 +6588,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 26
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-27 — padded OperatorBaseUrl broke weekly sponsor report logo image URL
+- **hunts:** 27
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — scheme-only OperatorBaseUrl produced malformed weekly report logo URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6647,6 +6649,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — whitespace-only `summaryMarkdown` sent weekly mail with empty report body — **hit 2026-09-26 seed hunt:** `ArgumentException` parity with `weekLabel`; regressions `WeeklySponsorReportEmailDispatcher_throws_for_whitespace_only_summary_markdown` and `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_summary_markdown`.
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` — padded `OperatorBaseUrl` reached `LogoImageUrl` with leading/trailing spaces — **hit 2026-09-27 seed hunt:** `EmailBrandingUrls.TryBuildLogoImageUrl` only trims trailing slashes; fixed with `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorReportEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
 - [x] (proven) `WeeklySponsorSummaryEmailDispatcher` — same padded `OperatorBaseUrl` logo URL gap as report dispatcher #2026-09-27 — **hit 2026-09-27 seed hunt #51 (notifications-pipeline):** `OperatorBaseUrl.Trim().TrimEnd('/')` before branding; regression `WeeklySponsorSummaryEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url`
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` / `EmailBrandingUrls.TryBuildLogoImageUrl` — scheme-only `OperatorBaseUrl` (`https://`) became `https:` after slash trim and composed `https:/logo/icon-192.png` in weekly Sponsor report templates — **hit 2026-10-06 seed hunt (seed→hit):** reject absolute bases without a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
