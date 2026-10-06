@@ -26153,21 +26153,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 307
+- **hunts:** 308
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 512
+- **bugs-found:** 513
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — PolicyPacksController simulate paths omitted GovernanceRunIdNormalizer
+- **last-bug:** 2026-10-06 — homepage settings audit used display name as ActorUserId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/*` and `ArchLucid.Api/Controllers/Tenancy/*` after run-id normalization hits; no row met hunt-ready bar for promotion (facades already normalize via `GovernanceRunScope` / `GovernanceRunIdHttpParser` on mutate and simulate paths); scoped filter `GovernanceController|TenancyController` reported 140 passed and 18 SQL integration constructor failures on Linux VM; seeded five mechanism-backed `(candidate)` rows below.
+2026-10-06 seed hunt (seed→hit): promoted `TenantHomepageSettingsController.PutAsync` — audit logged `User.Identity.Name` as both `ActorUserId` and `ActorUserName`, breaking correlation with governance/core-pilot audits that use `IActorContext.GetActorId()`; inject `IActorContext` and log stable actor id plus display name; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; cheap-disproof closed batch/approve approval-request id normalizer gap (opaque string ids, not GUID run literals), product-feedback finding ref parity (stickiness validators also trim-only), and preview validation message ordering (same invalid-guid outcome); 14 homepage + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — `ValidateBatchReviewRequest` trims each `approvalRequestId` but does not apply `GovernanceRunIdNormalizer`-class invisible-character stripping before repository lookup, so batch review may report per-id failures for pasted ids with interior U+00A0 while workflow-created ids are clean.
-- [ ] (candidate) `GovernanceController.ApproveAsync` / `RejectAsync` — route `approvalRequestId` uses `NormalizeApprovalRequestId` (trim only) without invisible-character normalization before `GetByIdAsync`, paralleling pre-2026-10-06 run-id gaps on approval-request routes.
-- [ ] (candidate) `TenantHomepageSettingsController.PutAsync` — audit `ActorUserId` / `ActorUserName` use `User.Identity?.Name` verbatim without trim while governance activation paths persist trimmed actor keys, so homepage settings audit may disagree with other admin audit rows for padded display names.
-- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `FindingRef` is trimmed but not normalized with the same invisible-character rules as governance `findingId` route guards, so feedback may 404 on findings that disposition routes accept after normalization.
-- [ ] (candidate) `GovernancePreviewController.Preview` — calls `ValidateGovernanceRunId` (length-only) before `TryParseFromBody`, so malformed run ids fail at parse with a generic message rather than the stricter `ValidateGovernanceRouteRunId` wording used on submit/promote routes (operator confusion, not data loss).
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — audit `ActorUserId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
+- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — approval ids need run-id invisible-char normalizer — **cheap-disproof 2026-10-06 seed hunt:** `approvalRequestId` values are opaque workflow strings (e.g. `apr-…`), not governance run GUID literals.
+- [x] (invalid) `GovernanceController.ApproveAsync` / `RejectAsync` — approval-request id invisible-char gap — **cheap-disproof 2026-10-06 seed hunt:** same opaque id contract; trim matches repository keys created by workflow.
+- [x] (valid-no-repro) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `FindingRef` normalization gap vs disposition routes — **cheap-disproof 2026-10-06 seed hunt:** `GovernanceStickinessControllerCore.ValidateFindingId` also trim-only; no extra normalizer on either path.
+- [x] (valid-no-repro) `GovernancePreviewController.Preview` — `ValidateGovernanceRunId` before parse yields different error copy — **cheap-disproof 2026-10-06 seed hunt:** invalid GUIDs still return HTTP 400 validation; message casing differs only.
+
+2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/*` and `ArchLucid.Api/Controllers/Tenancy/*` after run-id normalization hits; no row met hunt-ready bar for promotion (facades already normalize via `GovernanceRunScope` / `GovernanceRunIdHttpParser` on mutate and simulate paths); scoped filter `GovernanceController|TenancyController` reported 140 passed and 18 SQL integration constructor failures on Linux VM; seeded five mechanism-backed `(candidate)` rows below.
 
 2026-10-06 seed hunt (seed→hit): promoted `GovernancePreCommitSimulationController.TryParseRunId` / `GovernanceController.TryParseArchitectureRunIdForAudit` — interior no-break space (U+00A0) in run ids failed `Guid.TryParse` on pre-finalize GET/simulate while `ValidateGovernanceRouteRunId` accepted the same literal on submit; normalize via `GovernanceRunIdNormalizer` before parse (workflow parity); regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`, `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`, and updated zero-width-prefix simulate test for normalize parity; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
 
