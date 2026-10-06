@@ -161,7 +161,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 continue;
             }
 
-            AddDatasetReferences(
+            bool hasReadDatasetReference = AddDatasetReferences(
                 factoryResourceId,
                 pipelineResourceId,
                 pipelineName,
@@ -173,7 +173,34 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 flows,
                 flowKeys);
 
-            AddDatasetReferences(
+            if (!hasReadDatasetReference)
+            {
+                AddTypePropertyDatasetReference(
+                    factoryResourceId,
+                    pipelineResourceId,
+                    pipelineName,
+                    activityName,
+                    activityType,
+                    activity,
+                    AzureInventoryAdfPipelineFlowDirection.Read,
+                    "dataset",
+                    flows,
+                    flowKeys);
+
+                AddTypePropertyDatasetReference(
+                    factoryResourceId,
+                    pipelineResourceId,
+                    pipelineName,
+                    activityName,
+                    activityType,
+                    activity,
+                    AzureInventoryAdfPipelineFlowDirection.Read,
+                    "source",
+                    flows,
+                    flowKeys);
+            }
+
+            bool hasWriteDatasetReference = AddDatasetReferences(
                 factoryResourceId,
                 pipelineResourceId,
                 pipelineName,
@@ -184,6 +211,21 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 AzureInventoryAdfPipelineFlowDirection.Write,
                 flows,
                 flowKeys);
+
+            if (!hasWriteDatasetReference)
+            {
+                AddTypePropertyDatasetReference(
+                    factoryResourceId,
+                    pipelineResourceId,
+                    pipelineName,
+                    activityName,
+                    activityType,
+                    activity,
+                    AzureInventoryAdfPipelineFlowDirection.Write,
+                    "sink",
+                    flows,
+                    flowKeys);
+            }
         }
     }
 
@@ -333,7 +375,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         });
     }
 
-    private static void AddDatasetReferences(
+    private static bool AddDatasetReferences(
         string factoryResourceId,
         string pipelineResourceId,
         string pipelineName,
@@ -348,8 +390,10 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         if (!activity.TryGetProperty(propertyName, out JsonElement referencesElement)
             || referencesElement.ValueKind is not JsonValueKind.Array)
         {
-            return;
+            return false;
         }
+
+        bool addedReference = false;
 
         foreach (JsonElement reference in referencesElement.EnumerateArray())
         {
@@ -387,6 +431,7 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 continue;
             }
 
+            addedReference = true;
             flows.Add(new AzureInventoryAdfPipelineFlowRow
             {
                 FactoryResourceId = factoryResourceId.Trim(),
@@ -399,6 +444,71 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
             });
         }
+
+        return addedReference;
+    }
+
+    private static void AddTypePropertyDatasetReference(
+        string factoryResourceId,
+        string pipelineResourceId,
+        string pipelineName,
+        string activityName,
+        string activityType,
+        JsonElement activity,
+        string flowDirection,
+        string propertyName,
+        List<AzureInventoryAdfPipelineFlowRow> flows,
+        HashSet<string> flowKeys)
+    {
+        if (!activity.TryGetProperty("typeProperties", out JsonElement typePropertiesElement)
+            || typePropertiesElement.ValueKind is not JsonValueKind.Object
+            || !typePropertiesElement.TryGetProperty(propertyName, out JsonElement propertyElement)
+            || propertyElement.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        JsonElement datasetElement = propertyElement;
+        if (propertyName is "source" or "sink")
+        {
+            if (!propertyElement.TryGetProperty("dataset", out datasetElement)
+                || datasetElement.ValueKind is not JsonValueKind.Object)
+            {
+                return;
+            }
+        }
+
+        if (datasetElement.TryGetProperty("type", out JsonElement typeElement)
+            && typeElement.ValueKind is JsonValueKind.String
+            && typeElement.GetString()?.Contains("Expression", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return;
+        }
+
+        string? datasetName = TryReadString(datasetElement, "referenceName");
+        if (!AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(datasetName))
+        {
+            return;
+        }
+
+        string flowKey =
+            $"{factoryResourceId}|{pipelineResourceId}|{activityName}|{flowDirection}|{datasetName}";
+        if (!flowKeys.Add(flowKey))
+        {
+            return;
+        }
+
+        flows.Add(new AzureInventoryAdfPipelineFlowRow
+        {
+            FactoryResourceId = factoryResourceId.Trim(),
+            PipelineResourceId = pipelineResourceId.Trim(),
+            PipelineName = pipelineName.Trim(),
+            ActivityName = activityName.Trim(),
+            ActivityType = activityType.Trim(),
+            FlowDirection = flowDirection,
+            DatasetName = datasetName!.Trim(),
+            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+        });
     }
 
     private static bool TryReadPipelineIdentity(

@@ -2820,7 +2820,7 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
             continue
         }
 
-        Add-ArchLucidAzureAdfDatasetReferenceFlows `
+        $hasReadDatasetReference = Add-ArchLucidAzureAdfDatasetReferenceFlows `
             -FactoryResourceId $FactoryResourceId `
             -PipelineResourceId $PipelineResourceId `
             -PipelineName $PipelineName `
@@ -2832,7 +2832,34 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
             -Rows $Rows `
             -FlowKeys $FlowKeys
 
-        Add-ArchLucidAzureAdfDatasetReferenceFlows `
+        if (-not $hasReadDatasetReference)
+        {
+            Add-ArchLucidAzureAdfTypePropertyDatasetReference `
+                -FactoryResourceId $FactoryResourceId `
+                -PipelineResourceId $PipelineResourceId `
+                -PipelineName $PipelineName `
+                -ActivityName $activityName `
+                -ActivityType $activityType `
+                -Activity $activity `
+                -FlowDirection 'Read' `
+                -PropertyName 'dataset' `
+                -Rows $Rows `
+                -FlowKeys $FlowKeys
+
+            Add-ArchLucidAzureAdfTypePropertyDatasetReference `
+                -FactoryResourceId $FactoryResourceId `
+                -PipelineResourceId $PipelineResourceId `
+                -PipelineName $PipelineName `
+                -ActivityName $activityName `
+                -ActivityType $activityType `
+                -Activity $activity `
+                -FlowDirection 'Read' `
+                -PropertyName 'source' `
+                -Rows $Rows `
+                -FlowKeys $FlowKeys
+        }
+
+        $hasWriteDatasetReference = Add-ArchLucidAzureAdfDatasetReferenceFlows `
             -FactoryResourceId $FactoryResourceId `
             -PipelineResourceId $PipelineResourceId `
             -PipelineName $PipelineName `
@@ -2843,7 +2870,81 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
             -FlowDirection 'Write' `
             -Rows $Rows `
             -FlowKeys $FlowKeys
+
+        if (-not $hasWriteDatasetReference)
+        {
+            Add-ArchLucidAzureAdfTypePropertyDatasetReference `
+                -FactoryResourceId $FactoryResourceId `
+                -PipelineResourceId $PipelineResourceId `
+                -PipelineName $PipelineName `
+                -ActivityName $activityName `
+                -ActivityType $activityType `
+                -Activity $activity `
+                -FlowDirection 'Write' `
+                -PropertyName 'sink' `
+                -Rows $Rows `
+                -FlowKeys $FlowKeys
+        }
     }
+}
+
+function Add-ArchLucidAzureAdfTypePropertyDatasetReference
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId,
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineResourceId,
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineName,
+        [Parameter(Mandatory = $true)]
+        [string] $ActivityName,
+        [Parameter(Mandatory = $true)]
+        [string] $ActivityType,
+        [Parameter(Mandatory = $true)]
+        [object] $Activity,
+        [Parameter(Mandatory = $true)]
+        [string] $FlowDirection,
+        [Parameter(Mandatory = $true)]
+        [string] $PropertyName,
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows,
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Generic.HashSet[string]] $FlowKeys
+    )
+
+    $typeProperties = $Activity.typeProperties
+    if ($null -eq $typeProperties) { return }
+
+    $dataset = $typeProperties
+    if ($PropertyName -in @('source', 'sink'))
+    {
+        $dataset = $typeProperties.$PropertyName.dataset
+    }
+
+    if ($null -eq $dataset) { return }
+
+    [string]$referenceType = ''
+    try { $referenceType = "$( $dataset.type )".Trim() } catch { }
+    if ($referenceType -like '*Expression*') { return }
+
+    [string]$datasetName = ''
+    try { $datasetName = "$( $dataset.referenceName )".Trim() } catch { }
+    if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $datasetName)) { return }
+
+    [string]$flowKey = "$FactoryResourceId|$PipelineResourceId|$ActivityName|$FlowDirection|$datasetName"
+    if (-not $FlowKeys.Add($flowKey)) { return }
+
+    [void]$Rows.Add([ordered]@{
+        factoryResourceId = $FactoryResourceId
+        pipelineResourceId = $PipelineResourceId
+        pipelineName = $PipelineName
+        activityName = $ActivityName
+        activityType = $ActivityType
+        flowDirection = $FlowDirection
+        datasetName = $datasetName
+        collectionStatus = 'Succeeded'
+    })
 }
 
 function Add-ArchLucidAzureAdfDatasetReferenceFlows
@@ -2890,6 +2991,8 @@ function Add-ArchLucidAzureAdfDatasetReferenceFlows
         return
     }
 
+    $addedReference = $false
+
     foreach ($reference in $references)
     {
         if ($null -eq $reference) { continue }
@@ -2899,17 +3002,6 @@ function Add-ArchLucidAzureAdfDatasetReferenceFlows
 
         if ($referenceType -like '*Expression*') { continue }
 
-        try
-        {
-            if ($null -ne $reference.parameters -and @($reference.parameters.PSObject.Properties).Count -gt 0)
-            {
-                continue
-            }
-        }
-        catch
-        {
-        }
-
         [string]$datasetName = ''
         try { $datasetName = "$( $reference.referenceName )".Trim() } catch { }
 
@@ -2918,6 +3010,7 @@ function Add-ArchLucidAzureAdfDatasetReferenceFlows
         [string]$flowKey = "$FactoryResourceId|$PipelineResourceId|$ActivityName|$FlowDirection|$datasetName"
         if (-not $FlowKeys.Add($flowKey)) { continue }
 
+        $addedReference = $true
         [void]$Rows.Add([ordered]@{
             factoryResourceId = $FactoryResourceId
             pipelineResourceId = $PipelineResourceId
@@ -2929,6 +3022,8 @@ function Add-ArchLucidAzureAdfDatasetReferenceFlows
             collectionStatus = 'Succeeded'
         })
     }
+
+    return $addedReference
 }
 
 function Get-ArchLucidAzureAdfTriggerCompanionRows
