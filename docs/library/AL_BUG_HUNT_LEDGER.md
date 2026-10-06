@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` after recursive nested-aggregate fixes; cheap-disproof closed triple-wrapper mixed aggregate (fail-fast on first attempt) and top-level sibling transient + wrapped-mixed aggregate (`inners.All` intentional fail-fast per parallel-persist semantics); seeded five candidates; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
+
 2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — `IsParallelPersistAggregateInnerRetriable` applied `SqlTransientDetector` to nested aggregate inners instead of recursing, so `AggregateException` → wrapper → wrapper → mixed nested aggregate retried; recurse `IsParallelPersistAggregateInnerRetriable` for nested parallel-persist sets; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
 
 2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — top-level `AggregateException` with wrapper inners used `inners.All(SqlTransientDetector.IsTransient)`, so a nested mixed parallel-persist aggregate behind `InvalidOperationException` retried on the first nested inner only; flatten nested aggregates per top-level inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
@@ -4534,9 +4536,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — nested parallel-persist flatten not recursive through multi-wrapper aggregate inners
 - **related-pd-tb:** none
@@ -4644,6 +4646,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — nested parallel-persist aggregate inners used `SqlTransientDetector` only, so a top-level `AggregateException` whose inner was a wrapper around another wrapper around a mixed nested aggregate retried on the first nested `SqlException` inner — **hit 2026-10-06 seed hunt:** recurse `IsParallelPersistAggregateInnerRetriable` for nested aggregate inners; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`
 
 2026-10-06 seed hunt (seed→hit): promoted multi-wrapper nested mixed aggregate candidate; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` from `Task.WhenAll` parallel persist with sibling inners where one inner is a transient-only `SqlException` (`1205`) and another inner is a repository wrapper around a mixed nested `AggregateException` — wrong outcome would retry for the deadlock sibling while the permanent mixed branch still fails; reachability: `AuthorityDrivenArchitectureRunCommitOrchestrator` parallel persistence stages surface a single `AggregateException` with one inner per failed task (`ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitDecisionMaterializationStage.cs` `Task.WhenAll`).
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — first `AggregateException` on a wrapper `InnerException` chain with an empty `InnerExceptions` list stops classification before a second mixed `AggregateException` deeper on the same chain — wrong outcome would skip fail-fast; reachability: requires repository to chain `InvalidOperationException` → empty `AggregateException` → further `InnerException` (not observed in current parallel-persist throw sites).
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — root `AggregateException()` with zero inners returns false without evaluating `SqlTransientDetector` on an outer wrapper — wrong outcome would mask transient SQL on a wrapper `InnerException` chain that never reaches a nested aggregate; reachability: `InvalidOperationException` → `AggregateException()` shell (`ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell`).
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — non-`InvalidOperationException` repository wrappers (for example `Exception` or `IOException`) around nested mixed parallel-persist aggregates — wrong outcome would diverge from `InvalidOperationException` shapes; reachability: `SqlTransientDetector` walks arbitrary wrapper chains once `TryGetParallelPersistInners` locates the nested aggregate.
+- [ ] (candidate) `CommitRunTransientRetryPolicy` — authority commit attempt `12` with `elapsed` just below `RetryBudget` while an inner `OrchestratorTransientDbRetry` Polly backoff delay is still sleeping — wrong outcome would return success or throw non-`ConflictException` after outer exhaustion; reachability: `AuthorityDrivenArchitectureRunCommitOrchestrator` commit retry loop uses `IsExhausted` then throws `ConflictException` on exhaustion.
+
+- [x] (invalid) `OrchestratorTransientDbRetry` — triple nested repository wrappers around a mixed parallel-persist aggregate still retried because recursion depth was capped at two wrappers — **cheap-disproof 2026-10-06 seed hunt:** recursive `IsParallelPersistAggregateInnerRetriable` already fail-fast on first attempt for three wrapper layers (falsification attempt, no new regression committed).
+- [x] (invalid) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` with one transient-only `SqlException` sibling and one wrapper around mixed nested aggregate should retry for the sibling — **cheap-disproof 2026-10-06 seed hunt:** `inners.All` fail-fast is intentional parallel-persist semantics (same class as #1259 mixed-aggregate rows).
+
+2026-10-06 seed hunt (seed-only): reseeded orchestrator-transient-retry after recursive wrapper fixes; cheap-disproof closed triple-wrapper and sibling-transient candidates; seeded five new candidates; 58 scoped transient-retry tests passed.
 
 ---
 
