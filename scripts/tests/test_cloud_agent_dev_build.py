@@ -33,6 +33,10 @@ def test_install_and_start_source_shared_dev_build_args() -> None:
     assert "cloud_agent_dev_build_args" in start_text
     assert "Demo__Enabled=true" in start_text
     assert "Demo__SeedOnStartup=true" in start_text
+    assert "NODE_OPTIONS" in start_text
+    assert "--max-old-space-size=6144" in start_text
+    assert "./node_modules/.bin/next dev" in start_text
+    assert "npm run dev" not in start_text
 
 
 if __name__ == "__main__":
