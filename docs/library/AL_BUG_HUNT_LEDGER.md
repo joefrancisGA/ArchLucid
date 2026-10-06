@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `worker-host` — cheap-disproof closed four seeded `(candidate)` rows (Pilot/SaaS overlay regression gaps closed with parity tests; post-`Build()` `CollectErrors` vs `IValidateOptions` drift not reproduced—worker pre-`Build()` `ValidateOrThrow` uses same `CollectErrors` and existing fail-fast tests cover options resolution; schema bootstrap before health pipeline remains intentional liveness semantics); regressions `Worker_host_loads_appsettings_saas_overlay_from_content_root`, `Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root`; 14 scoped worker host/composition tests passed.
+
 2026-10-06 thorough hunt (dry): `sql-run-repository` — cheap-disproof closed five seeded `(candidate)` rows (project-list/graph/committed slug seeks symmetric with InMemory `AuthorityProjectSlugMatches` without `Require*` trim; operator-governance `OccurredUtc` kind passed through while production caller supplies UTC; archive-by-id tenant-catalog exemption scoped at API); regressions `ForProjectList_preserves_tab_prefix_in_normalized_slug_like_in_memory_list_filter`, `InMemory_list_by_project_does_not_match_tab_prefixed_seek_when_stored_slug_is_unpadded`, `ForOperatorGovernanceDisposition_passes_occurred_utc_kind_through_unchanged`; 136 scoped zone tests passed (1 SQL integration skipped).
 
 2026-10-06 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows (CI python vs C# sync gap, em-dash delimiter, optional on-disk roots, exhaustive inventory, external list scrapers); 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed; `assert_terraform_root_ordering_sync.py` OK.
@@ -8484,13 +8486,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded `(candidate)` rows below; Pilot/SaaS overlays honored on non-Development worker hosts (same `Program.Main` chain as Advanced); API post-`Build()` `CollectErrors` does not add `IValidateOptions` coverage beyond worker pre-`Build()` validation; schema bootstrap ordering unchanged from prior dry closure. Regressions `Worker_host_loads_appsettings_saas_overlay_from_content_root`, `Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root`; 14 scoped worker host/composition tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` startup layering vs API; cheap-disproved Pilot overlay skip candidate; seeded SaaS/Pilot regression-gap and post-`Build()` validator drift candidates; 12 scoped worker host/composition tests passed.
 
@@ -8506,13 +8510,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `Program.Main` — Worker skips `appsettings.Pilot.json` for non-Development hosts so Container Apps worker revisions ignore pilot profile tuning — **cheap-disproof 2026-10-06 seed hunt:** `Program.Main` loads optional `appsettings.Pilot.json` when `!builder.Environment.IsDevelopment()` before Advanced/SaaS and a second `AddEnvironmentVariables()` (same ordering as `ArchLucid.Api/Program.cs`); `Worker_host_loads_appsettings_advanced_overlay_from_content_root` already proves post-default JSON overlays bind on the worker host.
 
-- [ ] (candidate) `Program.Main` — No regression test that `appsettings.Pilot.json` is honored for Staging/Production worker hosts (only `appsettings.Advanced.json` is covered today).
+- [x] (valid-no-repro) `Program.Main` — No regression test that `appsettings.Pilot.json` is honored for Staging/Production worker hosts (only `appsettings.Advanced.json` is covered today) — **cheap-disproof 2026-10-06 thorough hunt:** test gap only; `Program.Main` loads Pilot when `!IsDevelopment()`; regression `Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root` proves overlay binding on the worker host (same code path as Staging/Production).
 
-- [ ] (candidate) `Program.Main` — No regression test that `appsettings.SaaS.json` is honored on the worker host (same overlay chain as Advanced).
+- [x] (valid-no-repro) `Program.Main` — No regression test that `appsettings.SaaS.json` is honored on the worker host (same overlay chain as Advanced) — **cheap-disproof 2026-10-06 thorough hunt:** test gap only; regression `Worker_host_loads_appsettings_saas_overlay_from_content_root` mirrors Advanced overlay coverage.
 
-- [ ] (candidate) `Program.Main` — Worker calls `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` while the API re-runs `ArchLucidConfigurationRules.CollectErrors` after `Build()`; an `IValidateOptions` failure at first service resolution could still surface after a passing pre-Build snapshot without a worker-specific repro.
+- [x] (valid-no-repro) `Program.Main` — Worker calls `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` while the API re-runs `ArchLucidConfigurationRules.CollectErrors` after `Build()`; an `IValidateOptions` failure at first service resolution could still surface after a passing pre-Build snapshot without a worker-specific repro — **cheap-disproof 2026-10-06 thorough hunt:** both hosts use the same `ArchLucidConfigurationRules.CollectErrors`; API post-`Build()` pass does not re-run `IValidateOptions`; simulator `MaxCompletionTokens` and outbox/InMemory gaps already fail at `factory.Services` (`Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`, `Worker_host_fails_fast_when_transactional_outbox_requires_sql_but_storage_is_in_memory`); prior `ConfigurationValidationHostedService` drift row closed as **invalid**.
 
-- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline`, so SQL bootstrap failures prevent `/health/live` from being mapped in the same startup attempt (operator may misattribute probe failure to the health pipeline rather than migrations).
+- [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline`, so SQL bootstrap failures prevent `/health/live` from being mapped in the same startup attempt (operator may misattribute probe failure to the health pipeline rather than migrations) — **cheap-disproof 2026-10-06 thorough hunt:** reaffirms 2026-10-04 dry closure; `/health/live` is liveness-only and bootstrap-before-pipeline is intentional; no wrong probe outcome established.
 
 - [x] (valid-no-repro) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs` — **cheap-disproof 2026-10-05 thorough hunt:** `ConsoleHangDiagnostics.Log` still emits hang breadcrumbs via the documented stderr fallback when `_logger` is unset (`ArchLucid.Core/Diagnostics/ConsoleHangDiagnostics.cs`); missing the API hook changes log routing only, not hang visibility or request/agent outcomes.
 - [x] (valid-no-repro) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation — **cheap-disproof 2026-10-05 thorough hunt:** method is informational operator confirmation only (`ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` → `AgentExecutionRules.LogInformationWhenRealModeConfigured`); worker Real-mode startup with Managed Identity already succeeds without the line (`Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`).

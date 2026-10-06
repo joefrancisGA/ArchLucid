@@ -20,6 +20,117 @@ namespace ArchLucid.Worker.Tests;
 public sealed class WorkerHostStartupTests
 {
     [Fact]
+    public void Worker_host_loads_appsettings_saas_overlay_from_content_root()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string contentRoot = Path.Combine(Path.GetTempPath(), "archlucid-worker-saas-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(contentRoot);
+
+        try
+        {
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.json"),
+                """
+                {
+                  "Hosting": { "Role": "Worker" },
+                  "Demo": { "SaaSGuestSeedEnabled": false }
+                }
+                """);
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.SaaS.json"),
+                """
+                {
+                  "Demo": { "SaaSGuestSeedEnabled": true }
+                }
+                """);
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseContentRoot(contentRoot);
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration["Demo:SaaSGuestSeedEnabled"].Should().Be("True");
+        }
+        finally
+        {
+            snapshot.Restore();
+
+            try
+            {
+                Directory.Delete(contentRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort temp cleanup on shared CI hosts.
+            }
+        }
+    }
+
+    [Fact]
+    public void Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string contentRoot = Path.Combine(Path.GetTempPath(), "archlucid-worker-pilot-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(contentRoot);
+
+        try
+        {
+            const string economyDeployment = "gpt-pilot-economy";
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.json"),
+                """
+                {
+                  "Hosting": { "Role": "Worker" }
+                }
+                """);
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.Pilot.json"),
+                $$"""
+                {
+                  "ArchLucid": {
+                    "AgentModelTiers": {
+                      "EconomyDeploymentName": "{{economyDeployment}}"
+                    }
+                  }
+                }
+                """);
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseContentRoot(contentRoot);
+                    builder.UseEnvironment("Testing");
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration["ArchLucid:AgentModelTiers:EconomyDeploymentName"]
+                .Should()
+                .Be(economyDeployment);
+        }
+        finally
+        {
+            snapshot.Restore();
+
+            try
+            {
+                Directory.Delete(contentRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort temp cleanup on shared CI hosts.
+            }
+        }
+    }
+
+    [Fact]
     public void Worker_host_loads_appsettings_advanced_overlay_from_content_root()
     {
         WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
