@@ -20609,13 +20609,15 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): reseeded core-authority-runs; cheap-disproof closed `PartiallyCompleted` + `ContextSnapshotId` in-progress mask candidate; added four new `(candidate)` rows; 43 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
 
 2026-09-30 seed hunt (seed-only): re-read Run Authority lifecycle and dead-letter sources; no new reachable mechanism-backed candidate survived the terminal/in-progress precedence and forward-compatible failure parsing review.
 
@@ -20636,6 +20638,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — **disproved 2026-09-07 (#1272):** SQL `CK_Runs_LegacyRunStatus` enum-name allowlist blocks whitespace-only persisted values; list/export uses `ResolveFromRunHeader` only (`TryParseStatus_coerces_whitespace_only_legacy_status_to_created`, `ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only`)
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with array-valued `failureClass` token (`{"failureClass":["PipelineDeadLetter"]}`) returns not dead-lettered because `TryReadNonEmptyTextToken` rejects non-string tokens — **disproved 2026-09-08 (#1304):** `AgentExecutionFailureSummaryJson.Serialize`, `AuthorityPipelineDeadLetterRunMarker.BuildFailureReasonJson`, and pipeline writers emit string `failureClass` only; conservative reader behavior (`IsDeadLettered_returns_false_for_array_valued_failure_class_token`, `Serialize_emits_string_failure_class_not_array`)
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks — **disproved 2026-09-08 (#1304):** `FailedRunRetryAdmission` retains stale snapshots by design; both legacy-status and progress-marker branches yield `InProgress`, matching `RunOperationProjector` Running; detail uses stage-based `AuthorityRunLifecyclePhaseResolver` outside zone paths (#1202); no list/export wrong outcome (`ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress`)
+
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with non-empty `ContextSnapshotId` surfaces `InProgress` because progress markers run before terminal failure resolution — **cheap-disproof 2026-10-06 seed hunt:** `TryResolveTerminalFailurePhase` includes `PartiallyCompleted` and runs before progress-marker branches; regression `ResolveFromRunHeader_partially_completed_with_context_snapshot_returns_failed_not_in_progress`.
+
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId == Guid.Empty` returns `NotStarted` because `IsCommittedWithGoldenManifest` treats empty guid as absent and no in-progress legacy branch matches `Committed`.
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — JSON with leading UTF-8 BOM before `{` is rejected by the leading-brace gate even though `JsonDocument.Parse` could accept the payload after BOM trim (writers emit BOM-free JSON per #1203).
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — fractional whole-number strings such as `"5.0"` coerce to `Committed` for in-memory transition callers while list surfaces use enum names only on persisted rows (`TryParseStatus` / SQL `CK_Runs_LegacyRunStatus`).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — unparseable `LegacyRunStatus` with non-empty `GoldenManifestId` surfaces `InProgress` via progress-marker branch without validating enum name against SQL allowlist.
 
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` with internal whitespace (`Pipeline  DeadLetter`) fails exact match against `AgentExecutionFailureClasses.PipelineDeadLetter` — **cheap-disproof 2026-09-09 seed hunt #1473:** writers emit canonical class strings only; conservative reader fails closed; regression `IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token`.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run with golden manifest and pipeline dead-letter JSON surfaces `Complete` because `IsCommittedWithGoldenManifest` runs before dead-letter check — **cheap-disproof 2026-09-09 seed hunt #1473:** dead-letter branch precedes Complete; regression `ResolveFromRunHeader_dead_lettered_committed_run_returns_failed_not_complete`.
