@@ -77,19 +77,39 @@ internal static class ConfigurationSensitiveConfigValueScanner
         if (!trimmed.Contains(';'))
             return false;
 
-        return trimmed.Contains("Password=", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("Pwd=", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("AccountKey=", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("AccessKey=", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("ClientSecret=", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
+        return ContainsCredentialConnectionPairMarker(trimmed);
     }
 
-    private static bool StartsWithCredentialConnectionPair(ReadOnlySpan<char> trimmed) =>
-        trimmed.StartsWith("Password=", StringComparison.OrdinalIgnoreCase)
-        || trimmed.StartsWith("Pwd=", StringComparison.OrdinalIgnoreCase)
-        || trimmed.StartsWith("AccountKey=", StringComparison.OrdinalIgnoreCase)
-        || trimmed.StartsWith("AccessKey=", StringComparison.OrdinalIgnoreCase)
-        || trimmed.StartsWith("ClientSecret=", StringComparison.OrdinalIgnoreCase)
-        || trimmed.StartsWith("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
+    private static bool StartsWithCredentialConnectionPair(ReadOnlySpan<char> trimmed)
+    {
+        foreach (string marker in CredentialConnectionPairMarkers)
+        {
+            if (trimmed.StartsWith(marker, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsCredentialConnectionPairMarker(ReadOnlySpan<char> trimmed)
+    {
+        foreach (string marker in CredentialConnectionPairMarkers)
+        {
+            if (trimmed.Contains(marker, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static readonly string[] CredentialConnectionPairMarkers =
+    [
+        "Password=",
+        "Pwd=",
+        "AccountKey=",
+        "AccessKey=",
+        "ApiKey=",
+        "ClientSecret=",
+        "SharedAccessKey=",
+    ];
 }
