@@ -10,11 +10,13 @@ using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
+using ArchLucid.ArtifactSynthesis.Branding;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -493,6 +495,63 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         serviceScope.ServiceProvider.GetRequiredService<IBrandAssetService>()
             .Should().BeOfType<BrandAssetService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_drift_workbench_path_routing_and_snapshot_graph_boundaries()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        IInfraEvidenceDriftWorkbenchQueryService driftWorkbench =
+            serviceScope.ServiceProvider.GetRequiredService<IInfraEvidenceDriftWorkbenchQueryService>();
+
+        PagedResponse<AzureInventorySnapshotRecord> snapshots = await driftWorkbench.ListSnapshotsAsync(
+            scope,
+            page: 1,
+            pageSize: 10,
+            subscriptionId: null,
+            CancellationToken.None);
+
+        snapshots.Items.Should().NotBeNull();
+        snapshots.TotalCount.Should().BeGreaterThanOrEqualTo(0);
+
+        IAzureInventorySnapshotGraphResolver graphResolver =
+            serviceScope.ServiceProvider.GetRequiredService<IAzureInventorySnapshotGraphResolver>();
+
+        AzureInventorySnapshotGraphResolveResult missingSnapshot = await graphResolver.TryResolveGraphAsync(
+            scope,
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            cancellationToken: CancellationToken.None);
+
+        missingSnapshot.Succeeded.Should().BeFalse();
+        missingSnapshot.ErrorMessage.Should().Contain("not found");
+
+        ISecurityEvidencePathRoutingSyncService pathRoutingSync =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityEvidencePathRoutingSyncService>();
+
+        await pathRoutingSync.SyncSnapshotAsync(scope, Guid.Empty, CancellationToken.None);
+
+        IBrandedDiagramExportComposer composer =
+            serviceScope.ServiceProvider.GetRequiredService<IBrandedDiagramExportComposer>();
+        IBrandedDiagramExportService exportService =
+            serviceScope.ServiceProvider.GetRequiredService<IBrandedDiagramExportService>();
+
+        composer.Should().BeOfType<BrandedDiagramExportComposer>();
+        exportService.Should().BeOfType<BrandedDiagramExportService>();
+        composer.DecorateMermaidSource("graph TD\n  A-->B", "Acme").Should().Contain("%% title: Acme");
     }
 
     private static ScopeContext CreateDefaultScope() =>
