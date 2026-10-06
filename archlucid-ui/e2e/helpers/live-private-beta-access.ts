@@ -614,6 +614,30 @@ export async function listPendingInvitations(request: APIRequestContext): Promis
   return Array.isArray(body.invitations) ? body.invitations : [];
 }
 
+/** Polls admin invitations API until the row for `email` reaches `expectedStatus`. */
+export async function expectAdminInvitationStatus(
+  request: APIRequestContext,
+  email: string,
+  expectedStatus: string,
+): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const invitations = await listPendingInvitations(request);
+        const match = invitations.find(
+          (item) =>
+            typeof item === "object" &&
+            item !== null &&
+            (item as { email?: string }).email?.toLowerCase() === email.toLowerCase(),
+        ) as { status?: string } | undefined;
+
+        return match?.status ?? "";
+      },
+      { timeout: 90_000 },
+    )
+    .toBe(expectedStatus);
+}
+
 export type LiveScopeDebugBody = {
   tenantId?: string;
   workspaceId?: string;

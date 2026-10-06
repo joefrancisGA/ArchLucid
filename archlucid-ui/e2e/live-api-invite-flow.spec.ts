@@ -12,6 +12,7 @@ import {
 } from "./helpers/live-invite-form-submit";
 import {
   createScimAdminToken,
+  expectAdminInvitationStatus,
   primePrivateBetaBrowserSessionIfJwtMode,
   provisionScimDirectoryUser,
   stubEmptyArchitectureDraftListRoute,
@@ -38,7 +39,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await requireLiveScimAdminPreflight(request);
   });
 
-  test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
+  test("admin invite round-trip: send invite, list pending, revoke", async ({ page, request }) => {
     test.setTimeout(liveE2eAdminInviteUiPlaywrightTimeoutMs());
 
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
@@ -64,6 +65,8 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     );
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
     await revokeResponse;
+
+    await expectAdminInvitationStatus(request, inviteEmail, "Revoked");
 
     await expectRevokedInvitationRowVisible(page, inviteEmail);
 

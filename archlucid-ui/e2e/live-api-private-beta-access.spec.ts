@@ -496,7 +496,6 @@ test.describe(
       reestablishJwtSession: false,
       jwtAccessToken: inviteeSession.accessToken,
     });
-    await assertLiveSeatOperatorScopeChrome(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);
@@ -511,6 +510,9 @@ test.describe(
     expect(scope.workspaceId.toLowerCase()).toBe(expectedScope.workspaceId.toLowerCase());
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
     expect(roles.map((role) => role.toLowerCase())).toContain("operator");
+
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await assertLiveSeatOperatorScopeChrome(page);
 
     const runId = await submitPrivateBetaSimplifiedPilotWizard(page);
 

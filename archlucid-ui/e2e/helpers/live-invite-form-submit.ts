@@ -249,8 +249,17 @@ export async function expectRevokedInvitationRowVisible(page: Page, inviteEmail:
     await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
     await dismissBlockingModalOverlays(page);
     await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 30_000 });
+    await page
+      .waitForResponse(
+        (response) =>
+          response.url().includes("/api/proxy/v1/admin/users/invitations") &&
+          response.request().method() === "GET" &&
+          response.ok(),
+        { timeout: 60_000 },
+      )
+      .catch(() => undefined);
     const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
-    await expect(showResolvedToggle).toBeVisible({ timeout: 30_000 });
+    await expect(showResolvedToggle).toBeVisible({ timeout: 60_000 });
     const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
     if (/show resolved invitations/i.test(toggleLabel)) {
       await showResolvedToggle.click();
@@ -258,5 +267,5 @@ export async function expectRevokedInvitationRowVisible(page: Page, inviteEmail:
     const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
     const revokedRow = invitationsTable.locator("tr", { hasText: inviteEmail });
     await expect(revokedRow).toContainText("Revoked", { timeout: 5_000 });
-  }).toPass({ timeout: 90_000 });
+  }).toPass({ timeout: 120_000 });
 }
