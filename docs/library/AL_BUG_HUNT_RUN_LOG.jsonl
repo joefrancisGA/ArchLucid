@@ -1,5 +1,3 @@
-{"at":"2026-09-06T06:25:23.5140155Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-06T06:30:01.9940238Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T06:32:11.9525838Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T06:36:39.9103896Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T06:41:04.1749898Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8748,3 +8746,4 @@
 {"at":"2026-10-06T06:13:24.403678Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs,ArchLucid.Application/Notifications/Email/EmailBrandingUrls.cs"]}
 {"at":"2026-10-06T06:19:55.8900249Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TrialLifecycleTransitionEngine.cs"]}
 {"at":"2026-10-06T06:25:22.0284271Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TrialLifecycleTransitionEngine.cs"]}
+{"at":"2026-10-06T06:32:07.9951328Z","zoneId":"weekly-digest-email","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs"]}
