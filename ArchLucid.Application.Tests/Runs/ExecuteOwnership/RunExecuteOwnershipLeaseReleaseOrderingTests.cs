@@ -127,8 +127,8 @@ public sealed class RunExecuteOwnershipLeaseReleaseOrderingTests
 
         await service.RenewAsync(runId, CancellationToken.None);
 
-        repository.IsHeldBy(runId, "instance-a").Should().BeTrue(
-            "release before renewal cancellation leaves a window where heartbeat renew recreates the lease");
+        repository.IsHeldBy(runId, "instance-a").Should().BeFalse(
+            "renew without a local acquire pin must not touch SQL ownership after release cleared the pin");
     }
 
     private static RunExecuteOwnershipLeaseService CreateService(

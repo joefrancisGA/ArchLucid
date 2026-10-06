@@ -102,6 +102,9 @@ public sealed class RunExecuteOwnershipLeaseService(
         if (_storageMode.IsInMemory)
             return;
 
+        if (!_activeHolderInstanceIds.ContainsKey(runId))
+            return;
+
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
         int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
 

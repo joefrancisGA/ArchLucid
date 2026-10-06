@@ -78,15 +78,16 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
             .ReturnsAsync(true);
 
         WorkerHostDrainGate drainGate = new();
-        drainGate.BeginDrain();
-
         RunExecuteOwnershipLeaseService sut = CreateSut(leases, drainGate);
+
+        await sut.AcquireAsync(runId, CancellationToken.None);
+        drainGate.BeginDrain();
 
         await sut.RenewAsync(runId, CancellationToken.None);
 
         leases.Verify(
             l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Exactly(2));
     }
 
     [Fact]

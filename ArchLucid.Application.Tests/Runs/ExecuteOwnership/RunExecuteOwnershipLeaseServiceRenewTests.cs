@@ -17,6 +17,19 @@ namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 public sealed class RunExecuteOwnershipLeaseServiceRenewTests
 {
     [Fact]
+    public async Task RenewAsync_does_not_invoke_repository_without_local_acquire_pin()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new(MockBehavior.Strict);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+
+        await sut.RenewAsync(runId, CancellationToken.None);
+
+        leases.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RenewAsync_calls_repository_acquire_or_renew_for_current_instance()
     {
         Guid runId = Guid.NewGuid();
@@ -27,11 +40,13 @@ public sealed class RunExecuteOwnershipLeaseServiceRenewTests
 
         RunExecuteOwnershipLeaseService sut = CreateSut(leases);
 
+        await sut.AcquireAsync(runId, CancellationToken.None);
+
         await sut.RenewAsync(runId, CancellationToken.None);
 
         leases.Verify(
             l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Exactly(2));
     }
 
     [Fact]
@@ -41,9 +56,15 @@ public sealed class RunExecuteOwnershipLeaseServiceRenewTests
         Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
         leases
             .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .ReturnsAsync(true);
 
         RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+
+        await sut.AcquireAsync(runId, CancellationToken.None);
+
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Func<Task> act = () => sut.RenewAsync(runId, CancellationToken.None);
 
@@ -76,13 +97,15 @@ public sealed class RunExecuteOwnershipLeaseServiceRenewTests
 
         RunExecuteOwnershipLeaseService sut = CreateSut(leases, optionsMonitor);
 
+        await sut.AcquireAsync(runId, CancellationToken.None);
         options.Enabled = false;
 
         await sut.RenewAsync(runId, CancellationToken.None);
 
         leases.Verify(
             l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Exactly(2),
+            "renew must keep using SQL storage when ownership is disabled at runtime but this host still holds the acquire pin");
     }
 
     [Fact]
