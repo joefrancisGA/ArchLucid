@@ -8,6 +8,9 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_ROOT}"
 
+# shellcheck source=cloud-agent-dev-build.sh
+source "${REPO_ROOT}/scripts/cloud-agent-dev-build.sh"
+
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_NOLOGO=1
 export NUGET_PACKAGES="${NUGET_PACKAGES:-${HOME}/.nuget/packages}"
@@ -160,7 +163,7 @@ prune_bootstrap_disk 350
 if (( "$(avail_root_mb)" >= 250 )); then
   echo "Restoring and building ArchLucid.Api (Debug) [best-effort]..."
   if dotnet restore ArchLucid.Api/ArchLucid.Api.csproj \
-    && dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --verbosity minimal; then
+    && dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --verbosity minimal "$(cloud_agent_dev_build_args)"; then
     echo "ArchLucid.Api Debug build succeeded."
   else
     echo "WARNING: ArchLucid.Api Debug build failed; continuing install (UI and scoped .NET builds may still work)." >&2
