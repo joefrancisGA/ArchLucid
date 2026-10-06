@@ -353,6 +353,26 @@ internal static class InventoryDiagramExternalTargetApplier
         {
             string currentNodeId = pending.Dequeue();
 
+            if (graphNodesById.TryGetValue(currentNodeId, out GraphNode? currentNode)
+                && DiagramAstVnetTopologyResolver.IsSubnetNode(currentNode))
+            {
+                string? parentArmId = DiagramAstVnetTopologyResolver.TryResolveVnetIdFromSubnetArmId(
+                    DiagramAstGraphNodeClassifier.ReadArmId(currentNode));
+
+                foreach ((string vnetGraphNodeId, string vnetDiagramNodeId) in visibleVnetDiagramNodeIdByGraphNodeId)
+                {
+                    if (parentArmId is not null
+                        && graphNodesById.TryGetValue(vnetGraphNodeId, out GraphNode? vnetNode)
+                        && string.Equals(
+                            ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(vnetNode)),
+                            ArmResourceIdNormalizer.Normalize(parentArmId),
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return vnetDiagramNodeId;
+                    }
+                }
+            }
+
             if (!string.Equals(currentNodeId, privateEndpointNodeId, StringComparison.Ordinal)
                 && visibleVnetDiagramNodeIdByGraphNodeId.TryGetValue(currentNodeId, out string? diagramNodeId))
             {
