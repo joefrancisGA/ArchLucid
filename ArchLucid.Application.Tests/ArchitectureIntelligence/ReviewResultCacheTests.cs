@@ -736,6 +736,53 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void PinScope_dual_manifest_reports_not_pinned_when_distinct_key_cap_reached()
+    {
+        ReviewResultCache cache = new();
+        List<IReviewResultCachePinScope> scopes = [];
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"dual-pin-cap-{index}" };
+
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            scopes.Add(cache.PinScope(manifest));
+        }
+
+        ReviewCacheDependencyManifest primary = new() { ContentHash = "dual-pin-primary" };
+        ReviewCacheDependencyManifest secondary = new() { ContentHash = "dual-pin-secondary" };
+
+        using IReviewResultCachePinScope dualScope = cache.PinScope(primary, secondary);
+
+        dualScope.IsPinned.Should().BeFalse();
+
+        string runId = Guid.NewGuid().ToString("N");
+        cache.Set(primary, new ClosedLoopReasoningResult { RunId = runId });
+        cache.TryGet(primary, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be(runId);
+
+        foreach (IReviewResultCachePinScope scope in scopes)
+            scope.Dispose();
+    }
+
+    [Fact]
+    public void InvalidateForRun_does_not_remove_entries_with_blank_stored_run_id()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-blank-runid-invalidate" };
+
+        ClosedLoopReasoningResult stored = new() { RunId = "   " };
+        ClosedLoopCacheHitPublishGuard.SanitizeForStorage(stored);
+        stored.RunId.Should().BeNull();
+
+        cache.Set(manifest, stored);
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().BeNull();
+    }
+
+    [Fact]
     public void PinScope_reports_not_pinned_when_distinct_key_cap_reached()
     {
         ReviewResultCache cache = new();

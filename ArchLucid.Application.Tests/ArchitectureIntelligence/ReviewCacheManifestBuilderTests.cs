@@ -94,6 +94,51 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_client_run_id_is_whitespace_only_vs_omitted()
+    {
+        ClosedLoopReasoningRequest omitted = CreateRequest("Architecture note.");
+
+        ClosedLoopReasoningRequest whitespace = CreateRequest("Architecture note.");
+        whitespace.RunId = "   ";
+
+        ReviewCacheManifestBuilder.Build(omitted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(whitespace).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_baseline_model_loads_for_same_client_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-first-persist";
+
+        ArchitectureKnowledgeModel persisted = new()
+        {
+            ModelId = "model-1",
+            RunId = "run-first-persist",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, baselineKnowledgeModel: null).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(request, persisted).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_entries_differ_only_by_casing()
+    {
+        ClosedLoopReasoningRequest mixedCase = CreateRequest("Architecture note.");
+        mixedCase.DeclaredPriorities = ["Security", "security"];
+
+        ClosedLoopReasoningRequest canonical = CreateRequest("Architecture note.");
+        canonical.DeclaredPriorities = ["Security"];
+
+        ReviewCacheManifestBuilder.Build(mixedCase).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(canonical).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
     public void Build_ignores_publish_intent_for_content_hash()
     {
         ClosedLoopReasoningRequest withoutPublish = CreateRequest("Architecture note.");

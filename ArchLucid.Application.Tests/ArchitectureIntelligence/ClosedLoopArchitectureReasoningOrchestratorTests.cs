@@ -225,6 +225,56 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
     }
 
     [Fact]
+    public async Task RunAsync_whitespace_client_run_id_shares_manifest_with_omitted_run_id_and_assigns_fresh_run_id_on_cache_hit()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest whitespaceRunId = new()
+        {
+            TenantId = "tenant-cache-whitespace-runid",
+            RunId = "   ",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(whitespaceRunId);
+
+        ClosedLoopReasoningRequest omittedRunId = new()
+        {
+            TenantId = "tenant-cache-whitespace-runid",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(omittedRunId);
+
+        second.CacheHit.Should().BeTrue();
+        second.RunId.Should().NotBe(first.RunId);
+        second.RunId.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
     public async Task RunAsync_does_not_persist_recommendation_apply_when_publish_blocked()
     {
         ServiceCollection services = new();
