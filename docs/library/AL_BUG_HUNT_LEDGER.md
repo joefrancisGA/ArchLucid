@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-06 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: SQL capacity insert rolls back on `OperationCanceledException` (`BackgroundJobRepository.CapacityInsert` transaction `Rollback`); processor retry backoff interrupted by `stoppingToken` leaves the Azure message undeleted for visibility retry (not a spurious `SendMessageAsync` on shutdown); in-memory terminal eviction is bounded retention by design (`EvictOldTerminalJobs_AfterMoreThan200Succeeded_OldestJobRemoved`); watchdog notify loop honors `cancellationToken` so trailing reclaimed ids wait for the next pass (#1429 batch semantics); reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
+
 2026-10-05 thorough hunt (hit): `host-core-jobs` — `DurableBackgroundJobQueue.EnqueueAsync` committed SQL insert then treated `OperationCanceledException` from `SendJobIdAsync` like a notify failure (or left `Pending` without queue notification); cancel cleanup via `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`; cheap-disproof closed orphan blob on processor success cancel, in-memory `GetFileAsync` after cancel-during-execute, registry-cancel stale message delete, intentional cancel-wins contract, and SQL insert rollback on cancel during `TryInsertPendingJobIfUnderCapacityAsync`; reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
 
 2026-10-05 seed hunt (seed→hit): `host-core-jobs` — `InMemoryBackgroundJobQueue.EnqueueAsync` inserted `_info`/`_workUnits` before `WaitAsync(0, cancellationToken)` so a canceled enqueue left orphan `Pending` rows without channel items; cleanup on `OperationCanceledException` (release acquired slot when needed); regression `EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job`; reseeded five hosted-loop candidates; 74 Host.Core + 41 focused Api background-job tests passed.
@@ -10794,10 +10796,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — durable enqueue cancel after SQL insert mishandled notify abort
 - **related-pd-tb:** none
 - **code-changed-since:** yes
