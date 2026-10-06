@@ -181,7 +181,6 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "trial-funnel",
   "trust-center",
   "troubleshooting-help",
-  "users-and-roles-help",
   "validate-route",
   "webhooks-integration",
   "welcome",

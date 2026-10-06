@@ -234,4 +234,16 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("subprocessors-help")).toBe(true);
     expect(resolveClaimDisciplineForStrip("subprocessors-help", "Not a diligence package.")).toBeUndefined();
   });
+
+  it("omits security-trust-help orientation claim while header claim strip owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("security-trust-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("security-trust-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("keeps users-and-roles-help visible on operator shell where orientation strip is sole claim owner", () => {
+    expect(shouldOmitClaimDisciplineBand("users-and-roles-help")).toBe(false);
+    expect(
+      resolveClaimDisciplineForStrip("users-and-roles-help", "Not a diligence package."),
+    ).toContain("Not a diligence package.");
+  });
 });
