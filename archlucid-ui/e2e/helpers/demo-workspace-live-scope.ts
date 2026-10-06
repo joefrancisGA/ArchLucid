@@ -22,6 +22,7 @@ import {
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
   stubEmptyArchitectureDraftListRoute,
   waitForOperatorAuthMeProxyOk,
+  primePrivateBetaBrowserSessionIfJwtMode,
 } from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
@@ -201,6 +202,7 @@ export async function injectDefaultTenantOperatorScope(page: Page): Promise<void
   // before the first /administration/users RSC flight.
   await page.goto("/", { waitUntil: "domcontentloaded" });
   if (resolveLiveJwtMode()) {
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
     await waitForOperatorAuthMeProxyOk(page);
   }
 }

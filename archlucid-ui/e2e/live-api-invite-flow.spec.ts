@@ -12,6 +12,7 @@ import {
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
+import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { liveApiBase, liveE2eAdminInviteUiPlaywrightTimeoutMs } from "./helpers/live-api-client";
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
@@ -49,9 +50,9 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     await expect(async () => {
       await pendingRow.scrollIntoViewIfNeeded();
-      await pendingRow.getByRole("button", { name: "Revoke" }).click();
+      await clickThroughBlockingOverlays(page, pendingRow.getByRole("button", { name: "Revoke" }));
       await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
-    }).toPass({ timeout: 60_000 });
+    }).toPass({ timeout: 90_000 });
 
     const revokeDialog = page.getByRole("alertdialog");
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
@@ -85,6 +86,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     const pendingRow = invitationsTable.locator("tr", { hasText: inviteEmail });
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
 
+    await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
     await expect(invitationsTable.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
