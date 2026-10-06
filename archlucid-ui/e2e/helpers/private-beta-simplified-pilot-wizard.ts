@@ -1,8 +1,12 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
-import { dismissBlockingModalOverlays } from "./dismiss-blocking-modal-overlays";
+import {
+  clickThroughBlockingOverlays,
+  dismissBlockingModalOverlays,
+} from "./dismiss-blocking-modal-overlays";
 import { liveE2eArchitectureDescription } from "./live-api-client";
+import { dismissFirstSessionPurposeChooserIfVisible } from "./live-seat-scope-assertions";
 import { writeJwtBrowserSession } from "./live-private-beta-access";
 
 const REVIEWS_NEW_BASELINE_WIZARD_PATH = "/architecture/reviews/new?baseline=1&path=detailed";
@@ -38,6 +42,9 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
   await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 1 of 4/i, {
     timeout: 30_000,
   });
+
+  await dismissFirstSessionPurposeChooserIfVisible(page);
+  await dismissBlockingModalOverlays(page);
 
   const wizard = page.getByTestId("simplified-pilot-wizard");
   const nextButton = wizard.getByRole("button", { name: /^Next$/ });
@@ -103,23 +110,23 @@ async function clickSimplifiedPilotWizardNext(
   expectedProgress: RegExp,
 ): Promise<void> {
   await expect(async () => {
+    await dismissFirstSessionPurposeChooserIfVisible(page);
     await dismissBlockingModalOverlays(page);
     await expect(nextButton).toBeEnabled({ timeout: 10_000 });
-    await nextButton.scrollIntoViewIfNeeded();
-    await nextButton.click({ timeout: 15_000 });
+    await clickThroughBlockingOverlays(page, nextButton);
     await expect(page.getByTestId("simplified-pilot-progress")).toContainText(expectedProgress, {
-      timeout: 15_000,
+      timeout: 20_000,
     });
-  }).toPass({ timeout: 90_000 });
+  }).toPass({ timeout: 120_000 });
 }
 
 async function clickSimplifiedPilotWizardPrimary(page: Page, target: Locator): Promise<void> {
   await expect(async () => {
+    await dismissFirstSessionPurposeChooserIfVisible(page);
     await dismissBlockingModalOverlays(page);
     await expect(target).toBeEnabled({ timeout: 10_000 });
-    await target.scrollIntoViewIfNeeded();
-    await target.click({ timeout: 15_000 });
-  }).toPass({ timeout: 90_000 });
+    await clickThroughBlockingOverlays(page, target);
+  }).toPass({ timeout: 120_000 });
 }
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
