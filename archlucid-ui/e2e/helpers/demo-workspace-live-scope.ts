@@ -23,6 +23,7 @@ import {
   stubEmptyArchitectureDraftListRoute,
   waitForOperatorAuthMeProxyOk,
   primePrivateBetaBrowserSessionIfJwtMode,
+  writeJwtBrowserSession,
 } from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
@@ -186,7 +187,11 @@ export async function injectDemoWorkspaceOperatorScope(
 /** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
 export async function injectDefaultTenantOperatorScope(
   page: Page,
-  options?: { readonly reestablishJwtSession?: boolean },
+  options?: {
+    readonly reestablishJwtSession?: boolean;
+    /** Re-issues BFF cookies for invitee principals when admin re-prime is skipped (TB-927). */
+    readonly jwtAccessToken?: string;
+  },
 ): Promise<void> {
   const defaultScope = {
     tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
@@ -207,6 +212,11 @@ export async function injectDefaultTenantOperatorScope(
   if (resolveLiveJwtMode()) {
     if (options?.reestablishJwtSession !== false) {
       await primePrivateBetaBrowserSessionIfJwtMode(page);
+    } else {
+      const inviteeToken = options?.jwtAccessToken?.trim() ?? "";
+      if (inviteeToken.length > 0) {
+        await writeJwtBrowserSession(page, inviteeToken);
+      }
     }
     await waitForOperatorAuthMeProxyOk(page);
   }

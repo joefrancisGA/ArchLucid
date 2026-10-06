@@ -216,3 +216,27 @@ export async function submitAdminInviteFromUsersUi(
     );
   }
 }
+
+/** Opens the revoke confirmation dialog via deep-link sync (stable under JwtBearer CI layout). */
+export async function openPendingInvitationRevokeDialog(
+  page: Page,
+  pendingRow: Locator,
+): Promise<void> {
+  const revokeButton = pendingRow.getByTestId(/^settings-roles-revoke-invitation-/);
+  await expect(revokeButton).toBeVisible({ timeout: 60_000 });
+  const testId = await revokeButton.getAttribute("data-testid");
+  const invitationId = (testId ?? "").replace("settings-roles-revoke-invitation-", "").trim();
+
+  if (invitationId.length === 0) {
+    throw new Error("Pending invitation row is missing settings-roles-revoke-invitation-* test id.");
+  }
+
+  await expect(async () => {
+    await page.goto(
+      `/administration/users?tab=users&revokeInviteId=${encodeURIComponent(invitationId)}`,
+      { waitUntil: "domcontentloaded" },
+    );
+    await dismissBlockingModalOverlays(page);
+    await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: 90_000 });
+}

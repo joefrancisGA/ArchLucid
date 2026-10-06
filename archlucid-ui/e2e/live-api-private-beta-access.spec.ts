@@ -492,7 +492,10 @@ test.describe(
 
     await stubEmptyArchitectureDraftListRoute(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await injectDefaultTenantOperatorScope(page, { reestablishJwtSession: false });
+    await injectDefaultTenantOperatorScope(page, {
+      reestablishJwtSession: false,
+      jwtAccessToken: inviteeSession.accessToken,
+    });
     await assertLiveSeatOperatorScopeChrome(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);

@@ -60,6 +60,8 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
 
     await expect(async () => {
+      await primePrivateBetaBrowserSessionIfJwtMode(page);
+      await injectDefaultTenantOperatorScope(page);
       const tokensList = page.waitForResponse(
         (response) =>
           response.url().includes("/api/proxy/v1/admin/scim/tokens") &&
@@ -67,9 +69,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
           response.ok(),
         { timeout: 45_000 },
       );
-      await primePrivateBetaBrowserSessionIfJwtMode(page);
-      await injectDefaultTenantOperatorScope(page);
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
       await waitForOperatorAuthMeProxyOk(page);
       await tokensList;
       await expect(page.getByTestId("scim-create-token")).toBeVisible({ timeout: 15_000 });

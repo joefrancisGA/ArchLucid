@@ -4,7 +4,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { submitAdminInviteFromUsersUi, gotoLiveAdminUsersInvitePage } from "./helpers/live-invite-form-submit";
+import {
+  submitAdminInviteFromUsersUi,
+  gotoLiveAdminUsersInvitePage,
+  openPendingInvitationRevokeDialog,
+} from "./helpers/live-invite-form-submit";
 import {
   createScimAdminToken,
   primePrivateBetaBrowserSessionIfJwtMode,
@@ -48,11 +52,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
     await expect(pendingRow).toContainText("Pending");
 
-    await expect(async () => {
-      await pendingRow.scrollIntoViewIfNeeded();
-      await clickThroughBlockingOverlays(page, pendingRow.getByRole("button", { name: "Revoke" }));
-      await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
-    }).toPass({ timeout: 90_000 });
+    await openPendingInvitationRevokeDialog(page, pendingRow);
 
     const revokeDialog = page.getByRole("alertdialog");
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
@@ -86,8 +86,8 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     const pendingRow = invitationsTable.locator("tr", { hasText: inviteEmail });
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
 
-    await gotoLiveAdminUsersInvitePage(page);
     await primePrivateBetaBrowserSessionIfJwtMode(page);
+    await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
     await expect(invitationsTable.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
