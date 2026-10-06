@@ -23,7 +23,7 @@ public static class GraphSnapshotKnowledgeModelMerger
                 continue;
 
             mergedNodeIds.Add(normalizedModelNodeId);
-            mergedNodes.Add(modelNode);
+            mergedNodes.Add(NormalizeNodeIdWhitespace(modelNode));
         }
 
         foreach (GraphNode contextNode in contextGraph.Nodes)
@@ -34,7 +34,7 @@ public static class GraphSnapshotKnowledgeModelMerger
                 continue;
 
             mergedNodeIds.Add(normalizedNodeId);
-            mergedNodes.Add(contextNode);
+            mergedNodes.Add(NormalizeNodeIdWhitespace(contextNode));
         }
 
         Dictionary<string, string> canonicalNodeIdByNormalized = BuildCanonicalNodeIdLookup(mergedNodes);
@@ -82,6 +82,26 @@ public static class GraphSnapshotKnowledgeModelMerger
 
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 
+    private static GraphNode NormalizeNodeIdWhitespace(GraphNode node)
+    {
+        string normalizedNodeId = NormalizeNodeId(node.NodeId);
+
+        if (node.NodeId == normalizedNodeId)
+            return node;
+
+        return new GraphNode
+        {
+            NodeId = normalizedNodeId,
+            NodeType = node.NodeType,
+            Label = node.Label,
+            Category = node.Category,
+            SourceType = node.SourceType,
+            SourceId = node.SourceId,
+            Properties = node.Properties,
+            ReasoningTrace = node.ReasoningTrace,
+        };
+    }
+
     private static Dictionary<string, string> BuildCanonicalNodeIdLookup(IReadOnlyList<GraphNode> mergedNodes)
     {
         Dictionary<string, string> canonicalNodeIdByNormalized = new(StringComparer.OrdinalIgnoreCase);
@@ -116,7 +136,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             EdgeId = edge.EdgeId,
             FromNodeId = ResolveCanonicalEndpoint(edge.FromNodeId, canonicalNodeIdByNormalized),
             ToNodeId = ResolveCanonicalEndpoint(edge.ToNodeId, canonicalNodeIdByNormalized),
-            EdgeType = edge.EdgeType,
+            EdgeType = edge.EdgeType.Trim(),
             Label = edge.Label,
             Weight = edge.Weight,
             InferenceSource = edge.InferenceSource,

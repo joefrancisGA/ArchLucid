@@ -99,4 +99,55 @@ public sealed class GraphSnapshotKnowledgeModelMergerModelEdgeEndpointTests
         merged.Edges.Should().ContainSingle();
         merged.Edges[0].EdgeId.Should().Be("e-plain");
     }
+
+    [Fact]
+    public void Merge_trims_model_node_id_when_only_occurrence_has_outer_whitespace()
+    {
+        GraphSnapshot contextGraph = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = " shared ", NodeType = "model", Label = "model-shared" },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle();
+        merged.Nodes[0].NodeId.Should().Be("shared");
+    }
+
+    [Fact]
+    public void Merge_trims_model_edge_type_when_only_occurrence_has_outer_whitespace()
+    {
+        GraphSnapshot contextGraph = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = "model-shared" },
+                new GraphNode { NodeId = "target", NodeType = "model", Label = "model-target" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-padded-type",
+                    FromNodeId = "shared",
+                    ToNodeId = "target",
+                    EdgeType = " depends-on ",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle();
+        merged.Edges[0].EdgeType.Should().Be("depends-on");
+    }
 }

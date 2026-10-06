@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.Merge` left sole model nodes and edges with outer-whitespace `NodeId` / `EdgeType` values in the merged snapshot because dedupe keys trimmed but emitted entities did not; trim node ids on insert and edge types when canonicalizing; regressions `Merge_trims_model_node_id_when_only_occurrence_has_outer_whitespace` and `Merge_trims_model_edge_type_when_only_occurrence_has_outer_whitespace`; scoped merger tests 6/6 Core + 7/7 KnowledgeGraph.
+
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.Merge` copied model nodes and edges verbatim, leaving duplicate model nodes and edges that differed only by outer whitespace on ids/types while context-side dedupe already normalized keys; dedupe model nodes and edges by normalized identity before union; regressions `Merge_deduplicates_model_nodes_when_node_id_differs_only_by_outer_whitespace` and `Merge_deduplicates_model_edges_when_endpoints_and_type_differ_only_by_outer_whitespace`; scoped merger tests 4/4 Core + 7/7 KnowledgeGraph.
 
 2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — weekly Sponsor report/summary dispatchers passed malformed `https:/architecture/…` run-detail hrefs from `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` when `OperatorBaseUrl` was scheme-only (`https://`); added `EmailBrandingUrls.SanitizeOperatorNavigableUrl` to repair single-slash concat paths with operator authority; regressions `SanitizeOperatorNavigableUrl_repairs_scheme_only_concat_run_detail_url_with_operator_authority`, `SanitizeOperatorNavigableUrl_returns_relative_path_when_scheme_only_concat_has_no_repair_authority`, and `WeeklySponsorReportEmailDispatcher_repairs_scheme_only_concat_run_detail_url_using_operator_base_authority`; 65 scoped branding + digest idempotency tests passed.
@@ -15172,6 +15174,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved sole model nodes/edges could retain padded `NodeId` and `EdgeType` in merged output; fixed trim on node insert and edge canonicalization; regressions above.
+
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved duplicate model nodes/edges when ids and edge types differed only by whitespace; fixed model-side dedupe parity with context union; regressions above.
 
 - **id:** archlucid-core
@@ -15180,11 +15184,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 465
+- **hunts:** 466
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 3505
+- **bugs-found:** 3506
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — `GraphSnapshotKnowledgeModelMerger` duplicated whitespace-padded model nodes and edges
+- **last-bug:** 2026-10-06 — merged graph kept padded model node ids and edge types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15213,6 +15217,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — sole model nodes and edges retained outer whitespace on `NodeId` and `EdgeType` in merged output while dedupe keys trimmed — **hit 2026-10-06 seed hunt:** trim node ids on insert and edge types in `CanonicalizeEdgeEndpoints`; regressions `Merge_trims_model_node_id_when_only_occurrence_has_outer_whitespace` and `Merge_trims_model_edge_type_when_only_occurrence_has_outer_whitespace`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — duplicate model nodes and edges when ids/types differed only by outer whitespace while context union deduped normalized keys — **hit 2026-10-06 seed hunt:** dedupe model nodes and edges before context union; regressions `Merge_deduplicates_model_nodes_when_node_id_differs_only_by_outer_whitespace` and `Merge_deduplicates_model_edges_when_endpoints_and_type_differ_only_by_outer_whitespace`.
 
