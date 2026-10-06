@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommand` intake loop and stage partials after prior thorough hit/dry hunts closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows (MUST pending snapshot without re-fetch, EOF during interactive MUST answer, semantic admission redirect JSON envelope, cancellation during `PromptRequiredAsync` re-prompt, success JSON status field trust); 32 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `core-safety-network` — re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after billing-webhooks dry hunt; no hunt-ready row promoted; seeded five `(candidate)` rows (InternalLoopback profile without connect guard, DevOps integration timeout vs SSRF, resilience retry cap noise, ARM retail HttpRequestException retries, multi-cloud public catalog roots); 32 scoped `PrivateNetwork` Core tests + 8 Host composition outbound wiring tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `billing-webhooks` — cheap-disproof closed five seeded `(candidate)` rows (Marketplace action whitespace changes raw-body fingerprint with no provider contract for padded actions; non-terminal `payment_intent.*` ack without credit intentional on wallet route; shared `WebhookSigningSecret` fallback for wallet route is documented single-secret deployment; `Failed` ledger status allows provider retry without replay-guard `RememberAsync` on exception path; `IgnoredMissingTenant` replay-rejects identical payload by design—tenant fixes require a new body); regressions in `BillingMarketplaceWebhookDedupeKeyTests`, `StripeBillingProviderWalletWebhookTests`, `StripeBillingProviderCheckoutWebhookIdempotencyTests`, `AzureMarketplaceBillingProviderChangeWebhookTests`; 28 scoped billing webhook unit tests passed (`RunAnalyzers=false`).
@@ -7597,13 +7599,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read intake loop, connect/admit stages, MUST-question loop, hooks, and arg parser; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows below; 32 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-05 seed hunt (seed→hit): null draft body on successful admit; guard in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_admit_with_null_draft_body_returns_operation_failed`; 24 scoped core tests passed.
 
