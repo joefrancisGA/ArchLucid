@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `core-requests-constraints` — division slash (U+2215), fullwidth solidus (U+FF0F), fraction slash (U+2044), hyphenation point (U+2027), inverted undertie (U+2054), and Hangul filler (U+3164) between phrase words still blocked `managed identity` matching; map paste-style slash and invisible filler separators to ASCII space while preserving ASCII `/` for compound slugs; regressions `HasManagedIdentityConstraint_returns_true_when_division_slash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_fullwidth_solidus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hangul_filler_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_slash_forms_compound_slug`; 886 scoped RequestConstraint tests passed.
+
 2026-10-06 seed hunt (seed→hit): `core-requests-constraints` — fullwidth hyphen-minus (U+FF0D) and hyphen bullet (U+2043) between phrase words still blocked `managed identity` matching while en/em dash punctuation was already normalized; map `UnicodeCategory.DashPunctuation` except ASCII `-` plus U+2043 to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_fullwidth_hyphen_minus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hyphen_bullet_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_hyphen_forms_compound_slug`; 882 scoped RequestConstraint tests passed.
 
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `FindingRemediationAssignmentOperatorLinks` and `FindingRemediationAssignmentEmailDispatcher` concatenated raw `OperatorBaseUrl` userinfo into finding inspect and assigned-queue hrefs; normalize via `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority` in link builder and dispatcher; regressions `BuildFindingInspectUrl_omits_user_info_from_operator_base_url`, `BuildAssignedToMeQueueUrl_omits_user_info_from_operator_base_url`, and `TryDispatchAsync_omits_user_info_from_operator_base_url_in_finding_links`; 150 scoped notifications/digest tests passed.
@@ -20386,11 +20388,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 23
-- **bugs-found:** 22
+- **hunts:** 24
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — fullwidth hyphen and hyphen bullet split constraint phrases
+- **last-bug:** 2026-10-06 — Unicode slash and invisible filler characters split constraint phrases
+
+2026-10-06 seed hunt (seed→hit): reseeded phrase normalization after fullwidth-hyphen fix; proved division/fullwidth/fraction slashes, hyphenation point, inverted undertie, and Hangul filler still split phrases like `managed identity`; fixed by mapping those separators to ASCII space; 886 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — Unicode slash and invisible filler characters (U+2215, U+2044, U+FF0F, U+2027, U+2054, U+115F, U+3164) between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-06 seed hunt (seed→hit):** map paste-style slash and filler code points to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_division_slash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_fullwidth_solidus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hangul_filler_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_slash_forms_compound_slug`.
 
 2026-10-06 seed hunt (seed→hit): reseeded `RequestConstraintTokenMatcher` normalization after control-character fix; proved fullwidth hyphen-minus (U+FF0D) and hyphen bullet (U+2043) still split phrases like `managed identity`; fixed by mapping dash punctuation (except ASCII `-`) and U+2043 to ASCII space; 882 scoped RequestConstraint tests passed.
 

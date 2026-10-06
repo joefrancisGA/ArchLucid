@@ -449,6 +449,13 @@ internal static class RequestConstraintTokenMatcher
             case '\u00B7':
             case '\u2022':
             case '\u2043':
+            case '\u2027':
+            case '\u2054':
+            case '\u2215':
+            case '\u2044':
+            case '\uFF0F':
+            case '\u115F':
+            case '\u3164':
                 replacement = ' ';
 
                 return true;
