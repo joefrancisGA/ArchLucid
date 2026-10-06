@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `core-configuration-summary` — single-pair `AccessKey=` effective values on non-sensitive paths leaked in operator config summaries because `LooksLikeEmbeddedConnectionString` only treated `Password`/`Pwd`/`AccountKey`/`SharedAccessKey` as leading credential pairs; recognize `AccessKey=` for scalar and semicolon-delimited connection strings; regression `Resolve_redacts_plain_scalar_connection_string_when_access_key_is_the_only_pair`; 1064 scoped Configuration tests passed (Release, no-build filter).
+
 2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `EmailBrandingUrls.TryBuildLogoImageUrl` accepted scheme-only `EmailNotificationOptions.OperatorBaseUrl` values such as `https://` after `TrimEnd('/')`, producing malformed weekly Sponsor report logo URLs (`https:/logo/icon-192.png`); require absolute URI with a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`; 27 scoped branding + report dispatcher tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `normalizeDocIndexUrlForDedupe` returned `https://` and `//` URLs unchanged, so two fetched doc-index rows for the same external path with and without a trailing slash both rendered; normalize absolute URLs via `URL` pathname trailing-slash trim for merge dedupe and link `href`; regression `does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url`; 31 scoped HelpDocsClient tests passed.
@@ -20211,11 +20213,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 38
-- **bugs-found:** 21
+- **hunts:** 39
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — single-pair `Password=` effective values leaked in config summary
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — single-pair `AccessKey=` effective values leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -20230,6 +20232,10 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-05 seed hunt (seed→hit): promoted and proved plain ADO.NET connection-string effective values on non-sensitive paths leaked because the scanner only ran for JSON documents; fixed by applying embedded connection-string detection to non-JSON and invalid-JSON values; regressions `Resolve_redacts_plain_scalar_connection_string_effective_values` and `Resolve_preserves_plain_scalar_non_credential_effective_values`; 1054 scoped Configuration tests passed (no-build filter).
 
 2026-10-05 seed hunt (seed→hit): promoted and proved single-pair `Password=` effective values leaked because embedded connection-string detection required semicolons; fixed by recognizing leading credential key prefixes without a second pair; regressions `Resolve_redacts_plain_scalar_connection_string_when_password_is_the_only_pair` and `Resolve_redacts_plain_scalar_cosmos_account_key_connection_string`; 1056 scoped Configuration tests passed (no-build filter).
+
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner.LooksLikeEmbeddedConnectionString` — single-pair `AccessKey=` effective values on non-sensitive paths leaked after the `Password=`/`AccountKey=` single-pair fix because `AccessKey=` was omitted from leading-pair and semicolon-delimited marker detection — **hit 2026-10-06 seed hunt (seed→hit):** treat `AccessKey=` like other credential connection-string pairs; regression `Resolve_redacts_plain_scalar_connection_string_when_access_key_is_the_only_pair`.
+
+2026-10-06 seed hunt (seed→hit): reseeded core-configuration-summary after recent connection-string redaction hits; proved single-pair `AccessKey=` scalar leak; 1064 scoped Configuration tests passed (Release, no-build filter).
 
 2026-10-03 seed hunt (seed-only): re-read the configuration summary redaction, effective-value resolver, deployment options, OTP normalization, and configuration tests; no new candidate met the wrong-outcome and product-contract bar for same-run proof.
 
