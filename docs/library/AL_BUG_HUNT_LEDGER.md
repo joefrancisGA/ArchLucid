@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator, continue coalesce manifests, and review cache after Oct 5 modelfp fix; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (continue without client run id, blank-runid manifest fingerprints, `Build()` continue prefix partition, finalize `policyRunId` vs normalized id, tombstone run-id casing on `TryGet`); 66 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read connect/admit/MUST/intake loop after three consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (JSON connect failure envelope, JSON submit failure envelope, JSON whitespace metadata preflight, MUST read cancellation, create failure JSON envelope); 47 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five seeded `(candidate)` rows (`ResolveBaseUrl` already trims config URLs; admit-stage trims flag metadata; interactive whitespace MUST answer is usage stderr without operator hints; JSON `no-auto-execute` documents `executionStarted: false`; patch conflict stderr-only matches other JSON `OperationFailed` paths); regressions `ResolveBaseUrl_trims_trailing_slash_from_config_api_url`, `RunCoreAsync_connect_passes_trimmed_override_base_url_to_connect_async`, `Parse_preserves_surrounding_whitespace_on_system_name_flag`, `RunCoreAsync_flag_system_name_with_surrounding_whitespace_is_trimmed_before_patch`, `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`, `RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`, `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true`; 52 scoped draft-new CLI tests passed (`RunAnalyzers=false`).
@@ -29956,27 +29958,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ClosedLoopPublishStage` / `PinScope` — storage pin vs continue lookup manifest lifetime — **cheap-disproof 2026-10-05:** publish `Set` uses same `BuildContinueFromExistingRunCoalesceManifest` as `TryGet`; composite pin holds keys through leader flight.
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned TTL refresh returns shared mutable `entry.Result` — **cheap-disproof 2026-10-05:** `TryGet` returns `ClosedLoopReasoningResultCloner.Clone` before exit.
 
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — continue with blank `request.RunId` assigns a fresh GUID instead of requiring persisted run id — **seed 2026-10-05:** API/clients should pass `RunId`; wrong outcome accidental new-run continue when omitted.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `ContinueFromExistingRun=1` prefix without run-scoped fingerprints when neither `request.RunId` nor resolved id applied on non-continue `Build` — **seed 2026-10-05:** full-run cache keys when continue flag set incorrectly.
-- [ ] (candidate) `ReviewResultCache.Set` — max entry eviction skips insert silently when all entries pinned — **seed 2026-10-05:** burst continue leaders under pin cap; reachability `TryEvictOldestUnpinnedEntry` failure path.
-- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — identical `publishToProduct` flag required for coalesce but divergent `DeclaredPriorities` not in key — **seed 2026-10-05:** priorities flow through `ContentHash` via `Build`; verify cross-priority coalesce impossible.
-- [ ] (candidate) `FinalizeCoalescedReviewResult` — `policyRunId` uses `effectiveRequest.RunId` when non-blank but may diverge from resolved `runId` casing — **seed 2026-10-05:** cache-hit publish guard path in `ClosedLoopCacheHitPublishGuard`.
-
 - **id:** architecture-intelligence-orchestrator
 - **status:** open
 - **impact:** high
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — continue in-flight coalesce key split on tenant GUID hex casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-06 seed hunt (seed-only): re-read orchestrator continue path, manifest hashing, and review-cache tombstone lookup; no hunt-ready row promoted; seeded five new `(candidate)` rows in Hypotheses; 66 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
 2026-10-05 seed hunt (seed-only): re-read continue/cache after coalesce-key fixes; cheap-disproved continue run-id hex casing cache hit at orchestrator; seeded five candidates; 69 scoped tests passed.
 
@@ -30044,6 +30042,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time `modelfp`/`ledgerfp` snapshot vs post-persist mutations — **cheap-disproof 2026-10-05 thorough hunt:** each request rebuilds manifest from reloaded baseline/ledger; no stale hit without manifest miss (seed 2026-10-05).
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap eviction — **cheap-disproof 2026-10-05 thorough hunt:** `PinScope_reports_not_pinned_when_distinct_key_cap_reached`, `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — coalesced publish-policy on cache hits — **cheap-disproof 2026-10-05 thorough hunt:** #1226 sanitize/isolation; `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`.
+
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `ContinueFromExistingRun` with blank `request.RunId` still assigns `runId` via `Guid.NewGuid().ToString("N")` before `RunContinueFromExistingReviewAsync` loads the persisted model (reachable continue API call omitting `RunId`).
+- [ ] (candidate) `ReviewCacheManifestBuilder.Build` — full-run cache manifest omits `modelfp`/`ledgerfp` in `HashContent` when `request.RunId` is blank even though `RunAsync` generated a new `runId` for pipeline execution (reachable repeat analysis without client-supplied run id after first persist).
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `continue=1|` prefix on `Build()` when `ContinueFromExistingRun` is true without routing through `BuildContinueFromExistingRunCoalesceManifest` for continue storage/coalesce keys (reachable manifest partition mismatch if `Build()` used on continue path).
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `policyRunId` selects raw `runId` when `effectiveRequest.RunId` is non-blank while `isolated.RunId` was normalized via `ClosedLoopRunIdNormalizer.NormalizeOptional` (reachable hyphenated client `RunId` vs cache-hit publish guard).
+- [ ] (candidate) `ReviewResultCache.TryGet` — tombstone gate calls `IsRunIdTombstonedUnlocked(entry.Result.RunId)` without normalizing stored run id casing before lookup (reachable tombstone registered with hyphenated id against compact cached `RunId`).
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
