@@ -330,14 +330,11 @@ internal static class TenantScopedSqlExpressionResolver
             return new ResolutionResult(localConst, true, false);
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
-
-        if (fromInitializer is not null)
-            return fromInitializer;
-
         ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+        ResolutionResult? merged = MergeBranchResolutions(fromInitializer, fromAssignment);
 
-        if (fromAssignment is not null)
-            return fromAssignment;
+        if (merged is not null)
+            return merged;
 
         if (expression is MemberAccessExpressionSyntax member &&
             (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
@@ -379,6 +376,28 @@ internal static class TenantScopedSqlExpressionResolver
         }
 
         return null;
+    }
+
+    private static ResolutionResult? MergeBranchResolutions(
+        ResolutionResult? left,
+        ResolutionResult? right)
+    {
+        if (left is null)
+            return right;
+
+        if (right is null)
+            return left;
+
+        bool hasScopeHelper = left.HasScopeHelperInvocation || right.HasScopeHelperInvocation;
+        List<string> branchSqlTexts = [];
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, left);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, right);
+
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
     }
 
     private static ResolutionResult? TryResolveFromSimpleAssignments(
@@ -434,14 +453,15 @@ internal static class TenantScopedSqlExpressionResolver
         if (symbol is not IFieldSymbol field)
             yield break;
 
-        foreach (IMethodSymbol constructor in field.ContainingType.InstanceConstructors)
+        foreach (IMethodSymbol method in field.ContainingType.GetMembers().OfType<IMethodSymbol>())
         {
-            SyntaxReference? syntaxReference = constructor.DeclaringSyntaxReferences.FirstOrDefault();
-
-            if (syntaxReference?.GetSyntax() is not ConstructorDeclarationSyntax constructorDeclaration)
+            if (method.MethodKind is not MethodKind.Ordinary and not MethodKind.Constructor)
                 continue;
 
-            BlockSyntax? block = constructorDeclaration.Body;
+            if (method.IsStatic != field.IsStatic)
+                continue;
+
+            BlockSyntax? block = TryGetMethodBodyBlock(method);
 
             if (block is null)
                 continue;
@@ -449,6 +469,19 @@ internal static class TenantScopedSqlExpressionResolver
             foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressionsInBlock(block, symbol, semanticModel))
                 yield return assignedExpression;
         }
+    }
+
+    private static BlockSyntax? TryGetMethodBodyBlock(IMethodSymbol method)
+    {
+        SyntaxReference? syntaxReference = method.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is ConstructorDeclarationSyntax constructorDeclaration)
+            return constructorDeclaration.Body;
+
+        if (syntaxReference?.GetSyntax() is MethodDeclarationSyntax methodDeclaration)
+            return methodDeclaration.Body;
+
+        return null;
     }
 
     private static IEnumerable<ExpressionSyntax> GetSimpleAssignmentExpressionsInBlock(
