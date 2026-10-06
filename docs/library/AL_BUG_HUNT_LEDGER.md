@@ -20464,15 +20464,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 21
-- **bugs-found:** 13
+- **hunts:** 22
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — “in violation of the constraint” missed conflict falsifiability
+- **last-bug:** 2026-10-06 — equals-delimited resource tokens under-penalized duplication parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Findings/` hunts.
+
+2026-10-06 seed hunt (seed→hit): `core-findings-advice` — `InsightDensityTextSimilarity.Tokenize` left equals-separated resource tokens intact so `prod=sql=db` vs `prod sql db` Jaccard 0.625 missed the 0.85 high-duplication threshold; split on `=`; regression `Jaccard_similarity_treats_equals_separated_resource_tokens_as_space_separated_peers`; 1712 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-10-06 seed hunt (seed→hit): `core-findings-advice` — `ConflictFindingPattern` required `violat(e|es|ed|ing)` and missed noun-phrase `in violation of the constraint`, skipping `HasFalsifiabilitySignal`; extended regex with `(?:in )?violation of …`; regression via `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`; 1711 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
@@ -20499,6 +20501,9 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — plus-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-06 seed hunt (seed→hit):** `prod+sql+db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `+`; regression in `Jaccard_similarity_treats_plus_separated_resource_tokens_as_space_separated_peers`
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — ampersand-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-06 seed hunt (seed→hit):** `prod&sql&db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `&`; regression in `Jaccard_similarity_treats_ampersand_separated_resource_tokens_as_space_separated_peers`
 - [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — noun-phrase `in violation of the constraint` missed falsifiability because regex only matched `violat(e|es|ed|ing)` verb forms — **hit 2026-10-06 seed hunt (seed→hit):** add `(?:in )?violation of (?:the |a |an )?constraints?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`; 1711 scoped tests passed.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — equals-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-06 seed hunt (seed→hit):** `prod=sql=db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `=`; regression in `Jaccard_similarity_treats_equals_separated_resource_tokens_as_space_separated_peers`
+
+2026-10-06 seed hunt (seed→hit): proved equals-delimited resource token duplication parity; 1712 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-10-06 seed hunt (seed→hit): proved “in violation of the constraint” conflict falsifiability gap; 1711 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
