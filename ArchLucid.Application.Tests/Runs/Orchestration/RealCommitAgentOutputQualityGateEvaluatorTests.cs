@@ -1940,6 +1940,43 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_full_width_task_id_group_has_rejected_latest_still_blocks()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace cleanAsciiTask = new()
+        {
+            TraceId = "trace-clean",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedFullWidthTask = new()
+        {
+            TraceId = "trace-rejected-fullwidth",
+            TaskId = "task-\uFF11",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [cleanAsciiTask, rejectedFullWidthTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected-fullwidth");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };

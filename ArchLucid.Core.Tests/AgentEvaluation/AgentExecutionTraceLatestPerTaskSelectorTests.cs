@@ -308,6 +308,31 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_ids_differ_only_by_full_width_digits_form_separate_groups()
+    {
+        AgentExecutionTrace asciiDigitTask = new()
+        {
+            TraceId = "trace-ascii",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace fullWidthDigitTask = new()
+        {
+            TraceId = "trace-fullwidth",
+            // U+FF11 FULLWIDTH DIGIT ONE — not normalized by trim-only keys.
+            TaskId = "task-\uFF11",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([asciiDigitTask, fullWidthDigitTask]);
+
+        latest.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void Select_when_task_ids_differ_only_by_zero_width_characters_form_separate_groups()
     {
         AgentExecutionTrace visibleTask = new()
