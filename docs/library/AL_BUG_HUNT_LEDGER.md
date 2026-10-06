@@ -8564,13 +8564,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` vs `ArchLucid.Api/Program.cs` startup chain; no row met hunt-ready bar for promotion (worker health-only pipeline has no `ContextIngestionMaxPayloadMiddleware`; `ArchitectureRunCreationConfigurationBridge` is API-scoped); cheap-disproof reaffirmed post-`Build()` `CollectErrors` gap and `AuthSafetyGuard` omission are intentional for worker role; 14 scoped worker host/composition tests passed.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded `(candidate)` rows below; Pilot/SaaS overlays honored on non-Development worker hosts (same `Program.Main` chain as Advanced); API post-`Build()` `CollectErrors` does not add `IValidateOptions` coverage beyond worker pre-`Build()` validation; schema bootstrap ordering unchanged from prior dry closure. Regressions `Worker_host_loads_appsettings_saas_overlay_from_content_root`, `Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root`; 14 scoped worker host/composition tests passed.
 
@@ -8583,6 +8585,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` startup composition and worker test coverage; no new reachable mechanism-backed candidate emerged. Focused tests could not run because the scoped build hit unrelated `CS8999` raw-string indentation in `ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs:49`.
 
 ### Hypotheses
+
+- [ ] (candidate) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge.Apply` (`ArchLucid.Api/Program.cs` ~71) while shared `/app` `appsettings.Advanced.json` may still carry `ArchLucid:ContextIngestion:MaxPayloadBytes`; `ContextIngestionRules.Collect` validates the legacy flat key but `IConfiguration[ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey]` stays unset until bridged (API-only bridge today).
+- [ ] (candidate) `Program.Main` — Worker omits `AuthSafetyGuard.GuardAllDevelopmentBypasses` (`ArchLucid.Api/Program.cs` ~97) before application services; reachable Staging worker with unset `ArchLucidAuth:Mode` passes `ValidateOrThrow` while the API host throws `AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage` (`UseArchLucidWorkerPipeline` documents no API auth stack).
+- [ ] (candidate) `Program.Main` — No regression proving `appsettings.Pilot.json` is skipped when `IHostEnvironment.IsDevelopment()` (`Program.cs` lines 21–27 gate Pilot on `!IsDevelopment()`; pilot overlay test uses `Testing` environment).
+- [ ] (candidate) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.CollectErrors` after `Build()` (`ArchLucid.Api/Program.cs` ~184–191); reachable worker-only `IOptions`/`IValidateOptions` failure after pre-`Build()` `ValidateOrThrow` snapshot (prior dry hunt closed generic drift without worker-specific repro).
+- [ ] (candidate) `Program.Main` — `StartupConfigurationDiagnostics.LogIfEnabled` runs before `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` (`Program.cs` ~73–79); operator diagnostics snapshot may omit post-bootstrap configuration state when migrations mutate seed flags.
 
 - [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
 
