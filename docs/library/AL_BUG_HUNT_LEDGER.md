@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `api-policy-packs` — re-read policy-pack controller partials (assign, CRUD, catalog mutate/read, simulate/validate) after recent churn; cheap-disproof closed `POST validate` facade `ValidationFailed` without controller mapping (`PolicyPackValidateContentHttpMapper` runs before `ValidateContentAsync`); no hunt-ready row promoted; seeded five `(candidate)` rows; 79 scoped `PolicyPacksController` tests passed.
+
 2026-10-06 seed hunt (seed→hit): `tenant-erasure` — `TenantErasureQuarantineMiddleware.Skip` used raw `PathString.StartsWithSegments`, so duplicate-slash tenant erasure lifecycle URLs (`/v1/tenant//erasure/approve`) failed the `/v1/tenant/erasure` allowlist and returned `403` while quarantined; normalize collapsed duplicate slashes before skip checks; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path`; 46 scoped `TenantErasure` tests passed (24 Api + 18 Application + 4 Core).
 
 2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — concurrent `AcquireAsync` on one host could both pass the local `ContainsKey` gate, succeed at `TryAcquireOrRenewAsync`, and lose the `_activeHolderInstanceIds.TryAdd` race without rolling back SQL, pinning the run until TTL; release the repository row before throwing the local conflict; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`; 70 scoped ownership/orchestrator tests passed.
@@ -28057,22 +28059,29 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 28
-- **bugs-found:** 15
+- **hunts:** 29
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-04
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-03 — forbidden policy-pack assignment mapped to HTTP 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+2026-10-06 seed hunt (seed-only): re-read assign/archive/enable/org-required, CRUD publish/delete, catalog promote/demote, simulate bulk/single, validate, and effective read paths; cheap-disproof closed validate `ValidationFailed` leak (`Validate_returns_bad_request_when_content_is_not_deserializable_and_tenant_missing` never calls facade); no failing repro; seeded five `(candidate)` rows; 79 scoped `PolicyPacksController` tests passed.
+
 2026-09-12 seed hunt #2178 (seed-only): reseeded api-policy-packs with `-Hint governance`; no new hunt-ready rows.
 
 2026-10-02 seed hunt (hit): proved cross-scope output caching on effective policy-pack reads; 1 focused regression test passed after removing the shared anonymous cache policy. The full controller filter had 55 passing and 17 unrelated baseline failures from null test scopes.
 
 ### Hypotheses
 
+- [ ] (candidate) `PolicyPackHttpFacade.SetAssignmentEnabledAsync` — calls `TrySetAssignmentEnabledAsync` and then `TrySetAssignmentEnabledWithOutcomeAsync`, executing the workflow twice per HTTP toggle; reachable on every `PUT assignments/{id}/enabled` when the first call’s boolean return is ignored.
+- [ ] (candidate) `PolicyPacksController.Validate` — returns `Ok(result.Value!)` without mapping `PolicyPackHttpOutcome.ValidationFailed`; reachable only if `ValidateContentAsync` regresses to emit `ValidationFailed` after `PolicyPackValidateContentHttpMapper` is bypassed or diverges.
+- [ ] (candidate) `PolicyPacksController.Publish` / `PolicyPackHttpFacade.PublishVersionAsync` — maps only `ScopeNotFound` and `ResourceNotFound` while returning `Ok` for `Success`; a future `ValidationFailed` publish outcome would surface as HTTP 200 with a null body unless the controller gains parity with `PromoteCatalogEntry`.
+- [ ] (candidate) `PolicyPackHttpResultMapper.MapAssign` — maps `PolicyPackHttpOutcome.Conflict` to a generic sealed-manifest-style 409, dropping assignment-specific conflict text from the facade when that outcome is introduced for assign retries.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — silently skips blank `runIds` entries while `RequestedRunCount` in the bulk summary still reflects the normalized list length; reachable when clients submit sparse arrays expecting per-slot not-found accounting for skipped blanks.
 - [x] (invalid) `PolicyPacksController.Simulate` — an OpenAPI `runId` containing surrounding whitespace is validated using its trimmed GUID but the original string is forwarded to `SimulateAsync` — **cheap-disproof 2026-10-03:** the selected controller passes `request.RunId.Trim()` to `SimulateAsync`, and `Simulate_forwards_canonical_run_id_to_facade` already covers the reachable input.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` / `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — an OpenAPI `runIds` array mixing blank entries with valid GUIDs is accepted, then blanks are silently removed before `RequestedRunCount` — **cheap-disproof 2026-10-03:** the selected controller forwards the original list, including blank entries, to the facade; neither the selected endpoint nor its OpenAPI contract establishes a required result/count slot for blank submitted items.
 
