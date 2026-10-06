@@ -244,14 +244,16 @@ export async function openPendingInvitationRevokeDialog(
 /** Revoked invitations live in the resolved list; expand it before asserting row status. */
 export async function expectRevokedInvitationRowVisible(page: Page, inviteEmail: string): Promise<void> {
   await expect(async () => {
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
+    await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
     await dismissBlockingModalOverlays(page);
+    await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 30_000 });
     const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
-    if (await showResolvedToggle.isVisible().catch(() => false)) {
-      const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
-      if (/show resolved invitations/i.test(toggleLabel)) {
-        await showResolvedToggle.click();
-      }
+    await expect(showResolvedToggle).toBeVisible({ timeout: 30_000 });
+    const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
+    if (/show resolved invitations/i.test(toggleLabel)) {
+      await showResolvedToggle.click();
     }
     const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
     const revokedRow = invitationsTable.locator("tr", { hasText: inviteEmail });

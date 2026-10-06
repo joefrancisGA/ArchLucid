@@ -55,7 +55,15 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await openPendingInvitationRevokeDialog(page, pendingRow);
 
     const revokeDialog = page.getByRole("alertdialog");
+    const revokeResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/proxy/v1/admin/users/invitations/") &&
+        response.request().method() === "DELETE" &&
+        response.status() === 204,
+      { timeout: 60_000 },
+    );
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
+    await revokeResponse;
 
     await expectRevokedInvitationRowVisible(page, inviteEmail);
 
