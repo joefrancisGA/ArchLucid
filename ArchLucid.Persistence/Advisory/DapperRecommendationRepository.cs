@@ -13,9 +13,7 @@ namespace ArchLucid.Persistence.Advisory;
 /// <inheritdoc cref="IRecommendationRepository" />
 /// <remarks>Uses a single <c>MERGE</c> statement keyed on <see cref="RecommendationRecord.RecommendationId"/>.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperRecommendationRepository(
-    ISqlConnectionFactory connectionFactory,
-    IScopeContextProvider scopeContextProvider)
+public sealed class DapperRecommendationRepository(ISqlConnectionFactory connectionFactory)
     : IRecommendationRepository
 {
     /// <inheritdoc />
@@ -61,7 +59,7 @@ public sealed class DapperRecommendationRepository(
                     PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                     ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
                     SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
-                   SourceEvidenceLinksJson, SourceEvidenceLinksJson
+                    SourceEvidenceLinksJson
                 )
                 VALUES
                 (
@@ -71,7 +69,8 @@ public sealed class DapperRecommendationRepository(
                     @Title, @Category, @Rationale, @SuggestedAction, @Urgency, @ExpectedImpact,
                     @PriorityScore, @Status, @CreatedUtc, @LastUpdatedUtc,
                     @ReviewedByUserId, @ReviewedByUserName, @ReviewComment, @ResolutionRationale,
-                    @SupportingFindingIdsJson, @SupportingDecisionIdsJson, @SupportingArtifactIdsJson
+                    @SupportingFindingIdsJson, @SupportingDecisionIdsJson, @SupportingArtifactIdsJson,
+                    @SourceEvidenceLinksJson
                 );
             """;
 
@@ -79,10 +78,10 @@ public sealed class DapperRecommendationRepository(
         await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct));
     }
 
-    public async Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
+    public async Task<RecommendationRecord?> GetByIdAsync(ScopeContext scope, Guid recommendationId, CancellationToken ct)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string sql = $"""
+        PersistenceTenantScope.RequireScopedTenant(scope);
+        const string sql = """
             SELECT RecommendationId,
                    TenantId, WorkspaceId, ProjectId,
                    RunId, ComparedToRunId,
@@ -93,7 +92,9 @@ public sealed class DapperRecommendationRepository(
                    SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords
             WHERE RecommendationId = @RecommendationId
-            {PersistenceTenantScope.AndTripleWhere(scope)};
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -101,9 +102,9 @@ public sealed class DapperRecommendationRepository(
             new CommandDefinition(sql, new
             {
                 RecommendationId = recommendationId,
-                ScopeTenantId = scope.TenantId,
-                ScopeWorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 

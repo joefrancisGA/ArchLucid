@@ -16,9 +16,7 @@ namespace ArchLucid.Persistence.Advisory;
 /// </summary>
 /// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperAdvisoryScanScheduleRepository(
-    ISqlConnectionFactory connectionFactory,
-    IScopeContextProvider scopeContextProvider)
+public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory connectionFactory)
     : IAdvisoryScanScheduleRepository
 {
     /// <inheritdoc />
@@ -133,17 +131,19 @@ public sealed class DapperAdvisoryScanScheduleRepository(
     }
 
     /// <inheritdoc />
-    public async Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
+    public async Task<AdvisoryScanSchedule?> GetByIdAsync(ScopeContext scope, Guid scheduleId, CancellationToken ct)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string sql = $"""
+        PersistenceTenantScope.RequireScopedTenant(scope);
+        const string sql = """
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
                 Name, CronExpression, IsEnabled,
                 CreatedUtc, LastRunUtc, NextRunUtc
             FROM dbo.AdvisoryScanSchedules
             WHERE ScheduleId = @ScheduleId
-            {PersistenceTenantScope.AndTripleWhere(scope)};
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -151,9 +151,9 @@ public sealed class DapperAdvisoryScanScheduleRepository(
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,
-                ScopeTenantId = scope.TenantId,
-                ScopeWorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 }

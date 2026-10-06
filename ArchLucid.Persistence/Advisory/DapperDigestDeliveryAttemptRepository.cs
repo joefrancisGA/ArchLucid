@@ -13,9 +13,7 @@ namespace ArchLucid.Persistence.Advisory;
 /// <summary>Dapper implementation of <see cref="IDigestDeliveryAttemptRepository"/> over <c>dbo.DigestDeliveryAttempts</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperDigestDeliveryAttemptRepository(
-    ISqlConnectionFactory connectionFactory,
-    IScopeContextProvider scopeContextProvider)
+public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory connectionFactory)
     : IDigestDeliveryAttemptRepository
 {
     /// <summary>Maximum rows returned by <see cref="ListByDigestAsync"/>; kept in sync with <see cref="DigestDeliveryAttemptListCap.Value"/>.</summary>
@@ -65,11 +63,12 @@ public sealed class DapperDigestDeliveryAttemptRepository(
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
+        ScopeContext scope,
         Guid digestId,
         CancellationToken ct)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string sql = $"""
+        PersistenceTenantScope.RequireScopedTenant(scope);
+        const string sql = """
             SELECT TOP (@Cap)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
@@ -77,7 +76,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE DigestId = @DigestId
-            {PersistenceTenantScope.AndTripleWhere(scope)}
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -87,9 +88,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(
             {
                 Cap = ListByDigestCap,
                 DigestId = digestId,
-                ScopeTenantId = scope.TenantId,
-                ScopeWorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
 
         return result.ToList();
@@ -149,13 +150,14 @@ public sealed class DapperDigestDeliveryAttemptRepository(
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid subscriptionId,
         int take,
         CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         take = Math.Clamp(take, 1, 200);
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string sql = $"""
+        const string sql = """
             SELECT TOP (@Take)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
@@ -163,7 +165,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE SubscriptionId = @SubscriptionId
-            {PersistenceTenantScope.AndTripleWhere(scope)}
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -175,9 +179,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(
                 {
                     SubscriptionId = subscriptionId,
                     Take = take,
-                    ScopeTenantId = scope.TenantId,
-                    ScopeWorkspaceId = scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId
                 },
                 cancellationToken: ct));
 
