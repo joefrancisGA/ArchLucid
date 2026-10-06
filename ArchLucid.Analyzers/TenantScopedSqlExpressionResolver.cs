@@ -404,7 +404,7 @@ internal static class TenantScopedSqlExpressionResolver
         ISymbol? symbol,
         SemanticModel semanticModel)
     {
-        if (symbol is not ILocalSymbol and not IFieldSymbol)
+        if (symbol is not ILocalSymbol and not IFieldSymbol and not IPropertySymbol)
             return null;
 
         bool hasScopeHelper = false;
@@ -450,15 +450,22 @@ internal static class TenantScopedSqlExpressionResolver
             yield break;
         }
 
-        if (symbol is not IFieldSymbol field)
+        if (symbol is not IFieldSymbol and not IPropertySymbol)
             yield break;
 
-        foreach (IMethodSymbol method in field.ContainingType.GetMembers().OfType<IMethodSymbol>())
+        bool isStaticMember = symbol switch
+        {
+            IFieldSymbol field => field.IsStatic,
+            IPropertySymbol property => property.IsStatic,
+            _ => false,
+        };
+
+        foreach (IMethodSymbol method in symbol.ContainingType.GetMembers().OfType<IMethodSymbol>())
         {
             if (method.MethodKind is not MethodKind.Ordinary and not MethodKind.Constructor)
                 continue;
 
-            if (method.IsStatic != field.IsStatic)
+            if (method.IsStatic != isStaticMember)
                 continue;
 
             BlockSyntax? block = TryGetMethodBodyBlock(method);
