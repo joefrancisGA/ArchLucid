@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` called `EdgeType.Trim()` on null `GraphEdge.EdgeType`, crashing κ→Γ merge for malformed in-memory or deserialized edges; coalesce null edge types to empty before trim in canonicalization and edge keys; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`; scoped merger tests 10/10 Core + 7/7 KnowledgeGraph.
+
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.Merge` threw `NullReferenceException` when `GraphSnapshot` `Nodes`/`Edges`/`Warnings` were null after `GraphJsonSerialization.DeserializeSnapshot` (`"nodes":null` projection cache payloads); coalesce null collections to empty before merge; regressions `Merge_treats_null_warnings_as_empty`, `Merge_treats_null_node_and_edge_lists_as_empty`, and `Merge_succeeds_when_snapshot_projection_json_has_null_collection_properties`; scoped merger tests 9/9 Core + 7/7 KnowledgeGraph.
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.Merge` left sole model nodes and edges with outer-whitespace `NodeId` / `EdgeType` values in the merged snapshot because dedupe keys trimmed but emitted entities did not; trim node ids on insert and edge types when canonicalizing; regressions `Merge_trims_model_node_id_when_only_occurrence_has_outer_whitespace` and `Merge_trims_model_edge_type_when_only_occurrence_has_outer_whitespace`; scoped merger tests 6/6 Core + 7/7 KnowledgeGraph.
@@ -15176,6 +15178,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved null `GraphEdge.EdgeType` crashed merge during endpoint canonicalization; fixed null-coalescing before trim; regression above.
+
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved null `Nodes`/`Edges`/`Warnings` on deserialized snapshots crashed merge; fixed null-coalescing; regressions in `GraphSnapshotKnowledgeModelMergerNullCollectionTests`.
 
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved sole model nodes/edges could retain padded `NodeId` and `EdgeType` in merged output; fixed trim on node insert and edge canonicalization; regressions above.
@@ -15188,11 +15192,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 467
+- **hunts:** 468
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 3507
+- **bugs-found:** 3508
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — graph snapshot merge NRE on null deserialized collections
+- **last-bug:** 2026-10-06 — graph snapshot merge NRE on null EdgeType
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15221,6 +15225,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` — null `GraphEdge.EdgeType` caused `NullReferenceException` during κ→Γ merge — **hit 2026-10-06 seed hunt:** coalesce null edge types before trim; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — null `Nodes`/`Edges`/`Warnings` on `GraphSnapshot` (reachable via `GraphJsonSerialization.DeserializeSnapshot` with explicit JSON nulls) caused `NullReferenceException` during κ→Γ merge — **hit 2026-10-06 seed hunt:** null-coalesce collections before iteration and warning concat; regressions in `GraphSnapshotKnowledgeModelMergerNullCollectionTests`.
 
