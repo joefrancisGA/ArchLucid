@@ -149,7 +149,7 @@ public sealed class AzureInventorySnapshotGraphResolverPrivateEndpointTests
 
         ast.Nodes.Should().NotContain(node => node.Label == "pe-kv");
         ast.Edges.Should().Contain(edge =>
-            edge.Label == "private endpoint"
+            edge.Label == InventoryDiagramRelationshipLabelTexts.PrivateAccess
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryPrivateEndpoint);
         ast.Edges.Should().NotContain(edge =>
             edge.InferenceSource == GraphEdgeInferenceSources.InventoryPeSubnet

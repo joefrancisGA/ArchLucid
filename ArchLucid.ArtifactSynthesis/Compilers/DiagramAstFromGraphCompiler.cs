@@ -225,6 +225,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramStoredHiddenPathShortcutApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramPrivateAccessRelationshipApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
+        InventoryDiagramHiddenPublicIpMarkApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
+        InventoryDiagramDefaultRouteRelationshipApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramLoadBalancerBackendRelationshipApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramVnetPeeringRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
         InventoryDiagramOrphanedStateApplier.Apply(
             ast,
             graph,
@@ -244,7 +249,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         if (!isDataArchitectureMode)
         {
-            InventoryDiagramDataFlowNsgAnnotationApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramDataFlowNsgAnnotationApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
         }
 
         if (isDataFlowMode)

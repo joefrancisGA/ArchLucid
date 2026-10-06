@@ -71,6 +71,14 @@ public static class AzureInventoryVnetPeeringParser
 
     public static IReadOnlyList<string> EnumerateRemoteVnetIds(string? peeringsJson)
     {
+        return ParsePeerings(peeringsJson)
+            .Where(record => !string.IsNullOrWhiteSpace(record.RemoteVirtualNetworkArmId))
+            .Select(record => record.RemoteVirtualNetworkArmId!)
+            .ToList();
+    }
+
+    public static IReadOnlyList<AzureInventoryVnetPeeringRecord> ParsePeerings(string? peeringsJson)
+    {
         if (string.IsNullOrWhiteSpace(peeringsJson))
         {
             return [];
@@ -85,7 +93,7 @@ public static class AzureInventoryVnetPeeringParser
                 return [];
             }
 
-            List<string> remoteVnetIds = [];
+            List<AzureInventoryVnetPeeringRecord> peerings = [];
 
             foreach (JsonElement peering in document.RootElement.EnumerateArray())
             {
@@ -96,15 +104,45 @@ public static class AzureInventoryVnetPeeringParser
                     continue;
                 }
 
-                remoteVnetIds.Add(remoteVnetId);
+                peerings.Add(new AzureInventoryVnetPeeringRecord
+                {
+                    RemoteVirtualNetworkArmId = remoteVnetId,
+                    PeeringState = TryReadPeeringState(peering),
+                });
             }
 
-            return remoteVnetIds;
+            return peerings;
         }
         catch (JsonException)
         {
             return [];
         }
+    }
+
+    public static bool IsConnectedPeeringState(string? peeringState)
+    {
+        return string.Equals(peeringState, "Connected", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? TryReadPeeringState(JsonElement peering)
+    {
+        if (peering.ValueKind is JsonValueKind.Object
+            && peering.TryGetProperty("properties", out JsonElement properties)
+            && properties.ValueKind is JsonValueKind.Object
+            && properties.TryGetProperty("peeringState", out JsonElement stateElement)
+            && stateElement.ValueKind is JsonValueKind.String)
+        {
+            return stateElement.GetString();
+        }
+
+        if (peering.ValueKind is JsonValueKind.Object
+            && peering.TryGetProperty("peeringState", out JsonElement directState)
+            && directState.ValueKind is JsonValueKind.String)
+        {
+            return directState.GetString();
+        }
+
+        return null;
     }
 
     public static string? TryReadRemoteVnetId(JsonElement peering)

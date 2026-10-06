@@ -175,7 +175,7 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                     GraphEdge sourceEdge = new()
                     {
                         EdgeType = GraphEdgeTypes.ConnectsTo,
-                        Label = "private endpoint",
+                        Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess,
                         InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
                         ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                     };
@@ -186,7 +186,7 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                         visibleDiagramIds,
                         targetDiagramId,
                         placementDiagramId,
-                        "private endpoint",
+                        InventoryDiagramRelationshipLabelTexts.PrivateAccess,
                         sourceEdge);
                 }
             }

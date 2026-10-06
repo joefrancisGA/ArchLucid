@@ -5,6 +5,7 @@ using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -211,7 +212,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ],
             [
                 Cited("vm", "vnet"),
-                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
             ]);
 
         XDocument svg = Render(ast);
@@ -242,8 +243,8 @@ public sealed class DiagramForestVnetFrameLayoutTests
             [
                 Cited("vm-a", "vnet-a"),
                 Cited("vm-b", "vnet-b"),
-                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet-a", Label = "private endpoint" },
-                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet-b", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet-a", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
+                new DiagramEdge { FromNodeId = "storage", ToNodeId = "vnet-b", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
             ]);
 
         XDocument svg = Render(ast);
@@ -277,7 +278,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ],
             [
                 Cited("vm", "vnet"),
-                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = "private endpoint" },
+                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
             ]);
 
         XDocument svg = Render(ast);
@@ -442,14 +443,18 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ]);
 
         XDocument svg = Render(ast);
-        EdgeTitles(svg).Should().ContainSingle("private endpoint × 3");
-        EdgeTitles(svg).Should().NotContain("private endpoint");
+        string bundledTitle = $"{InventoryDiagramRelationshipLabelTexts.PrivateAccess} × 3";
+        EdgeTitles(svg).Should().ContainSingle(title =>
+            title.Equals(bundledTitle, StringComparison.OrdinalIgnoreCase));
+        EdgeTitles(svg).Should().NotContain(title =>
+            title.Equals(InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase));
         XElement bundledEdge = svg
             .Descendants()
             .Single(element =>
                 element.Attribute("class")?.Value == "edge"
-                && element.Descendants().Any(descendant => descendant.Name.LocalName == "title"
-                    && descendant.Value == "private endpoint × 3"));
+                && element.Elements().Any(child =>
+                    child.Name.LocalName == "title"
+                    && child.Value.Equals(bundledTitle, StringComparison.OrdinalIgnoreCase)));
         bundledEdge.Attribute("data-bundle-from")?.Value
             .Should().Be(string.Join(
                 ' ',
@@ -484,8 +489,11 @@ public sealed class DiagramForestVnetFrameLayoutTests
             ]);
 
         List<string> titles = EdgeTitles(Render(ast));
-        titles.Count(title => title == "private endpoint").Should().Be(2);
-        titles.Should().NotContain(title => title.StartsWith("private endpoint ×", StringComparison.Ordinal));
+        titles.Count(title =>
+                title.Equals(InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(2);
+        titles.Should().NotContain(title => title.StartsWith($"{InventoryDiagramRelationshipLabelTexts.PrivateAccess} ×", StringComparison.Ordinal));
     }
 
     private XDocument Render(DiagramAst ast)
@@ -648,7 +656,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
         {
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
-            Label = "private endpoint",
+            Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess,
             InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
         };
     }

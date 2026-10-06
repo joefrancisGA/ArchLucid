@@ -69,6 +69,11 @@ public static class DiagramNodeHumanCaptionFactory
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
         }
 
+        if (node.HasPublicInternetExposure)
+        {
+            combined = $"{combined} · {InventoryDiagramRelationshipLabelTexts.PublicExposureCaption}";
+        }
+
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
             && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
         {

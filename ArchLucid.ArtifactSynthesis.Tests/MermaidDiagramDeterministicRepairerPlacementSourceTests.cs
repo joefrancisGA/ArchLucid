@@ -198,7 +198,7 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
                 {
                     FromNodeId = "vault",
                     ToNodeId = "vnet",
-                    Label = "private endpoint",
+                    Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess,
                     InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
                     ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                 },
@@ -206,7 +206,7 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
         };
 
         DiagramEdge edge = Repair(ast).Edges.Should().ContainSingle().Subject;
-        edge.Label.Should().Be("private endpoint");
+        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PrivateAccess);
         edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryPrivateEndpoint);
         edge.ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
         DiagramForestVnetMembership.IsCitedPlacementEdge(edge).Should().BeFalse();
@@ -240,7 +240,7 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
                 {
                     FromNodeId = "vault",
                     ToNodeId = "vnet",
-                    Label = "private endpoint",
+                    Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess,
                     InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
                     ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                 },

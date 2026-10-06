@@ -23,8 +23,45 @@ internal static class DiagramEdgeLabelHumanizer
                 continue;
             }
 
+            if (ShouldPreserveInventoryRelationshipLabel(edge.Label, edge.InferenceSource))
+            {
+                continue;
+            }
+
             edge.Label = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
         }
+    }
+
+    private static bool ShouldPreserveInventoryRelationshipLabel(string? storedLabel, string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(storedLabel) || string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        string label = storedLabel.Trim();
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLbBackend, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.StartsWith(InventoryDiagramRelationshipLabelTexts.SendsTrafficTo, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(label, InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
     }
 
     public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
@@ -250,7 +287,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "private endpoint";
+            humanized = InventoryDiagramRelationshipLabelTexts.PrivateAccess;
 
             return true;
         }

@@ -3,6 +3,7 @@ using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.KnowledgeGraph;
 
@@ -2207,7 +2208,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             {
                 FromNodeId = representative.FromNodeId,
                 ToNodeId = representative.ToNodeId,
-                Label = $"private endpoint × {edges.Count}",
+                Label = $"{InventoryDiagramRelationshipLabelTexts.PrivateAccess} × {edges.Count}",
                 InferenceSource = representative.InferenceSource,
                 ProvenanceKind = representative.ProvenanceKind,
             };
@@ -2234,6 +2235,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
 
     private static bool IsPrivateEndpointEdge(DiagramEdge edge)
     {
+        if (string.Equals(edge.Label?.Trim(), InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         return string.Equals(edge.Label?.Trim(), "private endpoint", StringComparison.OrdinalIgnoreCase)
             && string.Equals(
                 edge.InferenceSource,

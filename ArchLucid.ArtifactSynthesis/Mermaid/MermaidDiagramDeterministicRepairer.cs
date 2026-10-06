@@ -55,6 +55,7 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 ArmResourceGroup = node.ArmResourceGroup,
                 IncludeResourceGroupInCaption = node.IncludeResourceGroupInCaption,
                 HasPrivateEndpointAccess = node.HasPrivateEndpointAccess,
+                HasPublicInternetExposure = node.HasPublicInternetExposure,
                 IsExecutiveOverflow = node.IsExecutiveOverflow,
                 IsUnresolvedPolicyOutlineOnly = node.IsUnresolvedPolicyOutlineOnly,
                 ParentAttachmentDetails = node.ParentAttachmentDetails.ToList(),

@@ -165,6 +165,15 @@ public class DiagramNode
     }
 
     /// <summary>
+    ///     True when a hidden public IP still marks this compute resource as internet-facing (NR-21).
+    /// </summary>
+    public bool HasPublicInternetExposure
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     Synthetic Executive rollup ("+N more …") kept in Mermaid for the Nodes outline, but omitted from painted canvases.
     /// </summary>
     public bool IsExecutiveOverflow
