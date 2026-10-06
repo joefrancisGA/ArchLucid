@@ -153,7 +153,6 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "quick-scan",
   "rag-health",
   "recommendation-learning",
-  "report-a-problem-help",
   "repeat-review-loop-help",
   "reviews-new",
   "risk-exceptions",

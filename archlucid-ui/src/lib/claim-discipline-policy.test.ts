@@ -246,4 +246,11 @@ describe("claim-discipline-policy", () => {
       resolveClaimDisciplineForStrip("users-and-roles-help", "Not a diligence package."),
     ).toContain("Not a diligence package.");
   });
+
+  it("keeps report-a-problem-help visible on operator shell where orientation strip is sole claim owner", () => {
+    expect(shouldOmitClaimDisciplineBand("report-a-problem-help")).toBe(false);
+    expect(
+      resolveClaimDisciplineForStrip("report-a-problem-help", "Not a diligence package."),
+    ).toContain("Not a diligence package.");
+  });
 });
