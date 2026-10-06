@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `mergeDocIndex` deduped fetched rows against static quick-link URLs with exact string match, so a doc-index row for `/help/admin-diagnostics/` duplicated the static `/help/admin-diagnostics` card; normalize internal paths (trim, strip trailing slashes) before static URL dedupe; regression `does not duplicate a static quick link when fetched index repeats the path with a trailing slash`; 28 scoped HelpDocsClient tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `HelpDocsClient` treated HTTP 200 with an empty `doc-index.json` array like a healthy refresh while shipped `public/doc-index.json` carries 122 entries, so operators saw static quick links only with no amber status; surface `Documentation index response was empty` when the index query succeeds with zero rows; regression `surfaces a warning when the doc-index fetch succeeds but returns no entries`; 27 scoped HelpDocsClient tests passed.
 
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `MermaidDiagramDeterministicRepairer.Repair` rebuilt nodes without `NsgInboundRuleChips` while the render pipeline repairs before `DiagramForestLayoutSvgRenderer`, so data-flow canvases dropped inbound rule chips painted on storage and NSG owner cards; copy chips on repair; regressions `Repair_keeps_nsg_inbound_rule_chips_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`; 644 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
@@ -7517,11 +7519,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 23
-- **bugs-found:** 9
+- **hunts:** 24
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — empty successful doc-index response hid refresh failure from operators
+- **last-bug:** 2026-10-06 — trailing-slash doc-index paths duplicated static quick links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7591,6 +7593,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HelpDocsClient` — HTTP 200 with an empty documentation index (`fetchHelpDocsIndex` returns `[]` for malformed or empty payloads) left the hub on static quick links only with no refresh warning while shipped `public/doc-index.json` lists 122 topics — **hit 2026-10-06 seed hunt (seed→hit):** amber status when `isSuccess` and `data.length === 0`; regression `surfaces a warning when the doc-index fetch succeeds but returns no entries`.
 
 2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after consecutive dry hunt; proved silent empty doc-index success path; 27 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) `HelpDocsClient.mergeDocIndex` — `staticUrls` dedupe used exact URL strings, so fetched `/help/admin-diagnostics/` duplicated the static `/help/admin-diagnostics` quick link (shipped `doc-index.json` and `HELP_DOCS_STATIC_ENTRIES` use slashless operator paths) — **hit 2026-10-06 seed hunt (seed→hit):** `normalizeDocIndexUrlForDedupe` before static URL membership; regression `does not duplicate a static quick link when fetched index repeats the path with a trailing slash`.
+
+2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after empty-index warning fix; proved trailing-slash doc-index path bypassed static URL dedupe; 28 scoped `HelpDocsClient` tests passed.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 

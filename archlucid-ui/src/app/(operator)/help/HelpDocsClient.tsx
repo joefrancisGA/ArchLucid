@@ -80,6 +80,20 @@ function helpDocCategoryDomId(category: string): string {
   return `help-cat-${slugifyHelpHeading(category)}`;
 }
 
+function normalizeDocIndexUrlForDedupe(url: string): string {
+  const trimmed = url.trim();
+
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    return trimmed;
+  }
+
+  if (trimmed.length > 1 && trimmed.endsWith("/")) {
+    return trimmed.replace(/\/+$/, "");
+  }
+
+  return trimmed;
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
@@ -90,7 +104,7 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
-    staticUrls.add(e.url);
+    staticUrls.add(normalizeDocIndexUrlForDedupe(e.url));
   }
 
   const merged: DocIndexEntry[] = [...staticRows];
@@ -98,7 +112,7 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
 
-    if (seenKeys.has(k) || staticUrls.has(e.url)) {
+    if (seenKeys.has(k) || staticUrls.has(normalizeDocIndexUrlForDedupe(e.url))) {
       continue;
     }
 

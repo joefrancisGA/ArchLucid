@@ -96,6 +96,36 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate a static quick link when fetched index repeats the path with a trailing slash", async () => {
+    const data = [
+      {
+        title: "Platform health (slash variant)",
+        summary: "Same diagnostics route with a trailing slash in doc-index.",
+        category: "Operations",
+        url: "/help/admin-diagnostics/",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Admin diagnostics" });
+
+    expect(screen.queryByRole("link", { name: "Platform health (slash variant)" })).toBeNull();
+    expect(screen.queryByText("Same diagnostics route with a trailing slash in doc-index.")).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not duplicate a doc link when fetched index uses a different title for the same url", async () => {
     const data = [
       {
